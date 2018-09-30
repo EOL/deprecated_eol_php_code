@@ -259,6 +259,17 @@ class SummaryDataResourcesAPI
         $taxon = $this->add_taxon(array('page_id' => $taxon_id));
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
         
+        
+        // Array
+        // (
+        //     [Reference-569234] => Myers, P., R. Espinosa, C. S. Parr, T. Jones, G. S. Hammond, and T. A. Dewey. 2013. The Animal Diversity Web (online). Accessed at http://animaldiversity.org.
+        // )
+        $reference_ids = '';
+        if($refs = @$ret['refs']) {
+            if($reference_ids = self::create_references($refs)) $reference_ids = implode("; ", $reference_ids);
+        }
+        
+        
         // /*
         $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($ret['Selected'] as $taxon_name_id) {
@@ -270,6 +281,7 @@ class SummaryDataResourcesAPI
             $a->occurrenceID = $occurrence_id;
             $a->associationType = $ret['predicate'];
             $a->targetOccurrenceID = $related_occurrence_id;
+            $a->referenceID = $reference_ids;
             $a->associationID = Functions::generate_measurementID($a, $this->resource_id, 'association');
             $this->archive_builder->write_object_to_file($a);
         }
@@ -1071,7 +1083,10 @@ class SummaryDataResourcesAPI
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nrecs: ".count($recs)."\n";
-        // print_r($recs);
+        // print_r($recs); exit;
+        
+        
+        
         /* Jen's verbatim instruction: to get the reduced 'tree'
         For each ancestor, find all recs in which it appears (recs set 1)
         If the parent of that ancestor is the same in all the recs in rec set 1, remove the parent
@@ -1100,7 +1115,7 @@ class SummaryDataResourcesAPI
             }
         }
         // print_r($counts); print_r($children_of); //good debug
-        $final = array();
+        $final = array(); $eol_pks = array(); //$eol_pks here is for getting the refs
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
                 $anc = self::get_ancestry_via_DH($page_id);
@@ -1109,13 +1124,21 @@ class SummaryDataResourcesAPI
                         if($count >= 2) { //meaning this ancestor exists in other recs
                             if($arr = @$children_of[$id]) {
                                 $arr = array_unique($arr);
-                                if(count($arr) > 1) $final[$page_id][] = $id; //meaning child is not the same for all recs
+                                if(count($arr) > 1) {
+                                    $final[$page_id][] = $id; //meaning child is not the same for all recs
+                                    $eol_pks[$rec['eol_pk']] = ''; // probably where we get the refs, at least for this single test case it was right on
+                                }
                             }
                         }
                     }
                 }
             }
         }
+
+        /* For refs START */
+        $refs = array();
+        if($eol_pks) $refs = self::get_refs_from_metadata_csv(array_keys($eol_pks));
+        /* For refs END */
         
         echo "\n==========================================\nTips on left. Ancestors on right.\n";
         // print_r($final);
@@ -1164,7 +1187,7 @@ class SummaryDataResourcesAPI
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
         //'tree' => $final,
-        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs);
     }
     private function get_immediate_children_of_root_info($final)
     {
