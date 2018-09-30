@@ -270,7 +270,7 @@ class SummaryDataResourcesAPI
         foreach($ret['Selected'] as $taxon_name_id) {
             /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
             $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
-            $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type")."_target";
+            $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type");
             $a = new \eol_schema\Association_specific(); //take note used with '_specific'
             $a->label = self::get_assoc_label($ret, $taxon_name_id);
             $a->occurrenceID = $occurrence_id;
