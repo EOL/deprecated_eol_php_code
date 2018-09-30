@@ -67,7 +67,8 @@ class SummaryDataResourcesAPI
         
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009", "Value URI");
+        $row = array("Page ID", 'eol_pk', "Value URI", "Label");
+        
         fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
         
@@ -204,7 +205,7 @@ class SummaryDataResourcesAPI
 
             //write to file
             if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-            $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009", "Value URI");
+            $row = array("Page ID", 'eol_pk', "Value URI", "Label");
             fwrite($WRITE, implode("\t", $row). "\n");
             */
             
@@ -1183,8 +1184,7 @@ class SummaryDataResourcesAPI
         
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
-        //'tree' => $final,
-        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs);
+        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs); //'tree' => $final,
     }
     private function get_immediate_children_of_root_info($final)
     {
