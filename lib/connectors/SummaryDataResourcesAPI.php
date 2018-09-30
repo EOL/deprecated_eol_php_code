@@ -259,29 +259,26 @@ class SummaryDataResourcesAPI
         $taxon = $this->add_taxon(array('page_id' => $taxon_id));
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
         
-        
-        // Array
-        // (
-        //     [Reference-569234] => Myers, P., R. Espinosa, C. S. Parr, T. Jones, G. S. Hammond, and T. A. Dewey. 2013. The Animal Diversity Web (online). Accessed at http://animaldiversity.org.
-        // )
         $reference_ids = '';
         if($refs = @$ret['refs']) {
             if($reference_ids = self::create_references($refs)) $reference_ids = implode("; ", $reference_ids);
         }
-        
         
         // /*
         $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($ret['Selected'] as $taxon_name_id) {
             /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
             $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
-            $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type");
+            $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type")."_target";
             $a = new \eol_schema\Association_specific(); //take note used with '_specific'
             $a->label = self::get_assoc_label($ret, $taxon_name_id);
             $a->occurrenceID = $occurrence_id;
             $a->associationType = $ret['predicate'];
             $a->targetOccurrenceID = $related_occurrence_id;
             $a->referenceID = $reference_ids;
+            $a->measurementDeterminedDate = date("Y-M-d");
+            $a->source = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=".$ret['predicate']; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
+            $a->measurementMethod   = 'summary of records available in EOL';
             $a->associationID = Functions::generate_measurementID($a, $this->resource_id, 'association');
             $this->archive_builder->write_object_to_file($a);
         }
