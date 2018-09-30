@@ -47,6 +47,9 @@ class SummaryDataResourcesAPI
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
     }
+    /* IMPORTANT STEP: working OK - commented for now.
+    self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
+    */
     function start()
     {
         /* print resource files (Basal values)
@@ -1083,8 +1086,6 @@ class SummaryDataResourcesAPI
         echo "\nrecs: ".count($recs)."\n";
         // print_r($recs); exit;
         
-        
-        
         /* Jen's verbatim instruction: to get the reduced 'tree'
         For each ancestor, find all recs in which it appears (recs set 1)
         If the parent of that ancestor is the same in all the recs in rec set 1, remove the parent
@@ -1132,7 +1133,6 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-
         /* For refs START */
         $refs = array();
         if($eol_pks) $refs = self::get_refs_from_metadata_csv(array_keys($eol_pks));
@@ -1145,12 +1145,10 @@ class SummaryDataResourcesAPI
             foreach($ancestors as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
         }
         echo "\n";
-        
         /* may not need this anymore: get tips
         $tips = array_keys($final); //next step is get all tips from $final; 
         echo "\n tips: ".count($tips)." - "; print_r($tips);
         */
-
         /* from Jen: After the tree is constructed:
         - Select all immediate children of the root and label REP.
         - Label the root PRM
@@ -1210,14 +1208,12 @@ class SummaryDataResourcesAPI
         }
         return $ret;
     }
-    
     private function main_lifestage_statMeth($page_id, $predicate)
     {
         $path = self::get_txt_path_by_page_id($page_id);
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
-        echo "\nrecs: ".count($recs)."\n";
-        // print_r($recs);
+        echo "\nrecs: ".count($recs)."\n"; // print_r($recs);
         if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step23456789($recs)) {}
@@ -1304,13 +1300,6 @@ class SummaryDataResourcesAPI
     {
         $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . ".txt";
-    }
-    private function test() //basal values tests...
-    {
-        // self::utility_compare();
-        /* IMPORTANT STEP: working OK - commented for now.
-        self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
-        */
     }
     private function main_basal_values($page_id, $predicate) //for basal values
     {
@@ -1597,14 +1586,6 @@ class SummaryDataResourcesAPI
         echo "\n-end Step $step_no-\n";
         
         return $final;
-    }
-    private function utility_compare()
-    {
-        foreach(new FileIterator($this->jen_isvat) as $line_number => $line) {
-            $arr[] = explode("\t", $line);
-        }
-        asort($arr); foreach($arr as $a) echo "\n".$a[0]."\t".$a[1];
-        exit("\njen_isvat.txt\n");
     }
     private function merge_nodes($info, $ISVAT)
     {
