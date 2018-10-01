@@ -108,17 +108,16 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents: taxon summary ============================================================================================================
-        self::parse_DH();
+        // /* METHOD: parents: taxon summary ============================================================================================================
+        self::parse_DH(); self::initialize();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents_taxon_summary($page_id, $predicate);
-        print_r($ret);
+        echo "\nFinal result: "; print_r($ret);
         exit("\n-- end method: parents: taxon summary --\n");
-        */
+        // */
 
-        // /* METHOD: taxon summary ============================================================================================================ TODO - waiting for Jen's feedback on spreadsheet
-        self::parse_DH();
-        self::initialize();
+        /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
+        self::parse_DH(); self::initialize();
 
         // orig write block - write to DwCA
         $this->resource_id = 'taxon_summary';
@@ -127,15 +126,16 @@ class SummaryDataResourcesAPI
         
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
-        // $page_id = 7666; $page_id = 7662;
+        // $page_id = 7666;
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         // $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        
-        $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+
+        $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
+        // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         
         foreach($input as $i) {
@@ -150,7 +150,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
 
         /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 09 28 basal values parent]}  ============================================================================================================
