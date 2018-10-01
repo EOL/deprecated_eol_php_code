@@ -134,8 +134,9 @@ class SummaryDataResourcesAPI
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        // $page_id = 328609; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
+        
+        $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -1108,9 +1109,11 @@ class SummaryDataResourcesAPI
                 $k = 0;
                 foreach($anc as $id) {
                     @$counts[$id]++;
+                    @$orig_counts_with_left[$id]++;
                     if($k > 0) $children_of[$id][] = $anc[$k-1];
                     $k++;
                 }
+                @$orig_counts_with_left[$page_id]++;
             }
         }
         // print_r($counts); print_r($children_of); //good debug
@@ -1182,6 +1185,13 @@ class SummaryDataResourcesAPI
         
         echo "\n root: "; print_r($root_ancestor);
         echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
+        /* START NEW: Per Jen: Please make the PRM record, not the root, but the REP record that appears in the most hierarchies in the original list. 
+        I think we might end up doing that with all four applicable methods (basal values and taxon summary, regular and parents). */
+        echo "\nCounts of 'selected' from the original records: ";
+        foreach($immediate_children_of_root as $id) {
+            echo "\n [$id] => ".$orig_counts_with_left[$id];
+        }
+        
         return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs); //'tree' => $final,
     }
     private function get_immediate_children_of_root_info($final)
@@ -1440,7 +1450,13 @@ class SummaryDataResourcesAPI
     private function two_new_steps($ISVAT, $roots, $tips)
     {
         echo "\nroots: ".count($roots); print_r($roots);
-        /* DELETE ALONG WITH CHILDREN
+        /* Important definition of terms by Jen:
+        - rows with just one node in them are only needed for orphans (nodes that don't appear anywhere else). These nodes are both tips and roots.
+        - tips are nodes that never appear on the left of a two node row
+        - roots are nodes that never appear on the right of a two node row
+        - nodes that appear both on the left of a two node row and on the right of a two node row are neither roots nor tips
+        
+            DELETE ALONG WITH CHILDREN
             look for these nodes in the list of roots
             are there any other roots aside from the nodes in this list?
                 if not, do nothing
