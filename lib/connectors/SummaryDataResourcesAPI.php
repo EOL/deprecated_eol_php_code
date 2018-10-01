@@ -153,13 +153,13 @@ class SummaryDataResourcesAPI
         */
 
 
-        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 09 28 basal values parent]}  ============================================================================================================
+        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        */
+        // */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -629,7 +629,7 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
         print_r($original_records);
 
-        echo "\n==========================================================\nDeduplicated:";
+        echo "\n==========================================================\nDeduplicated: ".count($page_ids);
         print_r($page_ids);
     }
     //############################################################################################ start method = 'parents taxon summary'
@@ -1363,14 +1363,14 @@ class SummaryDataResourcesAPI
         if(count($tips) <= 5 ) $selected = $tips;
         else { // > 5
             
-            // /* Two new steps from Jen & Katja
+            /* Two new steps from Jen & Katja                                               UNCOMMENT IN REAL OPERATION...
             $ret_from_2new_steps = self::two_new_steps($ISVAT, $roots, $tips);
             $roots = $ret_from_2new_steps['roots'];
             $tips = $ret_from_2new_steps['tips'];
             $ISVAT = $ret_from_2new_steps['ISVAT'];
             echo "\nnew tips: ".count($tips); foreach($tips as $tip) echo "\n".$tip;
             echo "\n";
-            // */
+            */
             
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
             if(count($step_1) <= 4) $selected = $step_1; //select set 1
