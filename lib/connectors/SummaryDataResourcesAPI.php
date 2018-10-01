@@ -52,7 +52,7 @@ class SummaryDataResourcesAPI
     */
     function start()
     {
-        /* print resource files (Basal values)
+        /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values'];
@@ -153,13 +153,13 @@ class SummaryDataResourcesAPI
         */
 
 
-        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -612,9 +612,12 @@ class SummaryDataResourcesAPI
         }
         /* 3. get all selected values */
         $page_ids = array();
+        $recs = array();
         foreach($records as $rec) {
             if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
+            if($val = @$rec['recs']) $recs = array_merge($recs, $val);
         }
+        // print_r($recs); exit;
         $original_records = $page_ids;
         asort($original_records); $original_records = array_values($original_records); //reindexes key
         
@@ -626,11 +629,45 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
         echo "\nChildren used for computation: "; print_r($children);
 
-        echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
-        print_r($original_records);
-
+        echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw: ".count($original_records); // print_r($original_records);
+        foreach($original_records as $id) echo "\n$id";
+        
         echo "\n==========================================================\nDeduplicated: ".count($page_ids);
         print_r($page_ids);
+
+        
+        // $uris = self::get_valueUris_from_recs($recs);
+        // self::set_ancestor_ranking_from_set_of_uris($uris);
+        // $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
+        // $ISVAT = self::sort_ISVAT($ISVAT);
+        // $info = self::add_new_nodes_for_NotRootParents($ISVAT);
+        // $new_nodes = $info['new_nodes'];    
+        // echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        // 
+        // $info['new_nodes'] = self::sort_ISVAT($new_nodes);
+        // $new_nodes = $info['new_nodes'];
+        // $roots     = $info['roots'];
+        // /* good debug
+        // echo "\n\nnew nodes 1:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        // echo "\n\nRoots 1: ".count($roots)."\n"; print_r($roots);
+        // */
+        // 
+        // // /* merge
+        // $info = self::merge_nodes($info, $ISVAT);
+        // $ISVAT     = $info['new_isvat'];
+        // $roots     = $info['new_roots'];
+        // $new_nodes = array();
+        // // */
+        // 
+        // // /*
+        // //for jen: 
+        // echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
+        // echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
+        // foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
+        // // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
+        // echo "\n\nRoots: ".count($roots)."\n"; print_r($roots);
+
+
     }
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
@@ -1425,7 +1462,7 @@ class SummaryDataResourcesAPI
         elseif(count($selected) > 1)  $label = "REP";
         echo "\n----- label as: [$label]\n";
         $selected = array_values($selected); //reindex array
-        return array('Selected' => $selected, 'label' => $label);
+        return array('Selected' => $selected, 'label' => $label, 'recs' => $recs);
         /*
         if tips <= 5 SELECT ALL TIPS 
         else
