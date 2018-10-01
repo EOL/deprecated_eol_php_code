@@ -108,13 +108,13 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: parents: taxon summary ============================================================================================================
+        /* METHOD: parents: taxon summary ============================================================================================================
         self::parse_DH(); self::initialize();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
         $ret = self::main_parents_taxon_summary($page_id, $predicate);
         echo "\nFinal result: "; print_r($ret);
         exit("\n-- end method: parents: taxon summary --\n");
-        // */
+        */
 
         /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
@@ -1191,8 +1191,9 @@ class SummaryDataResourcesAPI
         foreach($immediate_children_of_root as $id) {
             echo "\n [$id] => ".$orig_counts_with_left[$id];
         }
-        
-        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs); //'tree' => $final,
+
+        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs, 
+                     'orig_counts_with_left' => $orig_counts_with_left); //'tree' => $final,
     }
     private function get_immediate_children_of_root_info($final)
     {
