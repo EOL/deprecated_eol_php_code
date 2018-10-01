@@ -1184,10 +1184,10 @@ class SummaryDataResourcesAPI
         $immediate_children_of_root = array_keys($immediate_children_of_root);
         
         echo "\n root: "; print_r($root_ancestor);
-        echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
+        // echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
         /* START NEW: Per Jen: Please make the PRM record, not the root, but the REP record that appears in the most hierarchies in the original list. 
         I think we might end up doing that with all four applicable methods (basal values and taxon summary, regular and parents). */
-        echo "\nCounts of 'selected' from the original records: ";
+        echo "\nImmediate children of root => no. of records it existed FROM THE ORIGINAL RECORDS: ";
         foreach($immediate_children_of_root as $id) {
             echo "\n [$id] => ".$orig_counts_with_left[$id];
         }
