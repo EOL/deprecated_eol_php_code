@@ -635,39 +635,23 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nDeduplicated: ".count($page_ids);
         print_r($page_ids);
 
+        $uris = $page_ids;
+        self::set_ancestor_ranking_from_set_of_uris($uris);
+        $ISVAT = self::get_initial_shared_values_ancestry_tree_v2($uris); //initial "shared values ancestry tree" ---> parent left, term right
+        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $ISVAT))
+        {
+            print_r($val); exit("\nelix\n");
+        }
         
-        // $uris = self::get_valueUris_from_recs($recs);
-        // self::set_ancestor_ranking_from_set_of_uris($uris);
-        // $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
-        // $ISVAT = self::sort_ISVAT($ISVAT);
-        // $info = self::add_new_nodes_for_NotRootParents($ISVAT);
-        // $new_nodes = $info['new_nodes'];    
-        // echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        // 
-        // $info['new_nodes'] = self::sort_ISVAT($new_nodes);
-        // $new_nodes = $info['new_nodes'];
-        // $roots     = $info['roots'];
-        // /* good debug
-        // echo "\n\nnew nodes 1:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
-        // echo "\n\nRoots 1: ".count($roots)."\n"; print_r($roots);
-        // */
-        // 
-        // // /* merge
-        // $info = self::merge_nodes($info, $ISVAT);
-        // $ISVAT     = $info['new_isvat'];
-        // $roots     = $info['new_roots'];
-        // $new_nodes = array();
-        // // */
-        // 
-        // // /*
-        // //for jen: 
-        // echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        // echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
-        // foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
-        // // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
-        // echo "\n\nRoots: ".count($roots)."\n"; print_r($roots);
-
-
+    }
+    private function get_initial_shared_values_ancestry_tree_v2($uris)
+    {
+        $final = array();
+        foreach($uris as $term) {
+            $parent = self::get_parent_of_term($term);
+            $final[] = array($parent, $term);
+        }
+        return $final;
     }
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
@@ -1349,18 +1333,25 @@ class SummaryDataResourcesAPI
         $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . ".txt";
     }
-    private function main_basal_values($page_id, $predicate) //for basal values
+    private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false) //for basal values
     {
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
-        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
-        if(!$recs) {
-            echo "\nNo records for [$page_id] [$predicate].\n";
-            return false;
+
+        if($type == 'basal values') {
+            echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
+            $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
+            if(!$recs) {
+                echo "\nNo records for [$page_id] [$predicate].\n";
+                return false;
+            }
+            $uris = self::get_valueUris_from_recs($recs);
+            echo "\n uris: ".count($uris); print_r($uris);
+            self::set_ancestor_ranking_from_set_of_uris($uris);
+            $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
         }
-        $uris = self::get_valueUris_from_recs($recs);
-        self::set_ancestor_ranking_from_set_of_uris($uris);
-        $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
+        else { //for parent basal values
+            $ISVAT = $param_isvat;
+        }
         $ISVAT = self::sort_ISVAT($ISVAT);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];    
@@ -1388,7 +1379,6 @@ class SummaryDataResourcesAPI
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
         // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
         echo "\n\nRoots: ".count($roots)."\n"; print_r($roots);
-        // exit("\n");
         // */
         
         //for step 1: So, first you must identify the tips- any values that don't appear in the left column. The parents, for step one, will be the values to the left of the tip values.
@@ -1400,14 +1390,14 @@ class SummaryDataResourcesAPI
         if(count($tips) <= 5 ) $selected = $tips;
         else { // > 5
             
-            /* Two new steps from Jen & Katja                                               UNCOMMENT IN REAL OPERATION...
+            // /* Two new steps from Jen & Katja                                               UNCOMMENT IN REAL OPERATION...
             $ret_from_2new_steps = self::two_new_steps($ISVAT, $roots, $tips);
             $roots = $ret_from_2new_steps['roots'];
             $tips = $ret_from_2new_steps['tips'];
             $ISVAT = $ret_from_2new_steps['ISVAT'];
             echo "\nnew tips: ".count($tips); foreach($tips as $tip) echo "\n".$tip;
             echo "\n";
-            */
+            // */
             
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
             if(count($step_1) <= 4) $selected = $step_1; //select set 1
@@ -1544,7 +1534,7 @@ class SummaryDataResourcesAPI
             $all_left_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'left');
             $all_right_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'right');
             //2. decide which can be root and which can be removed.
-            $orphans = array(); $add_2_roots = array(); //initialization
+            $orphans = array(); $add_2_roots = array(); $neither_root_nor_tip = array(); //initialization
             foreach($possible_root_or_deleted as $node) {
                 if(!in_array($node, $all_left_of_tree) && !in_array($node, $all_right_of_tree)) {
                     $orphans[] = $node;
