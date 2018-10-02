@@ -153,13 +153,13 @@ class SummaryDataResourcesAPI
         */
 
 
-        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        */
+        // */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -638,7 +638,7 @@ class SummaryDataResourcesAPI
         $uris = $page_ids;
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $ISVAT = self::get_initial_shared_values_ancestry_tree_v2($uris); //initial "shared values ancestry tree" ---> parent left, term right
-        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $ISVAT))
+        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $ISVAT, $uris))
         {
             print_r($val); exit("\nelix\n");
         }
@@ -1333,7 +1333,7 @@ class SummaryDataResourcesAPI
         $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . ".txt";
     }
-    private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false) //for basal values
+    private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes) //for basal values
     {
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
 
@@ -1350,6 +1350,7 @@ class SummaryDataResourcesAPI
             $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
         }
         else { //for parent basal values
+            $this->original_nodes = $original_nodes;
             $ISVAT = $param_isvat;
         }
         $ISVAT = self::sort_ISVAT($ISVAT);
@@ -1951,9 +1952,7 @@ class SummaryDataResourcesAPI
         $this->ancestor_ranking = $final;
 
         arsort($final_preferred);
-        // print_r($final_preferred);
         $final_preferred = array_keys($final_preferred);
-        // print_r($final_preferred);
         $this->ancestor_ranking_preferred = $final_preferred;
     }
     private function get_rank_most_parent($parents, $preferred_terms = array())
@@ -2042,6 +2041,10 @@ class SummaryDataResourcesAPI
                 // }
             }
         }
+        /*
+        $this->preferred_names_of[$term]    function generate_preferred_child_parent_list
+        $this->parents_of[$term]            function generate_terms_values_child_parent_list
+        */
     }
     private function generate_preferred_child_parent_list()
     {
