@@ -314,7 +314,40 @@ class EnvironmentsEOLDataConnector
         
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
         if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
-        self::add_string_types($rec);
+        
+        if($rec = self::adjustments($rec)) self::add_string_types($rec);
+    }
+    private function adjustments($rec) //https://eol-jira.bibalex.org/browse/DATA-1768
+    {   /*this is for https://opendata.eol.org/dataset/environments-eol-project/resource/f5cfda47-d73f-4535-b729-79c8523a5300
+        The partner will someday be able to resume work at their end, at which point we'll pass them this mapping, but for now, we need to clean some things up. Three methods so far:
+
+        current term -> replace with
+        http://purl.obolibrary.org/obo/ENVO_00000264 -> http://purl.obolibrary.org/obo/ENVO_01000342
+        http://purl.obolibrary.org/obo/ENVO_00000550 -> http://purl.obolibrary.org/obo/ENVO_01000342
+
+        match two:
+        in records where
+        measurementValue=http://purl.obolibrary.org/obo/ENVO_00000029 OR http://purl.obolibrary.org/obo/ENVO_00000104
+        AND
+        measurementRemarks=source text: "ravine"
+        replace the measurementValue with http://purl.obolibrary.org/obo/ENVO_00000100
+
+        finally, any other records where measurementValue=http://purl.obolibrary.org/obo/ENVO_00000104
+        delete record
+
+        More deleteable records:
+        measurementValue=http://purl.obolibrary.org/obo/ENVO_00002033
+        */
+        //1st adjustment
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000264") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000342";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000550") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000342";
+        //2nd adjustment
+        if(in_array($rec['measurementValue'], array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) &&
+           $rec['measurementRemarks'] == 'source text: "ravine"')                      $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000100";
+        //3rd adjustment
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000104") return false;
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00002033") return false;
+        return $rec;
     }
     private function format_uri($raw_envo)
     {
