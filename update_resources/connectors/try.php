@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* This can be a generic connector for CSV DwCA resources - without meta.xml. */
+/* This can be a generic connector for CSV DwCA resources - without meta.xml. (Another similar resource is 430.php) */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/TryDatabaseAPI');

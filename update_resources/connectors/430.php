@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* This can be a generic connector for CSV DwCA resources.
+/* This can be a generic connector for CSV DwCA resources. (Another similar resource is try.php)
 
 Jenkins execution time: 2 days 19 hours
 

@@ -1937,7 +1937,20 @@ class Functions
             exit("\n\n");
         }
     }
-
+    public static function conv_to_utf8($string)
+    {
+        $encoding = mb_detect_encoding($string);
+        $new = iconv($encoding, 'UTF-8//IGNORE', $string);
+        /*
+        if($encoding) {
+            echo "\n has encoding [$encoding]"; echo "\n old value: [$string]"; echo "\n new value: [$new]";
+        }
+        else {
+            echo "\n NO encoding";  echo "\n old value: [$string]"; echo "\n new value: [$new]";
+        }
+        */
+        return $new;
+    }
     public static function language_to_iso_code()
     {
         $iso_639_2_codes = array();

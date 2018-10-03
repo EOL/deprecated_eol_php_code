@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [430] 
+/* connector: [try.php] 
 This can be a generic connector for CSV DwCA resources.
 */
 class TryDatabaseAPI
@@ -52,9 +52,10 @@ class TryDatabaseAPI
         echo "\n".self::format_ref_ids($str)."\n";
         exit("\n-end tests-\n");
         */
+        
         if(!($info = self::start())) return;    //uncomment in real operation
         /* only during development so to skip the zip-extracting portion.
-        $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_55451/",
+        $info = Array("temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_37276/",
                       "tables"   => Array(
                             "process_reference" => "TRY reference map.csv", //the one needs massaging...
                             "measurements"      => "TRY_measurements.csv",
@@ -74,7 +75,7 @@ class TryDatabaseAPI
         }
         $this->archive_builder->finalize(TRUE);
         // remove temp dir
-        recursive_rmdir($temp_dir);
+        recursive_rmdir($temp_dir);  //un-comment in real operation
         echo ("\n temporary directory removed: " . $temp_dir);
         if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
@@ -105,7 +106,7 @@ class TryDatabaseAPI
             // $row = self::clean_html($row); may not need this anymore...
             // print_r($row);
             
-            $i++; if(($i % 20000) == 0) echo "\n $i ";
+            $i++; if(($i % 20000) == 0) echo "\n $i ($class)";
             // if($i > 2000) break; //debug only - process a subset first 2k
             
             if($i == 1) {
@@ -124,11 +125,23 @@ class TryDatabaseAPI
                 $k = 0;
                 $rec = array();
                 foreach($fields as $field) {
-                    $rec[$field] = $values[$k];
+                    // $rec[$field] = $values[$k]; old ways
+                    $rec[$field] = Functions::conv_to_utf8($values[$k]);
                     $k++;
                 }
-                // print_r($fields); print_r($rec); exit;
                 $rec = array_map('trim', $rec);
+                // print_r($fields); print_r($rec);
+
+                // /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1766?focusedCommentId=62821&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62821
+                if($class == "measurements") {
+                    /* oooops! This is unrelated except that it's in the same resource. As long as you have the TRY file in front of you, I gave you a typo in the source file. 
+                    You'll find a bunch of records where the measurementType and the measurementUniit are both http://purl.obolibrary.org/obo/UO_0000082
+                    Please change the measurementType in those records to
+                    http://top-thesaurus.org/annotationInfo?viz=1&&trait=Leaflet_lamina_area */
+                    if($rec['measurementType'] == "http://purl.obolibrary.org/obo/UO_0000082" &&
+                       $rec['measurementUnit'] == "http://purl.obolibrary.org/obo/UO_0000082") $rec['measurementType'] = "http://top-thesaurus.org/annotationInfo?viz=1&&trait=Leaflet_lamina_area";
+                }
+                // */
                 
                 //start process_reference massaging -----------------------------------------
                 if($class == "process_reference") {
@@ -185,7 +198,7 @@ class TryDatabaseAPI
                         else $rec['referenceID'] = implode("; ", $val);
                         
                         foreach($val as $ref_id_2write) $this->ref_ids_2write[$ref_id_2write] = ''; //select only those refs to write to archive
-                        echo "\nref hit in measurements [".$rec['referenceID']."]\n";
+                        // echo "\nref hit in measurements [".$rec['referenceID']."]\n";
                     }
                     //end
                 }
