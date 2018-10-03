@@ -29,15 +29,13 @@ class EnvironmentsEOLDataConnector
         $this->debug = array();
     }
     /*
-    Array
-    (
+    Array(
         [0] => EOL:194
         [1] => 25066375;http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat
         [2] => scrub forest
         [3] => ENVO:00000300
     )
-    Array
-    (
+    Array(
         [0] => EOL:21586
         [1] => 31568075;http://www.eol.org/voc/table_of_contents#Wikipedia;http://en.wikipedia.org/w/index.php?title=Beenakia_dacostae&oldid=632149823
         [2] => forests
@@ -82,7 +80,6 @@ class EnvironmentsEOLDataConnector
         */
         if($this->debug) print_r($this->debug);
     }
-
     private function csv_to_array($tsv_file)
     {
         $excluded_uris = self::excluded_measurement_values(); //from here: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=62373&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62373
@@ -127,13 +124,11 @@ class EnvironmentsEOLDataConnector
             // if($i >= 10) break; //debug
         } // end foreach
     }
-
     private function prepare_taxon($rec)
     {
         $taxon = self::get_taxon_info($rec);
         return $taxon;
     }
-
     private function get_taxon_info($rec)
     {
         $taxon_id = $rec["taxon_id"];
@@ -190,16 +185,14 @@ class EnvironmentsEOLDataConnector
         if(!$tcs) return false;
         $tc_rec = false;
         foreach($tcs as $tc) {
-            if($tc['scientificName'] == $sciname) // 1st option
-            {
+            if($tc['scientificName'] == $sciname) { // 1st option
                 $tc_rec = $tc;
                 break;
             }
         }
         if(!$tc_rec) {
             foreach($tcs as $tc) {
-                if($tc['scientificName'] == Functions::canonical_form($sciname)) // 2nd option
-                {
+                if($tc['scientificName'] == Functions::canonical_form($sciname)) { // 2nd option
                     $tc_rec = $tc;
                     break;
                 }
@@ -207,8 +200,7 @@ class EnvironmentsEOLDataConnector
         }
         if(!$tc_rec) {
             foreach($tcs as $tc) {
-                if(Functions::canonical_form($tc['scientificName']) == Functions::canonical_form($sciname)) // 3rd option
-                {
+                if(Functions::canonical_form($tc['scientificName']) == Functions::canonical_form($sciname)) { // 3rd option
                     $tc_rec = $tc;
                     break;
                 }
@@ -216,7 +208,6 @@ class EnvironmentsEOLDataConnector
         }
         return $tc_rec;
     }
-    
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -235,7 +226,6 @@ class EnvironmentsEOLDataConnector
             $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
-
     private function create_data($record, $line)
     {
         /*
@@ -246,8 +236,7 @@ class EnvironmentsEOLDataConnector
         [envo] => ENVO:00002011
         
         New:
-        Array
-        (
+        Array(
             [taxon_id] => EOL:7
             [do_id_subchapter] => 25937933;http://www.eol.org/voc/table_of_contents#Wikipedia
             [text] => terrestrial
@@ -268,7 +257,6 @@ class EnvironmentsEOLDataConnector
         $temp = explode(";", $line['do_id_subchapter']);
         $parts = explode("#", $temp[1]);
         $subject = str_replace(" ", "_", strtolower(trim($parts[1])));
-        
         
         if($subject == 'taxonbiology')           $subject = 'brief_summary';
         elseif($subject == 'biology')            $subject = 'comprehensive_description';
@@ -314,7 +302,6 @@ class EnvironmentsEOLDataConnector
         
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
         if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
-        
         if($rec = self::adjustments($rec)) self::add_string_types($rec);
     }
     private function adjustments($rec) //https://eol-jira.bibalex.org/browse/DATA-1768
