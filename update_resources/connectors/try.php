@@ -18,7 +18,7 @@ $resource_id = "try_dbase";
 // $resource_id = 1;
 $func = new TryDatabaseAPI($resource_id);
 $func->convert_archive();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means to delete the working folder from /resources/
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
