@@ -12,7 +12,8 @@ class TryDatabaseAPI
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
-        $this->dwca_file = "http://localhost/cp/TRY/tryv.aug15.zip";
+        // $this->dwca_file = "http://localhost/cp/TRY/tryv.aug15.zip";
+        $this->dwca_file = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/TRY/tryv.aug15.zip";
         $this->debug = array();
     }
     private function start()
