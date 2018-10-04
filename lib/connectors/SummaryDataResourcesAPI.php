@@ -1535,9 +1535,7 @@ class SummaryDataResourcesAPI
         */
         echo "\n--------------------------------------------DELETE ALONG WITH CHILDREN step: -START-\n";
         $delete_list_1 = array('http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_01000155', 'http://purl.obolibrary.org/obo/ENVO_00000002', 'http://purl.obolibrary.org/obo/ENVO_00000077');
-        $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000358";
-        $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000144";
-        
+        $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000358"; $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000144";
         echo "\nDelete List: "; print_r($delete_list_1);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
             // exit("\ntest sample here...\n");
@@ -1550,10 +1548,12 @@ class SummaryDataResourcesAPI
             }
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
-            echo "\n\nnew roots step 1: ".count($roots)."\n"; print_r($roots);
-            $roots = self::remove_undesirable_roots($roots);
-            echo "\n\nnew roots step 1: ".count($roots)."\n"; print_r($roots);
-            
+            echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
+            $cleaned = self::remove_undesirable_roots($roots);
+            if($cleaned != $roots) {
+                $roots = $cleaned;
+                echo "\n\nnew roots (removed non-root): ".count($roots)."\n"; print_r($roots);
+            }
         }
         else {
             echo "\nAll root nodes are not on the list. Keeping all root nodes and all descendants. Do nothing.\n";
@@ -1608,7 +1608,6 @@ class SummaryDataResourcesAPI
             echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
             echo "-----------Diagnostics -END- -----------\n";
             
-            
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
             if($add_2_roots) {
@@ -1618,7 +1617,6 @@ class SummaryDataResourcesAPI
             else echo "\nNo additional roots.\n";
             if($roots_inside_the_list) echo "\nRoots got reduced";
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
-            
         }
         else {
             echo "\nNo roots inside the list. Do nothing.\n";
