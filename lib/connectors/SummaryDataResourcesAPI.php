@@ -224,8 +224,7 @@ class SummaryDataResourcesAPI
                 print_r($ret);
                 
                 /*debug only
-                foreach($ret['Selected'] as $term)
-                {
+                foreach($ret['Selected'] as $term) {
                     echo "\n[$term]: ";
                     if($val = @$this->parents_of[$term]) print_r($val);
                     else echo " -- no parent";
@@ -658,16 +657,11 @@ class SummaryDataResourcesAPI
         if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $recs))
         {
             print_r($val);
-            
-            foreach($val['Selected'] as $term)
-            {
+            foreach($val['Selected'] as $term) { //debug only
                 echo "\n[$term]: ";
                 if($val = @$this->parents_of[$term]) print_r($val);
                 else echo " -- no parent";
             }
-            
-            
-            
             exit("\nelix\n");
         }
         
@@ -1602,7 +1596,7 @@ class SummaryDataResourcesAPI
             $add_2_roots = array_keys($add_2_roots);
             echo "*Will become orphan/single rows: "; print_r($orphans);
             echo "*Will be added to roots: "; print_r($add_2_roots);
-            $add_2_roots = self::remove_undesirable_roots($add_2_roots);
+            // $add_2_roots = self::remove_undesirable_roots($add_2_roots);
             echo "*Will be added to roots (removed non-root): "; print_r($add_2_roots);
             
             echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
@@ -2017,13 +2011,6 @@ class SummaryDataResourcesAPI
                 // else exit("\n\nHmmm no preferred and no immediate parent for term: [$term]\n\n"); //seems acceptable
             }
         }//end main
-        /*
-        foreach($uris as $term) {
-            if($parents = @$this->parents_of[$term]) {
-                foreach($parents as $parent) @$final[$parent]++;
-            }
-        }//end main
-        */
         arsort($final);
         $final = array_keys($final);
         $this->ancestor_ranking = $final;
@@ -2081,12 +2068,6 @@ class SummaryDataResourcesAPI
     private function get_parent_of_term($term)
     {
         echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term]:\n";
-        /*
-        if($parents = @$this->parents_of[$term]) {
-            echo "\nParents:\n"; print_r($parents);
-        }
-        else echo "\nNO PARENT\n";
-        */
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
             print_r($preferred_terms);
