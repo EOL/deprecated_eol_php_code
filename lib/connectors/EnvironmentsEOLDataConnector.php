@@ -332,8 +332,10 @@ class EnvironmentsEOLDataConnector
         if(in_array($rec['measurementValue'], array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) &&
            $rec['measurementRemarks'] == 'source text: "ravine"')                      $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000100";
         //3rd adjustment
-        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000104") return false;
-        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00002033") return false;
+        $to_deleted = array("http://purl.obolibrary.org/obo/ENVO_00000104", "http://purl.obolibrary.org/obo/ENVO_00002033", "http://purl.obolibrary.org/obo/ENVO_00000304", 
+                            "http://purl.obolibrary.org/obo/ENVO_00000486", "http://purl.obolibrary.org/obo/ENVO_00002000", "http://purl.obolibrary.org/obo/ENVO_00000086", 
+                            "http://purl.obolibrary.org/obo/ENVO_00000220");
+        if(in_array($rec['measurementValue'], $to_deleted)) return false;
         return $rec;
     }
     private function format_uri($raw_envo)
