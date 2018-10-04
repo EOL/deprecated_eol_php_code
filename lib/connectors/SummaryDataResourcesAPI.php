@@ -25,7 +25,9 @@ class SummaryDataResourcesAPI
 
         $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated'); //used simple words instead of: array('preferred_term_URI', 'deprecated_term_URI');
 
-        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv";
+        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv"; //old was habitat-parent-child.csv
+        
+        
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
@@ -42,7 +44,7 @@ class SummaryDataResourcesAPI
         else                            $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
         */
         if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
-        else                            $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
+        else                            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
         
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
@@ -635,6 +637,7 @@ class SummaryDataResourcesAPI
         echo "\n==========================================================\nDeduplicated: ".count($page_ids);
         print_r($page_ids);
 
+        /*
         $uris = $page_ids;
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $ISVAT = self::get_initial_shared_values_ancestry_tree_v2($uris); //initial "shared values ancestry tree" ---> parent left, term right
@@ -642,6 +645,13 @@ class SummaryDataResourcesAPI
         {
             print_r($val); exit("\nelix\n");
         }
+        */
+        
+        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $recs))
+        {
+            print_r($val); exit("\nelix\n");
+        }
+        
         
     }
     private function get_initial_shared_values_ancestry_tree_v2($uris)
@@ -1333,7 +1343,8 @@ class SummaryDataResourcesAPI
         $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . ".txt";
     }
-    private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes) //for basal values
+    // private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes = array()) //for basal values
+    private function main_basal_values($page_id, $predicate, $type = 'basal values', $recs = array()) //for basal values
     {
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
 
@@ -1350,8 +1361,18 @@ class SummaryDataResourcesAPI
             $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
         }
         else { //for parent basal values
+            /*
             $this->original_nodes = $original_nodes;
             $ISVAT = $param_isvat;
+            */
+
+            $this->original_nodes = $this->original_nodes_parent;
+            
+            $uris = self::get_valueUris_from_recs($recs);
+            echo "\n uris: ".count($uris); print_r($uris);
+            self::set_ancestor_ranking_from_set_of_uris($uris);
+            $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
+            
         }
         $ISVAT = self::sort_ISVAT($ISVAT);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
@@ -1453,7 +1474,10 @@ class SummaryDataResourcesAPI
         elseif(count($selected) > 1)  $label = "REP";
         echo "\n----- label as: [$label]\n";
         $selected = array_values($selected); //reindex array
-        return array('Selected' => $selected, 'label' => $label, 'recs' => $recs);
+        
+        $ret = array('Selected' => $selected, 'label' => $label);
+        if($type == 'basal values') $ret['recs'] = $recs;
+        return $ret;
         /*
         if tips <= 5 SELECT ALL TIPS 
         else
@@ -1840,6 +1864,8 @@ class SummaryDataResourcesAPI
                     else $recs[] = $rec;
                 }
                 $this->original_nodes[$rec['value_uri']] = '';
+                $this->original_nodes_parent[$rec['value_uri']] = '';
+                
             }
         }
         return $recs;
