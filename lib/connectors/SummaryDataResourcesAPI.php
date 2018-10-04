@@ -22,13 +22,15 @@ class SummaryDataResourcesAPI
         
         $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
         $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2-3.csv";
-
+        $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-sept-27.csv";
         $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated'); //used simple words instead of: array('preferred_term_URI', 'deprecated_term_URI');
 
-        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv"; //old was habitat-parent-child.csv
-        
+        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv"; 
+        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv"; 
+        $this->file['parent child']['path_habitat'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/c5ff5c62-a2ef-44be-9f59-88cd99bc8af2/download/habitat-parent-child-6-1.csv";
         
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
+        $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
         
         $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
@@ -220,6 +222,16 @@ class SummaryDataResourcesAPI
             if($ret = self::main_basal_values($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 print_r($ret);
+                
+                /*debug only
+                foreach($ret['Selected'] as $term)
+                {
+                    echo "\n[$term]: ";
+                    if($val = @$this->parents_of[$term]) print_r($val);
+                    else echo " -- no parent";
+                }
+                */
+                
                 self::write_resource_file_BasalValues($ret, $WRITE);
             }
             
@@ -645,7 +657,18 @@ class SummaryDataResourcesAPI
         
         if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $recs))
         {
-            print_r($val); exit("\nelix\n");
+            print_r($val['Selected']);
+            
+            foreach($val['Selected'] as $term)
+            {
+                echo "\n[$term]: ";
+                if($val = @$this->parents_of[$term]) print_r($val);
+                else echo " -- no parent";
+            }
+            
+            
+            
+            exit("\nelix\n");
         }
         
         
@@ -1344,6 +1367,7 @@ class SummaryDataResourcesAPI
     {
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
         if($type == 'basal values') {
+            $this->parent_basal_values_YesNo = false;
             echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
             $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
             if(!$recs) {
@@ -1352,6 +1376,8 @@ class SummaryDataResourcesAPI
             }
         }
         elseif($type == 'parent basal values' && $recs) { //for parent basal values
+            $this->parent_basal_values_YesNo = true;
+            
             /* version 1 - didn't use
             $this->original_nodes = $original_nodes;
             $ISVAT = $param_isvat;
@@ -1507,6 +1533,9 @@ class SummaryDataResourcesAPI
         */
         echo "\n--------------------------------------------DELETE ALONG WITH CHILDREN step: -START-\n";
         $delete_list_1 = array('http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_01000155', 'http://purl.obolibrary.org/obo/ENVO_00000002', 'http://purl.obolibrary.org/obo/ENVO_00000077');
+        $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000358";
+        $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000144";
+        
         echo "\nDelete List: "; print_r($delete_list_1);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
             // exit("\ntest sample here...\n");
@@ -1534,6 +1563,7 @@ class SummaryDataResourcesAPI
         */
         echo "\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: -START-\n";
         $delete_list_2 = array('http://purl.obolibrary.org/obo/ENVO_01001305', 'http://purl.obolibrary.org/obo/ENVO_00002030', 'http://purl.obolibrary.org/obo/ENVO_01000687');
+        $delete_list_2[] = "http://purl.obolibrary.org/obo/ENVO_00001995";
         echo "\nDelete List: "; print_r($delete_list_2);
         echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
@@ -1645,10 +1675,20 @@ class SummaryDataResourcesAPI
         
         return $final;
     }
+    private function remove_undesirable_roots($roots)
+    {
+        $temp = array();
+        foreach($roots as $root) {
+            if(@$this->parents_of[$root]) {}
+            else $temp[$root] = '';
+        }
+        return array_keys($temp);
+    }
     private function merge_nodes($info, $ISVAT)
     {
         $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
+        $roots     = self::remove_undesirable_roots($roots); //new step to remove un-desirable roots
         
         $new_isvat = array_merge($ISVAT, $new_nodes);
         $new_isvat = self::sort_ISVAT($new_isvat);
@@ -1656,7 +1696,17 @@ class SummaryDataResourcesAPI
         
         $new_roots = $roots;
         foreach($new_isvat as $a) {
-            if(!$a[0]) $new_roots[] = $a[1];
+            if(!$a[0]) {
+                /* orig
+                $new_roots[] = $a[1];
+                */
+                // /* new: to catch those who became roots but not suppose to be
+                // if($this->parent_basal_values_YesNo) {
+                    if(@$this->parents_of[$a[1]]) {}
+                    else $new_roots[] = $a[1];
+                // }
+                // */
+            }
         }
         asort($new_roots);
         
