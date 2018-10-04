@@ -157,14 +157,14 @@ class SummaryDataResourcesAPI
         */
 
 
-        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -657,7 +657,7 @@ class SummaryDataResourcesAPI
         
         if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $recs))
         {
-            print_r($val['Selected']);
+            print_r($val);
             
             foreach($val['Selected'] as $term)
             {
@@ -1415,7 +1415,7 @@ class SummaryDataResourcesAPI
         echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
         // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
-        echo "\n\nRoots: ".count($roots)."\n"; print_r($roots);
+        echo "\n\nInitial roots: ".count($roots)."\n"; print_r($roots);
         // */
         
         //for step 1: So, first you must identify the tips- any values that don't appear in the left column. The parents, for step one, will be the values to the left of the tip values.
@@ -1435,6 +1435,8 @@ class SummaryDataResourcesAPI
             echo "\nnew tips: ".count($tips); foreach($tips as $tip) echo "\n".$tip;
             echo "\n";
             // */
+            echo "\n\nroots after deletion-steps: ".count($roots)."\n"; print_r($roots);
+            
             
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
             if(count($step_1) <= 4) $selected = $step_1; //select set 1
@@ -1517,7 +1519,7 @@ class SummaryDataResourcesAPI
     }
     private function two_new_steps($ISVAT, $roots, $tips)
     {
-        echo "\nroots: ".count($roots); print_r($roots);
+        echo "\nroots: ".count($roots)." "; print_r($roots);
         /* Important definition of terms by Jen:
         - rows with just one node in them are only needed for orphans (nodes that don't appear anywhere else). These nodes are both tips and roots.
         - tips are nodes that never appear on the left of a two node row
@@ -1539,7 +1541,7 @@ class SummaryDataResourcesAPI
         echo "\nDelete List: "; print_r($delete_list_1);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
             // exit("\ntest sample here...\n");
-            echo "\nThere are root(s) in the 1st list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
+            echo "\nThere are root(s) in the 1st delete-list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
             echo "\norig 'shared values ancestry tree': ".count($ISVAT)."\n";
             foreach($ISVAT as $a) {
                 if(              in_array($a[0], $roots_inside_the_list)) {}
@@ -1548,7 +1550,10 @@ class SummaryDataResourcesAPI
             }
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
-            echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
+            echo "\n\nnew roots step 1: ".count($roots)."\n"; print_r($roots);
+            $roots = self::remove_undesirable_roots($roots);
+            echo "\n\nnew roots step 1: ".count($roots)."\n"; print_r($roots);
+            
         }
         else {
             echo "\nAll root nodes are not on the list. Keeping all root nodes and all descendants. Do nothing.\n";
@@ -1567,7 +1572,7 @@ class SummaryDataResourcesAPI
         echo "\nDelete List: "; print_r($delete_list_2);
         echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
-            echo "\nThere are root(s) found in the list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
+            echo "\nThere are root(s) found in the 2nd delete-list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
             //1. get $temp_tree_deleted, will use this in deciding which can be root, which can be removed.
             foreach($new_isvat as $a) {
                 if(!in_array($a[0], $roots_inside_the_list)) $temp_tree_deleted[] = $a;
@@ -1594,17 +1599,26 @@ class SummaryDataResourcesAPI
                 else $new_isvat_2[] = $a;
             }
             
+            $add_2_roots = array_keys($add_2_roots);
             echo "*Will become orphan/single rows: "; print_r($orphans);
-            echo "*Will be added to roots: "; print_r(array_keys($add_2_roots));
+            echo "*Will be added to roots: "; print_r($add_2_roots);
+            $add_2_roots = self::remove_undesirable_roots($add_2_roots);
+            echo "*Will be added to roots (removed non-root): "; print_r($add_2_roots);
+            
             echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
             echo "-----------Diagnostics -END- -----------\n";
             
             
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
-            if($add_2_roots) $roots = array_merge($roots, array_keys($add_2_roots));
+            if($add_2_roots) {
+                echo "\nHas additional roots.\n";
+                $roots = array_merge($roots, $add_2_roots);
+            }
             else echo "\nNo additional roots.\n";
+            if($roots_inside_the_list) echo "\nRoots got reduced";
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
+            
         }
         else {
             echo "\nNo roots inside the list. Do nothing.\n";
