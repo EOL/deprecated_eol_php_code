@@ -616,33 +616,28 @@ class SummaryDataResourcesAPI
         $page_ids = array();
         $recs = array();
         foreach($records as $rec) {
-            if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val);
+            // if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val); //version 1 - didn't use
             if($val = @$rec['recs']) $recs = array_merge($recs, $val);
         }
         // print_r($recs); exit;
+        
+
+        /* version 1 - didn't use
         $original_records = $page_ids;
         asort($original_records); $original_records = array_values($original_records); //reindexes key
-        
-        
         $page_ids = array_unique($page_ids);
         asort($page_ids);
         $page_ids = array_values($page_ids); //reindexes key
-        
         echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
         echo "\nChildren used for computation: "; print_r($children);
-
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw: ".count($original_records); // print_r($original_records);
         foreach($original_records as $id) echo "\n$id";
-        
         echo "\n==========================================================\nDeduplicated: ".count($page_ids);
         print_r($page_ids);
-
-        /*
         $uris = $page_ids;
         self::set_ancestor_ranking_from_set_of_uris($uris);
         $ISVAT = self::get_initial_shared_values_ancestry_tree_v2($uris); //initial "shared values ancestry tree" ---> parent left, term right
-        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $ISVAT, $uris))
-        {
+        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $ISVAT, $uris)) {
             print_r($val); exit("\nelix\n");
         }
         */
@@ -1343,7 +1338,7 @@ class SummaryDataResourcesAPI
         $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . ".txt";
     }
-    // private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes = array()) //for basal values
+    // private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes = array()) //version 1 - didn't use
     private function main_basal_values($page_id, $predicate, $type = 'basal values', $recs = array()) //for basal values
     {
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
@@ -1355,25 +1350,19 @@ class SummaryDataResourcesAPI
                 echo "\nNo records for [$page_id] [$predicate].\n";
                 return false;
             }
-            $uris = self::get_valueUris_from_recs($recs);
-            echo "\n uris: ".count($uris); print_r($uris);
-            self::set_ancestor_ranking_from_set_of_uris($uris);
-            $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
         }
-        else { //for parent basal values
-            /*
+        elseif($type == 'parent basal values' && $recs) { //for parent basal values
+            /* version 1 - didn't use
             $this->original_nodes = $original_nodes;
             $ISVAT = $param_isvat;
             */
-
             $this->original_nodes = $this->original_nodes_parent;
-            
-            $uris = self::get_valueUris_from_recs($recs);
-            echo "\n uris: ".count($uris); print_r($uris);
-            self::set_ancestor_ranking_from_set_of_uris($uris);
-            $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
-            
         }
+        $uris = self::get_valueUris_from_recs($recs);
+        echo "\n uris: ".count($uris); print_r($uris);
+        self::set_ancestor_ranking_from_set_of_uris($uris);
+        $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
+
         $ISVAT = self::sort_ISVAT($ISVAT);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];    
