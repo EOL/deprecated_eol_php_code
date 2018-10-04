@@ -301,8 +301,10 @@ class EnvironmentsEOLDataConnector
         $rec["source"]              = "http://eol.org/pages/" . str_replace('EOL:', '', $rec["taxon_id"]);
         
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
-        if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
-        if($rec = self::adjustments($rec)) self::add_string_types($rec);
+        if($rec = self::adjustments($rec)) {
+            if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
+            self::add_string_types($rec);
+        }
     }
     private function adjustments($rec) //https://eol-jira.bibalex.org/browse/DATA-1768
     {   /*this is for https://opendata.eol.org/dataset/environments-eol-project/resource/f5cfda47-d73f-4535-b729-79c8523a5300
