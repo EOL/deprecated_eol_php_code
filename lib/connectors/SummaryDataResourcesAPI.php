@@ -1543,11 +1543,13 @@ class SummaryDataResourcesAPI
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
+            /* working; moving back and forth
             $cleaned = self::remove_undesirable_roots($roots);
             if($cleaned != $roots) {
                 $roots = $cleaned;
                 echo "\n\nnew roots (removed non-root): ".count($roots)."\n"; print_r($roots);
             }
+            */
         }
         else {
             echo "\nAll root nodes are not on the list. Keeping all root nodes and all descendants. Do nothing.\n";
@@ -1596,7 +1598,9 @@ class SummaryDataResourcesAPI
             $add_2_roots = array_keys($add_2_roots);
             echo "*Will become orphan/single rows: "; print_r($orphans);
             echo "*Will be added to roots: "; print_r($add_2_roots);
-            // $add_2_roots = self::remove_undesirable_roots($add_2_roots);
+            /* working; moving back and forth
+            $add_2_roots = self::remove_undesirable_roots($add_2_roots);
+            */
             echo "*Will be added to roots (removed non-root): "; print_r($add_2_roots);
             
             echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
