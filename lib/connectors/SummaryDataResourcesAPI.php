@@ -159,6 +159,7 @@ class SummaryDataResourcesAPI
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
+        $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
         // */
@@ -1342,7 +1343,6 @@ class SummaryDataResourcesAPI
     private function main_basal_values($page_id, $predicate, $type = 'basal values', $recs = array()) //for basal values
     {
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
-
         if($type == 'basal values') {
             echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
             $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
