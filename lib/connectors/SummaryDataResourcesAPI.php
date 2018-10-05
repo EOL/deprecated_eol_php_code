@@ -1685,6 +1685,7 @@ class SummaryDataResourcesAPI
         }
         $final = array_keys($final);
         asort($final);
+        $final = array_values($final); //reindex key
         
         //optional display
         echo "\nStep $step_no:".count($final)."\n";
@@ -1884,6 +1885,7 @@ class SummaryDataResourcesAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
+                $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
                 /* Array( old during development with Jen
                     [page_id] => 46559197
@@ -2129,6 +2131,7 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k];
                     $k++;
                 }
+                $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
                 /* Array(
                     [preferred] => http://marineregions.org/mrgid/19161
@@ -2198,6 +2201,7 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k];
                     $k++;
                 }
+                $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
                 /* Array(
                     [parent] => ﻿http://purl.obolibrary.org/obo/ENVO_00000111
