@@ -675,6 +675,7 @@ class SummaryDataResourcesAPI
         
         
     }
+    /* not used anymore...
     private function get_initial_shared_values_ancestry_tree_v2($uris)
     {
         $final = array();
@@ -684,6 +685,7 @@ class SummaryDataResourcesAPI
         }
         return $final;
     }
+    */
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
     {
@@ -1389,14 +1391,15 @@ class SummaryDataResourcesAPI
         $uris = self::get_valueUris_from_recs($recs);
         echo "\n uris: ".count($uris); print_r($uris);
         self::set_ancestor_ranking_from_set_of_uris($uris);
+        // print_r($this->ancestor_ranking_preferred); exit;
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
 
-        $ISVAT = self::sort_ISVAT($ISVAT);
+        $ISVAT = self::sort_ISVAT($ISVAT, 1);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];    
         echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
         
-        $info['new_nodes'] = self::sort_ISVAT($new_nodes);
+        $info['new_nodes'] = self::sort_ISVAT($new_nodes, 2);
         $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
         /* good debug
@@ -1714,7 +1717,7 @@ class SummaryDataResourcesAPI
         $roots     = self::remove_undesirable_roots($roots); //new step to remove un-desirable roots
         
         $new_isvat = array_merge($ISVAT, $new_nodes);
-        $new_isvat = self::sort_ISVAT($new_isvat);
+        $new_isvat = self::sort_ISVAT($new_isvat, 3);
         $new_isvat = self::remove_orphans_that_exist_elsewhere($new_isvat);
         
         $new_roots = $roots;
@@ -1767,7 +1770,7 @@ class SummaryDataResourcesAPI
         }
         return $final;
     }
-    private function sort_ISVAT($arr) //also remove parent nodes where there is only one child. Make child an orphan.
+    private function sort_ISVAT($arr, $num) //also remove parent nodes where there is only one child. Make child an orphan.
     {
         if(!$arr) return array();
         rsort($arr);
@@ -1781,7 +1784,7 @@ class SummaryDataResourcesAPI
         foreach($temp as $key => $value) $totals[$key] = count($value);
         print_r($totals);
 
-        $discard_parents = array(); echo "\n--------------------\n";
+        $discard_parents = array(); echo "\n-------------------- [$num]\n";
         foreach($totals as $key => $total_children) {
             if($total_children == 1) {
                 echo "\n $key: with 1 child ";
@@ -1974,11 +1977,11 @@ class SummaryDataResourcesAPI
     }
     private function get_initial_shared_values_ancestry_tree($recs)
     {
-        $final = array();
+        $final = array(); $i = 0;
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
-        foreach($recs as $rec) {
+        foreach($recs as $rec) { $i++;
             $term = $rec['value_uri'];
-            $parent = self::get_parent_of_term($term);
+            $parent = self::get_parent_of_term($term, $i);
             $final[] = array($parent, $term);
         }
         return $final;
@@ -2040,6 +2043,8 @@ class SummaryDataResourcesAPI
     private function get_rank_most_parent($parents, $preferred_terms = array())
     {
         if(!$preferred_terms) {
+            echo "\nancestor_ranking_preferred: "; print_r($this->ancestor_ranking_preferred);
+            
             //1st option: if any is a preferred name then choose that
             foreach($this->ancestor_ranking_preferred as $parent) {
                 if(in_array($parent, $parents)) {
@@ -2083,9 +2088,9 @@ class SummaryDataResourcesAPI
         print_r($inclusive);
         exit("\n===============\n");
     }
-    private function get_parent_of_term($term)
+    private function get_parent_of_term($term, $num)
     {
-        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term]:\n";
+        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
             print_r($preferred_terms);
