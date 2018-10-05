@@ -619,19 +619,27 @@ class SummaryDataResourcesAPI
         $children = self::get_children_of_rank_species($main_page_id); //orig
         $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
         
-        /* 2. get all values for each child from method = 'basal values' */
+        /*
+        2. get all values for each child from method = 'basal values'
         foreach($children as $page_id) {
             if($val = self::main_basal_values($page_id, $predicate)) $records[] = $val;
-            // print_r($val); exit;
         }
-        /* 3. get all selected values */
+        3. get all selected values
         $page_ids = array();
         $recs = array();
         foreach($records as $rec) {
             // if($val = @$rec['Selected']) $page_ids = array_merge($page_ids, $val); //version 1 - didn't use
             if($val = @$rec['recs']) $recs = array_merge($recs, $val);
         }
-        // print_r($recs); exit;
+        */
+        
+        /* 2. get all recs for each child */
+        $recs = array();
+        foreach($children as $page_id) {
+            $child_recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); // echo "\n".count($child_recs)."\n";
+            if($child_recs) $recs = array_merge($recs, $child_recs);
+        }
+        // echo "\n".count($recs)."\n";
         
 
         /* version 1 - didn't use
