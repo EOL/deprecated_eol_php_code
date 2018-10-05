@@ -1551,7 +1551,7 @@ class SummaryDataResourcesAPI
             echo "\ntrimmed shared ancestry tree: ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
             $roots = array_diff($roots, $roots_inside_the_list);
             echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
-            /* working; moving back and forth
+            /* working; but not needed here coz we're not adding roots here
             $cleaned = self::remove_undesirable_roots($roots);
             if($cleaned != $roots) {
                 $roots = $cleaned;
@@ -1572,7 +1572,7 @@ class SummaryDataResourcesAPI
         */
         echo "\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: -START-\n";
         $delete_list_2 = array('http://purl.obolibrary.org/obo/ENVO_01001305', 'http://purl.obolibrary.org/obo/ENVO_00002030', 'http://purl.obolibrary.org/obo/ENVO_01000687');
-        $delete_list_2[] = "http://purl.obolibrary.org/obo/ENVO_00001995";
+        $delete_list_2[] = "http://purl.obolibrary.org/obo/ENVO_00001995"; $delete_list_2[] = "http://purl.obolibrary.org/obo/ENVO_00002227";
         echo "\nDelete List: "; print_r($delete_list_2);
         echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
@@ -1606,9 +1606,9 @@ class SummaryDataResourcesAPI
             $add_2_roots = array_keys($add_2_roots);
             echo "*Will become orphan/single rows: "; print_r($orphans);
             echo "*Will be added to roots: "; print_r($add_2_roots);
-            /* working; moving back and forth
-            $add_2_roots = self::remove_undesirable_roots($add_2_roots);
-            */
+            // /* working; moving back and forth - DEFINITELY UNCOMMENT
+            $add_2_roots = self::remove_undesirable_roots($add_2_roots, $delete_list_2);
+            // */
             echo "*Will be added to roots (removed non-root): "; print_r($add_2_roots);
             
             echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
@@ -1694,11 +1694,15 @@ class SummaryDataResourcesAPI
         
         return $final;
     }
-    private function remove_undesirable_roots($roots)
+    private function remove_undesirable_roots($roots, $delete_list = array())
     {
         $temp = array();
         foreach($roots as $root) {
-            if(@$this->parents_of[$root]) {}
+            if($parents = @$this->parents_of[$root]) {
+                $parents = array_diff($parents, $delete_list);
+                if($parents) {}
+                else $temp[$root] = '';
+            }
             else $temp[$root] = '';
         }
         return array_keys($temp);
