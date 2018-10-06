@@ -157,14 +157,14 @@ class SummaryDataResourcesAPI
         */
 
 
-        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -1502,7 +1502,7 @@ class SummaryDataResourcesAPI
         $selected = array_values($selected); //reindex array
         
         $ret = array('Selected' => $selected, 'label' => $label);
-        // if($type == 'basal values') $ret['recs'] = $recs;
+        if($type == 'basal values') $ret['recs'] = $recs;
         return $ret;
         /*
         if tips <= 5 SELECT ALL TIPS 
@@ -1985,12 +1985,8 @@ class SummaryDataResourcesAPI
         $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
         foreach($recs as $rec) { $i++;
             $term = $rec['value_uri'];
-            /* old ways
             $parent = self::get_parent_of_term($term, $i);
             $final[] = array($parent, $term);
-            */
-            $pairs = self::create_pairs_from_this_term($term, $i);
-            $final = array_merge($final, $pairs);
         }
         return $final;
     }
@@ -2104,34 +2100,6 @@ class SummaryDataResourcesAPI
         print_r($inclusive);
         exit("\n===============\n");
     }
-    private function create_pairs_from_this_term($term, $num) //this will replace get_parent_of_term()
-    {
-        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
-        $pairs = array();
-        if($preferred_terms = @$this->preferred_names_of[$term]) {
-            echo "\nThere are preferred term(s):\n";
-            print_r($preferred_terms);
-            foreach($preferred_terms as $preferred) $pairs[] = array($preferred, $term);
-            foreach($preferred_terms as $preferred) {
-                echo "\nparent(s) of $preferred:\n";
-                if($parents = @$this->parents_of[$preferred]) {
-                    print_r($parents);
-                    foreach($parents as $parent) $pairs[] = array($parent, $preferred);
-                }
-                else echo " -- NO parent";
-            }
-        }
-        else {
-            echo "\nThere is NO preferred term\n";
-            if($immediate_parents = @$this->parents_of[$term]) {
-                echo "\nThere are immediate parent(s) for term in question:\n";
-                print_r($immediate_parents);
-                foreach($immediate_parents as $parent) $pairs[] = array($parent, $term);
-            }
-        }
-        foreach($pairs as $a) echo "\n".$a[0]." - ".$a[1];
-        return $pairs;
-    }
     private function get_parent_of_term($term, $num)
     {
         echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
@@ -2157,6 +2125,13 @@ class SummaryDataResourcesAPI
                 $chosen = self::get_rank_most_parent($immediate_parents);
                 echo "\nCHOSEN PARENT*: ".$chosen."\n";
                 return $chosen;
+                // foreach($immediate_parents as $immediate) {
+                //     echo "\nparent(s) of $immediate:";
+                //     if($parents = @$this->parents_of[$immediate]) {
+                //         print_r($parents);
+                //     }
+                //     else echo " -- NO parent";
+                // }
             }
         }
         /*
