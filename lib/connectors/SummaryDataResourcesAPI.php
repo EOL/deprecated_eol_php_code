@@ -1418,8 +1418,7 @@ class SummaryDataResourcesAPI
         $new_nodes = array();
         // */
         
-        // /*
-        //for jen: 
+        // /* for jen: 
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
@@ -1435,7 +1434,6 @@ class SummaryDataResourcesAPI
         
         if(count($tips) <= 5 ) $selected = $tips;
         else { // > 5
-            
             // /* Two new steps from Jen & Katja                                               UNCOMMENT IN REAL OPERATION...
             $ret_from_2new_steps = self::two_new_steps($ISVAT, $roots, $tips);
             $roots = $ret_from_2new_steps['roots'];
@@ -1445,7 +1443,6 @@ class SummaryDataResourcesAPI
             echo "\n";
             // */
             echo "\n\nroots after deletion-steps: ".count($roots)."\n"; print_r($roots);
-            
             
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
             if(count($step_1) <= 4) $selected = $step_1; //select set 1
@@ -1547,7 +1544,6 @@ class SummaryDataResourcesAPI
         $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000358"; $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000144";
         echo "\nDelete List: "; print_r($delete_list_1);
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
-            // exit("\ntest sample here...\n");
             echo "\nThere are root(s) in the 1st delete-list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
             echo "\norig 'shared values ancestry tree': ".count($ISVAT)."\n";
             foreach($ISVAT as $a) {
@@ -1563,8 +1559,7 @@ class SummaryDataResourcesAPI
             if($cleaned != $roots) {
                 $roots = $cleaned;
                 echo "\n\nnew roots (removed non-root): ".count($roots)."\n"; print_r($roots);
-            }
-            */
+            }*/
         }
         else {
             echo "\nAll root nodes are not on the list. Keeping all root nodes and all descendants. Do nothing.\n";
