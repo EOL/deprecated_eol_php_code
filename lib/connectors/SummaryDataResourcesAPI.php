@@ -157,14 +157,14 @@ class SummaryDataResourcesAPI
         */
 
 
-        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -192,14 +192,18 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
-        // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+
+        
+        // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
+        $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        
 
         foreach($input as $i) {
             /* temp block
@@ -2033,22 +2037,26 @@ class SummaryDataResourcesAPI
             }
         }//end main
         arsort($final);
+        $this->ancestor_ranking_withCounts = $final;
         $final = array_keys($final);
         $this->ancestor_ranking = $final;
 
         arsort($final_preferred);
+        $this->ancestor_ranking_preferred_withCounts = $final_preferred;
+        print_r($final_preferred); //exit;
         $final_preferred = array_keys($final_preferred);
         $this->ancestor_ranking_preferred = $final_preferred;
     }
     private function get_rank_most_parent($parents, $preferred_terms = array())
     {
         if(!$preferred_terms) {
-            echo "\nancestor_ranking_preferred: "; print_r($this->ancestor_ranking_preferred);
+            echo "\nancestor_ranking_preferred: "; print_r($this->ancestor_ranking_preferred_withCounts);
             
             //1st option: if any is a preferred name then choose that
             foreach($this->ancestor_ranking_preferred as $parent) {
                 if(in_array($parent, $parents)) {
                     $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
+                    echo "\nwent here 01\n";
                     return $parent;
                 }
             }
@@ -2065,21 +2073,25 @@ class SummaryDataResourcesAPI
                 foreach($this->ancestor_ranking as $parent) {
                     if(in_array($parent, $preferred_terms)) {
                         $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
+                        echo "\nwent here 02\n";
                         return $parent;
                     }
                 }
             }
             if(count($preferred_terms) == 1 && in_array($preferred_terms[0], $this->ancestor_ranking) && in_array($preferred_terms[0], $this->ancestor_ranking_preferred)) {
                 $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $preferred_terms[0]."\n"); fclose($WRITE);
+                echo "\nwent here 03\n";
                 return $preferred_terms[0];
             }
         }
         
         //2nd option
+        echo "\nlast option: ancestor_ranking "; print_r($this->ancestor_ranking_withCounts);
         $inclusive = array_merge($parents, $preferred_terms);
         foreach($this->ancestor_ranking as $parent) {
             if(in_array($parent, $inclusive)) {
                 $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
+                echo "\nwent here 04\n";
                 return $parent;
             }
         }
