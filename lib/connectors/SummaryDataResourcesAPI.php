@@ -644,7 +644,6 @@ class SummaryDataResourcesAPI
             if($child_recs) $recs = array_merge($recs, $child_recs);
         }
         // echo "\n".count($recs)."\n";
-        
 
         /* version 1 - didn't use
         $original_records = $page_ids;
@@ -666,18 +665,14 @@ class SummaryDataResourcesAPI
         }
         */
         
-        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $recs))
-        {
+        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {
             print_r($val);
             foreach($val['Selected'] as $term) { //debug only
                 echo "\n[$term]: ";
                 if($val = @$this->parents_of[$term]) print_r($val);
                 else echo " -- no parent";
             }
-            exit("\nelix\n");
         }
-        
-        
     }
     /* not used anymore...
     private function get_initial_shared_values_ancestry_tree_v2($uris)
@@ -1400,7 +1395,7 @@ class SummaryDataResourcesAPI
 
         $ISVAT = self::sort_ISVAT($ISVAT, 1);
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
-        $new_nodes = $info['new_nodes'];    
+        $new_nodes = $info['new_nodes'];
         echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
         
         $info['new_nodes'] = self::sort_ISVAT($new_nodes, 2);
