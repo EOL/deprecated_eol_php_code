@@ -54,11 +54,11 @@ class SummaryDataResourcesAPI
     /*
     basal values
     parent basal values
-    write resource file: basal values
+    *write resource file: basal values
     write resource file: parent basal values
     
     taxon summary
-    parent taxon summary
+    *parent taxon summary
     write resource file: taxon summary
     write resource file: parent taxon summary
     
@@ -148,9 +148,9 @@ class SummaryDataResourcesAPI
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
 
-        $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
+        // $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
         // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
+        $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -166,15 +166,25 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: 'taxon summary' --\n");
         */
 
+        // /* METHOD: lifestage+statMeth ============================================================================================================
+        self::initialize();
+        $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
+        $page_ids = array(347436, 347438, 46559130);
+        foreach($page_ids as $page_id) {
+            $ret = self::main_lifestage_statMeth($page_id, $predicate);
+            print_r($ret);
+        }
+        exit("\n-- end method: lifestage_statMeth --\n");
+        // */
 
-        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
         self::initialize_basal_values();
         $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
         $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
         $ret = self::main_parents_basal_values($page_id, $predicate);
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -210,10 +220,8 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
 
-        
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
         $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        
 
         foreach($input as $i) {
             /* temp block
@@ -263,17 +271,6 @@ class SummaryDataResourcesAPI
         
         exit("\n-- end method: basal values --\n");
         // */
-
-
-        /* METHOD: lifestage+statMeth ============================================================================================================
-        self::initialize();
-        $page_id = 347436; $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        // $page_id = 347438; 
-        // $page_id = 46559130;
-        $ret = self::main_lifestage_statMeth($page_id, $predicate);
-        print_r($ret);
-        exit("\n-- end method: lifestage_statMeth --\n");
-        */
     }
     //############################################################################################ start write resource file - method = 'taxon summary'
     private function write_resource_file_TaxonSummary($ret)
@@ -1273,6 +1270,8 @@ class SummaryDataResourcesAPI
     }
     private function main_lifestage_statMeth($page_id, $predicate)
     {
+        echo "\n==================================================================================\nMethod: lifestage & statMeth";
+        echo "\npage_id: $page_id | predicate: [$predicate]\n";
         $path = self::get_txt_path_by_page_id($page_id);
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
@@ -1478,7 +1477,20 @@ class SummaryDataResourcesAPI
                             }
                             else {
                                 echo "\nStep 4 and Step 5 are different. Proceed with Step 6\n";
-                                exit("\nConstruct Step 6\n");
+                                // exit("\nConstruct Step 6\n");
+                                $step_6 = self::get_step_1($ISVAT, $roots, $step_5, 6);
+                                if($step_5 == $step_6) {
+                                    echo "\nSteps 5 and 6 are identical.\n";
+                                    if(count($step_6) <= 4) $selected = $step_6; //select set 6
+                                    else {
+                                        echo "\nSelect root ancestors\n";
+                                        $selected = $roots;
+                                    }
+                                }
+                                else {
+                                    echo "\nStep 5 and Step 6 are different. Proceed with Step 7\n";
+                                    exit("\nConstruct Step 7\n");
+                                }
                             }
                         }
                     }
