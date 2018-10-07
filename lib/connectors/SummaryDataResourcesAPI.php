@@ -51,12 +51,24 @@ class SummaryDataResourcesAPI
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
     }
+    /*
+    basal values
+    parent basal values
+    write resource file: basal values
+    write resource file: parent basal values
+    
+    taxon summary
+    parent taxon summary
+    write resource file: taxon summary
+    write resource file: parent taxon summary
+    
+    */
     /* IMPORTANT STEP: working OK - commented for now.
     self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
     */
     function start()
     {
-        /* print resource files (Basal values)  ============================================================================================================
+        // /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values'];
@@ -75,7 +87,6 @@ class SummaryDataResourcesAPI
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
         $row = array("Page ID", 'eol_pk', "Value URI", "Label");
-        
         fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
         
@@ -95,14 +106,13 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        
         fclose($WRITE);
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files (Basal values)-\n");
-        */
+        // */
         
-        /* WORKING
+        /* WORKING ============================================================================================================
         $ret = self::get_summ_process_type_given_pred('opposite');
         print_r($ret); exit("\n".count($ret)."\n");
         */
