@@ -166,7 +166,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: 'taxon summary' --\n");
         */
 
-        // /* METHOD: lifestage+statMeth ============================================================================================================
+        /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
         $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         $page_ids = array(347436, 347438, 46559130);
@@ -175,7 +175,7 @@ class SummaryDataResourcesAPI
             print_r($ret);
         }
         exit("\n-- end method: lifestage_statMeth --\n");
-        // */
+        */
 
         /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
@@ -221,7 +221,9 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
 
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
-        $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
+        $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
+        
 
         foreach($input as $i) {
             /* temp block
@@ -1489,7 +1491,28 @@ class SummaryDataResourcesAPI
                                 }
                                 else {
                                     echo "\nStep 5 and Step 6 are different. Proceed with Step 7\n";
-                                    exit("\nConstruct Step 7\n");
+                                    // exit("\nConstruct Step 7\n");
+                                    $step_7 = self::get_step_1($ISVAT, $roots, $step_6, 7);
+                                    if($step_6 == $step_7) {
+                                        echo "\nSteps 6 and 7 are identical.\n";
+                                        if(count($step_7) <= 4) $selected = $step_7; //select set 7
+                                        else {
+                                            echo "\nSelect root ancestors\n";
+                                            $selected = $roots;
+                                        }
+                                    }
+                                    elseif($step_5 == $step_7 && $step_4 == $step_6) {
+                                        echo "\nSteps 5 and 7 are identical; Steps 4 and 6 are identical.\n";
+                                        if(count($step_7) <= 4) $selected = $step_7; //select set 7
+                                        else {
+                                            echo "\nSelect root ancestors\n";
+                                            $selected = $roots;
+                                        }
+                                    }
+                                    else {
+                                        echo "\nStep 6 and Step 7 are different. Proceed with Step 8\n";
+                                        exit("\nConstruct Step 8\n");
+                                    }
                                 }
                             }
                         }
