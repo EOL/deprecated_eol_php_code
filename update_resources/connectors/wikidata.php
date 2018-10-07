@@ -9,6 +9,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Wednesday 2018-05-02 04:59:07 AM{"agent.tab":20658,"media_resource.tab":946750,"taxon.tab":89694,"vernacular_name.tab":291271}
 71	Wednesday 2018-06-06 06:59:52 AM{"agent.tab":21060,"media_resource.tab":943420,"taxon.tab":89739,"vernacular_name.tab":291235}
 71	Thursday 2018-07-05 11:59:10 AM	{"agent.tab":21251,"media_resource.tab":946050,"taxon.tab":89873,"vernacular_name.tab":291188}
+71	Saturday 2018-10-06 04:19:13 AM	{"agent.tab":22435,"media_resource.tab":956972,"taxon.tab":90844,"vernacular_name.tab":291267}
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
