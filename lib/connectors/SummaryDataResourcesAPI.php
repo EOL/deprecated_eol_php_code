@@ -434,12 +434,6 @@ class SummaryDataResourcesAPI
         foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
         return;
     }
-    private function pick_one($arr)
-    {
-        echo "\npick one: \n"; print_r($arr); //exit;
-        foreach($arr as $eol_pk) {
-        }
-    }
     private function add_taxon($info)
     {
         $taxon = new \eol_schema\Taxon();
@@ -471,7 +465,6 @@ class SummaryDataResourcesAPI
     }
     private function create_references($refs)
     {
-        // print_r($refs); exit;
         if(!$refs) return array();
         $reference_ids = array();
         foreach($refs as $ref_no => $full_ref) {
@@ -534,7 +527,6 @@ class SummaryDataResourcesAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                // print_r($rec); exit;
                 /*Array(
                     [eol_pk] => MetaTrait-19117935  [trait_eol_pk] => R261-PK22081478   [predicate] => http://rs.tdwg.org/dwc/terms/measurementMethod
                     [literal] => Activity cycle of each species measured for non-captive populations; adult or age unspecified individuals, male, female, or sex unspecified individuals; primary, secondary, or extrapolated sources; all measures of central tendency; in all localities. Species were defined as (1) nocturnal only, (2) nocturnal/crepuscular, cathemeral, crepuscular or diurnal/crepuscular and (3) diurnal only.  Based on information from primary and secondary literature sources.  See source for details. 
@@ -554,8 +546,7 @@ class SummaryDataResourcesAPI
         return array_keys($final);
     }
     private function get_page_ids_fromTraitsCSV_andInfo_fromDH()
-    {
-        //step 1: get all page_ids from traits.csv
+    {   //step 1: get all page_ids from traits.csv
         $ret = self::get_fields_from_file(array('page_id'), 'traits.csv');
         $page_ids = $ret['page_id']; $ret = ''; //unset
         //step 2 get desired info from DH
@@ -570,7 +561,6 @@ class SummaryDataResourcesAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                // print_r($rec); exit;
                 /*Array(
                     [taxonID] => -168611
                     [acceptedNameUsageID] => -168611
@@ -623,7 +613,7 @@ class SummaryDataResourcesAPI
         $children = self::get_children_of_rank_species($main_page_id); //orig
         $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
         
-        /*
+        /* obsolete
         2. get all values for each child from method = 'basal values'
         foreach($children as $page_id) {
             if($val = self::main_basal_values($page_id, $predicate)) $records[] = $val;
@@ -1244,7 +1234,6 @@ class SummaryDataResourcesAPI
         foreach($immediate_children_of_root as $id) {
             echo "\n [$id] => ".$orig_counts_with_left[$id];
         }
-
         return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs, 
                      'orig_counts_with_left' => $orig_counts_with_left); //'tree' => $final,
     }
@@ -1486,7 +1475,6 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-
         //label PRM and REP if one record, REP if > 1
         if    (count($selected) == 1) $label = "PRM and REP";
         elseif(count($selected) > 1)  $label = "REP";
@@ -1494,7 +1482,7 @@ class SummaryDataResourcesAPI
         $selected = array_values($selected); //reindex array
         
         $ret = array('Selected' => $selected, 'label' => $label);
-        // if($type == 'basal values') $ret['recs'] = $recs;
+        // if($type == 'basal values') $ret['recs'] = $recs;    //if you want add 'recs' to the return value
         return $ret;
         /*
         if tips <= 5 SELECT ALL TIPS 
@@ -1519,8 +1507,7 @@ class SummaryDataResourcesAPI
         */
     }
     private function two_new_steps($ISVAT, $roots, $tips)
-    {
-        echo "\nroots: ".count($roots)." "; print_r($roots);
+    {   echo "\nroots: ".count($roots)." "; print_r($roots);
         /* Important definition of terms by Jen:
         - rows with just one node in them are only needed for orphans (nodes that don't appear anywhere else). These nodes are both tips and roots.
         - tips are nodes that never appear on the left of a two node row
@@ -1603,7 +1590,7 @@ class SummaryDataResourcesAPI
             $add_2_roots = array_keys($add_2_roots);
             echo "*Will become orphan/single rows: "; print_r($orphans);
             echo "*Will be added to roots: "; print_r($add_2_roots);
-            // /* working; moving back and forth - DEFINITELY UNCOMMENT
+            // /* working; moving back and forth as first - DEFINITELY UNCOMMENT
             $add_2_roots = self::remove_undesirable_roots($add_2_roots, $delete_list_2);
             // */
             echo "*Will be added to roots (removed non-root): "; print_r($add_2_roots);
@@ -1627,7 +1614,6 @@ class SummaryDataResourcesAPI
         }
         echo "\n-------------------------------------------- -END-\n";
         return array('roots' => $roots, 'tips' => self::get_tips($new_isvat_2), 'ISVAT' => $new_isvat_2);
-        // exit("\nend temp\n");
     }
     private function get_one_side_of_tree($tree, $side)
     {
@@ -1659,15 +1645,13 @@ class SummaryDataResourcesAPI
         asort($final);
         return $final;
     }
-
     private function get_step_1($isvat, $roots, $tips, $step_no)
-    {   /* 
-        - find all tips
-        - find all nodes that are parents of tips
-        - in each case, check whether either the tip or the parent is a root
-            -- if either the tip or the parent is a root, put the tip in set 1
-            -- if neither the tip nor the parent is a root, put the parent in set 1
-        - (deduplicate set 1) */
+    {   /*  - find all tips
+            - find all nodes that are parents of tips
+            - in each case, check whether either the tip or the parent is a root
+                -- if either the tip or the parent is a root, put the tip in set 1
+                -- if neither the tip nor the parent is a root, put the parent in set 1
+            - (deduplicate set 1) */
         foreach($isvat as $a) {
             $parent_of_right[$a[1]] = $a[0];
         }
@@ -1739,12 +1723,10 @@ class SummaryDataResourcesAPI
         $new_roots = array_unique($new_roots);
         $new_roots = array_filter($new_roots); //remove null values
         asort($new_roots);
-        
         return array('new_roots' => $new_roots, 'new_isvat' => $new_isvat);
     }
     private function remove_orphans_that_exist_elsewhere($isvat) //that is remove the orphan row
-    {
-        //first get all non-orphan rows
+    {   //first get all non-orphan rows
         foreach($isvat as $a) {
             if($a[0]) {
                 $left[$a[0]] = '';
@@ -1754,10 +1736,7 @@ class SummaryDataResourcesAPI
         //if orphan $a[1] exists elsewhere then remove that orphan row
         //The way I was thinking of documenting, it wouldn't need to be listed as an orphan if it also appears in any relationship pair.
         foreach($isvat as $a) {
-            if(!$a[0] && (
-                            isset($left[$a[1]]) || isset($right[$a[1]])
-                         )
-            ){
+            if(!$a[0] && ( isset($left[$a[1]]) || isset($right[$a[1]]) ) ) {
                 echo "\n === $a[0] --- $a[1] === remove orphan coz it exists elsewhere \n"; //the orphan row ENVO_00000446 was removed here...
             }
             else $final[] = $a;
