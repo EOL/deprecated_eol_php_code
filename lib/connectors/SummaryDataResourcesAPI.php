@@ -71,21 +71,16 @@ class SummaryDataResourcesAPI
         // /* print resource files (taxon summary)  ============================================================================================================
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
-        $predicates = $predicates['taxon summary'];
-        print_r($predicates);
-        
+        $predicates = $predicates['taxon summary']; print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-
         //--------initialize start
         self::parse_DH(); self::initialize();
-        
         //write to DwCA
         $this->resource_id = 'taxon_summary';
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         //--------initialize end
-        
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
                 // [328684] => Array(
@@ -102,7 +97,6 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($WRITE);
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files (taxon summary)-\n");
@@ -111,12 +105,9 @@ class SummaryDataResourcesAPI
         // /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
-        $predicates = $predicates['basal values'];
-        print_r($predicates);
-        
+        $predicates = $predicates['basal values']; print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-
         //--------initialize start
         self::initialize_basal_values();
         //write to DwCA
