@@ -68,6 +68,46 @@ class SummaryDataResourcesAPI
     */
     function start()
     {
+        // /* print resource files (taxon summary)  ============================================================================================================
+        //step 1: get all 'taxon summary' predicates:
+        $predicates = self::get_summ_process_type_given_pred('opposite');
+        $predicates = $predicates['taxon summary'];
+        print_r($predicates);
+        
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+
+        //--------initialize start
+        self::parse_DH(); self::initialize();
+        
+        //write to DwCA
+        $this->resource_id = 'taxon_summary';
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        //--------initialize end
+        
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                // [328684] => Array(
+                //             [taxonRank] => species
+                //             [Landmark] => 
+                //         )
+                if(!$page_id) continue;
+                if(@$taxon['taxonRank'] == "species") {
+                    if($ret = self::main_taxon_summary($page_id, $predicate)) {
+                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                        echo "\n\nFinal result:"; print_r($ret);
+                        self::write_resource_file_TaxonSummary($ret);
+                    }
+                }
+            }
+        }
+        fclose($WRITE);
+        $this->archive_builder->finalize(TRUE);
+        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+        exit("\n-end print resource files (taxon summary)-\n");
+        // */
+        
         // /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
@@ -130,7 +170,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
+        // /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
 
         // orig write block - write to DwCA
@@ -148,8 +188,8 @@ class SummaryDataResourcesAPI
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
 
-        // $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
-        // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
+        $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         
         foreach($input as $i) {
@@ -164,7 +204,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-- end method: 'taxon summary' --\n");
-        */
+        // */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -1243,8 +1283,8 @@ class SummaryDataResourcesAPI
         foreach($immediate_children_of_root as $id) {
             echo "\n [$id] => ".$orig_counts_with_left[$id];
         }
-        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs, 
-                     'orig_counts_with_left' => $orig_counts_with_left); //'tree' => $final,
+        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs);
+        //'tree' => $final, 'orig_counts_with_left' => $orig_counts_with_left
     }
     private function get_immediate_children_of_root_info($final)
     {
