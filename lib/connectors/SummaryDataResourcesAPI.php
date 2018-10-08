@@ -77,9 +77,8 @@ class SummaryDataResourcesAPI
         //--------initialize start
         self::parse_DH(); self::initialize();
         //write to DwCA
-        $this->resource_id = 'taxon_summary';
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $resource_id = 'taxon_summary';
+        self::start_write2DwCA($resource_id)
         //--------initialize end
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -94,8 +93,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        $this->archive_builder->finalize(TRUE);
-        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+        self::end_write2DwCA();
         exit("\n-end print resource files (taxon summary)-\n");
         */
         
@@ -108,10 +106,8 @@ class SummaryDataResourcesAPI
         //--------initialize start
         self::initialize_basal_values();
         //write to DwCA
-        $this->resource_id = 'basal_values';
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        
+        $esource_id = 'basal_values';
+        self::start_write2DwCA($resource_id)
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
         $row = array("Page ID", 'eol_pk', "Value URI", "Label");
@@ -130,8 +126,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE);
-        $this->archive_builder->finalize(TRUE);
-        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+        self::end_write2DwCA();
         exit("\n-end print resource files (Basal values)-\n");
         */
         
@@ -147,26 +142,26 @@ class SummaryDataResourcesAPI
 
         // /* METHOD: parents: taxon summary ============================================================================================================
         self::parse_DH(); self::initialize();
-        $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         
-        if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
-            $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-            echo "\n\nFinal result:"; print_r($ret);
-            self::write_resource_file_TaxonSummary($ret);
+        
+        foreach($input as $i) {
+            $page_id = $i['page_id']; $predicate = $i['predicate'];
+            if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
+                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                echo "\n\nFinal result:"; print_r($ret);
+                self::write_resource_file_TaxonSummary($ret);
+            }
         }
-        
-        
-        
         exit("\n-- end method: parents: taxon summary --\n");
         // */
 
         // /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
 
-        // orig write block - write to DwCA
-        $this->resource_id = 'taxon_summary';
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $resource_id = 'taxon_summary';
+        self::start_write2DwCA($resource_id);
         
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
@@ -191,8 +186,7 @@ class SummaryDataResourcesAPI
             }
         }
         // orig write block
-        $this->archive_builder->finalize(TRUE);
-        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+        self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
         // */
 
@@ -220,12 +214,10 @@ class SummaryDataResourcesAPI
         self::initialize_basal_values();
         // /* orig write block
         //write to DwCA
-        $this->resource_id = 'basal_values';
-        // $this->resource_id = '46559217_single';
-        $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$this->resource_id."_resource.txt";
-        
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        $resource_id = 'basal_values';
+        $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+
+        self::start_write2DwCA($resource_id);
         
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
@@ -297,12 +289,23 @@ class SummaryDataResourcesAPI
 
         // /* orig write block
         fclose($WRITE);
-        $this->archive_builder->finalize(TRUE);
-        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+        self::end_write2DwCA();
+
         // */
         
         exit("\n-- end method: basal values --\n");
         // */
+    }
+    private function start_write2DwCA($resource_id)
+    {
+        $this->resource_id = $resource_id;
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+    }
+    private function private function end_write2DwCA()
+    {
+        $this->archive_builder->finalize(TRUE);
+        if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
     }
     //############################################################################################ start write resource file - method = 'taxon summary'
     private function write_resource_file_TaxonSummary($ret)
