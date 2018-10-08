@@ -140,7 +140,7 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: parents: taxon summary ============================================================================================================
+        /* METHOD: parents: taxon summary ============================================================================================================
         self::parse_DH(); self::initialize();
         $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
@@ -158,7 +158,7 @@ class SummaryDataResourcesAPI
         }
         self::end_write2DwCA();
         exit("\n-- end method: parents: taxon summary --\n");
-        // */
+        */
 
         /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
@@ -193,16 +193,17 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: 'taxon summary' --\n");
         */
 
-        /* METHOD: lifestage+statMeth ============================================================================================================
+        // /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
         $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         $page_ids = array(347436, 347438, 46559130);
+        $page_ids = array(328674);
         foreach($page_ids as $page_id) {
             $ret = self::main_lifestage_statMeth($page_id, $predicate);
             print_r($ret);
         }
         exit("\n-- end method: lifestage_statMeth --\n");
-        */
+        // */
 
         /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
@@ -1311,7 +1312,7 @@ class SummaryDataResourcesAPI
         $path = self::get_txt_path_by_page_id($page_id);
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
-        echo "\nrecs: ".count($recs)."\n"; // print_r($recs);
+        echo "\nCandidate records: ".count($recs)."\n"; print_r($recs);
         if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step23456789($recs)) {}
