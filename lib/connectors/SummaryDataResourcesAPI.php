@@ -68,7 +68,7 @@ class SummaryDataResourcesAPI
     */
     function start()
     {
-        // /* print resource files (taxon summary)  ============================================================================================================
+        /* print resource files (taxon summary)  ============================================================================================================
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['taxon summary']; print_r($predicates);
@@ -83,10 +83,7 @@ class SummaryDataResourcesAPI
         //--------initialize end
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
-                // [328684] => Array(
-                //             [taxonRank] => species
-                //             [Landmark] => 
-                //         )
+                //print_r($taxon);
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_taxon_summary($page_id, $predicate)) {
@@ -100,9 +97,9 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files (taxon summary)-\n");
-        // */
+        */
         
-        // /* print resource files (Basal values)  ============================================================================================================
+        /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['basal values']; print_r($predicates);
@@ -120,18 +117,13 @@ class SummaryDataResourcesAPI
         $row = array("Page ID", 'eol_pk', "Value URI", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
-        
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
-                // [328684] => Array(
-                //             [taxonRank] => species
-                //             [Landmark] => 
-                //         )
+                // print_r($taxon);
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_basal_values($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        // print_r($ret);
                         self::write_resource_file_BasalValues($ret, $WRITE);
                     }
                 }
@@ -141,7 +133,7 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
         exit("\n-end print resource files (Basal values)-\n");
-        // */
+        */
         
         /* WORKING ============================================================================================================
         $ret = self::get_summ_process_type_given_pred('opposite');
@@ -153,13 +145,20 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents: taxon summary ============================================================================================================
+        // /* METHOD: parents: taxon summary ============================================================================================================
         self::parse_DH(); self::initialize();
         $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -> orig test case
-        $ret = self::main_parents_taxon_summary($page_id, $predicate);
-        echo "\nFinal result: "; print_r($ret);
+        
+        if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
+            $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+            echo "\n\nFinal result:"; print_r($ret);
+            self::write_resource_file_TaxonSummary($ret);
+        }
+        
+        
+        
         exit("\n-- end method: parents: taxon summary --\n");
-        */
+        // */
 
         // /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
