@@ -145,6 +145,8 @@ class SummaryDataResourcesAPI
         $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         
+        $resource_id = 'parent_taxon_summary';
+        self::start_write2DwCA($resource_id);
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -154,10 +156,11 @@ class SummaryDataResourcesAPI
                 self::write_resource_file_TaxonSummary($ret);
             }
         }
+        self::end_write2DwCA();
         exit("\n-- end method: parents: taxon summary --\n");
         // */
 
-        // /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
+        /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
 
         $resource_id = 'taxon_summary';
@@ -188,7 +191,7 @@ class SummaryDataResourcesAPI
         // orig write block
         self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
+        */
 
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
@@ -237,14 +240,14 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
+        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
 
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
+        // $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
         
 
         foreach($input as $i) {
@@ -290,7 +293,6 @@ class SummaryDataResourcesAPI
         // /* orig write block
         fclose($WRITE);
         self::end_write2DwCA();
-
         // */
         
         exit("\n-- end method: basal values --\n");
@@ -302,7 +304,7 @@ class SummaryDataResourcesAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
     }
-    private function private function end_write2DwCA()
+    private function end_write2DwCA()
     {
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
@@ -719,8 +721,7 @@ class SummaryDataResourcesAPI
     */
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
-    {
-        /* 1. get all children of page_id with rank = species */
+    {   /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($main_page_id);
         
         /* 2. get all values for each child from method = 'taxon summary' */
