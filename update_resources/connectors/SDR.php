@@ -6,29 +6,28 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
 /*
-$a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);    print_r($a);
-rsort($a);         print_r($a);
-$i = -1;
+$a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);     
+$a = array_reverse($a);                                                     print_r($a);
+$temp = $a;
 foreach($a as $id) {
-    $i++;
-    if($parent = @$a[$i+1]) {
-        $children_of[$parent][] = $id;
-        $children_of[$parent] = array_unique($children_of[$parent]);
-    }
+    array_shift($temp);
+    if(isset($children_of[$id])) $children_of[$id] = array_merge($children_of[$id], $temp);
+    else                         $children_of[$id] = $temp;
+    $children_of[$id] = array_unique($children_of[$id]);
 }
 
 $a = Array(5110, 5083, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);
-rsort($a);         print_r($a);
-$i = -1;
+$a = array_reverse($a);                                                     print_r($a);
+$temp = $a;
 foreach($a as $id) {
-    $i++;
-    if($parent = @$a[$i+1]) {
-        $children_of[$parent][] = $id;
-        $children_of[$parent] = array_unique($children_of[$parent]);
-    }
+    array_shift($temp);
+    if(isset($children_of[$id])) $children_of[$id] = array_merge($children_of[$id], $temp);
+    else                         $children_of[$id] = $temp;
+    $children_of[$id] = array_unique($children_of[$id]);
 }
+
 print_r($children_of);
-exit;
+exit("\n");
 */
 
 /*
