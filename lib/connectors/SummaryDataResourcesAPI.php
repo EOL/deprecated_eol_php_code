@@ -68,7 +68,19 @@ class SummaryDataResourcesAPI
     */
     function start()
     {
-        /* print resource files (taxon summary)  ============================================================================================================
+        // /* print resource files (parent taxon summary)  ============================================================================================================
+        //--------initialize start
+        self::parse_DH(); self::initialize();
+        $anc = self::get_ancestry_via_DH(7662);
+        print_r($anc);
+        self::gen_children_of_taxon_usingDH();
+        print_r($this->DH_children_of);
+        print_r($this->DH_children_of[7662]);
+        exit("\n-end print resource files (parent taxon summary)-\n");
+        // */
+        
+        
+        // /* print resource files (taxon summary)  ============================================================================================================
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite');
         $predicates = $predicates['taxon summary']; print_r($predicates);
@@ -77,8 +89,7 @@ class SummaryDataResourcesAPI
         //--------initialize start
         self::parse_DH(); self::initialize();
         //write to DwCA
-        $resource_id = 'taxon_summary';
-        self::start_write2DwCA($resource_id)
+        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
         //--------initialize end
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -95,7 +106,7 @@ class SummaryDataResourcesAPI
         }
         self::end_write2DwCA();
         exit("\n-end print resource files (taxon summary)-\n");
-        */
+        // */
         
         /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
@@ -106,8 +117,7 @@ class SummaryDataResourcesAPI
         //--------initialize start
         self::initialize_basal_values();
         //write to DwCA
-        $esource_id = 'basal_values';
-        self::start_write2DwCA($resource_id)
+        $esource_id = 'basal_values'; self::start_write2DwCA($resource_id);
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
         $row = array("Page ID", 'eol_pk', "Value URI", "Label");
@@ -309,6 +319,53 @@ class SummaryDataResourcesAPI
     {
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
+    }
+    
+    
+    //############################################################################################ start write resource file - method = 'parent taxon summary'
+    private function gen_children_of_taxon_usingDH()
+    {
+        $info = self::prep_DH();
+        $i = 0;
+        foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array( reduced list of fields...
+                    [taxonID] => -168611
+                    [parentNameUsageID] => -105852
+                    [scientificName] => Torpediniformes
+                    [taxonRank] => order
+                    [taxonomicStatus] => accepted
+                    [EOLid] => 8898
+                    [EOLidAnnotations] => multiple;
+                    [Landmark] => 1
+                )*/
+                if($val = $rec['EOLid']) {
+                    if($anc = self::get_ancestry_via_DH($val)) {
+                        self::gen_children_of_taxon_given_ancestry($anc);
+                    }
+                }
+            }
+        }
+    }
+    private function gen_children_of_taxon_given_ancestry($anc)
+    {
+        rsort($anc);
+        $i = -1;
+        foreach($anc as $id) {
+            $i++;
+            if($parent = @$anc[$i+1]) {
+                $this->DH_children_of[$parent][] = $id;
+                $this->DH_children_of[$parent] = array_unique($this->DH_children_of[$parent]);
+            }
+        }
     }
     //############################################################################################ start write resource file - method = 'taxon summary'
     private function write_resource_file_TaxonSummary($ret)
@@ -2531,8 +2588,6 @@ class SummaryDataResourcesAPI
             }
         }
     }
-    
-    
     /* not used at the moment
     private function choose_term_type($predicate)
     {

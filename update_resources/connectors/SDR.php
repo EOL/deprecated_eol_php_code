@@ -6,16 +6,29 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
 /*
-$url = "http://eol.org/schema/terms/Habitat";
-// $url = "http://biocol.org/urn:lsid:biocol.org:col:34613";
-print_r(pathinfo($url)); exit("\n".pathinfo($url, PATHINFO_BASENAME)."\n");
-*/
+$a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);    print_r($a);
+rsort($a);         print_r($a);
+$i = -1;
+foreach($a as $id) {
+    $i++;
+    if($parent = @$a[$i+1]) {
+        $children_of[$parent][] = $id;
+        $children_of[$parent] = array_unique($children_of[$parent]);
+    }
+}
 
-/*
-$a = array(1,2,3,4); print_r($a);
-$last = array_pop($a); 
-print_r($a);
-echo "\nlast: [$last]\n"; exit;
+$a = Array(5110, 5083, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);
+rsort($a);         print_r($a);
+$i = -1;
+foreach($a as $id) {
+    $i++;
+    if($parent = @$a[$i+1]) {
+        $children_of[$parent][] = $id;
+        $children_of[$parent] = array_unique($children_of[$parent]);
+    }
+}
+print_r($children_of);
+exit;
 */
 
 /*
