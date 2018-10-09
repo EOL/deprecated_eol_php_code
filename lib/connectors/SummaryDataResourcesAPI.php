@@ -71,7 +71,25 @@ class SummaryDataResourcesAPI
         //--------initialize start
         self::parse_DH(); self::initialize();
         self::gen_children_of_taxon_usingDH(); //this will generate: e.g. $this->DH_children_of[7662]
-        print_r($this->DH_children_of); //print_r($this->DH_children_of[7662]); exit; //good debug
+        // print_r($this->DH_children_of); //print_r($this->DH_children_of[7662]); exit; //good debug
+        
+        foreach($this->DH_children_of as $page_id => $children) {
+            $txt_file = self::get_txt_path_by_page_id($page_id, ".json");
+            $WRITE = fopen($txt_file, 'w');
+            fwrite($WRITE, json_encode($children));
+            fclose($WRITE);
+            echo "\n writing json [$page_id]";
+        }
+        
+        echo "\ntest retrieval\n";
+        foreach($this->DH_children_of as $page_id => $children) {
+            $json_file = self::get_txt_path_by_page_id($page_id, ".json");
+            echo "\n$json_file";
+            $json = file_get_contents($json_file);
+            echo "\n[$page_id] children: "; print_r(json_decode($json));
+        }
+        
+        
         
     }
     function start() //DH total recs 2,724,941
@@ -362,31 +380,35 @@ class SummaryDataResourcesAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                // print_r($rec); exit;
+                // print_r($rec); //exit;
                 // /*
-                if($val = $rec['EOLid']) {
-                    echo "[$val] ";
-                    if($anc = self::get_ancestry_via_DH($val)) {
-                        array_unshift($anc, $val); //prepend $val front of $anc, become as 1st record
+                if($EOLid = $rec['EOLid']) {
+                    echo "EOLid: [$EOLid] ";
+                    if($anc = self::get_ancestry_via_DH($EOLid)) {
+                        array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
                         self::gen_children_of_taxon_given_ancestry($anc);
+                        // return; //debug
                     }
+                    else echo "\nNo ancestry [$val]\n";
                 }
                 // */
-                echo "{$i} ";
+                if(($i % 1000) == 0) echo " ".number_format($i)." ";
             }
-            if($i >= 5) break; //debug only
+            // if($i > 310000) break; //debug
         }
     }
     private function gen_children_of_taxon_given_ancestry($anc)
     {
-        $anc = array_reverse($anc); //print_r($anc);
+        $anc = array_reverse($anc);
         $temp = $anc;
         foreach($anc as $id) {
             array_shift($temp);
-            if(isset($this->DH_children_of[$id])) $this->DH_children_of[$id] = array_merge($this->DH_children_of[$id], $temp);
-            else                                  $this->DH_children_of[$id] = $temp;
-            $this->DH_children_of[$id] = array_unique($this->DH_children_of[$id]);
-            print_r($this->DH_children_of[$id]);
+            if(isset($this->DH_children_of[$id])) {
+                $this->DH_children_of[$id] = array_merge($this->DH_children_of[$id], $temp);
+                $this->DH_children_of[$id] = array_unique($this->DH_children_of[$id]);
+            }
+            else $this->DH_children_of[$id] = $temp;
+            // echo "\n proc [$id]: "; print_r($this->DH_children_of[$id]);
         }
     }
 
@@ -1496,10 +1518,10 @@ class SummaryDataResourcesAPI
         }
         return false;
     }
-    private function get_txt_path_by_page_id($page_id)
+    private function get_txt_path_by_page_id($page_id, $ext = ".txt")
     {
         $path = self::get_md5_path($this->working_dir, $page_id);
-        return $path . $page_id . ".txt";
+        return $path . $page_id . $ext;
     }
     // private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes = array()) //version 1 - didn't use
     private function main_basal_values($page_id, $predicate, $type = 'basal values', $recs = array()) //for basal values
@@ -2000,7 +2022,7 @@ class SummaryDataResourcesAPI
                     [normal_units_uri] => 
                     [resource_id] => 20
                 )*/
-                $txt_file = self::get_txt_path_by_page_id($rec['page_id'])
+                $txt_file = self::get_txt_path_by_page_id($rec['page_id']);
                 if(file_exists($txt_file)) {
                     $WRITE = fopen($txt_file, 'a');
                     fwrite($WRITE, implode("\t", $line)."\n");
