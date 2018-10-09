@@ -357,12 +357,12 @@ class SummaryDataResourcesAPI
     }
     private function gen_children_of_taxon_given_ancestry($anc)
     {
-        $anc = array_reverse($anc);                                                     print_r($anc);
+        $anc = array_reverse($anc); //print_r($anc);
         $temp = $anc;
         foreach($anc as $id) {
             array_shift($temp);
             if(isset($this->DH_children_of[$id])) $this->DH_children_of[$id] = array_merge($this->DH_children_of[$id], $temp);
-            else                         $this->DH_children_of[$id] = $temp;
+            else                                  $this->DH_children_of[$id] = $temp;
             $this->DH_children_of[$id] = array_unique($this->DH_children_of[$id]);
         }
     }
