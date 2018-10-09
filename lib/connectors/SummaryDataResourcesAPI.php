@@ -72,25 +72,7 @@ class SummaryDataResourcesAPI
         self::parse_DH(); self::initialize();
         self::gen_children_of_taxon_usingDH(); //this will generate: e.g. $this->DH_children_of[7662]
         // print_r($this->DH_children_of); //print_r($this->DH_children_of[7662]); exit; //good debug
-        
-        foreach($this->DH_children_of as $page_id => $children) {
-            $txt_file = self::get_txt_path_by_page_id($page_id, ".json");
-            $WRITE = fopen($txt_file, 'w');
-            fwrite($WRITE, json_encode($children));
-            fclose($WRITE);
-            echo "\n writing json [$page_id]";
-        }
-        
-        echo "\ntest retrieval\n";
-        foreach($this->DH_children_of as $page_id => $children) {
-            $json_file = self::get_txt_path_by_page_id($page_id, ".json");
-            echo "\n$json_file";
-            $json = file_get_contents($json_file);
-            echo "\n[$page_id] children: "; print_r(json_decode($json));
-        }
-        
-        
-        
+
     }
     function start() //DH total recs 2,724,941
     {
@@ -383,7 +365,7 @@ class SummaryDataResourcesAPI
                 // print_r($rec); //exit;
                 // /*
                 if($EOLid = $rec['EOLid']) {
-                    echo "EOLid: [$EOLid] ";
+                    echo "\nEOLid: [$EOLid] ";
                     if($anc = self::get_ancestry_via_DH($EOLid)) {
                         array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
                         self::gen_children_of_taxon_given_ancestry($anc);
@@ -392,7 +374,7 @@ class SummaryDataResourcesAPI
                     else echo "\nNo ancestry [$val]\n";
                 }
                 // */
-                if(($i % 1000) == 0) echo " ".number_format($i)." ";
+                if(($i % 1000) == 0) echo "\n".number_format($i);
             }
             // if($i > 310000) break; //debug
         }
@@ -403,15 +385,59 @@ class SummaryDataResourcesAPI
         $temp = $anc;
         foreach($anc as $id) {
             array_shift($temp);
+            self::write_ancestry_to_file($id, $temp);
+        }
+    }
+    private function write_ancestry_to_file($page_id, $children)
+    {
+        $json_file = self::get_txt_path_by_page_id($page_id, ".json");
+        if(file_exists($json_file)) {
+            $json = file_get_contents($json_file);
+            $arr = json_decode($json);
+            $arr = array_merge($arr, $children);
+            $arr = array_unique($arr);
+            $arr = array_values($arr); //reindexes key
+            $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
+            echo "\nEXISTING: writing json [$page_id] [$json_file] [".count($arr)."]";
+        }
+        else {
+            $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($children)); fclose($WRITE);
+            echo "\nNEW: writing json [$page_id] [$json_file] [".count($children)."]";
+        }
+    }
+    
+    /*
+    foreach($this->DH_children_of as $page_id => $children) {
+        $txt_file = self::get_txt_path_by_page_id($page_id, ".json");
+        $WRITE = fopen($txt_file, 'w');
+        fwrite($WRITE, json_encode($children));
+        fclose($WRITE);
+        echo "\n writing json [$page_id]";
+    }
+    echo "\ntest retrieval\n";
+    foreach($this->DH_children_of as $page_id => $children) {
+        $json_file = self::get_txt_path_by_page_id($page_id, ".json");
+        echo "\n$json_file";
+        $json = file_get_contents($json_file);
+        echo "\n[$page_id] children: "; print_r(json_decode($json));
+    }
+    */
+    
+    /*
+    private function gen_children_of_taxon_given_ancestry_v1($anc)
+    {
+        $anc = array_reverse($anc);
+        $temp = $anc;
+        foreach($anc as $id) {
+            array_shift($temp);
             if(isset($this->DH_children_of[$id])) {
                 $this->DH_children_of[$id] = array_merge($this->DH_children_of[$id], $temp);
                 $this->DH_children_of[$id] = array_unique($this->DH_children_of[$id]);
             }
             else $this->DH_children_of[$id] = $temp;
-            // echo "\n proc [$id]: "; print_r($this->DH_children_of[$id]);
         }
     }
-
+    */
     private function get_summ_process_type_given_pred($order = "normal", $range = 'predicates!A2:F1000', $item_index_no = 5) //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
     {
         require_library('connectors/GoogleClientAPI');
