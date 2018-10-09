@@ -87,9 +87,14 @@ class SummaryDataResourcesAPI
         //--------initialize end
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
-                print_r($taxon); exit;
+                // print_r($taxon); exit;
+                /*Array(
+                    [taxonRank] => order
+                    [Landmark] => 2
+                )*/
                 if(!$page_id) continue;
-                if(@$taxon['taxonRank'] != "species") {
+                if(!@$taxon['taxonRank']) continue;
+                if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
                     if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         echo "\n\nFinal result:"; print_r($ret);
@@ -740,8 +745,10 @@ class SummaryDataResourcesAPI
     private function main_parents_basal_values($main_page_id, $predicate)
     {
         /* 1. get all children of page_id with rank = species */
-        $children = self::get_children_of_rank_species($main_page_id); //orig
+        $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
         $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
+        $children = $this->DH_children_of[$main_page_id];
+        
         
         /* obsolete
         2. get all values for each child from method = 'basal values'
@@ -808,7 +815,8 @@ class SummaryDataResourcesAPI
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
     {   /* 1. get all children of page_id with rank = species */
-        $children = self::get_children_of_rank_species($main_page_id);
+        // $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
+        $children = $this->DH_children_of[$main_page_id];
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
