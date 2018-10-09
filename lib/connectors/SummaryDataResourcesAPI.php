@@ -70,19 +70,42 @@ class SummaryDataResourcesAPI
     {
         // /* print resource files (parent taxon summary)  ============================================================================================================
         //--------initialize start
+        /* un-comment in real operation
         self::parse_DH(); self::initialize();
-        $anc = self::get_ancestry_via_DH(7662);
-        print_r($anc);
-        self::gen_children_of_taxon_usingDH();
-        print_r($this->DH_children_of);
-        print_r($this->DH_children_of[7662]);
+        self::gen_children_of_taxon_usingDH(); //this will generate: e.g. $this->DH_children_of[7662]
+        */
+        // print_r($this->DH_children_of); print_r($this->DH_children_of[7662]); //good debug
+
+
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2); //3rd param is $item index no.
+        $predicates = $predicates['taxon summary']; print_r($predicates);
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        //--------initialize start
+        //write to DwCA
+        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
+        //--------initialize end
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                print_r($taxon); exit;
+                if(!$page_id) continue;
+                if(@$taxon['taxonRank'] != "species") {
+                    if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
+                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                        echo "\n\nFinal result:"; print_r($ret);
+                        self::write_resource_file_TaxonSummary($ret);
+                    }
+                }
+            }
+        }
+        self::end_write2DwCA();
         exit("\n-end print resource files (parent taxon summary)-\n");
         // */
         
         
         // /* print resource files (taxon summary)  ============================================================================================================
         //step 1: get all 'taxon summary' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite');
+        $predicates = self::get_summ_process_type_given_pred('opposite'); //same with: $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5);
         $predicates = $predicates['taxon summary']; print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
@@ -320,13 +343,10 @@ class SummaryDataResourcesAPI
         $this->archive_builder->finalize(TRUE);
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
     }
-    
-    
     //############################################################################################ start write resource file - method = 'parent taxon summary'
-    private function gen_children_of_taxon_usingDH()
+    private function gen_children_of_taxon_usingDH() //started as investigate_DH()
     {
-        $info = self::prep_DH();
-        $i = 0;
+        $info = self::prep_DH(); $i = 0;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
             if($i == 1) $fields = $line;
@@ -337,16 +357,6 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
-                /*Array( reduced list of fields...
-                    [taxonID] => -168611
-                    [parentNameUsageID] => -105852
-                    [scientificName] => Torpediniformes
-                    [taxonRank] => order
-                    [taxonomicStatus] => accepted
-                    [EOLid] => 8898
-                    [EOLidAnnotations] => multiple;
-                    [Landmark] => 1
-                )*/
                 if($val = $rec['EOLid']) {
                     if($anc = self::get_ancestry_via_DH($val)) {
                         self::gen_children_of_taxon_given_ancestry($anc);
@@ -365,6 +375,25 @@ class SummaryDataResourcesAPI
             else                                  $this->DH_children_of[$id] = $temp;
             $this->DH_children_of[$id] = array_unique($this->DH_children_of[$id]);
         }
+    }
+
+    private function get_summ_process_type_given_pred($order = "normal", $range = 'predicates!A2:F1000', $item_index_no = 5) //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0';
+        $params['range']         = $range; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) {
+            if($uri = $item[0]) {
+                if($order == "normal") $final[$uri] = @$item[$item_index_no];
+                elseif($order == "opposite") {
+                    if($var = @$item[$item_index_no]) $final[$var][] = $uri;
+                }
+            }
+        }
+        return $final;
     }
     //############################################################################################ start write resource file - method = 'taxon summary'
     private function write_resource_file_TaxonSummary($ret)
@@ -2542,24 +2571,6 @@ class SummaryDataResourcesAPI
         fwrite($WRITE, "==================================================================================================================================================================\n");
         fclose($WRITE);
         //end write
-        return $final;
-    }
-    private function get_summ_process_type_given_pred($order = "normal") //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
-    {
-        require_library('connectors/GoogleClientAPI');
-        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
-        $params['spreadsheetID'] = '1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0';
-        $params['range']         = 'predicates!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $arr = $func->access_google_sheet($params);
-        //start massage array
-        foreach($arr as $item) {
-            if($uri = $item[0]) {
-                if($order == "normal") $final[$uri] = @$item[5];
-                elseif($order == "opposite") {
-                    if($item5 = @$item[5]) $final[$item5][] = $uri;
-                }
-            }
-        }
         return $final;
     }
     private function investigate_traits_csv()
