@@ -368,7 +368,7 @@ class SummaryDataResourcesAPI
                     echo "\nEOLid: [$EOLid] ";
                     if($anc = self::get_ancestry_via_DH($EOLid)) {
                         array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
-                        self::gen_children_of_taxon_given_ancestry($anc);
+                        if($anc) self::gen_children_of_taxon_given_ancestry($anc);
                         // return; //debug
                     }
                     else echo "\nNo ancestry [$val]\n";
