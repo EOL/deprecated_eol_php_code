@@ -66,16 +66,17 @@ class SummaryDataResourcesAPI
     /* IMPORTANT STEP: working OK - commented for now.
     self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
     */
-    function start()
+    function generate_children_of_taxa_list()
     {
-        // /* print resource files (parent taxon summary)  ============================================================================================================
         //--------initialize start
-        /* un-comment in real operation
         self::parse_DH(); self::initialize();
         self::gen_children_of_taxon_usingDH(); //this will generate: e.g. $this->DH_children_of[7662]
-        */
-        // print_r($this->DH_children_of); print_r($this->DH_children_of[7662]); //good debug
-
+        print_r($this->DH_children_of); //print_r($this->DH_children_of[7662]); exit; //good debug
+        
+    }
+    function start() //DH total recs 2,724,941
+    {
+        // /* print resource files (parent taxon summary)  ============================================================================================================
 
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2); //3rd param is $item index no.
         $predicates = $predicates['taxon summary']; print_r($predicates);
@@ -362,12 +363,18 @@ class SummaryDataResourcesAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
+                // /*
                 if($val = $rec['EOLid']) {
+                    echo "[$val] ";
                     if($anc = self::get_ancestry_via_DH($val)) {
+                        array_unshift($anc, $val); //prepend $val front of $anc, become as 1st record
                         self::gen_children_of_taxon_given_ancestry($anc);
                     }
                 }
+                // */
+                echo "{$i} ";
             }
+            if($i >= 5) break; //debug only
         }
     }
     private function gen_children_of_taxon_given_ancestry($anc)
@@ -379,6 +386,7 @@ class SummaryDataResourcesAPI
             if(isset($this->DH_children_of[$id])) $this->DH_children_of[$id] = array_merge($this->DH_children_of[$id], $temp);
             else                                  $this->DH_children_of[$id] = $temp;
             $this->DH_children_of[$id] = array_unique($this->DH_children_of[$id]);
+            print_r($this->DH_children_of[$id]);
         }
     }
 
@@ -1261,7 +1269,7 @@ class SummaryDataResourcesAPI
         foreach($ancestry as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
         // */
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        $path = self::get_txt_path_by_page_id($page_id);
+        // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nrecs: ".count($recs)."\n";
@@ -1402,7 +1410,7 @@ class SummaryDataResourcesAPI
     {
         echo "\n==================================================================================\nMethod: lifestage & statMeth";
         echo "\npage_id: $page_id | predicate: [$predicate]\n";
-        $path = self::get_txt_path_by_page_id($page_id);
+        // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nCandidate records: ".count($recs)."\n"; print_r($recs);
@@ -1992,9 +2000,7 @@ class SummaryDataResourcesAPI
                     [normal_units_uri] => 
                     [resource_id] => 20
                 )*/
-
-                $path = self::get_md5_path($this->working_dir, $rec['page_id']);
-                $txt_file = $path . $rec['page_id'] . ".txt";
+                $txt_file = self::get_txt_path_by_page_id($rec['page_id'])
                 if(file_exists($txt_file)) {
                     $WRITE = fopen($txt_file, 'a');
                     fwrite($WRITE, implode("\t", $line)."\n");

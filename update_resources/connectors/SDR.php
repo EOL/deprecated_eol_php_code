@@ -5,9 +5,13 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
+// $a = array(2,3,4); print_r($a);
+// array_unshift($a, 1); print_r($a);
+// exit;
+
 /*
 $a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);     
-$a = array_reverse($a);                                                     print_r($a);
+$a = array_reverse($a); print_r($a);
 $temp = $a;
 foreach($a as $id) {
     array_shift($temp);
@@ -16,15 +20,15 @@ foreach($a as $id) {
     $children_of[$id] = array_unique($children_of[$id]);
 }
 
-$a = Array(5110, 5083, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);
-$a = array_reverse($a);                                                     print_r($a);
-$temp = $a;
-foreach($a as $id) {
-    array_shift($temp);
-    if(isset($children_of[$id])) $children_of[$id] = array_merge($children_of[$id], $temp);
-    else                         $children_of[$id] = $temp;
-    $children_of[$id] = array_unique($children_of[$id]);
-}
+// $a = Array(5110, 5083, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);
+// $a = array_reverse($a);                                                     print_r($a);
+// $temp = $a;
+// foreach($a as $id) {
+//     array_shift($temp);
+//     if(isset($children_of[$id])) $children_of[$id] = array_merge($children_of[$id], $temp);
+//     else                         $children_of[$id] = $temp;
+//     $children_of[$id] = array_unique($children_of[$id]);
+// }
 
 print_r($children_of);
 exit("\n");
@@ -62,6 +66,7 @@ $timestart = time_elapsed();
 $resource_id = 'SDR';
 
 $func = new SummaryDataResourcesAPI($resource_id);
+$func->generate_children_of_taxa_list(); return;
 $func->start();
 // Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
