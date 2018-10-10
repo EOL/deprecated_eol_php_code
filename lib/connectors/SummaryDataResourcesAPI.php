@@ -361,6 +361,7 @@ class SummaryDataResourcesAPI
                 }
                 // print_r($rec); //exit;
                 // /*
+                // $rec['EOLid'] = 231;
                 if($EOLid = $rec['EOLid']) {
                     echo "\n".number_format($i);
                     echo " - EOLid: [$EOLid] "; 
@@ -390,11 +391,12 @@ class SummaryDataResourcesAPI
     {
         $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
         if(file_exists($json_file)) {
+            // echo "\n[$page_id] $json_file\n";
             $json = file_get_contents($json_file);
             $arr = json_decode($json);
             $arr = array_merge($arr, $children);
             $arr = array_unique($arr);
-            $arr = array_values($arr); //reindexes key
+            // $arr = array_values($arr); //reindexes key
             $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
             // echo "\nEXISTING: writing json [$page_id] [$json_file] [".count($arr)."]";
         }
