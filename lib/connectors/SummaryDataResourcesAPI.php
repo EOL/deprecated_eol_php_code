@@ -217,11 +217,6 @@ class SummaryDataResourcesAPI
         exit("\n-end print resource files (Basal values)-\n");
         */
         
-        /* WORKING ============================================================================================================
-        $ret = self::get_summ_process_type_given_pred('opposite');
-        print_r($ret); exit("\n".count($ret)."\n");
-        */
-        
         /*
         self::initialize();
         self::investigate_traits_csv(); exit;
@@ -232,8 +227,7 @@ class SummaryDataResourcesAPI
         $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         
-        $resource_id = 'parent_taxon_summary';
-        self::start_write2DwCA($resource_id);
+        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -250,12 +244,9 @@ class SummaryDataResourcesAPI
         /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
 
-        $resource_id = 'taxon_summary';
-        self::start_write2DwCA($resource_id);
+        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
         
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
-        // $page_id = 328682; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats -- additional test sample but no record for predicate 'eats'.
-        // $page_id = 7666;
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         // $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
