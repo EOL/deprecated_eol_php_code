@@ -64,13 +64,33 @@ class SummaryDataResourcesAPI
     write resource file: parent taxon summary
     
     */
-    function generate_children_of_taxa_list()
+    function generate_children_of_taxa_using_parentsCSV()
     {
-        //--------initialize start
+        // self::initialize(); //not needed
+        $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [child] => 47054812
+                    [parent] => 7662
+                )*/
+                $child = $rec['child']; $parent = $rec['parent'];
+                $children_of[$parent][$child] = '';
+            }
+        }
+        foreach($children_of as $parent => $children) $final[$parent] = array_keys($children);
+        $this->children_of = $final;
+    }
+    function generate_children_of_taxa_usingDH()
+    {
         self::parse_DH(); self::initialize();
-        self::gen_children_of_taxon_usingDH(); //this will generate: e.g. $this->DH_children_of[7662]
-        // print_r($this->DH_children_of); //print_r($this->DH_children_of[7662]); exit; //good debug
-
+        self::gen_children_of_taxon_usingDH();
     }
     function start() //DH total recs 2,724,941
     {
@@ -134,7 +154,7 @@ class SummaryDataResourcesAPI
         */
 
 
-        // /* print resource files (lifestage+statMeth)  ============================================================================================================
+        /* print resource files (lifestage+statMeth)  ============================================================================================================
         //step 1: get all 'lifestage and statistical method' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method'); //3rd param is $item index no.
         self::working_dir();
@@ -160,9 +180,9 @@ class SummaryDataResourcesAPI
         }
         fclose($WRITE);
         exit("\n-end print resource files (lifestage+statMeth)-\n");
-        // */
+        */
         
-        // /* METHOD: lifestage+statMeth ============================================================================================================
+        /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
         $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         $page_ids = array(347436, 347438, 46559130);
@@ -181,10 +201,10 @@ class SummaryDataResourcesAPI
         }
         fclose($WRITE);
         exit("\n-- end method: lifestage_statMeth --\n");
-        // */
+        */
         
         
-        // /* print resource files (Basal values)  ============================================================================================================
+        /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
         print_r($predicates);
@@ -214,17 +234,18 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-end print resource files (Basal values)-\n");
-        // */
+        */
         
         /*
         self::initialize();
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents: taxon summary ============================================================================================================
+        // /* METHOD: parents: taxon summary ============================================================================================================
         self::parse_DH(); self::initialize();
+        self::generate_children_of_taxa_using_parentsCSV();
         $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
-        $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         
         $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
         
@@ -238,7 +259,7 @@ class SummaryDataResourcesAPI
         }
         self::end_write2DwCA();
         exit("\n-- end method: parents: taxon summary --\n");
-        */
+        // */
 
         /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
@@ -457,39 +478,6 @@ class SummaryDataResourcesAPI
             // echo "\nNEW: writing json [$page_id] [$json_file] [".count($children)."]";
         }
     }
-    
-    /*
-    foreach($this->DH_children_of as $page_id => $children) {
-        $txt_file = self::get_txt_path_by_page_id($page_id, ".json");
-        $WRITE = fopen($txt_file, 'w');
-        fwrite($WRITE, json_encode($children));
-        fclose($WRITE);
-        echo "\n writing json [$page_id]";
-    }
-    echo "\ntest retrieval\n";
-    foreach($this->DH_children_of as $page_id => $children) {
-        $json_file = self::get_txt_path_by_page_id($page_id, ".json");
-        echo "\n$json_file";
-        $json = file_get_contents($json_file);
-        echo "\n[$page_id] children: "; print_r(json_decode($json));
-    }
-    */
-    
-    /*
-    private function gen_children_of_taxon_given_ancestry_v1($anc)
-    {
-        $anc = array_reverse($anc);
-        $temp = $anc;
-        foreach($anc as $id) {
-            array_shift($temp);
-            if(isset($this->DH_children_of[$id])) {
-                $this->DH_children_of[$id] = array_merge($this->DH_children_of[$id], $temp);
-                $this->DH_children_of[$id] = array_unique($this->DH_children_of[$id]);
-            }
-            else $this->DH_children_of[$id] = $temp;
-        }
-    }
-    */
     private function get_summ_process_type_given_pred($order = "normal", $range = 'predicates!A2:F1000', $item_index_no = 5, $filter) //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
     {
         require_library('connectors/GoogleClientAPI');
@@ -855,7 +843,7 @@ class SummaryDataResourcesAPI
         /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
         $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
-        $children = $this->DH_children_of[$main_page_id];
+        $children = $this->children_of[$main_page_id];
         
         
         /* obsolete
@@ -924,7 +912,7 @@ class SummaryDataResourcesAPI
     private function main_parents_taxon_summary($main_page_id, $predicate)
     {   /* 1. get all children of page_id with rank = species */
         // $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
-        $children = $this->DH_children_of[$main_page_id];
+        $children = $this->children_of[$main_page_id];
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
