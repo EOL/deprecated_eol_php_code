@@ -85,7 +85,7 @@ class SummaryDataResourcesAPI
             }
         }
         foreach($children_of as $parent => $children) $final[$parent] = array_keys($children);
-        $this->children_of = $final;
+        $this->CSV_children_of = $final;
     }
     function generate_children_of_taxa_usingDH()
     {
@@ -843,8 +843,8 @@ class SummaryDataResourcesAPI
         /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
         $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
-        $children = $this->children_of[$main_page_id];
-        
+        $children = @$this->CSV_children_of[$main_page_id];
+        if(!$children) return array();
         
         /* obsolete
         2. get all values for each child from method = 'basal values'
@@ -912,14 +912,18 @@ class SummaryDataResourcesAPI
     private function main_parents_taxon_summary($main_page_id, $predicate)
     {   /* 1. get all children of page_id with rank = species */
         // $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
-        $children = $this->children_of[$main_page_id];
+        $children = @$this->CSV_children_of[$main_page_id];
+        if(!$children) return array();
+        // print_r($children); exit;
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
+        $records = array();
         foreach($children as $page_id) {
             if($val = self::main_taxon_summary($page_id, $predicate)) $records[] = $val;
             // print_r($val); exit;
         }
+        if(!$records) return array();
         /* 3. get all selected values */
         $page_ids = array();
         foreach($records as $rec) {
