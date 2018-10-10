@@ -94,52 +94,14 @@ class SummaryDataResourcesAPI
     }
     function print_parent_basal_values()
     {
-        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
-        self::initialize_basal_values();
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
-        // exit;
         
-        self::working_dir();
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        
-        //write to DwCA
-        $resource_id = 'parent_basal_values'; self::start_write2DwCA($resource_id);
-        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-
-        //write to file
-        if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
-        fwrite($WRITE, implode("\t", $row). "\n");
-        // */
-
-        foreach($predicates as $predicate) {
-            foreach($page_ids as $page_id => $taxon) {
-                // print_r($taxon); exit;
-                // Array(
-                //     [taxonRank] => order
-                //     [Landmark] => 2
-                // )
-                if(!$page_id) continue;
-                if(!@$taxon['taxonRank']) continue;
-                if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
-                    
-                    $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
-                    if($ret = self::main_parents_basal_values($page_id, $predicate)) {
-                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        self::write_resource_file_BasalValues($ret, $WRITE);
-                    }
-                }
-            }
-        }
-        fclose($WRITE);
-        self::end_write2DwCA();
-        exit("\n-- end parents basal values --\n");
     }
     function print_parent_taxon_summary()
     {
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); //3rd param is $item index no.
+        print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //write to DwCA
@@ -168,7 +130,8 @@ class SummaryDataResourcesAPI
     function print_basal_values()
     {
         //step 1: get all 'basal values' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
+        print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
@@ -224,6 +187,7 @@ class SummaryDataResourcesAPI
         self::end_write2DwCA();
         exit("\n-end print taxon summary-\n");
     }
+
     function print_lifeStage_statMeth()
     {
         //step 1: get all 'lifestage and statistical method' predicates:
@@ -251,6 +215,7 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         exit("\n-end print resource files (lifestage+statMeth)-\n");
     }
+    
     function start() //DH total recs 2,724,941
     {
         /* METHOD: lifestage+statMeth ============================================================================================================
@@ -329,7 +294,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: 'taxon summary' --\n");
         */
 
-        // /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH();
         self::initialize_basal_values();
@@ -914,11 +879,6 @@ class SummaryDataResourcesAPI
         }
         // */
         
-        /* debug force assign
-        if($main_page_id == 7662) $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
-        echo "\n*Children of [$main_page_id]: "; print_r($children);
-        */
-        
         /* obsolete
         2. get all values for each child from method = 'basal values'
         foreach($children as $page_id) {
@@ -960,10 +920,7 @@ class SummaryDataResourcesAPI
             print_r($val); exit("\nelix\n");
         }
         */
-        if(!$recs) {
-            echo "\nNo recs for any of the children for predicate [$predicate]\n";
-            return false;
-        }
+        
         if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {
             print_r($ret);
             foreach($ret['Selected'] as $term) { //debug only
@@ -1694,7 +1651,7 @@ class SummaryDataResourcesAPI
                 return false;
             }
         }
-        elseif($type == 'parent basal values') { //for parent basal values
+        elseif($type == 'parent basal values' && $recs) { //for parent basal values
             $this->parent_basal_values_YesNo = true;
             
             /* version 1 - didn't use
@@ -1702,18 +1659,9 @@ class SummaryDataResourcesAPI
             $ISVAT = $param_isvat;
             */
             $this->original_nodes = $this->original_nodes_parent;
-            if(!$recs) {
-                echo "\n01. No records for [$page_id] [$predicate].\n";
-                return false;
-            }
         }
-        else {
-            exit("\nShould not go here...\n");
-        }
-        echo "\n recs: ".count($recs);
         $uris = self::get_valueUris_from_recs($recs);
         echo "\n uris: ".count($uris); print_r($uris);
-        
         self::set_ancestor_ranking_from_set_of_uris($uris);
         // print_r($this->ancestor_ranking_preferred); exit;
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
