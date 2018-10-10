@@ -75,8 +75,8 @@ class SummaryDataResourcesAPI
     function start() //DH total recs 2,724,941
     {
         /* print resource files (parent taxon summary)  ============================================================================================================
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2); //3rd param is $item index no.
-        $predicates = $predicates['taxon summary']; print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); //3rd param is $item index no.
+        print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
@@ -107,8 +107,8 @@ class SummaryDataResourcesAPI
         
         /* print resource files (taxon summary)  ============================================================================================================
         //step 1: get all 'taxon summary' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite'); //same with: $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5);
-        $predicates = $predicates['taxon summary']; print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary');
+        print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
@@ -136,8 +136,7 @@ class SummaryDataResourcesAPI
 
         // /* print resource files (lifestage+statMeth)  ============================================================================================================
         //step 1: get all 'lifestage and statistical method' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5); //3rd param is $item index no.
-        $predicates = $predicates['lifestage and statistical method']; //print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method'); //3rd param is $item index no.
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
@@ -185,10 +184,10 @@ class SummaryDataResourcesAPI
         // */
         
         
-        /* print resource files (Basal values)  ============================================================================================================
+        // /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite');
-        $predicates = $predicates['basal values']; print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
+        print_r($predicates);
         self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
@@ -215,7 +214,7 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-end print resource files (Basal values)-\n");
-        */
+        // */
         
         /*
         self::initialize();
@@ -491,7 +490,7 @@ class SummaryDataResourcesAPI
         }
     }
     */
-    private function get_summ_process_type_given_pred($order = "normal", $range = 'predicates!A2:F1000', $item_index_no = 5) //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
+    private function get_summ_process_type_given_pred($order = "normal", $range = 'predicates!A2:F1000', $item_index_no = 5, $filter) //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -507,7 +506,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        return $final;
+        return $final[$filter];
     }
     //############################################################################################ start write resource file - method = 'taxon summary'
     private function write_resource_file_TaxonSummary($ret)
