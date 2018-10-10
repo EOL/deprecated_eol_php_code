@@ -623,7 +623,7 @@ class SummaryDataResourcesAPI
         /*step 1: get all eol_pks */
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
 
-        $found = array();
+        $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
                 if($rec['value_uri'] == $id) {
@@ -637,7 +637,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        self::adjust_if_needed_and_write_existing_records($existing_records_for_writing, $WRITE);
+        if($existing_records_for_writing) self::adjust_if_needed_and_write_existing_records($existing_records_for_writing, $WRITE);
         
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
@@ -1719,6 +1719,7 @@ class SummaryDataResourcesAPI
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
 
         $ISVAT = self::sort_ISVAT($ISVAT, 1);
+        if(!$ISVAT) return false;
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];
         echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
@@ -2299,7 +2300,7 @@ class SummaryDataResourcesAPI
             $unique[$rec[0]] = '';
         }
         //2nd step: check if parent is not root (meaning has parents), if yes: get parent and add the new node:
-        $recs = array();
+        $recs = array(); $roots = array();
         foreach(array_keys($unique) as $child) {
             // echo "\n$child: ";
             if($arr = @$this->parents_of[$child]) { // echo " - not root, has parents ".count($arr);
