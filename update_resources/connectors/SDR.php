@@ -69,9 +69,9 @@ $func = new SummaryDataResourcesAPI($resource_id);
 // $func->generate_page_id_txt_files();        return; //important initial step
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program
 
-$func->print_parent_basal_values();      return;
+// $func->print_parent_basal_values();      return;
 // $func->print_parent_taxon_summary();     return;
-// $func->print_lifeStage_statMeth();       return;
+$func->print_lifeStage_statMeth();       return;
 
 $func->start();
 // Functions::finalize_dwca_resource($resource_id);

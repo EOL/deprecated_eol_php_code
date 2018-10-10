@@ -901,8 +901,7 @@ class SummaryDataResourcesAPI
     private function main_parents_basal_values($main_page_id, $predicate)
     {
         /* 1. get all children of page_id with rank = species */
-        $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
-        $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
+        // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
 
         // /*
         if($children = @$this->CSV_children_of[$main_page_id]) {
@@ -991,7 +990,7 @@ class SummaryDataResourcesAPI
         echo "\n#####################################################################\n";
         echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
-        // $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
+        // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
 
         if($children = @$this->CSV_children_of[$main_page_id]) {
             echo "\n*Children of [$main_page_id]: "; print_r($children);
@@ -1300,11 +1299,6 @@ class SummaryDataResourcesAPI
         }
         else return $hierarchies_of_taxon_values;
         */
-    }
-    private function get_children_of_rank_species($page_id) //TODO
-    {
-        // return array(328598, 328609, 46559217, 328682, 328607); wrong list
-           return array(328598, 46559162, 328607, 46559217, 328609);
     }
     //############################################################################################ end method = 'parents'
     private function extract_DH()
