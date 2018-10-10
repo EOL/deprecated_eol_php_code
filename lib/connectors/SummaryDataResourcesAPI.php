@@ -92,9 +92,16 @@ class SummaryDataResourcesAPI
         self::parse_DH(); self::initialize();
         self::gen_children_of_taxon_usingDH();
     }
+    function print_parent_basal_values()
+    {
+        
+    }
     function start() //DH total recs 2,724,941
     {
-        /* print resource files (parent taxon summary)  ============================================================================================================
+        // /* print resource files (parent taxon summary)  ============================================================================================================
+        self::parse_DH(); self::initialize();
+        self::generate_children_of_taxa_using_parentsCSV();
+        
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); //3rd param is $item index no.
         print_r($predicates);
         self::working_dir();
@@ -123,7 +130,7 @@ class SummaryDataResourcesAPI
         }
         self::end_write2DwCA();
         exit("\n-end print resource files (parent taxon summary)-\n");
-        */
+        // */
         
         /* print resource files (taxon summary)  ============================================================================================================
         //step 1: get all 'taxon summary' predicates:
@@ -244,8 +251,8 @@ class SummaryDataResourcesAPI
         // /* METHOD: parents: taxon summary ============================================================================================================
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
-        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
-        // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         
         $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
         
@@ -843,8 +850,14 @@ class SummaryDataResourcesAPI
         /* 1. get all children of page_id with rank = species */
         $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
         $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
-        $children = @$this->CSV_children_of[$main_page_id];
-        if(!$children) return array();
+
+        if($children = @$this->CSV_children_of[$main_page_id]) {
+            echo "\n*Children of [$main_page_id]: "; print_r($children);
+        }
+        else {
+            echo "\n*No children found for [$main_page_id]\n";
+            return array();
+        }
         
         /* obsolete
         2. get all values for each child from method = 'basal values'
@@ -910,11 +923,19 @@ class SummaryDataResourcesAPI
     */
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
-    {   /* 1. get all children of page_id with rank = species */
+    {   
+        echo "\n#####################################################################\n";
+        echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
+        /* 1. get all children of page_id with rank = species */
         // $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
-        $children = @$this->CSV_children_of[$main_page_id];
-        if(!$children) return array();
-        // print_r($children); exit;
+
+        if($children = @$this->CSV_children_of[$main_page_id]) {
+            echo "\n*Children of [$main_page_id]: "; print_r($children);
+        }
+        else {
+            echo "\n*No children found for [$main_page_id]\n";
+            return array();
+        }
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
@@ -1357,11 +1378,11 @@ class SummaryDataResourcesAPI
     }
     private function main_taxon_summary($page_id, $predicate)
     {
-        // /* working but seems not needed. Just bring it back when requested.
+        /* working but seems not needed. Just bring it back when requested.
         $ancestry = self::get_ancestry_via_DH($page_id);
         echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
         foreach($ancestry as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
-        // */
+        */
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
