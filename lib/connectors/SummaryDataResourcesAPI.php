@@ -63,9 +63,6 @@ class SummaryDataResourcesAPI
     write resource file: parent taxon summary
     
     */
-    /* IMPORTANT STEP: working OK - commented for now.
-    self::working_dir(); self::generate_page_id_txt_files(); exit("\n\nText file generation DONE.\n\n");
-    */
     function generate_children_of_taxa_list()
     {
         //--------initialize start
@@ -365,10 +362,11 @@ class SummaryDataResourcesAPI
                 // print_r($rec); //exit;
                 // /*
                 if($EOLid = $rec['EOLid']) {
-                    echo "\nEOLid: [$EOLid] ";
+                    echo "\n".number_format($i);
+                    echo " - EOLid: [$EOLid] "; 
                     if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
                         array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
-                        if($anc) self::gen_children_of_taxon_given_ancestry($anc);
+                        self::gen_children_of_taxon_given_ancestry($anc);
                         // return; //debug
                     }
                     else echo "\nNo ancestry [$val]\n";
@@ -376,7 +374,7 @@ class SummaryDataResourcesAPI
                 // */
                 if(($i % 1000) == 0) echo "\n".number_format($i);
             }
-            // if($i > 310000) break; //debug
+            // if($i > 400000) break; //debug
         }
     }
     private function gen_children_of_taxon_given_ancestry($anc)
@@ -385,12 +383,12 @@ class SummaryDataResourcesAPI
         $temp = $anc;
         foreach($anc as $id) {
             array_shift($temp);
-            self::write_ancestry_to_file($id, $temp);
+            if($temp) self::write_ancestry_to_file($id, $temp);
         }
     }
     private function write_ancestry_to_file($page_id, $children)
     {
-        $json_file = self::get_txt_path_by_page_id($page_id, ".json");
+        $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
         if(file_exists($json_file)) {
             $json = file_get_contents($json_file);
             $arr = json_decode($json);
@@ -398,11 +396,11 @@ class SummaryDataResourcesAPI
             $arr = array_unique($arr);
             $arr = array_values($arr); //reindexes key
             $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
-            echo "\nEXISTING: writing json [$page_id] [$json_file] [".count($arr)."]";
+            // echo "\nEXISTING: writing json [$page_id] [$json_file] [".count($arr)."]";
         }
         else {
             $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($children)); fclose($WRITE);
-            echo "\nNEW: writing json [$page_id] [$json_file] [".count($children)."]";
+            // echo "\nNEW: writing json [$page_id] [$json_file] [".count($children)."]";
         }
     }
     
@@ -2017,8 +2015,9 @@ class SummaryDataResourcesAPI
         $final = array_unique($final, SORT_REGULAR);
         return $final;
     }
-    private function generate_page_id_txt_files()
+    function generate_page_id_txt_files()
     {
+        self::working_dir();
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
@@ -2064,7 +2063,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($file);
+        fclose($file); exit("\n\nText file generation DONE.\n\n");
     }
     private function get_md5_path($path, $taxonkey)
     {
