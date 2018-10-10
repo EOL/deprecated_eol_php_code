@@ -366,7 +366,7 @@ class SummaryDataResourcesAPI
                 // /*
                 if($EOLid = $rec['EOLid']) {
                     echo "\nEOLid: [$EOLid] ";
-                    if($anc = self::get_ancestry_via_DH($EOLid)) {
+                    if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
                         array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
                         if($anc) self::gen_children_of_taxon_given_ancestry($anc);
                         // return; //debug
@@ -1280,7 +1280,7 @@ class SummaryDataResourcesAPI
         // recursive_rmdir($info['temp_dir']);
         // echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
-    private function get_ancestry_via_DH($page_id)
+    private function get_ancestry_via_DH($page_id, $landmark_only = true)
     {
         $final = array(); $final2 = array();
         $taxonID = @$this->EOL_2_DH[$page_id];
@@ -1297,13 +1297,15 @@ class SummaryDataResourcesAPI
         foreach($final as $taxonID) {
             // echo "\n$i. [$taxonID] => ";
             if($EOLid = @$this->DH_2_EOL[$taxonID]) {
-                /* orig strategy
-                $final2[] = $EOLid; */
                 /* new strategy: using Landmark value   ver 1
                 if($this->landmark_value_of[$EOLid]) $final2[] = $EOLid; */
-                // /* new strategy: using Landmark value   ver 2
-                if($this->landmark_value_of[$EOLid] || isset($this->is_family[$EOLid])) $final2[] = $EOLid;
-                // */
+
+                if($landmark_only) { //default; new strategy: using Landmark value   ver 2
+                    if($this->landmark_value_of[$EOLid] || isset($this->is_family[$EOLid])) $final2[] = $EOLid;
+                }
+                else { //orig strategy
+                    $final2[] = $EOLid;
+                }
             }
             $i++;
         }
