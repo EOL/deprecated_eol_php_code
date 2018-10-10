@@ -67,7 +67,7 @@ $resource_id = 'SDR';
 
 $func = new SummaryDataResourcesAPI($resource_id);
 /* $func->generate_page_id_txt_files(); return; */ //important initial step
-$func->generate_children_of_taxa_list(); return;
+// $func->generate_children_of_taxa_list(); return;
 $func->start();
 // Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;

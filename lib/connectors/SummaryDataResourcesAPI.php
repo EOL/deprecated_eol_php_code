@@ -50,6 +50,7 @@ class SummaryDataResourcesAPI
         
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
+        $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
     }
     /*
     basal values
@@ -73,8 +74,7 @@ class SummaryDataResourcesAPI
     }
     function start() //DH total recs 2,724,941
     {
-        // /* print resource files (parent taxon summary)  ============================================================================================================
-
+        /* print resource files (parent taxon summary)  ============================================================================================================
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2); //3rd param is $item index no.
         $predicates = $predicates['taxon summary']; print_r($predicates);
         self::working_dir();
@@ -86,10 +86,10 @@ class SummaryDataResourcesAPI
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
                 // print_r($taxon); exit;
-                /*Array(
-                    [taxonRank] => order
-                    [Landmark] => 2
-                )*/
+                // Array(
+                //     [taxonRank] => order
+                //     [Landmark] => 2
+                // )
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
@@ -103,10 +103,9 @@ class SummaryDataResourcesAPI
         }
         self::end_write2DwCA();
         exit("\n-end print resource files (parent taxon summary)-\n");
-        // */
+        */
         
-        
-        // /* print resource files (taxon summary)  ============================================================================================================
+        /* print resource files (taxon summary)  ============================================================================================================
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite'); //same with: $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5);
         $predicates = $predicates['taxon summary']; print_r($predicates);
@@ -132,7 +131,59 @@ class SummaryDataResourcesAPI
         }
         self::end_write2DwCA();
         exit("\n-end print resource files (taxon summary)-\n");
+        */
+
+
+        // /* print resource files (lifestage+statMeth)  ============================================================================================================
+        //step 1: get all 'lifestage and statistical method' predicates:
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5); //3rd param is $item index no.
+        $predicates = $predicates['lifestage and statistical method']; //print_r($predicates);
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        //--------initialize start
+        self::parse_DH(); self::initialize();
+        //--------initialize end
+        //write to file
+        if(!($WRITE = Functions::file_open($this->lifeState_statMeth_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Predicate", "Label");
+        fwrite($WRITE, implode("\t", $row). "\n");
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                //print_r($taxon);
+                if(!$page_id) continue;
+                if(@$taxon['taxonRank'] == "species") {
+                    if($ret = self::main_lifestage_statMeth($page_id, $predicate)) {
+                        $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $ret['label']);
+                        fwrite($WRITE, implode("\t", $row). "\n");
+                    }
+                }
+            }
+        }
+        fclose($WRITE);
+        exit("\n-end print resource files (lifestage+statMeth)-\n");
         // */
+        
+        // /* METHOD: lifestage+statMeth ============================================================================================================
+        self::initialize();
+        $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
+        $page_ids = array(347436, 347438, 46559130);
+        // $page_ids = array(328674);
+
+        //write to file
+        if(!($WRITE = Functions::file_open($this->lifeState_statMeth_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Predicate", "Label");
+        fwrite($WRITE, implode("\t", $row). "\n");
+
+        foreach($page_ids as $page_id) {
+            $ret = self::main_lifestage_statMeth($page_id, $predicate);
+            // print_r($ret); exit;
+            $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $ret['label']);
+            fwrite($WRITE, implode("\t", $row). "\n");
+        }
+        fclose($WRITE);
+        exit("\n-- end method: lifestage_statMeth --\n");
+        // */
+        
         
         /* print resource files (Basal values)  ============================================================================================================
         //step 1: get all 'basal values' predicates:
@@ -228,18 +279,6 @@ class SummaryDataResourcesAPI
         self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
         */
-
-        // /* METHOD: lifestage+statMeth ============================================================================================================
-        self::initialize();
-        $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
-        $page_ids = array(347436, 347438, 46559130);
-        $page_ids = array(328674);
-        foreach($page_ids as $page_id) {
-            $ret = self::main_lifestage_statMeth($page_id, $predicate);
-            print_r($ret);
-        }
-        exit("\n-- end method: lifestage_statMeth --\n");
-        // */
 
         /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         // self::parse_DH();
@@ -357,7 +396,7 @@ class SummaryDataResourcesAPI
                 
                 // /* breakdown when caching:
                 $cont = false;
-                if($i >= 531600) $cont = true; //1st stop-continue
+                if($i >= 531600) $cont = true; //1st stop-continue 547,881
                 if(!$cont) continue;
                 // */
                 
@@ -1486,17 +1525,18 @@ class SummaryDataResourcesAPI
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
-        echo "\nCandidate records: ".count($recs)."\n"; print_r($recs);
+        echo "\nCandidate records: ".count($recs)."\n"; //print_r($recs); //good debug
         if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step23456789($recs)) {}
         else exit("\nsingle simple answer (PRM) if still needed: put REP records in order of value and select one from the middle (arbitrary tie breaks OK)\n");
         if($val = @$ret['recs']) $ret['recs_total'] = count($val);
+        if(count($ret['recs']) > 1) exit("\nMore than 1 record, do sort and pick median record.\n");
         return $ret;
     }
     private function lifestage_statMeth_Step0($recs)
     {
-        if(count($recs) == 1) return array('label' => 'REP and PRM', 'recs' => $recs, 'step' => 0);
+        if(count($recs) == 1) return array('label' => 'PRM and REP', 'recs' => $recs, 'step' => 0);
         else return false;
     }
     private function lifestage_statMeth_Step1($recs)
