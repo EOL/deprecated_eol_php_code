@@ -354,6 +354,13 @@ class SummaryDataResourcesAPI
             $line = explode("\t", $line); $i++;
             if($i == 1) $fields = $line;
             else {
+                
+                // /* breakdown when caching:
+                $cont = false;
+                if($i >= 531600) $cont = true; //1st stop-continue
+                if(!$cont) continue;
+                // */
+                
                 if(!$line[0]) break;
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
@@ -394,14 +401,30 @@ class SummaryDataResourcesAPI
             // echo "\n[$page_id] $json_file\n";
             $json = file_get_contents($json_file);
             $arr = json_decode($json);
+            /* ver 1
             $arr = array_merge($arr, $children);
             $arr = array_unique($arr);
             // $arr = array_values($arr); //reindexes key
             $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
             // echo "\nEXISTING: writing json [$page_id] [$json_file] [".count($arr)."]";
+            */
+            // /* ver 2
+            $cont_write = false;
+            foreach($children as $child) {
+                if(!in_array($child, $arr)) {
+                    $arr[] = $child;
+                    $cont_write = true;
+                }
+            }
+            if($cont_write) { //echo " -appending ";
+                $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
+            }
+            else echo " -no add ";
+            // */
         }
         else {
             $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($children)); fclose($WRITE);
+            echo " -new ";
             // echo "\nNEW: writing json [$page_id] [$json_file] [".count($children)."]";
         }
     }
