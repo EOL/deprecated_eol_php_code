@@ -96,6 +96,33 @@ class SummaryDataResourcesAPI
     {
         
     }
+    function print_lifeStage_statMeth()
+    {
+        //step 1: get all 'lifestage and statistical method' predicates:
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method'); //3rd param is $item index no.
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        //--------initialize start
+        self::parse_DH(); self::initialize();
+        //write to file
+        if(!($WRITE = Functions::file_open($this->lifeState_statMeth_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Predicate", "Label");
+        fwrite($WRITE, implode("\t", $row). "\n");
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                //print_r($taxon);
+                if(!$page_id) continue;
+                if(@$taxon['taxonRank'] == "species") {
+                    if($ret = self::main_lifestage_statMeth($page_id, $predicate)) {
+                        $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $ret['label']);
+                        fwrite($WRITE, implode("\t", $row). "\n");
+                    }
+                }
+            }
+        }
+        fclose($WRITE);
+        exit("\n-end print resource files (lifestage+statMeth)-\n");
+    }
     function start() //DH total recs 2,724,941
     {
         // /* print resource files (parent taxon summary)  ============================================================================================================
@@ -161,33 +188,6 @@ class SummaryDataResourcesAPI
         */
 
 
-        /* print resource files (lifestage+statMeth)  ============================================================================================================
-        //step 1: get all 'lifestage and statistical method' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method'); //3rd param is $item index no.
-        self::working_dir();
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        //--------initialize start
-        self::parse_DH(); self::initialize();
-        //--------initialize end
-        //write to file
-        if(!($WRITE = Functions::file_open($this->lifeState_statMeth_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Predicate", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
-        foreach($predicates as $predicate) {
-            foreach($page_ids as $page_id => $taxon) {
-                //print_r($taxon);
-                if(!$page_id) continue;
-                if(@$taxon['taxonRank'] == "species") {
-                    if($ret = self::main_lifestage_statMeth($page_id, $predicate)) {
-                        $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $ret['label']);
-                        fwrite($WRITE, implode("\t", $row). "\n");
-                    }
-                }
-            }
-        }
-        fclose($WRITE);
-        exit("\n-end print resource files (lifestage+statMeth)-\n");
-        */
         
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();

@@ -64,10 +64,12 @@ exit("\n-end tests'\n");
 
 $timestart = time_elapsed();
 $resource_id = 'SDR';
-
 $func = new SummaryDataResourcesAPI($resource_id);
-/* $func->generate_page_id_txt_files(); return; */ //important initial step
-// $func->generate_children_of_taxa_usingDH(); return;
+
+// $func->generate_page_id_txt_files();        return; //important initial step
+// $func->generate_children_of_taxa_usingDH(); return; //the big long program
+$func->print_lifeStage_statMeth();          return;
+
 $func->start();
 // Functions::finalize_dwca_resource($resource_id);
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -77,3 +79,22 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
