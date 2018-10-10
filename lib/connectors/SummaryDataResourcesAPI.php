@@ -50,6 +50,7 @@ class SummaryDataResourcesAPI
         
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
+        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_resource.txt';
         $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
     }
     /*
@@ -62,9 +63,8 @@ class SummaryDataResourcesAPI
     *parent taxon summary
     write resource file: taxon summary
     write resource file: parent taxon summary
-    
     */
-    function generate_children_of_taxa_using_parentsCSV()
+    private function generate_children_of_taxa_using_parentsCSV()
     {
         // self::initialize(); //not needed
         $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r'); $i = 0;
@@ -96,6 +96,7 @@ class SummaryDataResourcesAPI
     {
         
     }
+
     function print_lifeStage_statMeth()
     {
         //step 1: get all 'lifestage and statistical method' predicates:
@@ -123,72 +124,9 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         exit("\n-end print resource files (lifestage+statMeth)-\n");
     }
+    
     function start() //DH total recs 2,724,941
     {
-        // /* print resource files (parent taxon summary)  ============================================================================================================
-        self::parse_DH(); self::initialize();
-        self::generate_children_of_taxa_using_parentsCSV();
-        
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); //3rd param is $item index no.
-        print_r($predicates);
-        self::working_dir();
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        //--------initialize start
-        //write to DwCA
-        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
-        //--------initialize end
-        foreach($predicates as $predicate) {
-            foreach($page_ids as $page_id => $taxon) {
-                // print_r($taxon); exit;
-                // Array(
-                //     [taxonRank] => order
-                //     [Landmark] => 2
-                // )
-                if(!$page_id) continue;
-                if(!@$taxon['taxonRank']) continue;
-                if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
-                    if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
-                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        echo "\n\nFinal result:"; print_r($ret);
-                        self::write_resource_file_TaxonSummary($ret);
-                    }
-                }
-            }
-        }
-        self::end_write2DwCA();
-        exit("\n-end print resource files (parent taxon summary)-\n");
-        // */
-        
-        /* print resource files (taxon summary)  ============================================================================================================
-        //step 1: get all 'taxon summary' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary');
-        print_r($predicates);
-        self::working_dir();
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        //--------initialize start
-        self::parse_DH(); self::initialize();
-        //write to DwCA
-        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
-        //--------initialize end
-        foreach($predicates as $predicate) {
-            foreach($page_ids as $page_id => $taxon) {
-                //print_r($taxon);
-                if(!$page_id) continue;
-                if(@$taxon['taxonRank'] == "species") {
-                    if($ret = self::main_taxon_summary($page_id, $predicate)) {
-                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        echo "\n\nFinal result:"; print_r($ret);
-                        self::write_resource_file_TaxonSummary($ret);
-                    }
-                }
-            }
-        }
-        self::end_write2DwCA();
-        exit("\n-end print resource files (taxon summary)-\n");
-        */
-
-
-        
         /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
         $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
@@ -210,45 +148,12 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: lifestage_statMeth --\n");
         */
         
-        
-        /* print resource files (Basal values)  ============================================================================================================
-        //step 1: get all 'basal values' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
-        print_r($predicates);
-        self::working_dir();
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        //--------initialize start
-        self::initialize_basal_values();
-        //write to DwCA
-        $esource_id = 'basal_values'; self::start_write2DwCA($resource_id);
-        //write to file
-        if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Value URI", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
-        //--------initialize end
-        foreach($predicates as $predicate) {
-            foreach($page_ids as $page_id => $taxon) {
-                // print_r($taxon);
-                if(!$page_id) continue;
-                if(@$taxon['taxonRank'] == "species") {
-                    if($ret = self::main_basal_values($page_id, $predicate)) {
-                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        self::write_resource_file_BasalValues($ret, $WRITE);
-                    }
-                }
-            }
-        }
-        fclose($WRITE);
-        self::end_write2DwCA();
-        exit("\n-end print resource files (Basal values)-\n");
-        */
-        
         /*
         self::initialize();
         self::investigate_traits_csv(); exit;
         */
 
-        // /* METHOD: parents: taxon summary ============================================================================================================
+        /* METHOD: parents: taxon summary ============================================================================================================
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
         // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
@@ -266,7 +171,7 @@ class SummaryDataResourcesAPI
         }
         self::end_write2DwCA();
         exit("\n-- end method: parents: taxon summary --\n");
-        // */
+        */
 
         /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
@@ -298,14 +203,37 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: 'taxon summary' --\n");
         */
 
-        /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        // /* METHOD: parents: basal values { TODO still a work in progress. folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH();
         self::initialize_basal_values();
-        $page_id = 7662; $predicate = "http://eol.org/schema/terms/Habitat"; //habitat includes -> orig test case
-        $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
-        $ret = self::main_parents_basal_values($page_id, $predicate);
+        
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+
+        //write to DwCA
+        $resource_id = 'parent_basal_values';
+        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        self::start_write2DwCA($resource_id);
+
+        //write to file
+        if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        fwrite($WRITE, implode("\t", $row). "\n");
+        // */
+
+        foreach($input as $i) {
+            $page_id = $i['page_id']; $predicate = $i['predicate'];
+            $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
+            if($ret = self::main_parents_basal_values($page_id, $predicate)) {
+                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                self::write_resource_file_BasalValues($ret, $WRITE);
+            }
+        }
+        
+        fclose($WRITE);
+        self::end_write2DwCA();
         exit("\n-- end method: parents: basal values --\n");
-        */
+        // */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -313,12 +241,11 @@ class SummaryDataResourcesAPI
         //write to DwCA
         $resource_id = 'basal_values';
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-
         self::start_write2DwCA($resource_id);
         
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "http://purl.obolibrary.org/obo/IAO_0000009", "Value URI");
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
         fwrite($WRITE, implode("\t", $row). "\n");
         // */
         
@@ -851,6 +778,7 @@ class SummaryDataResourcesAPI
         $children = self::get_children_of_rank_species($main_page_id); //force assign, during dev only
         $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
 
+        // /*
         if($children = @$this->CSV_children_of[$main_page_id]) {
             echo "\n*Children of [$main_page_id]: "; print_r($children);
         }
@@ -858,6 +786,7 @@ class SummaryDataResourcesAPI
             echo "\n*No children found for [$main_page_id]\n";
             return array();
         }
+        // */
         
         /* obsolete
         2. get all values for each child from method = 'basal values'
@@ -901,13 +830,14 @@ class SummaryDataResourcesAPI
         }
         */
         
-        if($val = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {
-            print_r($val);
-            foreach($val['Selected'] as $term) { //debug only
+        if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {
+            print_r($ret);
+            foreach($ret['Selected'] as $term) { //debug only
                 echo "\n[$term]: ";
                 if($val = @$this->parents_of[$term]) print_r($val);
                 else echo " -- no parent";
             }
+            return $ret;
         }
     }
     /* not used anymore...
@@ -2729,6 +2659,102 @@ class SummaryDataResourcesAPI
             }
         }
     }
+    
+    
+    function print_parent_taxon_summary()
+    {
+        self::parse_DH(); self::initialize();
+        self::generate_children_of_taxa_using_parentsCSV();
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); //3rd param is $item index no.
+        print_r($predicates);
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        //write to DwCA
+        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                // print_r($taxon); exit;
+                // Array(
+                //     [taxonRank] => order
+                //     [Landmark] => 2
+                // )
+                if(!$page_id) continue;
+                if(!@$taxon['taxonRank']) continue;
+                if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
+                    if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
+                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                        echo "\n\nFinal result:"; print_r($ret);
+                        self::write_resource_file_TaxonSummary($ret);
+                    }
+                }
+            }
+        }
+        self::end_write2DwCA();
+        exit("\n-end print parent taxon summary-\n");
+    }
+    function print_basal_values()
+    {
+        //step 1: get all 'basal values' predicates:
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
+        print_r($predicates);
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        //--------initialize start
+        self::initialize_basal_values();
+        //write to DwCA
+        $esource_id = 'basal_values'; self::start_write2DwCA($resource_id);
+        //write to file
+        if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Value URI", "Label");
+        fwrite($WRITE, implode("\t", $row). "\n");
+        //--------initialize end
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                // print_r($taxon);
+                if(!$page_id) continue;
+                if(@$taxon['taxonRank'] == "species") {
+                    if($ret = self::main_basal_values($page_id, $predicate)) {
+                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                        self::write_resource_file_BasalValues($ret, $WRITE);
+                    }
+                }
+            }
+        }
+        fclose($WRITE);
+        self::end_write2DwCA();
+        exit("\n-end print resource files (Basal values)-\n");
+    }
+    function print_taxon_summary()
+    {
+        //step 1: get all 'taxon summary' predicates:
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary');
+        print_r($predicates);
+        self::working_dir();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        //--------initialize start
+        self::parse_DH(); self::initialize();
+        //write to DwCA
+        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
+        //--------initialize end
+        foreach($predicates as $predicate) {
+            foreach($page_ids as $page_id => $taxon) {
+                //print_r($taxon);
+                if(!$page_id) continue;
+                if(@$taxon['taxonRank'] == "species") {
+                    if($ret = self::main_taxon_summary($page_id, $predicate)) {
+                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                        echo "\n\nFinal result:"; print_r($ret);
+                        self::write_resource_file_TaxonSummary($ret);
+                    }
+                }
+            }
+        }
+        self::end_write2DwCA();
+        exit("\n-end print taxon summary-\n");
+    }
+    
+    
+    
     /* not used at the moment
     private function choose_term_type($predicate)
     {
