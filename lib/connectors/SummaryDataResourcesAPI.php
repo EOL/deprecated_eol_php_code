@@ -1003,6 +1003,12 @@ class SummaryDataResourcesAPI
             echo "\n*No children found for [$main_page_id]\n";
             return array();
         }
+        $children[] = $main_page_id; /* and, just for the taxon summary parents (not for the basal value parents) a change in the contributing child taxa: please include
+        all descendant taxa at all ranks, up to and including the taxon in question, so the summary for page 7666 should be based on a record pool including records for page 7666.
+        You may want to include a filter so, if we re-run this in a few months, the summary records created for 7666 are not included in the new pool of records.
+        (This is entirely because of the quality of the data. Basal value records, habitat and geography, include many questionable records at, for instance, the family level.
+        Interactions records include a lot of pretty reasonable records for the same taxa.)
+        */
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
