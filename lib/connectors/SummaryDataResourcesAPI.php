@@ -2710,11 +2710,12 @@ class SummaryDataResourcesAPI
         }
         fclose($file); unlink($temp_file);
     }
+    /*
     function start_v1()
     {
         self::working_dir();
         $this->child_parent_list = self::generate_child_parent_list();
-        // /* tests...
+        // start tests...
         $predicate = "http://reeffish.org/occursIn";
         $predicate = "http://eol.org/schema/terms/Present";
         $similar_terms = self::given_predicate_get_similar_terms($predicate);
@@ -2723,14 +2724,15 @@ class SummaryDataResourcesAPI
         self::print_taxon_and_ancestry($similar_terms);
         self::given_predicates_get_values_from_traits_csv($similar_terms);
         exit("\n-end tests-\n");
-        // */
+        // end tests
         if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
         // remove temp dir
-        /* un-comment in real operation
+        // un-comment in real operation
         recursive_rmdir($this->main_paths['temp_dir']);
         echo ("\n temporary directory removed: " . $this->main_paths['temp_dir']);
-        */
+        //
     }
+    */
     private function generate_child_parent_list()
     {
         $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r');
