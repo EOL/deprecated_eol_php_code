@@ -2231,10 +2231,8 @@ class SummaryDataResourcesAPI
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
         $recs = array();
-        $txt_file = self::get_txt_path_by_page_id($page_id);
-        echo "\n$txt_file\n";
-        if(!file_exists($txt_file)) {
-            echo "\nFile does not exist.\n";
+        $txt_file = self::get_txt_path_by_page_id($page_id); // echo "\n$txt_file\n";
+        if(!file_exists($txt_file)) { // echo "\nFile does not exist.\n";
             return false;
         }
         $i = 0;
