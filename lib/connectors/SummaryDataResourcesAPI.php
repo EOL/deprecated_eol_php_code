@@ -52,6 +52,8 @@ class SummaryDataResourcesAPI
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
         $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_resource.txt';
         $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
+        
+        $this->parentModeYN = false;
     }
     /*
     basal values
@@ -136,6 +138,7 @@ class SummaryDataResourcesAPI
     }
     function print_parent_taxon_summary()
     {
+        $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
@@ -157,6 +160,7 @@ class SummaryDataResourcesAPI
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
+                    $this->taxon_summary_parent_recs = array();
                     if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         echo "\n\nFinal result:"; print_r($ret);
@@ -217,8 +221,7 @@ class SummaryDataResourcesAPI
         fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
         foreach($predicates as $predicate) {
-            foreach($page_ids as $page_id => $taxon) {
-                //print_r($taxon);
+            foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_taxon_summary($page_id, $predicate)) {
@@ -259,6 +262,39 @@ class SummaryDataResourcesAPI
         }
         fclose($WRITE);
         exit("\n-end print resource files (lifestage+statMeth)-\n");
+    }
+    function test_basal_values_parent()
+    {
+        // { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
+        // self::parse_DH(); //seems not needed here...?
+        self::initialize_basal_values();
+        
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+
+        //write to DwCA
+        $resource_id = 'parent_basal_values';
+        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        self::start_write2DwCA($resource_id);
+
+        //write to file
+        if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        fwrite($WRITE, implode("\t", $row). "\n");
+
+        foreach($input as $i) {
+            $page_id = $i['page_id']; $predicate = $i['predicate'];
+            $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
+            if($ret = self::main_parents_basal_values($page_id, $predicate)) {
+                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
+            }
+        }
+        fclose($WRITE);
+        self::end_write2DwCA();
+        exit("\n-- end method: parents: basal values --\n");
     }
     function start() //DH total recs 2,724,941
     {
@@ -303,6 +339,7 @@ class SummaryDataResourcesAPI
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
+            $this->taxon_summary_parent_recs = array();
             if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 echo "\n\nFinal result:"; print_r($ret);
@@ -314,7 +351,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        // /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
+        /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
         $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
         //write to file
@@ -344,38 +381,8 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
-        // */
-
-        /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
-        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
-        // self::parse_DH(); //seems not needed here...?
-        self::initialize_basal_values();
-        
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
-        $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-
-        //write to DwCA
-        $resource_id = 'parent_basal_values';
-        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        self::start_write2DwCA($resource_id);
-
-        //write to file
-        if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
-        fwrite($WRITE, implode("\t", $row). "\n");
-
-        foreach($input as $i) {
-            $page_id = $i['page_id']; $predicate = $i['predicate'];
-            $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
-            if($ret = self::main_parents_basal_values($page_id, $predicate)) {
-                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
-            }
-        }
-        fclose($WRITE);
-        self::end_write2DwCA();
-        exit("\n-- end method: parents: basal values --\n");
         */
+
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -581,7 +588,7 @@ class SummaryDataResourcesAPI
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
-        elseif($parentYN == "parent") $recs = ''; //will figure it out TODO
+        elseif($parentYN == "parent") $recs = $this->taxon_summary_parent_recs;
         else exit("\nNot go here...\n");
         
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
@@ -709,9 +716,13 @@ class SummaryDataResourcesAPI
         elseif($parentYN == "parent") $recs = $this->basal_values_parent_recs;
         else exit("\nNot go here...\n");
         
+        
+        echo "\n recs in writing: ".count($recs); //print_r($recs);
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
+                // print_r($rec); exit;
+                
                 if($rec['value_uri'] == $id) {
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
@@ -728,6 +739,7 @@ class SummaryDataResourcesAPI
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            // echo "\n eol_pks: "; print_r($eol_pks);
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             // $this->eol_pks = $eol_pks;       //for debug only
             // $this->info = $info;             //for debug only
@@ -1553,6 +1565,8 @@ class SummaryDataResourcesAPI
         echo "\nrecs: ".count($recs)."\n";
         // print_r($recs); exit;
         
+        if($this->parentModeYN) $this->taxon_summary_parent_recs = array_merge($this->taxon_summary_parent_recs, $recs); //to be in writing resource file
+        
         /* Jen's verbatim instruction: to get the reduced 'tree'
         For each ancestor, find all recs in which it appears (recs set 1)
         If the parent of that ancestor is the same in all the recs in rec set 1, remove the parent
@@ -1602,10 +1616,11 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        /* For refs START */
+        /* For refs START --- commented since refs are now assembled in write_resource_file_TaxonSummary()
         $refs = array();
         if($eol_pks) $refs = self::get_refs_from_metadata_csv(array_keys($eol_pks));
-        /* For refs END */
+        For refs END */
+        $refs = array();
         
         echo "\n==========================================\nTips on left. Ancestors on right.\n";
         // print_r($final);
