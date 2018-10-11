@@ -1158,7 +1158,7 @@ class SummaryDataResourcesAPI
 
             echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
             echo "\nREP records: "; print_r($immediate_children_of_root);
-            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
         elseif($count_all_roots > 1) { //has not met this criteria yet in our test cases.
@@ -1182,7 +1182,7 @@ class SummaryDataResourcesAPI
             $root_ancestor = self::get_key_of_arr_with_biggest_value($ret_roots['count_of_roots']);
             echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
             echo "\nREP records: "; print_r($ret_roots['roots']);
-            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $ret_roots['roots'], 'Selected label' => 'REP');
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $ret_roots['roots'], 'Selected label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
         exit("\nexit muna\n");
     }
@@ -1556,7 +1556,7 @@ class SummaryDataResourcesAPI
         foreach($immediate_children_of_root as $id) {
             echo "\n [$id] => ".$orig_counts_with_left[$id];
         }
-        return array('root' => $root_ancestor, 'root label' => 'PRM', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs);
+        return array('root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs);
         //'tree' => $final, 'orig_counts_with_left' => $orig_counts_with_left
     }
     private function get_immediate_children_of_root_info($final)
@@ -1845,8 +1845,8 @@ class SummaryDataResourcesAPI
             }
         }
         //label PRM and REP if one record, REP if > 1
-        if    (count($selected) == 1) $label = "PRM and REP";
-        elseif(count($selected) > 1)  $label = "REP";
+        if    (count($selected) == 1) $label = 'PRM and REP';
+        elseif(count($selected) > 1)  $label = 'REP';
         echo "\n----- label as: [$label]\n";
         $selected = array_values($selected); //reindex array
         
@@ -1868,8 +1868,8 @@ class SummaryDataResourcesAPI
                         else SELECT ROOT_ANCESTORS
                     else CONTINUE PROCESS UNTIL all parents of the values in the set are roots, THEN IF <= 4 SELECT THAT SET else SELECT ROOT_ANCESTORS.
 
-        if(WHAT IS SELECTED == 1) label as: "PRM and REP"
-        elseif(WHAT IS SELECTED > 1) label as: "REP"
+        if(WHAT IS SELECTED == 1) label as: 'PRM and REP'
+        elseif(WHAT IS SELECTED > 1) label as: 'REP'
 
         So in our case: page_id: 7662 | predicate: [http://eol.org/schema/terms/Habitat]
         I will be creating new rocords based on 'ROOT_ANCESTORS'.
