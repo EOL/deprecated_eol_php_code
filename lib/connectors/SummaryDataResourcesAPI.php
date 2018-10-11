@@ -99,7 +99,6 @@ class SummaryDataResourcesAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         // exit;
         
-        self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         
         //write to DwCA
@@ -140,7 +139,6 @@ class SummaryDataResourcesAPI
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
-        self::working_dir();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //write to DwCA
         $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
@@ -199,12 +197,11 @@ class SummaryDataResourcesAPI
     function print_taxon_summary()
     {
         //step 1: get all 'taxon summary' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary');
-        print_r($predicates);
-        self::working_dir();
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); print_r($predicates);
+        self::initialize();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
-        self::parse_DH(); self::initialize();
+        self::parse_DH();
         //write to DwCA
         $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
         //--------initialize end
@@ -228,10 +225,10 @@ class SummaryDataResourcesAPI
     {
         //step 1: get all 'lifestage and statistical method' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method'); //3rd param is $item index no.
-        self::working_dir();
+        self::initialize();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
-        self::parse_DH(); self::initialize();
+        self::parse_DH();
         //write to file
         if(!($WRITE = Functions::file_open($this->lifeState_statMeth_resource_file, "w"))) return;
         $row = array("Page ID", 'eol_pk', "Predicate", "Label");
@@ -2289,7 +2286,6 @@ class SummaryDataResourcesAPI
                 }
                 $this->original_nodes[$rec['value_uri']] = '';
                 $this->original_nodes_parent[$rec['value_uri']] = '';
-                
             }
         }
         return $recs;
