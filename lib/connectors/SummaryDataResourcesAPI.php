@@ -591,7 +591,7 @@ class SummaryDataResourcesAPI
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
                     // /* write to file block
-                    $row = array($page_id, $rec['eol_pk'], $id, $info['label']);
+                    $row = array($page_id, $rec['eol_pk'], $id, $info['Label']);
                     $existing_records_for_writing[] = $row;
                     // */
                 }
@@ -605,10 +605,47 @@ class SummaryDataResourcesAPI
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             // $this->eol_pks = $eol_pks;       //for debug only
             // $this->info = $info;             //for debug only
-            // self::create_archive($new_records, $refs, $info);
+            self::create_archive_TaxonSummary($new_records, $refs, $info);
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
-        
+    }
+    private function create_archive_TaxonSummary($new_records, $refs, $ret)
+    {   /*Array(
+        [root] => 46557930
+        [root label] => PRM
+        [Selected] => Array(
+                [0] => 46557930
+                [1] => 207661
+            )
+        [Label] => REP
+        [page_id] => 328598
+        [predicate] => http://purl.obolibrary.org/obo/RO_0002470
+        )*/
+        $taxon_id = $ret['page_id'];
+        $taxon = $this->add_taxon(array('page_id' => $taxon_id));
+        $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
+        $reference_ids = '';
+        // if($refs = @$ret['refs']) {
+        if($refs) {
+            if($reference_ids = self::create_references($refs)) $reference_ids = implode("; ", $reference_ids);
+        }
+        $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
+        foreach($new_records as $taxon_name_id) {
+            /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
+            $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
+            $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type");
+            $a = new \eol_schema\Association_specific(); //take note used with '_specific'
+            $a->label = self::get_assoc_label($ret, $taxon_name_id);
+            $a->occurrenceID = $occurrence_id;
+            $a->associationType = $ret['predicate'];
+            $a->targetOccurrenceID = $related_occurrence_id;
+            $a->referenceID = $reference_ids;
+            $a->measurementDeterminedDate = date("Y-M-d");
+            $a->source = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=".$ret['predicate']; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
+            $a->measurementMethod   = 'summary of records available in EOL';
+            $a->associationID = Functions::generate_measurementID($a, $this->resource_id, 'association');
+            $this->archive_builder->write_object_to_file($a);
+        }
     }
     private function write_resource_file_TaxonSummary_v1($ret)
     {   /*Array(
@@ -629,7 +666,6 @@ class SummaryDataResourcesAPI
         if($refs = @$ret['refs']) {
             if($reference_ids = self::create_references($refs)) $reference_ids = implode("; ", $reference_ids);
         }
-        // /*
         $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($ret['Selected'] as $taxon_name_id) {
             /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
@@ -647,7 +683,6 @@ class SummaryDataResourcesAPI
             $a->associationID = Functions::generate_measurementID($a, $this->resource_id, 'association');
             $this->archive_builder->write_object_to_file($a);
         }
-        // */
     }
     private function get_assoc_label($ret, $taxon_name_id)
     {
