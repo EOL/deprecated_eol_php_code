@@ -299,11 +299,9 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: parents: taxon summary --\n");
         */
 
-        /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
+        // /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
-
         $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
-        
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
@@ -311,11 +309,9 @@ class SummaryDataResourcesAPI
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-
-        $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
-        $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        // $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
+        // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
-        
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
@@ -327,11 +323,11 @@ class SummaryDataResourcesAPI
         // orig write block
         self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
-        */
+        // */
 
-        // /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
-        // self::parse_DH();
+        // self::parse_DH(); //seems not needed here...?
         self::initialize_basal_values();
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
@@ -355,11 +351,10 @@ class SummaryDataResourcesAPI
                 self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
             }
         }
-        
         fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
