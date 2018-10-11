@@ -145,7 +145,7 @@ class SummaryDataResourcesAPI
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
         fwrite($WRITE, implode("\t", $row). "\n");
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -213,7 +213,7 @@ class SummaryDataResourcesAPI
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
         fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
         foreach($predicates as $predicate) {
@@ -298,7 +298,7 @@ class SummaryDataResourcesAPI
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
         fwrite($WRITE, implode("\t", $row). "\n");
         
         foreach($input as $i) {
@@ -320,7 +320,7 @@ class SummaryDataResourcesAPI
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
         fwrite($WRITE, implode("\t", $row). "\n");
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
@@ -598,7 +598,6 @@ class SummaryDataResourcesAPI
             }
         }
         if($existing_records_for_writing) self::adjust_if_needed_and_write_existing_records($existing_records_for_writing, $WRITE);
-        
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
