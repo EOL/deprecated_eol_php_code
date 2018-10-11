@@ -591,7 +591,7 @@ class SummaryDataResourcesAPI
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
                     // /* write to file block
-                    $row = array($page_id, $rec['eol_pk'], $id, $info['Label']);
+                    $row = array($page_id, $rec['eol_pk'], $info['Label'], $id);
                     $existing_records_for_writing[] = $row;
                     // */
                 }
