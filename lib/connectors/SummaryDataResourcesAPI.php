@@ -126,7 +126,7 @@ class SummaryDataResourcesAPI
                     $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
                     if($ret = self::main_parents_basal_values($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        self::write_resource_file_BasalValues($ret, $WRITE);
+                        self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
                     }
                 }
             }
@@ -187,7 +187,7 @@ class SummaryDataResourcesAPI
                 if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_basal_values($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        self::write_resource_file_BasalValues($ret, $WRITE);
+                        self::write_resource_file_BasalValues($ret, $WRITE, 'non-parent');
                     }
                 }
             }
@@ -329,12 +329,13 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: 'taxon summary' --\n");
         */
 
-        /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        // /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH();
         self::initialize_basal_values();
         
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
 
         //write to DwCA
         $resource_id = 'parent_basal_values';
@@ -351,14 +352,14 @@ class SummaryDataResourcesAPI
             $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
             if($ret = self::main_parents_basal_values($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                self::write_resource_file_BasalValues($ret, $WRITE);
+                self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
             }
         }
         
         fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-- end method: parents: basal values --\n");
-        */
+        // */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -398,8 +399,6 @@ class SummaryDataResourcesAPI
         
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
         $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
-        
-        
 
         foreach($input as $i) {
             /* temp block
@@ -431,7 +430,7 @@ class SummaryDataResourcesAPI
                 }
                 */
                 
-                self::write_resource_file_BasalValues($ret, $WRITE);
+                self::write_resource_file_BasalValues($ret, $WRITE, 'non-parent');
             }
             
             /* temp block
@@ -621,12 +620,15 @@ class SummaryDataResourcesAPI
         }
     }
     //############################################################################################ start write resource file - method = 'basal values'
-    private function write_resource_file_BasalValues($info, $WRITE)
+    private function write_resource_file_BasalValues($info, $WRITE, $parentYN)
     {   /*when creating new records (non-tips), find and deduplicate all references and bibliographicCitations for each tip record below the node, and attach as references. MeasurementMethod= "summary of records available in EOL". Construct a source link to EOL, eg: https://beta.eol.org/pages/46559143/data */
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
-        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
-
+        
+        if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        elseif($parentYN == "parent") $recs = $this->basal_values_parent_recs;
+        else exit("\nNot go here...\n");
+        
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
@@ -645,8 +647,10 @@ class SummaryDataResourcesAPI
         
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
-            // echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
+            // $this->eol_pks = $eol_pks;       //for debug only
+            // $this->info = $info;             //for debug only
             self::create_archive($new_records, $refs, $info);
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
@@ -788,9 +792,17 @@ class SummaryDataResourcesAPI
         $m->measurementValue    = $rec['measurementValue'];
         $m->source              = $rec['source'];
         $m->measurementMethod   = 'summary of records available in EOL';
-        $m->measurementDeterminedDate = date("Y-M-d");
+        $m->measurementDeterminedDate = "2018-Oct-10"; //date("Y-M-d");
         $m->referenceID   = @$rec['referenceID']; //not all have refs
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        // if($m->measurementID == "08eea7c40c13234a8e9699b52676236a_parent_basal_values")
+        // if($m->measurementID == "dd832955e92c2a7b823ebf5c737057b9_parent_basal_values") 
+        // {
+        //     echo "\n**************************************************\n";
+        //     print_r($this->info);
+        //     print_r($this->eol_pks);
+        //     exit("\nabove is eol_pks\n");
+        // }
         $this->archive_builder->write_object_to_file($m);
 
         // $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. Available: http://amphibiaweb.org/.";
@@ -822,6 +834,7 @@ class SummaryDataResourcesAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
+                // print_r($rec);exit;
                 /*Array(
                     [eol_pk] => MetaTrait-19117935  [trait_eol_pk] => R261-PK22081478   [predicate] => http://rs.tdwg.org/dwc/terms/measurementMethod
                     [literal] => Activity cycle of each species measured for non-captive populations; adult or age unspecified individuals, male, female, or sex unspecified individuals; primary, secondary, or extrapolated sources; all measures of central tendency; in all localities. Species were defined as (1) nocturnal only, (2) nocturnal/crepuscular, cathemeral, crepuscular or diurnal/crepuscular and (3) diurnal only.  Based on information from primary and secondary literature sources.  See source for details. 
@@ -1707,6 +1720,7 @@ class SummaryDataResourcesAPI
             $this->original_nodes = $original_nodes;
             $ISVAT = $param_isvat;
             */
+            $this->basal_values_parent_recs = $recs;
             $this->original_nodes = $this->original_nodes_parent;
             if(!$recs) {
                 echo "\n01. No records for [$page_id] [$predicate].\n";

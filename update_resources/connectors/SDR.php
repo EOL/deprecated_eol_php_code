@@ -71,7 +71,7 @@ $func = new SummaryDataResourcesAPI($resource_id);
 
 // $func->print_parent_basal_values();      return;
 // $func->print_parent_taxon_summary();     return;
-$func->print_lifeStage_statMeth();       return;
+// $func->print_lifeStage_statMeth();       return;
 
 $func->start();
 // Functions::finalize_dwca_resource($resource_id);
