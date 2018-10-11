@@ -617,7 +617,7 @@ class SummaryDataResourcesAPI
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         
-        if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
         elseif($parentYN == "parent") $recs = $this->basal_values_parent_recs;
         else exit("\nNot go here...\n");
         
