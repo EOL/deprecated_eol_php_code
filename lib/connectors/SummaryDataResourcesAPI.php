@@ -142,6 +142,11 @@ class SummaryDataResourcesAPI
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //write to DwCA
         $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
+        //write to file
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        if(!($WRITE = Functions::file_open($file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        fwrite($WRITE, implode("\t", $row). "\n");
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
                 // print_r($taxon); exit;
@@ -155,11 +160,12 @@ class SummaryDataResourcesAPI
                     if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         echo "\n\nFinal result:"; print_r($ret);
-                        self::write_resource_file_TaxonSummary($ret);
+                        self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
                     }
                 }
             }
         }
+        fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-end print parent taxon summary-\n");
     }
@@ -204,6 +210,11 @@ class SummaryDataResourcesAPI
         self::parse_DH();
         //write to DwCA
         $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
+        //write to file
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        if(!($WRITE = Functions::file_open($file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -213,11 +224,12 @@ class SummaryDataResourcesAPI
                     if($ret = self::main_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         echo "\n\nFinal result:"; print_r($ret);
-                        self::write_resource_file_TaxonSummary($ret);
+                        self::write_resource_file_TaxonSummary($ret, $WRITE, 'non-parent');
                     }
                 }
             }
         }
+        fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-end print taxon summary-\n");
     }
@@ -283,15 +295,21 @@ class SummaryDataResourcesAPI
         $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         
         $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
+        //write to file
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        if(!($WRITE = Functions::file_open($file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        fwrite($WRITE, implode("\t", $row). "\n");
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 echo "\n\nFinal result:"; print_r($ret);
-                self::write_resource_file_TaxonSummary($ret);
+                self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
             }
         }
+        fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-- end method: parents: taxon summary --\n");
         */
@@ -299,6 +317,11 @@ class SummaryDataResourcesAPI
         // /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
         $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
+        //write to file
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        if(!($WRITE = Functions::file_open($file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        fwrite($WRITE, implode("\t", $row). "\n");
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
@@ -314,10 +337,11 @@ class SummaryDataResourcesAPI
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 echo "\n\nFinal result:"; print_r($ret);
-                self::write_resource_file_TaxonSummary($ret);
+                self::write_resource_file_TaxonSummary($ret, $WRITE, 'non-parent');
             }
         }
         // orig write block
+        fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
         // */
@@ -552,7 +576,41 @@ class SummaryDataResourcesAPI
         return $final[$filter];
     }
     //############################################################################################ start write resource file - method = 'taxon summary'
-    private function write_resource_file_TaxonSummary($ret)
+    private function write_resource_file_TaxonSummary($info, $WRITE, $parentYN) //previously $ret
+    {
+        $page_id = $info['page_id']; $predicate = $info['predicate'];
+        /*step 1: get all eol_pks */
+        if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        elseif($parentYN == "parent") $recs = ''; //will figure it out TODO
+        else exit("\nNot go here...\n");
+        
+        $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
+        foreach($info['Selected'] as $id) {
+            foreach($recs as $rec) {
+                if($rec['object_page_id'] == $id) {
+                    $eol_pks[$rec['eol_pk']] = '';
+                    $found[] = $id;
+                    // /* write to file block
+                    $row = array($page_id, $rec['eol_pk'], $id, $info['label']);
+                    $existing_records_for_writing[] = $row;
+                    // */
+                }
+            }
+        }
+        if($existing_records_for_writing) self::adjust_if_needed_and_write_existing_records($existing_records_for_writing, $WRITE);
+        
+        $eol_pks = array_keys($eol_pks);
+        if($new_records = array_diff($info['Selected'], $found)) {
+            echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
+            // $this->eol_pks = $eol_pks;       //for debug only
+            // $this->info = $info;             //for debug only
+            // self::create_archive($new_records, $refs, $info);
+        }
+        else echo "\nNo new records. Will not write to DwCA.\n";
+        
+    }
+    private function write_resource_file_TaxonSummary_v1($ret)
     {   /*Array(
         [root] => 46557930
         [root label] => PRM
@@ -560,19 +618,17 @@ class SummaryDataResourcesAPI
                 [0] => 46557930
                 [1] => 207661
             )
-        [Selected label] => REP
+        [Label] => REP
         [page_id] => 328598
         [predicate] => http://purl.obolibrary.org/obo/RO_0002470
         )*/
         $taxon_id = $ret['page_id'];
         $taxon = $this->add_taxon(array('page_id' => $taxon_id));
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
-        
         $reference_ids = '';
         if($refs = @$ret['refs']) {
             if($reference_ids = self::create_references($refs)) $reference_ids = implode("; ", $reference_ids);
         }
-        
         // /*
         $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($ret['Selected'] as $taxon_name_id) {
@@ -596,7 +652,7 @@ class SummaryDataResourcesAPI
     private function get_assoc_label($ret, $taxon_name_id)
     {
         if($ret['root'] == $taxon_name_id) return $ret['root label'];
-        else                               return $ret['Selected label'];
+        else                               return $ret['Label'];
     }
     private function add_occurrence_assoc($taxon_id, $label)
     {
@@ -1165,7 +1221,7 @@ class SummaryDataResourcesAPI
 
             echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
             echo "\nREP records: "; print_r($immediate_children_of_root);
-            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP');
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
         elseif($count_all_roots > 1) { //has not met this criteria yet in our test cases.
@@ -1189,7 +1245,7 @@ class SummaryDataResourcesAPI
             $root_ancestor = self::get_key_of_arr_with_biggest_value($ret_roots['count_of_roots']);
             echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
             echo "\nREP records: "; print_r($ret_roots['roots']);
-            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $ret_roots['roots'], 'Selected label' => 'REP');
+            return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $ret_roots['roots'], 'Label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
         exit("\nexit muna\n");
     }
@@ -1569,7 +1625,7 @@ class SummaryDataResourcesAPI
         foreach($immediate_children_of_root as $id) {
             echo "\n [$id] => ".$orig_counts_with_left[$id];
         }
-        return array('root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Selected label' => 'REP', 'refs' => $refs);
+        return array('root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Label' => 'REP', 'refs' => $refs);
         //'tree' => $final, 'orig_counts_with_left' => $orig_counts_with_left
     }
     private function get_immediate_children_of_root_info($final)
