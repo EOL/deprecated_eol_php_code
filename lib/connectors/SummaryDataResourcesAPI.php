@@ -329,7 +329,7 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: 'taxon summary' --\n");
         */
 
-        // /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
+        /* METHOD: parents: basal values { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH();
         self::initialize_basal_values();
@@ -345,7 +345,6 @@ class SummaryDataResourcesAPI
         if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
         $row = array("Page ID", 'eol_pk', "Label", "Value URI");
         fwrite($WRITE, implode("\t", $row). "\n");
-        // */
 
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -359,7 +358,7 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         self::end_write2DwCA();
         exit("\n-- end method: parents: basal values --\n");
-        // */
+        */
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
@@ -387,14 +386,19 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
+        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+        
 
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
+        
+        
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+        $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
+        
         
 
         foreach($input as $i) {
@@ -467,7 +471,7 @@ class SummaryDataResourcesAPI
                 
                 // /* breakdown when caching:
                 $cont = false;
-                if($i >= 531600) $cont = true; //1st stop-continue 547,881
+                if($i >= 623818) $cont = true; //1st stop-continue 547,881
                 if(!$cont) continue;
                 // */
                 
@@ -683,7 +687,7 @@ class SummaryDataResourcesAPI
         foreach($study as $value_uri => $eol_pks) {
             //get refs for each eol_pk
             foreach($eol_pks as $eol_pk) {
-                $refs_of_eol_pk[$eol_pk][] = self::get_refs_from_metadata_csv(array($eol_pk));
+                $refs_of_eol_pk[$eol_pk][] = self::get_refs_from_metadata_csv(array($eol_pk)); //just for ref counts
             }
         }
         // echo "\n refs_of_eol_pk: "; print_r($refs_of_eol_pk);
@@ -823,7 +827,7 @@ class SummaryDataResourcesAPI
                     [literal] => Activity cycle of each species measured for non-captive populations; adult or age unspecified individuals, male, female, or sex unspecified individuals; primary, secondary, or extrapolated sources; all measures of central tendency; in all localities. Species were defined as (1) nocturnal only, (2) nocturnal/crepuscular, cathemeral, crepuscular or diurnal/crepuscular and (3) diurnal only.  Based on information from primary and secondary literature sources.  See source for details. 
                     [measurement] => [value_uri] => [units] => [sex] => [lifestage] => [statistical_method] => [source] => 
                 )*/
-                if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID") $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
+                if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID")    $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
                 if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://purl.org/dc/terms/bibliographicCitation") $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
                 // $debug[$rec['predicate']] = '';
             }
