@@ -109,7 +109,7 @@ class SummaryDataResourcesAPI
 
         //write to file
         if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
+        $row = array("Page ID", 'eol_pk', "Value URI", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
         // */
 
@@ -323,9 +323,8 @@ class SummaryDataResourcesAPI
         self::end_write2DwCA();
         exit("\n-- end method: parents: basal values --\n");
     }
-    function start() //DH total recs 2,724,941
+    function test_lifeStage_statMeth()
     {
-        /* METHOD: lifestage+statMeth ============================================================================================================
         self::initialize();
         $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         $page_ids = array(347436, 347438, 46559130);
@@ -344,7 +343,9 @@ class SummaryDataResourcesAPI
         }
         fclose($WRITE);
         exit("\n-- end method: lifestage_statMeth --\n");
-        */
+    }
+    function start() //DH total recs 2,724,941
+    {
         
         /*
         self::initialize();

@@ -62,6 +62,14 @@ print_r($inclusive);
 exit("\n-end tests'\n");
 */
 
+$str = "https://beta.eol.org/terms/search_results?utf8=%E2%9C%93&term_query%5Bclade_id%5D=7672&term_query%5Bfilters_attributes%5D%5B0%5D%5Bpred_uri%5D=http%3A%2F%2Fpurl.obolibrary.org%2Fobo%2FRO_0002470&term_query%5Bfilters_attributes%5D%5B0%5D%5Bop%5D=is_any&term_query%5Bresult_type%5D=record&commit=Search";
+echo "\n".urldecode($str)."\n";
+exit("\n");
+
+// http://purl.obolibrary.org/obo/ENVO_01000253
+// https://beta.eol.org/pages/7672/data?predicate=http://eol.org/schema/terms/Habitat
+// https://beta.eol.org/pages/7672/data?predicate=http://purl.obolibrary.org/obo/RO_0002470
+
 $timestart = time_elapsed();
 $resource_id = 'SDR';
 $func = new SummaryDataResourcesAPI($resource_id);
