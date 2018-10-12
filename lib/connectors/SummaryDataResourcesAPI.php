@@ -1105,12 +1105,11 @@ class SummaryDataResourcesAPI
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
-        $records = array(); $roots_repo = array();
+        $records = array();
         foreach($children as $page_id) {
             if($val = self::main_taxon_summary($page_id, $predicate)) {
                 echo "\nFinal result: taxon summary: "; print_r($val);
                 $records[] = $val;
-                @$roots_repo[$val['root']]++;
             }
         }
         if(!$records) return array();
@@ -1246,9 +1245,6 @@ class SummaryDataResourcesAPI
 
             echo "\nImmediate children of root => and the no. of records it existed:";
             print_r($immediate_children_of_root_count); echo "\n";
-            
-            echo "\nroots_repo 1: "; print_r($roots_repo);
-            
             /* ver. 1 strategy
             $root_ancestor = array_unique($root_ancestor);
             */
@@ -1281,9 +1277,6 @@ class SummaryDataResourcesAPI
             $root_ancestor = self::get_key_of_arr_with_biggest_value($ret_roots['count_of_roots']);
             echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
             echo "\nREP records: "; print_r($ret_roots['roots']);
-            
-            echo "\nroots_repo 2: "; print_r($roots_repo);
-            
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $ret_roots['roots'], 'Label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
         exit("\nexit muna\n");
