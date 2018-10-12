@@ -96,8 +96,7 @@ class SummaryDataResourcesAPI
     }
     function print_parent_basal_values()
     {
-        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
-        self::initialize_basal_values();
+        self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         // exit;
         
@@ -203,10 +202,8 @@ class SummaryDataResourcesAPI
     {
         //step 1: get all 'basal values' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
-        self::working_dir();
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        //--------initialize start
         self::initialize_basal_values();
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //write to DwCA
         $esource_id = 'basal_values'; self::start_write2DwCA($resource_id);
         //write to file
@@ -292,9 +289,8 @@ class SummaryDataResourcesAPI
     function test_basal_values_parent()
     {
         // { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
-        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
+        self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH(); //seems not needed here...?
-        self::initialize_basal_values();
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
@@ -476,7 +472,7 @@ class SummaryDataResourcesAPI
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
     }
     //############################################################################################ start write resource file - method = 'parent taxon summary'
-    private function gen_children_of_taxon_usingDH() //started as investigate_DH()
+    private function gen_children_of_taxon_usingDH() //started as investigate_DH(). DH total recs 2,724,941
     {
         $info = self::prep_DH(); $i = 0;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
@@ -486,9 +482,11 @@ class SummaryDataResourcesAPI
                 
                 // /* breakdown when caching:
                 $cont = false;
-                // if($i >= 720349 && $i < 1000000) $cont = true; //1st batch
-                // if($i >= 1000000 && $i < 1500000) $cont = true; //1st batch
-                if($i >= 1500000 && $i < 2000000) $cont = true; //1st batch
+                // if($i >= 720521 && $i < 1000000) $cont = true; //1st batch
+                // if($i >= 1000965 && $i < 1500000) $cont = true; //1st batch
+                // if($i >= 1500000 && $i < 2000000) $cont = true; //1st batch
+                // if($i >= 2008249 && $i < 2500000) $cont = true; //1st batch
+                if($i >= 2500000 && $i < 2724950) $cont = true; //1st batch
                 if(!$cont) continue;
                 // */
                 
