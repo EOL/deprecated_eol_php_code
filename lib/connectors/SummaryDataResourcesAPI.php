@@ -297,8 +297,8 @@ class SummaryDataResourcesAPI
         self::initialize_basal_values();
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
-        // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
 
         //write to DwCA
@@ -876,7 +876,8 @@ class SummaryDataResourcesAPI
             */
             if($reference_ids = self::create_references($new_records_refs[$value_uri])) $rec['referenceID'] = implode("; ", $reference_ids);
             $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . pathinfo($value_uri, PATHINFO_BASENAME);
-            $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
+            // $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
+            $rec['source'] = "https://beta.eol.org/terms/search_results?utf8=✓&term_query[clade_id]=".$taxon->taxonID."&term_query[filters_attributes][0][pred_uri]=".$predicate."&term_query[filters_attributes][0][op]=is_any&term_query[result_type]=record&commit=Search";
             // if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
             // elseif($predicate == "xxx")                             self::add_string_types($rec);
             self::add_string_types($rec);
