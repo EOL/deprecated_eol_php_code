@@ -735,11 +735,12 @@ class SummaryDataResourcesAPI
     }
     private function assemble_refs_for_new_recs($new_records, $orig_recs)
     {
-        $uris = self::get_valueUris_from_recs($orig_recs);
-        print_r($uris); exit;
+        $uris = self::get_valueUris_from_recs($orig_recs); print_r($uris); //exit;
         foreach($new_records as $new) {
-            
+            //1. get among the $orig_recs which are descendants of $new
+            $descendants[$new] = array_intersect($uris, $this->children_of[$new]);
         }
+        print_r($descendants);
         exit;
     }
     private function adjust_if_needed_and_write_existing_records($rows, $WRITE)
@@ -1112,7 +1113,7 @@ class SummaryDataResourcesAPI
                 $records[] = $val;
             }
         }
-        if(count($records) == 1) {
+        if(count($records) == 1) { echo "\nOnly 1 child has records. Use result of this child as result of the parent process ".count($records).".\n";
             /*Array
                 [0] => Array
                         [root] => 1642
@@ -1126,7 +1127,6 @@ class SummaryDataResourcesAPI
             )*/
             $rec = $records[0];
             return array('root' => $rec['root'], 'root label' => $rec['root label'], 'Selected' => $rec['Selected'], 'Label' => $rec['Label']);
-            echo "\nUse result of one child as result of parent process ".count($records).".\n";
         }
         
         
