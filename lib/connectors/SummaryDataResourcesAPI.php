@@ -68,7 +68,6 @@ class SummaryDataResourcesAPI
     */
     private function generate_children_of_taxa_using_parentsCSV()
     {
-        // self::initialize(); //not needed
         $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if($i == 1) $fields = $line;
@@ -98,8 +97,6 @@ class SummaryDataResourcesAPI
     {
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
-        // exit;
-        
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         
         //write to DwCA
@@ -131,8 +128,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($WRITE);
-        self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-- end parents basal values --\n");
     }
     function test_parent_taxon_summary()
@@ -157,8 +153,7 @@ class SummaryDataResourcesAPI
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
             }
         }
-        fclose($WRITE);
-        self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-- end method: parents: taxon summary --\n");
     }
     function print_parent_taxon_summary()
@@ -194,8 +189,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($WRITE);
-        self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-end print parent taxon summary-\n");
     }
     function print_basal_values()
@@ -223,8 +217,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($WRITE);
-        self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-end print resource files (Basal values)-\n");
     }
     function print_taxon_summary()
@@ -255,8 +248,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($WRITE);
-        self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-end print taxon summary-\n");
     }
     function print_lifeStage_statMeth()
@@ -315,8 +307,7 @@ class SummaryDataResourcesAPI
                 self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
             }
         }
-        fclose($WRITE);
-        self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-- end method: parents: basal values --\n");
     }
     function test_lifeStage_statMeth()
@@ -340,16 +331,8 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         exit("\n-- end method: lifestage_statMeth --\n");
     }
-    function start() //DH total recs 2,724,941
+    function test_taxon_summary()
     {
-        
-        /*
-        self::initialize();
-        self::investigate_traits_csv(); exit;
-        */
-
-
-        /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
         $resource_id = 'test_taxon_summary'; self::start_write2DwCA($resource_id);
         //write to file
@@ -375,12 +358,15 @@ class SummaryDataResourcesAPI
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'non-parent');
             }
         }
-        // orig write block
-        fclose($WRITE);
-        self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
+    }
+    function start() //DH total recs 2,724,941
+    {
+        /*
+        self::initialize();
+        self::investigate_traits_csv(); exit;
         */
-
 
         // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
