@@ -1112,6 +1112,24 @@ class SummaryDataResourcesAPI
                 $records[] = $val;
             }
         }
+        if(count($records) == 1) {
+            /*Array
+                [0] => Array
+                        [root] => 1642
+                        [root label] => PRM and REP
+                        [Selected] => Array
+                                [0] => 45511473
+                                [1] => 1642
+                        [Label] => REP
+                        [refs] => Array ---- this is now obsolete
+                    )
+            )*/
+            $rec = $records[0];
+            return array('root' => $rec['root'], 'root label' => $rec['root label'], 'Selected' => $rec['Selected'], 'Label' => $rec['Label']);
+            echo "\nUse result of one child as result of parent process ".count($records).".\n";
+        }
+        
+        
         if(!$records) return array();
         /* 3. get all selected values */
         $page_ids = array();
