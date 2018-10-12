@@ -136,6 +136,32 @@ class SummaryDataResourcesAPI
         self::end_write2DwCA();
         exit("\n-- end parents basal values --\n");
     }
+    function test_parent_taxon_summary()
+    {
+        self::parse_DH(); self::initialize();
+        self::generate_children_of_taxa_using_parentsCSV();
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
+        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
+        //write to file
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        if(!($WRITE = Functions::file_open($file, "w"))) return;
+        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
+        fwrite($WRITE, implode("\t", $row). "\n");
+        foreach($input as $i) {
+            $page_id = $i['page_id']; $predicate = $i['predicate'];
+            $this->taxon_summary_parent_recs = array();
+            if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
+                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                echo "\n\nFinal result:"; print_r($ret);
+                self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
+            }
+        }
+        fclose($WRITE);
+        self::end_write2DwCA();
+        exit("\n-- end method: parents: taxon summary --\n");
+    }
     function print_parent_taxon_summary()
     {
         $this->parentModeYN = true;
@@ -324,32 +350,6 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
 
-        /* METHOD: parents: taxon summary ============================================================================================================
-        self::parse_DH(); self::initialize();
-        self::generate_children_of_taxa_using_parentsCSV();
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
-        $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        
-        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
-        //write to file
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
-        fwrite($WRITE, implode("\t", $row). "\n");
-        
-        foreach($input as $i) {
-            $page_id = $i['page_id']; $predicate = $i['predicate'];
-            $this->taxon_summary_parent_recs = array();
-            if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
-                $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                echo "\n\nFinal result:"; print_r($ret);
-                self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
-            }
-        }
-        fclose($WRITE);
-        self::end_write2DwCA();
-        exit("\n-- end method: parents: taxon summary --\n");
-        */
 
         /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
@@ -1002,7 +1002,7 @@ class SummaryDataResourcesAPI
     }
     //############################################################################################ start method = 'parents basal values'
     private function main_parents_basal_values($main_page_id, $predicate)
-    {
+    {   echo "\n#####################################################################\n";echo "\nMethod: parents basal values | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
 
@@ -1089,9 +1089,7 @@ class SummaryDataResourcesAPI
     */
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
-    {   
-        echo "\n#####################################################################\n";
-        echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
+    {   echo "\n#####################################################################\n";echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
 
@@ -1552,7 +1550,7 @@ class SummaryDataResourcesAPI
         echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
         foreach($ancestry as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
         */
-        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
+        echo "\n================================================================Method: taxon summary\npage_id: $page_id | predicate: [$predicate]\n";
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
@@ -1694,9 +1692,7 @@ class SummaryDataResourcesAPI
         return $ret;
     }
     private function main_lifestage_statMeth($page_id, $predicate)
-    {
-        echo "\n==================================================================================\nMethod: lifestage & statMeth";
-        echo "\npage_id: $page_id | predicate: [$predicate]\n";
+    {   echo "\n================================================================Method: lifestage & statMeth\npage_id: $page_id | predicate: [$predicate]\n";
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
@@ -1795,7 +1791,7 @@ class SummaryDataResourcesAPI
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
         if($type == 'basal values') {
             $this->parent_basal_values_YesNo = false;
-            echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
+            echo "\n================================================================Method: basal values\npage_id: $page_id | predicate: [$predicate]\n";
             $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
             if(!$recs) {
                 echo "\nNo records for [$page_id] [$predicate].\n";
