@@ -143,7 +143,7 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
-        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
+        $resource_id = 'test_parent_taxon_summary'; self::start_write2DwCA($resource_id);
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
@@ -154,7 +154,7 @@ class SummaryDataResourcesAPI
             $this->taxon_summary_parent_recs = array();
             if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                echo "\n\nFinal result:"; print_r($ret);
+                echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
             }
         }
@@ -189,7 +189,7 @@ class SummaryDataResourcesAPI
                     $this->taxon_summary_parent_recs = array();
                     if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        echo "\n\nFinal result:"; print_r($ret);
+                        echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
                         self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
                     }
                 }
@@ -252,7 +252,7 @@ class SummaryDataResourcesAPI
                 if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        echo "\n\nFinal result:"; print_r($ret);
+                        echo "\n\nFinal result (taxon summary):"; print_r($ret);
                         self::write_resource_file_TaxonSummary($ret, $WRITE, 'non-parent');
                     }
                 }
@@ -301,7 +301,7 @@ class SummaryDataResourcesAPI
         $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
 
         //write to DwCA
-        $resource_id = 'parent_basal_values';
+        $resource_id = 'test_parent_basal_values';
         $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         self::start_write2DwCA($resource_id);
 
@@ -353,7 +353,7 @@ class SummaryDataResourcesAPI
 
         /* METHOD: taxon summary ============================================================================================================ last bit was - waiting for Jen's feedback on spreadsheet. Done.
         self::parse_DH(); self::initialize();
-        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
+        $resource_id = 'test_taxon_summary'; self::start_write2DwCA($resource_id);
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
@@ -373,7 +373,7 @@ class SummaryDataResourcesAPI
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                echo "\n\nFinal result:"; print_r($ret);
+                echo "\n\nFinal result (taxon summary):"; print_r($ret);
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'non-parent');
             }
         }
@@ -388,7 +388,7 @@ class SummaryDataResourcesAPI
         self::initialize_basal_values();
         // /* orig write block
         //write to DwCA
-        $resource_id = 'basal_values';
+        $resource_id = 'test_basal_values';
         $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         self::start_write2DwCA($resource_id);
         
@@ -1092,22 +1092,25 @@ class SummaryDataResourcesAPI
     {   echo "\n#####################################################################\n";echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
-        $children[] = $main_page_id; /* and, just for the taxon summary parents (not for the basal value parents) a change in the contributing child taxa: please include
-        all descendant taxa at all ranks, up to and including the taxon in question, so the summary for page 7666 should be based on a record pool including records for page 7666.
-        You may want to include a filter so, if we re-run this in a few months, the summary records created for 7666 are not included in the new pool of records.
-        (This is entirely because of the quality of the data. Basal value records, habitat and geography, include many questionable records at, for instance, the family level.
-        Interactions records include a lot of pretty reasonable records for the same taxa.)
-        */
+        // /*
+        $children[] = $main_page_id;
+        // and, just for the taxon summary parents (not for the basal value parents) a change in the contributing child taxa: please include
+        // all descendant taxa at all ranks, up to and including the taxon in question, so the summary for page 7666 should be based on a record pool including records for page 7666.
+        // You may want to include a filter so, if we re-run this in a few months, the summary records created for 7666 are not included in the new pool of records.
+        // (This is entirely because of the quality of the data. Basal value records, habitat and geography, include many questionable records at, for instance, the family level.
+        // Interactions records include a lot of pretty reasonable records for the same taxa.)
         if($mga_anak = @$this->CSV_children_of[$main_page_id]) $children = array_merge($children, $mga_anak);
         echo "\n*Children of [$main_page_id] inclusive: "; print_r($children);
+        // */
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
-        $records = array();
+        $records = array(); $roots_repo = array();
         foreach($children as $page_id) {
             if($val = self::main_taxon_summary($page_id, $predicate)) {
-                echo "\nFinal: taxon summary: "; print_r($val);
+                echo "\nFinal result: taxon summary: "; print_r($val);
                 $records[] = $val;
+                @$roots_repo[$val['root']]++;
             }
         }
         if(!$records) return array();
@@ -1243,6 +1246,9 @@ class SummaryDataResourcesAPI
 
             echo "\nImmediate children of root => and the no. of records it existed:";
             print_r($immediate_children_of_root_count); echo "\n";
+            
+            echo "\nroots_repo 1: "; print_r($roots_repo);
+            
             /* ver. 1 strategy
             $root_ancestor = array_unique($root_ancestor);
             */
@@ -1267,16 +1273,17 @@ class SummaryDataResourcesAPI
                         [0] => 1
                         [1] => 173 
                         [2] => 143
-                    )
                 [count_of_roots] => Array(
                         [1] => 7
                         [173] => 2
                         [143] = 1
-                    )
             )*/
             $root_ancestor = self::get_key_of_arr_with_biggest_value($ret_roots['count_of_roots']);
             echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
             echo "\nREP records: "; print_r($ret_roots['roots']);
+            
+            echo "\nroots_repo 2: "; print_r($roots_repo);
+            
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $ret_roots['roots'], 'Label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
         exit("\nexit muna\n");
