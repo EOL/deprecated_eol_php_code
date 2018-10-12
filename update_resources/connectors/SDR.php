@@ -67,7 +67,7 @@ $resource_id = 'SDR';
 $func = new SummaryDataResourcesAPI($resource_id);
 
 // $func->generate_page_id_txt_files();        return; //important initial step
-// $func->generate_children_of_taxa_usingDH(); return; //the big long program
+$func->generate_children_of_taxa_usingDH(); return; //the big long program
 
 // $func->test_basal_values_parent();       return;
 // $func->print_basal_values();      return;
