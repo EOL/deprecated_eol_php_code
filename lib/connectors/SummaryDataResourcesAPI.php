@@ -1092,14 +1092,12 @@ class SummaryDataResourcesAPI
     {   echo "\n#####################################################################\n";echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
-
         $children[] = $main_page_id; /* and, just for the taxon summary parents (not for the basal value parents) a change in the contributing child taxa: please include
         all descendant taxa at all ranks, up to and including the taxon in question, so the summary for page 7666 should be based on a record pool including records for page 7666.
         You may want to include a filter so, if we re-run this in a few months, the summary records created for 7666 are not included in the new pool of records.
         (This is entirely because of the quality of the data. Basal value records, habitat and geography, include many questionable records at, for instance, the family level.
         Interactions records include a lot of pretty reasonable records for the same taxa.)
         */
-
         if($mga_anak = @$this->CSV_children_of[$main_page_id]) $children = array_merge($children, $mga_anak);
         echo "\n*Children of [$main_page_id] inclusive: "; print_r($children);
         
@@ -1107,8 +1105,10 @@ class SummaryDataResourcesAPI
         // $children = array(328609); //debug
         $records = array();
         foreach($children as $page_id) {
-            if($val = self::main_taxon_summary($page_id, $predicate)) $records[] = $val;
-            // print_r($val); exit;
+            if($val = self::main_taxon_summary($page_id, $predicate)) {
+                echo "\nFinal: taxon summary: "; print_r($val);
+                $records[] = $val;
+            }
         }
         if(!$records) return array();
         /* 3. get all selected values */
@@ -1119,17 +1119,13 @@ class SummaryDataResourcesAPI
         $original_records = $page_ids;
         $page_ids = array_unique($page_ids);
         $page_ids = array_values($page_ids); //reindexes key
-        
-        echo "\n==========================================================\nParent process for taxon ID $main_page_id, predicate $predicate\n";
+        echo "\n==========================================================\nStart: parent process for taxon ID $main_page_id, predicate $predicate\n";
         echo "\nChildren used for computation: "; print_r($children);
-
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
         print_r($original_records);
         // asort($original_records); print_r($original_records);
-        
         echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
         print_r($page_ids);
-        
         //now get similar report from 'taxon summary'
         echo "\n==========================================================\nHierarchies of taxon values:";
         $hierarchies_of_taxon_values = array();
