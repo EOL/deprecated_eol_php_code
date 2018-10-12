@@ -643,8 +643,9 @@ class SummaryDataResourcesAPI
             $this->archive_builder->write_object_to_file($a);
         }
     }
+    /*
     private function write_resource_file_TaxonSummary_v1($ret)
-    {   /*Array(
+    {   Array(
         [root] => 46557930
         [root label] => PRM
         [Selected] => Array(
@@ -654,7 +655,7 @@ class SummaryDataResourcesAPI
         [Label] => REP
         [page_id] => 328598
         [predicate] => http://purl.obolibrary.org/obo/RO_0002470
-        )*/
+        )
         $taxon_id = $ret['page_id'];
         $taxon = $this->add_taxon(array('page_id' => $taxon_id));
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
@@ -664,7 +665,7 @@ class SummaryDataResourcesAPI
         }
         $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($ret['Selected'] as $taxon_name_id) {
-            /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
+            // --- $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); // used in orig EOL Associations implementation.
             $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
             $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type");
             $a = new \eol_schema\Association_specific(); //take note used with '_specific'
@@ -680,6 +681,7 @@ class SummaryDataResourcesAPI
             $this->archive_builder->write_object_to_file($a);
         }
     }
+    */
     private function get_assoc_label($ret, $taxon_name_id)
     {
         if($ret['root'] == $taxon_name_id) return $ret['root label'];
@@ -707,7 +709,6 @@ class SummaryDataResourcesAPI
         if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
         elseif($parentYN == "parent") $recs = $this->basal_values_parent_recs;
         else exit("\nNot go here...\n");
-        
         
         echo "\n recs in writing: ".count($recs); //print_r($recs);
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
@@ -1656,7 +1657,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        /* For refs START --- commented since refs are now assembled in write_resource_file_TaxonSummary()
+        /* For refs START --- commented since refs are now assembled at write_resource_file_TaxonSummary()
         $refs = array();
         if($eol_pks) $refs = self::get_refs_from_metadata_csv(array_keys($eol_pks));
         For refs END */
