@@ -298,8 +298,8 @@ class SummaryDataResourcesAPI
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
+        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
 
         //write to DwCA
         $resource_id = 'test_parent_basal_values';
@@ -737,13 +737,12 @@ class SummaryDataResourcesAPI
     }
     private function assemble_refs_for_new_recs($new_records, $orig_recs)
     {
-        $uris = self::get_valueUris_from_recs($orig_recs); print_r($uris); //exit;
         foreach($new_records as $new) {
             $descendants_of[$new] = self::get_from_ISVAT_descendants_of($new);                              //1. get from $this->ISVAT which are descendants of $new
             $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
             $refs_of[$new] = self::get_refs_from_metadata_csv($eol_pks_of[$new]);                           //3. get refs using eol_pks
         }
-        // print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of[$new]);
+        // print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of[$new]); //good debug
         return $refs_of;
     }
     private function get_eol_pks_of_new_from_origRecs($recs, $descendants)
