@@ -444,15 +444,6 @@ class SummaryDataResourcesAPI
             if($ret = self::main_basal_values($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 print_r($ret);
-                
-                /*debug only
-                foreach($ret['Selected'] as $term) {
-                    echo "\n[$term]: ";
-                    if($val = @$this->parents_of[$term]) print_r($val);
-                    else echo " -- no parent";
-                }
-                */
-                
                 self::write_resource_file_BasalValues($ret, $WRITE, 'non-parent');
             }
             
@@ -607,7 +598,6 @@ class SummaryDataResourcesAPI
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
-            // $this->eol_pks = $eol_pks;       //for debug only
             // $this->info = $info;             //for debug only
             self::create_archive_TaxonSummary($new_records, $refs, $info);
         }
@@ -721,14 +711,11 @@ class SummaryDataResourcesAPI
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
-                // print_r($rec); exit;
-                
                 if($rec['value_uri'] == $id) {
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
                     // /* write to file block
                     $row = array($page_id, $rec['eol_pk'], $id, $info['label']); //, $rec
-                    /* fwrite($WRITE, implode("\t", $row). "\n"); //moved below, since we need to adjust selected values available in multiple records -> adjust_if_needed_and_write_existing_records() */
                     $existing_records_for_writing[] = $row;
                     // */
                 }
@@ -739,13 +726,21 @@ class SummaryDataResourcesAPI
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
-            // echo "\n eol_pks: "; print_r($eol_pks);
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
-            // $this->eol_pks = $eol_pks;       //for debug only
             // $this->info = $info;             //for debug only
+            $new_records_refs = self::assemble_refs_for_new_recs($new_records, $recs);
             self::create_archive($new_records, $refs, $info);
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
+    }
+    private function assemble_refs_for_new_recs($new_records, $orig_recs)
+    {
+        $uris = self::get_valueUris_from_recs($orig_recs);
+        print_r($uris); exit;
+        foreach($new_records as $new) {
+            
+        }
+        exit;
     }
     private function adjust_if_needed_and_write_existing_records($rows, $WRITE)
     {   /*For selected values available in multiple records, let's do an order of precedence based on metadata, with an arbitrary tie-breaker (which you'll need in this case; sorry!). 
@@ -892,7 +887,6 @@ class SummaryDataResourcesAPI
         // {
         //     echo "\n**************************************************\n";
         //     print_r($this->info);
-        //     print_r($this->eol_pks);
         //     exit("\nabove is eol_pks\n");
         // }
         $this->archive_builder->write_object_to_file($m);
