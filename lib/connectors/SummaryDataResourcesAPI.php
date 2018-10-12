@@ -298,7 +298,8 @@ class SummaryDataResourcesAPI
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
 
         //write to DwCA
         $resource_id = 'test_parent_basal_values';
@@ -729,7 +730,8 @@ class SummaryDataResourcesAPI
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             // $this->info = $info;             //for debug only
             $new_records_refs = self::assemble_refs_for_new_recs($new_records, $recs);
-            self::create_archive($new_records, $refs, $info);
+            // self::create_archive($new_records, $refs, $info);  -> ver 1
+            self::create_archive($new_records, $new_records_refs, $info);
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
     }
@@ -737,11 +739,39 @@ class SummaryDataResourcesAPI
     {
         $uris = self::get_valueUris_from_recs($orig_recs); print_r($uris); //exit;
         foreach($new_records as $new) {
-            //1. get among the $orig_recs which are descendants of $new
-            $descendants[$new] = array_intersect($uris, $this->children_of[$new]);
+            $descendants_of[$new] = self::get_from_ISVAT_descendants_of($new);                              //1. get from $this->ISVAT which are descendants of $new
+            $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
+            $refs_of[$new] = self::get_refs_from_metadata_csv($eol_pks_of[$new]);                           //3. get refs using eol_pks
         }
-        print_r($descendants);
-        exit;
+        // print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of[$new]);
+        return $refs_of;
+    }
+    private function get_eol_pks_of_new_from_origRecs($recs, $descendants)
+    {
+        $eol_pks = array();
+        foreach($recs as $rec) {
+            if(in_array($rec['value_uri'], $descendants)) {
+                $eol_pks[$rec['eol_pk']] = '';
+            }
+        }
+        return array_keys($eol_pks);
+    }
+    private function get_from_ISVAT_descendants_of($term) //working well
+    {
+        $desc_x = array($term);
+        while($desc_x)
+        {
+            foreach($this->ISVAT as $a) {
+                if(in_array($a[0], $desc_x)) {
+                    $temp[$a[1]] = '';
+                    $desc_all[$a[1]] = '';
+                }
+            }
+            $temp = array_keys($temp);
+            $desc_x = $temp;
+            $temp = array();
+        }
+        return array_keys($desc_all);
     }
     private function adjust_if_needed_and_write_existing_records($rows, $WRITE)
     {   /*For selected values available in multiple records, let's do an order of precedence based on metadata, with an arbitrary tie-breaker (which you'll need in this case; sorry!). 
@@ -832,7 +862,7 @@ class SummaryDataResourcesAPI
         }
         return $taxon;
     }
-    private function create_archive($records, $refs, $info) //EXTENSION_URL: http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd
+    private function create_archive($records, $new_records_refs, $info) //EXTENSION_URL: http://rs.tdwg.org/dwc/xsd/tdwg_dwcterms.xsd
     {
         $taxon = self::add_taxon($info);
         foreach($records as $value_uri) { //e.g. http://purl.obolibrary.org/obo/ENVO_01001125
@@ -842,7 +872,10 @@ class SummaryDataResourcesAPI
             $rec['taxon_id'] = $taxon->taxonID;
             $rec['measurementType'] = $predicate;
             $rec['measurementValue'] = $value_uri;
+            /* ver 1
             if($reference_ids = self::create_references($refs)) $rec['referenceID'] = implode("; ", $reference_ids);
+            */
+            if($reference_ids = self::create_references($new_records_refs[$value_uri])) $rec['referenceID'] = implode("; ", $reference_ids);
             $rec['catnum'] = $taxon->taxonID . "_" . pathinfo($predicate, PATHINFO_BASENAME) . "_" . pathinfo($value_uri, PATHINFO_BASENAME);
             $rec['source'] = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=$predicate"; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
             // if($predicate == "http://eol.org/schema/terms/Habitat") self::add_string_types($rec);
@@ -1862,6 +1895,7 @@ class SummaryDataResourcesAPI
         echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
         echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
         foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
+        $this->ISVAT = $ISVAT;
         // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
         echo "\n\nInitial roots: ".count($roots)."\n"; print_r($roots);
         // */
