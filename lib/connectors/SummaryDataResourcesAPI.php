@@ -361,6 +361,10 @@ class SummaryDataResourcesAPI
         fclose($WRITE); self::end_write2DwCA();
         exit("\n-- end method: 'taxon summary' --\n");
     }
+    function test_basal_values()
+    {
+        
+    }
     function start() //DH total recs 2,724,941
     {
         /*
@@ -460,21 +464,21 @@ class SummaryDataResourcesAPI
     //############################################################################################ start write resource file - method = 'parent taxon summary'
     private function gen_children_of_taxon_usingDH() //started as investigate_DH(). DH total recs 2,724,941
     {
-        $info = self::prep_DH(); $i = 0;
+        $info = self::prep_DH(); $i = 0; $m = 2724950/5;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
             if($i == 1) $fields = $line;
             else {
                 
-                // /* breakdown when caching:
+                /* breakdown when caching:
                 $cont = false;
-                // if($i >= 720521 && $i < 1000000) $cont = true; //1st batch
-                // if($i >= 1000965 && $i < 1500000) $cont = true; //1st batch
-                // if($i >= 1500000 && $i < 2000000) $cont = true; //1st batch
-                // if($i >= 2008249 && $i < 2500000) $cont = true; //1st batch
-                if($i >= 2500000 && $i < 2724950) $cont = true; //1st batch
+                // if($i >= 1 && $i < $m) $cont = true;
+                // if($i >= $m && $i < $m*2) $cont = true;
+                // if($i >= $m*2 && $i < $m*3) $cont = true;
+                // if($i >= $m*3 && $i < $m*4) $cont = true;
+                // if($i >= $m*4 && $i < $m*5) $cont = true;
                 if(!$cont) continue;
-                // */
+                */
                 
                 if(!$line[0]) break;
                 $rec = array(); $k = 0;
@@ -494,6 +498,7 @@ class SummaryDataResourcesAPI
                     }
                     else echo "\nNo ancestry [$val]\n";
                 }
+                else echo "\nNo EOLid\n";
                 // */
                 if(($i % 1000) == 0) echo "\n".number_format($i);
             }
@@ -525,15 +530,17 @@ class SummaryDataResourcesAPI
                     $cont_write = true;
                 }
             }
-            if($cont_write) { //echo " -appending ";
+            if($cont_write) { 
+                echo " -appending ";
+                echo "\n[$page_id] $json_file\n";
                 $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
             }
             else echo " -no add ";
             // */
         }
         else {
-            $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($children)); fclose($WRITE);
             echo " -new ";
+            $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($children)); fclose($WRITE);
             // echo "\nNEW: writing json [$page_id] [$json_file] [".count($children)."]";
         }
     }
