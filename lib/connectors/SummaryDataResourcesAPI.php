@@ -609,19 +609,6 @@ class SummaryDataResourcesAPI
         }
         return array_keys($final);
     }
-    // private function convert_ISVAT_TS($isvat_ts)
-    // {   // print_r($isvat_ts); exit;
-    //     Array(
-    //         [308533] => Array
-    //                 [0] => 1642
-    //                 [1] => 46557930
-    //     foreach($isvat_ts as $key => $arr) {
-    //         foreach($arr as $item) {
-    //             $final[] = array($key, $item);
-    //         }
-    //     }
-    //     return $final;
-    // }
     private function get_eol_pks_of_new_from_origRecs_TS($recs, $descendants)
     {
         $eol_pks = array();
@@ -667,7 +654,7 @@ class SummaryDataResourcesAPI
             $a->targetOccurrenceID = $related_occurrence_id;
             
             // $a->referenceID = $reference_ids; --> ver 1
-            if($reference_ids = self::create_references($new_records_refs[$taxon_name_id])) $a->referenceID = implode("; ", $reference_ids);
+            if($reference_ids = self::create_references($new_records_refs[$taxon_name_id])) $a->referenceID = implode("; ", $reference_ids); //ver 2 OK
             
             $a->measurementDeterminedDate = date("Y-M-d");
             
