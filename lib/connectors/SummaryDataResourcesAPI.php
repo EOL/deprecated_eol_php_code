@@ -363,16 +363,6 @@ class SummaryDataResourcesAPI
     }
     function test_basal_values()
     {
-        
-    }
-    function start() //DH total recs 2,724,941
-    {
-        /*
-        self::initialize();
-        self::investigate_traits_csv(); exit;
-        */
-
-        // /* METHOD: basal values  ============================================================================================================
         self::initialize_basal_values();
         // /* orig write block
         //write to DwCA
@@ -382,8 +372,7 @@ class SummaryDataResourcesAPI
         
         //write to file
         if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
-        fwrite($WRITE, implode("\t", $row). "\n");
+        $row = array("Page ID", 'eol_pk', "Label", "Value URI"); fwrite($WRITE, implode("\t", $row). "\n");
         // */
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
@@ -401,13 +390,11 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        
 
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
-        
-        
+
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
         $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
 
@@ -441,14 +428,16 @@ class SummaryDataResourcesAPI
             if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
             */
         }
-
-        // /* orig write block
-        fclose($WRITE);
-        self::end_write2DwCA();
-        // */
-        
+        fclose($WRITE); self::end_write2DwCA();
         exit("\n-- end method: basal values --\n");
         // */
+    }
+    function start() //DH total recs 2,724,941
+    {
+        /*
+        self::initialize();
+        self::investigate_traits_csv(); exit;
+        */
     }
     private function start_write2DwCA($resource_id)
     {

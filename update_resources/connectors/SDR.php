@@ -63,12 +63,15 @@ exit("\n-end tests'\n");
 */
 
 /*
-$arr = json_decode('[]');
+$arr = json_decode('["717136"]');
 if(!is_array($arr) && is_null($arr)) {
     $arr = array();
     echo "\nwent here 01\n";
 }
-else echo "\nwent here 02\n";
+else {
+    echo "\nwent here 02\n";
+    print_r($arr);
+}
 exit("\n");
 */
 
@@ -77,7 +80,7 @@ $resource_id = 'SDR';
 $func = new SummaryDataResourcesAPI($resource_id);
 
 // $func->generate_page_id_txt_files();        return; //important initial step
-$func->generate_children_of_taxa_usingDH(); return; //the big long program
+$func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later
 
 // $func->test_basal_values_parent();       return;
 // $func->print_basal_values();      return;
