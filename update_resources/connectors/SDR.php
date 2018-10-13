@@ -89,7 +89,7 @@ $func = new SummaryDataResourcesAPI($resource_id);
 // $func->print_lifeStage_statMeth();       return;
 
 
-$func->test_taxon_summary();            return;
+// $func->test_taxon_summary();            return;
 // $func->print_taxon_summary();            return;
 $func->test_parent_taxon_summary();     return;
 // $func->print_parent_taxon_summary();     return;

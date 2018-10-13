@@ -136,14 +136,14 @@ class SummaryDataResourcesAPI
         $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
+        // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
         $resource_id = 'test_parent_taxon_summary'; self::start_write2DwCA($resource_id);
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
+        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -169,7 +169,7 @@ class SummaryDataResourcesAPI
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
+        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -234,7 +234,7 @@ class SummaryDataResourcesAPI
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
+        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
         //--------initialize end
         foreach($predicates as $predicate) {
@@ -339,7 +339,7 @@ class SummaryDataResourcesAPI
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
         if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "object_page_id");
+        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
@@ -568,7 +568,7 @@ class SummaryDataResourcesAPI
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
                     //write to file block
-                    $row = array($page_id, $rec['eol_pk'], $info['Label'], $id); $existing_records_for_writing[] = $row;
+                    $row = array($page_id, $rec['eol_pk'], $id, $info['Label']); $existing_records_for_writing[] = $row;
                 }
             }
         }
@@ -816,10 +816,10 @@ class SummaryDataResourcesAPI
         // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
         // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
         */
-        // print_r($rows); //exit;
+        echo "\nExisting records: "; print_r($rows); //good debug
         //step 1: get counts
         foreach($rows as $row) {
-            @$counts[$row[2]]++;
+            @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
         }
         echo "\ncounts: "; print_r($counts);
         //step 2: get eol_pk if count > 1 -> meaning multiple records
