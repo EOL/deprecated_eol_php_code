@@ -133,6 +133,7 @@ class SummaryDataResourcesAPI
     }
     function test_parent_taxon_summary()
     {
+        $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
         // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
@@ -573,15 +574,66 @@ class SummaryDataResourcesAPI
         }
         if($existing_records_for_writing) self::adjust_if_needed_and_write_existing_records($existing_records_for_writing, $WRITE);
         $eol_pks = array_keys($eol_pks);
+        echo "\n [$parentYN] Original recs: ".count($recs)."\n";
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            /* ver 1
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
-            // $this->info = $info;             //for debug only
             self::create_archive_TaxonSummary($new_records, $refs, $info);
+            */
+            // $this->info = $info;             //for debug only
+            // /* ver 2 OK
+            $new_records_refs = self::assemble_refs_for_new_recs_TS($new_records, $recs);
+            self::create_archive_TaxonSummary($new_records, $new_records_refs, $info);
+            // */
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
     }
-    private function create_archive_TaxonSummary($new_records, $refs, $ret)
+    //================================================================================================================================= start new scheme
+    private function assemble_refs_for_new_recs_TS($new_records, $orig_recs)
+    {
+        foreach($new_records as $new) {
+            $descendants_of[$new] = self::get_from_ISVAT_descendants_of_TS($new);                              //1. get from $this->ISVAT which are descendants of $new
+            $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs_TS($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
+            $refs_of[$new] = self::get_refs_from_metadata_csv($eol_pks_of[$new]);                           //3. get refs using eol_pks
+        }
+        print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of[$new]); //good debug
+        return $refs_of;
+    }
+    private function get_from_ISVAT_descendants_of_TS($term) //working well
+    {
+        $final = array();
+        foreach($this->ISVAT_TS as $key => $arr) {
+            if(in_array($term, $arr)) $final[$key] = '';
+            if($key == $term) $final[$key] = '';
+        }
+        return array_keys($final);
+    }
+    // private function convert_ISVAT_TS($isvat_ts)
+    // {   // print_r($isvat_ts); exit;
+    //     Array(
+    //         [308533] => Array
+    //                 [0] => 1642
+    //                 [1] => 46557930
+    //     foreach($isvat_ts as $key => $arr) {
+    //         foreach($arr as $item) {
+    //             $final[] = array($key, $item);
+    //         }
+    //     }
+    //     return $final;
+    // }
+    private function get_eol_pks_of_new_from_origRecs_TS($recs, $descendants)
+    {
+        $eol_pks = array();
+        foreach($recs as $rec) {
+            if(in_array($rec['object_page_id'], $descendants)) {
+                $eol_pks[$rec['eol_pk']] = '';
+            }
+        }
+        return array_keys($eol_pks);
+    }
+    //================================================================================================================================= end new scheme
+    private function create_archive_TaxonSummary($new_records, $new_records_refs, $ret)
     {   /*Array(
         [root] => 46557930
         [root label] => PRM
@@ -596,11 +648,13 @@ class SummaryDataResourcesAPI
         $taxon_id = $ret['page_id'];
         $taxon = $this->add_taxon(array('page_id' => $taxon_id));
         $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
+
+        /* ver 1
         $reference_ids = '';
-        // if($refs = @$ret['refs']) {
         if($refs) {
             if($reference_ids = self::create_references($refs)) $reference_ids = implode("; ", $reference_ids);
-        }
+        }*/
+
         $occurrence_id = $this->add_occurrence_assoc($taxon_id, "$type"); // used in 'Summary Data Resources' implementation. Not the strategy used in EOL Associations
         foreach($new_records as $taxon_name_id) {
             /* $occurrence_id = $this->add_occurrence_assoc($taxon_id, $taxon_name_id . "_$type"); */ // used in orig EOL Associations implementation.
@@ -611,7 +665,11 @@ class SummaryDataResourcesAPI
             $a->occurrenceID = $occurrence_id;
             $a->associationType = $ret['predicate'];
             $a->targetOccurrenceID = $related_occurrence_id;
-            $a->referenceID = $reference_ids;
+            
+            // $a->referenceID = $reference_ids; --> ver 1
+            if($reference_ids = self::create_references($new_records_refs[$taxon_name_id])) $a->referenceID = implode("; ", $reference_ids);
+            
+            
             $a->measurementDeterminedDate = date("Y-M-d");
             $a->source = "https://beta.eol.org/pages/$taxon->taxonID/data?predicate=".$ret['predicate']; //e.g. https://beta.eol.org/pages/46559217/data?predicate=http://eol.org/schema/terms/Habitat
             $a->measurementMethod   = 'summary of records available in EOL';
@@ -705,10 +763,13 @@ class SummaryDataResourcesAPI
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            /* ver 1 obsolete
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
+            self::create_archive($new_records, $refs, $info);
+            */
             // $this->info = $info;             //for debug only
+            /* ver 2 OK */
             $new_records_refs = self::assemble_refs_for_new_recs($new_records, $recs);
-            // self::create_archive($new_records, $refs, $info);  -> ver 1
             self::create_archive($new_records, $new_records_refs, $info);
         }
         else echo "\nNo new records. Will not write to DwCA.\n";
@@ -1654,7 +1715,7 @@ class SummaryDataResourcesAPI
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
-        echo "\n final array: ".count($final); print_r($final);
+        echo "\n final array: ".count($final); print_r($final); $this->ISVAT_TS = $final;
         if(!$final) return false;
         /* WORKING WELL but was made into a function -> get_immediate_children_of_root_info($final)
         foreach($final as $tip => $ancestors) {
