@@ -82,18 +82,17 @@ $func = new SummaryDataResourcesAPI($resource_id);
 // $func->generate_page_id_txt_files();        return; //important initial step
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 
-// $func->test_basal_values_parent();       return;
-// $func->print_basal_values();      return;
+// $func->test_basal_values_parent();   return;
+// $func->print_basal_values();         return;
+// $func->test_parent_basal_values();   return;
+// $func->print_parent_basal_values();  return;
 
-// $func->print_parent_basal_values();      return;
-// $func->print_lifeStage_statMeth();       return;
+// $func->test_taxon_summary();         return;
+// $func->print_taxon_summary();        return;
+// $func->test_parent_taxon_summary();  return;
+$func->print_parent_taxon_summary(); return;
 
-
-// $func->test_taxon_summary();            return;
-// $func->print_taxon_summary();            return;
-$func->test_parent_taxon_summary();     return;
-// $func->print_parent_taxon_summary();     return;
-
+// $func->print_lifeStage_statMeth();   return;
 
 $func->start();
 // Functions::finalize_dwca_resource($resource_id);
