@@ -283,15 +283,15 @@ class SummaryDataResourcesAPI
         fclose($WRITE);
         exit("\n-end print resource files (lifestage+statMeth)-\n");
     }
-    function test_basal_values_parent()
+    function test_parent_basal_values()
     {
         // { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH(); //seems not needed here...?
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
-        $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
 
         //write to DwCA

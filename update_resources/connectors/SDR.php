@@ -96,7 +96,7 @@ $func = new SummaryDataResourcesAPI($resource_id);
 
 // $func->test_taxon_summary();         return;
 // $func->print_taxon_summary();        return;
-$func->test_parent_taxon_summary();  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
+// $func->test_parent_taxon_summary();  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary(); return;
 
 // $func->print_lifeStage_statMeth();   return;
