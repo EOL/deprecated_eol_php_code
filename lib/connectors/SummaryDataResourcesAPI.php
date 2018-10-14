@@ -136,9 +136,9 @@ class SummaryDataResourcesAPI
         $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
+        // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
 
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
 
@@ -441,8 +441,47 @@ class SummaryDataResourcesAPI
         exit("\n-- end method: basal values --\n");
         // */
     }
+    private function get_CSV_children_of($page_id)
+    {
+        $anaks = array();
+        $children = @$this->CSV_children_of[$page_id];
+        $anaks = array_merge($anaks, $children);
+        foreach($children as $child) {
+            if($children2 = @$this->CSV_children_of[$child]) $anaks = array_merge($anaks, $children2);
+            else continue;
+            foreach($children2 as $child2) {
+                if($children3 = @$this->CSV_children_of[$child2]) $anaks = array_merge($anaks, $children3);
+                else continue;
+                foreach($children3 as $child3) {
+                    if($children4 = @$this->CSV_children_of[$child3]) $anaks = array_merge($anaks, $children4);
+                    else continue;
+                    foreach($children4 as $child4) {
+                        if($children5 = @$this->CSV_children_of[$child4]) $anaks = array_merge($anaks, $children5);
+                        else continue;
+                        foreach($children5 as $child5) {
+                            if($children6 = @$this->CSV_children_of[$child5]) $anaks = array_merge($anaks, $children6);
+                            else continue;
+                            foreach($children6 as $child6) {
+                                if($children7 = @$this->CSV_children_of[$child6]) $anaks = array_merge($anaks, $children7);
+                                else continue;
+                                exit("\nreached level 7. May need to extend more.\n");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $anaks = array_unique($anaks);
+        return $anaks;
+    }
     function start() //DH total recs 2,724,941
     {
+        // /*
+        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
+        $main_page_id = 7665; //7662;
+        $children = self::get_CSV_children_of($main_page_id); print_r($children);
+        // */
+        
         /*
         self::initialize();
         self::investigate_traits_csv(); exit;
@@ -1079,7 +1118,7 @@ class SummaryDataResourcesAPI
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
 
         // /*
-        if($children = @$this->CSV_children_of[$main_page_id]) {
+        if($children = self::get_CSV_children_of($main_page_id)) {
             echo "\n*Children of [$main_page_id]: "; print_r($children);
         }
         else {
@@ -1172,7 +1211,7 @@ class SummaryDataResourcesAPI
         // You may want to include a filter so, if we re-run this in a few months, the summary records created for 7666 are not included in the new pool of records.
         // (This is entirely because of the quality of the data. Basal value records, habitat and geography, include many questionable records at, for instance, the family level.
         // Interactions records include a lot of pretty reasonable records for the same taxa.)
-        if($mga_anak = @$this->CSV_children_of[$main_page_id]) $children = array_merge($children, $mga_anak);
+        if($mga_anak = self::get_CSV_children_of($main_page_id)) $children = array_merge($children, $mga_anak);
         echo "\n*Children of [$main_page_id] inclusive: "; print_r($children);
         // */
         
