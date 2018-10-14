@@ -49,8 +49,6 @@ class SummaryDataResourcesAPI
         else                            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
         
         $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
-        $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/basal_values_resource.txt';
-        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_resource.txt';
         $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
         
         $this->parentModeYN = false;
@@ -98,16 +96,8 @@ class SummaryDataResourcesAPI
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        
-        //write to DwCA
-        $resource_id = 'parent_basal_values'; self::start_write2DwCA($resource_id);
-        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
 
-        //write to file
-        if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Value URI", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
-        // */
+        $resource_id = 'parent_basal_values'; self::start_write2DwCA($resource_id, 'BV');
 
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -142,12 +132,8 @@ class SummaryDataResourcesAPI
 
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
 
-        $resource_id = 'test_parent_taxon_summary'; self::start_write2DwCA($resource_id);
-        //write to file
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
+        $resource_id = 'test_parent_taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
@@ -167,13 +153,9 @@ class SummaryDataResourcesAPI
         self::generate_children_of_taxa_using_parentsCSV();
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        //write to DwCA
-        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id);
-        //write to file
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
+
+        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
                 // print_r($taxon); exit;
@@ -202,13 +184,9 @@ class SummaryDataResourcesAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
         self::initialize_basal_values();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        //write to DwCA
-        $esource_id = 'basal_values'; self::start_write2DwCA($resource_id);
-        //write to file
-        if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Value URI", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
-        //--------initialize end
+
+        $esource_id = 'basal_values'; self::start_write2DwCA($resource_id, 'BV');
+
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
                 // print_r($taxon);
@@ -232,14 +210,9 @@ class SummaryDataResourcesAPI
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
         self::parse_DH();
-        //write to DwCA
-        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id);
-        //write to file
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
-        //--------initialize end
+
+        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
                 if(!$page_id) continue;
@@ -294,15 +267,7 @@ class SummaryDataResourcesAPI
         $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
 
-        //write to DwCA
-        $resource_id = 'test_parent_basal_values';
-        $this->parent_basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        self::start_write2DwCA($resource_id);
-
-        //write to file
-        if(!($WRITE = Functions::file_open($this->parent_basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI");
-        fwrite($WRITE, implode("\t", $row). "\n");
+        $resource_id = 'test_parent_basal_values'; self::start_write2DwCA($resource_id, 'BV');
 
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -339,12 +304,8 @@ class SummaryDataResourcesAPI
     function test_taxon_summary()
     {
         self::parse_DH(); self::initialize();
-        $resource_id = 'test_taxon_summary'; self::start_write2DwCA($resource_id);
-        //write to file
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        if(!($WRITE = Functions::file_open($file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
-        fwrite($WRITE, implode("\t", $row). "\n");
+        $resource_id = 'test_taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
@@ -374,15 +335,9 @@ class SummaryDataResourcesAPI
     {
         self::initialize_basal_values();
         // /* orig write block
-        //write to DwCA
-        $resource_id = 'test_basal_values';
-        $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
-        self::start_write2DwCA($resource_id);
         
-        //write to file
-        if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
-        $row = array("Page ID", 'eol_pk', "Label", "Value URI"); fwrite($WRITE, implode("\t", $row). "\n");
-        // */
+        $resource_id = 'test_basal_values'; self::start_write2DwCA($resource_id, 'BV');
+        
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
@@ -413,13 +368,13 @@ class SummaryDataResourcesAPI
             
             //write to DwCA
             $this->resource_id = $i['page_id']."_".pathinfo($i['predicate'], PATHINFO_BASENAME);
-            $this->basal_values_resource_file = CONTENT_RESOURCE_LOCAL_PATH . "/".$this->resource_id."_resource.txt";
+            $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$this->resource_id."_resource.txt";
 
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
             //write to file
-            if(!($WRITE = Functions::file_open($this->basal_values_resource_file, "w"))) return;
+            if(!($WRITE = Functions::file_open($file, "w"))) return;
             $row = array("Page ID", 'eol_pk', "Value URI", "Label");
             fwrite($WRITE, implode("\t", $row). "\n");
             */
@@ -487,11 +442,17 @@ class SummaryDataResourcesAPI
         self::investigate_traits_csv(); exit;
         */
     }
-    private function start_write2DwCA($resource_id)
+    private function start_write2DwCA($resource_id, $method)
     {
         $this->resource_id = $resource_id;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $this->resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        
+        $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
+        if(!($WRITE = Functions::file_open($file, "w"))) return;
+        if($method == 'BV') $row = array("Page ID", 'eol_pk', "Value URI", "Label");
+        if($method == 'TS') $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
+        fwrite($WRITE, implode("\t", $row). "\n");
     }
     private function end_write2DwCA()
     {
