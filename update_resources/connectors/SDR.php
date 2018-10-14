@@ -75,6 +75,13 @@ else {
 exit("\n");
 */
 
+/*
+$a1 = array('45511473' => Array(46557930));
+$a2 = array('308533' => Array(1642, 46557930));
+$a3 = $a1 + $a2; print_r($a3);
+exit("\n");
+*/
+
 $timestart = time_elapsed();
 $resource_id = 'SDR';
 $func = new SummaryDataResourcesAPI($resource_id);
@@ -89,7 +96,7 @@ $func = new SummaryDataResourcesAPI($resource_id);
 
 // $func->test_taxon_summary();         return;
 // $func->print_taxon_summary();        return;
-// $func->test_parent_taxon_summary();  return;
+$func->test_parent_taxon_summary();  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 $func->print_parent_taxon_summary(); return;
 
 // $func->print_lifeStage_statMeth();   return;

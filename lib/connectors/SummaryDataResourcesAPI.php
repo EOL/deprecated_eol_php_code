@@ -136,9 +136,12 @@ class SummaryDataResourcesAPI
         $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
-        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
-        $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
+
+        // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+
         $resource_id = 'test_parent_taxon_summary'; self::start_write2DwCA($resource_id);
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
@@ -147,14 +150,14 @@ class SummaryDataResourcesAPI
         fwrite($WRITE, implode("\t", $row). "\n");
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
-            $this->taxon_summary_parent_recs = array();
+            $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
             if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
             }
         }
-        fclose($WRITE); self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         exit("\n-- end method: parents: taxon summary --\n");
     }
     function print_parent_taxon_summary()
@@ -181,7 +184,7 @@ class SummaryDataResourcesAPI
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
-                    $this->taxon_summary_parent_recs = array();
+                    $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
                     if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
@@ -190,7 +193,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($WRITE); self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         exit("\n-end print parent taxon summary-\n");
     }
     function print_basal_values()
@@ -241,6 +244,7 @@ class SummaryDataResourcesAPI
             foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
+                    $this->ISVAT_TS = array();
                     if($ret = self::main_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         echo "\n\nFinal result (taxon summary):"; print_r($ret);
@@ -354,9 +358,9 @@ class SummaryDataResourcesAPI
         
         $input[] = array('page_id' => 47054812, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //supposedly no records
         
-        
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
+            $this->ISVAT_TS = array();
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 echo "\n\nFinal result (taxon summary):"; print_r($ret);
@@ -559,6 +563,8 @@ class SummaryDataResourcesAPI
     //############################################################################################ start write resource file - method = 'taxon summary'
     private function write_resource_file_TaxonSummary($info, $WRITE, $parentYN) //previously $ret
     {
+        // print_r($this->ISVAT_TS); exit;
+        
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
@@ -1177,6 +1183,7 @@ class SummaryDataResourcesAPI
             if($val = self::main_taxon_summary($page_id, $predicate)) {
                 echo "\nFinal result: taxon summary: "; print_r($val);
                 $records[] = $val;
+                $this->debug['parent taxon summary'][$main_page_id."_".$predicate][] = $page_id;
             }
         }
         if(count($records) == 1) { echo "\n**Only 1 child has records. Use result of this child as result of the parent process ".count($records)." For [$main_page_id], $predicate\n";
@@ -1195,7 +1202,7 @@ class SummaryDataResourcesAPI
             return array('root' => $rec['root'], 'root label' => $rec['root label'], 'Selected' => $rec['Selected'], 'Label' => $rec['Label']);
         }
         elseif(count($records) > 1) { echo "\n**Multiple children have records ".count($records)." For [$main_page_id], $predicate\n";
-            exit;
+            // exit;
         }
         else echo "\n**No children, even inclusive have any records. For [$main_page_id], $predicate\n";
         
@@ -1713,7 +1720,10 @@ class SummaryDataResourcesAPI
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
-        echo "\n final array: ".count($final); print_r($final); $this->ISVAT_TS = $final;
+        echo "\n final array: ".count($final); print_r($final); 
+        
+        if($this->parentModeYN) $this->ISVAT_TS = $this->ISVAT_TS + $final;
+        
         if(!$final) return false;
         /* WORKING WELL but was made into a function -> get_immediate_children_of_root_info($final)
         foreach($final as $tip => $ancestors) {
