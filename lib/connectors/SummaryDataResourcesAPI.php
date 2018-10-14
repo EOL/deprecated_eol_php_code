@@ -137,8 +137,8 @@ class SummaryDataResourcesAPI
         self::parse_DH(); self::initialize();
         self::generate_children_of_taxa_using_parentsCSV();
         $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
-        // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
+        $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
         $resource_id = 'test_parent_taxon_summary'; self::start_write2DwCA($resource_id);
         //write to file
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/".$resource_id."_resource.txt";
@@ -350,7 +350,11 @@ class SummaryDataResourcesAPI
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
         // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
+        // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
+        
+        $input[] = array('page_id' => 47054812, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //supposedly no records
+        
+        
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
@@ -1151,10 +1155,11 @@ class SummaryDataResourcesAPI
     */
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
-    {   echo "\n#####################################################################\n";echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
+    {   echo "\n#####################################################################"; echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
         // /*
+        $children = array();
         $children[] = $main_page_id;
         // and, just for the taxon summary parents (not for the basal value parents) a change in the contributing child taxa: please include
         // all descendant taxa at all ranks, up to and including the taxon in question, so the summary for page 7666 should be based on a record pool including records for page 7666.
@@ -1188,6 +1193,8 @@ class SummaryDataResourcesAPI
             )*/
             $rec = $records[0];
             return array('root' => $rec['root'], 'root label' => $rec['root label'], 'Selected' => $rec['Selected'], 'Label' => $rec['Label']);
+        }
+        elseif(count($records) > 1) { echo "\nMultiple children have records ".count($records).".\n";
         }
         
         
@@ -2373,17 +2380,30 @@ class SummaryDataResourcesAPI
                     [resource_id] => 20
                 )*/
                 $txt_file = self::get_txt_path_by_page_id($rec['page_id']);
+                // /* normal operation ----------------------------------------------------------------------- working OK
                 if(file_exists($txt_file)) {
+                    echo "\nAppend [$txt_file] ";
                     $WRITE = fopen($txt_file, 'a');
                     fwrite($WRITE, implode("\t", $line)."\n");
                     fclose($WRITE);
                 }
                 else {
+                    echo "\nCreated [$txt_file] ";
                     $WRITE = fopen($txt_file, 'w');
                     fwrite($WRITE, implode("\t", $fields)."\n");
                     fwrite($WRITE, implode("\t", $line)."\n");
                     fclose($WRITE);
                 }
+                // */
+                
+                /* use if u want to delete txt files ----------------------------------------------------------------------- working OK
+                if(file_exists($txt_file)) {
+                    echo "\nFound [$txt_file] ";
+                    if(unlink($txt_file)) echo "- deleted";
+                    else                  echo "- not deleted";
+                }
+                */
+                
             }
         }
         fclose($file); exit("\n\nText file generation DONE.\n\n");
