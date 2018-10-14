@@ -1179,7 +1179,7 @@ class SummaryDataResourcesAPI
                 $records[] = $val;
             }
         }
-        if(count($records) == 1) { echo "\n**Only 1 child has records. Use result of this child as result of the parent process ".count($records).".\n";
+        if(count($records) == 1) { echo "\n**Only 1 child has records. Use result of this child as result of the parent process ".count($records)." For [$main_page_id], $predicate\n";
             /*Array
                 [0] => Array
                         [root] => 1642
@@ -1194,9 +1194,10 @@ class SummaryDataResourcesAPI
             $rec = $records[0];
             return array('root' => $rec['root'], 'root label' => $rec['root label'], 'Selected' => $rec['Selected'], 'Label' => $rec['Label']);
         }
-        elseif(count($records) > 1) { echo "\n**Multiple children have records ".count($records).".\n";
+        elseif(count($records) > 1) { echo "\n**Multiple children have records ".count($records)." For [$main_page_id], $predicate\n";
+            exit;
         }
-        else echo "\n**No children, even inclusive have any records.\n";
+        else echo "\n**No children, even inclusive have any records. For [$main_page_id], $predicate\n";
         
         
         if(!$records) return array();
