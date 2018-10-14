@@ -97,7 +97,7 @@ class SummaryDataResourcesAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
 
-        $resource_id = 'parent_basal_values'; self::start_write2DwCA($resource_id, 'BV');
+        $resource_id = 'parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -132,7 +132,7 @@ class SummaryDataResourcesAPI
 
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
 
-        $resource_id = 'test_parent_taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+        $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -154,7 +154,7 @@ class SummaryDataResourcesAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
 
-        $resource_id = 'parent_taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+        $resource_id = 'parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -185,7 +185,7 @@ class SummaryDataResourcesAPI
         self::initialize_basal_values();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
 
-        $esource_id = 'basal_values'; self::start_write2DwCA($resource_id, 'BV');
+        $esource_id = 'basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
@@ -211,7 +211,7 @@ class SummaryDataResourcesAPI
         //--------initialize start
         self::parse_DH();
 
-        $resource_id = 'taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+        $resource_id = 'taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
@@ -267,12 +267,13 @@ class SummaryDataResourcesAPI
         $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
 
-        $resource_id = 'test_parent_basal_values'; self::start_write2DwCA($resource_id, 'BV');
+        $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
             if($ret = self::main_parents_basal_values($page_id, $predicate)) {
+                echo "\nFinal (parent basal values): "; print_r($ret);
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
             }
@@ -304,7 +305,7 @@ class SummaryDataResourcesAPI
     function test_taxon_summary()
     {
         self::parse_DH(); self::initialize();
-        $resource_id = 'test_taxon_summary'; self::start_write2DwCA($resource_id, 'TS');
+        $resource_id = 'test_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
@@ -336,7 +337,7 @@ class SummaryDataResourcesAPI
         self::initialize_basal_values();
         // /* orig write block
         
-        $resource_id = 'test_basal_values'; self::start_write2DwCA($resource_id, 'BV');
+        $resource_id = 'test_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
@@ -359,8 +360,8 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
 
-        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
-        $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+        // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
 
         foreach($input as $i) {
             /* temp block
@@ -453,6 +454,7 @@ class SummaryDataResourcesAPI
         if($method == 'BV') $row = array("Page ID", 'eol_pk', "Value URI", "Label");
         if($method == 'TS') $row = array("Page ID", 'eol_pk', "object_page_id", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
+        return $WRITE;
     }
     private function end_write2DwCA()
     {
