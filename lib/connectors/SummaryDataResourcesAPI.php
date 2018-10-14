@@ -354,9 +354,9 @@ class SummaryDataResourcesAPI
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
         // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
+        $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         
-        $input[] = array('page_id' => 47054812, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //supposedly no records
+        // $input[] = array('page_id' => 47054812, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //supposedly no records
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -602,8 +602,6 @@ class SummaryDataResourcesAPI
     //############################################################################################ start write resource file - method = 'taxon summary'
     private function write_resource_file_TaxonSummary($info, $WRITE, $parentYN) //previously $ret
     {
-        // print_r($this->ISVAT_TS); exit;
-        
         $page_id = $info['page_id']; $predicate = $info['predicate'];
         /*step 1: get all eol_pks */
         if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
@@ -1761,7 +1759,7 @@ class SummaryDataResourcesAPI
         */
         echo "\n final array: ".count($final); print_r($final); 
         
-        if($this->parentModeYN) $this->ISVAT_TS = $this->ISVAT_TS + $final;
+        $this->ISVAT_TS = $this->ISVAT_TS + $final;
         
         if(!$final) return false;
         /* WORKING WELL but was made into a function -> get_immediate_children_of_root_info($final)
