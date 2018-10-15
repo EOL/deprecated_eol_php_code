@@ -82,12 +82,30 @@ $a3 = $a1 + $a2; print_r($a3);
 exit("\n");
 */
 
+// $json = "[]";
+// $arr = json_decode($json, true);
+// if(is_array($arr)) echo "\nis array\n";
+// else               echo "\nnot array\n";
+// if(is_null($arr)) echo "\nis null\n";
+// else               echo "\nnot null\n";
+// print_r($arr);
+// // if(!is_array($arr) && is_null($arr)) $arr = array();
+// exit("\n");
+
+// $file = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/99/cd/R96-PK42697173.txt";
+// $file = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/38/49/R344-PK19315117.txt";
+// $json = file_get_contents($file);
+// print_r(json_decode($json, true)); exit;
+
+
 $timestart = time_elapsed();
 $resource_id = 'SDR';
 $func = new SummaryDataResourcesAPI($resource_id);
 
 // $func->generate_page_id_txt_files();        return; //important initial step
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
+// $func->generate_refs_per_eol_pk();          return; //important step for counting refs per eol_pk
+
 
 // $func->test_basal_values();          return;
 // $func->print_basal_values();         return;

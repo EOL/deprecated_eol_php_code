@@ -184,7 +184,7 @@ class SummaryDataResourcesAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
         self::initialize_basal_values();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        $esource_id = 'basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $resource_id = 'basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
                 // print_r($taxon);
@@ -475,8 +475,8 @@ class SummaryDataResourcesAPI
                 $v = 416466;
                 $cont = false;
                 // if($i >= 1 && $i < $m) $cont = true;
-                // if($i >= $m && $i < $m*2) $cont = true;
-                if($i >= $m*2 && $i < $m*3) $cont = true;
+                if($i >= $m && $i < $m*2) $cont = true;
+                // if($i >= $m*2 && $i < $m*3) $cont = true;
                 // if($i >= $m*3 && $i < $m*4) $cont = true;
                 // if($i >= $m*4 && $i < $m*5) $cont = true;
 
@@ -994,6 +994,67 @@ class SummaryDataResourcesAPI
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
+    }
+
+    function generate_refs_per_eol_pk() //total eol_pks 39,931
+    {
+        self::initialize();
+        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                $refs = array();
+                if(count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID"    && $rec['literal']) $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
+                if(count($fields) == count($line) && $rec['predicate'] == "http://purl.org/dc/terms/bibliographicCitation" && $rec['literal']) $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
+                if($refs) {
+                    $json_file = self::get_txt_path_by_page_id($rec['trait_eol_pk'], ".txt");
+                    $arr = array();
+                    if(file_exists($json_file)) {
+                        $json = file_get_contents($json_file);
+                        $arr = json_decode($json, true);
+                        echo "\n[$json_file] appended\n";
+                    }
+                    else echo "\n[$json_file] created\n";
+                    foreach($refs as $refno => $fullref) if(!isset($arr[$refno])) $arr[$refno] = $fullref;
+                    $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE); 
+                }
+            }
+            // if($i >= 5) return; //debug
+        }
+    }
+    function delete_all_eol_pks_refs_fileTXT() //total eol_pks 39,931
+    {
+        self::initialize();
+        $eol_pks = self::get_unique_eol_pks_from_metadata_csv();
+        $total = count($eol_pks); $i = 0;
+        foreach($eol_pks as $eol_pk) {
+            $i++; echo "\n $i of $total";
+            $file = self::get_txt_path_by_page_id($eol_pk, ".txt");
+            if(file_exists($file)) {
+                if(unlink($file)) echo "\ndeleted";
+            }
+            else echo "\nnot found";
+        }
+    }
+    private function get_unique_eol_pks_from_metadata_csv()
+    {
+        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                if(count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID")    $eol_pks[$rec['trait_eol_pk']] = '';
+                if(count($fields) == count($line) && $rec['predicate'] == "http://purl.org/dc/terms/bibliographicCitation") $eol_pks[$rec['trait_eol_pk']] = '';
+            }
+        }
+        return array_keys($eol_pks);
     }
     private function get_refs_from_metadata_csv($eol_pks)
     {
