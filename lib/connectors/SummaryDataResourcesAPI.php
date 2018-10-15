@@ -119,6 +119,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
+        print_r($this->debug);
         exit("\n-- end parents basal values --\n");
     }
     function test_parent_taxon_summary()
@@ -183,9 +184,7 @@ class SummaryDataResourcesAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
         self::initialize_basal_values();
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-
         $esource_id = 'basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
-
         foreach($predicates as $predicate) {
             foreach($page_ids as $page_id => $taxon) {
                 // print_r($taxon);
@@ -198,7 +197,7 @@ class SummaryDataResourcesAPI
                 }
             }
         }
-        fclose($WRITE); self::end_write2DwCA();
+        fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         exit("\n-end print resource files (Basal values)-\n");
     }
     function print_taxon_summary()
@@ -263,10 +262,9 @@ class SummaryDataResourcesAPI
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
-
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
@@ -364,7 +362,6 @@ class SummaryDataResourcesAPI
 
         // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
         $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
-        
 
         foreach($input as $i) {
             /* temp block
@@ -474,7 +471,7 @@ class SummaryDataResourcesAPI
             if($i == 1) $fields = $line;
             else {
                 
-                // /* breakdown when caching:
+                /* breakdown when caching:
                 $v = 416466;
                 $cont = false;
                 // if($i >= 1 && $i < $m) $cont = true;
@@ -491,7 +488,7 @@ class SummaryDataResourcesAPI
                 // if($i >= 642620+($v*4) && $i < 642620+($v*5)) $cont = true;
                 
                 if(!$cont) continue;
-                // */
+                */
                 
                 if(!$line[0]) break;
                 $rec = array(); $k = 0;
@@ -842,12 +839,12 @@ class SummaryDataResourcesAPI
         // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
         // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
         */
-        echo "\nExisting records: "; print_r($rows); //good debug
+        // echo "\nExisting records: "; print_r($rows); //good debug
         //step 1: get counts
         foreach($rows as $row) {
             @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
         }
-        echo "\ncounts: "; print_r($counts);
+        // echo "\ncounts: "; print_r($counts);
         //step 2: get eol_pk if count > 1 -> meaning multiple records
         foreach($rows as $row) {
             $eol_pk = $row[1];
@@ -861,7 +858,9 @@ class SummaryDataResourcesAPI
         //step 3: choose 1 among multiple eol_pks based on metadata (references + biblio). If same count just picked one.
         foreach($study as $value_uri => $eol_pks) {
             //get refs for each eol_pk
+            $total = count($eol_pks); $i = 0;
             foreach($eol_pks as $eol_pk) {
+                $i++; echo "\n[$i of $total] for ref count";
                 $refs_of_eol_pk[$eol_pk][] = self::get_refs_from_metadata_csv(array($eol_pk)); //just for ref counts
             }
         }
@@ -876,13 +875,13 @@ class SummaryDataResourcesAPI
             // echo "\nref_counts: "; print_r($ref_counts);
             $remain[$value_uri][] = self::get_key_of_arr_with_biggest_value($ref_counts);
         }
-        echo "\n remain: ";print_r($remain);
+        // echo "\n remain: ";print_r($remain);
         foreach($study as $value_uri => $eol_pks) {
             $remove[$value_uri] = array_diff($eol_pks, $remain[$value_uri]);
         }
-        echo "\n remove: ";print_r($remove);
+        // echo "\n remove: ";print_r($remove);
         
-        echo "\norig rows count: ".count($rows)."\n";
+        echo "\norig rows count: ".count($rows);
         //step 4: remove duplicate records
         $i = 0;
         foreach($rows as $row)
