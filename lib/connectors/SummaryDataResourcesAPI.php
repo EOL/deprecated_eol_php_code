@@ -335,10 +335,7 @@ class SummaryDataResourcesAPI
     function test_basal_values()
     {
         self::initialize_basal_values();
-        // /* orig write block
-        
         $resource_id = 'test_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
-        
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
@@ -360,8 +357,10 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
 
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
+
+        $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
 
         foreach($input as $i) {
             /* temp block
@@ -595,7 +594,7 @@ class SummaryDataResourcesAPI
         $eol_pks = array_keys($eol_pks);
         echo "\n [$parentYN] Original recs: ".count($recs)."\n";
         if($new_records = array_diff($info['Selected'], $found)) {
-            echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            echo "\nTS - Not found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
             /* ver 1
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive_TaxonSummary($new_records, $refs, $info);
@@ -770,7 +769,7 @@ class SummaryDataResourcesAPI
         
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
-            echo "\nNot found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            echo "\nBV - Not found in traits.csv. Create new record(s) [$page_id] [$predicate]: "; print_r($new_records); //good debug
             /* ver 1 obsolete
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive($new_records, $refs, $info);
@@ -800,13 +799,14 @@ class SummaryDataResourcesAPI
                 $eol_pks[$rec['eol_pk']] = '';
             }
         }
+        // echo "\nDONE: get_eol_pks_of_new_from_origRecs()\n";
         return array_keys($eol_pks);
     }
     private function get_from_ISVAT_descendants_of($term) //working well
     {
+        // echo "\nSTART: get_from_ISVAT_descendants_of($term)\n";
         $desc_x = array($term);
-        while($desc_x)
-        {
+        while($desc_x) {
             foreach($this->ISVAT as $a) {
                 if(in_array($a[0], $desc_x)) {
                     $temp[$a[1]] = '';
@@ -817,6 +817,7 @@ class SummaryDataResourcesAPI
             $desc_x = $temp;
             $temp = array();
         }
+        // echo "\nDONE: get_from_ISVAT_descendants_of()\n";
         return array_keys($desc_all);
     }
     private function adjust_if_needed_and_write_existing_records($rows, $WRITE)
@@ -991,6 +992,7 @@ class SummaryDataResourcesAPI
     }
     private function get_refs_from_metadata_csv($eol_pks)
     {
+        // echo "\neol_pks to process: ".count($eol_pks)."\n";
         if(!$eol_pks) return array();
         $refs = array();
         $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
@@ -1013,6 +1015,7 @@ class SummaryDataResourcesAPI
             }
         }
         // print_r($refs); print_r($debug); exit;
+        // echo "\nDONE: get_refs_from_metadata_csv()\n";
         return $refs;
     }
     private function get_sought_field($recs, $field)
@@ -2684,13 +2687,16 @@ class SummaryDataResourcesAPI
             if($immediate_parents = @$this->parents_of[$term]) {
                 echo "\nThere are immediate parent(s) for term in question:\n";
                 print_r($immediate_parents);
-                foreach($immediate_parents as $parent) $pairs[] = array($parent, $term);
+                foreach($immediate_parents as $parent) {
+                    if($parent != $term) $pairs[] = array($parent, $term);
+                }
             }
         }
         foreach($pairs as $a) echo "\n".$a[0]." - ".$a[1];
         return $pairs;
     }
-    private function get_parent_of_term($term, $num)
+    /*
+    private function get_parent_of_term($term, $num) -- replaced by create_pairs_from_this_term()
     {
         echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
         if($preferred_terms = @$this->preferred_names_of[$term]) {
@@ -2717,11 +2723,10 @@ class SummaryDataResourcesAPI
                 return $chosen;
             }
         }
-        /*
-        $this->preferred_names_of[$term]    function generate_preferred_child_parent_list
-        $this->parents_of[$term]            function generate_terms_values_child_parent_list
-        */
+        // $this->preferred_names_of[$term]    function generate_preferred_child_parent_list
+        // $this->parents_of[$term]            function generate_terms_values_child_parent_list
     }
+    */
     private function generate_preferred_child_parent_list()
     {
         $temp_file = Functions::save_remote_file_to_local($this->file['preferred synonym']['path'], $this->download_options);
