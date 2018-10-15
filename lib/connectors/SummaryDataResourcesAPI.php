@@ -617,7 +617,7 @@ class SummaryDataResourcesAPI
             $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs_TS($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
             $refs_of[$new] = self::get_refs_from_metadata_csv($eol_pks_of[$new]);                           //3. get refs using eol_pks
         }
-        print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of[$new]); //good debug
+        print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of); //good debug
         return $refs_of;
     }
     private function get_from_ISVAT_descendants_of_TS($term) //working well
@@ -790,7 +790,8 @@ class SummaryDataResourcesAPI
             $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
             $refs_of[$new] = self::get_refs_from_metadata_csv($eol_pks_of[$new]);                           //3. get refs using eol_pks
         }
-        // print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of[$new]); //good debug
+        print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of); //good debug
+        // foreach($refs_of as $key => $arr) echo "\n".count($arr)."\n"; //good debug for counting refs
         return $refs_of;
     }
     private function get_eol_pks_of_new_from_origRecs($recs, $descendants)
@@ -1056,7 +1057,20 @@ class SummaryDataResourcesAPI
         }
         return array_keys($eol_pks);
     }
-    private function get_refs_from_metadata_csv($eol_pks)
+    private function get_refs_from_metadata_csv($eol_pks) //replaced the ver 1, which is very slow
+    {
+        $final = array();
+        foreach($eol_pks as $eol_pk) {
+            $file = self::get_txt_path_by_page_id($eol_pk, ".txt");
+            if(file_exists($file)) {
+                $json = file_get_contents($file);
+                $arr = json_decode($json, true);
+                if($arr) $final = $final + $arr;
+            }
+        }
+        return $final;
+    }
+    private function get_refs_from_metadata_csv_v1($eol_pks) //versy slow
     {
         // echo "\neol_pks to process: ".count($eol_pks)."\n";
         if(!$eol_pks) return array();
