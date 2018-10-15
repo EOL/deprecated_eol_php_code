@@ -52,6 +52,8 @@ class SummaryDataResourcesAPI
         $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
         
         $this->parentModeYN = false;
+        $this->fullref = array();
+        
     }
     /*
     basal values
@@ -262,9 +264,9 @@ class SummaryDataResourcesAPI
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
@@ -810,11 +812,12 @@ class SummaryDataResourcesAPI
         // echo "\nSTART: get_from_ISVAT_descendants_of($term)\n";
         $desc_x = array($term);
         while($desc_x) {
-            echo "\ndesc_x count: ".count($desc_x)." "; // print_r($desc_x);
+            echo "\ndesc_x count: ".count($desc_x)." "; print_r($desc_x);
             foreach($this->ISVAT as $a) {
                 if(in_array($a[0], $desc_x)) {
                     $temp[$a[1]] = '';
                     $desc_all[$a[1]] = '';
+                    print_r($a);
                 }
             }
             $temp = array_keys($temp);
@@ -1068,7 +1071,19 @@ class SummaryDataResourcesAPI
                 if($arr) $final = $final + $arr;
             }
         }
-        return $final;
+        //make fullref unique
+        foreach($final as $refno => $fullref)
+        {
+            if(isset($this->fullref[$fullref])) {
+                $refno = $this->fullref[$fullref];
+                $final2[$refno] = $fullref;
+            }
+            else {
+                $this->fullref[$fullref] = $refno;
+                $final2[$refno] = $fullref;
+            }
+        }
+        return $final2;
     }
     private function get_refs_from_metadata_csv_v1($eol_pks) //versy slow
     {
@@ -2781,8 +2796,15 @@ class SummaryDataResourcesAPI
     }
     private function is_pair_OK($parent_orig, $child_orig)
     {
+        
         $parent = self::remove_protocol($parent_orig);
         $child = self::remove_protocol($child_orig);
+
+        // causes infinite loop
+        // $parent = $parent_orig;
+        // $child = $child_orig;
+        
+        
         if($parent == $child) {
             if($parent_orig != $child_orig) $this->debug[] = "Investigate: [$parent_orig] [$child_orig] meaning diff protocol";
             return false;
