@@ -471,24 +471,23 @@ class SummaryDataResourcesAPI
             if($i == 1) $fields = $line;
             else {
                 
-                /* breakdown when caching:
+                // /* breakdown when caching:
                 $v = 416466;
                 $cont = false;
                 // if($i >= 1 && $i < $m) $cont = true;
                 // if($i >= $m && $i < $m*2) $cont = true;
-                // if($i >= $m*2 && $i < $m*3) $cont = true;
+                if($i >= $m*2 && $i < $m*3) $cont = true;
                 // if($i >= $m*3 && $i < $m*4) $cont = true;
                 // if($i >= $m*4 && $i < $m*5) $cont = true;
 
                 // if($i >= 642620 && $i < 642620+$v) $cont = true;
                 // if($i >= 642620+$v && $i < 642620+($v*2)) $cont = true;
-                if($i >= 642620+($v*2) && $i < 642620+($v*3)) $cont = true;
-                
+                // if($i >= 642620+($v*2) && $i < 642620+($v*3)) $cont = true;
                 // if($i >= 642620+($v*3) && $i < 642620+($v*4)) $cont = true;
                 // if($i >= 642620+($v*4) && $i < 642620+($v*5)) $cont = true;
                 
                 if(!$cont) continue;
-                */
+                // */
                 
                 if(!$line[0]) break;
                 $rec = array(); $k = 0;
@@ -529,12 +528,13 @@ class SummaryDataResourcesAPI
         $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
         if(file_exists($json_file)) {
             // echo "\n[$page_id] $json_file\n";
-            $json = file_get_contents($json_file);
-            $arr = json_decode($json);
+            $json = trim(file_get_contents($json_file));
+            $arr = json_decode($json, true);
             if(!is_array($arr) && is_null($arr)) $arr = array();
             // /* ver 2
             $cont_write = false;
             foreach($children as $child) {
+                if(!$child) continue;
                 if(!in_array($child, $arr)) {
                     $arr[] = $child;
                     $cont_write = true;
@@ -839,12 +839,12 @@ class SummaryDataResourcesAPI
         // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
         // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
         */
-        // echo "\nExisting records: "; print_r($rows); //good debug
+        echo "\nExisting records: ".count($rows); //print_r($rows); //good debug
         //step 1: get counts
         foreach($rows as $row) {
             @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
         }
-        // echo "\ncounts: "; print_r($counts);
+        echo "\ncounts: "; print_r($counts);
         //step 2: get eol_pk if count > 1 -> meaning multiple records
         foreach($rows as $row) {
             $eol_pk = $row[1];
