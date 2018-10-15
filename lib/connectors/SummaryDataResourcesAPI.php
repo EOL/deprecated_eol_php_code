@@ -470,15 +470,24 @@ class SummaryDataResourcesAPI
             if($i == 1) $fields = $line;
             else {
                 
-                /* breakdown when caching:
+                // /* breakdown when caching:
+                $v = 416466;
                 $cont = false;
                 // if($i >= 1 && $i < $m) $cont = true;
                 // if($i >= $m && $i < $m*2) $cont = true;
                 // if($i >= $m*2 && $i < $m*3) $cont = true;
                 // if($i >= $m*3 && $i < $m*4) $cont = true;
                 // if($i >= $m*4 && $i < $m*5) $cont = true;
+
+                // if($i >= 642620 && $i < 642620+$v) $cont = true;
+                // if($i >= 642620+$v && $i < 642620+($v*2)) $cont = true;
+                if($i >= 642620+($v*2) && $i < 642620+($v*3)) $cont = true;
+                
+                // if($i >= 642620+($v*3) && $i < 642620+($v*4)) $cont = true;
+                // if($i >= 642620+($v*4) && $i < 642620+($v*5)) $cont = true;
+                
                 if(!$cont) continue;
-                */
+                // */
                 
                 if(!$line[0]) break;
                 $rec = array(); $k = 0;
@@ -531,8 +540,8 @@ class SummaryDataResourcesAPI
                 }
             }
             if($cont_write) { 
-                echo " -appending ";
-                echo "\n[$page_id] $json_file\n";
+                echo " -append ";
+                // echo "\n[$page_id] $json_file\n";
                 $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
             }
             else echo " -no add ";
@@ -1183,7 +1192,7 @@ class SummaryDataResourcesAPI
             if($val = self::main_taxon_summary($page_id, $predicate)) {
                 echo "\nFinal result: taxon summary: "; print_r($val);
                 $records[] = $val;
-                $this->debug['parent taxon summary'][$main_page_id."_".$predicate][] = $page_id;
+                $this->debug['parent taxon summary'][$main_page_id."_".$predicate][] = $page_id; //the parent taxa and corresponding predicate, with children that have records. Not all children under this parent but only those with records.
             }
         }
         if(count($records) == 1) { echo "\n**Only 1 child has records. Use result of this child as result of the parent process ".count($records)." For [$main_page_id], $predicate\n";
