@@ -124,12 +124,11 @@ class SummaryDataResourcesAPI
     function test_parent_taxon_summary()
     {
         $this->parentModeYN = true;
-        self::parse_DH(); self::initialize();
-        self::generate_children_of_taxa_using_parentsCSV();
-        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
-        // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
+        self::parse_DH(); self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
 
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
 
         $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
@@ -264,8 +263,10 @@ class SummaryDataResourcesAPI
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
-        $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
+        // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
+
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
@@ -279,6 +280,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
+        print_r($this->debug);
         exit("\n-- end method: parents: basal values --\n");
     }
     function test_lifeStage_statMeth()
@@ -360,7 +362,9 @@ class SummaryDataResourcesAPI
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
 
-        $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        
 
         foreach($input as $i) {
             /* temp block
@@ -393,6 +397,7 @@ class SummaryDataResourcesAPI
             */
         }
         fclose($WRITE); self::end_write2DwCA();
+        print_r($this->debug);
         exit("\n-- end method: basal values --\n");
         // */
     }
@@ -807,6 +812,7 @@ class SummaryDataResourcesAPI
         // echo "\nSTART: get_from_ISVAT_descendants_of($term)\n";
         $desc_x = array($term);
         while($desc_x) {
+            echo "\ndesc_x count: ".count($desc_x)." "; // print_r($desc_x);
             foreach($this->ISVAT as $a) {
                 if(in_array($a[0], $desc_x)) {
                     $temp[$a[1]] = '';
@@ -2672,12 +2678,16 @@ class SummaryDataResourcesAPI
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
             print_r($preferred_terms);
-            foreach($preferred_terms as $preferred) $pairs[] = array($preferred, $term);
+            foreach($preferred_terms as $preferred) {
+                if($val = self::is_pair_OK($preferred, $term)) $pairs[] = $val;
+            }
             foreach($preferred_terms as $preferred) {
                 echo "\nparent(s) of $preferred:\n";
                 if($parents = @$this->parents_of[$preferred]) {
                     print_r($parents);
-                    foreach($parents as $parent) $pairs[] = array($parent, $preferred);
+                    foreach($parents as $parent) {
+                        if($val = self::is_pair_OK($parent, $preferred)) $pairs[] = $val;
+                    }
                 }
                 else echo " -- NO parent";
             }
@@ -2688,12 +2698,27 @@ class SummaryDataResourcesAPI
                 echo "\nThere are immediate parent(s) for term in question:\n";
                 print_r($immediate_parents);
                 foreach($immediate_parents as $parent) {
-                    if($parent != $term) $pairs[] = array($parent, $term);
+                    if($val = self::is_pair_OK($parent, $term)) $pairs[] = $val;
                 }
             }
         }
         foreach($pairs as $a) echo "\n".$a[0]." - ".$a[1];
         return $pairs;
+    }
+    private function is_pair_OK($parent_orig, $child_orig)
+    {
+        $parent = self::remove_protocol($parent_orig);
+        $child = self::remove_protocol($child_orig);
+        if($parent == $child) {
+            if($parent_orig != $child_orig) $this->debug[] = "Investigate: [$parent_orig] [$child_orig] meaning diff protocol";
+            return false;
+        }
+        return array($parent_orig, $child_orig);
+    }
+    private function remove_protocol($url)
+    {
+        $arr = explode("://", $url);
+        return $arr[1];
     }
     /*
     private function get_parent_of_term($term, $num) -- replaced by create_pairs_from_this_term()
