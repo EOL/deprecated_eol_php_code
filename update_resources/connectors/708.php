@@ -17,6 +17,7 @@ from eol-archive:
 708	Wednesday 2018-08-22 07:40:52 AM{"measurement_or_fact.tab":1153984,"occurrence.tab":936636,"reference.tab":215125,"taxon.tab":226794}
 708	Wednesday 2018-10-03 09:41:10 AM{"measurement_or_fact.tab":1148933,"occurrence.tab":933687,"reference.tab":215125,"taxon.tab":226794}
 708	Thursday 2018-10-04 05:51:27 AM	{"measurement_or_fact.tab":1110583,"occurrence.tab":898509,"reference.tab":215125,"taxon.tab":226794}
+708	Monday 2018-10-15 10:46:55 PM	{"measurement_or_fact.tab":839374,"occurrence.tab":732245,"reference.tab":201727,"taxon.tab":226794}
 
 NOTE: started running this eol-archive in Aug 6, 2018
 */
