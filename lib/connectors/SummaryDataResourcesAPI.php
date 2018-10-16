@@ -468,17 +468,37 @@ class SummaryDataResourcesAPI
     //############################################################################################ start write resource file - method = 'parent taxon summary'
     private function gen_children_of_taxon_usingDH() //started as investigate_DH(). DH total recs 2,724,941
     {
+        /*
+        $EOLid = 298458; $EOLid = 110698;
+        $EOLid = 103449;
+        echo " - EOLid: [$EOLid] "; 
+        if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
+            array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
+            
+            // print_r($anc);
+            // foreach($anc as $page_id) {
+            //     $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
+            //     echo "\n[$page_id] $json_file";
+            // }
+            
+            self::gen_children_of_taxon_given_ancestry($anc);
+        }
+        else echo "\nNo ancestry [$val]\n";
+        exit("\nstop muna\n");
+        */
+        
         $info = self::prep_DH(); $i = 0; $m = 2724950/5;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
+            // if($i == 487377) exit; //debug when developing...
             if($i == 1) $fields = $line;
             else {
                 
                 // /* breakdown when caching:
                 $v = 416466;
                 $cont = false;
-                // if($i >= 1 && $i < $m) $cont = true;
-                if($i >= $m && $i < $m*2) $cont = true;
+                if($i >= 1 && $i < $m) $cont = true;
+                // if($i >= $m && $i < $m*2) $cont = true;
                 // if($i >= $m*2 && $i < $m*3) $cont = true;
                 // if($i >= $m*3 && $i < $m*4) $cont = true;
                 // if($i >= $m*4 && $i < $m*5) $cont = true;
@@ -528,12 +548,14 @@ class SummaryDataResourcesAPI
     }
     private function write_ancestry_to_file($page_id, $children)
     {
+        $children = array_filter($children); //lame try to delete unwanted null entries... did this when looking for answers why always ...-append... occurs
         $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
         if(file_exists($json_file)) {
             // echo "\n[$page_id] $json_file\n";
             $json = trim(file_get_contents($json_file));
             $arr = json_decode($json, true);
             if(!is_array($arr) && is_null($arr)) $arr = array();
+            echo "\nstarting count: ".count($arr)."\n";                 //good debug
             // /* ver 2
             $cont_write = false;
             foreach($children as $child) {
@@ -544,6 +566,7 @@ class SummaryDataResourcesAPI
                 }
             }
             if($cont_write) { 
+                echo "\nending count: ".count($arr)."\n";               //good debug
                 echo " -append ";
                 // echo "\n[$page_id] $json_file\n";
                 $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE);
