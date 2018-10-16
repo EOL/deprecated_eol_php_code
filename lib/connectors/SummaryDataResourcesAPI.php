@@ -53,7 +53,6 @@ class SummaryDataResourcesAPI
         
         $this->parentModeYN = false;
         $this->fullref = array();
-        
     }
     /*
     basal values
@@ -122,7 +121,7 @@ class SummaryDataResourcesAPI
         }
         fclose($WRITE); self::end_write2DwCA();
         print_r($this->debug);
-        exit("\n-- end parents basal values --\n");
+        echo("\n-- end parents basal values --\n");
     }
     function test_parent_taxon_summary()
     {
@@ -146,7 +145,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
-        exit("\n-- end method: parents: taxon summary --\n");
+        echo("\n-- end method: parents: taxon summary --\n");
     }
     function print_parent_taxon_summary()
     {
@@ -178,7 +177,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
-        exit("\n-end print parent taxon summary-\n");
+        echo("\n-end print parent taxon summary-\n");
     }
     function print_basal_values()
     {
@@ -200,10 +199,11 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
-        exit("\n-end print resource files (Basal values)-\n");
+        echo("\n-end print resource files (Basal values)-\n");
     }
     function print_taxon_summary()
     {
+        $this->parentModeYN = false;
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); print_r($predicates);
         self::initialize();
@@ -227,7 +227,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
-        exit("\n-end print taxon summary-\n");
+        echo("\n-end print taxon summary-\n");
     }
     function print_lifeStage_statMeth()
     {
@@ -254,7 +254,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE);
-        exit("\n-end print resource files (lifestage+statMeth)-\n");
+        echo("\n-end print resource files (lifestage+statMeth)-\n");
     }
     function test_parent_basal_values()
     {
@@ -281,7 +281,7 @@ class SummaryDataResourcesAPI
         }
         fclose($WRITE); self::end_write2DwCA();
         print_r($this->debug);
-        exit("\n-- end method: parents: basal values --\n");
+        echo("\n-- end method: parents: basal values --\n");
     }
     function test_lifeStage_statMeth()
     {
@@ -302,10 +302,11 @@ class SummaryDataResourcesAPI
             fwrite($WRITE, implode("\t", $row). "\n");
         }
         fclose($WRITE);
-        exit("\n-- end method: lifestage_statMeth --\n");
+        echo("\n-- end method: lifestage_statMeth --\n");
     }
     function test_taxon_summary()
     {
+        $this->parentModeYN = false;
         self::parse_DH(); self::initialize();
         $resource_id = 'test_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
@@ -332,7 +333,7 @@ class SummaryDataResourcesAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
-        exit("\n-- end method: 'taxon summary' --\n");
+        echo("\n-- end method: 'taxon summary' --\n");
     }
     function test_basal_values()
     {
@@ -397,7 +398,7 @@ class SummaryDataResourcesAPI
         }
         fclose($WRITE); self::end_write2DwCA();
         print_r($this->debug);
-        exit("\n-- end method: basal values --\n");
+        echo("\n-- end method: basal values --\n");
         // */
     }
     private function get_CSV_children_of($page_id)
