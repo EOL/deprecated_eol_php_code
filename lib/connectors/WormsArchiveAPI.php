@@ -138,8 +138,7 @@ class WormsArchiveAPI
             return false;
         }
 
-        if($this->what == "taxonomy")
-        {
+        if($this->what == "taxonomy") {
             /* First, get all synonyms, then using api, get the list of children, then exclude these children
             Based on latest: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60756&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60756
             */
@@ -175,14 +174,12 @@ class WormsArchiveAPI
 
     private function process_fields($records, $class)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             if    ($class == "vernacular") $c = new \eol_schema\VernacularName();
             elseif($class == "agent")      $c = new \eol_schema\Agent();
             elseif($class == "reference")  $c = new \eol_schema\Reference();
             $keys = array_keys($rec);
-            foreach($keys as $key)
-            {
+            foreach($keys as $key) {
                 $temp = pathinfo($key);
                 $field = $temp["basename"];
 
@@ -209,8 +206,7 @@ class WormsArchiveAPI
         //=====================================
         // /* commented when building up the file 26_children_of_synonyms.txt. 6 connectors running during build-up ----- COMMENT DURING BUILD-UP WITH 6 CONNECTORS, BUT UN-COMMENT IN REAL OPERATION ----- 
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_children_of_synonyms.txt";
-        if(file_exists($filename))
-        {
+        if(file_exists($filename)) {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
             $AphiaIDs = array_filter($AphiaIDs);
@@ -226,8 +222,7 @@ class WormsArchiveAPI
         $AphiaIDs = array();
         $i = 0; //for debug
         $k = 0; $m = count($records)/6; //100000; //only for breakdown when caching
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $k++; echo " ".number_format($k)." ";
             if(($k % 1000) == 0) echo " ".number_format($k)." ";
             /* breakdown when caching: total ~565,280
@@ -247,8 +242,7 @@ class WormsArchiveAPI
             $taxonRemarks = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
             if(is_numeric(stripos($taxonRemarks, 'REMAP_ON_EOL'))) $status = "synonym";
             
-            if($status == "synonym")
-            {
+            if($status == "synonym") {
                 $i++;
                 $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
                 $taxo_tmp = self::get_children_of_taxon($taxon_id);
@@ -422,17 +416,13 @@ class WormsArchiveAPI
         $options['download_attempts'] = 1;
 
         $offset = 1;
-        if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, $options))
-        {
-            while(true)
-            {
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, $options)) {
+            while(true) {
                 // echo " $offset";
                 if($offset == 1) $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id;
                 else             $url = $this->webservice['AphiaChildrenByAphiaID'].$taxon_id."?offset=$offset";
-                if($json = Functions::lookup_with_cache($url, $options))
-                {
-                    if($arr = json_decode($json, true))
-                    {
+                if($json = Functions::lookup_with_cache($url, $options)) {
+                    if($arr = json_decode($json, true)) {
                         foreach($arr as $a) $final[] = $a['AphiaID'];
                     }
                     if(count($arr) < 50) break;
@@ -441,8 +431,7 @@ class WormsArchiveAPI
                 $offset = $offset + 50;
             }
         }
-        else
-        {
+        else {
             $error_no = Functions::fake_user_agent_http_get($this->webservice['AphiaChildrenByAphiaID'].$taxon_id, array("return_error_no" => true));
             if($error_no == 0) {
                 echo "\nAccess OK\n";
@@ -465,8 +454,7 @@ class WormsArchiveAPI
     private function get_synonyms_without_children()
     {
         $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_synonyms_without_children.txt";
-        if(file_exists($filename))
-        {
+        if(file_exists($filename)) {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
             $AphiaIDs = array_filter($AphiaIDs);
@@ -483,8 +471,7 @@ class WormsArchiveAPI
     
     private function build_taxa_rank_array($records)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $this->taxa_rank[$taxon_id]['r'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $this->taxa_rank[$taxon_id]['s'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
@@ -495,8 +482,7 @@ class WormsArchiveAPI
     {
         $undeclared_ids = self::get_undeclared_parent_ids(); //uses a historical text file - undeclared parents. If not to use this, then there will be alot of API calls needed.
         $k = 0;
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $rec = array_map('trim', $rec);
             $k++;
             // if(($k % 100) == 0) echo "\n count: $k";
@@ -511,16 +497,14 @@ class WormsArchiveAPI
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             
-            if($this->what == "taxonomy")
-            {
+            if($this->what == "taxonomy") {
                 if(in_array($taxon->taxonID, $this->children_of_synonyms)) continue; //exclude children of synonyms
             }
             
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
             $taxon->scientificName = self::format_incertae_sedis($taxon->scientificName);
             
-            if($taxon->scientificName != "Biota")
-            {
+            if($taxon->scientificName != "Biota") {
                 $val = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"]);
                 if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($taxon->taxonID); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
                 else                                $taxon->parentNameUsageID = $val;
@@ -542,12 +526,10 @@ class WormsArchiveAPI
             if($val = (string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID  = self::get_worms_taxon_id($val);
             else $taxon->acceptedNameUsageID = '';
 
-            if($taxon->taxonomicStatus == "accepted")
-            {
+            if($taxon->taxonomicStatus == "accepted") {
                 if((string) $rec["http://rs.tdwg.org/dwc/terms/acceptedNameUsageID"]) $taxon->acceptedNameUsageID = "";
             }
-            elseif($taxon->taxonomicStatus == "synonym")
-            {
+            elseif($taxon->taxonomicStatus == "synonym") {
                 if(!$taxon->acceptedNameUsageID) continue; //is syn but no acceptedNameUsageID, ignore this taxon
             }
             else //not "synonym" and not "accepted"
@@ -566,8 +548,7 @@ class WormsArchiveAPI
             
             if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
             {
-                if(@$taxon->parentNameUsageID)
-                {
+                if(@$taxon->parentNameUsageID) {
                     if(!self::if_accepted_taxon($taxon->parentNameUsageID)) continue;
                 }
             }
@@ -583,8 +564,7 @@ class WormsArchiveAPI
             $taxon->source = $this->taxon_page . $taxon->taxonID;
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = $referenceID;
 
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
                 // Functions::lookup_with_cache($this->gnsparser.self::format_sciname($taxon->scientificName), $this->smasher_download_options);
@@ -605,15 +585,12 @@ class WormsArchiveAPI
     }
     private function if_accepted_taxon($taxon_id)
     {
-        if($status = @$this->taxa_rank[$taxon_id]['s'])
-        {
+        if($status = @$this->taxa_rank[$taxon_id]['s']) {
             if($status == "accepted") return true;
             else return false;
         }
-        else //let the API decide
-        {
-            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options))
-            {
+        else { //let the API decide
+            if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$taxon_id, $this->download_options)) {
                 $arr = json_decode($json, true);
                 // print_r($arr);
                 if($arr['status'] == "accepted") return true;
@@ -625,8 +602,7 @@ class WormsArchiveAPI
     
     private function get_objects($records)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
 
@@ -684,8 +660,7 @@ class WormsArchiveAPI
             $mr->contributor    = (string) $rec["http://purl.org/dc/terms/contributor"];
             $mr->creator        = (string) $rec["http://purl.org/dc/terms/creator"];
             
-            if($agentID = (string) $rec["http://eol.org/schema/agent/agentID"])
-            {
+            if($agentID = (string) $rec["http://eol.org/schema/agent/agentID"]) {
                 $ids = explode(",", $agentID); // not sure yet what separator Worms used, comma or semicolon - or if there are any
                 $agent_ids = array();
                 foreach($ids as $id) $agent_ids[] = $id;
@@ -700,8 +675,7 @@ class WormsArchiveAPI
             if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = self::complete_url($source);
             else                                                                             $mr->furtherInformationURL = $this->taxon_page . $mr->taxonID;
             
-            if(!isset($this->object_ids[$mr->identifier]))
-            {
+            if(!isset($this->object_ids[$mr->identifier])) {
                 $this->object_ids[$mr->identifier] = '';
                 $this->archive_builder->write_object_to_file($mr);
             }
@@ -733,8 +707,7 @@ class WormsArchiveAPI
     {
         $final = array();
         $ids = self::get_branch_ids_to_prune(); //supposedly comes from a google spreadsheet
-        foreach($ids as $id)
-        {
+        foreach($ids as $id) {
             $arr = self::get_children_of_taxon($id);
             if($arr) $final = array_merge($final, $arr);
             $final = array_unique($final);
@@ -762,12 +735,10 @@ class WormsArchiveAPI
         */
         $str = Functions::remove_whitespace($str);
         $str = trim($str);
-        if(is_numeric(stripos($str, " incertae sedis")))
-        {
+        if(is_numeric(stripos($str, " incertae sedis"))) {
             $str = str_ireplace("incertae sedis", "incertae sedis", $str); //this will capture Incertae sedis
             $arr = explode(" incertae sedis", $str);
-            if($val = @$arr[0])
-            {
+            if($val = @$arr[0]) {
                 $space_count = substr_count($val, " ");
                 if($space_count == 0) return "unplaced " . trim($val);
                 else return $str;
@@ -845,8 +816,7 @@ class WormsArchiveAPI
         If occurrenceStatus=doubtful, add a metadata record in MeasurementOrFact:
         field= http://rs.tdwg.org/dwc/terms/measurementAccuracy, value= http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable
         */
-        if(in_array($occurrenceStatus, array("present", "doubtful", "")) || $occurrenceStatus == "")
-        {
+        if(in_array($occurrenceStatus, array("present", "doubtful", "")) || $occurrenceStatus == "") {
             $rec["catnum"] .= "_pr";
                                                 self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/Present");
             if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
@@ -856,8 +826,7 @@ class WormsArchiveAPI
         http://eol.org/schema/terms/Absent --- lists locations
         If this condition is met:   occurrenceStatus=excluded
         */
-        if($occurrenceStatus == "excluded")
-        {
+        if($occurrenceStatus == "excluded") {
             $rec["catnum"] .= "_ex";
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/Absent");
         }
@@ -868,8 +837,7 @@ class WormsArchiveAPI
         If establishmentMeans=native - Endemic, add a metadata record in MeasurementOrFact:
         field= http://rs.tdwg.org/dwc/terms/measurementRemarks, value= http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic
         */
-        if(in_array($establishmentMeans, array("Native", "Native - Endemic", "Native - Non-endemic")))
-        {
+        if(in_array($establishmentMeans, array("Native", "Native - Endemic", "Native - Non-endemic"))) {
             $rec["catnum"] .= "_nr";
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/NativeRange");
             if($establishmentMeans == "Native - Endemic")         self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Endemic", "http://rs.tdwg.org/dwc/terms/measurementRemarks");
@@ -884,8 +852,7 @@ class WormsArchiveAPI
         If occurrenceStatus=doubtful, add a metadata record in MeasurementOrFact:
         field= http://rs.tdwg.org/dwc/terms/measurementAccuracy, value= http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable
         */
-        if((in_array($occurrenceStatus, array("present", "doubtful", ""))) && $establishmentMeans == "Alien")
-        {
+        if((in_array($occurrenceStatus, array("present", "doubtful", ""))) && $establishmentMeans == "Alien") {
             $rec["catnum"] .= "_ir";
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/IntroducedRange");
             if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
