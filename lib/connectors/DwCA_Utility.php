@@ -86,7 +86,7 @@ class DwCA_Utility
         echo ("\n temporary directory removed: " . $temp_dir);
     }
     
-    function convert_archive() //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
+    function convert_archive($preferred_rowtypes = false) //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
     {
         echo "\nConverting archive to EOL DwCA...\n";
         $info = self::start();
@@ -94,6 +94,8 @@ class DwCA_Utility
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
+        
+        // print_r($index); exit("\nstop muna\n");
         /*
         Array
             [0] => http://rs.tdwg.org/dwc/terms/taxon
@@ -103,6 +105,9 @@ class DwCA_Utility
         */
         
         foreach($index as $row_type) {
+            if($preferred_rowtypes) {
+                if(!in_array($row_type, $preferred_rowtypes)) continue;
+            }
             if(@$this->extensions[$row_type]) { //process only defined row_types
                 // if(@$this->extensions[$row_type] == 'document') continue; //debug only
                 echo "\nprocessed: [$row_type]: ".@$this->extensions[$row_type]."\n";
