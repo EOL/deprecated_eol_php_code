@@ -24,6 +24,10 @@ $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.or
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id);
 
+if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz")) unlink(CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "71.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "71_orig.tar.gz");
+Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "71_new.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "71.tar.gz");
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
 echo "elapsed time = $elapsed_time_sec seconds             \n";
