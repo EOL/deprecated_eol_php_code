@@ -174,7 +174,7 @@ class TryDatabaseAPI
                 */
 
                 if($class == 'taxa') {
-                    $rec['scientificName'] = utf8_encode($rec['scientificName']);
+                    $rec['scientificName'] = $rec['scientificName'];
                 }
                 elseif($class == 'measurements') {
                     if(!$rec['measurementType']) continue;

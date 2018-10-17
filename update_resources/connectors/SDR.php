@@ -97,6 +97,12 @@ exit("\n");
 // $json = file_get_contents($file);
 // print_r(json_decode($json, true)); exit;
 
+// $terms = array("Braunbär", " 繡球菌", "Eli");
+// foreach($terms as $t){
+//     $t = Functions::conv_to_utf8($t); echo "\n".$t."\n";
+// }
+// exit("\nexit muna\n");
+
 $timestart = time_elapsed();
 $resource_id = 'SDR';
 $func = new SummaryDataResourcesAPI($resource_id);
