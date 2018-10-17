@@ -609,8 +609,7 @@ class WormsArchiveAPI
             $rec["taxon_id"] = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $rec["catnum"] = "";
             
-            if (strpos($identifier, "WoRMS:distribution:") !== false)
-            {
+            if (strpos($identifier, "WoRMS:distribution:") !== false) {
                 $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
                 /* self::process_distribution($rec); removed as per DATA-1522 */ 
                 $rec["catnum"] = str_ireplace("WoRMS:distribution:", "_", $rec["catnum"]);
@@ -618,8 +617,7 @@ class WormsArchiveAPI
                 continue;
             }
             
-            if($type == "http://purl.org/dc/dcmitype/StillImage")
-            {
+            if($type == "http://purl.org/dc/dcmitype/StillImage") {
                 // WoRMS:image:10299_106331
                 $temp = explode("_", $identifier);
                 $identifier = $temp[0];
@@ -865,8 +863,7 @@ class WormsArchiveAPI
         $m = new \eol_schema\MeasurementOrFact();
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
         $m->occurrenceID = $occurrence_id;
-        if($label == "Distribution" || $label == "true")
-        {   // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
+        if($label == "Distribution" || $label == "true") { // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = '';
             $m->source = (string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]; // http://www.marinespecies.org/aphia.php?p=distribution&id=274241
@@ -886,8 +883,7 @@ class WormsArchiveAPI
 
     private function prepare_reference($referenceID)
     {
-        if($referenceID)
-        {
+        if($referenceID) {
             $ids = explode(",", $referenceID); // not sure yet what separator Worms used, comma or semicolon - or if there are any
             $reference_ids = array();
             foreach($ids as $id) $reference_ids[] = $id;
@@ -1166,7 +1162,6 @@ class WormsArchiveAPI
     // ===================================================================================
     // END dynamic hierarchy ===========================================================
     // ===================================================================================
-
     private function get_undeclared_parent_ids()
     {
         $ids = array();
@@ -1176,7 +1171,5 @@ class WormsArchiveAPI
         }
         return array_keys($ids);
     }
-
-
 }
 ?>
