@@ -1869,6 +1869,7 @@ class WikiDataAPI
                 $name = array();
                 $name['comname'] = @$rec->mainsnak->datavalue->value->text;
                 $name['lang'] = @$rec->mainsnak->datavalue->value->language;
+                if($name['lang'] == "be-tarask") $name['lang'] = 'be';
                 $name['refs'] = self::get_vernacular_refs(@$rec->references);
                 if(@$name['comname']) $names[] = $name;
             }
