@@ -123,7 +123,6 @@ class WormsArchiveAPI
         exit("\n[$str]\n");
         */
         
-        
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
@@ -516,8 +515,7 @@ class WormsArchiveAPI
             $taxon->taxonomicStatus = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
             $taxon->taxonRemarks    = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRemarks"];
             
-            if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
-            {
+            if($this->what == "taxonomy") { //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
                 if($taxon->taxonomicStatus == "") continue; //synonymous to cases where "unassessed" in taxonRemarks
             }
             
@@ -532,27 +530,23 @@ class WormsArchiveAPI
             elseif($taxon->taxonomicStatus == "synonym") {
                 if(!$taxon->acceptedNameUsageID) continue; //is syn but no acceptedNameUsageID, ignore this taxon
             }
-            else //not "synonym" and not "accepted"
-            {
+            else { //not "synonym" and not "accepted"
                 //not syn but has acceptedNameUsageID; seems possible, so just accept it
             }
 
             if($taxon->taxonID == @$taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
             if($taxon->taxonID == @$taxon->parentNameUsageID)   $taxon->parentNameUsageID = '';
 
-            if($taxon->taxonomicStatus == "synonym") // this will prevent names to become synonyms of another where the ranks are different
-            {
+            if($taxon->taxonomicStatus == "synonym") { // this will prevent names to become synonyms of another where the ranks are different
                 if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]['r']) continue;
                 $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
             }
             
-            if($this->what == "taxonomy") //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
-            {
+            if($this->what == "taxonomy") { //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
                 if(@$taxon->parentNameUsageID) {
                     if(!self::if_accepted_taxon($taxon->parentNameUsageID)) continue;
                 }
             }
-            
             
             // /* stats
             $this->debug["status"][$taxon->taxonomicStatus] = '';
@@ -569,7 +563,6 @@ class WormsArchiveAPI
                 $this->archive_builder->write_object_to_file($taxon);
                 // Functions::lookup_with_cache($this->gnsparser.self::format_sciname($taxon->scientificName), $this->smasher_download_options);
             }
-
             /* not used:
             <field index="15" default="http://creativecommons.org/licenses/by/3.0/" term="http://purl.org/dc/terms/accessRights"/>
             <field index="17" default="World Register of Marine Species (WoRMS)" term="http://rs.tdwg.org/dwc/terms/datasetName"/>
@@ -855,9 +848,7 @@ class WormsArchiveAPI
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/IntroducedRange");
             if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
         }
-
     }
-
     private function add_string_types($rec, $label, $value, $measurementType)
     {
         $m = new \eol_schema\MeasurementOrFact();
@@ -880,7 +871,6 @@ class WormsArchiveAPI
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
-
     private function prepare_reference($referenceID)
     {
         if($referenceID) {
