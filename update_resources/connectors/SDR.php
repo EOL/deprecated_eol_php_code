@@ -99,6 +99,8 @@ exit("\n");
 
 // $terms = array("Braunbär", " 繡球菌", "Eli");
 // foreach($terms as $t){
+//     echo "\n".$t."\n";
+//     // $t = utf8_encode($t); echo "\n".$t."\n";
 //     $t = Functions::conv_to_utf8($t); echo "\n".$t."\n";
 // }
 // exit("\nexit muna\n");
