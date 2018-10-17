@@ -49,7 +49,6 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 /* testing...
 $id = 1;
 $id = 607688;
-
 // $json = Functions::lookup_with_cache("http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/$id");
 // echo "\n[$json]\n";
 
