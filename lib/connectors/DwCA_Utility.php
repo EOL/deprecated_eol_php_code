@@ -87,23 +87,20 @@ class DwCA_Utility
     }
     
     function convert_archive($preferred_rowtypes = false) //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
-    {
+    {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA. 1st client was DATA-1770 */
         echo "\nConverting archive to EOL DwCA...\n";
         $info = self::start();
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
-        
-        // print_r($index); exit("\nstop muna\n");
-        /*
+        /* e.g. $index -> these are the row_types
         Array
             [0] => http://rs.tdwg.org/dwc/terms/taxon
             [1] => http://rs.gbif.org/terms/1.0/vernacularname
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
-        
         foreach($index as $row_type) {
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
