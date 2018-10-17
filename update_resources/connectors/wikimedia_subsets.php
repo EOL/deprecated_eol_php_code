@@ -4,6 +4,12 @@ namespace php_active_record;
 This will rename 71.tar.gz from the long Jenkins run to 71_orig.tar.gz
 The remaining 71.tar.gz is the resource with just images.
 The wikimedia_comnames.tar.gz is the resource with just vernaculars.
+
+wikimedia_comnames	Wednesday 2018-10-17 05:02:39 AM	{"taxon.tab":90844,"vernacular_name.tab":291267}
+
+*this one (71_new) eventually becomes 71.tar.gz
+71_new	Wednesday 2018-10-17 05:10:07 AM	{"agent.tab":22435,"media_resource.tab":956972,"taxon.tab":90844}
+
 */
 
 // ini_set('error_reporting', E_ALL);
