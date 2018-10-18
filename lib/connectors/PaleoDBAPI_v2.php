@@ -61,6 +61,7 @@ class PaleoDBAPI_v2
         */
         self::parse_big_json_file();
         $this->archive_builder->finalize(TRUE);
+        print_r($this->debug);
     }
     private function get_uris($spreadsheet)
     {
@@ -116,12 +117,16 @@ class PaleoDBAPI_v2
                 $arr = json_decode($str, true);
                 $taxon_id = self::create_taxon_archive($arr);
                 if($taxon_id === false) continue;
+                if($taxon_id == false) continue;
                 
+                /* ver 1 obsolete
                 // Important: Taxa that have "flg":"V" are synonyms, spelling variants, and variants with alternative ranks. For these we only want to use the taxon information as 
                 // outlined in the taxa sheet.  Ignore measurements and vernaculars associated with these records.  
                 if($flg = @$arr['flg']) {
                     if($flg == "V") continue;
                 }
+                */
+                
                 self::create_vernacular_archive($arr, $taxon_id);
                 self::create_trait_archive($arr, $taxon_id);
             }
@@ -618,17 +623,18 @@ class PaleoDBAPI_v2
             [ref] => J. J. Sepkoski, Jr. 2002. A compendium of fossil marine animal genera. Bulletins of American Paleontology 363:1-560
         )*/
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                  = self::compute_taxonID($a);
+        $taxon->taxonomicStatus          = self::compute_taxonomicStatus($a);
+        $taxon->taxonID                  = self::compute_taxonID($a, $taxon->taxonomicStatus);
         $taxon->scientificName           = $a[$this->map['scientificName']];
         $taxon->scientificNameAuthorship = @$a[$this->map['scientificNameAuthorship']];
         $taxon->taxonRank                = self::compute_taxonRank($a);
-        $taxon->taxonomicStatus          = self::compute_taxonomicStatus($a);
         $taxon->acceptedNameUsageID      = self::numerical_part(@$a[$this->map['acceptedNameUsageID']]);
         $taxon->nameAccordingTo          = @$a[$this->map['nameAccordingTo']];
 
         if($val = @$a[$this->map['taxonID']]) $taxon->furtherInformationURL = "https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=" . self::numerical_part($val);
 
-        if(!@$a[$this->map['acceptedNameUsageID']]) { //acceptedNameUsageID => "acc"
+        if(@$a[$this->map['acceptedNameUsageID']]) {} //acceptedNameUsageID => "acc"
+        else {
             $taxon->parentNameUsageID = self::numerical_part(@$a[$this->map['parentNameUsageID']]);
             $taxon->phylum  = @$a[$this->map['phylum']];
             $taxon->class   = @$a[$this->map['class']];
@@ -648,12 +654,44 @@ class PaleoDBAPI_v2
         }
         
         $this->archive_builder->write_object_to_file($taxon);
+        
+        // Important: Taxa that have an acc parameter are synonyms, spelling variants, and variants with alternative ranks. For these we only want to use the taxon information as outlined above. 
+        // Ignore measurements and vernaculars associated with these records.               
+        if(@$a[$this->map['acceptedNameUsageID']]) return false;
+        
         return $taxon->taxonID;
     }
-    private function compute_taxonID($a)
+    private function compute_taxonID($a, $taxon_status)
     {
+        /* ver 1 obsolete
         if($vid = @$a['vid']) return self::numerical_part($a['oid'])."-".self::numerical_part($vid);
         else                  return self::numerical_part($a['oid']);
+        */
+        // /* latest ver: https://eol-jira.bibalex.org/browse/TRAM-746?focusedCommentId=62820&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62820
+        // This should be the taxonID if taxonomicStatus = accepted, i.e., if there are is no acc parameter. Use only the numerical part. 
+        // If there is an acc parameter, modify the oid, by appending an integer, making sure taxonIDs remain unique if there are multiple synonyms; 
+        // i. e., if the oid is 123, make the taxonID 123-1 for the first synonym, 123-2 for the second synonym, etc.
+
+        // just for reference
+        // $this->map['acceptedNameUsageID']       = "acc";
+        // $this->map['taxonID']                   = "oid";
+        // $this->map['parentNameUsageID']         = "par";
+        // $this->map['taxonRank']                 = "rnk";
+        // $this->map['taxonomicStatus']           = "tdf";
+
+        if($tdf = @$a[$this->map['taxonomicStatus']]) $this->debug['taxonomicStatus'][$tdf] = ''; //just for debug stats
+
+        if($taxon_status == 'accepted') {
+            if($acc = @$a['acc']) exit("\nShould not go here!\n");
+            return self::numerical_part($a['oid']);
+        }
+        if($acc = @$a['acc']) {
+            $taxon_id = self::numerical_part($a['oid']);
+            @$this->taxon_id_synonym_count[$taxon_id]++;
+            return $taxon_id."_".$this->taxon_id_synonym_count[$taxon_id];
+        }
+        else return self::numerical_part($a['oid']);
+        // */
     }
     private function numerical_part($var)
     {
@@ -675,7 +713,7 @@ class PaleoDBAPI_v2
         if($str_index = @$a[$this->map['taxonomicStatus']]) {
             if($val = $mappings[$str_index]) return $val;
         }
-        return "";
+        return "accepted";
     }
     private function optimize_array($arr)
     {
@@ -700,6 +738,8 @@ class PaleoDBAPI_v2
         $s['obsolete variant of'] = "obsolete variant";
         $s['reassigned as'] = "reassigned";
         $s['recombined as'] = "recombined";
+        $s['no value'] = "accepted";
+        $s[''] = "accepted";
         return $s;
     }
     private function get_rank_mappings()
