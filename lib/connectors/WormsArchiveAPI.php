@@ -50,10 +50,12 @@ class WormsArchiveAPI
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         $this->debug = array();
         
+        /* some remnants below, but seems not used when getting the regular WoRMS DwCA (media objects, trait). Also below part is commented, not running.
         $this->gnsparser = "http://parser.globalnames.org/api?q=";
         $this->smasher_download_options = array(
             'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
             'download_wait_time' => 500000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+        */
     }
 
     private function get_valid_parent_id($id)
@@ -155,7 +157,9 @@ class WormsArchiveAPI
 
         echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
+        if($this->what == "taxonomy") {
+            echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
+        }
         if($this->what == "media_objects") {
             echo "\n4 of 8\n";  self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));
             echo "\n5 of 8\n";  self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
@@ -505,8 +509,14 @@ class WormsArchiveAPI
             
             if($taxon->scientificName != "Biota") {
                 $val = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"]);
-                if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($taxon->taxonID); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
-                else                                $taxon->parentNameUsageID = $val;
+                if($this->what == "taxonomy") {
+                    if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($taxon->taxonID); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
+                    else                                $taxon->parentNameUsageID = $val;
+                }
+                else //media_objects
+                {
+                    $taxon->parentNameUsageID = $val;
+                }
             }
             
             $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
@@ -596,6 +606,8 @@ class WormsArchiveAPI
     private function get_objects($records)
     {
         foreach($records as $rec) {
+            print_r($rec);
+            
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
 
@@ -990,7 +1002,7 @@ class WormsArchiveAPI
                 self::create_taxa($taxa);
             }
         }
-        else exit("\n[$file] does not exist.\n");
+        // else exit("\n[$file] does not exist.\n");
     }
     private function AphiaClassificationByAphiaID($id)
     {
