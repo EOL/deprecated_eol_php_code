@@ -42,6 +42,7 @@ Historical:
 26	Wednesday 2018-03-07 10:44:40 AM{"agent.tab":1434,"measurement_or_fact.tab":433025,"media_resource.tab":170476,"occurrence.tab":430498,"reference.tab":671182,"taxon.tab":608250,"vernacular_name.tab":74116}
 26	Wednesday 2018-03-07 07:09:46 PM{"agent.tab":1434,"measurement_or_fact.tab":433025,"media_resource.tab":170476,"occurrence.tab":430498,"reference.tab":671182,"taxon.tab":608250,"vernacular_name.tab":74116} all-hash measurementID
 26	Thursday 2018-03-08 08:14:32 PM	{"agent.tab":1434,"measurement_or_fact.tab":433025,"media_resource.tab":170476,"occurrence.tab":430498,"reference.tab":671182,"taxon.tab":608250,"vernacular_name.tab":74116}
+26	Thursday 2018-10-18 02:32:29 AM	{"agent.tab":1533,"measurement_or_fact.tab":539555,"media_resource.tab":92033,"occurrence.tab":535762,"reference.tab":691566,"taxon.tab":625782,"vernacular_name.tab":74148}
 exec time: ~30 minutes
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
