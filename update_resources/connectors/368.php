@@ -18,7 +18,7 @@ MacMini:
 368 Wednesday 2017-12-20 05:33:15 AM    {"measurement_or_fact.tab":1103650,"occurrence.tab":1103650,"taxon.tab":263656,"vernacular_name.tab":3911}
 368	Thursday 2018-03-29 12:56:30 PM	    {"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275389,"vernacular_name.tab":4023}
 */
-
+echo "\nthis is now replaced by connector: pbdb_fresh_harvest.php | PaleoDBAPI_v2.php\n";
 return; //this is now replaced by connector: pbdb_fresh_harvest.php | PaleoDBAPI_v2.php
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','8096M');
