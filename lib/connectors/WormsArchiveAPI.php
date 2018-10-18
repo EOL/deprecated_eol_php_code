@@ -181,6 +181,7 @@ class WormsArchiveAPI
             if    ($class == "vernacular") $c = new \eol_schema\VernacularName();
             elseif($class == "agent")      $c = new \eol_schema\Agent();
             elseif($class == "reference")  $c = new \eol_schema\Reference();
+            else exit("\nUndefined class. Investigate.\n");
             $keys = array_keys($rec);
             foreach($keys as $key) {
                 $temp = pathinfo($key);
@@ -483,7 +484,7 @@ class WormsArchiveAPI
     
     private function create_instances_from_taxon_object($records)
     {
-        $undeclared_ids = self::get_undeclared_parent_ids(); //uses a historical text file - undeclared parents. If not to use this, then there will be alot of API calls needed.
+        if($this->what == "taxonomy") $undeclared_ids = self::get_undeclared_parent_ids(); //uses a historical text file - undeclared parents. If not to use this, then there will be alot of API calls needed.
         $k = 0;
         foreach($records as $rec) {
             $rec = array_map('trim', $rec);
@@ -513,8 +514,7 @@ class WormsArchiveAPI
                     if(in_array($val, $undeclared_ids)) $taxon->parentNameUsageID = self::get_valid_parent_id($taxon->taxonID); //based here: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60658&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60658
                     else                                $taxon->parentNameUsageID = $val;
                 }
-                else //media_objects
-                {
+                else { //media_objects
                     $taxon->parentNameUsageID = $val;
                 }
             }
@@ -606,21 +606,40 @@ class WormsArchiveAPI
     private function get_objects($records)
     {
         foreach($records as $rec) {
-            print_r($rec);
-            
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
 
             $rec["taxon_id"] = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $rec["catnum"] = "";
             
-            if (strpos($identifier, "WoRMS:distribution:") !== false) {
+            if(strpos($identifier, "WoRMS:distribution:") !== false) {
                 $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
                 /* self::process_distribution($rec); removed as per DATA-1522 */ 
                 $rec["catnum"] = str_ireplace("WoRMS:distribution:", "_", $rec["catnum"]);
                 self::process_establishmentMeans_occurrenceStatus($rec); //DATA-1522
                 continue;
             }
+            
+            // /* start new ticket DATA-1767: https://eol-jira.bibalex.org/browse/DATA-1767?focusedCommentId=62884&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62884
+            $title       = $rec["http://purl.org/dc/terms/title"];
+            $description = $rec["http://purl.org/dc/terms/description"];
+            if($title == "Fossil species" && $description == "fossil only") {
+                // print_r($rec); exit;
+                $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
+                $rec["http://rs.tdwg.org/ac/terms/accessURI"] = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=".$rec['taxon_id']; //this becomes m->source
+                self::add_string_types($rec, "true", "http://eol.org/schema/terms/extinct", "http://eol.org/schema/terms/ExtinctionStatus");
+                continue;
+            }
+            //other traits:
+            if(stripos($description, "parasit") !== false) self::additional_traits_DATA_1767($rec, 'https://www.wikidata.org/entity/Q12806437', 'http://www.wikidata.org/entity/Q1053008'); //string is found
+            if(stripos($description, "detritus feeder") !== false) self::additional_traits_DATA_1767($rec, 'http://wikidata.org/entity/Q2750657', 'http://www.wikidata.org/entity/Q1053008'); //string is found
+            if(stripos($description, "benthic") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_01000024', 'http://eol.org/schema/terms/Habitat'); //string is found
+            if(stripos($description, "pelagic") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_01000023', 'http://eol.org/schema/terms/Habitat'); //string is found
+            if(stripos($description, "sand") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_00002118', 'http://eol.org/schema/terms/Habitat'); //string is found
+            if(stripos($description, "intertidal") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_00000316', 'http://eol.org/schema/terms/Habitat'); //string is found
+            if(stripos($description, "tropical") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TropicalOcean', 'http://eol.org/schema/terms/Habitat'); //string is found
+            if(stripos($description, "temperate") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TemperateOcean', 'http://eol.org/schema/terms/Habitat'); //string is found
+            // */
             
             if($type == "http://purl.org/dc/dcmitype/StillImage") {
                 // WoRMS:image:10299_106331
@@ -635,14 +654,11 @@ class WormsArchiveAPI
             $mr->subtype        = (string) $rec["http://rs.tdwg.org/audubon_core/subtype"];
             $mr->Rating         = (string) $rec["http://ns.adobe.com/xap/1.0/Rating"];
             $mr->audience       = (string) $rec["http://purl.org/dc/terms/audience"];
-            
             if($val = trim((string) $rec["http://purl.org/dc/terms/language"])) $mr->language = $val;
             else                                                                $mr->language = "en";
-            
             $mr->format         = (string) $rec["http://purl.org/dc/terms/format"];
             $mr->title          = (string) $rec["http://purl.org/dc/terms/title"];
             $mr->CVterm         = (string) $rec["http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm"];
-            
             $mr->creator        = (string) $rec["http://purl.org/dc/terms/creator"];
             $mr->CreateDate     = (string) $rec["http://ns.adobe.com/xap/1.0/CreateDate"];
             $mr->modified       = (string) $rec["http://purl.org/dc/terms/modified"];
@@ -651,17 +667,14 @@ class WormsArchiveAPI
             $mr->UsageTerms     = (string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"];
             $mr->description    = (string) $rec["http://purl.org/dc/terms/description"];
             $mr->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
-
             $mr->derivedFrom     = (string) $rec["http://rs.tdwg.org/ac/terms/derivedFrom"];
             $mr->LocationCreated = (string) $rec["http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated"];
             $mr->spatial         = (string) $rec["http://purl.org/dc/terms/spatial"];
             $mr->lat             = (string) $rec["http://www.w3.org/2003/01/geo/wgs84_pos#lat"];
             $mr->long            = (string) $rec["http://www.w3.org/2003/01/geo/wgs84_pos#long"];
             $mr->alt             = (string) $rec["http://www.w3.org/2003/01/geo/wgs84_pos#alt"];
-
             $mr->publisher      = (string) $rec["http://purl.org/dc/terms/publisher"];
             $mr->contributor    = (string) $rec["http://purl.org/dc/terms/contributor"];
-            $mr->creator        = (string) $rec["http://purl.org/dc/terms/creator"];
             
             if($agentID = (string) $rec["http://eol.org/schema/agent/agentID"]) {
                 $ids = explode(",", $agentID); // not sure yet what separator Worms used, comma or semicolon - or if there are any
@@ -683,6 +696,11 @@ class WormsArchiveAPI
                 $this->archive_builder->write_object_to_file($mr);
             }
         }
+    }
+    private function additional_traits_DATA_1767($rec, $mval, $mtype)
+    {
+        $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
+        self::add_string_types($rec, "true", $mval, $mtype);
     }
     
     private function complete_url($path)
@@ -875,6 +893,9 @@ class WormsArchiveAPI
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) {
                 $m->referenceID = $referenceID;
             }
+            //additional fields per https://eol-jira.bibalex.org/browse/DATA-1767?focusedCommentId=62884&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62884
+            $m->measurementDeterminedDate = $rec['http://ns.adobe.com/xap/1.0/CreateDate'];
+            $m->measurementDeterminedBy = $rec['http://purl.org/dc/terms/creator'];
         }
         $m->measurementType = $measurementType;
         $m->measurementValue = (string) $value;
