@@ -11,6 +11,7 @@ estimated execution time:
 368	Wednesday 2018-04-11 01:05:31 PM	{"measurement_or_fact.tab":2698963,"occurrence.tab":553064,"taxon.tab":360156,"vernacular_name.tab":4366} - eol-archive (with ignore and multiple values)
 368	Thursday 2018-04-12 06:24:10 AM	    {"measurement_or_fact.tab":2697018,"occurrence.tab":553064,"taxon.tab":360156,"vernacular_name.tab":4366}
 368	Monday 2018-04-16 08:26:19 AM	    {"measurement_or_fact.tab":2687714,"occurrence.tab":550882,"taxon.tab":358530,"vernacular_name.tab":4361} - excluding descendants of parents without entries
+368	Thursday 2018-10-18 01:59:53 PM	    {"measurement_or_fact.tab":2413255,"occurrence.tab":506032,"taxon.tab":367421,"vernacular_name.tab":6142}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
