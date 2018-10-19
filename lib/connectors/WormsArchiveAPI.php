@@ -623,6 +623,7 @@ class WormsArchiveAPI
             // /* start new ticket DATA-1767: https://eol-jira.bibalex.org/browse/DATA-1767?focusedCommentId=62884&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62884
             $title       = $rec["http://purl.org/dc/terms/title"];
             $description = $rec["http://purl.org/dc/terms/description"];
+            if($title == "Fossil species" && $description != "fossil only") continue;
             if($title == "Fossil species" && $description == "fossil only") {
                 // print_r($rec); exit;
                 $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
