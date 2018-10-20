@@ -686,8 +686,10 @@ class WormsArchiveAPI
 
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $mr->referenceID = $referenceID;
             
-            $mr->accessURI      = self::complete_url((string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]);
-            $mr->thumbnailURL   = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
+            if($mr->type != "http://purl.org/dc/dcmitype/Text") {
+                $mr->accessURI      = self::complete_url((string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]);
+                $mr->thumbnailURL   = (string) $rec["http://eol.org/schema/media/thumbnailURL"];
+            }
             
             if($source = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"]) $mr->furtherInformationURL = self::complete_url($source);
             else                                                                             $mr->furtherInformationURL = $this->taxon_page . $mr->taxonID;
