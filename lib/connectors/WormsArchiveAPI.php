@@ -627,7 +627,7 @@ class WormsArchiveAPI
             if($title == "Fossil species" && $description == "fossil only") {
                 // print_r($rec); exit;
                 $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
-                $rec["http://rs.tdwg.org/ac/terms/accessURI"] = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=".$rec['taxon_id']; //this becomes m->source
+                $rec["http://rs.tdwg.org/ac/terms/accessURI"] = $this->taxon_page.$rec['taxon_id']; //this becomes m->source
                 self::add_string_types($rec, "true", "http://eol.org/schema/terms/extinct", "http://eol.org/schema/terms/ExtinctionStatus");
                 continue;
             }
@@ -702,7 +702,7 @@ class WormsArchiveAPI
     }
     private function additional_traits_DATA_1767($rec, $mval, $mtype)
     {
-        $rec["http://rs.tdwg.org/ac/terms/accessURI"] = "http://www.marinespecies.org/aphia.php?p=taxdetails&id=".$rec['taxon_id']; //this becomes m->source
+        $rec["http://rs.tdwg.org/ac/terms/accessURI"] = $this->taxon_page.$rec['taxon_id']; //this becomes m->source
         $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
         self::add_string_types($rec, "true", $mval, $mtype);
     }
