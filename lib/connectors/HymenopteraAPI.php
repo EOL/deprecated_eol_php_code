@@ -14,8 +14,8 @@ class HymenopteraAPI
         $this->vernacular_name_ids = array();
         $this->SPM = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems';
         $this->text_path = array();
-        // $this->zip_path = "https://dl.dropboxusercontent.com/u/7597512/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
-        $this->zip_path = "http://localhost/cp/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
+        $this->zip_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
+        // $this->zip_path = "http://localhost/cp_new/Hymenoptera/Hymenoptera_6_Mar_2003.zip";
         // $this->zip_path = "http://localhost/cp/Hymenoptera/Hymenoptera_small.zip";
         $this->occurrence_ids = array();
         $this->list_of_taxa = array();
