@@ -135,9 +135,7 @@ class HymenopteraAPI
     private function set_encoding($rec)
     {
         $keys = array_keys($rec);
-        foreach($keys as $key) {
-            $rec[$key] = Functions::conv_to_utf8($rec[$key]);
-        }
+        foreach($keys as $key) $rec[$key] = Functions::conv_to_utf8($rec[$key]);
         return $rec;
     }
     private function process_geo_data($link)
