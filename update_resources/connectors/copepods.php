@@ -4,6 +4,7 @@ namespace php_active_record;
 estimated execution time: 4.4 mins. when lookup is cached already.
 copepods	Tuesday 2018-02-13 11:14:09 PM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":931,"taxon.tab":2644}
 copepods	Saturday 2018-03-10 07:46:22 PM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":931,"taxon.tab":2644}
+copepods	Monday 2018-10-22 10:24:35 AM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":925,"taxon.tab":2644}
 */
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
