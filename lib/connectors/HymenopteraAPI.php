@@ -74,7 +74,8 @@ class HymenopteraAPI
         $i = 0;
         $link = array();
         foreach($taxa as $rec) {
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            $rec = self::set_encoding($rec);
             if(in_array($rec["RECTYPE"], array("Species", "Genus/Subgenus", "Species Group", "Super-Generic"))) { // "Unplaced Taxon", "Nomen Nudum"
                 $i++;
                 $sciname = $rec["GENUS"] . " " . $rec["SPECIES"];
@@ -131,7 +132,14 @@ class HymenopteraAPI
         // $fields = array("IDNUM", "HYPATX", "SYNTX");
         // $comments = $func->make_array($this->text_path[10], $fields, "", array(), "^");
     }
-
+    private function set_encoding($rec)
+    {
+        $keys = array_keys($rec);
+        foreach($keys as $key) {
+            $rec[$key] = Functions::conv_to_utf8($rec[$key]);
+        }
+        return $rec;
+    }
     private function process_geo_data($link)
     {
         $with_data = false;
@@ -885,7 +893,7 @@ class HymenopteraAPI
             $rank = "order";
         }
 
-        $sciname = utf8_encode(trim($sciname));
+        $sciname = trim($sciname);
         $sciname = ucfirst(strtolower($sciname));
         $sciname = str_replace(array("(|)","(?)", "?"), "", $sciname);
         $sciname = trim(str_replace("  ", " ", $sciname));
@@ -947,7 +955,7 @@ class HymenopteraAPI
         $mr->type           = 'http://purl.org/dc/dcmitype/Text';
         $mr->language       = 'en';
         $mr->format         = 'text/html';
-        $mr->description    = utf8_encode($description);
+        $mr->description    = $description;
         $mr->CVterm         = $this->SPM . $subject;
         $mr->title          = $title;
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc/3.0/';
