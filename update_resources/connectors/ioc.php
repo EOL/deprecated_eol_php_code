@@ -8,9 +8,11 @@ vernaculars:    11068   11068   11092       11090
 occurrence      31172           42992
 measurements    31172   43214   42992       42992
 
-ioc-birdlist	Sunday 2018-05-20 12:51:02 PM	{"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
-ioc-birdlist	Sunday 2018-05-20 12:52:41 PM	{"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
-ioc	Sunday 2018-05-20 01:19:14 PM	{"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
+ioc-birdlist	Sunday 2018-05-20 12:51:02 PM	                        {"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
+ioc-birdlist	Sunday 2018-05-20 12:52:41 PM	                        {"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
+ioc	            Sunday 2018-05-20 01:19:14 PM	                        {"measurement_or_fact.tab":42989,"occurrence.tab":42989,"taxon.tab":33520,"vernacular_name.tab":11104}
+ioc-birdlist	Sunday 2018-10-21 11:37:12 PM	                        {"measurement_or_fact.tab":43007,"occurrence.tab":43007,"taxon.tab":33526,"vernacular_name.tab":11114}
+ioc-birdlist-with-higherClassification	Sunday 2018-10-21 11:37:56 PM	{"measurement_or_fact.tab":43007,"occurrence.tab":43007,"taxon.tab":33526,"vernacular_name.tab":11114}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
