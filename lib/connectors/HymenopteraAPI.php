@@ -56,8 +56,7 @@ class HymenopteraAPI
         $taxa = $func->make_array($this->text_path[1], $fields, "", array(), "^");
 
         /* to get the breakdown of taxa levels
-        foreach($taxa as $rec)
-        {
+        foreach($taxa as $rec) {
             if(@$temp[$rec["RECTYPE"]]) $temp[$rec["RECTYPE"]]++;
             else $temp[$rec["RECTYPE"]] = 1;
         }
@@ -74,10 +73,9 @@ class HymenopteraAPI
         
         $i = 0;
         $link = array();
-        foreach($taxa as $rec)
-        {
-            if(in_array($rec["RECTYPE"], array("Species", "Genus/Subgenus", "Species Group", "Super-Generic"))) // "Unplaced Taxon", "Nomen Nudum"
-            {
+        foreach($taxa as $rec) {
+            print_r($rec); exit;
+            if(in_array($rec["RECTYPE"], array("Species", "Genus/Subgenus", "Species Group", "Super-Generic"))) { // "Unplaced Taxon", "Nomen Nudum"
                 $i++;
                 $sciname = $rec["GENUS"] . " " . $rec["SPECIES"];
                 $sciname = trim($sciname);
