@@ -29,6 +29,7 @@ class MarineCopepodsAPI
         $this->all_sp_zone_assignment = self::get_all_sp_zone_assignment();
         // /* normal operation
         if($html = Functions::lookup_with_cache($this->page['species']."1", $this->download_options)) {
+            $html = Functions::conv_to_utf8($html);
             $html = str_ireplace('<option value="0">Choose another species</option>', "", $html);
             if(preg_match("/<select name=\"sp\"(.*?)<\/select>/ims", $html, $a1)) {
                 if(preg_match_all("/<option value=(.*?)<\/option>/ims", $a1[1], $a2)) {
@@ -75,7 +76,7 @@ class MarineCopepodsAPI
     {
         $rec = array();
         if($html = Functions::lookup_with_cache($this->page['species'].$sp, $this->download_options)) {
-
+            $html = Functions::conv_to_utf8($html);
             //special cases, manual fix
             if($sp == 2249) $html = str_replace("(349'*)", "(349)", $html);
             elseif($sp == 387) $html = str_replace("(ou 5,62 !?)", "", $html);
@@ -85,7 +86,7 @@ class MarineCopepodsAPI
             // <div class="Style4"><b><em>Bradyidius armatus</em></b>&nbsp;&nbsp;Giesbrecht, 1897&nbsp;&nbsp;&nbsp;(F,M)</div>
             if(preg_match("/<div class=\"Style4\">(.*?)<\/div>/ims", $html, $a1)) {
                 // echo "\n". $a1[1]; //<b><em>Bradyidius armatus</em></b>&nbsp;&nbsp;Giesbrecht, 1897&nbsp;&nbsp;&nbsp;(F,M)
-                if(preg_match("/<em>(.*?)<\/em>/ims", $a1[1], $a2)) $rec['species'] = utf8_encode($a2[1]);
+                if(preg_match("/<em>(.*?)<\/em>/ims", $a1[1], $a2)) $rec['species'] = $a2[1];
                 else exit("\nInvestigate: no species 2 [$sp]\n");
                 if(preg_match("/&nbsp;&nbsp;(.*?)&nbsp;&nbsp;/ims", $a1[1], $a2)) $rec['author'] = $a2[1];
             }
@@ -109,12 +110,12 @@ class MarineCopepodsAPI
 
             // special case
             if($sp == 937) { // (23’) 
-                $a[1] = utf8_encode($a[1]);
+                // $a[1] = utf8_encode($a[1]); //not needed anymore, I hope
                 $a[1] = str_replace("23’", "23a", $a[1]);
                 $a[1] = str_replace("23", "23a", $a[1]);
             }
             elseif($sp == 456)  {
-                $a[1] = utf8_encode($a[1]);
+                // $a[1] = utf8_encode($a[1]); //not needed anymore, I hope
                 $a[1] = str_replace("49’", "49a", $a[1]);
                 $a[1] = str_replace("49", "49a", $a[1]);
             }
@@ -489,7 +490,7 @@ class MarineCopepodsAPI
     {
         $final = array();
         if($html = Functions::lookup_with_cache($this->page['ref_list'], $this->download_options)) {
-            
+            $html = Functions::conv_to_utf8($html);
             $html = str_replace("23'-", "23a -", $html);
             $html = str_replace("49'-", "49a -", $html);
 
@@ -506,9 +507,7 @@ class MarineCopepodsAPI
                             $div = array_map('trim', $div);
                             // print_r($div);
 
-                            // if($val = $div[0]) $div[0] = utf8_encode($val);
-                            // if($val = @$div[1]) $div[1] = utf8_encode($val);
-                            $div = array_map('utf8_encode', $div);
+                            // $div = array_map('utf8_encode', $div); //not needed anymore, I hope
                             $final[$div[0]] = @$div[1];
                         }
                     }
@@ -523,6 +522,7 @@ class MarineCopepodsAPI
     {
         $final = array();
         if($html = Functions::lookup_with_cache($this->page[$what].$letter, $this->download_options)) {
+            $html = Functions::conv_to_utf8($html);
             //special case
             $html = str_replace(".- ", ". - ", $html);
             
@@ -533,7 +533,7 @@ class MarineCopepodsAPI
                         $r = strip_tags($r, "<em>");
                         // echo "\n[$r]\n";
                         $parts = explode(". - ", $r);
-                        $parts = array_map('utf8_encode', $parts);
+                        // $parts = array_map('utf8_encode', $parts); //not needed anymore, I hope
                         $final[$parts[0]] = @$parts[1];
                     }
                 }
@@ -664,6 +664,7 @@ class MarineCopepodsAPI
         $final = array();
         for($zone=3; $zone<=24; $zone++) {
             if($html = Functions::lookup_with_cache($this->page['species_zones'].$zone, $this->download_options)) {
+                $html = Functions::conv_to_utf8($html);
                 //<a href=fichesp.php?sp=13>details</a>
                 if(preg_match_all("/<a href=fichesp.php\?sp\=(.*?)>/ims", $html, $a)) {
                     echo "\n [$zone] ".count($a[1]);
