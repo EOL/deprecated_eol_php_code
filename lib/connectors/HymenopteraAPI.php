@@ -75,7 +75,6 @@ class HymenopteraAPI
         $link = array();
         foreach($taxa as $rec) {
             // print_r($rec); exit;
-            $rec = self::set_encoding($rec);
             if(in_array($rec["RECTYPE"], array("Species", "Genus/Subgenus", "Species Group", "Super-Generic"))) { // "Unplaced Taxon", "Nomen Nudum"
                 $i++;
                 $sciname = $rec["GENUS"] . " " . $rec["SPECIES"];
@@ -132,12 +131,6 @@ class HymenopteraAPI
         // $fields = array("IDNUM", "HYPATX", "SYNTX");
         // $comments = $func->make_array($this->text_path[10], $fields, "", array(), "^");
     }
-    private function set_encoding($rec)
-    {
-        $keys = array_keys($rec);
-        foreach($keys as $key) $rec[$key] = Functions::conv_to_utf8($rec[$key]);
-        return $rec;
-    }
     private function process_geo_data($link)
     {
         $with_data = false;
@@ -154,10 +147,8 @@ class HymenopteraAPI
         1 -- 302
         */
         $k = 0;
-        foreach(new FileIterator($this->text_path[3]) as $line_number => $line)
-        {
-            if($line)
-            {
+        foreach(new FileIterator($this->text_path[3]) as $line_number => $line) {
+            if($line) {
                 $desc = "";
                 $line = trim($line);
                 $values = explode("^", $line);
@@ -967,11 +958,7 @@ class HymenopteraAPI
         {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
-            if(!($TMP = fopen($temp_file_path, "w")))
-            {
-              debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $temp_file_path);
-              return;
-            }
+            if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip -o $temp_file_path -d $this->TEMP_FILE_PATH");
@@ -991,6 +978,17 @@ class HymenopteraAPI
             $this->text_path[9] = $this->TEMP_FILE_PATH . "/Hds9-Hymenoptera-Final.txt";
             $this->text_path[10] = $this->TEMP_FILE_PATH . "/Hds10-Hymenoptera-Final.txt";
             $this->text_path[11] = $this->TEMP_FILE_PATH . "/HymEcoParDone.txt";
+            
+            // /* conv all files here
+            foreach($this->text_path as $index => $filename) {
+                $file_contents = file_get_contents($filename);
+                $file_contents = Functions::conv_to_utf8($file_contents);
+                $TMP = Functions::file_open($filename, "w");
+                fwrite($TMP, $file_contents);
+                fclose($TMP);
+            }
+            // */
+            
             return true;
         }
         else
