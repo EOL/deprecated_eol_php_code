@@ -3,6 +3,10 @@ namespace php_active_record;
 /* Catalogue of Hymenoptera
 estimated execution time: 10 minutes
 http://www.eol.org/content_partners/611/resources/664
+
+664	Monday 2018-10-22 12:08:53 PM	{"media_resource.tab":23491,"taxon.tab":21334}  MacMini
+664	Monday 2018-10-22 12:10:09 PM	{"media_resource.tab":23491,"taxon.tab":21334}  eol-archive
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
