@@ -24,7 +24,7 @@ class AntWebDataAPI
         $this->api['specimens'] = 'http://www.antweb.org/api/v2/?limit=100&offset='; //&genus=Acanthognathus
         
         $this->limit = 100;
-        $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25, 'download_attempts' => 2, 'delay_in_minutes' => 1);
+        $this->download_options = array("timeout" => 60*60, "expire_seconds" => 60*60*24*25, 'download_attempts' => 2, 'delay_in_minutes' => 0.5);
         // $this->download_options['expire_seconds'] = false; //comment in normal operation
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
@@ -336,7 +336,10 @@ class AntWebDataAPI
                 else $final = array_merge($final, $arr['specimens']);
                 if(count($arr['specimens']) < $this->limit) break;
             }
-            else break;
+            else {
+                echo "\nCannot access: [$url]. Will go to next genus.";
+                break;
+            }
             $offset += $this->limit;
         }
         return $final;
