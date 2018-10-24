@@ -76,7 +76,7 @@ else //no resource_id --- used only for testing... not a real scheduled resource
 //===========================================================================================new - end
 echo "\n[$resource_id] [$dwca_file] [".$cmdline_params['generate_higherClassification_YN']."]\n";
 
-if($resource_id == 24) $GLOBALS['ENV_DEBUG'] = true;
+// if($resource_id == 24) $GLOBALS['ENV_DEBUG'] = true; //during development only
 
 // /* //main operation
 $func = new DwCA_Utility($resource_id, $dwca_file);
