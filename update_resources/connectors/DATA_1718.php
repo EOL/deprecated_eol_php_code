@@ -52,20 +52,20 @@ $func->download_resource_files();
 // $func->test_xml_files();
 */
 
-/* https://eol-jira.bibalex.org/browse/DATA-xxxx
+// /* https://eol-jira.bibalex.org/browse/DATA-1731
 $resource_id = "user_curated_object";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_object_curation();
 // Functions::finalize_dwca_resource($resource_id);
 // Cannot find resource anymore = 347 last count
-*/
+// */
 
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
+/* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
 $resource_id = "images_selected_as_exemplar";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_images_selected_as_exemplar();
-// */
+*/
 
 
 

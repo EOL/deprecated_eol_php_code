@@ -17,7 +17,7 @@ class EOLv2MetadataAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         
-        $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
+        $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 2, "delay_in_minutes" => 2);
         $this->download_options['expire_seconds'] = false; //always false, will not change anymore...
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_collections/";
         else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_collections/";
@@ -451,7 +451,12 @@ class EOLv2MetadataAPI
     }
     
     public function start_user_object_curation() //total 155,763 --> 153,370 without data_point_uri
-    {
+    {                                                              //154,367 as of 2018 Oct 23
+        /* will need to redownload:
+        eol_logging_production.curator_activity_logs
+        eol_development.users
+        eol_development.data_objects_curation
+        */
         $sql = "SELECT cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name as activity
         ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
         ,d.guid, d.description, d.object_url, d.data_type_id
