@@ -68,6 +68,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         echo "\ndataset name: [$dataset_name]\n";
         exit("\n-end tests-\n");
         */
+        
         /* Steps (August 2018) using the DwCA occurrence downloads from GBIF */
         // Step 1. Delete all .json files
         // Step 2. 
@@ -264,13 +265,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         */
 
         $paths = $this->csv_paths;
-        
         $i = 0;
+        $m = count($eol_taxon_id_list)/3;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
             // ==============================
             // /*
-            $m = count($eol_taxon_id_list)/3;
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
             // if($i >=  $m   && $i < $m*2)  $cont = true;
