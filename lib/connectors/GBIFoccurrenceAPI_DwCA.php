@@ -27,7 +27,7 @@ DOI:            https://www.gbif.org/occurrence/download/0004645-180730143533302
 */
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
 {
-    function __construct($folder = null, $query = null)
+    function __construct()
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
@@ -81,15 +81,25 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         */
         
         /* Steps (August 2018) using the DwCA occurrence downloads from GBIF */
-        // Step 1. Delete all .json files
+        // Step 1. Delete all 3 groups of files: csv, txt, json files. Recursive all directories.
+            /* Working OK - will put in Jenkins shell script:
+            Remove all CSV files (.csv):
+            rm -rf /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/*
+            Remove multimedia assignments to taxon (.txt):
+            rm -rf /extra/other_files/GBIF_occurrence/multimedia_gbifID/*
+            Remove all map data (.json)
+            rm -rf /extra/map_data_dwca/*
+            */
         // Step 2. 
-            // self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                              return; //IMPORTANT: this can only be run once every harvest
+            self::breakdown_GBIF_DwCA_file(); echo "\nDONE: breakdown_GBIF_DwCA_file()\n";                              //return; //IMPORTANT: this can only be run once every harvest
         // Step 3. 
-            // self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    return; //took 18 mins in eol-archive
+            self::breakdown_multimedia_to_gbifID_files();   echo "\nDONE: breakdown_multimedia_to_gbifID_files()\n";    //return; //took 18 mins in eol-archive
         // Step 4. 
             self::generate_map_data_using_GBIF_csv_files(); echo "\nDONE: generate_map_data_using_GBIF_csv_files()\n";
-            if($this->debug) Functions::start_print_debug($this->debug, "gen_map_data_via_gbif_csv");                   return;
+            if($this->debug) Functions::start_print_debug($this->debug, "gen_map_data_via_gbif_csv");                   //return;
             /*This step includes using API if DwCA (csv file) for taxon is not available */
+        // Step 5. Finalize list of taxon:
+            self::save_ids_to_text_from_many_folders();
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
         /*
@@ -631,8 +641,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     function save_ids_to_text_from_many_folders() //a utility
     {
         $dir_to_process = $this->save_path['map_data'];
-        $text_file = "/Volumes/Thunderbolt4/map_data_zip/final_taxon_concept_IDS.txt";
-        
+        $text_file = $this->save_path['map_data']."final_taxon_concept_IDS.txt";
         $i = 0;
         if(!($fhandle = Functions::file_open($text_file, "w"))) return;
         if($dir = opendir($dir_to_process)) {
