@@ -14,11 +14,12 @@ that is mapped to EOL's (sciname, taxonConceptID)
 2.3. use taxonkey to get the occurrence in CSV file (CSV created in 4.2)
 
 Animalia:
-http://www.gbif.org/occurrence/download/0004680-180730143533302
+https://www.gbif.org/occurrence/download/0004680-180730143533302
 Plantae:
-http://www.gbif.org/occurrence/download/0004688-180730143533302
+https://www.gbif.org/occurrence/download/0004688-180730143533302
 Other 7 groups:
-http://www.gbif.org/occurrence/download/0005724-180730143533302
+https://www.gbif.org/occurrence/download/0005724-180730143533302
+https://www.gbif.org/occurrence/download/0012209-181003121212138
 
 e.g.
 download URL:   http://api.gbif.org/v1/occurrence/download/request/0004645-180730143533302.zip
@@ -32,7 +33,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->download_options = array(
             'expire_seconds'     => 60*60*24*30*4, //4 months to expire
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        // $this->download_options['expire_seconds'] = false; //debug | true -- expires now
+        $this->download_options['expire_seconds'] = false; //debug | true -- expires now
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_gbif/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_gbif/";
