@@ -1013,13 +1013,19 @@ class EOLv2MetadataAPI
 
     public function start_user_added_comnames() //total records: 87127
     {
+        /*
+        eol_logging_production.curator_activity_logs
+        eol_logging_production.synonyms
+        eol_logging_production.names
+        
+        */
         $sql = "select cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id, cal.changeable_object_type_id
         , s.name_id, s.language_id, n.string as common_name, s.preferred, concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' (', ifnull(u.username,''), ')') as user_name, s3.label
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang, l.source_form as lang_native, s3.label as lang_english
         from eol_logging_production.curator_activity_logs cal 
         LEFT JOIN eol_logging_production.synonyms s on (cal.target_id=s.id)
         LEFT JOIN eol_logging_production.names n on (s.name_id=n.id)
-        LEFT JOIN users u on (cal.user_id=u.id)
+        LEFT JOIN eol_development.users u on (cal.user_id=u.id)
         LEFT JOIN eol_v2.translated_languages s3 ON (s.language_id=s3.original_language_id)
         LEFT JOIN languages l ON (s.language_id=l.id)
         where cal.activity_id = 61 and s.name_id is not null and s3.language_id = 152";
