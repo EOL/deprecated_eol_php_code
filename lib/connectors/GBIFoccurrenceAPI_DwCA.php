@@ -13,14 +13,19 @@ that is mapped to EOL's (sciname, taxonConceptID)
 2.2. get taxonkey using scientific name
 2.3. use taxonkey to get the occurrence in CSV file (CSV created in 4.2)
 
+---------------------------------------------------- DOI for the actual download:
 Animalia:
 https://www.gbif.org/occurrence/download/0004680-180730143533302
+https://www.gbif.org/occurrence/download/0012668-181003121212138    725,510,722 results
+----------------------------------------------------
 Plantae:
 https://www.gbif.org/occurrence/download/0004688-180730143533302
+https://www.gbif.org/occurrence/download/0012669-181003121212138    194,328,620 results
+----------------------------------------------------
 Other 7 groups:
 https://www.gbif.org/occurrence/download/0005724-180730143533302
-https://www.gbif.org/occurrence/download/0012209-181003121212138
-
+https://www.gbif.org/occurrence/download/0012209-181003121212138    24,543,817 results
+----------------------------------------------------
 e.g.
 download URL:   http://api.gbif.org/v1/occurrence/download/request/0004645-180730143533302.zip
 DOI:            https://www.gbif.org/occurrence/download/0004645-180730143533302
