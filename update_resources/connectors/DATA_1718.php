@@ -15,7 +15,7 @@ echo "\n$url2 - ".pathinfo($url2, PATHINFO_FILENAME);
 exit("\n");
 */
 
-require_library('connectors/EOLv2MetadataAPI');
+require_library('connectors/EOLv2MetadataAPI'); /* un-comment below to run specific report: */
 
 /*
 $func = new EOLv2MetadataAPI("");
@@ -80,10 +80,10 @@ $func = new EOLv2MetadataAPI("");
 $func->start_image_sizes(); echo "\n end start_image_sizes() \n"; return;
 */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1741
+/* https://eol-jira.bibalex.org/browse/DATA-1741
 $func = new EOLv2MetadataAPI("");
 $func->start_image_ratings(); echo "\n end start_image_ratings() \n"; return;
-// */
+*/
 
 
 /* https://eol-jira.bibalex.org/browse/DATA-1719
