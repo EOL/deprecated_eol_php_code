@@ -575,7 +575,6 @@ class EOLv2MetadataAPI
             fwrite($FILE, implode("\t", $rec)."\n");
         }
         fclose($FILE);
-        
     }
     private function lookup_object_url($row, $type)
     {
