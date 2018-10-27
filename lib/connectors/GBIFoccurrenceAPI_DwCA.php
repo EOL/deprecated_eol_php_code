@@ -16,15 +16,15 @@ that is mapped to EOL's (sciname, taxonConceptID)
 ---------------------------------------------------- DOI for the actual download:
 Animalia:
 https://www.gbif.org/occurrence/download/0004680-180730143533302
-https://www.gbif.org/occurrence/download/0012668-181003121212138    725,510,722 results
+https://www.gbif.org/occurrence/download/0012668-181003121212138    725,510,722 results http://api.gbif.org/v1/occurrence/download/request/0012668-181003121212138.zip
 ----------------------------------------------------
 Plantae:
 https://www.gbif.org/occurrence/download/0004688-180730143533302
-https://www.gbif.org/occurrence/download/0012669-181003121212138    194,328,620 results
+https://www.gbif.org/occurrence/download/0012669-181003121212138    194,328,620 results http://api.gbif.org/v1/occurrence/download/request/0012669-181003121212138.zip
 ----------------------------------------------------
 Other 7 groups:
 https://www.gbif.org/occurrence/download/0005724-180730143533302
-https://www.gbif.org/occurrence/download/0012209-181003121212138    24,543,817 results
+https://www.gbif.org/occurrence/download/0012209-181003121212138    24,543,817 results  http://api.gbif.org/v1/occurrence/download/request/0012209-181003121212138.zip
 ----------------------------------------------------
 e.g.
 download URL:   http://api.gbif.org/v1/occurrence/download/request/0004645-180730143533302.zip
@@ -180,12 +180,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function breakdown_GBIF_DwCA_file()
     {
-        exit("\nFinished running Aug 23, 2018\n");
+        // exit("\nFinished running Aug 23, 2018\n");
         $path2 = $this->save_path['taxa_csv_path'];
         if(Functions::is_production()) {
-            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";        //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
-            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";         //~183 million - Took 1 day 19 hr (when API calls are not yet cached)
-            // $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";    //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";        //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";         //~183 million - Took 1 day 19 hr (when API calls are not yet cached)
+            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";    //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
         }
         else {
             $paths[]  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
@@ -198,7 +198,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 if($i == 1) $line = strtolower($line);
                 $row = explode("\t", $line);
                 if($i == 1) {
-                    $fields = $row; continue;
+                    $fields = $row;
+                    continue;
                 }
                 else {
                     if(!@$row[0]) continue; //$row[0] is gbifID
@@ -241,7 +242,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $obj = json_decode($json);
             if(!isset($obj->$return_field)) { //debug only
                 print_r($obj);
-                exit("\n[$datasetKey]: ".$this->api['dataset'].$datasetKey."\n");
+                exit("\nInvestigate 1: [$datasetKey]: ".$this->api['dataset'].$datasetKey."\n");
             }
             return $obj->$return_field;
         }
@@ -296,13 +297,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
             // ==============================
-            // /*
+            /*
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
             // if($i >=  $m   && $i < $m*2)  $cont = true;
             if($i >=  $m*2 && $i < $m*3)  $cont = true;
             if(!$cont) continue;
-            // */
+            */
             // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
             if($usageKey = self::get_usage_key($sciname)) {
@@ -964,13 +965,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if(stripos($sciname, " ") !== false) { //process only species-level taxa
                 $species_level++;
                 echo " [$sciname]";
-                // /*
+                /*
                 $cont = false;
                 if($i >=  1    && $i < $m)    $cont = true;
                 // if($i >=  $m   && $i < $m*2)  $cont = true;
                 // if($i >=  $m*2 && $i < $m*3)  $cont = true;
                 if(!$cont) continue;
-                // */
+                */
                 self::main_loop($sciname, $taxon_concept_id);
                 exit("\n\ntemporary exit...\n");
             }
