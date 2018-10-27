@@ -4,7 +4,6 @@ namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $mysqli =& $GLOBALS['mysqli_connection'];
-
 $timestart = time_elapsed();
 
 /*
@@ -60,13 +59,11 @@ $func->start_user_object_curation(); echo "\n end start_user_object_curation() \
 // Cannot find resource anymore = 347 last count
 */
 
-
 /* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
 $resource_id = "images_selected_as_exemplar";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; return;
 */
-
 
 /*
 $func = new EOLv2MetadataAPI("");
@@ -90,7 +87,6 @@ $func->start_image_ratings(); echo "\n end start_image_ratings() \n"; return;
 $func = new EOLv2MetadataAPI("");
 $func->DATA_1719(); --- didn't use this
 */
-
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
