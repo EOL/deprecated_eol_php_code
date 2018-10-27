@@ -347,7 +347,7 @@ class EnvironmentsEOLDataConnector
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000045") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000020";
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000097") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000179";
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000030") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000067";
-        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000150") $rec['measurementValue'] = "http//purl.obolibrary.org/obo/ENVO_01000049";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000150") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000049";
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_01000240") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000196";
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_02000049") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00002150";
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00002019") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000322";
