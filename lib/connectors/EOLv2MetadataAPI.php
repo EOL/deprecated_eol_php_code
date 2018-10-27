@@ -36,7 +36,6 @@ class EOLv2MetadataAPI
         $data = self::object_with_overall_rating($guid);
         print_r($data);
         exit;
-        
         */
         
         // $sql = "SELECT distinct(d.data_object_guid) from users_data_objects_ratings d"; //235,245
