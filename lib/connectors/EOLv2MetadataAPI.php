@@ -72,7 +72,7 @@ class EOLv2MetadataAPI
                     if($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {echo " - taxon found in DOTC";} //dotc - data_objects_taxon_concepts
                     elseif($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {echo " - taxon found in API call";}
                     else {
-                        echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                        echo("\n\nNo taxon_concept_id found for 1 ".$row['data_object_id']."\n");
                         // print_r($row); //exit;
                         $no_tc_id = true;
                         $info['taxon_name'] = '-orphan object-';
@@ -150,11 +150,11 @@ class EOLv2MetadataAPI
         print_r($res_info);
         exit("\n-just test-\n");
         */
-        // /* test
+        /* test
         $res_info = self::get_resource_info_last_resort(1895418); //27489312 //3286228 //1895418 - user-submitted text
         print_r($res_info);
         exit("\n-just test-\n");
-        // */
+        */
         
         $sql = "SELECT i.*, o.* from image_sizes i left join data_objects_ImageSizes o on (i.data_object_id = o.id) 
         -- order by i.updated_at desc
@@ -182,7 +182,7 @@ class EOLv2MetadataAPI
                 //     $tc_id = @$a['taxon_concept_id'];
                 // }
                 else {
-                    echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                    echo("\n\nNo taxon_concept_id found for 2 ".$row['data_object_id']."\n");
                     // print_r($row); //exit;
                     $no_tc_id = true;
                     $info['taxon_name'] = '-orphan object-';
@@ -279,7 +279,7 @@ class EOLv2MetadataAPI
                     if($tc_id = self::get_tc_id_using_do_id($row['data_object_id'])) {}
                     elseif($tc_id = self::get_tc_id_using_dotc($row['data_object_id'])) {} //dotc - data_objects_taxon_concepts
                     else {
-                        // echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                        // echo("\n\nNo taxon_concept_id found for 3 ".$row['data_object_id']."\n");
                         // print_r($row); //exit;
                         $no_tc_id = true;
                     }
@@ -328,6 +328,7 @@ class EOLv2MetadataAPI
 
     public function start_images_selected_as_exemplar() //DATA-1746: user activity: images selected as exemplar https://eol-jira.bibalex.org/browse/DATA-1746
     {                                                   // n = 18642
+                                                        // n = 18963 (Oct 2018)
                                                         // this func is copied from start_user_object_curation()
         $sql = "SELECT cal.created_at as vdate, cal.user_id, cal.taxon_concept_id, cal.activity_id, cal.target_id as data_object_id ,cot.ch_object_type ,t.name as activity
         ,concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name
@@ -341,7 +342,7 @@ class EOLv2MetadataAPI
         -- and cot.ch_object_type = 'users_submitted_text'
         order by cal.taxon_concept_id, cal.created_at desc";
         $result = $this->mysqli->query($sql);
-        echo "\n". $result->num_rows . "\n"; //exit;
+        // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
         $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."images_selected_as_exemplar.txt", "w");
         $headers_printed_already = false;
@@ -372,7 +373,7 @@ class EOLv2MetadataAPI
                     $tc_id = @$a['taxon_concept_id'];
                 }
                 else {
-                    echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                    echo("\n\nNo taxon_concept_id found for 4 ".$row['data_object_id']."\n");
                     // print_r($row); //exit;
                     $no_tc_id = true;
                 }
@@ -500,7 +501,7 @@ class EOLv2MetadataAPI
                     $tc_id = @$a['taxon_concept_id'];
                 }
                 else {
-                    echo("\n\nNo taxon_concept_id found for ".$row['data_object_id']."\n");
+                    echo("\n\nNo taxon_concept_id found for 5 ".$row['data_object_id']."\n");
                     // print_r($row); //exit;
                     $no_tc_id = true;
                 }
@@ -794,7 +795,7 @@ class EOLv2MetadataAPI
         , ttoc.label as subject , tdt.label as data_type
         , dotoc.toc_id
         FROM users_data_objects udo
-        LEFT JOIN data_objects d ON (udo.data_object_id = d.id) 
+        LEFT JOIN data_objects_UDO d ON (udo.data_object_id = d.id) 
         LEFT JOIN data_types dt ON (d.data_type_id = dt.id)
         LEFT JOIN users u ON (udo.user_id = u.id)
         LEFT JOIN taxon_concept_preferred_entries tcpe ON (udo.taxon_concept_id = tcpe.taxon_concept_id)
@@ -962,15 +963,15 @@ class EOLv2MetadataAPI
     }
     //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
     public function start_user_preferred_comnames() //total recs for agents_synonyms: 113283
-    {
+    {                                               //                              : 123656 (Oct 2018)
         $sql = "select asy.synonym_id, n.id as name_id, n.string as common_name, asy.agent_id, u.given_name, u.family_name, s.hierarchy_entry_id, s.vetted_id, s.preferred
         , he.taxon_concept_id
         , tv.label as vettedness
         , if(l.iso_639_1 is not null, l.iso_639_1, '') as iso_lang, l.source_form as lang_native, s3.label as lang_english
         , concat(ifnull(u.given_name,''), ' ', ifnull(u.family_name,''), ' ', if(u.username is not null, concat('(',u.username,')'), '')) as user_name, u.id as user_id 
         from agents_synonyms asy
-        left outer join eol_logging_production.synonyms s on (asy.synonym_id = s.id)
-        left outer join eol_logging_production.names n on (s.name_id = n.id)
+        left outer join synonyms s on (asy.synonym_id = s.id)
+        left outer join names n on (s.name_id = n.id)
         left outer join agents a on (asy.agent_id = a.id)
         left outer JOIN users u ON (asy.agent_id = u.agent_id)
         left outer join hierarchy_entries he on (s.hierarchy_entry_id = he.id)
@@ -1307,7 +1308,7 @@ class EOLv2MetadataAPI
             echo "\n querying he_id [$he_id]";
             $sql = "SELECT n.string as final_name, he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank, he.ancestry, he.lft, he.rgt, he.name_id, he.taxon_concept_id
             FROM hierarchy_entries he
-            left outer JOIN eol_logging_production.names n ON (he.name_id=n.id)
+            left outer JOIN names n ON (he.name_id=n.id)
             left outer JOIN hierarchies h ON (he.hierarchy_id=h.id)
             LEFT outer JOIN translated_ranks r ON (he.rank_id=r.rank_id)
             WHERE r.language_id = 152 and he.id = $he_id and he.vetted_id = 5";
@@ -1343,7 +1344,7 @@ class EOLv2MetadataAPI
                 FROM taxon_concepts tc
                 JOIN taxon_concept_preferred_entries pe ON (tc.id=pe.taxon_concept_id)
                 JOIN hierarchy_entries he ON (pe.hierarchy_entry_id=he.id)
-                JOIN eol_logging_production.names n ON (he.name_id=n.id)
+                JOIN names n ON (he.name_id=n.id)
                 JOIN hierarchies h ON (he.hierarchy_id=h.id)
                 LEFT JOIN canonical_forms cf ON (n.canonical_form_id=cf.id)
                 LEFT JOIN translated_ranks r ON (he.rank_id=r.rank_id)
@@ -1369,7 +1370,7 @@ class EOLv2MetadataAPI
         $sql = "SELECT n.string as final_name, he.taxon_concept_id,
         he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank, he.ancestry, he.lft, he.rgt, he.name_id, he.guid
         FROM hierarchy_entries he
-        left outer JOIN eol_logging_production.names n ON (he.name_id=n.id)
+        left outer JOIN names n ON (he.name_id=n.id)
         left outer JOIN hierarchies h ON (he.hierarchy_id=h.id)
         LEFT outer JOIN translated_ranks r ON (he.rank_id=r.rank_id)
         WHERE r.language_id = 152 and he.taxon_concept_id = $taxon_concept_id and he.vetted_id = 5";
@@ -1386,7 +1387,7 @@ class EOLv2MetadataAPI
         $sql = "SELECT n.string as final_name, he.taxon_concept_id,
                 he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank, he.ancestry, he.lft, he.rgt, he.name_id, he.guid
                 FROM hierarchy_entries he
-                left outer JOIN eol_logging_production.names n ON (he.name_id=n.id)
+                left outer JOIN names n ON (he.name_id=n.id)
                 left outer JOIN hierarchies h ON (he.hierarchy_id=h.id)
                 LEFT outer JOIN translated_ranks r ON (he.rank_id=r.rank_id)
                 WHERE (r.language_id = 152 or r.language_id is null) and he.taxon_concept_id = $taxon_concept_id"; // and he.vetted_id = 5
