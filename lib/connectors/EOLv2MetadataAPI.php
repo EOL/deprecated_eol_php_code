@@ -600,7 +600,6 @@ class EOLv2MetadataAPI
             return $row['data_type'];
         }
         return false;
-
     }
     private function get_tc_id_using_dotc($do_id)
     {
@@ -675,7 +674,6 @@ class EOLv2MetadataAPI
     {
         //step 1 get all do_ids from page: <li><a href="/data_objects/14375915">2011-12-03 08:35:47 UTC</a></li>
         if($html = Functions::lookup_with_cache("http://www.eol.org/data_objects/$do_id", $this->download_options)) {
-            
             /*
             <h3>Revisions</h3>
             </div>
@@ -714,11 +712,9 @@ class EOLv2MetadataAPI
                 }
             }
         }
-        
         if($a = self::get_tc_id_from_udo($do_id)) { //udo - users_data_objects
             return array('resource_name' => $a['udo_username'], 'resource_id' => $a['udo_userid']);
         }
-        
         return false;
     }
     private function tbl_from_Jen() //https://eol-jira.bibalex.org/browse/DATA-1740?focusedCommentId=62313&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62313
@@ -932,17 +928,16 @@ class EOLv2MetadataAPI
             // echo "\n".count($result)."\n"; 
             if(count($result) > 1) {
                 echo("\n\nInvestigate > 1 subjectURI \n");
-                print_r($row); print_r($result); exit;
+                print_r($row); print_r($result); exit("\nInvestigate 1\n");
             }
             while($result && $row2=$result->fetch_assoc()) {
                 if($val = $row2['subjectURI']) return $val;
             }
             if(!$result) {
                 echo("\n\nInvestigate no subjectURI found\n");
-                print_r($row); exit;
+                print_r($row); exit("\nInvestigate 2\n");
             }
         }
-
 
         // http://www.eol.org/voc/table_of_contents#FossilHistory (322)
         // http://eol.org/schema/eol_info_items.xml#FossilHistory
@@ -958,8 +953,7 @@ class EOLv2MetadataAPI
         }
 
         echo("\n\nInvestigate STILL no subjectURI found\n");
-        print_r($row); exit;
-        
+        print_r($row); exit("\nInvestigate 3\n");
     }
     //select if(field_a is not null, field_a, field_b) --- if then else in MySQL
     public function start_user_preferred_comnames() //total recs for agents_synonyms: 113283
