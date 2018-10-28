@@ -154,8 +154,7 @@ class WikiDataAPI
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
 
-        if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en"))
-        {
+        if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) {
             //start new block ---------------------------------------
             if($actual_task) {
                 self::parse_wiki_data_json($task, $range_from, $range_to);
@@ -184,7 +183,6 @@ class WikiDataAPI
             //end new block ---------------------------------------
         }
         else self::parse_wiki_data_json(); //for non-English wikipedia --- orig
-        
         
         self::add_parent_entries(); //not sure if we need it but gives added value to taxonomy
         $this->archive_builder->finalize(TRUE);
@@ -227,7 +225,6 @@ class WikiDataAPI
         // if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) return array(true, true);
         return array(true, true); //all that reaches this point will return true true
     }
-
     private function initialize_files()
     {
         // $this->TEMP_FILE_PATH = temp_filepath(); //orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
