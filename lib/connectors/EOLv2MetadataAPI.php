@@ -43,7 +43,7 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows . "\n"; exit;
         $recs = array();
-        $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."image_ratings_d.txt", "w");
+        $FILE = Functions::file_open($filename = CONTENT_RESOURCE_LOCAL_PATH ."image_ratings.txt", "w");
         $headers_printed_already = false;
         
         $guids = array(); $k = 0; $m = 226862/5;
