@@ -2,10 +2,8 @@
 namespace php_active_record;
 // require_once DOC_ROOT . '/vendor/JsonCollectionParser-master/src/Parser.php';
 require_library('connectors/WikipediaRegionalAPI');
-
-/* 
+/*
 https://en.wikipedia.org/wiki/List_of_Wikipedias
-
 commons dump: https://dumps.wikimedia.org/commonswiki/
 
 wget -c https://dumps.wikimedia.org/commonswiki/latest/commonswiki-latest-pages-articles.xml.bz2
@@ -17,8 +15,9 @@ others:
 https://tools.wmflabs.org/magnus-toolserver/commonsapi.php
 https://commons.wikimedia.org/wiki/Commons:Commons_API
 using page id -> https://commons.wikimedia.org/?curid=29447337
-*/
 
+Oct 28, 2018. A good read: https://topicseed.com/blog/importing-wikidata-dumps#decompress-the-archive
+*/
 class WikiDataAPI
 {
     function __construct($folder, $lang, $what = "wikipedia")
