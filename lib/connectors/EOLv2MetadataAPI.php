@@ -1391,7 +1391,10 @@ class EOLv2MetadataAPI
             return self::get_taxon_info_from_json($taxon_concept_id);
         }
         echo "\n4th option UN-SUCCESSFULL \n";
-        exit("\nInvestigate [$taxon_concept_id]\n");
+        $this->debug['lost tc_id'][$taxon_concept_id] = '';
+        if(in_array($taxon_concept_id, array(28348269))) return false;
+        return false;
+        // exit("\nInvestigate [$taxon_concept_id]\n");
     }
     private function get_supercedure_id($taxon_concept_id)
     {
@@ -1513,6 +1516,7 @@ class EOLv2MetadataAPI
             */
             self::get_collection_items($col_id);
         }
+        print_r($this->debug);
     }
     public function get_collection_items($collection_id)
     {
@@ -1520,7 +1524,7 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         echo "\n". $result->num_rows; //exit;
         while($result && $row=$result->fetch_assoc()) {
-            print_r($row);
+            // print_r($row); //good debug
             /*Array(
                 [id] => 86816247
                 [name] => NULL
@@ -1534,7 +1538,10 @@ class EOLv2MetadataAPI
                 [sort_field] => NULL
             )*/
             if($row['collected_item_type'] == "TaxonConcept") {
-                if($taxon = self::query_taxon_info($row['collected_item_id'])) print_r($taxon); //collected_item_id is the taxon_concept_id
+                if($taxon = self::query_taxon_info($row['collected_item_id'])) //collected_item_id is the taxon_concept_id
+                {
+                    // print_r($taxon); //good debug
+                }
                 else exit("\ntaxon not found\n");
             }
         }
