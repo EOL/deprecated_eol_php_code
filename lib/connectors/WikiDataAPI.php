@@ -18,6 +18,18 @@ using page id -> https://commons.wikimedia.org/?curid=29447337
 
 Oct 28, 2018. A good read: https://topicseed.com/blog/importing-wikidata-dumps#decompress-the-archive
 */
+/*
+[root@eol-archive wikidata]# ls -lt
+total 1090321376
+-rw------- 1 root root  31499459297 Oct 24 11:16 latest-all.json.bz2
+-rw------- 1 root root 666341712265 Oct 24 11:16 latest-all.json.from_bz2
+-rw-r--r-- 1 root root  14760668958 Oct  1 04:03 latest-all-taxon.json
+drwxr-xr-x 2 root root          112 Oct  1 03:04 wikimedia
+-rw-r--r-- 1 root root 360658889565 Sep 25 07:49 latest-all.json.bak
+-rw-r--r-- 1 root root  43228343586 Sep 25 07:49 latest-all.json.gz
+drwxr-xr-x 2 root root           10 Nov  6  2017 wikipedia
+[root@eol-archive wikidata]# 
+*/
 class WikiDataAPI
 {
     function __construct($folder, $lang, $what = "wikipedia")
