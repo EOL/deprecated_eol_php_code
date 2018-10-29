@@ -572,7 +572,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
                 else                                          echo " - usageKey not found!";
-                exit("\n--stopx--\n");
+                exit("\n--stopx--\n"); //doesn't go here if it is $listOnly boolean true
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
