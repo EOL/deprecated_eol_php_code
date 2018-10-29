@@ -1484,7 +1484,64 @@ class EOLv2MetadataAPI
         }
         fclose($FILE);
     }
+    //========================================================================================== ditox
+    public function user_activity_collections()
+    {
+        /* used when importing from eol-db-slave2 the collection_items_DATA_1780. From notes: readmeli DATA_1780.txt
+        $sql = "SELECT distinct collection_id from resources where collection_id is not null";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) $arr[] = $row['collection_id'];
+        $sql = "SELECT col.* from collections col where col.id not in (".implode(",", $arr).")";
+        exit("\n[$sql]\n");
+        */
 
+        $api = "http://eol.org/api/collections/1.0/176.xml?page=1&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en";
+        $api = "http://eol.org/api/collections/1.0/collection_id.xml?page=1&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en";
+
+        $sql = "SELECT distinct(collection_id) from collection_items_DATA_1780";
+        $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows; exit;
+        $total = $result->num_rows; $i = 0;
+        $recs = array();
+        while($result && $row=$result->fetch_assoc()) {
+            $col_id = $row['collection_id'];
+            $i++; echo "\n $i of $total ".$col_id." ";
+            /* caching API calls, but may not be needed
+            $url = str_replace("collection_id", $row['collection_id'], $api);
+            if($json = Functions::lookup_with_cache($url, $this->download_options)) echo " - found";
+            else echo " - not found";
+            */
+            self::get_collection_items($col_id);
+        }
+    }
+    public function get_collection_items($collection_id)
+    {
+        $sql = "SELECT col.* from collection_items_DATA_1780 col where col.collection_id = $collection_id and collected_item_type in ('Collection', 'TaxonConcept')";
+        $result = $this->mysqli->query($sql);
+        echo "\n". $result->num_rows; //exit;
+        while($result && $row=$result->fetch_assoc()) {
+            print_r($row);
+            /*Array(
+                [id] => 86816247
+                [name] => NULL
+                [collected_item_type] => TaxonConcept
+                [collected_item_id] => 223460
+                [collection_id] => 117
+                [created_at] => 2012-04-20 19:02:01
+                [updated_at] => 2012-04-20 19:02:01
+                [annotation] => Mark Westneat left a comment on April 20, 2012 15:02.
+                [added_by_user_id] => 0
+                [sort_field] => NULL
+            )*/
+            if($row['collected_item_type'] == "TaxonConcept") {
+                if($taxon = self::query_taxon_info($row['collected_item_id'])) print_r($taxon); //collected_item_id is the taxon_concept_id
+                else exit("\ntaxon not found\n");
+            }
+        }
+    }
+    
+    
+    
     //==========================================================================================
     public function start_resource_metadata()
     {
