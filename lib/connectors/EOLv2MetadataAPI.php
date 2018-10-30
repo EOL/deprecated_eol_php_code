@@ -1499,7 +1499,7 @@ class EOLv2MetadataAPI
         exit("\n[$sql]\n");
         */
         
-        $resource_head = array('collection_name', 'description', 'logo_url', 'collection_editors', 'date_created', 'date_modified', 'collection_items');
+        $resource_head = array('id', 'collection_name', 'description', 'logo_url', 'collection_editors', 'date_created', 'date_modified', 'collection_items');
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "user_activity_collections.txt";
         $FILE = Functions::file_open($txtfile, "w");
         fwrite($FILE, implode("\t", $resource_head)."\n");
@@ -1533,6 +1533,7 @@ class EOLv2MetadataAPI
             date modified
             */
             $rec = array();
+            $rec['id'] = $col_id;
             $rec['collection_name'] = $coll_info['name'];
             $rec['description'] = $coll_info['description'];
             $rec['logo_url'] = self::gen_logo_url($coll_info);
@@ -1559,6 +1560,7 @@ class EOLv2MetadataAPI
             [collection_items] => Array()
         )*/
         $write = array();
+        $write[] = $rec['id'];
         $write[] = $rec['collection_name'];
         $write[] = $rec['description'];
         $write[] = $rec['logo_url'];
