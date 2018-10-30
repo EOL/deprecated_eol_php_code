@@ -1329,7 +1329,7 @@ class EOLv2MetadataAPI
         return $rec;
         */
     }
-    private function query_taxon_info($taxon_concept_id)
+    private function query_taxon_info($taxon_concept_id, $getAncestry = true)
     {
         echo "\nquerying dbase...[$taxon_concept_id]";
         $sql = "SELECT tc.id, n.string, cf.string as final_name, he.rank_id, h.label, he.id as he_id, he.parent_id as he_parent_id, r.label as rank
@@ -1347,7 +1347,12 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) {
             $info = array('taxon_name' => $row['final_name'], 'taxon_concept_id' => $row['id'], 'he_parent_id' => $row['he_parent_id'], 'rank' => $row['rank']);
-            if($info) $info['ancestry'] = self::get_ancestry($info['he_parent_id']);
+            if($info) {
+                if($getAncestry) {
+                    $info['ancestry'] = self::get_ancestry($info['he_parent_id']);
+                }
+                else $info['ancestry'] = array();
+            }
             self::save_taxon_info_to_json($taxon_concept_id, $info);
             return self::get_taxon_info_from_json($taxon_concept_id);
         }
@@ -1533,14 +1538,14 @@ class EOLv2MetadataAPI
             $rec['date created'] = $coll_info['created_at'];
             $rec['date modified'] = $coll_info['updated_at'];
             $rec['collection_items'] = $items;
-            print_r($rec);
             self::write_collection_report($rec);
         }
         print_r($this->debug);
     }
     private function write_collection_report($rec)
     {
-        
+        print_r($rec);
+        exit;
     }
     private function gen_logo_url($rec)
     {
@@ -1595,12 +1600,13 @@ class EOLv2MetadataAPI
                 [added_by_user_id] => 0
                 [sort_field] => NULL
             )*/
-            $rec['object_id'] = $row['collected_item_id'];
+            $rec['type']       = $row['collected_item_type'];
+            $rec['object_id']  = $row['collected_item_id'];
             $rec['annotation'] = $row['annotation'];
             $rec['sort_field'] = $row['sort_field'];
             $rec['references'] = self::get_refs_of_collection_item_id($row['id']);
             if($row['collected_item_type'] == "TaxonConcept") {
-                if($taxon = self::query_taxon_info($row['collected_item_id'])) { //collected_item_id is the taxon_concept_id
+                if($taxon = self::query_taxon_info($row['collected_item_id'], false)) { //collected_item_id is the taxon_concept_id | 2nd param false means no need to get 'ancestry' info.
                     /*Array(
                         [taxon_name] => Blattodea
                         [taxon_concept_id] => 413
