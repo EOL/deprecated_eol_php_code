@@ -1319,15 +1319,11 @@ class EOLv2MetadataAPI
         // print_r($ancestry); exit;
         return $ancestry;
     }
-    private function get_taxon_info($taxon_id)
+    private function get_taxon_info($taxon_id, $getAncestry = true)
     {
         if(!$taxon_id) return array();
         if    ($rec = self::get_taxon_info_from_json($taxon_id)) return $rec;
-        elseif($rec = self::query_taxon_info($taxon_id)) return $rec;
-        /* debugging only
-        $rec = self::query_taxon_info($taxon_id);
-        return $rec;
-        */
+        elseif($rec = self::query_taxon_info($taxon_id, $getAncestry)) return $rec;
     }
     private function query_taxon_info($taxon_concept_id, $getAncestry = true)
     {
@@ -1502,6 +1498,11 @@ class EOLv2MetadataAPI
         $sql = "SELECT col.* from collections col where col.id not in (".implode(",", $arr).")";
         exit("\n[$sql]\n");
         */
+        
+        $resource_head = array('collection_name', 'description', 'logo_url', 'collection_editors', 'date_created', 'date_modified', 'collection_items');
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "user_activity_collections.txt";
+        $FILE = Functions::file_open($txtfile, "w");
+        fwrite($FILE, implode("\t", $resource_head)."\n");
 
         $api = "http://eol.org/api/collections/1.0/176          .xml?page=1&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en";
         $api = "http://eol.org/api/collections/1.0/collection_id.xml?page=1&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en";
@@ -1512,7 +1513,6 @@ class EOLv2MetadataAPI
         $total = $result->num_rows; $i = 0;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
-            $rec = array();
             $col_id = $row['collection_id'];
             $i++; echo "\n $i of $total ".$col_id." ";
             /* caching API calls, but may not be needed
@@ -1522,6 +1522,7 @@ class EOLv2MetadataAPI
             */
             $coll_info = self::query_collection_info($col_id);
             $items = self::get_collection_items($col_id);
+            if(count($items) < 3) continue; //will only get 3 or more collection items
             /*
             Collections have metadata at the level of the collection and in some cases, for each object in the collection. We'd like to keep, for the cached collections:
             collection name
@@ -1531,21 +1532,41 @@ class EOLv2MetadataAPI
             date created
             date modified
             */
-            $rec['collection name'] = $coll_info['name'];
-            $rec['collection description'] = $coll_info['description'];
+            $rec = array();
+            $rec['collection_name'] = $coll_info['name'];
+            $rec['description'] = $coll_info['description'];
             $rec['logo_url'] = self::gen_logo_url($coll_info);
-            $rec['collection editors'] = self::get_collection_editors($col_id);
-            $rec['date created'] = $coll_info['created_at'];
-            $rec['date modified'] = $coll_info['updated_at'];
+            $rec['collection_editors'] = self::get_collection_editors($col_id);
+            $rec['date_created'] = $coll_info['created_at'];
+            $rec['date_modified'] = $coll_info['updated_at'];
             $rec['collection_items'] = $items;
-            self::write_collection_report($rec);
+            self::write_collection_report($rec, $FILE);
+            // if($i > 20) break; //debug only
         }
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
+        fclose($FILE);
     }
-    private function write_collection_report($rec)
+    private function write_collection_report($rec, $FILE)
     {
-        print_r($rec);
-        exit;
+        // print_r($rec); exit;
+        /*Array(
+            [collection_name] => Patrick Leary's Watch List
+            [description] => 
+            [logo_url] => 
+            [collection_editors] => 46279
+            [datecreated] => 2011-08-08 22:27:21
+            [datemodified] => 2012-09-17 20:06:19
+            [collection_items] => Array()
+        )*/
+        $write = array();
+        $write[] = $rec['collection_name'];
+        $write[] = $rec['description'];
+        $write[] = $rec['logo_url'];
+        $write[] = $rec['collection_editors'];
+        $write[] = $rec['date_created'];
+        $write[] = $rec['date_modified'];
+        $write[] = json_encode($rec['collection_items']);
+        fwrite($FILE, implode("\t", $write)."\n");
     }
     private function gen_logo_url($rec)
     {
@@ -1606,17 +1627,19 @@ class EOLv2MetadataAPI
             $rec['sort_field'] = $row['sort_field'];
             $rec['references'] = self::get_refs_of_collection_item_id($row['id']);
             if($row['collected_item_type'] == "TaxonConcept") {
-                if($taxon = self::query_taxon_info($row['collected_item_id'], false)) { //collected_item_id is the taxon_concept_id | 2nd param false means no need to get 'ancestry' info.
-                    /*Array(
-                        [taxon_name] => Blattodea
-                        [taxon_concept_id] => 413
-                        [he_parent_id] => 51635639
-                        [rank] => order
-                        [ancestry] => Array
-                    */
+                // /*
+                if($taxon = self::get_taxon_info($row['collected_item_id'], false)) { //collected_item_id is the taxon_concept_id | 2nd param false means no need to get 'ancestry' info.
+                    // Array(
+                    //     [taxon_name] => Blattodea
+                    //     [taxon_concept_id] => 413
+                    //     [he_parent_id] => 51635639
+                    //     [rank] => order
+                    //     [ancestry] => Array
                     $rec['name'] = $taxon['taxon_name'];
                 }
                 else $rec['name'] = '';
+                // */
+                // $rec['name'] = '';
             }
             elseif($row['collected_item_type'] == "Collection") {
                 if($coll_info = self::query_collection_info($row['collected_item_id'])) { //collected_item_id is the collection_id
