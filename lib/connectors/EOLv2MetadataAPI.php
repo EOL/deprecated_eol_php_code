@@ -1498,9 +1498,9 @@ class EOLv2MetadataAPI
         exit("\n[$sql]\n");
         */
 
-        $api = "http://eol.org/api/collections/1.0/176.xml?page=1&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en";
+        $api = "http://eol.org/api/collections/1.0/176          .xml?page=1&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en";
         $api = "http://eol.org/api/collections/1.0/collection_id.xml?page=1&per_page=50&filter=&sort_by=recently_added&sort_field=&cache_ttl=&language=en";
-
+        
         $sql = "SELECT distinct(collection_id) from collection_items_DATA_1780";
         $result = $this->mysqli->query($sql);
         // echo "\n". $result->num_rows; exit;
@@ -1514,7 +1514,17 @@ class EOLv2MetadataAPI
             if($json = Functions::lookup_with_cache($url, $this->download_options)) echo " - found";
             else echo " - not found";
             */
-            self::get_collection_items($col_id);
+            $items = self::get_collection_items($col_id);
+            /*
+            Collections have metadata at the level of the collection and in some cases, for each object in the collection. We'd like to keep, for the cached collections:
+            collection name
+            collection description
+            logo_url
+            collection editors*
+            date created
+            date modified
+            */
+            
         }
         print_r($this->debug);
     }
@@ -1523,9 +1533,17 @@ class EOLv2MetadataAPI
         $sql = "SELECT col.* from collection_items_DATA_1780 col where col.collection_id = $collection_id and collected_item_type in ('Collection', 'TaxonConcept')";
         $result = $this->mysqli->query($sql);
         echo "\n". $result->num_rows; //exit;
+        $items = array();
         while($result && $row=$result->fetch_assoc()) {
+            $rec = array();
             // print_r($row); //good debug
-            /*Array(
+            /*
+            and for the items therein:
+            object_id
+            annotation
+            sort_field
+            references
+            Array(
                 [id] => 86816247
                 [name] => NULL
                 [collected_item_type] => TaxonConcept
@@ -1537,18 +1555,49 @@ class EOLv2MetadataAPI
                 [added_by_user_id] => 0
                 [sort_field] => NULL
             )*/
+            $rec['object_id'] = $row['collected_item_id'];
+            $rec['annotation'] = $row['annotation'];
+            $rec['sort_field'] = $row['sort_field'];
+            $rec['references'] = self::get_refs_of_collection_item_id($row['id']);
             if($row['collected_item_type'] == "TaxonConcept") {
-                if($taxon = self::query_taxon_info($row['collected_item_id'])) //collected_item_id is the taxon_concept_id
-                {
-                    // print_r($taxon); //good debug
+                if($taxon = self::query_taxon_info($row['collected_item_id'])) { //collected_item_id is the taxon_concept_id
+                    /*Array(
+                        [taxon_name] => Blattodea
+                        [taxon_concept_id] => 413
+                        [he_parent_id] => 51635639
+                        [rank] => order
+                        [ancestry] => Array
+                    */
+                    $rec['name'] = $taxon['taxon_name'];
                 }
-                else exit("\ntaxon not found\n");
+                else $rec['name'] = '';
             }
+            elseif($row['collected_item_type'] == "Collection") {
+                if($coll_info = self::query_collection_info($row['collected_item_id'])) { //collected_item_id is the collection_id
+                    $rec['name'] = $coll_info['name'];
+                }
+                else $rec['name'] = '';
+            }
+            $items[] = $rec;
         }
+        return $items;
     }
-    
-    
-    
+    private function query_collection_info($collection_id)
+    {
+        $sql = "SELECT c.* from collections c where c.id = $collection_id";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row;
+    }
+    private function get_refs_of_collection_item_id($collection_item_id)
+    {
+        // $collection_item_id = 54014441; //debug force assign
+        $sql = "SELECT c.ref_id from collection_items_refs c where c.collection_item_id = $collection_item_id";
+        $result = $this->mysqli->query($sql);
+        $ref_ids = array();
+        while($result && $row=$result->fetch_assoc()) $ref_ids[$row['ref_id']] = '';
+        $ref_ids = array_keys($ref_ids);
+        return implode("; ", $ref_ids);
+    }
     //==========================================================================================
     public function start_resource_metadata()
     {
