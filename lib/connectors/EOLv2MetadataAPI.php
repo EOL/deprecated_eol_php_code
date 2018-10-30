@@ -24,6 +24,12 @@ class EOLv2MetadataAPI
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
         
         // http://eol.org/api/data_objects/1.0/29829638.json?taxonomy=true&cache_ttl=
+
+        /*For user-activity collection DATA-1781 */
+        if(Functions::is_production()) $this->lifedesk_images_path = '/extra/other_files/EOL_media/';
+        else                           $this->lifedesk_images_path = '/Volumes/AKiTiO4/other_files/EOL_media/';
+        $this->media_path = "https://editors.eol.org/other_files/EOL_media/";
+        // http://localhost/other_files/EOL_media/28/28694_orig.jpg -- to test locally
     }
     
     public function start_image_ratings()
@@ -1500,7 +1506,7 @@ class EOLv2MetadataAPI
         */
         
         $resource_head = array('id', 'collection_name', 'description', 'logo_url', 'collection_editors', 'date_created', 'date_modified', 'collection_items');
-        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "user_activity_collections.txt";
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "temp_user_activity_collections.txt";
         $FILE = Functions::file_open($txtfile, "w");
         fwrite($FILE, implode("\t", $resource_head)."\n");
 
@@ -1535,7 +1541,7 @@ class EOLv2MetadataAPI
             $rec = array();
             $rec['id'] = $col_id;
             $rec['collection_name'] = $coll_info['name'];
-            $rec['description'] = $coll_info['description'];
+            $rec['description'] = str_replace(array("\n", "\t"), " ", $coll_info['description']);
             $rec['logo_url'] = self::gen_logo_url($coll_info);
             $rec['collection_editors'] = self::get_collection_editors($col_id);
             $rec['date_created'] = $coll_info['created_at'];
@@ -1567,9 +1573,86 @@ class EOLv2MetadataAPI
         $write[] = $rec['collection_editors'];
         $write[] = $rec['date_created'];
         $write[] = $rec['date_modified'];
-        $write[] = json_encode($rec['collection_items']);
+        if(is_array($rec['collection_items'])) $write[] = json_encode($rec['collection_items']);
+        else                                   $write[] = $rec['collection_items'];
         fwrite($FILE, implode("\t", $write)."\n");
     }
+    
+    public function replace_media_url_update_report()
+    {
+        $resource_head = array('id', 'collection_name', 'description', 'logo_url', 'collection_editors', 'date_created', 'date_modified', 'collection_items');
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . "user_activity_collections.txt";
+        $FILE = Functions::file_open($destination, "w");
+        fwrite($FILE, implode("\t", $resource_head)."\n");
+        
+        $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "temp_user_activity_collections.txt";
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $i++;
+            if(($i % 100) == 0) echo number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = $row[$k];
+                    $k++;
+                }
+            }
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [id] => 2
+                [collection_name] => Patrick Leary's Watch List
+                [description] => 
+                [logo_url] => http://media.eol.org/content/2012/11/08/08/28694_orig.jpg
+                [collection_editors] => 13
+                [date_created] => 2011-08-09 14:08:50
+                [date_modified] => 2014-05-28 20:49:17
+                [collection_items] =>
+            */
+            if($rec['logo_url']) $rec['logo_url'] = self::download_proper($rec['logo_url'], true); //2nd param false means just return the url image path and not download it.
+            self::write_collection_report($rec, $FILE);
+        }
+        fclose($FILE);
+    }
+    private function download_proper($url, $downloadYN = false) //e.g. http://media.eol.org/content/2012/11/08/08/28694_orig.jpg
+    {
+        $filename = pathinfo($url, PATHINFO_BASENAME);
+        $folder = substr($filename, 0, 2)."/";
+        if(strlen($folder) != 3) exit("\nInvestigate URL: [$url]\n");
+        if(!is_dir($this->lifedesk_images_path.$folder)) mkdir($this->lifedesk_images_path.$folder);
+        $destination = $this->lifedesk_images_path.$folder.$filename;
+        
+        if(!$downloadYN) return $this->media_path.$folder.$filename; //this is media_url for the data_object;
+        else {
+            // /* uncomment in real operation. This is just to stop downloading of images.
+            if(!file_exists($destination)) {
+                $local = Functions::save_remote_file_to_local($url, $this->download_options);
+                // echo "\n[$local]\n[$destination]";
+                if(filesize($local)) {
+                    Functions::file_rename($local, $destination);
+                    return $this->media_path.$folder.$filename; //this is media_url for the data_object;
+                }
+                else {
+                    if(file_exists($local)) unlink($local);
+                }
+            }
+            else {
+                if(filesize($destination)) return $this->media_path.$folder.$filename;
+                else {
+                    echo "\ninvestigate destination is zero bytes [$destination]\n"; exit("\n");
+                }
+            }
+            // */
+        }
+        return false;
+    }
+    
     private function gen_logo_url($rec)
     {
         // print_r($rec); //exit;
@@ -1625,11 +1708,11 @@ class EOLv2MetadataAPI
             )*/
             $rec['type']       = $row['collected_item_type'];
             $rec['object_id']  = $row['collected_item_id'];
-            $rec['annotation'] = $row['annotation'];
+            $rec['annotation'] = str_replace(array("\n", "\t"), " ", $row['annotation']);
             $rec['sort_field'] = $row['sort_field'];
             $rec['references'] = self::get_refs_of_collection_item_id($row['id']);
             if($row['collected_item_type'] == "TaxonConcept") {
-                // /*
+                /*
                 if($taxon = self::get_taxon_info($row['collected_item_id'], false)) { //collected_item_id is the taxon_concept_id | 2nd param false means no need to get 'ancestry' info.
                     // Array(
                     //     [taxon_name] => Blattodea
@@ -1640,8 +1723,7 @@ class EOLv2MetadataAPI
                     $rec['name'] = $taxon['taxon_name'];
                 }
                 else $rec['name'] = '';
-                // */
-                // $rec['name'] = '';
+                */
             }
             elseif($row['collected_item_type'] == "Collection") {
                 if($coll_info = self::query_collection_info($row['collected_item_id'])) { //collected_item_id is the collection_id

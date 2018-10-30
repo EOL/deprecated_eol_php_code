@@ -7,10 +7,11 @@ $mysqli =& $GLOBALS['mysqli_connection'];
 $timestart = time_elapsed();
 
 /*
-$url1 = "http://www.eol.org/files/pdfs/mou/EOL_ToL-mou.pdf";
+$url1 = "http://media.eol.org/content/2012/11/08/08/28694_orig.jpg";
 $url2 = "/Library/WebServer/Documents/eol_php_code/tmp/tmp_72243.file.pdf";
-echo "\n$url1 - ".pathinfo($url1, PATHINFO_FILENAME);
+echo "\n$url1 - ".pathinfo($url1, PATHINFO_BASENAME);
 echo "\n$url2 - ".pathinfo($url2, PATHINFO_FILENAME);
+print_r(pathinfo($url1));
 exit("\n");
 */
 
@@ -22,7 +23,8 @@ $func = new EOLv2MetadataAPI("");
 // $func->save_all_MOUs();
 // $func->start_resource_metadata(); //DATA-1720
 
-$func->user_activity_collections(); echo "\n end user_activity_collections()\n"; return; //DATA-1780
+// $func->user_activity_collections();         echo "\n end user_activity_collections()\n";        return; //DATA-1780     //this will run in MacMini
+$func->replace_media_url_update_report();   echo "\n end replace_media_url_update_report()\n";  return;                 //this will run in eol-archive
 // */
 
 // /* https://eol-jira.bibalex.org/browse/DATA-1726
