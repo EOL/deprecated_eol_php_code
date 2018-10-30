@@ -1507,6 +1507,7 @@ class EOLv2MetadataAPI
         $total = $result->num_rows; $i = 0;
         $recs = array();
         while($result && $row=$result->fetch_assoc()) {
+            $rec = array();
             $col_id = $row['collection_id'];
             $i++; echo "\n $i of $total ".$col_id." ";
             /* caching API calls, but may not be needed
@@ -1514,6 +1515,7 @@ class EOLv2MetadataAPI
             if($json = Functions::lookup_with_cache($url, $this->download_options)) echo " - found";
             else echo " - not found";
             */
+            $coll_info = self::query_collection_info($col_id);
             $items = self::get_collection_items($col_id);
             /*
             Collections have metadata at the level of the collection and in some cases, for each object in the collection. We'd like to keep, for the cached collections:
@@ -1524,11 +1526,49 @@ class EOLv2MetadataAPI
             date created
             date modified
             */
-            
+            $rec['collection name'] = $coll_info['name'];
+            $rec['collection description'] = $coll_info['description'];
+            $rec['logo_url'] = self::gen_logo_url($coll_info);
+            $rec['collection editors'] = self::get_collection_editors($col_id);
+            $rec['date created'] = $coll_info['created_at'];
+            $rec['date modified'] = $coll_info['updated_at'];
+            $rec['collection_items'] = $items;
+            print_r($rec);
+            self::write_collection_report($rec);
         }
         print_r($this->debug);
     }
-    public function get_collection_items($collection_id)
+    private function write_collection_report($rec)
+    {
+        
+    }
+    private function gen_logo_url($rec)
+    {
+        // print_r($rec); //exit;
+        if($cache_url = @$rec['logo_cache_url']) {
+            $path = self::conv_cache_url_to_path($cache_url);
+            if($filename = $rec['logo_file_name']) {
+                //https://media.eol.org/content/2014/05/31/19/44357_orig.jpg
+                $image_url = "http://media.eol.org/content/".$path."_orig.jpg";
+                echo("\n[".$image_url."]\n");
+                return $image_url;
+            }
+        }
+    }
+    private function conv_cache_url_to_path($cache_url)
+    {
+        //convert 15 digit numeric $object_cache_url (e.g. 200905192385866) to path form (e.g. 2009/05/19/23/85866)
+        return substr($cache_url, 0, 4)."/".substr($cache_url, 4, 2)."/".substr($cache_url, 6, 2)."/".substr($cache_url, 8, 2)."/".substr($cache_url, 10, 5);
+    }
+    private function get_collection_editors($collection_id)
+    {
+        $sql = "SELECT c.user_id from collections_users c where c.collection_id = $collection_id";
+        $result = $this->mysqli->query($sql);
+        $user_ids = array();
+        while($result && $row=$result->fetch_assoc()) $user_ids[$row['user_id']] = '';
+        if($user_ids = array_keys($user_ids)) return implode("; ", $user_ids);
+    }
+    private function get_collection_items($collection_id)
     {
         $sql = "SELECT col.* from collection_items_DATA_1780 col where col.collection_id = $collection_id and collected_item_type in ('Collection', 'TaxonConcept')";
         $result = $this->mysqli->query($sql);
@@ -1595,8 +1635,7 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         $ref_ids = array();
         while($result && $row=$result->fetch_assoc()) $ref_ids[$row['ref_id']] = '';
-        $ref_ids = array_keys($ref_ids);
-        return implode("; ", $ref_ids);
+        if($ref_ids = array_keys($ref_ids)) return implode("; ", $ref_ids);
     }
     //==========================================================================================
     public function start_resource_metadata()
