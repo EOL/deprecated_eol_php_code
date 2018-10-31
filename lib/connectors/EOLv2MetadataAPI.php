@@ -1677,7 +1677,10 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         $user_ids = array();
         while($result && $row=$result->fetch_assoc()) $user_ids[$row['user_id']] = '';
-        if($user_ids = array_keys($user_ids)) return implode("; ", $user_ids);
+        if($user_ids = array_keys($user_ids)){
+            // print_r($user_ids); exit("\n[$collection_id] has editors:\n");
+            return implode("; ", $user_ids);
+        }
     }
     private function get_collection_items($collection_id)
     {
@@ -1748,7 +1751,10 @@ class EOLv2MetadataAPI
         $result = $this->mysqli->query($sql);
         $ref_ids = array();
         while($result && $row=$result->fetch_assoc()) $ref_ids[$row['ref_id']] = '';
-        if($ref_ids = array_keys($ref_ids)) return implode("; ", $ref_ids);
+        if($ref_ids = array_keys($ref_ids)) {
+            // print_r($ref_ids); exit("\nhas ref_ids\n");
+            return implode("; ", $ref_ids);
+        }
     }
     //==========================================================================================
     public function start_resource_metadata()
