@@ -389,6 +389,8 @@ class EOLv2MetadataAPI
                 // print_r($info); exit;
             }
             $rec = array();
+            $object_url = self::lookup_object_url($row, $rec['type']);
+            $rec['eol_pk'] = self::search_v2_images($tc_id, $object_url);
             $rec['date'] = $row['vdate'];
             $rec['user_id'] = $row['user_id'];
             $rec['user_name'] = $row['user_name'];
@@ -398,7 +400,7 @@ class EOLv2MetadataAPI
             $rec['guid'] = $row['guid'];
             $rec['type'] = self::lookup_data_type($row['data_type_id']);
             $rec['description'] = $row['description'];
-            $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
+            $rec['object_url'] = $object_url;
             
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
@@ -1761,23 +1763,28 @@ class EOLv2MetadataAPI
     //========================================================================================== DATA-1781
     public function load_v2_images_export_from_jrice()
     {
+        /* Ok but 1-table approach may not scale, will try multiple table-approach
         $sql = "SELECT i.* from DATA_1781.v3_images i";
         $result = $this->mysqli->query($sql);
         echo "\n". $result->num_rows."\n"; //exit;
-
         for ($x = 1; $x <= 7463; $x++) { //7463 orig
-            echo " added $x ";
-            $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_".$x.".csv' into table DATA_1781.v3_images 
-            FIELDS TERMINATED BY ','
-            IGNORE 1 LINES;";
+            $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_".$x.".csv' into table DATA_1781.v3_images FIELDS TERMINATED BY ',' IGNORE 1 LINES;";
             $result = $this->mysqli->query($sql);
             echo " added $x ";
         }
-
-        // $sql = "SELECT i.* from DATA_1781.v3_images i";
-        // $result = $this->mysqli->query($sql);
-        // echo "\n". $result->num_rows."\n"; //exit;
-
+        */
+        
+        $dbase_ctr = 1;
+        for ($x = 1; $x <= 7463; $x++) { //7463 orig
+            $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_".$x.".csv' into table DATA_1781.v3_images_".$dbase_ctr." FIELDS TERMINATED BY ',' IGNORE 1 LINES;";
+            $result = $this->mysqli->query($sql);
+            echo " added $x ";
+            if(($x % 1000) == 0) {
+                $dbase_ctr++;
+                echo "\n".number_format($x)." - [$dbase_ctr]\n";
+            }
+        }
+        
         /*
         LOAD DATA INFILE '/var/www/csv/data.csv' 
         INTO TABLE survey 
@@ -1789,21 +1796,26 @@ class EOLv2MetadataAPI
     }
     public function loop_user_activity_image_file()
     {
-        // 3737468,45518709,https://static.inaturalist.org/photos/1213690/original.?1413295543,26
-        $page_id = 45518709;
-        $source_url = "https://static.inaturalist.org/photos/1213690/original.?1413295543";
+        // 2725808,1,https://static.inaturalist.org/photos/3610402/original.JPG?1462663313,2377833                      dbase 1
+        // 3737468,45518709,https://static.inaturalist.org/photos/1213690/original.?1413295543,26                       dbase 8
+        $page_id = 1; $source_url = "https://static.inaturalist.org/photos/3610402/original.JPG?1462663313";            //dbase 1
+        // $page_id = 45518709; $source_url = "https://static.inaturalist.org/photos/1213690/original.?1413295543";     //dbase 8
         $rec = self::search_v2_images($page_id, $source_url);
         print_r($rec);
         
     }
     private function search_v2_images($page_id, $source_url)
     {
-        $sql = "SELECT i.* from DATA_1781.v3_images i where i.page_id = $page_id and i.source_url = '".$source_url."'";
-        $result = $this->mysqli->query($sql);
-        echo "\n". $result->num_rows."\n"; //exit;
-        while($result && $row=$result->fetch_assoc()) {
-            return $row;
+        for ($i = 1; $i <= 8; $i++) {
+            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.page_id = $page_id and i.source_url = '".$source_url."'";
+            $result = $this->mysqli->query($sql);
+            echo "\n". $result->num_rows."\n"; //exit;
+            while($result && $row=$result->fetch_assoc()) {
+                echo "\nfound in dbase $i\n";
+                return $row;
+            }
         }
+        echo "\nnot found in any dbase!\n";
     }
 
     // load data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_1.csv' into table DATA_1781.v3_images TERMINATED BY ',';
