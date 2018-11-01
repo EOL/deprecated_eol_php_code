@@ -24,7 +24,11 @@ $func = new EOLv2MetadataAPI("");
 // $func->start_resource_metadata(); //DATA-1720
 
 // $func->user_activity_collections();         echo "\n end user_activity_collections()\n";        return; //DATA-1780     //this will run in MacMini
-$func->replace_media_url_update_report();   echo "\n end replace_media_url_update_report()\n";  return;                 //this will run in eol-archive
+// $func->replace_media_url_update_report();   echo "\n end replace_media_url_update_report()\n";  return; //DATA-1780     //this will run in eol-archive
+
+
+$func->load_v2_images_export_from_jrice(); echo "\n end load_v2_images_export_from_jrice()\n"; return;  //DATA-1781
+
 // */
 
 // /* https://eol-jira.bibalex.org/browse/DATA-1726

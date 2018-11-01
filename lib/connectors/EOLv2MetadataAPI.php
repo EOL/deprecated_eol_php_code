@@ -1757,6 +1757,39 @@ class EOLv2MetadataAPI
         }
     }
     //==========================================================================================
+
+    //========================================================================================== DATA-1781
+    public function load_v2_images_export_from_jrice()
+    {
+        $sql = "SELECT i.* from DATA_1781.v3_images i";
+        $result = $this->mysqli->query($sql);
+        echo "\n". $result->num_rows; //exit;
+
+        $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_1.csv' into table DATA_1781.v3_images 
+        FIELDS TERMINATED BY ','
+        IGNORE 1 LINES;";
+        $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows; //exit;
+
+        $sql = "SELECT i.* from DATA_1781.v3_images i";
+        $result = $this->mysqli->query($sql);
+        echo "\n". $result->num_rows; //exit;
+
+        
+        /*
+        LOAD DATA INFILE '/var/www/csv/data.csv' 
+        INTO TABLE survey 
+        FIELDS TERMINATED BY ',' 
+        ENCLOSED BY '"'
+        LINES TERMINATED BY '\r\n'
+        IGNORE 1 LINES;
+        */
+        // while($result && $row=$result->fetch_assoc()) return $row;
+    }
+
+    // load data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_1.csv' into table DATA_1781.v3_images TERMINATED BY ',';
+    //==========================================================================================
+    
     public function start_resource_metadata()
     {
         $sql = "SELECT r.id as resource_id, r.title as resource_name, r.collection_id, r.description, r.accesspoint_url as orig_data_source_url
