@@ -1763,19 +1763,21 @@ class EOLv2MetadataAPI
     {
         $sql = "SELECT i.* from DATA_1781.v3_images i";
         $result = $this->mysqli->query($sql);
-        echo "\n". $result->num_rows; //exit;
+        echo "\n". $result->num_rows."\n"; //exit;
 
-        $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_1.csv' into table DATA_1781.v3_images 
-        FIELDS TERMINATED BY ','
-        IGNORE 1 LINES;";
-        $result = $this->mysqli->query($sql);
-        // echo "\n". $result->num_rows; //exit;
+        for ($x = 1; $x <= 7463; $x++) { //7463 orig
+            echo " added $x ";
+            $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_".$x.".csv' into table DATA_1781.v3_images 
+            FIELDS TERMINATED BY ','
+            IGNORE 1 LINES;";
+            $result = $this->mysqli->query($sql);
+            echo " added $x ";
+        }
 
-        $sql = "SELECT i.* from DATA_1781.v3_images i";
-        $result = $this->mysqli->query($sql);
-        echo "\n". $result->num_rows; //exit;
+        // $sql = "SELECT i.* from DATA_1781.v3_images i";
+        // $result = $this->mysqli->query($sql);
+        // echo "\n". $result->num_rows."\n"; //exit;
 
-        
         /*
         LOAD DATA INFILE '/var/www/csv/data.csv' 
         INTO TABLE survey 
@@ -1784,7 +1786,24 @@ class EOLv2MetadataAPI
         LINES TERMINATED BY '\r\n'
         IGNORE 1 LINES;
         */
-        // while($result && $row=$result->fetch_assoc()) return $row;
+    }
+    public function loop_user_activity_image_file()
+    {
+        // 3737468,45518709,https://static.inaturalist.org/photos/1213690/original.?1413295543,26
+        $page_id = 45518709;
+        $source_url = "https://static.inaturalist.org/photos/1213690/original.?1413295543";
+        $rec = self::search_v2_images($page_id, $source_url);
+        print_r($rec);
+        
+    }
+    private function search_v2_images($page_id, $source_url)
+    {
+        $sql = "SELECT i.* from DATA_1781.v3_images i where i.page_id = $page_id and i.source_url = '".$source_url."'";
+        $result = $this->mysqli->query($sql);
+        echo "\n". $result->num_rows."\n"; //exit;
+        while($result && $row=$result->fetch_assoc()) {
+            return $row;
+        }
     }
 
     // load data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_1.csv' into table DATA_1781.v3_images TERMINATED BY ',';
