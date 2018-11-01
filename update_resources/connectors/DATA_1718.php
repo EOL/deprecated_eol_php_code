@@ -27,31 +27,31 @@ $func = new EOLv2MetadataAPI("");
 // $func->replace_media_url_update_report();   echo "\n end replace_media_url_update_report()\n";  return; //DATA-1780     //this will run in eol-archive
 
 
-$func->load_v2_images_export_from_jrice(); echo "\n end load_v2_images_export_from_jrice()\n"; return;  //DATA-1781 //just one-time. Done.
-// $func->loop_user_activity_image_file(); return;
+// $func->load_v2_images_export_from_jrice(); echo "\n end load_v2_images_export_from_jrice()\n"; return;  //DATA-1781 //just one-time. Done.
+$func->loop_user_activity_image_file(); return;                                                         //DATA-1781
 // */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1726
+/* https://eol-jira.bibalex.org/browse/DATA-1726
 $resource_id = "user_added_comnames_20470";
 $resource_id = "user_added_comnames";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_added_comnames();
 Functions::finalize_dwca_resource($resource_id); echo "\n end start_user_added_comnames() \n"; //return;
-// */
+*/
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1726
+/* https://eol-jira.bibalex.org/browse/DATA-1726
 $resource_id = "user_preferred_comnames";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_preferred_comnames(); echo "\n end start_user_preferred_comnames() \n"; //return;
-// */
+*/
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1730
+/* https://eol-jira.bibalex.org/browse/DATA-1730
 // $resource_id = "1"; //"UA_text"; //
 $resource_id = "user_added_text";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_added_text();
 Functions::finalize_dwca_resource($resource_id); echo "\n end start_user_added_text() \n"; //return;
-// */
+*/
 
 /* https://eol-jira.bibalex.org/browse/TRAM-708 & DATA-1719
 $func = new EOLv2MetadataAPI('wala lang');
@@ -59,35 +59,35 @@ $func->download_resource_files();
 // $func->test_xml_files();
 */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1731
+/* https://eol-jira.bibalex.org/browse/DATA-1731
 $resource_id = "user_curated_object";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_user_object_curation(); echo "\n end start_user_object_curation() \n"; //return;
 // Cannot find resource anymore = 347 last count
-// */
+*/
 
 // /* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
 $resource_id = "images_selected_as_exemplar";
 $func = new EOLv2MetadataAPI($resource_id);
-$func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; //return;
+$func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; return;
 // */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1732
+/* https://eol-jira.bibalex.org/browse/DATA-1732
 $func = new EOLv2MetadataAPI("");
 $func->start_user_comments('DataObject');
 $func->start_user_comments('TaxonConcept');
 $func->start_user_comments('Collection'); echo "\n end start_user_comments() \n"; //return;
-// */
+*/
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1740
+/* https://eol-jira.bibalex.org/browse/DATA-1740
 $func = new EOLv2MetadataAPI("");
 $func->start_image_sizes(); echo "\n end start_image_sizes() \n"; //return;
-// */
+*/
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1741
+/* https://eol-jira.bibalex.org/browse/DATA-1741
 $func = new EOLv2MetadataAPI("");
 $func->start_image_ratings(); echo "\n end start_image_ratings() \n"; //return;
-// */
+*/
 
 
 /* https://eol-jira.bibalex.org/browse/DATA-1719
