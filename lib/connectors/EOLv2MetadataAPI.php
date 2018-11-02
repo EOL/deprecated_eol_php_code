@@ -90,6 +90,20 @@ class EOLv2MetadataAPI
                 }
                 $rec = array();
                 // $rec['data_object_id'] = $row['data_object_id'];
+                
+                $obj_type = self::lookup_data_type($row['data_type_id']);
+                $obj_url = self::lookup_object_url($row, $obj_type);
+
+                //-------------------
+                if($v2_image = self::search_v2_images($tc_id, $obj_url)) {
+                    $rec['eol_pk'] = $v2_image['eol_pk'];
+                }
+                else {
+                    $rec['eol_pk'] = '';
+                    $this->debug['not found in any dbase'][] = json_encode(array('tc_id' => $tc_id, 'url' => $object_url));
+                }
+                //-------------------
+                
                 $rec['obj_guid'] = $row['guid'];
                 
                 // /* -------------------------------
@@ -98,9 +112,9 @@ class EOLv2MetadataAPI
                 $rec['overall_rating'] = @$data['overall_rating'];
                 $rec['obj_with_overall_rating'] = @$data['data_object_id'];
                 // ------------------------------- */
-                
-                $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
-                $rec['obj_url'] = self::lookup_object_url($row, $rec['obj_type']);
+
+                $rec['obj_type'] = $obj_type;
+                $rec['obj_url'] = $obj_url;
                 $rec['obj_description'] = $row['description'];
 
                 $rec['taxon_concept_id'] = $tc_id;
@@ -129,6 +143,7 @@ class EOLv2MetadataAPI
             }
         }
         fclose($FILE);
+        if($this->debug) Functions::start_print_debug($this->debug, 'start_image_ratings');
         echo "\n" . count($guids) . "\n";   //197383
         echo "\n" . $k . "\n";              //202591
     }
