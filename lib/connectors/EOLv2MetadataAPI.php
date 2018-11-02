@@ -1815,6 +1815,14 @@ class EOLv2MetadataAPI
                 return $row;
             }
         }
+        /*
+        if(stripos($source_url, '\/') !== false) { //string is found
+            echo "\n[$source_url]\n";
+            $source_url = str_replace("\/", "/", $source_url);
+            exit("\n[$source_url]\n");
+            if($ret = self::search_v2_images($page_id, $source_url)) return $ret;
+        }
+        */
         echo "\nnot found in any dbase!\n";
     }
 
