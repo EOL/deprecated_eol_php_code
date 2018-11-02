@@ -23,12 +23,12 @@ $func = new EOLv2MetadataAPI("");
 // $func->save_all_MOUs();
 // $func->start_resource_metadata(); //DATA-1720
 
-// $func->user_activity_collections();         echo "\n end user_activity_collections()\n";        return; //DATA-1780     //this will run in MacMini
+// $func->user_activity_collections();         echo "\n end user_activity_collections()\n";        return; //DATA-1780     //this will run in MacMini, then load txt file to eol-archive.
 // $func->replace_media_url_update_report();   echo "\n end replace_media_url_update_report()\n";  return; //DATA-1780     //this will run in eol-archive
 
 
 // $func->load_v2_images_export_from_jrice(); echo "\n end load_v2_images_export_from_jrice()\n"; return;  //DATA-1781 //just one-time. Done.
-$func->loop_user_activity_image_file(); return;                                                         //DATA-1781
+// $func->loop_user_activity_image_file(); return;                                                         //DATA-1781 //a utility to check the speed of searching. Fast enough.
 // */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1726

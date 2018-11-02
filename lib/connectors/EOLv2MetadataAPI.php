@@ -1763,6 +1763,7 @@ class EOLv2MetadataAPI
     //========================================================================================== DATA-1781
     public function load_v2_images_export_from_jrice()
     {
+        exit("\nWill only run once.\n");
         /* Ok but 1-table approach may not scale, will try multiple table-approach
         $sql = "SELECT i.* from DATA_1781.v3_images i";
         $result = $this->mysqli->query($sql);
@@ -1799,7 +1800,7 @@ class EOLv2MetadataAPI
         // 2725808,1,https://static.inaturalist.org/photos/3610402/original.JPG?1462663313,2377833                      dbase 1
         // 3737468,45518709,https://static.inaturalist.org/photos/1213690/original.?1413295543,26                       dbase 8
         $page_id = 1; $source_url = "https://static.inaturalist.org/photos/3610402/original.JPG?1462663313";            //dbase 1
-        // $page_id = 45518709; $source_url = "https://static.inaturalist.org/photos/1213690/original.?1413295543";     //dbase 8
+        $page_id = 45518709; $source_url = "https://static.inaturalist.org/photos/1213690/original.?1413295543";     //dbase 8
         $rec = self::search_v2_images($page_id, $source_url);
         print_r($rec);
         
@@ -1809,7 +1810,7 @@ class EOLv2MetadataAPI
         for ($i = 1; $i <= 8; $i++) {
             $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.page_id = $page_id and i.source_url = '".$source_url."'";
             $result = $this->mysqli->query($sql);
-            echo "\n". $result->num_rows."\n"; //exit;
+            // echo "\n". $result->num_rows."\n"; //exit;
             while($result && $row=$result->fetch_assoc()) {
                 echo "\nfound in dbase $i\n";
                 return $row;
