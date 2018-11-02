@@ -100,7 +100,7 @@ class EOLv2MetadataAPI
                 }
                 else {
                     $rec['eol_pk'] = '';
-                    $this->debug['not found in any dbase'][] = json_encode(array('tc_id' => $tc_id, 'url' => $object_url));
+                    $this->debug['not found in any dbase'][] = json_encode(array('tc_id' => $tc_id, 'url' => $obj_url));
                 }
                 //-------------------
                 
