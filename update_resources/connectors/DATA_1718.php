@@ -17,7 +17,7 @@ exit("\n");
 
 require_library('connectors/EOLv2MetadataAPI'); /* un-comment below to run specific report: */
 
-// /*
+/*
 $func = new EOLv2MetadataAPI("");
 // $func->start_partner_metadata(); //DATA-1718
 // $func->save_all_MOUs();
@@ -26,10 +26,9 @@ $func = new EOLv2MetadataAPI("");
 // $func->user_activity_collections();         echo "\n end user_activity_collections()\n";        return; //DATA-1780     //this will run in MacMini, then load txt file to eol-archive.
 // $func->replace_media_url_update_report();   echo "\n end replace_media_url_update_report()\n";  return; //DATA-1780     //this will run in eol-archive
 
-
 // $func->load_v2_images_export_from_jrice(); echo "\n end load_v2_images_export_from_jrice()\n"; return;  //DATA-1781 //just one-time. Done.
 // $func->loop_user_activity_image_file(); return;                                                         //DATA-1781 //a utility to check the speed of searching. Fast enough.
-// */
+*/
 
 /* https://eol-jira.bibalex.org/browse/DATA-1726
 $resource_id = "user_added_comnames_20470";
@@ -66,11 +65,11 @@ $func->start_user_object_curation(); echo "\n end start_user_object_curation() \
 // Cannot find resource anymore = 347 last count
 */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
+/* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
 $resource_id = "images_selected_as_exemplar";
 $func = new EOLv2MetadataAPI($resource_id);
 $func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; return;
-// */
+*/
 
 /* https://eol-jira.bibalex.org/browse/DATA-1732
 $func = new EOLv2MetadataAPI("");
@@ -84,10 +83,10 @@ $func = new EOLv2MetadataAPI("");
 $func->start_image_sizes(); echo "\n end start_image_sizes() \n"; //return;
 */
 
-/* https://eol-jira.bibalex.org/browse/DATA-1741
+// /* https://eol-jira.bibalex.org/browse/DATA-1741
 $func = new EOLv2MetadataAPI("");
-$func->start_image_ratings(); echo "\n end start_image_ratings() \n"; //return;
-*/
+$func->start_image_ratings(); echo "\n end start_image_ratings() \n"; return;
+// */
 
 
 /* https://eol-jira.bibalex.org/browse/DATA-1719
