@@ -389,8 +389,17 @@ class EOLv2MetadataAPI
                 // print_r($info); exit;
             }
             $rec = array();
+            $rec['type'] = self::lookup_data_type($row['data_type_id']);
             $object_url = self::lookup_object_url($row, $rec['type']);
-            $rec['eol_pk'] = self::search_v2_images($tc_id, $object_url);
+
+            if($v2_image = self::search_v2_images($tc_id, $object_url)) {
+                $rec['eol_pk'] = $v2_image['eol_pk'];
+            }
+            else {
+                $rec['eol_pk'] = '';
+                $this->debug['not found in any dbase'][] = json_encode(array('tc_id' => $tc_id, 'url' => $object_url));
+            }
+            
             $rec['date'] = $row['vdate'];
             $rec['user_id'] = $row['user_id'];
             $rec['user_name'] = $row['user_name'];
@@ -398,7 +407,6 @@ class EOLv2MetadataAPI
             $rec['ch_object_type'] = $row['ch_object_type'];
             $rec['target_id'] = $row['data_object_id'];
             $rec['guid'] = $row['guid'];
-            $rec['type'] = self::lookup_data_type($row['data_type_id']);
             $rec['description'] = $row['description'];
             $rec['object_url'] = $object_url;
             
@@ -456,6 +464,7 @@ class EOLv2MetadataAPI
             fwrite($FILE, implode("\t", $rec)."\n");
         }
         fclose($FILE);
+        if($this->debug) Functions::start_print_debug($this->debug, 'start_images_selected_as_exemplar');
     }
     
     public function start_user_object_curation() //total 155,763 --> 153,370 without data_point_uri
@@ -1785,15 +1794,6 @@ class EOLv2MetadataAPI
                 echo "\n".number_format($x)." - [$dbase_ctr]\n";
             }
         }
-        
-        /*
-        LOAD DATA INFILE '/var/www/csv/data.csv' 
-        INTO TABLE survey 
-        FIELDS TERMINATED BY ',' 
-        ENCLOSED BY '"'
-        LINES TERMINATED BY '\r\n'
-        IGNORE 1 LINES;
-        */
     }
     public function loop_user_activity_image_file()
     {
@@ -1803,7 +1803,6 @@ class EOLv2MetadataAPI
         $page_id = 45518709; $source_url = "https://static.inaturalist.org/photos/1213690/original.?1413295543";     //dbase 8
         $rec = self::search_v2_images($page_id, $source_url);
         print_r($rec);
-        
     }
     private function search_v2_images($page_id, $source_url)
     {
