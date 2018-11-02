@@ -404,8 +404,8 @@ class EOLv2MetadataAPI
                 // print_r($info); exit;
             }
             $rec = array();
-            $rec['type'] = self::lookup_data_type($row['data_type_id']);
-            $object_url = self::lookup_object_url($row, $rec['type']);
+            $type = self::lookup_data_type($row['data_type_id']);
+            $object_url = self::lookup_object_url($row, $type);
 
             if($v2_image = self::search_v2_images($tc_id, $object_url)) {
                 $rec['eol_pk'] = $v2_image['eol_pk'];
@@ -424,6 +424,7 @@ class EOLv2MetadataAPI
             $rec['guid'] = $row['guid'];
             $rec['description'] = $row['description'];
             $rec['object_url'] = $object_url;
+            $rec['type'] = $type;
             
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
