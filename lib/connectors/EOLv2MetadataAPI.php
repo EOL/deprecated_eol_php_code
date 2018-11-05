@@ -1853,7 +1853,7 @@ class EOLv2MetadataAPI
     }
     private function search_v2_images($page_id, $source_url)
     {
-        for ($i = 1; $i <= 8; $i++) {
+        for ($i = 1; $i <= 15; $i++) {
             $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.page_id = $page_id and i.source_url = '".$source_url."'";
             $result = $this->mysqli->query($sql);
             // echo "\n". $result->num_rows."\n"; //exit;
