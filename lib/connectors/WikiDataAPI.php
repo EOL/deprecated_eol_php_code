@@ -91,8 +91,7 @@ class WikiDataAPI
         echo "\n-Filename created OK\n";
         
         $this->save_all_filenames = true; //use to save all media filenames to text file
-        if($actual_task)
-        {
+        if($actual_task) {
             self::parse_wiki_data_json($task, $range_from, $range_to);
             //log this task finished
             $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
@@ -101,8 +100,7 @@ class WikiDataAPI
             return true; //so it can run and test final step if ready
         }
         else { //means finalize file
-            if(self::finalize_media_filenames_ready("wikimedia_filenames_status_"))
-            {
+            if(self::finalize_media_filenames_ready("wikimedia_filenames_status_")) {
                 self::parse_wiki_data_json($task, false, false);
                 //truncate for next run
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_status_" . date("Y_m") . ".txt";
@@ -344,12 +342,10 @@ class WikiDataAPI
             // if($k >=  $m   && $k < $m*2) $cont = true;
             // if($k >=  $m*2 && $k < $m*3) $cont = true;
             // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            
             // if($k >=  $m*4 && $k < $m*5) $cont = true;
             // if($k >=  $m*5 && $k < $m*6) $cont = true;
             // if($k >=  $m*6 && $k < $m*7) $cont = true;
             // if($k >=  $m*7 && $k < $m*8) $cont = true;
-
             // if($k >=  $m*8 && $k < $m*9) $cont = true;
 
             // these 3 have many pages, but just a stub page with under-construction feel
@@ -365,8 +361,7 @@ class WikiDataAPI
             if(!$cont) continue;
             */
 
-            if(stripos($row, "Q16521") !== false) //string is found -- "taxon"
-            {
+            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 $arr = json_decode($row);
@@ -380,11 +375,9 @@ class WikiDataAPI
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
-                     if($rek['taxon'] = self::get_taxon_name($arr)) //old working param is $arr->claims
-                     {
+                     if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
                          // /* normal operation ==========================
-                         if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) //if true then create DwCA for it
-                         {
+                         if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
@@ -562,8 +555,7 @@ class WikiDataAPI
         foreach($commons as $com) {
             $formatted_license = self::format_license(@$com['LicenseUrl'], @$com['LicenseShortName']);
             if(!self::valid_license_YN($formatted_license)) $this->debug['invalid_LicenseUrl'][$formatted_license] = '';
-            else
-            {
+            else {
                 /*
                 [pageid] => 56279236
                 [timestamp] => 2017-03-23T23:20:37Z
@@ -680,16 +672,14 @@ class WikiDataAPI
         )
         but rather:
         Array(
-            0 => Array
-            (
+            0 => Array (
                 [name] => Wikigraphists
                 [homepage] => https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab
                 [role] => creator
             )
         )
         */
-        if(isset($artists['name']))
-        {
+        if(isset($artists['name'])) {
             $temp = $artists;
             $artists = array();
             $artists[] = $temp;
@@ -993,8 +983,7 @@ class WikiDataAPI
             
             // new Nov 5, 2018. Initially this wasn't the 1st option.
             //possible values --> "[[User:Victuallers]]" "[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
-            if(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
-            {
+            if(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) { //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
                 debug("\nartist value is: ".$rek['Artist']."\n");
                 if(preg_match_all("/\[\[(.*?)\]\]/ims", $rek['Artist'], $a)) {
                     unset($rek['Artist']);
@@ -1075,7 +1064,6 @@ class WikiDataAPI
                 // echo "\nartist is now also ARRAY()\n"; print_r($rek['Artist']);
             }
             else echo "\nSTILL not an array...investigate...\n";
-            
         }
         // ================================ */
         
@@ -1284,8 +1272,7 @@ class WikiDataAPI
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=2" class="mw-redirect" title="Edit section: Licensing">edit</a>]', "", $html);
                 
                 $arr = array("class", "id");
-                foreach($arr as $attrib)
-                {
+                foreach($arr as $attrib) {
                     //remove class="" id=""
                     if(preg_match_all("/$attrib=\"(.*?)\"/ims", $html, $a)) {
                         foreach($a[1] as $style) $html = str_ireplace($attrib.'="'.$style.'"', "", $html);
@@ -1333,8 +1320,7 @@ class WikiDataAPI
             $html = substr($html,0,$pos);
             $html .= "</table>";
         }
-        else 
-        {
+        else {
             $findme = '</table> Licensing[';
             $html = trim($html);
             $pos = stripos($html, $findme);
@@ -1358,26 +1344,21 @@ class WikiDataAPI
     /*
     private function last_chance_for_description($str)
     {
-        if(preg_match("/\|en =(.*?)\\\n/ims", $str, $a))
-        {
+        if(preg_match("/\|en =(.*?)\\\n/ims", $str, $a)) {
             // |en = Inflorescence of [[:en:Oregano|Oregano]].
             // Origanum_vulgare_-_harilik_pune.jpg
             if($val = trim($a[1])) return $val;
         }
-        if(preg_match("/\|Description=(.*?)\\\n/ims", $str, $a))
-        {
+        if(preg_match("/\|Description=(.*?)\\\n/ims", $str, $a)) {
             if($val = trim($a[1])) return $val;
         }
-        if(preg_match("/\|Description (.*?)\\\n/ims", $str, $a))
-        {
+        if(preg_match("/\|Description (.*?)\\\n/ims", $str, $a)) {
             if($val = trim($a[1])) return $val;
         }
-        if(preg_match("/\|description (.*?)\\\n/ims", $str, $a))
-        {
+        if(preg_match("/\|description (.*?)\\\n/ims", $str, $a)) {
             if($val = trim($a[1])) return $val;
         }
-        if(preg_match("/\| Description (.*?)\\\n/ims", $str, $a))
-        {
+        if(preg_match("/\| Description (.*?)\\\n/ims", $str, $a)) {
             if($val = trim($a[1])) return $val;
         }
         // if(preg_match("/elix(.*?)\\\n/ims", "elix".$str, $a)) //get first row in the wiki text
@@ -1387,14 +1368,12 @@ class WikiDataAPI
         return false;
     }
     */
-    
     private function get_media_metadata_from_api($file)
     {   //https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:Gorilla_498.jpg
         $rek = array();
         $options = $this->download_options;
         // $options['expire_seconds'] = false; //preferably monthly cache expires
-        if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options))
-        {
+        if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options)) {
             $json = self::clean_html($json); //new ditox eli
             $arr = json_decode($json, true);
             // print_r($arr); exit;
@@ -1434,8 +1413,7 @@ class WikiDataAPI
 
                 elseif(preg_match_all("/<li>(.*?)<\/li>/ims", $val, $a)) $rek['Artist'] = self::process_li_separated_artists($a);
                 
-                else
-                { //original block
+                else { //original block
                     $atemp = array();
                     if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) {
                         $hpage = trim($a[1]);
@@ -1452,8 +1430,7 @@ class WikiDataAPI
                     if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
                 }
             }
-            if(!@$rek['Artist'])
-            {
+            if(!@$rek['Artist']) {
                 $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
                 // echo "\n ice 111\n";
                 if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
@@ -1480,7 +1457,6 @@ class WikiDataAPI
             }
             
             if($rek['Artist']) $rek['Artist'] = self::flickr_lookup_if_needed($rek['Artist']);
-            
             
             //end artist ========================
             
