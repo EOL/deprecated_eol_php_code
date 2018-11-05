@@ -26,7 +26,8 @@ $descendant_taxon_ids = utility($resource_id, false); // utility - to remove tax
 $func = new PaleoDBAPI_v2($resource_id); main_proc($func, $resource_id, $descendant_taxon_ids); // 2nd round
 $func = new DWCADiagnoseAPI();
 if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
-    echo "\nparents without entries: "; print_r($parents_without_entries);
+    echo "\nparents without entries: ".count($parents_without_entries)."\n"; 
+    // print_r($parents_without_entries);
 }
 else echo "\nAll parents have entries OK (2nd try)\n";
 // first loop ------------------------------------------------------------- end
@@ -41,7 +42,8 @@ if($parents_without_entries) {
     $func = new PaleoDBAPI_v2($resource_id); main_proc($func, $resource_id, $descendant_taxon_ids); // 2nd round
     $func = new DWCADiagnoseAPI();
     if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
-        echo "\nparents without entries: "; print_r($parents_without_entries);
+        echo "\nparents without entries: ".count($parents_without_entries)."\n"; 
+        // print_r($parents_without_entries);
     }
     else echo "\nAll parents have entries OK (2nd try)\n";
     // first loop ------------------------------------------------------------- end
@@ -69,7 +71,8 @@ function utility($resource_id, $prev_parents_without_entries = false)
     if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
         /* these 2 entries I got after the first run. This will initialize to zero records on every harvest. This is done manually */
         if($prev_parents_without_entries) $parents_without_entries = array_merge($parents_without_entries, $prev_parents_without_entries);
-        echo "\nparents without entries: "; print_r($parents_without_entries);
+        echo "\nparents without entries: ".count($parents_without_entries)."\n"; 
+        // print_r($parents_without_entries);
     }
     else echo "\nAll parents have entries OK (1st try)\n";
 
