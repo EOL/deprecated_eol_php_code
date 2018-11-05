@@ -129,7 +129,8 @@ class WikiDataAPI
     }
     function test()
     {
-        $arr = self::process_file("Aix sponsa dis.PNG"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
+        // https://commons.wikimedia.org/wiki/File:Aa_species.jpg
+        $arr = self::process_file("Aa_species.jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
         print_r($arr);
         exit("\n-Finished testing-\n");
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
@@ -775,6 +776,7 @@ class WikiDataAPI
         $rek = array();
         // if(false) //will force to use API data - debug only
         if($filename = self::has_cache_data($file)) { //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
+        // if(false) { //this is when debugging... force use api instead of json.
             debug("\nused cache data");
             $rek = self::get_media_metadata_from_json($filename, $file);
             if($rek == "protected") return "continue";
@@ -891,6 +893,16 @@ class WikiDataAPI
         if(stripos($wiki, "Wikispecies-logo") !== false) return true; //string is found
         return false;
     }
+    private function un_tabular_the_description($desc) //new Nov 5, 2018
+    {
+        $desc = str_replace("Summary <table", "<table", $desc);
+        $desc = str_replace("DescriptionAPI</td>", "</td>", $desc);
+        $desc = str_replace("</tr>", ". ", $desc);
+        $desc = strip_tags($desc, "<a>");
+        $desc = Functions::remove_whitespace($desc);
+        $desc = str_replace(" .", ".", $desc);
+        return $desc;
+    }
     private function get_media_metadata_from_json($filename, $title)
     {
         $json = file_get_contents($filename);
@@ -907,7 +919,11 @@ class WikiDataAPI
         if(self::wiki_protected($wiki)) return "protected";
 
         //================================================================ ImageDescription
-        if($rek['ImageDescription'] = self::convert_wiki_2_html($wiki)) {}
+        if($rek['ImageDescription'] = self::convert_wiki_2_html($wiki)) {
+            // print("\n".$rek['ImageDescription']."\n\n");
+            $rek['ImageDescription'] = self::un_tabular_the_description($rek['ImageDescription']);
+            // exit("\n".$rek['ImageDescription']."\nelix2\n");
+        }
         else return false;
         //================================================================ LicenseShortName
         // == {{int:license-header}} ==
@@ -974,9 +990,28 @@ class WikiDataAPI
                                 [username] => Mariomassone
                                 [id] => 412814
             */
-            if($val = @$dump_arr['revision']['contributor']['username']) {
+            
+            // new Nov 5, 2018. Initially this wasn't the 1st option.
+            //possible values --> "[[User:Victuallers]]" "[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
+            if(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
+            {
+                debug("\nartist value is: ".$rek['Artist']."\n");
+                if(preg_match_all("/\[\[(.*?)\]\]/ims", $rek['Artist'], $a)) {
+                    unset($rek['Artist']);
+                    foreach($a[1] as $t) {
+                        $tmp_arr = explode("|", $t); //"[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
+                        if($name = @$tmp_arr[1]) $rek['Artist'][] = array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0], 'role' => "author");
+                        else { //"[[User:Victuallers]]"
+                            $user = str_ireplace("User:", "", $t);
+                            $rek['Artist'][] = array('name' => $user, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$user, 'role' => "author");
+                        }
+                    }
+                }
+            }
+            
+            elseif($val = @$dump_arr['revision']['contributor']['username']) {
                 unset($rek['Artist']);
-                $rek['Artist'][] = array('name' => $val, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$val, 'role' => 'source');
+                $rek['Artist'][] = array('name' => $val, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$val, 'role' => 'editor');
             }
             
             elseif(substr($rek['Artist'],0,5) == "[http") { //[https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]
@@ -1029,26 +1064,6 @@ class WikiDataAPI
                 if($name = @$tmp_arr[1]) $rek['Artist'][] = array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0]);
             }
             */
-            //possible values --> "[[User:Victuallers]]" "[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
-            elseif(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
-            {
-                debug("\nartist value is: ".$rek['Artist']."\n");
-                if(preg_match_all("/\[\[(.*?)\]\]/ims", $rek['Artist'], $a))
-                {
-                    // print_r($a);
-                    unset($rek['Artist']);
-                    foreach($a[1] as $t)
-                    {
-                        $tmp_arr = explode("|", $t); //"[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
-                        if($name = @$tmp_arr[1]) $rek['Artist'][] = array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0]);
-                        else //"[[User:Victuallers]]"
-                        {
-                            $user = str_ireplace("User:", "", $t);
-                            $rek['Artist'][] = array('name' => $user, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$user);
-                        }
-                    }
-                }
-            }
             else {
                 $name = $rek['Artist'];
                 unset($rek['Artist']);
@@ -1067,15 +1082,15 @@ class WikiDataAPI
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        /* good debug for Artist dump
-        if($rek['pageid'] == "36125309") {
+        // /* good debug for Artist dump
+        if($rek['pageid'] == "12338225") {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
             print_r($rek);
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
-        */
+        // */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
@@ -1397,18 +1412,19 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
-            /*
-            if($rek['pageid'] == "76662") { //good debug api
+            // /*
+            if($rek['pageid'] == "12338225") { //good debug api
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit("\nelix\n");
                 echo "\n=======investigate api data =========== end\n";
             }
-            */
+            // */
             
+            /* NOT to be a rule as an invalid license. see here: https://commons.wikimedia.org/wiki/File:Aa_species.jpg
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Credit']['value'])) {
                 if(stripos($val, "int-own-work") !== false) return false; //string is found ---- invalid license
             }
-            
+            */
             //start artist ====================
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value'])) {
                 $val = str_ireplace("\n", "", $val);
@@ -1487,6 +1503,7 @@ class WikiDataAPI
             }
             */
         }
+        else echo "\nNot found in API\n";
         return $rek; //$arr
     }
     private function flickr_lookup_if_needed($arr)
