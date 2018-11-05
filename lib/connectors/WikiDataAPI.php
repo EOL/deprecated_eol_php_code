@@ -991,10 +991,10 @@ class WikiDataAPI
                     unset($rek['Artist']);
                     foreach($a[1] as $t) {
                         $tmp_arr = explode("|", $t); //"[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
-                        if($name = @$tmp_arr[1]) $rek['Artist'][] = array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0], 'role' => "author");
+                        if($name = @$tmp_arr[1]) $rek['Artist'][] = array('name' => $name, 'homepage' => "https://commons.wikimedia.org/wiki/".$tmp_arr[0], 'role' => 'creator');
                         else { //"[[User:Victuallers]]"
                             $user = str_ireplace("User:", "", $t);
-                            $rek['Artist'][] = array('name' => $user, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$user, 'role' => "author");
+                            $rek['Artist'][] = array('name' => $user, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$user, 'role' => 'creator');
                         }
                     }
                 }
@@ -1424,10 +1424,10 @@ class WikiDataAPI
                     }
                     if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) {
                         $atemp['name'] = self::remove_role_from_name(strip_tags(trim($a[1]),''));
-                        $atemp['role'] = 'author';
+                        $atemp['role'] = 'creator';
                     }
                     if(@$atemp['name']) $rek['Artist'][] = $atemp;
-                    else                $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,'')), 'role' => 'author'); // e.g. <span lang="en">Anonymous</span>
+                    else                $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,'')), 'role' => 'creator'); // e.g. <span lang="en">Anonymous</span>
                     
                     if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
                 }
@@ -1532,8 +1532,8 @@ class WikiDataAPI
     {
         $final = array();
         foreach($arr[1] as $item) {
-            if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'author');
-            else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'author', 'homepagae' => 'media_urlx');
+            if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'creator');
+            else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'creator', 'homepagae' => 'media_urlx');
         }
         return $final;
     }
@@ -1590,7 +1590,7 @@ class WikiDataAPI
         }
 
         if(stripos($categories, "User:The Emirr") !== false && stripos($categories, "Permission ={{Cypron}}") !== false) { //strings are found
-            return array('name' => 'The Emirr/MapLab', 'homepage' => 'https://commons.wikimedia.org/wiki/User:The_Emirr/MapLab/Cypron', 'role' => 'author');
+            return array('name' => 'The Emirr/MapLab', 'homepage' => 'https://commons.wikimedia.org/wiki/User:The_Emirr/MapLab/Cypron', 'role' => 'creator');
         }
         
         //Images from the CDC Public Health Image Library
