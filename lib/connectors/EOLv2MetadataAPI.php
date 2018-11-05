@@ -1788,7 +1788,7 @@ class EOLv2MetadataAPI
     //========================================================================================== DATA-1781
     public function load_v2_images_export_from_jrice()
     {
-        exit("\nWill only run once.\n");
+        // exit("\nWill only run once.\n");
         /* Ok but 1-table approach may not scale, will try multiple table-approach
         $sql = "SELECT i.* from DATA_1781.v3_images i";
         $result = $this->mysqli->query($sql);
@@ -1800,9 +1800,39 @@ class EOLv2MetadataAPI
         }
         */
         
+        /*
+        LOAD DATA INFILE '/var/www/csv/data.csv'
+        INTO TABLE survey
+        FIELDS TERMINATED BY ','
+        ENCLOSED BY '"'
+        LINES TERMINATED BY '\n'
+        IGNORE 1 ROWS;
+        */
+        
         $dbase_ctr = 1;
+        // /* orig
         for ($x = 1; $x <= 7463; $x++) { //7463 orig
-            $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_".$x.".csv' into table DATA_1781.v3_images_".$dbase_ctr." FIELDS TERMINATED BY ',' IGNORE 1 LINES;";
+            $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_".$x.".csv' into table DATA_1781.v3_images_".$dbase_ctr.
+            " FIELDS TERMINATED BY ',' 
+              ENCLOSED BY '\"'
+              IGNORE 1 LINES;
+            ";
+            $result = $this->mysqli->query($sql);
+            echo " added $x ";
+            if(($x % 500) == 0) {
+                $dbase_ctr++;
+                echo "\n".number_format($x)." - [$dbase_ctr]\n";
+            }
+        }
+        // */
+
+        /* for testing...
+        for ($x = 7463; $x <= 7463; $x++) {
+            $sql = "LOAD data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_".$x.".csv' into table DATA_1781.test_images_".$dbase_ctr.
+            " FIELDS TERMINATED BY ',' 
+              ENCLOSED BY '\"'
+              IGNORE 1 LINES;
+            ";
             $result = $this->mysqli->query($sql);
             echo " added $x ";
             if(($x % 1000) == 0) {
@@ -1810,6 +1840,7 @@ class EOLv2MetadataAPI
                 echo "\n".number_format($x)." - [$dbase_ctr]\n";
             }
         }
+        */
     }
     public function loop_user_activity_image_file()
     {
