@@ -9,7 +9,7 @@ class PaleoDBAPI_v2
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->download_options = array('cache' => 1, 'resource_id' => $folder, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1, 
-        'expire_seconds' => 60*60*24*25); //cache expires in 25 days // orig
+        'expire_seconds' => 60*60*24*10); //cache expires in 10 days // orig
         // $this->download_options['expire_seconds'] = false; //debug
 
         if(Functions::is_production()) {
