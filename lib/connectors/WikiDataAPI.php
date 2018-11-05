@@ -885,8 +885,10 @@ class WikiDataAPI
     }
     private function un_tabular_the_description($desc) //new Nov 5, 2018
     {
+        // exit("\n$desc\n");
         $desc = str_replace("Summary <table", "<table", $desc);
-        $desc = str_replace("DescriptionAPI</td>", "</td>", $desc);
+        $desc = str_replace("DescriptionAPI</td>", "Description</td>", $desc);
+        $desc = str_replace("</td> <td", ":</td> <td", $desc);
         $desc = str_replace("</tr>", ". ", $desc);
         $desc = strip_tags($desc, "<a>");
         $desc = Functions::remove_whitespace($desc);
