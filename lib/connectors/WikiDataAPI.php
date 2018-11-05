@@ -1072,7 +1072,7 @@ class WikiDataAPI
         //================================================================ END
         $rek['fromx'] = 'dump';
         
-        // /* good debug for Artist dump
+        /* good debug for Artist dump
         if($rek['pageid'] == "12338225") {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr);
@@ -1080,7 +1080,7 @@ class WikiDataAPI
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
-        // */
+        */
         return $rek;
     }
     private function second_option_for_artist_info($arr)
@@ -1124,6 +1124,7 @@ class WikiDataAPI
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
             if(preg_match("/\">(.*?)<\/a>/ims", $temp, $a)) $atemp['name'] = trim($a[1]);
             if(@$atemp['name']) {
+                $atemp['role'] = 'creator';
                 $final[] = $atemp;
                 return $final;
             }
@@ -1133,7 +1134,7 @@ class WikiDataAPI
                 // <td>Museo Nacional de Chile.</td>
                 // echo("\n[@$a[1]]\n");
                 if($name = trim(strip_tags($temp))) {
-                    $final[] = array('name' => $name);
+                    $final[] = array('name' => $name, 'role' => 'creator');
                     return $final;
                 }
                 // else echo "\nelix 333\n";
@@ -1153,6 +1154,7 @@ class WikiDataAPI
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
             $atemp['name'] = strip_tags(trim($temp)); //format_artist
             if(@$atemp['name']) {
+                $atemp['role'] = 'creator';
                 $final[] = $atemp;
                 return $final;
             }
@@ -1163,14 +1165,14 @@ class WikiDataAPI
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a)) {
                 // echo "\nelix 444\n";
-                $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1]);
+                $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'creator');
                 // print_r($final); exit("\n$description\n");
                 return $final;
             }
             elseif(preg_match("/Fotograf oder Zeichner\:(.*?)Lizenzstatus/ims", $description, $a)) //Fotograf oder Zeichner: Goldlocki Lizenzstatus:
             {
                 if($val = trim($a[1])) {
-                    $final[] = array('name' => $val);
+                    $final[] = array('name' => $val, 'role' => 'creator');
                     return $final;
                 }
             }
@@ -1393,13 +1395,13 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
-            // /*
+            /*
             if($rek['pageid'] == "12338225") { //good debug api
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); exit("\nelix\n");
                 echo "\n=======investigate api data =========== end\n";
             }
-            // */
+            */
             
             /* NOT to be a rule as an invalid license. see here: https://commons.wikimedia.org/wiki/File:Aa_species.jpg
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Credit']['value'])) {
