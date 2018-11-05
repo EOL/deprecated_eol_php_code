@@ -3,7 +3,7 @@ namespace php_active_record;
 
 class EOLv2MetadataAPI
 {
-    public function __construct($folder)
+    public function __construct($folder = null)
     {
         $this->folder = $folder;
         $this->mysqli =& $GLOBALS['db_connection'];
@@ -1788,7 +1788,7 @@ class EOLv2MetadataAPI
     //========================================================================================== DATA-1781
     public function load_v2_images_export_from_jrice()
     {
-        // exit("\nWill only run once.\n");
+        exit("\nWill only run once.\n");
         /* Ok but 1-table approach may not scale, will try multiple table-approach
         $sql = "SELECT i.* from DATA_1781.v3_images i";
         $result = $this->mysqli->query($sql);
