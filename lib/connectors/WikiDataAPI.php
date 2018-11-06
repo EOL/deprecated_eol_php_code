@@ -176,9 +176,8 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                // if(true) //use this when developing
-                if(self::finalize_media_filenames_ready($what_generation_status)) //un-comment in real operation
-                {
+                // if(true) { //use this when developing***
+                if(self::finalize_media_filenames_ready($what_generation_status)) { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
                     $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
@@ -445,7 +444,7 @@ class WikiDataAPI
                     echo("\n --Investigate not ok-- \n"); //previously this is exit()
                 }
                 
-                // break; //debug get first taxon wiki only
+                // break; //debug get first taxon wiki only //use this when developing***
                 // if($k > 5000) break; //10000
                 // if($exit_now) break;
                 
@@ -612,6 +611,17 @@ class WikiDataAPI
                 $media['accessURI']              = $com['media_url'];
                 
                 // print_r($com);
+                //new start https://eol-jira.bibalex.org/browse/DATA-1784 - if there is 'source' make it an agent with role='source'.
+                if($source_wiki = @$com['other']['source']) {
+                    if($source_wiki != "{{own}}") {
+                        $source_html = self::convert_wiki_2_html($source_wiki);
+                        // echo "\n[$source_html]\n"; exit;
+                        if($source_agent = self::prepare_html_as_source_agent($source_html)) $com['Artist'][] = $source_agent;
+                    }
+                }
+                //new end
+                // print_r($com);
+                
                 $role = Functions::get_role_given_datatype($media['type']);
                 if($agent_ids = self::gen_agent_ids($com['Artist'], $role)) $media['agentID'] = implode("; ", $agent_ids);
 
@@ -624,6 +634,13 @@ class WikiDataAPI
                 }
 
                 $media = self::last_quality_check($media); //removes /n and /t inside values. May revisit this as it may not be the sol'n for 2 rows with wrong no. of columns.
+                
+                // new start https://eol-jira.bibalex.org/browse/DATA-1784 - if agent is creator and license is PD, make that agent Owner in media object.
+                if($com['Artist'][0]['role'] == 'creator' && $media['UsageTerms'] != $this->license['public domain']) {
+                    if($val = $com['Artist'][0]['name']) $media['Owner'] = $val;
+                }
+                // print_r($media);
+                // new end
                 
                 $mr = new \eol_schema\MediaResource(); //for Wikimedia objects only
                 $mr->taxonID                = $media['taxonID'];
@@ -651,6 +668,30 @@ class WikiDataAPI
                 }
                 // */
             }
+        }
+    }
+    private function prepare_html_as_source_agent($html)
+    {    /* 
+        $source_wiki e.g. value:
+        {{derived from|Whales are Paraphyletic.png|display=50}}
+    
+        $source_html e.g. value:
+        This file was derived from: <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" title="File:Whales are Paraphyletic.png">Whales are Paraphyletic.png</a>: 
+                                    <a href="https://commons.wikimedia.org/wiki/File:Whales_are_Paraphyletic.png" ></a><br />
+        another e.g.:
+        wiki:
+        Photograped by [https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory] in [[:en::en:Northern California|Northern California]]
+        html:
+        Photograped by <a rel="nofollow" href="https://sites.google.com/site/thebrockeninglory/">Brocken Inaglory</a> in <a href="https://en.wikipedia.org/wiki/en:Northern_California" title="en:en:Northern California">Northern California</a>
+        */
+        // echo "\n\n".$html."\n\n";
+        $final = array();
+        // if(preg_match("/title=\"(.*?)\"/ims", $html, $arr)) $final['name'] = $arr[1];
+        if(preg_match("/\>(.*?)<\/a>/ims", $html, $arr)) $final['name'] = $arr[1];
+        if(preg_match("/<a href=\"(.*?)\"/ims", $html, $arr)) $final['homepage'] = $arr[1];
+        if(@$final['name']) {
+            $final['role'] = 'source';
+            return $final;
         }
     }
     private function last_quality_check($media)
@@ -737,8 +778,12 @@ class WikiDataAPI
                     if($rek == "continue") continue;
                     if(!$rek) continue;
                     
-                    /* debug only
-                    $rek = self::process_file("Red_stingray2.jpg"); //8680729
+                    /* debug only -- use when u want to generate DwCA with just one media       //use this when developing***
+                    // $rek = self::process_file("Haworthia_arachnoidea_-_cobweb_aloe.jpg");    //no artist
+                    // $rek = self::process_file("Aa_species.jpg");
+                    // $rek = self::process_file("Whales_are_Paraphyletic.svg");
+                    // $rek = self::process_file("Whales_are_Paraphyletic.png");
+                    // $rek = self::process_file("Red_stingray2.jpg"); //8680729                //invalid license
                     // $rek = self::process_file("Soft-shell_crab_on_ice.jpg"); //10964578
                     // $rek = self::process_file("Slifkin.jpg"); //11930268
                     // $rek = self::process_file("Clone_war_of_sea_anemones_3.jpg"); //18645958
@@ -893,6 +938,7 @@ class WikiDataAPI
         $desc = strip_tags($desc, "<a>");
         $desc = Functions::remove_whitespace($desc);
         $desc = str_replace(" .", ".", $desc);
+        $desc = str_replace("..", ".", $desc);
         return $desc;
     }
     private function get_media_metadata_from_json($filename, $title)
@@ -945,10 +991,21 @@ class WikiDataAPI
         if(preg_match("/\|date\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['date'] = $a[1];
         if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = trim($a[1]);
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
+        else {
+            //start new Nov 6
+            $temp = Functions::remove_whitespace($wiki);
+            if(preg_match("/\|source \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['source'] = $a[1];
+            //end new Nov 6
+        }
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
         $rek['date'] = @$rek['other']['date'];
         //================================================================ Artist
-        $rek['Artist'] = trim(@$rek['other']['author']);
+        //start new Nov 6, 2018 e.g. https://commons.wikimedia.org/wiki/File:Clone_war_of_sea_anemones_3.jpg
+        if($other_author = trim(@$rek['other']['author'])) {
+            if($val = self::make_other_author_an_agent($other_author)) $rek['Artist'][] = $val;
+        }
+        else $rek['Artist'] = trim(@$rek['other']['author']); //before this new block, this row alone is the first option: $rek['Artist'] = trim(@$rek['other']['author']);
+        //end new
 
         if(!$rek['Artist']) { //became the 1st option. Before was just the 2nd option
             // echo "\nelix went here aaa\n";
@@ -1082,6 +1139,22 @@ class WikiDataAPI
         }
         */
         return $rek;
+    }
+    private function make_other_author_an_agent($other_author)
+    {
+        /* e.g. $other_author orig value, which is a wiki:
+        [https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
+        e.g. html value is:
+        <a rel="nofollow" href="https://sites.google.com/site/thebrockeninglory/">Brocken Inaglory</a>|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
+        */
+        $html = self::convert_wiki_2_html($other_author);
+        $final = array();
+        if(preg_match("/>(.*?)<\/a>/ims", $html, $a)) $final['name'] = $a[1];
+        if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+        if(@$final['name']) {
+            $final['role'] = 'creator';
+            return $final;
+        }
     }
     private function second_option_for_artist_info($arr)
     {
