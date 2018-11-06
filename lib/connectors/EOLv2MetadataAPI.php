@@ -1848,20 +1848,60 @@ class EOLv2MetadataAPI
         // 3737468,45518709,https://static.inaturalist.org/photos/1213690/original.?1413295543,26                       dbase 8
         $page_id = 1; $source_url = "https://static.inaturalist.org/photos/3610402/original.JPG?1462663313";            //dbase 1
         $page_id = 45518709; $source_url = "https://static.inaturalist.org/photos/1213690/original.?1413295543";     //dbase 8
+        $page_id = 3110363; $source_url = "http://chess.lifedesks.org/image/view/1149/_original";
+        $page_id = 1; $source_url = "http://farm8.staticflickr.com/7117/7656507066_d8f88fe4de_o.jpg";
+        $page_id = 42332710; $source_url = "https://upload.wikimedia.org/wikipedia/commons/7/7b/Scolopacidae,_Margarita_island,_Venezuela.jpg";
+        $page_id = 45227357; $source_url = "https://upload.wikimedia.org/wikipedia/commons/c/c1/Lycus_beetle_on_Euphorbia_ingens_%284442096813%29.jpg";
+        // $page_id = 45227357; $source_url = "https://upload.wikimedia.org/wikipedia/commons/c/c1/Lycus_beetle_on_Euphorbia_ingens_(4442096813).jpg";
+        
+        // $page_id = 29911; $source_url = "http://upload.wikimedia.org/wikipedia/commons/f/ff/Rosa_'Ferdinand_Pichard'.jpg')";
+        $page_id = 1148643; $source_url = "http://upload.wikimedia.org/wikipedia/commons/7/78/Carpinus_betulus_'Fastigiata'_JPG1.jpg";
+        
         $rec = self::search_v2_images($page_id, $source_url);
         print_r($rec);
     }
     private function search_v2_images($page_id, $source_url)
     {
+        // echo "\n1[$source_url]";
+        $source_url = str_replace("'", "\'", $source_url); // echo "\n2[$source_url]";
+        
         for ($i = 1; $i <= 15; $i++) {
             $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.page_id = $page_id and i.source_url = '".$source_url."'";
             $result = $this->mysqli->query($sql);
-            // echo "\n". $result->num_rows."\n"; //exit;
             while($result && $row=$result->fetch_assoc()) {
                 echo "\nfound in dbase $i\n";
                 return $row;
             }
         }
+        echo "\nstart 2nd try:\n";
+        
+        $source_url = urldecode($source_url); // echo "\n3[$source_url]";
+        
+        for ($i = 1; $i <= 15; $i++) {
+            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.page_id = $page_id and i.source_url = '".$source_url."'";
+            $result = $this->mysqli->query($sql);
+            while($result && $row=$result->fetch_assoc()) {
+                echo "\nfound in dbase* $i\n";
+                return $row;
+            }
+        }
+        
+        /*
+        // print_r(pathinfo($source_url));
+        // $basename = pathinfo($source_url, PATHINFO_BASENAME);
+        // echo "\n$basename - ".urldecode($basename)."\n";
+        // echo "\n$source_url - \n".urldecode($source_url)."\n";
+        // exit("\n");
+        for ($i = 1; $i <= 15; $i++) {
+            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
+            $result = $this->mysqli->query($sql);
+            while($result && $row=$result->fetch_assoc()) {
+                echo "\nfound in dbase $i: ".count($row)."\n";
+                print_r($row);
+            }
+        }
+        */
+
         /*
         if(stripos($source_url, '\/') !== false) { //string is found
             echo "\n[$source_url]\n";
