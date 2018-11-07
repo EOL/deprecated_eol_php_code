@@ -7,7 +7,7 @@ DATA-1702
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-//zero records in collection, offline XML
+echo "\nZero records in collection, offline XML. Will terminate\n";
 return;
 
 require_library('connectors/ConvertEOLtoDWCaAPI');
