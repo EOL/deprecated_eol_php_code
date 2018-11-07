@@ -8,6 +8,15 @@ require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
+/* source: https://stackoverflow.com/questions/3137094/how-to-count-lines-in-a-document
+$output = shell_exec("wc -l < /Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Animalia/multimedia.txt");
+$output = trim($output);
+echo "\n[$output]\n";
+$output++;
+echo "\n[$output]\n";
+exit("\n");
+*/
+
 $func = new GBIFoccurrenceAPI_DwCA();
 $func->start(); //normal operation
 
