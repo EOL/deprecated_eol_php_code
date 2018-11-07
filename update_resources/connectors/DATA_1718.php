@@ -27,7 +27,7 @@ $func = new EOLv2MetadataAPI("");
 // $func->replace_media_url_update_report();   echo "\n end replace_media_url_update_report()\n";  return; //DATA-1780     //this will run in eol-archive
 
 // $func->load_v2_images_export_from_jrice(); echo "\n end load_v2_images_export_from_jrice()\n"; return;  //DATA-1781 //just one-time. Done.
-// $func->loop_user_activity_image_file(); return;                                                         //DATA-1781 //a utility to check the speed of searching. Fast enough.
+$func->loop_user_activity_image_file(); return;                                                         //DATA-1781 //a utility to check the speed of searching. Fast enough.
 */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1726
@@ -59,16 +59,14 @@ $func->download_resource_files();
 */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1731
-$resource_id = "user_curated_object";
-$func = new EOLv2MetadataAPI($resource_id);
-$func->start_user_object_curation(); echo "\n end start_user_object_curation() \n"; //return;
+$func = new EOLv2MetadataAPI();
+$func->start_user_object_curation(); echo "\n end start_user_object_curation() \n"; return;
 // Cannot find resource anymore = 347 last count
 */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
-$resource_id = "images_selected_as_exemplar";
-$func = new EOLv2MetadataAPI($resource_id);
-$func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; return;
+$func = new EOLv2MetadataAPI();
+$func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; //return;
 */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1732
@@ -83,10 +81,10 @@ $func = new EOLv2MetadataAPI("");
 $func->start_image_sizes(); echo "\n end start_image_sizes() \n"; //return;
 */
 
-// /* https://eol-jira.bibalex.org/browse/DATA-1741
-$func = new EOLv2MetadataAPI("");
-$func->start_image_ratings(); echo "\n end start_image_ratings() \n"; return;
-// */
+/* https://eol-jira.bibalex.org/browse/DATA-1741
+$func = new EOLv2MetadataAPI();
+$func->start_image_ratings(); echo "\n end start_image_ratings() \n"; //return;
+*/
 
 
 /* https://eol-jira.bibalex.org/browse/DATA-1719
