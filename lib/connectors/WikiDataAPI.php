@@ -30,6 +30,7 @@ drwxr-xr-x 2 root root          112 Oct  1 03:04 wikimedia
 drwxr-xr-x 2 root root           10 Nov  6  2017 wikipedia
 [root@eol-archive wikidata]# 
 */
+/* For testing one image to write to DwCA. Follow the 3 asterisk ***. Un-comment these block of codes. Worked OK. */
 class WikiDataAPI
 {
     function __construct($folder, $lang, $what = "wikipedia")
