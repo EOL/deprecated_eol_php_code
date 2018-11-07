@@ -9,10 +9,32 @@ $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
 
+// $json = '{"group":"Gadus morhua","divisor":2}';
+// $escaped = escapeshellarg($json);
+// exit("\n".$escaped."\n");
+
+
+/* sample command line for this script:
+
+php                             gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
+php update_resources/connectors/gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
+
+
+*/
+
+print_r($argv);
+$params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
+$params['json']              = @$argv[2]; //useful here
+
+$arr = json_decode($params['json'], true);
+$group = $arr['group'];
+$divisor = $arr['divisor'];
+
+
 
 // /*
 $func = new GBIFoccurrenceAPI_DwCA();
-$group = 'Gadus morhua'; $divisor = 2;
+// $group = 'Gadus morhua'; $divisor = 2;
 $batches = $func->get_range_batches($group, $divisor);
 print_r($batches);
 $func->jenkins_call($group, $batches);

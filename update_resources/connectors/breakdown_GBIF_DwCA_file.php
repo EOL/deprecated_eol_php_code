@@ -5,7 +5,7 @@ require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
-// print_r($argv);
+print_r($argv);
 
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['info']              = @$argv[2]; //useful here

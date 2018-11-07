@@ -79,11 +79,18 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function jenkins_call($group, $batches)
     {
-        print_r($batches);
-        
-        require_once("../LiteratureEditor/Custom/lib/Functions.php");
-        require_once("../FreshData/controllers/other.php");
-        require_once("../FreshData/controllers/freshdata.php");
+        // require_once("../../../LiteratureEditor/Custom/lib/Functions.php");
+        // require_once("../../../FreshData/controllers/other.php");
+        // require_once("../../../FreshData/controllers/freshdata.php");
+
+        // require_once("../LiteratureEditor/Custom/lib/Functions.php");
+        // require_once("../FreshData/controllers/other.php");
+        // require_once("../FreshData/controllers/freshdata.php");
+
+        require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
+        require_once(DOC_ROOT."../FreshData/controllers/other.php");
+        require_once(DOC_ROOT."../FreshData/controllers/freshdata.php");
+
 
         $ctrler = new \freshdata_controller(array());
         // exit("\ntask = [$task]\n");
