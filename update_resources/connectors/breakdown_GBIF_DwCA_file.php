@@ -5,18 +5,23 @@ require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
-
 // print_r($argv);
-$params['jenkins_or_cron']      = @$argv[1]; //irrelevant here
-$params['group']                = @$argv[2]; //useful here
-$params['range_from']           = @$argv[3]; //useful
-$params['range_from']           = @$argv[4]; //useful
-print_r($params);
 
+$params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
+$params['info']              = @$argv[2]; //useful here
+// print_r($params);
+
+$info = json_decode($params['info'], true);
+$range = $info['range'];
+$group = $info['group'];
+
+echo "\nGroup: $group\n";
+print_r($range);
+$range_from = $range[0];
+$range_to = $range[1];
 
 $func = new GBIFoccurrenceAPI_DwCA();
-// $func->breakdown_GBIF_DwCA_file($group = false, $range_from = false, $range_to = false); //e.g. $group = 'Animalia'
-
+$func->breakdown_GBIF_DwCA_file($group, $range_from, $range_to); //e.g. $group = 'Animalia'
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

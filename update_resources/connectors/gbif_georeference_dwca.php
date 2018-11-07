@@ -8,20 +8,24 @@ require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
-/* source: https://stackoverflow.com/questions/3137094/how-to-count-lines-in-a-document
-$output = shell_exec("wc -l < /Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Animalia/multimedia.txt");
-$output = trim($output);
-echo "\n[$output]\n";
-$output++;
-echo "\n[$output]\n";
-exit("\n");
+
+
+// /*
+$func = new GBIFoccurrenceAPI_DwCA();
+$group = 'Gadus morhua'; $divisor = 2;
+$batches = $func->get_range_batches($group, $divisor);
+print_r($batches);
+$func->jenkins_call($group, $batches);
+exit("\n-end test-\n");
+// */
+
+
+/* Original. Use this if you want run one instance of the connector. Very long to finish.
+$func = new GBIFoccurrenceAPI_DwCA();
+$func->start();
 */
 
-$func = new GBIFoccurrenceAPI_DwCA();
-$func->start(); //normal operation
-
 // $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
-
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";

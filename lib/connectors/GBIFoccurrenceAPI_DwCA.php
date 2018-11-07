@@ -56,12 +56,18 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['multimedia_gbifID'] = "/extra/other_files/GBIF_occurrence/multimedia_gbifID/";
             $this->save_path['map_data']          = "/extra/map_data_dwca/";
             $this->eol_taxon_concept_names_tab    = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
+            
+            $this->occurrence_txt_path['Animalia']     = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
+            $this->occurrence_txt_path['Plantae']      = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
+            $this->occurrence_txt_path['Other7Groups'] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";
         }
         else {
             $this->save_path['taxa_csv_path']     = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
             $this->save_path['multimedia_gbifID'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/multimedia_gbifID/";
             $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";
             $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
+
+            $this->occurrence_txt_path['Gadus morhua'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
         }
         $this->csv_paths = array();
         $this->csv_paths[] = $this->save_path['taxa_csv_path'];
@@ -70,11 +76,68 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->limit_20k = 20000; //20000;
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
         $this->debug = array();
+    }
+    function jenkins_call($group, $batches)
+    {
+        print_r($batches);
         
-        $this->occurrence_txt_path['Animalia']     = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
-        $this->occurrence_txt_path['Plantae']      = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
-        $this->occurrence_txt_path['Other7Groups'] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";
+        require_once("../LiteratureEditor/Custom/lib/Functions.php");
+        require_once("../FreshData/controllers/other.php");
+        require_once("../FreshData/controllers/freshdata.php");
+
+        $ctrler = new \freshdata_controller(array());
+        // exit("\ntask = [$task]\n");
+        $postfix = "_map_data";
+
+        /*
+        $server_http_host = $_SERVER['HTTP_HOST'];
+        $server_script_name = $_SERVER['SCRIPT_NAME'];
+        $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
+        $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
+        //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
+        */
         
+        // echo "<pre>"; print_r($parameters); echo "</pre>"; exit;
+
+        foreach($batches as $batch) {
+            $param = array();
+            $param['group'] = $group;
+            $param['range'] = $batch;
+            
+            $task = $ctrler->get_available_job("map_data_job");
+            $json = json_encode($param, true);
+            $params['uuid'] = time();
+            $cmd = PHP_PATH.' breakdown_GBIF_DwCA_file.php jenkins ' . "'" . $json . "'";
+            $cmd .= " 2>&1";
+            $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
+            $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
+            $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
+            $shell_debug = shell_exec($c);
+            /* for more debugging...
+            echo "\ncmd: $cmd
+                  \nc: $c";
+            echo "\nshell_debug: [$shell_debug]";
+            */
+            // break; //debug only -- just run 1 batch
+            sleep(10); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
+        }
+    }
+    private function total_occurrence_rows_per_group($group, $divisor)
+    {
+        /* source: https://stackoverflow.com/questions/3137094/how-to-count-lines-in-a-document */
+        $total = shell_exec("wc -l < ".escapeshellarg($this->occurrence_txt_path[$group]));
+        $total = trim($total);  echo "\n[$total]\n";
+        // $total = 50; //debug force assign
+        $total = $total + 10;   echo "\n$group occurrence: [$total]\n"; //just a buffer of +10
+        return $total;
+    }
+    function get_range_batches($group, $divisor)
+    {
+        $total = self::total_occurrence_rows_per_group($group, $divisor);
+        $batch = $total/$divisor;
+        $batch = ceil($batch);
+        for ($x = 1; $x <= $total; $x=$x+$batch) $final[] = array($x, $x+$batch);
+        return $final;
     }
     function start()
     {
@@ -183,8 +246,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }//end loop text file
         }//end foreach($paths)
     }
-    
-    private function breakdown_GBIF_DwCA_file($group = false, $range_from = false, $range_to = false) //e.g. $group = 'Animalia'
+    function breakdown_GBIF_DwCA_file($group = false, $range_from = false, $range_to = false) //e.g. $group = 'Animalia'
     {
         // exit("\nFinished running Aug 23, 2018\n");
         $path2 = $this->save_path['taxa_csv_path'];
@@ -199,7 +261,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }
         }
         else {
-            $paths[]  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
+            $paths[] = $this->occurrence_txt_path[$group];
         }
         foreach($paths as $path) {
             $i = 0;
@@ -213,7 +275,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     continue;
                 }
                 else {
-                    
+                    /*
+                        [0] => 1        [1] => 47416
+                        [0] => 47416    [1] => 94831
+                    */
                     // /* new ranges ----------------------------------------------------
                     if($range_from && $range_to) {
                         $cont = false;
