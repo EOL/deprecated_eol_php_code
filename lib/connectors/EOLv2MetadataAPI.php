@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-
+// connector: [DATA_1718.php] mostly if not all use this connector script.
 class EOLv2MetadataAPI
 {
     public function __construct($folder = null)

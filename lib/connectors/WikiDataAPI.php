@@ -1,5 +1,7 @@
 <?php
 namespace php_active_record;
+// connector: [wikidata.php for wikimedia]
+//            [wikipedia.php for wikipedia in diff. languages]
 // require_once DOC_ROOT . '/vendor/JsonCollectionParser-master/src/Parser.php';
 require_library('connectors/WikipediaRegionalAPI');
 /*
