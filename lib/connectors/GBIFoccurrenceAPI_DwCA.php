@@ -70,6 +70,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->limit_20k = 20000; //20000;
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
         $this->debug = array();
+        
+        $this->occurrence_txt_path['Animalia']     = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
+        $this->occurrence_txt_path['Plantae']      = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
+        $this->occurrence_txt_path['Other7Groups'] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";
+        
     }
     function start()
     {
@@ -178,14 +183,20 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }//end loop text file
         }//end foreach($paths)
     }
-    private function breakdown_GBIF_DwCA_file()
+    
+    private function breakdown_GBIF_DwCA_file($group = false, $range_from = false, $range_to = false) //e.g. $group = 'Animalia'
     {
         // exit("\nFinished running Aug 23, 2018\n");
         $path2 = $this->save_path['taxa_csv_path'];
         if(Functions::is_production()) {
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";        //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";         //~183 million - Took 1 day 19 hr (when API calls are not yet cached)
-            $paths[] = "/extra/other_files/GBIF_occurrence/DwCA_Other7Groups/occurrence.txt";    //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
+            if($group) {
+                $paths[] = $this->occurrence_txt_path[$group];
+            }
+            else { //this means a long run, several days. Not distributed.
+                $paths[] = $this->occurrence_txt_path['Animalia'];        //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
+                $paths[] = $this->occurrence_txt_path['Plantae'];         //~183 million - Took 1 day 19 hr (when API calls are not yet cached)
+                $paths[] = $this->occurrence_txt_path['Other7Groups'];    //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
+            }
         }
         else {
             $paths[]  = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
@@ -202,6 +213,15 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     continue;
                 }
                 else {
+                    
+                    // /* new ranges ----------------------------------------------------
+                    if($range_from && $range_to) {
+                        $cont = false;
+                        if($i >= $range_from && $i < $range_to) $cont = true;
+                        if(!$cont) continue;
+                    }
+                    // */ ----------------------------------------------------
+                    
                     if(!@$row[0]) continue; //$row[0] is gbifID
                     $k = 0; $rec = array();
                     foreach($fields as $fld) {
