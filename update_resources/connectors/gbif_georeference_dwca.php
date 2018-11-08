@@ -11,7 +11,6 @@ $GLOBALS['ENV_DEBUG'] = true;
 /* for eol-archive
 php gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
 php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"group":"Gadus morhua","divisor":3}'
-
 */
 
 
