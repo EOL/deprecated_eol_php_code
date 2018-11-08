@@ -68,6 +68,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
 
             $this->occurrence_txt_path['Gadus morhua'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
+            $this->occurrence_txt_path['Lates niloticus'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Lates niloticus/occurrence.txt";
         }
         $this->csv_paths = array();
         $this->csv_paths[] = $this->save_path['taxa_csv_path'];
@@ -105,12 +106,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         */
         
         // echo "<pre>"; print_r($parameters); echo "</pre>"; exit;
-
+        $ctr = 0;
         foreach($batches as $batch) {
+            $ctr++;
             print_r($batch);
             $param = array();
             $param['group'] = $group;
             $param['range'] = $batch;
+            $param['ctr'] = $ctr;
             
             $task = $ctrler->get_available_job("map_data_job");
             $json = json_encode($param, true);

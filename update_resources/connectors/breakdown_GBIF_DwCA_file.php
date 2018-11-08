@@ -14,6 +14,7 @@ $params['info']              = @$argv[2]; //useful here
 $info = json_decode($params['info'], true);
 $range = $info['range'];
 $group = $info['group'];
+$ctr = $info['ctr'];
 
 echo "\nGroup: $group\n";
 print_r($range);
@@ -22,6 +23,7 @@ $range_to = $range[1];
 
 $func = new GBIFoccurrenceAPI_DwCA();
 $func->breakdown_GBIF_DwCA_file($group, $range_from, $range_to); //e.g. $group = 'Animalia'
+unlink(CONTENT_RESOURCE_LOCAL_PATH . "map_harvest_".$group."_".$ctr.".txt");
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

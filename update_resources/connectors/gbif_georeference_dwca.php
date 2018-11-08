@@ -24,19 +24,30 @@ php                             gbif_georeference_dwca.php _ '{"task":"generate_
 php                             gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Ailuropoda melanoleuca","tc_id":328070}'
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Ailuropoda melanoleuca","tc_id":328070}'
 
+For eol-archive:
+php gbif_georeference_dwca.php jenkins '{"group":"Animalia","divisor":6}'           //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
+php gbif_georeference_dwca.php jenkins '{"group":"Plantae","divisor":6}'            //~183 million - Took 1 day 19 hr (when API calls are not yet cached)
+php gbif_georeference_dwca.php jenkins '{"group":"Other7Groups","divisor":6}'       //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
 */
 
 $func = new GBIFoccurrenceAPI_DwCA();
 
-print_r($argv);
+// print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $arr = json_decode($params['json'], true);
 
-if($group = @$arr['group'] && $divisor = @$arr['divisor']) {
+if(($group = @$arr['group']) && ($divisor = @$arr['divisor'])) {
     // $group = 'Gadus morhua'; $divisor = 2; //force assign
     $batches = $func->get_range_batches($group, $divisor);
     print_r($batches);
+    
+    //start create temp group indicator files
+    for ($x = 1; $x <= $divisor; $x++) {
+        $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "map_harvest_".$group."_".$x.".txt", "w"); fclose($fhandle);
+    }
+    //end
+    
     $func->jenkins_call($group, $batches);
     // exit("\n-end test-\n");
 }
