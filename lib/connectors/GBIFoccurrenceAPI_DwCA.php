@@ -123,7 +123,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             echo "\nshell_debug: [$shell_debug]";
             */
             // break; //debug only -- just run 1 batch
-            sleep(10); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
+            sleep(20); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
         }
     }
     private function total_occurrence_rows_per_group($group, $divisor)
