@@ -499,8 +499,9 @@ class DHSourceHierarchiesAPI
                     $file = (string) $tbl->files->location;
                     return array('fields' => $fields, 'taxon_file' => $file, 'file' => $file, 'ignoreHeaderLines' => $ignoreHeaderLines);
                 }
-                else exit("\nInvestigate undefined row_type [$row_type]\n");
+                else {}
             }
+            exit("\nInvestigate undefined row_type [$row_type]\n");
         }
         else {
             echo "\nNo meta.xml present. Will use first-row header from taxon file\n";

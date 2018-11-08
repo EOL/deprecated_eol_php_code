@@ -5,6 +5,7 @@ namespace php_active_record;
 
 NCBI_Taxonomy_Harvest	    Monday 2018-08-06 02:20:41 AM	{"reference.tab":47083,"taxon.tab":1465751,"vernacular_name.tab":42670}
 NCBI_Taxonomy_Harvest_DH	Monday 2018-08-06 04:47:09 AM	{"reference.tab":23592,"taxon.tab":178807,"vernacular_name.tab":167}
+NCBI_Taxonomy_Harvest_DH	Wednesday 2018-11-07 11:15:14 PM{"reference.tab":23590,"taxon.tab":177813,"vernacular_name.tab":165}
 */
 
 class DWH_NCBI_API
@@ -25,7 +26,7 @@ class DWH_NCBI_API
         $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-796 -----------------------------------------------------------
-        $this->prune_further = array(10239, 12884, 3193, 4751, 33208);
+        $this->prune_further = array(10239, 12884, 3193, 4751, 33208, 29178);
         $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/"; //this folder is from TRAM-795
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
     }
