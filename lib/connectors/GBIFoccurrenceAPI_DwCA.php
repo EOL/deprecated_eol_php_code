@@ -749,8 +749,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                         echo "\n[$subdir]";
                         $files = $dir_to_process.$subdir."/*.json";
                         foreach (glob($files) as $filename) {
-                            echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME);
-                            fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
+                            if(filesize($filename)) {
+                                echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME);
+                                fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
+                            }
                             $i++;
                         }
                     }
