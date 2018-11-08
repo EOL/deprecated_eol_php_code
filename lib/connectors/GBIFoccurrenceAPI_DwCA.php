@@ -354,12 +354,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
-    private function generate_map_data_using_GBIF_csv_files()
+    function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false)
     {
-        // /* uncomment in real operation
-        $eol_taxon_id_list = self::process_all_eol_taxa(false, true); //listOnly = true
-        echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
-        // */
+        if($sciname && $tc_id) $eol_taxon_id_list[$sciname] = $tc_id;
+        else {
+            $eol_taxon_id_list = self::process_all_eol_taxa(false, true); //listOnly = true
+            echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
+        }
         
         // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
         
@@ -472,9 +473,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         else {
             $json = json_encode($final, JSON_UNESCAPED_SLASHES);
-            if(!($this->file = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
+            $filename = self::get_map_data_path($basename).$basename.".json";
+            if(!($this->file = Functions::file_open($filename, "w"))) return;
             fwrite($this->file, "var data = ".$json);
-            fclose($this->file); echo " .json saved 01 ";
+            fclose($this->file); echo " .json saved 01 [$filename] ";
         }
     }
     private function process_revised_cluster($final, $basename)

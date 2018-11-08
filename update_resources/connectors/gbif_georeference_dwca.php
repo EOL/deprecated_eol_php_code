@@ -20,6 +20,9 @@ php                             gbif_georeference_dwca.php _ '{"group":"Gadus mo
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
 
 php                             gbif_georeference_dwca.php _ '{"task":"save_ids_to_text_from_many_folders"}'
+php                             gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files"}'
+php                             gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Ailuropoda melanoleuca","tc_id":328070}'
+php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Ailuropoda melanoleuca","tc_id":328070}'
 
 */
 
@@ -38,7 +41,14 @@ if($group = @$arr['group'] && $divisor = @$arr['divisor']) {
     // exit("\n-end test-\n");
 }
 if($task = @$arr['task']) {
-    if($task == "save_ids_to_text_from_many_folders") $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
+    if($task == "generate_map_data_using_GBIF_csv_files") {
+        // print_r($arr); exit;
+        if(($sciname = @$arr['sciname']) && ($tc_id = @$arr['tc_id'])) {
+            $func->generate_map_data_using_GBIF_csv_files($sciname, $tc_id);
+        }
+        else $func->generate_map_data_using_GBIF_csv_files();
+    }
+    elseif($task == "save_ids_to_text_from_many_folders")     $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
 }
 
 
