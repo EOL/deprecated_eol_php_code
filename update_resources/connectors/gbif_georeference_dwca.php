@@ -41,21 +41,25 @@ if(($group = @$arr['group']) && ($divisor = @$arr['divisor'])) {
     // $group = 'Gadus morhua'; $divisor = 2; //force assign
     $batches = $func->get_range_batches($group, $divisor);
     print_r($batches);
-    
     //start create temp group indicator files
     for ($x = 1; $x <= $divisor; $x++) {
-        $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "map_harvest_".$group."_".$x.".txt", "w"); fclose($fhandle);
+        $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "map_breakdown_".$group."_".$x.".txt", "w"); fclose($fhandle);
     }
     //end
-    
-    $func->jenkins_call($group, $batches);
-    // exit("\n-end test-\n");
+    $func->jenkins_call($group, $batches, "breakdown_GBIF_DwCA_file");
 }
 if($task = @$arr['task']) {
     if($task == "generate_map_data_using_GBIF_csv_files") {
-        // print_r($arr); exit;
-        if(($sciname = @$arr['sciname']) && ($tc_id = @$arr['tc_id'])) {
-            $func->generate_map_data_using_GBIF_csv_files($sciname, $tc_id);
+        if    (($sciname = @$arr['sciname'])       && ($tc_id = @$arr['tc_id']))       $func->generate_map_data_using_GBIF_csv_files($sciname, $tc_id);
+        elseif($divisor = @$arr['divisor']) {
+            $batches = $func->get_range_batches(false, $divisor, 519012); //2nd param is divisor; 3rd is total tc_ids from JRice.
+            print_r($batches);
+            //start create temp group indicator files
+            for ($x = 1; $x <= $divisor; $x++) {
+                $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "map_generate_".$x.".txt", "w"); fclose($fhandle);
+            }
+            //end
+            $func->jenkins_call(false, $batches, $task);
         }
         else $func->generate_map_data_using_GBIF_csv_files();
     }

@@ -78,7 +78,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
         $this->debug = array();
     }
-    function jenkins_call($group, $batches)
+    function jenkins_call($group, $batches, $connector_task)
     {
         require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
         require_once(DOC_ROOT."../FreshData/controllers/other.php");
@@ -108,7 +108,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $task = $ctrler->get_available_job("map_data_job");
             $json = json_encode($param, true);
             $params['uuid'] = time();
-            $cmd = PHP_PATH.' breakdown_GBIF_DwCA_file.php jenkins ' . "'" . $json . "'";
+
+            if    ($connector_task == "breakdown_GBIF_DwCA_file")               $cmd = PHP_PATH.' breakdown_GBIF_DwCA_file.php jenkins ' . "'" . $json . "'";
+            elseif($connector_task == "generate_map_data_using_GBIF_csv_files") $cmd = PHP_PATH.' generate_map_data_using_GBIF_csv_files.php jenkins ' . "'" . $json . "'";
+            
             $cmd .= " 2>&1";
             $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
             $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
@@ -132,9 +135,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $total = $total + 10;   echo "\n$group occurrence: [$total]\n"; //just a buffer of +10
         return $total;
     }
-    function get_range_batches($group, $divisor)
+    function get_range_batches($group, $divisor, $total = false)
     {
-        $total = self::total_occurrence_rows_per_group($group, $divisor);
+        if(!$total) $total = self::total_occurrence_rows_per_group($group, $divisor);
         $batch = $total/$divisor;
         $batch = ceil($batch);
         for ($x = 1; $x <= $total; $x=$x+$batch) $final[] = array($x, $x+$batch);
@@ -347,7 +350,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
-    function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false)
+    function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
     {
         if($sciname && $tc_id) $eol_taxon_id_list[$sciname] = $tc_id;
         else {
@@ -383,6 +386,15 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $m = count($eol_taxon_id_list)/3;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
+            
+            // /* new ranges ----------------------------------------------------
+            if($range_from && $range_to) {
+                $cont = false;
+                if($i >= $range_from && $i < $range_to) $cont = true;
+                if(!$cont) continue;
+            }
+            // */ ----------------------------------------------------
+            
             // ==============================
             /*
             $cont = false;
@@ -393,6 +405,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             */
             // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
+            // /*
             if($usageKey = self::get_usage_key($sciname)) {
                 echo "\nOK GBIF key [$usageKey]\n";
                 if(self::map_data_file_already_been_generated($taxon_concept_id)) continue;
@@ -423,6 +436,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 echo "\n usageKey not found! [$sciname][$taxon_concept_id]\n";
                 $this->debug['usageKey not found']["[$sciname][$taxon_concept_id]"] = '';
             }
+            // */
         } //end main foreach()
     }
     private function gen_map_data_using_api($sciname, $taxon_concept_id) //NEW Aug 24, 2018

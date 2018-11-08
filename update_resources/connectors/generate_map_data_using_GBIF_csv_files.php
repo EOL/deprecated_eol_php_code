@@ -13,17 +13,15 @@ $params['info']              = @$argv[2]; //useful here
 
 $info = json_decode($params['info'], true);
 $range = $info['range'];
-$group = $info['group'];
 $ctr = $info['ctr'];
 
-echo "\nGroup: $group\n";
 print_r($range);
 $range_from = $range[0];
 $range_to = $range[1];
 
 $func = new GBIFoccurrenceAPI_DwCA();
-$func->breakdown_GBIF_DwCA_file($group, $range_from, $range_to); //e.g. $group = 'Animalia'
-unlink(CONTENT_RESOURCE_LOCAL_PATH . "map_breakdown_".$group."_".$ctr.".txt");
+$func->generate_map_data_using_GBIF_csv_files(false, false, $range_from, $range_to);
+unlink(CONTENT_RESOURCE_LOCAL_PATH . "map_generate_".$ctr.".txt");
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
