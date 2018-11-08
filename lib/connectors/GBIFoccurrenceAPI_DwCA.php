@@ -754,8 +754,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                             if(filesize($filename)) {
                                 echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME);
                                 fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
+                                $i++;
                             }
-                            $i++;
                         }
                     }
                 }
@@ -763,7 +763,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             fclose($fhandle);
         }
         else echo "\nFile access error: [$text_file]\n";
-        echo "\n--end taxon_concept_IDs total: [$i]--\n";
+        echo "\n--end taxon_concept_IDs total with map data: [$i]--\n";
     }
     private function prepare_data($taxon_concept_id)
     {
