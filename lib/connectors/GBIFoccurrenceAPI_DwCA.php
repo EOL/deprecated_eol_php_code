@@ -742,21 +742,23 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $dir_to_process = $this->save_path['map_data'];
         $text_file = $this->save_path['map_data']."final_taxon_concept_IDS.txt";
         $i = 0;
-        if(!($fhandle = Functions::file_open($text_file, "w"))) return;
-        if($dir = opendir($dir_to_process)) {
-            while(false !== ($subdir = readdir($dir))) {
-                if(!in_array($subdir, array(".",".."))) {
-                    echo "\n[$subdir]";
-                    $files = $dir_to_process.$subdir."/*.json";
-                    foreach (glob($files) as $filename) {
-                        echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME);
-                        fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
-                        $i++;
+        if($fhandle = Functions::file_open($text_file, "w")) {
+            if($dir = opendir($dir_to_process)) {
+                while(false !== ($subdir = readdir($dir))) {
+                    if(!in_array($subdir, array(".",".."))) {
+                        echo "\n[$subdir]";
+                        $files = $dir_to_process.$subdir."/*.json";
+                        foreach (glob($files) as $filename) {
+                            echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME);
+                            fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
+                            $i++;
+                        }
                     }
                 }
             }
+            fclose($fhandle);
         }
-        fclose($fhandle);
+        else echo "\nFile access error: [$text_file]\n";
         echo "\n--end taxon_concept_IDs total: [$i]--\n";
     }
     private function prepare_data($taxon_concept_id)
