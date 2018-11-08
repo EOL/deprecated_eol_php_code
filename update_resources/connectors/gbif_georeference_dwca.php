@@ -8,19 +8,19 @@ require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
+/* for eol-archive
+php gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
+php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"group":"Gadus morhua","divisor":3}'
 
-// $json = '{"group":"Gadus morhua","divisor":2}';
-// $escaped = escapeshellarg($json);
-// exit("\n".$escaped."\n");
+*/
 
 
 /* sample command line for this script:
-
 php                             gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
-
-
 */
+
+
 
 print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
@@ -30,8 +30,6 @@ $arr = json_decode($params['json'], true);
 $group = $arr['group'];
 $divisor = $arr['divisor'];
 
-
-
 // /*
 $func = new GBIFoccurrenceAPI_DwCA();
 // $group = 'Gadus morhua'; $divisor = 2;
@@ -40,7 +38,6 @@ print_r($batches);
 $func->jenkins_call($group, $batches);
 exit("\n-end test-\n");
 // */
-
 
 /* Original. Use this if you want run one instance of the connector. Very long to finish.
 $func = new GBIFoccurrenceAPI_DwCA();

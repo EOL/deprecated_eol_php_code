@@ -107,6 +107,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // echo "<pre>"; print_r($parameters); echo "</pre>"; exit;
 
         foreach($batches as $batch) {
+            print_r($batch);
             $param = array();
             $param['group'] = $group;
             $param['range'] = $batch;
