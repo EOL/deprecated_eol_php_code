@@ -72,7 +72,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         $this->csv_paths = array();
         $this->csv_paths[] = $this->save_path['taxa_csv_path'];
-
+        
         $this->rec_limit = 100000; //50000;
         $this->limit_20k = 20000; //20000;
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
@@ -80,24 +80,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function jenkins_call($group, $batches)
     {
-        // require_once("../../../LiteratureEditor/Custom/lib/Functions.php");
-        // require_once("../../../FreshData/controllers/other.php");
-        // require_once("../../../FreshData/controllers/freshdata.php");
-
-        // require_once("../LiteratureEditor/Custom/lib/Functions.php");
-        // require_once("../FreshData/controllers/other.php");
-        // require_once("../FreshData/controllers/freshdata.php");
-
         require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
         require_once(DOC_ROOT."../FreshData/controllers/other.php");
         require_once(DOC_ROOT."../FreshData/controllers/freshdata.php");
 
-
         $ctrler = new \freshdata_controller(array());
-        // exit("\ntask = [$task]\n");
         $postfix = "_map_data";
 
-        /*
+        /* was never used here
         $server_http_host = $_SERVER['HTTP_HOST'];
         $server_script_name = $_SERVER['SCRIPT_NAME'];
         $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
