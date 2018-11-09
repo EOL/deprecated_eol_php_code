@@ -476,7 +476,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         echo "\n: " . $final_count . " -- ";
 
         if($final_count > $this->limit_20k) {
-            $final_count = self::process_revised_cluster($final, $basename); //done after main demo using screenshots
+            self::process_revised_cluster($final, $basename); //done after main demo using screenshots
         }
         else {
             $json = json_encode($final, JSON_UNESCAPED_SLASHES);
