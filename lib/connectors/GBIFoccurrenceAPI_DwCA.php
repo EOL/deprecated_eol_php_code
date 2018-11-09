@@ -489,7 +489,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function process_revised_cluster($final, $basename)
     {
         echo "\nStart with revised cluster";
-        if(!($this->file5 = Functions::file_open(self::get_map_data_path($basename).$basename.".json", "w"))) return;
         $to_be_saved = array();
         $to_be_saved['records'] = array();
         $unique = array();
@@ -530,18 +529,21 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
 
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
-            $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
-            fwrite($this->file5, "var data = ".$json);
-            fclose($this->file5);
+            self::save_json_file($basename, $to_be_saved);
         }
         else {
             echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
-            $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
-            fwrite($this->file5, "var data = ".$json);
-            fclose($this->file5); echo " .json saved 02 ";
+            self::save_json_file($basename, $to_be_saved);
         }
+    }
+    private function save_json_file($tc_id, $rec)
+    {
+        $json = json_encode($rec, JSON_UNESCAPED_SLASHES);
+        if(!($this->file5 = Functions::file_open(self::get_map_data_path($tc_id).$tc_id.".json", "w"))) return;
+        fwrite($this->file5, "var data = ".$json);
+        fclose($this->file5);
     }
     private function get_map_data_path($taxon_concept_id)
     {
@@ -843,7 +845,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if($center_lat && $center_lon && $publishers) {
             $arr = array("tableID" => "", "total" => count($final['records']), "center_lat" => $center_lat, "center_lon" => $center_lon, "publishers" => $publishers);
             echo "\n" . json_encode($arr) . "\n";
-            fwrite($this->file3, "var data = ".json_encode($arr));
+            fwrite($this->file3, "var xdata = ".json_encode($arr));
         }
         
         /*
