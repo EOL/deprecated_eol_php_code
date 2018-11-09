@@ -534,6 +534,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function save_json_file($tc_id, $rec)
     {
         if($rec['count'] > 0) {
+            echo " -> saving json... recs: ".$rec['count'];
             $json = json_encode($rec, JSON_UNESCAPED_SLASHES);
             if(!($file = Functions::file_open(self::get_map_data_path($tc_id).$tc_id.".json", "w"))) return;
             fwrite($file, "var data = ".$json);
