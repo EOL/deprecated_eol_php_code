@@ -419,10 +419,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     elseif($final['count'] <= $this->limit_20k) {
                         echo " --- <= 20K\n";
                         $final['actual'] = $final['count'];
-                        if(!($this->file = Functions::file_open(self::get_map_data_path($taxon_concept_id).$taxon_concept_id.".json", "w"))) return;
-                        $json = json_encode($final, JSON_UNESCAPED_SLASHES);
-                        fwrite($this->file, "var data = ".$json);
-                        fclose($this->file);
+                        self::save_json_file($taxon_concept_id, $final);
                     }
                     else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
                 }
@@ -479,11 +476,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             self::process_revised_cluster($final, $basename); //done after main demo using screenshots
         }
         else {
-            $json = json_encode($final, JSON_UNESCAPED_SLASHES);
-            $filename = self::get_map_data_path($basename).$basename.".json";
-            if(!($this->file = Functions::file_open($filename, "w"))) return;
-            fwrite($this->file, "var data = ".$json);
-            fclose($this->file); echo " .json saved 01 [$filename] ";
+            self::save_json_file($basename, $final);
         }
     }
     private function process_revised_cluster($final, $basename)
@@ -540,10 +533,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function save_json_file($tc_id, $rec)
     {
-        $json = json_encode($rec, JSON_UNESCAPED_SLASHES);
-        if(!($this->file5 = Functions::file_open(self::get_map_data_path($tc_id).$tc_id.".json", "w"))) return;
-        fwrite($this->file5, "var data = ".$json);
-        fclose($this->file5);
+        if($rec['count'] > 0) {
+            $json = json_encode($rec, JSON_UNESCAPED_SLASHES);
+            if(!($file = Functions::file_open(self::get_map_data_path($tc_id).$tc_id.".json", "w"))) return;
+            fwrite($file, "var data = ".$json);
+            fclose($file);
+        }
     }
     private function get_map_data_path($taxon_concept_id)
     {
@@ -849,7 +844,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         
         /*
-        var data = {"center_lat": 33.83253, "center_lon": -118.4745, "tableID": "1TspfLoWk5Vee6PHP78g09vwYtmNoeMIBgvt6Keiq", 
+        var xdata = {"center_lat": 33.83253, "center_lon": -118.4745, "tableID": "1TspfLoWk5Vee6PHP78g09vwYtmNoeMIBgvt6Keiq", 
         "publishers" : ["Cornell Lab of Ornithology (CLO)", "Museum of Comparative Zoology, Harvard University (MCZ)"] };
 
         [count] => 619
