@@ -193,7 +193,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         */
     }
     //##################################### start DwCA process ###########################################################################################################################
-    private function breakdown_multimedia_to_gbifID_files()
+    function breakdown_multimedia_to_gbifID_files()
     {
         $path2 = $this->save_path['multimedia_gbifID'];
         if(Functions::is_production()) {

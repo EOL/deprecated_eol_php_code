@@ -62,9 +62,9 @@ if($task = @$arr['task']) {
         }
         else $func->generate_map_data_using_GBIF_csv_files();
     }
-    elseif($task == "save_ids_to_text_from_many_folders")     $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
+    elseif($task == "breakdown_multimedia_to_gbifID_files") $func->breakdown_multimedia_to_gbifID_files();
+    elseif($task == "save_ids_to_text_from_many_folders")   $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
 }
-
 
 /* Original. Use this if you want run one instance of the connector. Very long to finish.
 $func = new GBIFoccurrenceAPI_DwCA();
