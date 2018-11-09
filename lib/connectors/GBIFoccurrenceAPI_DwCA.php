@@ -528,21 +528,19 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
 
             echo "\n Final total after force_reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
 
-            $to_be_saved['count'] = count($to_be_saved['records']);
+            $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
             $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
             fwrite($this->file5, "var data = ".$json);
             fclose($this->file5);
-            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
         }
         else {
             echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
-            $to_be_saved['count'] = count($to_be_saved['records']);
+            $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
             $json = json_encode($to_be_saved, JSON_UNESCAPED_SLASHES);
             fwrite($this->file5, "var data = ".$json);
             fclose($this->file5); echo " .json saved 02 ";
-            return $to_be_saved['count']; //the smaller value; the bigger one is $to_be_saved['actual']
         }
     }
     private function get_map_data_path($taxon_concept_id)
