@@ -160,7 +160,7 @@ function prepare_jenkins($argv, $root)
             else                                                      $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/'; //for mac mini
         }
     }
-    else echo "\ngoes here 04\n";
+    // else echo "\ngoes here 04\n"; //very good debug - to use when working with dwc_validator_jenkins
     return array($root, $cache_path);
 }
 
