@@ -4,6 +4,9 @@ namespace php_active_record;
 This will generate the map data (.json files) for the EOL maps.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+echo "\nCACHE_PATH xx 01 is ".CACHE_PATH."\n";
+
 require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
@@ -58,7 +61,9 @@ if($task = @$arr['task']) {
                 $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "map_generate_".$x.".txt", "w"); fclose($fhandle);
             }
             //end
+            echo "\nCACHE_PATH xx 02 is ".CACHE_PATH."\n";
             $func->jenkins_call(false, $batches, $task);
+            echo "\nCACHE_PATH xx 03 is ".CACHE_PATH."\n";
         }
         else $func->generate_map_data_using_GBIF_csv_files();
     }
