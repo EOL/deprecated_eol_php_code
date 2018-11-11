@@ -136,8 +136,11 @@ function prepare_jenkins($argv, $root)
 {
     print_r($argv);
     if($jenkins_or_cron = @$argv[1]) {
+        echo "\ngoes here 01\n";
         if($jenkins_or_cron == "jenkins") {
+            echo "\ngoes here 02\n";
             if($root != "/Library/WebServer/Documents/eol_php_code/") { //means Jenkins in eol-archive is running
+                echo "\ngoes here 03\n";
                 $GLOBALS['ENV_NAME'] = 'jenkins_production';
                 $cache_path = '/html/cache_LiteratureEditor/';  //for archive
                 $root = '/html/eol_php_code/';
@@ -152,6 +155,7 @@ function prepare_jenkins($argv, $root)
             else                                                      $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/'; //for mac mini
         }
     }
+    else echo "\ngoes here 04\n";
     return array($root, $cache_path);
 }
 
