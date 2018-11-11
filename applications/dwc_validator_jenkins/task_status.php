@@ -1,8 +1,5 @@
 <?php
 namespace php_active_record;
-
-// $eli_force_jenkins = true;
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);

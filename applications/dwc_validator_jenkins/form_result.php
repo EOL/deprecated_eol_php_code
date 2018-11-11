@@ -1,10 +1,13 @@
 <?php
 namespace php_active_record;
-
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 
 $mysqli = $GLOBALS['db_connection'];
-$GLOBALS['ENV_DEBUG'] = false;
+
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', true);
+$GLOBALS['ENV_DEBUG'] = true;
+
 
 if(@$_FILES['dwca_upload']) $_POST['dwca_upload'] = $_FILES['dwca_upload'];
 $parameters =& $_GET;
