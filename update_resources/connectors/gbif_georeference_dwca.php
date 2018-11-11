@@ -5,7 +5,7 @@ This will generate the map data (.json files) for the EOL maps.
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-echo "\nCACHE_PATH xx 01 is ".CACHE_PATH."\n";
+echo "\nCACHE_PATH xx 01 is ".CACHE_PATH."\n"; exit;
 
 require_library('connectors/GBIFoccurrenceAPI_DwCA');
 $timestart = time_elapsed();

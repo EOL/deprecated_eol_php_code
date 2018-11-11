@@ -14,11 +14,14 @@ setlocale(LC_ALL, 'en_US.utf8');
 /* set the root paths */
 $root = preg_replace("/config$/", "", dirname(__FILE__));
 
-// echo "\norig: [$root]\n";
+echo "\norig: [$root]\n";
+if(defined('CACHE_PATH')) echo "\nCACHE_PATH yy 01: ".CACHE_PATH."\n";
+
 $ret = prepare_jenkins($argv, $root);
 $root = $ret[0];
 if(!defined('CACHE_PATH')) define('CACHE_PATH', $ret[1]);
-// echo "\nnew: [$root]\n";
+echo "\nnew: [$root]\n";
+if(defined('CACHE_PATH')) echo "\nCACHE_PATH yy 02: ".CACHE_PATH."\n";
 
 define('DOC_ROOT', $root);
 define('LOCAL_ROOT', DOC_ROOT);
