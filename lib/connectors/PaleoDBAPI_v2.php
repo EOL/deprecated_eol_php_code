@@ -109,6 +109,7 @@ class PaleoDBAPI_v2
         $jsonfile = Functions::save_remote_file_to_local($this->service["taxon"], $this->download_options);
         $i = 0;
         foreach(new FileIterator($jsonfile) as $line_number => $line) {
+            $line = Functions::conv_to_utf8($line);
             $i++;
             if(($i % 10000) == 0) echo "\n" . " - $i ";
             // echo "\n-------------------------\n".$line;
@@ -626,6 +627,7 @@ class PaleoDBAPI_v2
         $taxon->taxonomicStatus          = self::compute_taxonomicStatus($a);
         $taxon->taxonID                  = self::compute_taxonID($a, $taxon->taxonomicStatus);
         $taxon->scientificName           = $a[$this->map['scientificName']];
+        if(!$taxon->scientificName) return false;
         $taxon->scientificNameAuthorship = @$a[$this->map['scientificNameAuthorship']];
         $taxon->taxonRank                = self::compute_taxonRank($a);
         $taxon->acceptedNameUsageID      = self::numerical_part(@$a[$this->map['acceptedNameUsageID']]);
