@@ -14,14 +14,19 @@ setlocale(LC_ALL, 'en_US.utf8');
 /* set the root paths */
 $root = preg_replace("/config$/", "", dirname(__FILE__));
 
+/* debug only
 echo "\norig: [$root]\n";
 if(defined('CACHE_PATH')) echo "\nCACHE_PATH yy 01: ".CACHE_PATH."\n";
+*/
 
 $ret = prepare_jenkins($argv, $root);
 $root = $ret[0];
 if(!defined('CACHE_PATH')) define('CACHE_PATH', $ret[1]);
+
+/* debug only
 echo "\nnew: [$root]\n";
 if(defined('CACHE_PATH')) echo "\nCACHE_PATH yy 02: ".CACHE_PATH."\n";
+*/
 
 define('DOC_ROOT', $root);
 define('LOCAL_ROOT', DOC_ROOT);
@@ -136,11 +141,11 @@ function prepare_jenkins($argv, $root)
 {
     print_r($argv);
     if($jenkins_or_cron = @$argv[1]) {
-        echo "\ngoes here 01\n";
+        // echo "\ngoes here 01\n";
         if($jenkins_or_cron == "jenkins") {
-            echo "\ngoes here 02\n";
+            // echo "\ngoes here 02\n";
             if($root != "/Library/WebServer/Documents/eol_php_code/") { //means Jenkins in eol-archive is running
-                echo "\ngoes here 03\n";
+                // echo "\ngoes here 03\n";
                 $GLOBALS['ENV_NAME'] = 'jenkins_production';
                 $cache_path = '/html/cache_LiteratureEditor/';  //for archive
                 $root = '/html/eol_php_code/';
