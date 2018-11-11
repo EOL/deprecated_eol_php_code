@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
 
+$eli_force_jenkins = true;
 require_once(dirname(__FILE__) ."/../../config/environment.php");
 
 $mysqli = $GLOBALS['db_connection'];

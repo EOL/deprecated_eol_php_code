@@ -17,7 +17,10 @@ $root = preg_replace("/config$/", "", dirname(__FILE__));
 echo "\norig: [$root]\n";
 if(defined('CACHE_PATH')) echo "\nCACHE_PATH yy 01: ".CACHE_PATH."\n";
 
-$ret = prepare_jenkins($argv, $root);
+if(!isset($eli_force_jenkins)) $eli_force_jenkins = false;
+else                           $eli_force_jenkins = true;
+
+$ret = prepare_jenkins($argv, $root, $eli_force_jenkins);
 $root = $ret[0];
 if(!defined('CACHE_PATH')) define('CACHE_PATH', $ret[1]);
 echo "\nnew: [$root]\n";
@@ -132,7 +135,7 @@ function environment_defined($environment_name)
     return false;
 }
 
-function prepare_jenkins($argv, $root)
+function prepare_jenkins($argv, $root, $eli_force_jenkins)
 {
     print_r($argv);
     if($jenkins_or_cron = @$argv[1]) {
@@ -153,6 +156,17 @@ function prepare_jenkins($argv, $root)
         else { //means NOT Jenkins
             if($root != "/Library/WebServer/Documents/eol_php_code/") $cache_path = '/var/www/html/cache_LiteratureEditor/';        //for archive
             else                                                      $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/'; //for mac mini
+        }
+    }
+    elseif($eli_force_jenkins) {
+        if($root != "/Library/WebServer/Documents/eol_php_code/") { //means Jenkins in eol-archive is running
+            $GLOBALS['ENV_NAME'] = 'jenkins_production';
+            $cache_path = '/html/cache_LiteratureEditor/';  //for archive
+            $root = '/html/eol_php_code/';
+        }
+        else { //means Jenkins in Mac mini is running
+            $GLOBALS['ENV_NAME'] = 'jenkins_development';
+            $cache_path = '/Volumes/MacMini_HD2/cache_LiteratureEditor/';   //for mac mini
         }
     }
     else echo "\ngoes here 04\n";
