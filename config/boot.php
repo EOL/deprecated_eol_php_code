@@ -134,6 +134,7 @@ function environment_defined($environment_name)
 
 function prepare_jenkins($argv, $root)
 {
+    print_r($argv);
     if($jenkins_or_cron = @$argv[1]) {
         if($jenkins_or_cron == "jenkins") {
             if($root != "/Library/WebServer/Documents/eol_php_code/") { //means Jenkins in eol-archive is running
