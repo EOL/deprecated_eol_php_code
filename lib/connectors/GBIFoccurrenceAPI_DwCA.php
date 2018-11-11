@@ -80,9 +80,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function jenkins_call($group, $batches, $connector_task)
     {
+        echo "\nCACHE_PATH 01 is ".CACHE_PATH."\n";
         require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
         require_once(DOC_ROOT."../FreshData/controllers/other.php");
         require_once(DOC_ROOT."../FreshData/controllers/freshdata.php");
+        echo "\nCACHE_PATH 02 is ".CACHE_PATH."\n";
 
         $ctrler = new \freshdata_controller(array());
         $postfix = "_map_data";
@@ -123,7 +125,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             echo "\nshell_debug: [$shell_debug]";
             */
             // break; //debug only -- just run 1 batch
-            sleep(60*3); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
+            
+            echo "\nCACHE_PATH 03 is ".CACHE_PATH."\n";
+            sleep(60); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
         }
     }
     private function total_occurrence_rows_per_group($group, $divisor)
