@@ -13,6 +13,7 @@ Todo: get remote raw file using script
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreeDataAPI');
+$GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
 $csv_url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/FreshData/USGS/SpeciesList.csv";

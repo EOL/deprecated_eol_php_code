@@ -299,6 +299,7 @@ class FreeDataAPI
                 while(true) {
                     $api = $this->service['usgs-nas']['occurrences'];
                     $api .= "?offset=$offset&genus=$genus&species=$species";
+                    echo "\n[$api]";
                     if($json = Functions::lookup_with_cache($api, $options))
                     {
                         $recs = json_decode($json);
