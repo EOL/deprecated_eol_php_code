@@ -782,6 +782,7 @@ class WikiDataAPI
                     if(!$rek) continue;
                     
                     /* debug only -- use when u want to generate DwCA with just one media       //use this when developing***
+                    $rek = self::process_file("Frazer´s_dolphin_group.jpg");    //no artist
                     // $rek = self::process_file("Haworthia_arachnoidea_-_cobweb_aloe.jpg");    //no artist
                     // $rek = self::process_file("Aa_species.jpg");
                     // $rek = self::process_file("Whales_are_Paraphyletic.svg");
@@ -1467,7 +1468,9 @@ class WikiDataAPI
         $rek = array();
         $options = $this->download_options;
         // $options['expire_seconds'] = false; //preferably monthly cache expires
-        if($json = Functions::lookup_with_cache("https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file, $options)) {
+        $api_call = "https://commons.wikimedia.org/w/api.php?format=json&action=query&prop=imageinfo&iiprop=extmetadata&titles=Image:".$file;
+        // echo "\n[$api_call]\n";
+        if($json = Functions::lookup_with_cache($api_call, $options)) {
             $json = self::clean_html($json); //new ditox eli
             $arr = json_decode($json, true);
             // print_r($arr); exit;
@@ -1488,7 +1491,7 @@ class WikiDataAPI
             /*
             if($rek['pageid'] == "12338225") { //good debug api
                 echo "\n=======investigate api data =========== start\n";
-                print_r($arr); exit("\nelix\n");
+                print_r($arr); //exit("\nelix\n");
                 echo "\n=======investigate api data =========== end\n";
             }
             */
