@@ -1007,7 +1007,7 @@ class WikiDataAPI
         if($other_author = trim(@$rek['other']['author'])) {
             if($val = self::make_other_author_an_agent($other_author)) $rek['Artist'][] = $val;
         }
-        else $rek['Artist'] = trim(@$rek['other']['author']); //before this new block, this row alone is the first option: $rek['Artist'] = trim(@$rek['other']['author']);
+        if(!@$rek['Artist']) $rek['Artist'] = $other_author; //before this new block, this row alone is the first option: $rek['Artist'] = $other_author;
         //end new
 
         if(!$rek['Artist']) { //became the 1st option. Before was just the 2nd option
