@@ -991,21 +991,24 @@ class WikiDataAPI
         |source=https://www.flickr.com/photos/internetarchivebookimages/16095238834/
         |permission={{User:Fæ/Flickr API}}
         */
-        if(preg_match("/\|date\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['date'] = $a[1];
+        if(preg_match("/\|date\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['date'] = trim($a[1]);
         else {
             $temp = Functions::remove_whitespace($wiki);
-            if(preg_match("/\|date \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['date'] = $a[1];
+            if(preg_match("/\|date \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['date'] = trim($a[1]);
+            elseif(preg_match("/\| date \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['date'] = trim($a[1]);
         }
         if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = trim($a[1]);
         else {
             $temp = Functions::remove_whitespace($wiki);
             if(preg_match("/\|author \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            elseif(preg_match("/\| author \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
         }
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         else {
             //start new Nov 6
             $temp = Functions::remove_whitespace($wiki);
-            if(preg_match("/\|source \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['source'] = $a[1];
+            if(preg_match("/\|source \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['source'] = trim($a[1]);
+            elseif(preg_match("/\| source \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['source'] = trim($a[1]);
             //end new Nov 6
         }
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
