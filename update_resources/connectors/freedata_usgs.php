@@ -16,6 +16,9 @@ require_library('connectors/FreeDataAPI');
 $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
+echo "\nPartner service is down.\n"; return;
+
+
 $csv_url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/FreshData/USGS/SpeciesList.csv";
 // $csv_url = "http://localhost/cp_new/FreshData/USGS/SpeciesList.csv"; //use [csv] button below this page: https://nas.er.usgs.gov/queries/SpeciesList.aspx
 
