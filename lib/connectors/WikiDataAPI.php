@@ -992,7 +992,15 @@ class WikiDataAPI
         |permission={{User:Fæ/Flickr API}}
         */
         if(preg_match("/\|date\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['date'] = $a[1];
+        else {
+            $temp = Functions::remove_whitespace($wiki);
+            if(preg_match("/\|date \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['date'] = $a[1];
+        }
         if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = trim($a[1]);
+        else {
+            $temp = Functions::remove_whitespace($wiki);
+            if(preg_match("/\|author \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+        }
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         else {
             //start new Nov 6
