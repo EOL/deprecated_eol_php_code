@@ -639,7 +639,7 @@ class WikiDataAPI
                 $media = self::last_quality_check($media); //removes /n and /t inside values. May revisit this as it may not be the sol'n for 2 rows with wrong no. of columns.
                 
                 // new start https://eol-jira.bibalex.org/browse/DATA-1784 - if agent is creator and license is PD, make that agent Owner in media object.
-                if($com['Artist'][0]['role'] == 'creator' && $media['UsageTerms'] != $this->license['public domain']) {
+                if(@$com['Artist'][0]['role'] == 'creator' && $media['UsageTerms'] != $this->license['public domain']) {
                     if($val = $com['Artist'][0]['name']) $media['Owner'] = $val;
                 }
                 // print_r($media);
@@ -1502,6 +1502,13 @@ class WikiDataAPI
             }
             */
             //start artist ====================
+            /* e.g. file = Cypron-Range_Hypanus_dipterura.svg
+            <div class="noresize">
+            <a href="//commons.wikimedia.org/wiki/User:The_Emirr/MapLab" title="User:The Emirr/MapLab">
+                <img alt="Maplab-logo.svg" src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Maplab-logo.svg/50px-Maplab-logo.svg.png" width="50" height="15" srcset="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Maplab-logo.svg/75px-Maplab-logo.svg.png 1.5x, https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Maplab-logo.svg/100px-Maplab-logo.svg.png 2x" data-file-width="200" data-file-height="60">
+            </a>
+            </div>
+            */
             if($val = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['Artist']['value'])) {
                 $val = str_ireplace("\n", "", $val);
                 if(stripos($val, "User:Aktron") !== false) return false; //string is found ---- invalid license
@@ -1509,7 +1516,15 @@ class WikiDataAPI
                 elseif(stripos($val, "Tom Habibi") !== false) $rek['Artist'][] = array('name' => 'Tom Habibi', 'homepage' => 'http://commons.wikimedia.org/wiki/User:Tomhab~commonswiki', 'role' => 'source');
 
                 elseif(preg_match_all("/<li>(.*?)<\/li>/ims", $val, $a)) $rek['Artist'] = self::process_li_separated_artists($a);
-                
+                elseif(preg_match("/title=\"User:(.*?)\"/ims", $val, $a)) {
+                    $hpage = '';
+                    if(preg_match("/href=\"(.*?)\"/ims", $val, $a2)) {
+                        $hpage = trim($a2[1]);
+                        if(substr($hpage,0,24) == '//commons.wikimedia.org/') $hpage = "https:".$hpage;
+                        else                                                  $hpage = trim($a2[1]); //orig
+                    }
+                    $rek['Artist'][] = array('name' => $a[1], 'role' => 'creator', 'homepage' => $hpage);
+                }
                 else { //original block
                     $atemp = array();
                     if(preg_match("/href=\"(.*?)\"/ims", $val, $a)) {
