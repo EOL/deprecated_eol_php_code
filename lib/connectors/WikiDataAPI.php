@@ -1243,6 +1243,9 @@ class WikiDataAPI
                 return $final;
             }
         }
+        elseif(preg_match("/Photographer:(.*?)\./ims", $description, $a)) { /*Photographer: Hans Hillewaert.*/
+            if($val = trim($a[1])) return array('name' => $val, 'role' => 'photographer');
+        }
         else {
             // echo "\nelix 555\n";
             // echo "\n$description\n";
