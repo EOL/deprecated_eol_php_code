@@ -32,7 +32,7 @@ drwxr-xr-x 2 root root          112 Oct  1 03:04 wikimedia
 drwxr-xr-x 2 root root           10 Nov  6  2017 wikipedia
 [root@eol-archive wikidata]# 
 */
-/* For testing one image to write to DwCA. Follow the 3 asterisk ***. Un-comment these block of codes. Worked OK. */
+/* For testing one image to write to DwCA for Wikimedia. Follow the 3 asterisk ***. Un-comment these block of codes. Worked OK. Works also now for Wikipedia */
 class WikiDataAPI
 {
     function __construct($folder, $lang, $what = "wikipedia")
@@ -168,7 +168,8 @@ class WikiDataAPI
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
 
-        if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) {
+        if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) { //orig
+        // if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it
             //start new block ---------------------------------------
             if($actual_task) {
                 self::parse_wiki_data_json($task, $range_from, $range_to);
@@ -179,7 +180,7 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                // if(true) { //use this when developing***
+                // if(true) { //use this when developing*** wikimedia only
                 if(self::finalize_media_filenames_ready($what_generation_status)) { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
@@ -373,6 +374,11 @@ class WikiDataAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
+                /* e.g. Panthera leo is Q140 *** force taxon in Wikimedia. when developing. wikipedia only
+                $arr = self::get_object('Q140');
+                $arr = $arr->entities->Q140;
+                */
+                
                 if(is_object($arr)) {
                     $rek = array();
                      // /*
@@ -447,8 +453,8 @@ class WikiDataAPI
                     echo("\n --Investigate not ok-- \n"); //previously this is exit()
                 }
                 
-                // break; //debug get first taxon wiki only //use this when developing***
-                // if($k > 5000) break; //10000
+                // break; //debug get first taxon wiki only //use this when developing*** wikimedia and wikipedia
+                // if($k > 10) break; //10000
                 // if($exit_now) break;
                 
             } //end of taxon wiki
@@ -781,7 +787,7 @@ class WikiDataAPI
                     if($rek == "continue") continue;
                     if(!$rek) continue;
                     
-                    /* debug only -- use when u want to generate DwCA with just one media       //use this when developing***
+                    /* debug only -- use when u want to generate DwCA with just one media       //use this when developing*** wikimedia only
                     $rek = self::process_file("Frazer´s_dolphin_group.jpg");    //no artist
                     // $rek = self::process_file("Haworthia_arachnoidea_-_cobweb_aloe.jpg");    //no artist
                     // $rek = self::process_file("Aa_species.jpg");
@@ -1803,6 +1809,7 @@ class WikiDataAPI
             else                  $row .= "\t";
         }
         if(!isset($this->object_ids[$media['identifier']])) {
+            $this->object_ids[$media['identifier']] = '';
             if(!($f = Functions::file_open($this->media_extension, "a"))) return;
             fwrite($f, $row);
             fclose($f);
@@ -1812,7 +1819,8 @@ class WikiDataAPI
         // /*
         if(!$this->passed_already) {
             $this->passed_already = true;
-            $mr = new \eol_schema\MediaResource();
+            echo "\nshould pass here only once\n";
+            $mr = new \eol_schema\MediaResource(); //for Wikipedia objects only --- it is just used to make a fake meta.xml
             $mr->taxonID                = $media['taxonID'];
             $mr->identifier             = $media['identifier'];
             $mr->type                   = $media['type'];
@@ -1824,10 +1832,7 @@ class WikiDataAPI
             $mr->furtherInformationURL  = $media['furtherInformationURL'];
             $mr->title                  = $media['title'];
             $mr->Owner                  = $media['Owner'];
-            if(!isset($this->object_ids[$mr->identifier])) {
-                $this->object_ids[$mr->identifier] = '';
-                $this->archive_builder->write_object_to_file($mr);
-            }
+            $this->archive_builder->write_object_to_file($mr);
         }
         // */
         
@@ -1867,10 +1872,12 @@ class WikiDataAPI
                     return $rek;
                 }
                 $rek['other'] = array();
+                $html = self::remove_infobox($html); //new DATA-1785
                 $html = $func->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
 
                 $desc = $func->get_comprehensive_desc($html);
+                $desc = self::remove_edit_sections($desc); //new https://eol-jira.bibalex.org/browse/DATA-1785
                 $rek['other']['comprehensive_desc'] = self::additional_desc_format($desc);
                 
                 // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
@@ -1882,6 +1889,139 @@ class WikiDataAPI
             }
         }
         return $rek;
+    }
+    private function remove_infobox($html) //and html form elements e.g. <input type...>
+    {
+        if(preg_match("/<table class=\"infobox\"(.*?)<\/table>/ims", $html, $arr)) { //for es, 
+            $substr = '<table class="infobox"'.$arr[1].'</table>';
+            $html = str_ireplace($substr, '', $html);
+        }
+        elseif(preg_match("/<table class=\"infobox biota\"(.*?)<\/table>/ims", $html, $arr)) { //for en, 
+            $substr = '<table class="infobox biota"'.$arr[1].'</table>';
+            $html = str_ireplace($substr, '', $html);
+        }
+        elseif(preg_match("/<table class=\"sinottico\"(.*?)<\/table>/ims", $html, $arr)) { //for it, 
+            $substr = '<table class="sinottico"'.$arr[1].'</table>';
+            $html = str_ireplace($substr, '', $html);
+        }
+        
+        if($this->language_code == "de") {
+            /*<table cellpadding="2" class="float-right taxobox" id="Vorlage_Taxobox" style="width:300px;" summary="Taxobox">*/
+            if(preg_match("/summary=\"Taxobox\">(.*?)<\/table>/ims", $html, $arr)) { //for de, 
+                $substr = 'summary="Taxobox">'.$arr[1].'</table>';
+                $html = str_ireplace($substr, '></table>', $html);
+                echo "\n-oks-\n";
+            }
+        }
+        
+        /* remove form elements e.g. <input type="checkbox" role="button" id="toctogglecheckbox" /> */
+        if(preg_match("/<input type=(.*?)>/ims", $html, $arr)) {
+            $substr = '<input type='.$arr[1].'>';
+            $html = str_ireplace($substr, '', $html);
+        }
+        return $html;
+    }
+    private function remove_edit_sections($html) //remove 'edit' sections and others
+    {   /* e.g. es
+        <h2>
+            <span id="Bibliograf.C3.ADa"></span><span class="mw-headline" id="Bibliografía">Bibliografía</span>
+            <span class="mw-editsection">
+                <span class="mw-editsection-bracket">[</span>
+                <a href="http://es.wikipedia.org/w/index.php?title=Cetacea&amp;action=edit&amp;section=53" title="Editar sección: Bibliografía">editar</a>
+                <span class="mw-editsection-bracket">]</span>
+            </span>
+        </h2>*/
+        /* e.g. it
+        <h2>
+        <span class="mw-headline" id="Etimologia">Etimologia</span>
+        <span class="mw-editsection">
+            <span class="mw-editsection-bracket">[</span>
+            <a href="/w/index.php?title=Panthera_leo&amp;veaction=edit&amp;section=1" class="mw-editsection-visualeditor" title="Modifica la sezione Etimologia">modifica</a>
+            <span class="mw-editsection-divider"> | </span>
+            <a href="/w/index.php?title=Panthera_leo&amp;action=edit&amp;section=1" title="Modifica la sezione Etimologia">modifica wikitesto</a>
+            <span class="mw-editsection-bracket">]</span>
+        </span>
+        </h2>*/
+        $html = str_ireplace('<span class="mw-editsection-bracket">[</span>', '', $html);
+        $html = str_ireplace('<span class="mw-editsection-bracket">]</span>', '', $html);
+        $html = str_ireplace('<span class="mw-editsection-divider"> | </span>', '', $html);
+        if(preg_match_all("/<span class=\"mw-editsection\">(.*?)<\/span>/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                $substr = '<span class="mw-editsection">'.$str.'</span>';
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        /* Please remove the srcset and data-file-width elements from all images */ //and probably data-file-height, assumed by Eli
+        $removes = array("srcset", "data-file-width", "data-file-height");
+        foreach($removes as $remove) {
+            if(preg_match_all("/".$remove."=\"(.*?)\"/ims", $html, $arr)) {
+                foreach($arr[1] as $str) {
+                    $substr = $remove.'="'.$str.'"';
+                    // echo "\n --- $substr --- \n";
+                    $html = str_ireplace($substr, '', $html);
+                }
+            }
+        }
+        /* remove everything after the end of the Bibliografía section. */
+        $html = self::remove_everything_after_bibliographic_section($html);
+        $html = self::remove_ctex_verion_spans($html);
+        return $html;
+    }
+    private function remove_ctex_verion_spans($html)
+    {   /*
+    <span title="ctx_ver=Z39.88-2004&rfr_id=info%3Asid%2Fes.wikipedia.org%3APanthera+leo&rft.au=Baratay%2C+Eric&rft.aufirst=Eric&rft.aulast=Baratay&rft.btitle=Zoo%3A+a+history+of+zoological+gardens+in+the+West&rft.date=2002&rft.genre=book&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook">
+    <span> </span></span> 
+    <span>La referencia utiliza el parámetro obsoleto <code>|coautores=</code> (<a href="http://es.wikipedia.org/wiki/Ayuda:Errores_en_las_referencias#deprecated_params" title="Ayuda:Errores en las referencias">ayuda</a>)</span>
+
+    <span title="ctx_ver=Z39.88-2004&rfr_id=info%3Asid%2Fes.wikipedia.org%3APanthera+leo&rft.au=Baratay%2C+Eric&rft.aufirst=Eric&rft.aulast=Baratay&rft.btitle=Zoo%3A+a+history+of+zoological+gardens+in+the+West&rft.date=2002&rft.genre=book&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook"><span> </span></span> <span>La referencia utiliza el parámetro obsoleto <code>|coautores=</code> (<a href="http://es.wikipedia.org/wiki/Ayuda:Errores_en_las_referencias#deprecated_params" title="Ayuda:Errores en las referencias">ayuda</a>)</span>
+        */
+        $html = str_ireplace("<span> </span>", "", $html);
+        if(preg_match_all("/<span title=\"ctx_ver=(.*?)<\/span>/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                $substr = '<span title="ctx_ver='.$str.'</span>';
+                // echo "\n --- $substr --- \n";
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        return $html;
+    }
+    private function bibliographic_section_per_language()
+    {
+        if($this->language_code == "es") return '<span class="mw-headline" id="Bibliografía">Bibliografía</span>';
+        if($this->language_code == "it") return '<span class="mw-headline" id="Bibliografia">Bibliografia</span>';
+        if($this->language_code == "en") return '<span class="mw-headline" id="References">References</span>';
+        if($this->language_code == "de") return '<span class="mw-headline" id="Einzelnachweise">Einzelnachweise</span>';
+    }
+    private function get_section_name_after_bibliographic_section($html)
+    {
+        $biblio_section = self::bibliographic_section_per_language();
+        if(preg_match_all("/<h2>(.*?)<\/h2>/ims", $html, $arr)) {
+            // print_r($arr[1]);
+            $i = -1;
+            foreach($arr[1] as $tmp) {
+                $i++;
+                if(stripos($tmp, $biblio_section) !== false) return @$arr[1][$i+1]; //string is found
+            }
+        }
+        return false;
+    }
+    private function remove_everything_after_bibliographic_section($html)
+    {
+        if($section_after_biblio = self::get_section_name_after_bibliographic_section($html)) { //for en, es, it, so far
+            echo "\nsection_after_biblio: [$section_after_biblio]\n"; //exit("\n");
+            // echo "\nsection_after_biblio: [".preg_quote($section_after_biblio,'/')."]\n"; exit("\n");
+            if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
+        }
+        
+        if($this->language_code == "de") { /* <table id="Vorlage_Exzellent" */
+            // exit("\n$html\n");
+            if(preg_match("/<table id=\"Vorlage_Exzellent\"(.*?)xxx/ims", $html."xxx", $arr)) {
+                $substr = '<table id="Vorlage_Exzellent"'.$arr[1].'xxx';
+                $html = str_ireplace($substr, '', $html."xxx");
+                // exit("\n".$html."\n001\n\n");
+            }
+        }
+        return $html;
     }
     private function additional_desc_format($desc)
     {

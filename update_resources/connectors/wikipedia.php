@@ -56,6 +56,7 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 
 // print_r($argv);
 // php5.6 wikipedia.php jenkins en generate_resource 1 300000 1of6
+// php5.6 wikipedia.php jenkins de #German
 $params['jenkins_or_cron']  = @$argv[1];
 $params['language']         = @$argv[2];
 
@@ -75,6 +76,7 @@ else $resource_id = "wikipedia-".$language;
 $func = new WikiDataAPI($resource_id, $language); //generic call
 
 if(in_array($language, array("en"))) {
+// if(false) { //*** use this when developing to process language 'en' for one taxon only
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
     if($status_arr[0]) {
         echo "\n".$params['actual']." -- finished\n";
