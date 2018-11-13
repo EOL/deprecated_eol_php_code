@@ -85,7 +85,7 @@ class WikiDataAPI
         $this->count['less_than_2995'] = 0;
     }
 
-    function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps
+    function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
     {
         //initialize:
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
@@ -2041,7 +2041,7 @@ class WikiDataAPI
     private function remove_everything_after_bibliographic_section($html)
     {
         if($section_after_biblio = self::get_section_name_after_bibliographic_section($html)) { //for en, es, it, so far
-            echo "\nsection_after_biblio: [$section_after_biblio]\n"; //exit("\n");
+            // echo "\nsection_after_biblio: [$section_after_biblio]\n"; //exit("\n");
             // echo "\nsection_after_biblio: [".preg_quote($section_after_biblio,'/')."]\n"; exit("\n");
             if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
         }
