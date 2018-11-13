@@ -263,7 +263,7 @@ class FreeDataAPI
         $options['resource_id'] = "usgs"; //a folder /usgs/ will be created in /eol_cache/
         $options['download_wait_time'] = 1000000; //1 second
         // $options['expire_seconds'] = false; //debug only - used only during development. Designed to expire in 28 days
-        $options['download_attempts'] = 3;
+        $options['download_attempts'] = 2;
         $options['delay_in_minutes'] = 2;
         
         $i = 0;
@@ -286,6 +286,9 @@ class FreeDataAPI
                 $species = urlencode($species);
                 $offset = 0;
                 
+                if($genus == "Scientific") continue; //meaning 1st row
+                if(!$genus || !$species) continue;
+                
                 /* breakdown when caching: as of Jun 5, 2017 total is 1,270
                 $cont = false;
                 // if($i >= 0    && $i < 250) $cont = true; 
@@ -300,8 +303,11 @@ class FreeDataAPI
                     $api = $this->service['usgs-nas']['occurrences'];
                     $api .= "?offset=$offset&genus=$genus&species=$species";
                     echo "\n[$api]";
-                    if($json = Functions::lookup_with_cache($api, $options))
-                    {
+                    if($json = Functions::lookup_with_cache($api, $options)) {
+                        if(stripos($json, "The requested service is temporarily unavailable") !== false) { //string is found
+                            echo "\nAPI service is down 01\n"; //needed this to prevent from continuing if API service is down anyway
+                            return;
+                        }
                         $recs = json_decode($json);
                         if(($i % 200) == 0) echo "\n$i. total: ".count($recs->results);
                         if($val = $recs->results) self::process_usgs_occurrence($val, $group);
@@ -310,7 +316,11 @@ class FreeDataAPI
                         if($recs->endOfRecords == "true") break;
                         if(count($recs->results) < 100) break;
                     }
-                    else break;
+                    else {
+                        echo "\nAPI service is down 02\n"; //needed this to prevent from continuing if API service is down anyway
+                        return;
+                    }
+                    // else break; //orig
                 }
             }
             // if($i > 10) break; //debug - to limit recs
