@@ -1248,7 +1248,10 @@ class WikiDataAPI
             }
         }
         elseif(preg_match("/Photographer:(.*?)\./ims", $description, $a)) { /*Photographer: Hans Hillewaert.*/
-            if($val = trim($a[1])) return array('name' => $val, 'role' => 'photographer');
+            if($val = trim($a[1])) return array('name' => strip_tags($val), 'role' => 'photographer');
+        }
+        elseif(preg_match("/Author:(.*?)\./ims", $description, $a)) { /*Author: Kurt Stüber <a rel="nofollow" href="http://www.kurtstueber.de/">[1]</a>.*/
+            if($val = trim($a[1])) return array('name' => strip_tags($val), 'role' => 'creator');
         }
         else {
             // echo "\nelix 555\n";
