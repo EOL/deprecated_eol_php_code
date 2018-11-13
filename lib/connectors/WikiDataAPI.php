@@ -168,7 +168,11 @@ class WikiDataAPI
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
 
-        if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) { //orig
+        if( 
+            ($this->what == "wikimedia") || (
+                                                $this->what == "wikipedia" && in_array($this->language_code, array("en", "es"))
+                                            )
+          ) { //orig
         // if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it
             //start new block ---------------------------------------
             if($actual_task) {
