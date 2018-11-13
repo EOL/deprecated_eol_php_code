@@ -180,7 +180,7 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                // if(true) { //use this when developing*** wikimedia only --- for 'en'
+                // if(true) { //use this when developing*** wikipedia only --- for 'en'
                 if(self::finalize_media_filenames_ready($what_generation_status)) { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
@@ -637,7 +637,7 @@ class WikiDataAPI
                 if(!@$media['agentID']) {
                     echo "\n-------start investigate--------Undefined index: agentID---\n";
                     print_r($com);
-                    print_r($media);
+                    // print_r($media);
                     $this->debug['file in question'][pathinfo($media['furtherInformationURL'], PATHINFO_BASENAME)] = '';
                     // exit("\nUndefined index: agentID --------------------\n");
                 }
@@ -1007,9 +1007,27 @@ class WikiDataAPI
         if(preg_match("/\|author\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['author'] = trim($a[1]);
         else {
             $temp = Functions::remove_whitespace($wiki);
-            if(preg_match("/\|author \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            $temp = str_replace("\t", "", $temp);
+            if    (preg_match("/\|author \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
             elseif(preg_match("/\| author \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            elseif(preg_match("/\|author\=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+
+            elseif(preg_match("/\|photographer \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            elseif(preg_match("/\| photographer \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            elseif(preg_match("/\|photographer\=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            
+            elseif(preg_match("/\|artist \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            elseif(preg_match("/\| artist \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            elseif(preg_match("/\|artist\=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+
+            // else exit("\n$temp\nelix\n");
+            /*
+            |Author		= [http://www.flickr.com/people/46788399@N00 Gilles Gonthier]
+            |Author= [http://www.flickr.com/people/46788399@N00 Gilles Gonthier]
+            |photographer       = [[flickruser:29797746@N08|Dave & Margie Hill / Kleerup]]
+            */
         }
+        
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         else {
             //start new Nov 6
@@ -1023,6 +1041,7 @@ class WikiDataAPI
         //================================================================ Artist
         //start new Nov 6, 2018 e.g. https://commons.wikimedia.org/wiki/File:Clone_war_of_sea_anemones_3.jpg
         if($other_author = trim(@$rek['other']['author'])) {
+            // exit("\nother_author: [$other_author]\n");
             if($val = self::make_other_author_an_agent($other_author)) $rek['Artist'][] = $val;
         }
         if(!@$rek['Artist']) $rek['Artist'] = $other_author; //before this new block, this row alone is the first option: $rek['Artist'] = $other_author;
@@ -1163,6 +1182,12 @@ class WikiDataAPI
     }
     private function make_other_author_an_agent($other_author)
     {
+        /* e.g. orig wiki value = {{Creator:Marten de Vos}} */
+        if(substr($other_author,0,2) == "{{") {
+            $name = str_replace(array("{", "}"), "", $other_author);
+            return array('name' => $name, 'role' => 'creator');
+        }
+        
         /* e.g. $other_author orig value, which is a wiki:
         [https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
         e.g. html value is:
@@ -1171,6 +1196,7 @@ class WikiDataAPI
         $html = self::convert_wiki_2_html($other_author);
         $final = array();
         if(preg_match("/>(.*?)<\/a>/ims", $html, $a)) $final['name'] = $a[1];
+        else                                          $final['name'] = str_replace(array("[","]"), "", $other_author); /* orig wiki value = [Jenny (JennyHuang)] */
         if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
         if(@$final['name']) {
             $final['role'] = 'creator';
@@ -1254,7 +1280,14 @@ class WikiDataAPI
             }
         }
         elseif(preg_match("/Photographer:(.*?)\./ims", $description, $a)) { /*Photographer: Hans Hillewaert.*/
-            if($val = trim($a[1])) return array('name' => strip_tags($val), 'role' => 'photographer');
+            if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'photographer');
+            else //e.g. Photographer: <a href="https://commons.wikimedia.org/wiki/User:Biopics" title="User:Biopics">Hans Hillewaert</a>.
+            {
+                $d = strip_tags($description);
+                if(preg_match("/Photographer:(.*?)\./ims", $d, $a)) {
+                    if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'photographer');
+                }
+            }
         }
         elseif(preg_match("/Author:(.*?)\./ims", $description, $a)) { /*Author: Kurt Stüber <a rel="nofollow" href="http://www.kurtstueber.de/">[1]</a>.*/
             if($val = trim($a[1])) return array('name' => strip_tags($val), 'role' => 'creator');
