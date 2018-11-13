@@ -180,7 +180,7 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                // if(true) { //use this when developing*** wikimedia only
+                // if(true) { //use this when developing*** wikimedia only --- for 'en'
                 if(self::finalize_media_filenames_ready($what_generation_status)) { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
