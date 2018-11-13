@@ -57,6 +57,8 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 // print_r($argv);
 // php5.6 wikipedia.php jenkins en generate_resource 1 300000 1of6
 // php5.6 wikipedia.php jenkins de #German
+/* to test locall when developing:
+php update_resources/connectors/wikipedia.php _ de         //or en, es, it */
 $params['jenkins_or_cron']  = @$argv[1];
 $params['language']         = @$argv[2];
 
