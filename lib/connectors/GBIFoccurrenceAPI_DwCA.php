@@ -114,20 +114,23 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if    ($connector_task == "breakdown_GBIF_DwCA_file")               $cmd = PHP_PATH.' breakdown_GBIF_DwCA_file.php jenkins ' . "'" . $json . "'";
             elseif($connector_task == "generate_map_data_using_GBIF_csv_files") $cmd = PHP_PATH.' generate_map_data_using_GBIF_csv_files.php jenkins ' . "'" . $json . "'";
             
+            echo "\n$cmd\n";
+            
+            /* works well locally but bit problematic in eol-archive, will abandon for a while
             $cmd .= " 2>&1";
             $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
             $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
             $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
             $shell_debug = shell_exec($c);
-            /* for more debugging...
-            echo "\ncmd: $cmd
-                  \nc: $c";
-            echo "\nshell_debug: [$shell_debug]";
-            */
+            // for more debugging...
+            // echo "\ncmd: $cmd
+            //       \nc: $c";
+            // echo "\nshell_debug: [$shell_debug]";
+
             // break; //debug only -- just run 1 batch
-            
             echo "\nCACHE_PATH 03 is ".CACHE_PATH."\n";
             sleep(60); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
+            */
         }
     }
     private function total_occurrence_rows_per_group($group, $divisor)
