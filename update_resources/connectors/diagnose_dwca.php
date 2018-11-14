@@ -4,6 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWCADiagnoseAPI');
 $timestart = time_elapsed();
+ini_set('memory_limit','7096M');
 
 // $source      = DOC_ROOT . "temp/" . "folder2/yyy";
 // $destination = DOC_ROOT . "temp/" . "folder2/zzz";
@@ -33,7 +34,8 @@ exit("\n\n");
 */
 
 // /* wikipedia in diff. languages from eol-archive:
-$resource_id = "es"; $resource_id = "957"; $resource_id = "wikipedia-it";
+$resource_id = "es"; $resource_id = "957"; $resource_id = "wikipedia-it"; $resource_id = "wikipedia-es";
+$resource_id = "80";
 $func = new DWCADiagnoseAPI();
 $func->check_unique_ids($resource_id);
 exit;
