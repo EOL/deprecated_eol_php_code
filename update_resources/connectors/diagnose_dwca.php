@@ -32,8 +32,8 @@ Functions::file_rename($source, $destination);
 exit("\n\n");
 */
 
-// /*
-$resource_id = "es"; 
+// /* wikipedia in diff. languages from eol-archive:
+$resource_id = "es"; $resource_id = "957"; $resource_id = "wikipedia-it";
 $func = new DWCADiagnoseAPI();
 $func->check_unique_ids($resource_id);
 exit;
