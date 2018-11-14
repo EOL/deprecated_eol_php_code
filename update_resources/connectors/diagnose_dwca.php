@@ -32,6 +32,12 @@ Functions::file_rename($source, $destination);
 exit("\n\n");
 */
 
+// /*
+$resource_id = "es"; 
+$func = new DWCADiagnoseAPI();
+$func->check_unique_ids($resource_id);
+exit;
+// */
 
 // /*
 $resource_id = "EOL_12_multimedia";//355; //EOL_12_multimedia.tar.gz
