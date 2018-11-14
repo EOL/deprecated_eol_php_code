@@ -184,7 +184,7 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                // if(true) { //use this when developing*** wikipedia only --- for 'en'
+                // if(true) { //use this when developing*** wikimedia only --- for 'en'
                 if(self::finalize_media_filenames_ready($what_generation_status)) { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
@@ -378,7 +378,7 @@ class WikiDataAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
-                /* e.g. Panthera leo is Q140 *** force taxon in Wikimedia. when developing. wikipedia only
+                /* e.g. Panthera leo is Q140 *** force taxon in Wikipedia. when developing. wikipedia only
                 $arr = self::get_object('Q140');
                 $arr = $arr->entities->Q140;
                 */
@@ -1942,12 +1942,17 @@ class WikiDataAPI
             $html = str_ireplace($substr, '', $html);
         }
         
+        if($this->language_code == "fr") {
+            if(preg_match("/<div class=\"infobox_(.*?)<p>/ims", $html, $arr)) { //for fr, <div class="infobox_v3 large taxobox_v3 zoologie animal bordered" style="width:20em">
+                $substr = '<div class="infobox_'.$arr[1]."<p>";
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
         if($this->language_code == "de") {
             /*<table cellpadding="2" class="float-right taxobox" id="Vorlage_Taxobox" style="width:300px;" summary="Taxobox">*/
             if(preg_match("/summary=\"Taxobox\">(.*?)<\/table>/ims", $html, $arr)) { //for de, 
                 $substr = 'summary="Taxobox">'.$arr[1].'</table>';
                 $html = str_ireplace($substr, '></table>', $html);
-                echo "\n-oks-\n";
             }
         }
         
@@ -2028,6 +2033,7 @@ class WikiDataAPI
         if($this->language_code == "it") return '<span class="mw-headline" id="Bibliografia">Bibliografia</span>';
         if($this->language_code == "en") return '<span class="mw-headline" id="References">References</span>';
         if($this->language_code == "de") return '<span class="mw-headline" id="Einzelnachweise">Einzelnachweise</span>';
+        if($this->language_code == "ko") return '<span class="mw-headline" id="각주">각주</span>';
     }
     private function get_section_name_after_bibliographic_section($html)
     {
@@ -2058,6 +2064,16 @@ class WikiDataAPI
                 // exit("\n".$html."\n001\n\n");
             }
         }
+        elseif($this->language_code == "fr") { /* <div class="navbox-container" style="clear:both;"> */
+            // exit("\n$html\n");
+            if(preg_match("/<div class=\"navbox-container\"(.*?)xxx/ims", $html."xxx", $arr)) {
+                $substr = '<div class="navbox-container"'.$arr[1].'xxx';
+                $html = str_ireplace($substr, '', $html."xxx");
+                // exit("\n".$html."\n001\n\n");
+            }
+        }
+        
+        
         return $html;
     }
     private function additional_desc_format($desc)
