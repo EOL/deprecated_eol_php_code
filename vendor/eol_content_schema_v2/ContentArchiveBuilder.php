@@ -14,13 +14,7 @@ class ContentArchiveBuilder
         $this->file_handles = array();
         $this->file_classes = array();
         $this->file_columns = array();
-        echo "\nthis directory 01: [$this->directory]\n";
-        if(!file_exists($this->directory)) {
-            echo "\ndirectory does not exist\n";
-            mkdir($this->directory);
-        }
-        else echo "\ndirectory exists already\n";
-        echo "\nthis directory 02: [$this->directory]\n";
+        if(!file_exists($this->directory)) mkdir($this->directory);
     }
 
     // $parameters might be a single array of objects, or an array of arrays of objects
