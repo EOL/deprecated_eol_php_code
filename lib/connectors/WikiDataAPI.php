@@ -184,7 +184,7 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                // if(true) { //use this when developing*** wikimedia only --- for 'en'
+                // if(true) { //use this when developing*** wikimedia only --- for 'en' and now 'es' -> those with multiple jobs
                 if(self::finalize_media_filenames_ready($what_generation_status)) { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
@@ -379,8 +379,8 @@ class WikiDataAPI
                 for debug end ======================== */
                 
                 /* e.g. Panthera leo is Q140 *** force taxon in Wikipedia. when developing. wikipedia only
-                $arr = self::get_object('Q140');
-                $arr = $arr->entities->Q140;
+                $arr = self::get_object('Q140'); $arr = $arr->entities->Q140;
+                $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
                 */
                 
                 if(is_object($arr)) {
@@ -1294,7 +1294,13 @@ class WikiDataAPI
             }
         }
         elseif(preg_match("/Author:(.*?)\./ims", $description, $a)) { /*Author: Kurt Stüber <a rel="nofollow" href="http://www.kurtstueber.de/">[1]</a>.*/
-            if($val = trim($a[1])) return array('name' => strip_tags($val), 'role' => 'creator');
+            if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'creator');
+            else {
+                $d = strip_tags($description);
+                if(preg_match("/Author:(.*?)\./ims", $d, $a)) {
+                    if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'creator');
+                }
+            }
         }
         else {
             // echo "\nelix 555\n";
@@ -2488,6 +2494,7 @@ class WikiDataAPI
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         $filename = $main_path . "$cache1/$cache2/$md5.json";
+        debug("\nfilename: [$filename]\n");
         if(file_exists($filename)) return $filename;
         else return false;
     }
