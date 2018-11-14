@@ -12,10 +12,23 @@ $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
 /* for eol-archive
-php gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
+php                             gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
 php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"group":"Gadus morhua","divisor":3}'
-*/
 
+## normal operation
+#php5.6 gbif_georeference_dwca.php jenkins '{"task":"generate_map_data_using_GBIF_csv_files","divisor":3}'
+
+use this to get the breakdown:
+php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"task":"generate_map_data_using_GBIF_csv_files","divisor":20}'
+
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[1,25952],"ctr":1}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[25952,51903],"ctr":2}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[51903,77854],"ctr":3}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[77854,103805],"ctr":4}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[103805,129756],"ctr":5}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[129756,155707],"ctr":6}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[155707,181658],"ctr":7}'
+*/
 
 /* sample command line for this script:
 php                             gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
