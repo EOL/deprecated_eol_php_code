@@ -34,8 +34,8 @@ exit("\n\n");
 */
 
 // /* wikipedia in diff. languages from eol-archive:
-$resource_id = "es"; $resource_id = "957"; $resource_id = "wikipedia-it"; $resource_id = "wikipedia-es";
-$resource_id = "80";
+$resource_id = "es"; $resource_id = "957"; $resource_id = "wikipedia-it"; $resource_id = "wikipedia-es"; $resource_id = "80";
+$resource_id = "wikipedia-fr";
 $func = new DWCADiagnoseAPI();
 $func->check_unique_ids($resource_id);
 exit;
