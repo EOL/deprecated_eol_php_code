@@ -154,6 +154,7 @@ wikipedia-fr	Sunday 2017-12-03 12:04:24 AM	{"media_resource.tab":214962,"taxon.t
 wikipedia-fr	Sunday 2018-04-29 04:10:02 PM	{"media_resource.tab":214956,"taxon.tab":119821}
 wikipedia-fr	Sunday 2018-10-14 11:36:53 AM	{"media_resource.tab":214976,"taxon.tab":119816}
 wikipedia-fr	Wednesday 2018-11-14 09:40:10 PM{"media_resource.tab":224117,"taxon.tab":124547} might change...
+wikipedia-fr	Thursday 2018-11-15 05:24:25 AM	{"media_resource.tab":224055,"taxon.tab":124547}
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
