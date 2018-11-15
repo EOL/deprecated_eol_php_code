@@ -2040,6 +2040,7 @@ class WikiDataAPI
         if($this->language_code == "en") return '<span class="mw-headline" id="References">References</span>';
         if($this->language_code == "de") return '<span class="mw-headline" id="Einzelnachweise">Einzelnachweise</span>';
         if($this->language_code == "ko") return '<span class="mw-headline" id="각주">각주</span>';
+        if($this->language_code == "fr") return '<span class="mw-headline" id="Notes_et_références">Notes et références</span>';
     }
     private function get_section_name_after_bibliographic_section($html)
     {
@@ -2057,9 +2058,20 @@ class WikiDataAPI
     private function remove_everything_after_bibliographic_section($html)
     {
         if($section_after_biblio = self::get_section_name_after_bibliographic_section($html)) { //for en, es, it, so far
-            // echo "\nsection_after_biblio: [$section_after_biblio]\n"; //exit("\n");
+            debug("\nsection_after_biblio: [$section_after_biblio]\n");
             // echo "\nsection_after_biblio: [".preg_quote($section_after_biblio,'/')."]\n"; exit("\n");
             if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
+        }
+        else {
+            debug("\nNo section after biblio detected [$this->language_code]\n");
+            /* start customize per language: */
+            if($this->language_code == "fr") {
+                $section_after_biblio = '<ul id="bandeau-portail" class="bandeau-portail">';
+                if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
+            }
+            elseif($this->language_code == "xxx") {}
+            else debug("\n---No contingency for [$this->language_code]\n");
+            /* end customize */
         }
         
         if($this->language_code == "de") { /* <table id="Vorlage_Exzellent" */
@@ -2079,7 +2091,6 @@ class WikiDataAPI
             }
         }
         
-        
         return $html;
     }
     private function additional_desc_format($desc)
@@ -2092,6 +2103,11 @@ class WikiDataAPI
         }
         if(preg_match_all("/style=\"(.*?)\"/ims", $desc, $arr)) {
             foreach($arr[1] as $item) $desc = str_replace('style="'.$item.'"', "", $desc);
+        }
+        
+        /* remove <style> tags e.g. <style data-mw-deduplicate="TemplateStyles:r151431924">.mw-parser-output h1 #sous_titre_h1{display:block;font-size:0.7em;line-height:1.3em;margin:0.2em 0 0.1em 0.5em}</style> */
+        if(preg_match_all("/<style (.*?)<\/style>/ims", $desc, $arr)) {
+            foreach($arr[1] as $item) $desc = str_replace('<style '.$item.'</style>', "", $desc);
         }
         
         // removes html comments <!-- ??? -->
