@@ -757,7 +757,7 @@ class WikiDataAPI
             }
             */
 
-            $r->term_homepage   = @$a['homepage'];
+            $r->term_homepage   = self::format_homepage(@$a['homepage']);
             $r->identifier      = md5("$r->term_name|$r->agentRole");
             $agent_ids[] = $r->identifier;
             if(!isset($this->agent_ids[$r->identifier])) {
@@ -767,7 +767,12 @@ class WikiDataAPI
         }
         return $agent_ids;
     }
-    
+    private function format_homepage($url)
+    {
+        if    (substr($url,0,5) == "File:") return "https://commons.wikimedia.org/wiki/".$url;
+        elseif(substr($url,0,5) == "User:") return "https://wikipedia.org/wiki/".$url;
+        return $url;
+    }
     private function get_commons_info($url)
     {
         $final = array();
@@ -794,7 +799,8 @@ class WikiDataAPI
                     if(!$rek) continue;
                     
                     /* debug only -- use when u want to generate DwCA with just one media       //use this when developing*** wikimedia only
-                    $rek = self::process_file("Frazer´s_dolphin_group.jpg");    //no artist
+                    $rek = self::process_file("Ctenopharyngodon_idella_01_Pengo.jpg");    //no artist
+                    // $rek = self::process_file("Frazer´s_dolphin_group.jpg");    //no artist
                     // $rek = self::process_file("Haworthia_arachnoidea_-_cobweb_aloe.jpg");    //no artist
                     // $rek = self::process_file("Aa_species.jpg");
                     // $rek = self::process_file("Whales_are_Paraphyletic.svg");
@@ -1542,7 +1548,7 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
-            /*
+            /* 12338225
             if($rek['pageid'] == "12338225") { //good debug api
                 echo "\n=======investigate api data =========== start\n";
                 print_r($arr); //exit("\nelix\n");
@@ -1732,7 +1738,13 @@ class WikiDataAPI
             return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'source');
         }
         elseif(stripos($categories, "Files with no machine-readable author|Files with no machine-readable source") !== false) { //string is found
-            return array('name' => "Wikimedia Commons", 'homepage' => $title, 'role' => 'recorder');
+
+            if(stripos($categories, "User:") !== false) { //string is found
+                if    (preg_match("/User\:(.*?)\|/ims", $categories, $a))        return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'creator');
+                elseif(preg_match("/User\:(.*?)xxx/ims", $categories."xxx", $a)) return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'creator');
+            }
+            else return array('name' => "Wikimedia Commons", 'homepage' => $title, 'role' => 'recorder');
+
         }
         if(preg_match("/Photographer\:(.*?)\\n/ims", $categories, $a)) { //Photographer: Richard Ling <wikipedia@rling.com>
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'photographer');
@@ -1743,13 +1755,13 @@ class WikiDataAPI
             else return array('name' => $str, 'homepage' => $title, 'role' => 'source');
         }
 
-        if(preg_match("/Creator\: (.*?)\\n/ims", $categories, $a)) { //:Creator: Harrison, George
+        if(preg_match("/Creator\:(.*?)\\n/ims", $categories, $a)) { //:Creator: Harrison, George
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'creator');
         }
-        if(preg_match("/Publisher\: (.*?)\\n/ims", $categories, $a)) { //:Publisher: U.S. Fish and Wildlife Service
+        if(preg_match("/Publisher\:(.*?)\\n/ims", $categories, $a)) { //:Publisher: U.S. Fish and Wildlife Service
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'publisher');
         }
-        if(preg_match("/Source\: (.*?)\\n/ims", $categories, $a)) { //:Source: WO-EE-4138
+        if(preg_match("/Source\:(.*?)\\n/ims", $categories, $a)) { //:Source: WO-EE-4138
             return array('name' => trim($a[1]), 'homepage' => $title, 'role' => 'source');
         }
 
