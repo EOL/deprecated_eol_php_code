@@ -378,11 +378,11 @@ class WikiDataAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
-                /* e.g. Panthera leo is Q140 *** force taxon in Wikipedia. when developing. wikipedia only
-                $arr = self::get_object('Q140'); $arr = $arr->entities->Q140;
-                $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
-                $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
-                $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear
+                /* force taxon in Wikipedia. when developing. wikipedia only ***
+                $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
+                // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
+                // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
+                // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear
                 */
                 
                 if(is_object($arr)) {
@@ -1970,8 +1970,15 @@ class WikiDataAPI
             elseif(@$option[2]) $html = $option[2]['html'];
         }
         
-        
-        if(preg_match("/<table class=\"infobox\"(.*?)<\/table>/ims", $html, $arr)) { //for es, 
+        if(preg_match("/<table class=\"infobox bordered\"(.*?)<\/table>/ims", $html, $arr)) { //for es, 
+            $substr = '<table class="infobox bordered"'.$arr[1].'</table>';
+            $html = str_ireplace($substr, '', $html);
+        }
+        elseif(preg_match("/<table class=\"infobox_v2\"(.*?)<\/table>/ims", $html, $arr)) { //for es, 
+            $substr = '<table class="infobox_v2"'.$arr[1].'</table>';
+            $html = str_ireplace($substr, '', $html);
+        }
+        elseif(preg_match("/<table class=\"infobox\"(.*?)<\/table>/ims", $html, $arr)) { //for es, 
             $substr = '<table class="infobox"'.$arr[1].'</table>';
             $html = str_ireplace($substr, '', $html);
         }
@@ -2078,6 +2085,9 @@ class WikiDataAPI
         if($this->language_code == "ko") return '<span class="mw-headline" id="각주">각주</span>';
         if($this->language_code == "fr") return '<span class="mw-headline" id="Notes_et_références">Notes et références</span>';
         if($this->language_code == "ru") return '<span class="mw-headline" id="Примечания">Примечания</span>';
+        if($this->language_code == "pt") return '<span class="mw-headline" id="Bibliografias">Bibliografias</span>';
+        if($this->language_code == "zh") return '<span class="mw-headline" id="參考資料">參考資料</span>';
+        if($this->language_code == "ja") return '<span class="mw-headline" id="脚注">脚注</span>';
     }
     private function get_section_name_after_bibliographic_section($html, $biblio_section = false)
     {
@@ -2105,23 +2115,33 @@ class WikiDataAPI
                 $section_after_biblio = '<ul id="bandeau-portail" class="bandeau-portail">';
                 if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
             }
-            elseif($this->language_code == "ru") {
-                $biblio_section = '<span class="mw-headline" id="В_культуре">В культуре</span>'; //another suggested biblio_section for 'ru'
-                if($section_after_biblio = self::get_section_name_after_bibliographic_section($html, $biblio_section)) {
-                    debug("\nsection_after_biblio: [$section_after_biblio]\n");
-                    if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
-                }
+            elseif($this->language_code == "ru") { //another suggested biblio_section for 'ru'
+                if($ret = self::second_try_sect_after_biblio('<span class="mw-headline" id="В_культуре">В культуре</span>', $html)) return $ret;
+            }
+            elseif($this->language_code == "pt") {
+                if($ret = self::second_try_sect_after_biblio('<span class="mw-headline" id="Referencias">Referencias</span>', $html)) return $ret;
+                if($ret = self::second_try_sect_after_biblio('<span class="mw-headline" id="Bibliografia">Bibliografia</span>', $html)) return $ret;
+            }
+            elseif($this->language_code == "zh") {
+                if($ret = self::second_try_sect_after_biblio('<span class="mw-headline" id="參考文獻">參考文獻</span>', $html)) return $ret;
             }
             else debug("\n---No contingency for [$this->language_code]\n");
             /* end customize */
         }
         
-        if($this->language_code == "de") { /* <table id="Vorlage_Exzellent" */
-            // exit("\n$html\n");
-            if(preg_match("/<table id=\"Vorlage_Exzellent\"(.*?)xxx/ims", $html."xxx", $arr)) {
-                $substr = '<table id="Vorlage_Exzellent"'.$arr[1].'xxx';
+        if($this->language_code == "de") { /* <table id="Vorlage_Exzellent" <table id="Vorlage_Lesenswert" */
+            if(preg_match("/<table id=\"Vorlage_Exzellent(.*?)xxx/ims", $html."xxx", $arr)) {
+                $substr = '<table id="Vorlage_Exzellent'.$arr[1].'xxx';
                 $html = str_ireplace($substr, '', $html."xxx");
-                // exit("\n".$html."\n001\n\n");
+            }
+
+            if(preg_match("/<div id=\"normdaten\" class=\"catlinks(.*?)xxx/ims", $html."xxx", $arr)) {
+                $substr = '<div id="normdaten" class="catlinks'.$arr[1].'xxx';
+                $html = str_ireplace($substr, '', $html."xxx");
+            }
+            elseif(preg_match("/<div id=\"catlinks\" class=\"catlinks\"(.*?)xxx/ims", $html."xxx", $arr)) {
+                $substr = '<div id="catlinks" class="catlinks"'.$arr[1].'xxx';
+                $html = str_ireplace($substr, '', $html."xxx");
             }
         }
         elseif($this->language_code == "fr") { /* <div class="navbox-container" style="clear:both;"> */
@@ -2145,6 +2165,13 @@ class WikiDataAPI
         }
 
         return $html;
+    }
+    private function second_try_sect_after_biblio($biblio_section, $html)
+    {
+        if($section_after_biblio = self::get_section_name_after_bibliographic_section($html, $biblio_section)) {
+            debug("\nsection_after_biblio: [$section_after_biblio]\n");
+            if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
+        }
     }
     private function additional_desc_format($desc)
     {
