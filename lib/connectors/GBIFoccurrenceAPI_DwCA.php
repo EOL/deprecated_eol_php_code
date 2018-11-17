@@ -65,7 +65,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['taxa_csv_path']     = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
             $this->save_path['multimedia_gbifID'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/multimedia_gbifID/";
             $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";
-            $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
+            // $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab"; //obsolete path
+            $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/JRice_tc_ids/taxon_concept_names.tab";
 
             $this->occurrence_txt_path['Gadus morhua'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
             $this->occurrence_txt_path['Lates niloticus'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Lates niloticus/occurrence.txt";
@@ -129,7 +130,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
 
             // break; //debug only -- just run 1 batch
             echo "\nCACHE_PATH 03 is ".CACHE_PATH."\n";
-            sleep(30); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
+            sleep(20); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
             // */
         }
     }
