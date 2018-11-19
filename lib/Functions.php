@@ -488,6 +488,57 @@ class Functions
         }
         return array('file_uri' =>  @$harvester->tables[$extension][0]->file_uri, 'fields' => $fields);
     }
+    public static function get_undefined_uris_from_resource($download_options = false, $directionOpposite = false)
+    {
+        $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
+        if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 500000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
+        /*
+        <li class='last'>
+        <a href="/terms?page=10">Last &raquo;</a>
+        </li>
+        */
+        //get total no. of pages
+        if($html = Functions::lookup_with_cache($url."1", $download_options)) {
+            if(preg_match("/<li class=\'last\'>(.*?)<\/li>/ims", $html, $arr)) {
+                // print_r($arr[1]); exit("\nelix\n");
+                if(preg_match("/page=(.*?)\"/ims", $arr[1], $arr)) {
+                    $pages = $arr[1];
+                    echo "\n---------------\nTotal pages count: [$pages]\n---------------\n";
+                }
+            }
+        }
+        else {
+            echo "\n---------------\nNo total pages count. Need to investigate\n---------------\n";
+            return array();
+        }
+        //start loop
+        /*
+        <dt>abdomen length</dt>
+        <dd>
+        <div class='uk-text-muted uk-text-small'>http://eol.org/schema/terms/AbdomenLength</div>
+        */
+        $final = array();
+        for ($i = 1; $i <= $pages; $i++) {
+            if($html = Functions::lookup_with_cache($url.$i, $download_options)) {
+                if(preg_match_all("/<dt>(.*?)<\/dt>/ims", $html, $arr))                                         $items = $arr[1];
+                if(preg_match_all("/<div class='uk-text-muted uk-text-small'>(.*?)<\/div>/ims", $html, $arr))   $uris = $arr[1];
+                if(count($items) != count($uris)) return array();
+                $k = -1;
+                foreach($items as $item) { $k++;
+                    $index = $uris[$k];
+                    $value = $item;
+                    $index = str_replace("&amp;", "&", $index);
+                    if($directionOpposite) {
+                        $index = $item;
+                        $value = $uris[$k];
+                        $value = str_replace("&amp;", "&", $value);
+                    }
+                    $final[$index] = $value;
+                }
+            }
+        }
+        return $final;
+    }
     public static function get_undefined_uris_from_resource_v1($resource_id)
     {
         $info = self::get_fields_of_this_extension(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, "http://rs.tdwg.org/dwc/terms/measurementorfact");

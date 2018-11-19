@@ -5,6 +5,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false;
+
+/*
+$arr = Functions::get_undefined_uris_from_resource(false, false);
+// $arr = Functions::get_undefined_uris_from_resource_v1(false, false);
+print_r($arr); exit;
+*/
+
 /*
 $str = "abcd|e|||";
 echo "\n[$str]\n";
