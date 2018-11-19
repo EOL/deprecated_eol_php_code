@@ -488,7 +488,7 @@ class Functions
         }
         return array('file_uri' =>  @$harvester->tables[$extension][0]->file_uri, 'fields' => $fields);
     }
-    public static function get_undefined_uris_from_resource($resource_id)
+    public static function get_undefined_uris_from_resource_v1($resource_id)
     {
         $info = self::get_fields_of_this_extension(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, "http://rs.tdwg.org/dwc/terms/measurementorfact");
         $fields = $info['fields'];
