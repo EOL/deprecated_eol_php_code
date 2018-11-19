@@ -11,17 +11,24 @@ class EnvironmentsEOLDataConnector
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
 
-        $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz";   //local
-        $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";  //still works Aug 6, 2018
         
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
             'resource_id'        => 'eol_api',                              //resource_id here is just a folder name in cache
             'expire_seconds'     => false, //since taxon_concept_id and hierarchy_entry_id won't change the resulting API response won't also change. Another option is 1 year to expire
-            'download_wait_time' => 3000000, 'timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+            'download_wait_time' => 3000000, 'timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         
-        if(Functions::is_production()) $this->download_options['cache_path'] = '/extra/eol_php_cache/';
-        else                           $this->download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache/'; //used in Functions.php for all general cache
+        if(Functions::is_production()) {
+            $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";  //still works Aug 6, 2018
+            $this->download_options['cache_path'] = '/extra/eol_php_cache/';
+        }
+        else {
+            $this->species_list_export = "http://localhost/cp/Environments/eol_env_annotations_noParentTerms.tar.gz";   //local
+            $this->download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache/'; //used in Functions.php for all general cache
+        }
+        
+        $this->file['marine_terms'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Environments/marine_terms.csv";
+        $this->file['terrestrial_taxa'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Environments/terrestrial_taxa.tsv";
         
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
@@ -80,8 +87,45 @@ class EnvironmentsEOLDataConnector
         */
         if($this->debug) print_r($this->debug);
     }
+    private function get_excluded_eol_ids()
+    {
+        $temp_file = Functions::save_remote_file_to_local($this->file['terrestrial_taxa'], $this->download_options);
+        $i = 0;
+        foreach(new FileIterator($temp_file) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $i++;
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue; //$row[0] is gbifID
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = $row[$k];
+                    $k++;
+                }
+            }
+            // print_r($rec); exit("\nstopx\n");
+            $final[trim($rec['taxon id'])] = '';
+        }
+        unlink($temp_file);
+        return $final;
+    }
+    private function get_excluded_terms()
+    {
+        $contents = file_get_contents($this->file['marine_terms']);
+        $arr = explode("\n", $contents);
+        foreach($arr as $uri) $final[trim($uri)] = '';
+        return $final;
+    }
     private function csv_to_array($tsv_file)
     {
+        //from here: https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
+        $this->excluded_eol_ids = self::get_excluded_eol_ids();
+        $this->excluded_terms = self::get_excluded_terms();
+        
         $excluded_uris = self::excluded_measurement_values(); //from here: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=62373&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62373
         $fields = array("taxon_id", "do_id_subchapter", "text", "envo", "5th_col");
         $i = 0; $m = 1700000/5; // = 340000
@@ -561,7 +605,12 @@ class EnvironmentsEOLDataConnector
             $this->archive_builder->write_object_to_file($m);
         }
         */
-
+        
+        // /* new https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
+        $taxon_id = str_replace("EOL:", "", $rec['taxon_id']);
+        if(isset($this->excluded_eol_ids) && isset($this->excluded_terms[$rec['measurementValue']])) return;
+        // */
+        
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
