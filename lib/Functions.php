@@ -488,7 +488,7 @@ class Functions
         }
         return array('file_uri' =>  @$harvester->tables[$extension][0]->file_uri, 'fields' => $fields);
     }
-    public static function get_undefined_uris_from_resource($download_options = false, $directionOpposite = false)
+    public static function get_eol_defined_uris($download_options = false, $directionOpposite = false)
     {
         $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 500000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
@@ -539,7 +539,7 @@ class Functions
         }
         return $final;
     }
-    public static function get_undefined_uris_from_resource_v1($resource_id)
+    public static function get_undefined_uris_from_resource($resource_id)
     {
         $info = self::get_fields_of_this_extension(CONTENT_RESOURCE_LOCAL_PATH . $resource_id, "http://rs.tdwg.org/dwc/terms/measurementorfact");
         $fields = $info['fields'];
@@ -585,7 +585,7 @@ class Functions
         }
         return $undefined_uris;
     }
-    public static function get_eol_defined_uris($download_options = false, $directionOpposite = false)
+    public static function get_eol_defined_uris_v2($download_options = false, $directionOpposite = false)
     {
         $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 500000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
