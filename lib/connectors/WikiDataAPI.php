@@ -1852,9 +1852,19 @@ class WikiDataAPI
         $substr = Functions::remove_whitespace($substr);
         return str_replace(array("\n", "\t", "\r", chr(9), chr(10), chr(13)), "", $substr);
     }
-
+    private function last_html_clean($html)
+    {
+        $html = trim($html);
+        $remove_last_tags = array("<h2>", "<p>", "<b>");
+        foreach($remove_last_tags as $tag) {
+            $length = strlen($tag);
+            if(substr($html, -1*$length) == $tag) $html = substr($html, 0, -1*$length);
+        }
+        return $html;
+    }
     private function create_wikipedia_object($media) //for wikipedia only
     {
+        $media['description'] = self::last_html_clean($media['description']);
         // /*
         $row = "";
         $i = 0;
