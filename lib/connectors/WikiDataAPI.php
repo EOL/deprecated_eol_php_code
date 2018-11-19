@@ -2014,6 +2014,66 @@ class WikiDataAPI
                 $html = str_ireplace($substr, '></table>', $html);
             }
         }
+
+        if($this->language_code == "zh") { //e.g. Gadus morhua
+            /*
+            <tr style="text-align:center; background:rgb(211,211,164);">
+            <th><a href="/wiki/%E7%95%B0%E5%90%8D" title="異名">異名</a>
+            </th></tr>
+            <tr>
+            <td style="padding:0 .5em; text-align:left;">
+            <ul><li><i>Gadus arenosus</i><br><small>Mitchill, 1815</small></li>
+            <li><i>Gadus callarias</i><br><small>Linnaeus, 1758</small></li>
+            <li><i>Gadus callarias hiemalis</i><br><small>Taliev, 1931</small></li>
+            <li><i>Gadus callarias kildinensis</i><br><small>Derjugin, 1920</small></li>
+            <li><i>Gadus heteroglossus</i><br><small>Walbaum, 1792</small></li>
+            <li><i>Gadus morhua callarias</i><br><small>Linnaeus, 1758</small></li>
+            <li><i>Gadus morhua kildinensis</i><br><small>Derjugin, 1920</small></li></ul>
+            </td></tr></tbody></table>
+            */
+            $part = '<th><a href="/wiki/%E7%95%B0%E5%90%8D" title="異名">異名</a>';
+            if(preg_match("/".preg_quote($part,'/')."(.*?)<\/td><\/tr><\/tbody><\/table>/ims", "xxx".$html, $arr)) {
+                $substr = $part.$arr[1].'</td></tr></tbody></table>';
+                $html = str_ireplace($substr, '</tr></tbody></table>', $html);
+            }
+        }
+
+        if($this->language_code == "pt") { //e.g. Polar bear
+            /*
+            <div class="NavHead" style="font-size: 105%; background: transparent; text-align: left;">Sinonímia da espécie<sup id="cite_ref-Wozencraft2005_2-0" class="reference"><a href="#cite_note-Wozencraft2005-2"><span>[</span>2<span>]</span></a></sup></div>
+            <ul class="NavContent" style="text-align: left; font-size: 105%; margin-top: 0; margin-bottom: 0; line-height: inherit;"><li style="line-height: inherit; margin: 0"> <i>Ursus marinus</i> <span style="font-size:85%;">Pallas, 1776</span>
+             </li><li style="line-height: inherit; margin: 0"> <i>Ursus polaris</i> <span style="font-size:85%;">Shaw, 1792</span>
+             </li><li style="line-height: inherit; margin: 0"> <i>Thalassarctos eogroenlandicus</i> <span style="font-size:85%;">Knottnerus-Meyer, 1908</span>
+             </li><li style="line-height: inherit; margin: 0"> <i>Thalassarctos jenaensis</i> <span style="font-size:85%;">Knottnerus-Mayer, 1908</span>
+            </li></ul>
+            */
+            $part = '<div class="NavHead" style="font-size: 105%; background: transparent; text-align: left;">Sinonímia da espécie';
+            if(preg_match("/".preg_quote($part,'/')."(.*?)<\/li><\/ul>/ims", "xxx".$html, $arr)) {
+                $substr = $part.$arr[1].'</li></ul>';
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        
+        if($this->language_code == "ja") { //e.g. Panthera leo
+            /*
+            <tr>
+            <th style="background:rgb(211,211,164); text-align:center;"><a href="/wiki/%E3%82%B7%E3%83%8E%E3%83%8B%E3%83%A0" title="シノニム">シノニム</a>
+            </th></tr>
+            <tr>
+            <td>
+            <p><i>Felis leo</i> Linnaeus, 1758<sup id="cite_ref-haas_et_al_4-1" class="reference"><a href="#cite_note-haas_et_al-4">&#91;4&#93;</a></sup>
+            <br />
+            <i>Leo leo hollisteri</i> Allen, 1924<sup id="cite_ref-haas_et_al_4-2" class="reference"><a href="#cite_note-haas_et_al-4">&#91;4&#93;</a></sup>
+            </p>
+            </td></tr>
+            */
+            $part = '<a href="/wiki/%E3%82%B7%E3%83%8E%E3%83%8B%E3%83%A0" title="シノニム">シノニム</a>';
+            if(preg_match("/".preg_quote($part,'/')."(.*?)<\/td><\/tr>/ims", "xxx".$html, $arr)) {
+                $substr = $part.$arr[1].'</td></tr>';
+                $html = str_ireplace($substr, '</th></tr>', $html);
+            }
+        }
+        
         
         /* remove form elements e.g. <input type="checkbox" role="button" id="toctogglecheckbox" /> */
         if(preg_match("/<input type=(.*?)>/ims", $html, $arr)) {
