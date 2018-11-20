@@ -162,8 +162,8 @@ class EnvironmentsEOLDataConnector
                 $uri = self::format_uri($rec['envo']);
                 if(in_array($uri, $excluded_uris)) continue;
                 
-                self::create_instances_from_taxon_object($taxon);
-                self::create_data($taxon, $rec);
+                $ret = self::create_data($taxon, $rec);
+                if($ret) self::create_instances_from_taxon_object($taxon); //only create the taxa if trait is created
             }
             // if($i >= 10) break; //debug
         } // end foreach
@@ -345,10 +345,12 @@ class EnvironmentsEOLDataConnector
         $rec["source"]              = "http://eol.org/pages/" . str_replace('EOL:', '', $rec["taxon_id"]);
         
         $rec['measurementRemarks']  = "source text: \"" . $line['text'] . "\"";
+        $ret = false;
         if($rec = self::adjustments($rec)) {
             if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
-            self::add_string_types($rec);
+            $ret = self::add_string_types($rec);
         }
+        return $ret;
     }
     private function adjustments($rec) //https://eol-jira.bibalex.org/browse/DATA-1768
     {   /*this is for https://opendata.eol.org/dataset/environments-eol-project/resource/f5cfda47-d73f-4535-b729-79c8523a5300
@@ -608,7 +610,7 @@ class EnvironmentsEOLDataConnector
         
         // /* new https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
         $taxon_id = str_replace("EOL:", "", $rec['taxon_id']);
-        if(isset($this->excluded_eol_ids) && isset($this->excluded_terms[$rec['measurementValue']])) return;
+        if(isset($this->excluded_eol_ids) && isset($this->excluded_terms[$rec['measurementValue']])) return false;
         // */
         
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
@@ -622,6 +624,7 @@ class EnvironmentsEOLDataConnector
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->measurementID] = '';
         }
+        return true;
     }
 
     private function add_occurrence($taxon_id, $catnum)
