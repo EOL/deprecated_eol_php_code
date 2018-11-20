@@ -1580,7 +1580,7 @@ class EOLv2MetadataAPI
         if($this->debug) print_r($this->debug);
         fclose($FILE);
     }
-    private function write_collection_report($rec, $FILE)
+    private function write_collection_report($rec, $FILE, $file_type = "tsv")
     {
         // print_r($rec); exit;
         /*Array(
@@ -1592,26 +1592,54 @@ class EOLv2MetadataAPI
             [datemodified] => 2012-09-17 20:06:19
             [collection_items] => Array()
         )*/
-        $write = array();
-        $write[] = $rec['id'];
-        $write[] = $rec['collection_name'];
-        $write[] = $rec['description'];
-        $write[] = $rec['logo_url'];
-        $write[] = $rec['collection_editors'];
-        $write[] = $rec['date_created'];
-        $write[] = $rec['date_modified'];
-        if(is_array($rec['collection_items'])) $write[] = json_encode($rec['collection_items']);
-        else                                   $write[] = $rec['collection_items'];
-        fwrite($FILE, implode("\t", $write)."\n");
+        if($file_type == "tsv") {
+            $write = array();
+            $write[] = $rec['id'];
+            $write[] = $rec['collection_name'];
+            $write[] = $rec['description'];
+            $write[] = $rec['logo_url'];
+            $write[] = $rec['collection_editors'];
+            $write[] = $rec['date_created'];
+            $write[] = $rec['date_modified'];
+            if(is_array($rec['collection_items'])) $write[] = json_encode($rec['collection_items']);
+            else                                   $write[] = $rec['collection_items'];
+            fwrite($FILE, implode("\t", $write)."\n");
+        }
+        elseif($file_type == "json") {
+            /* spec from JRice:
+            [
+            { id: 1234, name: "blah blah", other: "traits", collecton_items: [
+            {type: "page", id: 12354, etc}
+            ,
+            { another item }
+            ] },
+            { another collection
+            ]
+            ...basically like that.
+            */
+            $final = array();
+            $final['id'] = $rec['id'];
+            $final['name'] = $rec['collection_name'];
+            $final['desc'] = $rec['description'];
+            $final['logo_url'] = $rec['logo_url'];
+            $final['coll_editors'] = $rec['collection_editors'];
+            $final['created'] = $rec['date_created'];
+            $final['modified'] = $rec['date_modified'];
+            $arr = json_decode($rec['collection_items'], true);
+            $final['coll_items'] = $arr;
+            fwrite($FILE, json_encode($final)."\n");
+        }
     }
     
     public function replace_media_url_update_report()
     {
         $resource_head = array('id', 'collection_name', 'description', 'logo_url', 'collection_editors', 'date_created', 'date_modified', 'collection_items');
-        $destination = CONTENT_RESOURCE_LOCAL_PATH . "user_activity_collections.txt";
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . "user_activity_collections.txt"; //ver 1
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . "user_activity_collections.json"; //ver 2 suggested by JRice
         $FILE = Functions::file_open($destination, "w");
+        /* used only in ver. 1 
         fwrite($FILE, implode("\t", $resource_head)."\n");
-        
+        */
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "temp_user_activity_collections.txt";
         $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) { // 'true' will auto delete temp_filepath
@@ -1642,8 +1670,16 @@ class EOLv2MetadataAPI
                 [date_modified] => 2014-05-28 20:49:17
                 [collection_items] =>
             */
+            
+            /* orig. below will set 2nd param to false bec. we're just re-running the report to generate json file as requested by JRice here: https://eol-jira.bibalex.org/browse/DATA-1780?focusedCommentId=63002&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63002
             if($rec['logo_url']) $rec['logo_url'] = self::download_proper($rec['logo_url'], true); //2nd param false means just return the url image path and not download it.
-            self::write_collection_report($rec, $FILE);
+            */
+            if($rec['logo_url']) $rec['logo_url'] = self::download_proper($rec['logo_url'], false); //2nd param false means just return the url image path and not download it.
+
+            // self::write_collection_report($rec, $FILE); //ver. 1
+            self::write_collection_report($rec, $FILE, "json"); //ver. 2
+            
+            // if($i >= 5) break; //debug
         }
         fclose($FILE);
     }
