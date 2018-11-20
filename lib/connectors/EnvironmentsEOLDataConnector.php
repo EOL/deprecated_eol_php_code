@@ -349,8 +349,26 @@ class EnvironmentsEOLDataConnector
         if($rec = self::adjustments($rec)) {
             if($val = self::get_reference_ids($line)) $rec['referenceID'] = implode("; ", $val);
             $ret = self::add_string_types($rec);
+            if($ret) self::get_reference_ids($line, true);
         }
         return $ret;
+    }
+    private function get_reference_ids($line, $writeYN = false)
+    {
+        if($ref = $line['5th_col']) {
+            $r = new \eol_schema\Reference();
+            $r->full_reference = $ref;
+            $r->identifier = md5($ref);
+            // $r->uri = '';
+            if($writeYN) {
+                if(!isset($this->resource_reference_ids[$r->identifier])) {
+                   $this->resource_reference_ids[$r->identifier] = '';
+                   $this->archive_builder->write_object_to_file($r);
+                }
+            }
+            return array($r->identifier);
+        }
+        return false;
     }
     private function adjustments($rec) //https://eol-jira.bibalex.org/browse/DATA-1768
     {   /*this is for https://opendata.eol.org/dataset/environments-eol-project/resource/f5cfda47-d73f-4535-b729-79c8523a5300
@@ -577,22 +595,6 @@ class EnvironmentsEOLDataConnector
         $a = "http://purl.obolibrary.org/obo/ENVO_2000000 http://purl.obolibrary.org/obo/ENVO_00003893 http://purl.obolibrary.org/obo/ENVO_00003895 http://purl.obolibrary.org/obo/ENVO_00010625 http://purl.obolibrary.org/obo/ENVO_00000375 http://purl.obolibrary.org/obo/ENVO_00000374 http://purl.obolibrary.org/obo/ENVO_00003963 http://purl.obolibrary.org/obo/ENVO_00010622 http://purl.obolibrary.org/obo/ENVO_00000349 http://purl.obolibrary.org/obo/ENVO_00002197 http://purl.obolibrary.org/obo/ENVO_00000515 http://purl.obolibrary.org/obo/ENVO_00000064 http://purl.obolibrary.org/obo/ENVO_00000062 http://purl.obolibrary.org/obo/ENVO_02000055 http://purl.obolibrary.org/obo/ENVO_00002061 http://purl.obolibrary.org/obo/ENVO_00002183 http://purl.obolibrary.org/obo/ENVO_01000003 http://purl.obolibrary.org/obo/ENVO_00002185 http://purl.obolibrary.org/obo/ENVO_00002985 http://purl.obolibrary.org/obo/ENVO_00000363 http://purl.obolibrary.org/obo/ENVO_00000366 http://purl.obolibrary.org/obo/ENVO_00000367 http://purl.obolibrary.org/obo/ENVO_00000364 http://purl.obolibrary.org/obo/ENVO_00000479 http://purl.obolibrary.org/obo/ENVO_00000561 http://purl.obolibrary.org/obo/ENVO_00002267 http://purl.obolibrary.org/obo/ENVO_00000000 http://purl.obolibrary.org/obo/ENVO_00000373 http://purl.obolibrary.org/obo/ENVO_00002215 http://purl.obolibrary.org/obo/ENVO_00002198 http://purl.obolibrary.org/obo/ENVO_00000176 http://purl.obolibrary.org/obo/ENVO_00000075 http://purl.obolibrary.org/obo/ENVO_00000168 http://purl.obolibrary.org/obo/ENVO_00003864 http://purl.obolibrary.org/obo/ENVO_00002196 http://purl.obolibrary.org/obo/ENVO_00000002 http://purl.obolibrary.org/obo/ENVO_00005803 http://purl.obolibrary.org/obo/ENVO_00002874 http://purl.obolibrary.org/obo/ENVO_00002046 http://purl.obolibrary.org/obo/ENVO_00000077";
         return explode(" ", $a);
     }
-    private function get_reference_ids($line)
-    {
-        if($ref = $line['5th_col']) {
-            $r = new \eol_schema\Reference();
-            $r->full_reference = $ref;
-            $r->identifier = md5($ref);
-            // $r->uri = '';
-            if(!isset($this->resource_reference_ids[$r->identifier])) {
-               $this->resource_reference_ids[$r->identifier] = '';
-               $this->archive_builder->write_object_to_file($r);
-            }
-            return array($r->identifier);
-        }
-        return false;
-    }
-    
     private function add_string_types($rec)
     {
         /* old ways
