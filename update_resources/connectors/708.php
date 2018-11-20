@@ -19,6 +19,9 @@ from eol-archive:
 708	Thursday 2018-10-04 05:51:27 AM	{"measurement_or_fact.tab":1110583,"occurrence.tab":898509,"reference.tab":215125,"taxon.tab":226794}
 708	Monday 2018-10-15 10:46:55 PM	{"measurement_or_fact.tab":839374,"occurrence.tab":732245,"reference.tab":201727,"taxon.tab":226794}
 708	Saturday 2018-10-27 01:01:27 AM	{"measurement_or_fact.tab":839374,"occurrence.tab":732245,"reference.tab":201727,"taxon.tab":226794}
+708	Monday 2018-11-19 02:20:19 PM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":201728,"taxon.tab":226795} - as expected traits reduced
+708	Tuesday 2018-11-20 03:11:52 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":201728,"taxon.tab":196193} - as expected traits and taxa reduced
+708	Tuesday 2018-11-20 05:13:32 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":198537,"taxon.tab":196193} - as expected traits, taxa, refs are reduced
 
 NOTE: started running this eol-archive in Aug 6, 2018
 */
