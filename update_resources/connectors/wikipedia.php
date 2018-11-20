@@ -84,7 +84,7 @@ elseif($language == 'de') $resource_id = 957;
 else $resource_id = "wikipedia-".$language;
 $func = new WikiDataAPI($resource_id, $language); //generic call
 
-if(in_array($language, array("en", "es"))) {
+if(in_array($language, array("en", "es", "fr"))) {
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
     if($status_arr[0]) {
@@ -150,7 +150,8 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	            Sunday 2018-07-08 08:56:53 AM	{"media_resource.tab":672072,"taxon.tab":356034}
 80	            Wednesday 2018-10-10 03:03:49 AM{"media_resource.tab":672090,"taxon.tab":356032}
 80	            Wednesday 2018-11-14 09:33:50 AM{"media_resource.tab":737715,"taxon.tab":388855}
-80	            Monday 2018-11-19 12:46:35 PM	{"media_resource.tab":573888,"taxon.tab":312084}  -- big reduction
+80	            Monday 2018-11-19 12:46:35 PM	{"media_resource.tab":573888,"taxon.tab":312084} -- big reduction
+80	            Tuesday 2018-11-20 12:22:44 PM	{"media_resource.tab":737413,"taxon.tab":388855} -- back to normal
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}

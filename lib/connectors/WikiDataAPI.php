@@ -170,7 +170,7 @@ class WikiDataAPI
 
         if( 
             ($this->what == "wikimedia") || (
-                                                $this->what == "wikipedia" && in_array($this->language_code, array("en", "es"))
+                                                $this->what == "wikipedia" && in_array($this->language_code, array("en", "es", "fr"))
                                             )
           ) { //orig
         // if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it
