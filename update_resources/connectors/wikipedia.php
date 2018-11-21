@@ -212,6 +212,7 @@ wikipedia-zh	Monday 2018-04-30 08:13:07 AM	{"media_resource.tab":156574,"taxon.t
 wikipedia-zh	Sunday 2018-10-14 02:59:06 PM	{"media_resource.tab":156560,"taxon.tab":91381}
 wikipedia-zh	Monday 2018-11-19 12:44:47 PM	{"media_resource.tab":127119,"taxon.tab":78239} -- big reduction
 wikipedia-zh	Tuesday 2018-11-20 07:47:50 AM	{"media_resource.tab":175752,"taxon.tab":103141} -- back to normal
+wikipedia-zh	Tuesday 2018-11-20 03:08:15 PM	{"media_resource.tab":175752,"taxon.tab":103141}
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
