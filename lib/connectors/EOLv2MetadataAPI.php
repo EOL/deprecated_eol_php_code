@@ -20,7 +20,8 @@ class EOLv2MetadataAPI
         $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 2, "delay_in_minutes" => 2);
         $this->download_options['expire_seconds'] = false; //always false, will not change anymore...
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_collections/";
-        else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_collections/";
+        else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_collections/";
+                                                                            // "/Volumes/AKiTiO4/eol_cache_collections/";
         $this->url["eol_object"]     = "http://eol.org/api/data_objects/1.0/data_object_id.json?taxonomy=true&cache_ttl=";
         
         // http://eol.org/api/data_objects/1.0/29829638.json?taxonomy=true&cache_ttl=
@@ -34,13 +35,29 @@ class EOLv2MetadataAPI
     
     public function taxonomic_propagation($report)
     {
+        // /* test
+        $page_id = 6061725;
+        $source_url = "https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg";
+        //sample url format in our image_ratings.txt report
+        $source_url = "https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_%28Reeve,_1848%29_-_Cassidae_-_Mollusc_shell.jpeg";
+
+        $page_id = false;
+        $source_url = "http://upload.wikimedia.org/wikipedia/commons/1/15/Flickr_-_Rainbirder_-_Wood_Warbler_%28Phylloscopus_sibilatrix%29_%281%29.jpg";
+        $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/ae/Upupa_epops_%28Ramat_Gan%29002.jpg";
+        $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/a3/Rosa_%27Portland_Rose%27.jpg";
+        $source_url = "http://upload.wikimedia.org/wikipedia/commons/c/c8/Spotless_Starling%2C_Sturnus_unicolor.jpg";
+        $ret = self::search_v2_images($page_id, $source_url);
+        print_r($ret); exit("\nstopx\n");
+        // */
+        
         if($report == 'image_ratings') {}
         elseif($report == 'exemplar_images') {}
         
         require_library('connectors/EOL_DH_API');
         $func = new EOL_DH_API();
         $func->parse_DH();
-        $page_id = 4701263; $landmark_only = false;
+        $page_id = 46564415;
+        $landmark_only = false;
         $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only);
         print_r($ancestry);
     }
@@ -1912,11 +1929,17 @@ class EOLv2MetadataAPI
     }
     private function search_v2_images($page_id, $source_url)
     {
-        // echo "\n1[$source_url]";
-        $source_url = str_replace("'", "\'", $source_url); // echo "\n2[$source_url]";
+        /*
+        e.g. page_id = 6061725
+        this is what is in dbase:
+        https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg
+        */
+        echo "\n1[$source_url]";
+        $source_url = str_replace("'", "\'", $source_url); echo "\n2[$source_url]";
         
         for ($i = 1; $i <= 15; $i++) {
-            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.page_id = $page_id and i.source_url = '".$source_url."'";
+            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
+            if($page_id) $sql .= " and i.page_id = $page_id ";
             $result = $this->mysqli->query($sql);
             while($result && $row=$result->fetch_assoc()) {
                 echo "\nfound in dbase $i\n";
@@ -1925,10 +1948,12 @@ class EOLv2MetadataAPI
         }
         echo "\nstart 2nd try:\n";
         
-        $source_url = urldecode($source_url); // echo "\n3[$source_url]";
+        $source_url = urldecode($source_url);              echo "\n3[$source_url]";
+        $source_url = str_replace("'", "\'", $source_url); echo "\n4[$source_url]";
         
         for ($i = 1; $i <= 15; $i++) {
-            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.page_id = $page_id and i.source_url = '".$source_url."'";
+            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
+            if($page_id) $sql .= " and i.page_id = $page_id ";
             $result = $this->mysqli->query($sql);
             while($result && $row=$result->fetch_assoc()) {
                 echo "\nfound in dbase* $i\n";
