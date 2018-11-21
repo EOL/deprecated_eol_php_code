@@ -66,7 +66,7 @@ $func->start_user_object_curation(); echo "\n end start_user_object_curation() \
 
 /* https://eol-jira.bibalex.org/browse/DATA-1746: user activity: images selected as exemplar
 $func = new EOLv2MetadataAPI();
-$func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; //return;
+$func->start_images_selected_as_exemplar(); echo "\n end start_images_selected_as_exemplar() \n"; return;
 */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1732
@@ -83,7 +83,7 @@ $func->start_image_sizes(); echo "\n end start_image_sizes() \n"; //return;
 
 /* https://eol-jira.bibalex.org/browse/DATA-1741
 $func = new EOLv2MetadataAPI();
-$func->start_image_ratings(); echo "\n end start_image_ratings() \n"; //return;
+$func->start_image_ratings(); echo "\n end start_image_ratings() \n"; return;
 */
 
 
@@ -94,7 +94,7 @@ $func->DATA_1719(); --- didn't use this
 
 // /* DATA-1786: user activity- taxonomic propagation of rating + exemplar
 $func = new EOLv2MetadataAPI();
-$func->taxonomic_propagation('image_ratings'); echo "\n end taxonomic_propagation() \n"; //return;
+$func->taxonomic_propagation('exemplar_images'); echo "\n end taxonomic_propagation(exemplar_images) \n"; //return;
 // */
 
 
