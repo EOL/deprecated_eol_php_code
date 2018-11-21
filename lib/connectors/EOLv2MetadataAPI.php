@@ -1671,13 +1671,15 @@ class EOLv2MetadataAPI
                 [collection_items] =>
             */
             
-            /* orig. below will set 2nd param to false bec. we're just re-running the report to generate json file as requested by JRice here: https://eol-jira.bibalex.org/browse/DATA-1780?focusedCommentId=63002&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63002
+            /* ver. 1. orig.
             if($rec['logo_url']) $rec['logo_url'] = self::download_proper($rec['logo_url'], true); //2nd param false means just return the url image path and not download it.
+            self::write_collection_report($rec, $FILE);
             */
+            
+            // /* ver. 2. Here will set 2nd param to false bec. we're just re-running the report to generate json file as requested by JRice here: https://eol-jira.bibalex.org/browse/DATA-1780?focusedCommentId=63002&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63002
             if($rec['logo_url']) $rec['logo_url'] = self::download_proper($rec['logo_url'], false); //2nd param false means just return the url image path and not download it.
-
-            // self::write_collection_report($rec, $FILE); //ver. 1
             self::write_collection_report($rec, $FILE, "json"); //ver. 2
+            // */
             
             // if($i >= 5) break; //debug
         }
