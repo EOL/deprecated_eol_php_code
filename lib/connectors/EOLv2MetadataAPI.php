@@ -118,14 +118,13 @@ class EOLv2MetadataAPI
                 [taxon_concept_id] => 1
             )*/
             
-            echo "\n------------\n";
-            echo "\n".$rec['taxon_concept_id']."  ".$rec['object_url']."\n";
-            echo "\n------------\n";
-            
+            // echo "\n------------\n";
+            // echo "\n".$rec['taxon_concept_id']."  ".$rec['object_url']."\n";
+            // echo "\n------------\n";
             
             $ancestry = $func->get_ancestry_via_DH($rec['taxon_concept_id'], $landmark_only);
             $ancestry = array_merge(array($rec['taxon_concept_id']), $ancestry);
-            print_r($ancestry);
+            // print_r($ancestry);
             foreach($ancestry as $page_id) {
                 $write = array();
                 if($ret = self::search_v2_images($page_id, $rec['object_url'])) {
@@ -150,7 +149,7 @@ class EOLv2MetadataAPI
                 fwrite($FILE, implode("\t", $write)."\n");
             }
             fwrite($FILE, "\n"); //separator
-            if($i >= 10) break; //debug
+            // if($i >= 10) break; //debug
         }
         fclose($FILE);
     }
