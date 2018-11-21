@@ -33,6 +33,35 @@ class EOLv2MetadataAPI
         // http://localhost/other_files/EOL_media/28/28694_orig.jpg -- to test locally
     }
     
+    public function utility_compare_eol_pk()
+    {
+        $files = array("/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/images_selected_as_exemplar.txt", CONTENT_RESOURCE_LOCAL_PATH ."images_selected_as_exemplar.txt");
+        $files = array("/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/image_ratings.txt", CONTENT_RESOURCE_LOCAL_PATH ."image_ratings.txt");
+        foreach($files as $txtfile) {
+            $i = 0; $final = array(); echo "\n[$txtfile]\n";
+            foreach(new FileIterator($txtfile) as $line_number => $line) {
+                $i++;
+                // if(($i % 100) == 0) echo number_format($i)." ";
+                if($i == 1) $line = strtolower($line);
+                $row = explode("\t", $line);
+                if($i == 1) {
+                    $fields = $row;
+                    continue;
+                }
+                else {
+                    if(!@$row[0]) continue;
+                    $k = 0; $rec = array();
+                    foreach($fields as $fld) {
+                        $rec[$fld] = @$row[$k];
+                        $k++;
+                    }
+                }
+                // print_r($rec); exit("\nstopx\n");
+                if($val = @$rec['eol_pk']) $final[] = $val;
+            }
+            echo "\ncount: ".count($final)."\n";
+        }
+    }
     public function taxonomic_propagation($report)
     {
         /* test
@@ -48,18 +77,26 @@ class EOLv2MetadataAPI
         $ret = self::search_v2_images($page_id, $source_url);
         print_r($ret); exit("\nstopx\n");
         */
-        if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/image_ratings.txt";
-        elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/images_selected_as_exemplar.txt";
+        if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/image_ratings.txt";
+        elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/images_selected_as_exemplar.txt";
+
         // /* access DH
         require_library('connectors/EOL_DH_API');
         $func = new EOL_DH_API();
         $func->parse_DH(); $landmark_only = false;
         // */
+
         // $page_id = 46564415; $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only); print_r($ancestry); exit; //good test OK
+        
+        $resource_head = array('eol_pk', 'page_id', 'source_url');
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . $report."_propagation.txt";
+        $FILE = Functions::file_open($destination, "w");
+        fwrite($FILE, implode("\t", $resource_head)."\n");
+        
         $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++;
-            if(($i % 100) == 0) echo number_format($i)." ";
+            if(($i % 1000) == 0) echo number_format($i)." ";
             if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line);
             if($i == 1) {
@@ -67,7 +104,7 @@ class EOLv2MetadataAPI
                 continue;
             }
             else {
-                if(!@$row[0]) continue;
+                // if(!@$row[0]) continue; --- comment this bec. first col is many times blank, which is the eol_pk
                 $k = 0; $rec = array();
                 foreach($fields as $fld) {
                     $rec[$fld] = $row[$k];
@@ -81,10 +118,16 @@ class EOLv2MetadataAPI
                 [taxon_concept_id] => 1
             )*/
             
+            echo "\n------------\n";
+            echo "\n".$rec['taxon_concept_id']."  ".$rec['object_url']."\n";
+            echo "\n------------\n";
+            
+            
             $ancestry = $func->get_ancestry_via_DH($rec['taxon_concept_id'], $landmark_only);
             $ancestry = array_merge(array($rec['taxon_concept_id']), $ancestry);
             print_r($ancestry);
             foreach($ancestry as $page_id) {
+                $write = array();
                 if($ret = self::search_v2_images($page_id, $rec['object_url'])) {
                     /*found in dbase* 1
                     Array(
@@ -93,12 +136,24 @@ class EOLv2MetadataAPI
                         [source_url] => https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg
                         [position] => 371
                     )*/
+                    $write['eol_pk']      = $ret['eol_pk'];
+                    $write['page_id']     = $ret['page_id'];
+                    $write['source_url']  = $ret['source_url'];
                     echo "\n$page_id - found - ".$ret['eol_pk'];
                 }
-                else echo "\n$page_id - not found";
+                else {
+                    $write['eol_pk']      = '';
+                    $write['page_id']     = $rec['taxon_concept_id'];
+                    $write['source_url']  = $rec['object_url'];
+                    echo "\n$page_id - not found";
+                }
+                fwrite($FILE, implode("\t", $write)."\n");
+                
             }
-            break;
+            fwrite($FILE, "\n"); //separator
+            if($i >= 10) break; //debug
         }
+        fclose($FILE);
     }
     public function start_image_ratings()
     {
