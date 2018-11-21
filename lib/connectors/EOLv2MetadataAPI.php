@@ -143,12 +143,11 @@ class EOLv2MetadataAPI
                 }
                 else {
                     $write['eol_pk']      = '';
-                    $write['page_id']     = $rec['taxon_concept_id'];
+                    $write['page_id']     = $page_id;
                     $write['source_url']  = $rec['object_url'];
                     echo "\n$page_id - not found";
                 }
                 fwrite($FILE, implode("\t", $write)."\n");
-                
             }
             fwrite($FILE, "\n"); //separator
             if($i >= 10) break; //debug
