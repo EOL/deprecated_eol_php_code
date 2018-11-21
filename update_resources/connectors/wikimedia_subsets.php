@@ -6,12 +6,13 @@ The remaining 71.tar.gz is the resource with just images.
 The wikimedia_comnames.tar.gz is the resource with just vernaculars.
 
 wikimedia_comnames	Wednesday 2018-10-17 05:02:39 AM	{"taxon.tab": 90844,"vernacular_name.tab":291267}
-wikimedia_comnames	Monday 2018-11-19 11:38:23 AM	    {"taxon.tab":113398,"vernacular_name.tab":315324}
+wikimedia_comnames	Monday 2018-11-19 11:38:23 AM	    {"taxon.tab":113398,"vernacular_name.tab":315324} --- big increase, not sure yet if anomaly or legit increase
+wikimedia_comnames	Wednesday 2018-11-21 02:06:35 AM	{"taxon.tab":113398,"vernacular_name.tab":315324}
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM	{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
-71_new	Monday 2018-11-19 11:48:24 AM	    {"agent.tab":267873,"media_resource.tab":1167960,"taxon.tab":113398}
-
+71_new	Monday 2018-11-19 11:48:24 AM	    {"agent.tab":267873,"media_resource.tab":1167960,"taxon.tab":113398} --- big increase, not sure yet if anomaly or legit increase
+71_new	Wednesday 2018-11-21 02:16:00 AM	{"agent.tab":267877,"media_resource.tab":1167960,"taxon.tab":113398}
 */
 
 // ini_set('error_reporting', E_ALL);
