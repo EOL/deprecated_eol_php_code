@@ -92,6 +92,12 @@ $func = new EOLv2MetadataAPI("");
 $func->DATA_1719(); --- didn't use this
 */
 
+// /* DATA-1786: user activity- taxonomic propagation of rating + exemplar
+$func = new EOLv2MetadataAPI();
+$func->taxonomic_propagation('image_ratings'); echo "\n end taxonomic_propagation() \n"; //return;
+// */
+
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

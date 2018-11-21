@@ -32,6 +32,18 @@ class EOLv2MetadataAPI
         // http://localhost/other_files/EOL_media/28/28694_orig.jpg -- to test locally
     }
     
+    public function taxonomic_propagation($report)
+    {
+        if($report == 'image_ratings') {}
+        elseif($report == 'exemplar_images') {}
+        
+        require_library('connectors/EOL_DH_API');
+        $func = new EOL_DH_API();
+        $func->parse_DH();
+        $page_id = 4701263; $landmark_only = false;
+        $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only);
+        print_r($ancestry);
+    }
     public function start_image_ratings()
     {
         /* testing...

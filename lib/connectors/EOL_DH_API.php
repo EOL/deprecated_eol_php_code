@@ -19,21 +19,20 @@ class EOL_DH_API
     }
     private function prep_DH()
     {
+        // if(true) {
         if(Functions::is_production()) {
             if(!($info = self::extract_DH())) return;
-            print_r($info);
-            // $this->info_path = $info;
         }
         else { //local development only
             /*
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
                           'tables' => Array('taxa' => 'taxa.txt')); */
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_86040/',                         //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_86040/',
                           'tables' => Array('taxa' => 'taxa.txt'));
-            // $this->info_path = $info;
         }
+        // print_r($info);
         return $info;
     }
     public function parse_DH()
@@ -110,7 +109,7 @@ class EOL_DH_API
         // recursive_rmdir($info['temp_dir']);
         // echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
-    private function get_ancestry_via_DH($page_id, $landmark_only = true)
+    public function get_ancestry_via_DH($page_id, $landmark_only = true)
     {
         $final = array(); $final2 = array();
         $taxonID = @$this->EOL_2_DH[$page_id];
