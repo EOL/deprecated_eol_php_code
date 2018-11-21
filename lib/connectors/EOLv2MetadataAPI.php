@@ -175,7 +175,7 @@ class EOLv2MetadataAPI
                 fwrite($FILE, implode("\t", $write)."\n");
             }
             fwrite($FILE, "\n"); //separator
-            if($i >= 10) break; //debug
+            // if($i >= 10) break; //debug
         }
         fclose($FILE);
     }
