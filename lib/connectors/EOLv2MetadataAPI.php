@@ -86,10 +86,10 @@ class EOLv2MetadataAPI
         $func->parse_DH(); $landmark_only = false;
         // */
 
-        // $page_id = 46564415; $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only); print_r($ancestry); exit; //good test OK
+        // $page_id = 46564415; $page_id = 4200; $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only); print_r($ancestry); exit; //good test OK
         
         $resource_head = array('eol_pk', 'page_id', 'source_url');
-        if($report == 'image_ratings') $resource_head = array_merge($resource_head, array('total_rating_actions', 'overall_rating'));
+        if($report == 'image_ratings') $resource_head = array_merge($resource_head, array('total_rating_actions', 'overall_rating', 'searched_by_url_only'));
         $destination = CONTENT_RESOURCE_LOCAL_PATH . $report."_propagation.txt";
         $FILE = Functions::file_open($destination, "w");
         fwrite($FILE, implode("\t", $resource_head)."\n");
@@ -155,12 +155,17 @@ class EOLv2MetadataAPI
                     }
                     elseif($report == 'image_ratings') { //search here with page_id = false
                         if($ret = self::search_v2_images(false, $rec['object_url'])) {
-                            $write['eol_pk']      = $ret['eol_pk'];
-                            $write['page_id']     = $ret['page_id'];
-                            $write['source_url']  = $ret['source_url'];
-                            $write['total_rating_actions'] = $rec['total_rating_actions'];
-                            $write['overall_rating']       = $rec['overall_rating'];
-                            echo "\n$page_id - found - ".$ret['eol_pk'];
+                            $md5 = md5($ret['eol_pk'].$ret['page_id'].$ret['source_url']);
+                            if(!isset($unique[$md5])) {
+                                $unique[$md5] = '';
+                                $write['eol_pk']      = $ret['eol_pk'];
+                                $write['page_id']     = $ret['page_id'];
+                                $write['source_url']  = $ret['source_url'];
+                                $write['total_rating_actions'] = $rec['total_rating_actions'];
+                                $write['overall_rating']       = $rec['overall_rating'];
+                                $write['searched_by_url_only'] = "Yes";
+                                echo "\n$page_id - found - ".$ret['eol_pk'];
+                            }
                         }
                         else {
                             $write['eol_pk']      = '';
@@ -172,7 +177,7 @@ class EOLv2MetadataAPI
                         }
                     }
                 }
-                fwrite($FILE, implode("\t", $write)."\n");
+                if(@$write['page_id']) fwrite($FILE, implode("\t", $write)."\n");
             }
             fwrite($FILE, "\n"); //separator
             // if($i >= 10) break; //debug
