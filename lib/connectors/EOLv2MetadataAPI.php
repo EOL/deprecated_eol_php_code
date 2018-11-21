@@ -35,31 +35,70 @@ class EOLv2MetadataAPI
     
     public function taxonomic_propagation($report)
     {
-        // /* test
+        /* test
         $page_id = 6061725;
         $source_url = "https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg";
         //sample url format in our image_ratings.txt report
         $source_url = "https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_%28Reeve,_1848%29_-_Cassidae_-_Mollusc_shell.jpeg";
-
         $page_id = false;
-        $source_url = "http://upload.wikimedia.org/wikipedia/commons/1/15/Flickr_-_Rainbirder_-_Wood_Warbler_%28Phylloscopus_sibilatrix%29_%281%29.jpg";
-        $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/ae/Upupa_epops_%28Ramat_Gan%29002.jpg";
-        $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/a3/Rosa_%27Portland_Rose%27.jpg";
-        $source_url = "http://upload.wikimedia.org/wikipedia/commons/c/c8/Spotless_Starling%2C_Sturnus_unicolor.jpg";
+        // $source_url = "http://upload.wikimedia.org/wikipedia/commons/1/15/Flickr_-_Rainbirder_-_Wood_Warbler_%28Phylloscopus_sibilatrix%29_%281%29.jpg";
+        // $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/ae/Upupa_epops_%28Ramat_Gan%29002.jpg";
+        // $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/a3/Rosa_%27Portland_Rose%27.jpg";
+        // $source_url = "http://upload.wikimedia.org/wikipedia/commons/c/c8/Spotless_Starling%2C_Sturnus_unicolor.jpg";
         $ret = self::search_v2_images($page_id, $source_url);
         print_r($ret); exit("\nstopx\n");
-        // */
-        
-        if($report == 'image_ratings') {}
-        elseif($report == 'exemplar_images') {}
-        
+        */
+        if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/image_ratings.txt";
+        elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/images_selected_as_exemplar.txt";
+        // /* access DH
         require_library('connectors/EOL_DH_API');
         $func = new EOL_DH_API();
-        $func->parse_DH();
-        $page_id = 46564415;
-        $landmark_only = false;
-        $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only);
-        print_r($ancestry);
+        $func->parse_DH(); $landmark_only = false;
+        // */
+        // $page_id = 46564415; $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only); print_r($ancestry); exit; //good test OK
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++;
+            if(($i % 100) == 0) echo number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = $row[$k];
+                    $k++;
+                }
+            }
+            // print_r($rec); exit("\nstopx\n");
+            /*Array( --- for 'exemplar_images'
+                [eol_pk] => 6750192
+                [object_url] => https://farm7.staticflickr.com/6152/6206619609_d027d60d31_o.jpg
+                [taxon_concept_id] => 1
+            )*/
+            
+            $ancestry = $func->get_ancestry_via_DH($rec['taxon_concept_id'], $landmark_only);
+            $ancestry = array_merge(array($rec['taxon_concept_id']), $ancestry);
+            print_r($ancestry);
+            foreach($ancestry as $page_id) {
+                if($ret = self::search_v2_images($page_id, $rec['object_url'])) {
+                    /*found in dbase* 1
+                    Array(
+                        [eol_pk] => 7650034
+                        [page_id] => 1
+                        [source_url] => https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg
+                        [position] => 371
+                    )*/
+                    echo "\n$page_id - found - ".$ret['eol_pk'];
+                }
+                else echo "\n$page_id - not found";
+            }
+            break;
+        }
     }
     public function start_image_ratings()
     {
@@ -1934,8 +1973,8 @@ class EOLv2MetadataAPI
         this is what is in dbase:
         https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg
         */
-        echo "\n1[$source_url]";
-        $source_url = str_replace("'", "\'", $source_url); echo "\n2[$source_url]";
+        // echo "\n1[$source_url]";
+        $source_url = str_replace("'", "\'", $source_url); //echo "\n2[$source_url]";
         
         for ($i = 1; $i <= 15; $i++) {
             $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
@@ -1948,8 +1987,8 @@ class EOLv2MetadataAPI
         }
         echo "\nstart 2nd try:\n";
         
-        $source_url = urldecode($source_url);              echo "\n3[$source_url]";
-        $source_url = str_replace("'", "\'", $source_url); echo "\n4[$source_url]";
+        $source_url = urldecode($source_url);              //echo "\n3[$source_url]";
+        $source_url = str_replace("'", "\'", $source_url); //echo "\n4[$source_url]";
         
         for ($i = 1; $i <= 15; $i++) {
             $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
