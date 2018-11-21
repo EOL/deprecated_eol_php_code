@@ -89,6 +89,7 @@ class EOLv2MetadataAPI
         // $page_id = 46564415; $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only); print_r($ancestry); exit; //good test OK
         
         $resource_head = array('eol_pk', 'page_id', 'source_url');
+        if($report == 'image_ratings') $resource_head = array_merge($resource_head, array('total_rating_actions', 'overall_rating'));
         $destination = CONTENT_RESOURCE_LOCAL_PATH . $report."_propagation.txt";
         $FILE = Functions::file_open($destination, "w");
         fwrite($FILE, implode("\t", $resource_head)."\n");
@@ -117,6 +118,7 @@ class EOLv2MetadataAPI
                 [object_url] => https://farm7.staticflickr.com/6152/6206619609_d027d60d31_o.jpg
                 [taxon_concept_id] => 1
             )*/
+            if($report == 'image_ratings') $rec['object_url'] = $rec['obj_url'];
             
             // echo "\n------------\n";
             // echo "\n".$rec['taxon_concept_id']."  ".$rec['object_url']."\n";
@@ -138,18 +140,42 @@ class EOLv2MetadataAPI
                     $write['eol_pk']      = $ret['eol_pk'];
                     $write['page_id']     = $ret['page_id'];
                     $write['source_url']  = $ret['source_url'];
+                    if($report == 'image_ratings') {
+                        $write['total_rating_actions'] = $rec['total_rating_actions'];
+                        $write['overall_rating']       = $rec['overall_rating'];
+                    }
                     echo "\n$page_id - found - ".$ret['eol_pk'];
                 }
                 else {
-                    $write['eol_pk']      = '';
-                    $write['page_id']     = $page_id;
-                    $write['source_url']  = $rec['object_url'];
-                    echo "\n$page_id - not found";
+                    if($report == 'exemplar_images') {
+                        $write['eol_pk']      = '';
+                        $write['page_id']     = $page_id;
+                        $write['source_url']  = $rec['object_url'];
+                        echo "\n$page_id - not found";
+                    }
+                    elseif($report == 'image_ratings') { //search here with page_id = false
+                        if($ret = self::search_v2_images(false, $rec['object_url'])) {
+                            $write['eol_pk']      = $ret['eol_pk'];
+                            $write['page_id']     = $ret['page_id'];
+                            $write['source_url']  = $ret['source_url'];
+                            $write['total_rating_actions'] = $rec['total_rating_actions'];
+                            $write['overall_rating']       = $rec['overall_rating'];
+                            echo "\n$page_id - found - ".$ret['eol_pk'];
+                        }
+                        else {
+                            $write['eol_pk']      = '';
+                            $write['page_id']     = $page_id;
+                            $write['source_url']  = $rec['object_url'];
+                            $write['total_rating_actions'] = $rec['total_rating_actions'];
+                            $write['overall_rating']       = $rec['overall_rating'];
+                            echo "\n$page_id - not found";
+                        }
+                    }
                 }
                 fwrite($FILE, implode("\t", $write)."\n");
             }
             fwrite($FILE, "\n"); //separator
-            // if($i >= 10) break; //debug
+            if($i >= 10) break; //debug
         }
         fclose($FILE);
     }
