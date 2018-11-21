@@ -6,10 +6,8 @@ class EOL_DH_API
 {
     function __construct()
     {
-        
+        $this->EOL_DH = "http://localhost/cp/summary%20data%20resources/DH/eoldynamichierarchywithlandmarks.zip";
     }
-
-
     private function extract_DH()
     {
         require_library('connectors/INBioAPI');
@@ -38,7 +36,7 @@ class EOL_DH_API
         }
         return $info;
     }
-    private function parse_DH()
+    public function parse_DH()
     {
         $info = self::prep_DH();
         $i = 0;
