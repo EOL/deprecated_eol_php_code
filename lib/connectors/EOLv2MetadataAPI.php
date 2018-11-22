@@ -64,7 +64,7 @@ class EOLv2MetadataAPI
     }
     public function taxonomic_propagation($report)
     {
-        /* test
+        // /* test
         $page_id = 6061725;
         $source_url = "https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg";
         //sample url format in our image_ratings.txt report
@@ -75,9 +75,9 @@ class EOLv2MetadataAPI
         // $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/a3/Rosa_%27Portland_Rose%27.jpg";
         // $source_url = "http://upload.wikimedia.org/wikipedia/commons/c/c8/Spotless_Starling%2C_Sturnus_unicolor.jpg";
         $source_url = "http://upload.wikimedia.org/wikipedia/commons/6/64/Tournai_AR3aJPG.jpg";
-        $source_url = "https://upload.wikimedia.org/wikipedia/commons/8/8e/%D0%94%D0%B5%D0%B3%D1%83.png";
+        // $source_url = "https://upload.wikimedia.org/wikipedia/commons/8/8e/%D0%94%D0%B5%D0%B3%D1%83.png";
         $ret = self::search_v2_images($page_id, $source_url); print_r($ret); exit("\nstopx\n");
-        */
+        // */
         if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/image_ratings.txt";
         elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/images_selected_as_exemplar.txt";
 
@@ -268,7 +268,7 @@ class EOLv2MetadataAPI
 
                 $rec['obj_type'] = $obj_type;
                 $rec['obj_url'] = $obj_url;
-                $rec['obj_description'] = $row['description'];
+                $rec['obj_description'] = self::clean_desc($row['description']);
 
                 $rec['taxon_concept_id'] = $tc_id;
                 $rec['sciname'] = @$info['taxon_name'];
@@ -378,7 +378,7 @@ class EOLv2MetadataAPI
             $rec['crop_dimensions'] = self::get_crop_dimensions($row);
             $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
             $rec['obj_url'] = self::lookup_object_url($row, $rec['obj_type']);
-            $rec['obj_description'] = $row['description'];
+            $rec['obj_description'] = self::clean_desc($row['description']);
             
             $rec['taxon_concept_id'] = $tc_id;
             $rec['sciname'] = @$info['taxon_name'];
@@ -475,7 +475,7 @@ class EOLv2MetadataAPI
             if($type == 'DataObject') {
                 $rec['obj_guid'] = $row['guid'];
                 $rec['obj_type'] = self::lookup_data_type($row['data_type_id']);
-                $rec['obj_description'] = $row['description'];
+                $rec['obj_description'] = self::clean_desc($row['description']);
                 $rec['object_url'] = self::lookup_object_url($row, $rec['obj_type']);
             }
 
@@ -575,7 +575,7 @@ class EOLv2MetadataAPI
             $rec['ch_object_type'] = $row['ch_object_type'];
             $rec['target_id'] = $row['data_object_id'];
             $rec['guid'] = $row['guid'];
-            $rec['description'] = $row['description'];
+            $rec['description'] = self::clean_desc($row['description']);
             $rec['object_url'] = $object_url;
             $rec['type'] = $type;
             
@@ -704,7 +704,7 @@ class EOLv2MetadataAPI
             $rec['target_id'] = $row['data_object_id'];
             $rec['guid'] = $row['guid'];
             $rec['type'] = self::lookup_data_type($row['data_type_id']);
-            $rec['description'] = $row['description'];
+            $rec['description'] = self::clean_desc($row['description']);
             $rec['object_url'] = self::lookup_object_url($row, $rec['type']);
             
             $rec['taxon_concept_id'] = $tc_id;
@@ -1332,6 +1332,7 @@ class EOLv2MetadataAPI
                 }
 
                 $desc = self::format_str($obj['description'], $obj['data_object_id']);
+                $desc = self::clean_desc($desc);
                 
                 if(!$desc) continue;
                 $mr = new \eol_schema\MediaResource();
@@ -1721,7 +1722,7 @@ class EOLv2MetadataAPI
             $rec = array();
             $rec['id'] = $col_id;
             $rec['collection_name'] = $coll_info['name'];
-            $rec['description'] = str_replace(array("\n", "\t"), " ", $coll_info['description']);
+            $rec['description'] = self::clean_desc($coll_info['description']);
             $rec['logo_url'] = self::gen_logo_url($coll_info);
             $rec['collection_editors'] = self::get_collection_editors($col_id);
             $rec['date_created'] = $coll_info['created_at'];
@@ -1732,6 +1733,10 @@ class EOLv2MetadataAPI
         }
         if($this->debug) print_r($this->debug);
         fclose($FILE);
+    }
+    private function clean_desc($desc)
+    {
+        return str_replace(array("\n", "\t"), " ", $desc);
     }
     private function write_collection_report($rec, $FILE, $file_type = "tsv")
     {
@@ -1749,7 +1754,7 @@ class EOLv2MetadataAPI
             $write = array();
             $write[] = $rec['id'];
             $write[] = $rec['collection_name'];
-            $write[] = $rec['description'];
+            $write[] = self::clean_desc($rec['description']);
             $write[] = $rec['logo_url'];
             $write[] = $rec['collection_editors'];
             $write[] = $rec['date_created'];
@@ -1773,7 +1778,7 @@ class EOLv2MetadataAPI
             $final = array();
             $final['id'] = $rec['id'];
             $final['name'] = $rec['collection_name'];
-            $final['desc'] = $rec['description'];
+            $final['desc'] = self::clean_desc($rec['description']);
             $final['logo_url'] = $rec['logo_url'];
             $final['coll_editors'] = $rec['collection_editors'];
             $final['created'] = $rec['date_created'];
@@ -2143,7 +2148,7 @@ class EOLv2MetadataAPI
                 $last_pub = $this->mysqli->select_value("SELECT max(he.published_at) as last_published FROM resources r JOIN harvest_events he ON (r.id=he.resource_id) WHERE r.id = ".$row['resource_id']);
                 $recs[$row['resource_id']] = array('resource_id' => $row['resource_id'], 'resource_name' => $row['resource_name']
                 , 'first_pub' => $first_pub, 'last_pub' => $last_pub, 'collection_id' => $row['collection_id']
-                , 'description' => $row['description']
+                , 'description' => self::clean_desc($row['description'])
                 , 'orig_data_source_url' => $row['orig_data_source_url']
                 , 'harvest_url_direct' => $row['harvest_url_direct']
                 , 'harvest_url_4connector' => $row['harvest_url_4connector']
