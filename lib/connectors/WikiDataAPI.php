@@ -46,7 +46,7 @@ class WikiDataAPI
         $this->object_ids = array();
         $this->debug = array();
         $this->download_options = array('expire_seconds' => 60*60*24*25*1, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        // $this->download_options['expire_seconds'] = false;
+        if(!Functions::is_production()) $this->download_options['expire_seconds'] = false;
 
         if(Functions::is_production()) {
             $this->path['raw_dump']         = "/extra/dumps/wikidata/latest-all.json";
@@ -380,10 +380,13 @@ class WikiDataAPI
                 
                 /* force taxon in Wikipedia. when developing. wikipedia only ***
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
-                // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
+                $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
+                $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
                 // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear
                 */
+                
+                /* print_r($arr->claims->P935); exit; */
                 
                 if(is_object($arr)) {
                     $rek = array();
@@ -408,6 +411,8 @@ class WikiDataAPI
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
+                                 
+                                 if($range_maps = self::get_range_map($arr->claims)) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
                                  
                                  /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
@@ -604,7 +609,7 @@ class WikiDataAPI
                 // below here is same for the next text object
                 $media['taxonID']                = $t->taxonID;
                 $media['format']                 = Functions::get_mimetype($com['media_url']);
-                
+                $media['subtype'] = @$com['eol_type'];
                 // if($com['media_url'] == "https://upload.wikimedia.org/wikipedia/commons/0/07/Opilion_stalking_lavender_sunset_September.jpeg")
                 // {
                 //     print_r($com); exit;
@@ -662,6 +667,7 @@ class WikiDataAPI
                 $mr->identifier             = $media['identifier'];
                 $mr->type                   = $media['type'];
                 $mr->format                 = $media['format'];
+                $mr->subtype                = $media['subtype'];
                 $mr->language               = $media['language'];
                 $mr->UsageTerms             = $media['UsageTerms'];
                 // $mr->CVterm                 = $media['CVterm'];
@@ -2427,13 +2433,30 @@ class WikiDataAPI
         if($val = (string) @$claims->P935[0]->mainsnak->datavalue->value) return "https://commons.wikimedia.org/wiki/" . str_replace(" ", "_", $val);
         return false;
     }
-
     private function get_commons_category($claims) //https://commons.wikimedia.org/wiki/Category:Gorilla%20gorilla
     {
         if($val = (string) @$claims->P373[0]->mainsnak->datavalue->value) return "https://commons.wikimedia.org/wiki/Category:" . str_replace(" ", "_", $val);
         return false;
     }
-
+    private function get_range_map($claims)
+    {
+        $filenames = array();
+        if($arr = @$claims->P181) {
+            foreach($arr as $i) {
+                if($i->mainsnak->datatype == "commonsMedia") $filenames[] = $i->mainsnak->datavalue->value;
+            }
+        }
+        $final = array();
+        if($filenames) {
+            foreach($filenames as $fn) {
+                if($rec = self::process_file($fn)) {
+                    $rec['eol_type'] = 'map';
+                    $final[] = $rec;
+                }
+            }
+        }
+        return $final;
+    }
     private function get_taxon_parent($claims)
     {
         $parent = array();
