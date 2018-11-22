@@ -64,7 +64,7 @@ class EOLv2MetadataAPI
     }
     public function taxonomic_propagation($report)
     {
-        // /* test
+        /* test
         $page_id = 6061725;
         $source_url = "https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg";
         //sample url format in our image_ratings.txt report
@@ -77,7 +77,7 @@ class EOLv2MetadataAPI
         $source_url = "http://upload.wikimedia.org/wikipedia/commons/6/64/Tournai_AR3aJPG.jpg";
         // $source_url = "https://upload.wikimedia.org/wikipedia/commons/8/8e/%D0%94%D0%B5%D0%B3%D1%83.png";
         $ret = self::search_v2_images($page_id, $source_url); print_r($ret); exit("\nstopx\n");
-        // */
+        */
         if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/image_ratings.txt";
         elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/images_selected_as_exemplar.txt";
 
@@ -90,7 +90,10 @@ class EOLv2MetadataAPI
         // $page_id = 46564415; $page_id = 4200; $ancestry = $func->get_ancestry_via_DH($page_id, $landmark_only); print_r($ancestry); exit; //good test OK
         
         $resource_head = array('eol_pk', 'page_id', 'source_url');
-        if($report == 'image_ratings') $resource_head = array_merge($resource_head, array('total_rating_actions', 'overall_rating', 'searched_by_url_only'));
+        
+        /* if($report == 'image_ratings') $resource_head = array_merge($resource_head, array('total_rating_actions', 'overall_rating', 'searched_by_url_only')); */
+        if($report == 'image_ratings') $resource_head = array_merge($resource_head, array('overall_rating', 'searched_by_url_only'));
+        
         $destination = CONTENT_RESOURCE_LOCAL_PATH . $report."_propagation.txt";
         $FILE = Functions::file_open($destination, "w");
         fwrite($FILE, implode("\t", $resource_head)."\n");
@@ -142,7 +145,7 @@ class EOLv2MetadataAPI
                     $write['page_id']     = $ret['page_id'];
                     $write['source_url']  = $ret['source_url'];
                     if($report == 'image_ratings') {
-                        $write['total_rating_actions'] = $rec['total_rating_actions'];
+                        /* $write['total_rating_actions'] = $rec['total_rating_actions']; */
                         $write['overall_rating']       = $rec['overall_rating'];
                     }
                     echo "\n$page_id - found - ".$ret['eol_pk'];
@@ -162,7 +165,7 @@ class EOLv2MetadataAPI
                                 $write['eol_pk']      = $ret['eol_pk'];
                                 $write['page_id']     = $ret['page_id'];
                                 $write['source_url']  = $ret['source_url'];
-                                $write['total_rating_actions'] = $rec['total_rating_actions'];
+                                /* $write['total_rating_actions'] = $rec['total_rating_actions']; */
                                 $write['overall_rating']       = $rec['overall_rating'];
                                 $write['searched_by_url_only'] = "Yes";
                                 echo "\n$page_id - found - ".$ret['eol_pk'];
@@ -172,7 +175,7 @@ class EOLv2MetadataAPI
                             $write['eol_pk']      = '';
                             $write['page_id']     = $page_id;
                             $write['source_url']  = $rec['object_url'];
-                            $write['total_rating_actions'] = $rec['total_rating_actions'];
+                            /* $write['total_rating_actions'] = $rec['total_rating_actions']; */
                             $write['overall_rating']       = $rec['overall_rating'];
                             echo "\n$page_id - not found";
                         }
