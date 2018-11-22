@@ -35,8 +35,8 @@ class EOLv2MetadataAPI
     
     public function utility_compare_eol_pk()
     {
-        $files = array("/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/images_selected_as_exemplar.txt", CONTENT_RESOURCE_LOCAL_PATH ."images_selected_as_exemplar.txt");
-        $files = array("/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 2/image_ratings.txt", CONTENT_RESOURCE_LOCAL_PATH ."image_ratings.txt");
+        $files = array("/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/images_selected_as_exemplar.txt", CONTENT_RESOURCE_LOCAL_PATH ."images_selected_as_exemplar.txt");
+        $files = array("/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/image_ratings.txt", CONTENT_RESOURCE_LOCAL_PATH ."image_ratings.txt");
         foreach($files as $txtfile) {
             $i = 0; $final = array(); echo "\n[$txtfile]\n";
             foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -78,8 +78,8 @@ class EOLv2MetadataAPI
         // $source_url = "https://upload.wikimedia.org/wikipedia/commons/8/8e/%D0%94%D0%B5%D0%B3%D1%83.png";
         $ret = self::search_v2_images($page_id, $source_url); print_r($ret); exit("\nstopx\n");
         */
-        if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/image_ratings.txt";
-        elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/images_selected_as_exemplar.txt";
+        if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 4/image_ratings.txt";
+        elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 4/images_selected_as_exemplar.txt";
 
         // /* access DH
         require_library('connectors/EOL_DH_API');
