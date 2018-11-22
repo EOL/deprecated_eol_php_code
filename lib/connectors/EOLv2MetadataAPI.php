@@ -74,8 +74,9 @@ class EOLv2MetadataAPI
         // $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/ae/Upupa_epops_%28Ramat_Gan%29002.jpg";
         // $source_url = "http://upload.wikimedia.org/wikipedia/commons/a/a3/Rosa_%27Portland_Rose%27.jpg";
         // $source_url = "http://upload.wikimedia.org/wikipedia/commons/c/c8/Spotless_Starling%2C_Sturnus_unicolor.jpg";
-        $ret = self::search_v2_images($page_id, $source_url);
-        print_r($ret); exit("\nstopx\n");
+        $source_url = "http://upload.wikimedia.org/wikipedia/commons/6/64/Tournai_AR3aJPG.jpg";
+        $source_url = "https://upload.wikimedia.org/wikipedia/commons/8/8e/%D0%94%D0%B5%D0%B3%D1%83.png";
+        $ret = self::search_v2_images($page_id, $source_url); print_r($ret); exit("\nstopx\n");
         */
         if($report == 'image_ratings')       $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/image_ratings.txt";
         elseif($report == 'exemplar_images') $txtfile = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/images_selected_as_exemplar.txt";
