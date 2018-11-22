@@ -83,6 +83,10 @@ class WikiDataAPI
         
         $this->count['greater_equal_2995'] = 0;
         $this->count['less_than_2995'] = 0;
+        
+        $this->exact_map_categories = array('Distribution maps', 'Distributional maps', 'Biogeographical maps', 'NASA World Wind');
+        $this->substrs_map_categories_right = array(' distribution map', ' distributional map', ' biogeographical map', ' range map');
+        $this->substrs_map_categories_left  = array('Distribution maps ', 'Distributional maps ', 'Biogeographical maps ', 'SVG maps ', 'Maps of ', 'Maps from ', 'Maps by ');
     }
 
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
@@ -382,6 +386,7 @@ class WikiDataAPI
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
                 $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
                 $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
+                // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
                 // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear
                 */
@@ -403,14 +408,16 @@ class WikiDataAPI
                              
                              if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek);
 
-                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims);
-                             $rek['com_category'] = self::get_commons_category($arr->claims);
+                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
+                             $rek['com_category'] = self::get_commons_category($arr->claims); //P373
                              
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
+                                 
+                                 // print_r($rek['obj_gallery']); exit;
                                  
                                  if($range_maps = self::get_range_map($arr->claims)) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
                                  
@@ -978,6 +985,11 @@ class WikiDataAPI
         $rek['pageid'] = $dump_arr['id'];
         
         // if($rek['pageid'] == "36373984") print_r($dump_arr); //exit;
+        /* debug mode
+        if($rek['pageid'] == "9163872") { //9163872 10584787
+            print_r($dump_arr); exit("\n-stop-\n");
+        }
+        */
         
         $rek['timestamp'] = $dump_arr['revision']['timestamp'];
 
@@ -995,16 +1007,18 @@ class WikiDataAPI
         // == {{int:license-header}} ==
         // {{Flickr-no known copyright restrictions}}
         if(preg_match("/== \{\{int:license-header\}\} ==(.*?)\}\}/ims", $wiki, $a) ||
-           preg_match("/==\{\{int:license-header\}\}==(.*?)\}\}/ims", $wiki, $a))
-        {
+           preg_match("/==\{\{int:license-header\}\}==(.*?)\}\}/ims", $wiki, $a)) {
             $tmp = trim(str_replace("{", "", $a[1]));
             $rek['LicenseShortName'] = $tmp;
         }
+        // else echo "\n----111----\n";
         //================================================================ LicenseUrl
         //  -- http://creativecommons.org/licenses/by-sa/3.0 
         if(preg_match("/http:\/\/creativecommons.org\/licenses\/(.*?)\"/ims", $rek['ImageDescription'], $a)) {
             $rek['LicenseUrl'] = "http://creativecommons.org/licenses/" . $a[1];
         }
+        elseif(stripos($rek['ImageDescription'], "licensed with PD-self") !== false) $rek['LicenseUrl'] = $this->license['public domain']; //string is found
+        // else echo "\n----222----\n";
         //================================================================ title
         if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
         else $rek['title'] = str_replace("_", " ", $title);
@@ -1185,6 +1199,7 @@ class WikiDataAPI
         // ================================ */
         
         //================================================================ END
+        $rek['eol_type'] = self::check_if_dump_image_is_map($dump_arr['revision']['text']);
         $rek['fromx'] = 'dump';
         
         /* good debug for Artist dump
@@ -1642,6 +1657,7 @@ class WikiDataAPI
             $rek['LicenseShortName'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['LicenseShortName']['value']);
             if($val = @$arr['imageinfo'][0]['extmetadata']['DateTime']['value'])             $rek['date'] = self::format_wiki_substr($val);
             elseif($val = @$arr['imageinfo'][0]['extmetadata']['DateTimeOriginal']['value']) $rek['date'] = self::format_wiki_substr($val);
+            $rek['eol_type'] = self::check_if_api_image_is_map(@$arr['imageinfo'][0]['extmetadata']['Categories']['value']);
             $rek['fromx'] = 'api'; //object metadata from API;
             
             /* debug only
@@ -1659,6 +1675,42 @@ class WikiDataAPI
         }
         else echo "\nNot found in API\n";
         return $rek; //$arr
+    }
+    private function check_if_dump_image_is_map($wiki)
+    {   /*
+        [[Category:NASA World Wind]]
+        [[Category:Canidae distribution maps]]
+        [[Category:Animal distribution maps of Africa]]
+        [[Category:Pleuronectiformes distribution maps]]
+        */
+        if(preg_match_all("/\[\[Category\:(.*?)\]\]/ims", $wiki, $a)) {
+            $cats = array_map('trim', $a[1]);
+            $ret = self::chech_each_category($cats);
+            return $ret;
+        }
+    }
+    private function check_if_api_image_is_map($categories)
+    {   /*[Categories] => Array
+            [value] => Azolla pinnata|Biogeographical maps of India|CC-BY-SA-3.0,2.5,2.0,1.0|GFDL|License migration redundant|Retouched pictures|Self-published work|Uploaded with derivativeFX
+        */
+        $cats = explode("|", trim($categories));
+        $cats = array_map('trim', $cats);
+        $ret = self::chech_each_category($cats);
+        return $ret;
+    }
+    private function chech_each_category($categories)
+    {
+        foreach($categories as $cat) {
+            if(in_array($cat, $this->exact_map_categories)) return 'map';
+            foreach($this->substrs_map_categories_right as $part) {
+                // if(preg_match("/ (.*?)".$part."/ims", $cat, $a)) return 'map';
+                if(stripos($cat, $part) !== false) return 'map'; //string is found
+            }
+            foreach($this->substrs_map_categories_left as $part) {
+                // if(preg_match("/".$part."(.*?) /ims", $cat, $a)) return 'map';
+                if(stripos($cat, $part) !== false) return 'map'; //string is found
+            }
+        }
     }
     private function flickr_lookup_if_needed($arr)
     {
@@ -2683,7 +2735,7 @@ class WikiDataAPI
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         $filename = $main_path . "$cache1/$cache2/$md5.json";
-        debug("\nfilename: [$filename]\n");
+        debug("\nfilename: [$title] [$filename]\n");
         if(file_exists($filename)) return $filename;
         else return false;
     }
