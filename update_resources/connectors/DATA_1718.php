@@ -92,13 +92,12 @@ $func = new EOLv2MetadataAPI("");
 $func->DATA_1719(); --- didn't use this
 */
 
-// /* DATA-1786: user activity- taxonomic propagation of rating + exemplar
+/* DATA-1786: user activity- taxonomic propagation of rating + exemplar
 $func = new EOLv2MetadataAPI();
 // $func->taxonomic_propagation('exemplar_images'); echo "\n end taxonomic_propagation(exemplar_images) \n"; //return;
 $func->taxonomic_propagation('image_ratings'); echo "\n end taxonomic_propagation(image_ratings) \n"; //return;
-
 // $func->utility_compare_eol_pk();
-// */
+*/
 
 
 
