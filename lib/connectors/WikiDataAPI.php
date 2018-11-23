@@ -1046,7 +1046,6 @@ class WikiDataAPI
             elseif(preg_match("/\|artist \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
             elseif(preg_match("/\| artist \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
             elseif(preg_match("/\|artist\=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
-
             // else exit("\n$temp\nelix\n");
             /*
             |Author		= [http://www.flickr.com/people/46788399@N00 Gilles Gonthier]
@@ -1078,7 +1077,6 @@ class WikiDataAPI
             // echo "\nelix went here aaa\n";
             if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
-        
         if(!$rek['Artist']) {
             // echo "\nelix went here bbb\n";
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
@@ -1088,7 +1086,6 @@ class WikiDataAPI
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; //get_media_metadata_from_json()
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
-        
         // /* ================================ new Oct 7, 2017 -- comment it first...
         if(is_array($rek['Artist'])) {
             // echo "\nartist is ARRAY()"; print_r($rek['Artist']); //debug only
@@ -1096,17 +1093,14 @@ class WikiDataAPI
         else {
             debug("\nartist is STRING: [".$rek['Artist']."]\n");
             /* //new first option
-                [revision] => Array
-                    (
+                [revision] => Array(
                         [id] => 178748754
                         [parentid] => 139462069
                         [timestamp] => 2015-11-10T22:44:04Z
-                        [contributor] => Array
-                            (
+                        [contributor] => Array(
                                 [username] => Mariomassone
                                 [id] => 412814
             */
-            
             // new Nov 5, 2018. Initially this wasn't the 1st option.
             //possible values --> "[[User:Victuallers]]" "[[User:Tomascastelazo|Tomas Castelazo]]" "*Original: [[User:Chiswick Chap|Chiswick Chap]]"
             if(stripos($rek['Artist'], "[[User:") !== false && stripos($rek['Artist'], "]]") !== false) { //string is found //e.g. *Original: [[User:Chiswick Chap|Chiswick Chap]]
@@ -1123,12 +1117,10 @@ class WikiDataAPI
                     }
                 }
             }
-            
             elseif($val = @$dump_arr['revision']['contributor']['username']) {
                 unset($rek['Artist']);
                 $rek['Artist'][] = array('name' => $val, 'homepage' => "https://commons.wikimedia.org/wiki/User:".$val, 'role' => 'editor');
             }
-            
             elseif(substr($rek['Artist'],0,5) == "[http") { //[https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]
                 $tmp_arr = explode(" ", $rek['Artist']);
                 unset($rek['Artist']);
@@ -1168,7 +1160,6 @@ class WikiDataAPI
                     $rek['Artist'][] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'source');
                 }
                 //end another special 
-
             }
             /* this is covered in elseif() below this
             elseif(substr($rek['Artist'],0,7) == "[[User:") //[[User:Tomascastelazo|Tomas Castelazo]]
@@ -1192,16 +1183,13 @@ class WikiDataAPI
             else echo "\nSTILL not an array...investigate...\n";
         }
         // ================================ */
-        
         //================================================================ END
         $rek['eol_type'] = self::check_if_dump_image_is_map($dump_arr['revision']['text']);
         $rek['fromx'] = 'dump';
-        
         /* good debug for Artist dump
         if($rek['pageid'] == "12338225") {
             echo "\n=================investigate dump data===========start\n";
-            print_r($dump_arr);
-            print_r($rek);
+            print_r($dump_arr); print_r($rek);
             echo "\n=================investigate dump data===========end\n";
             exit("\nwait..investigate here...\n");
         }
