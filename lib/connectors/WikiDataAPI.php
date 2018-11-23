@@ -1203,7 +1203,6 @@ class WikiDataAPI
             $name = str_replace(array("{", "}"), "", $other_author);
             return array('name' => $name, 'role' => 'creator');
         }
-        
         /* e.g. $other_author orig value, which is a wiki:
         [https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
         e.g. html value is:
@@ -1220,22 +1219,18 @@ class WikiDataAPI
         }
     }
     private function second_option_for_artist_info($arr)
-    {
-        /*(
+    {   /*(
             [title] => File:Brassica oleracea2.jpg
             [ns] => 6
             [id] => 56480
-            [revision] => Array
-                (
+            [revision] => Array(
                     [id] => 141570217
                     [parentid] => 26626799
                     [timestamp] => 2014-12-06T05:29:10Z
-                    [contributor] => Array
-                        (
+                    [contributor] => Array(
                             [username] => JarektBot
                             [id] => 472310
-                        )
-        */
+                        )*/
         if($val = @$arr['revision']['contributor']['username']) {
             $a['name'] = $val;
             $a['homepage'] = "https://commons.wikimedia.org/wiki/User:$val";
@@ -1253,8 +1248,7 @@ class WikiDataAPI
     {
         // <td lang="en">Author</td> 
         // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
-        if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a)) {
-            // echo "\nelix 111\n";
+        if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a)) { // echo "\nelix 111\n";
             $temp = $a[1];
             $final = array(); $atemp = array();
             if(preg_match("/href=\"(.*?)\"/ims", $temp, $a)) $atemp['homepage'] = trim($a[1]);
@@ -1276,13 +1270,11 @@ class WikiDataAPI
                 // else echo "\nelix 333\n";
             }
         }
-
         /* heavy so commented first, will see how the preview goes in V3 and get back to this
         elseif(stripos($description, "{{Wellcome Images}}") !== false) { //string is found
             return array('name' => "Wellcome Images", 'homepage' => "https://wellcomeimages.org/", 'role' => 'creator');
         }
         */
-        
         elseif(preg_match("/Photographer<\/td>(.*?)<\/td>/ims", $description, $a)) { //<td >Photographer</td> <td>Hans Hillewaert</td>
             // echo "\nelix 333 333\n";
             $temp = $a[1];
@@ -1297,8 +1289,7 @@ class WikiDataAPI
         }
         elseif(preg_match("/Photographer:(.*?)\./ims", $description, $a)) { /*Photographer: Hans Hillewaert.*/
             if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'photographer');
-            else //e.g. Photographer: <a href="https://commons.wikimedia.org/wiki/User:Biopics" title="User:Biopics">Hans Hillewaert</a>.
-            {
+            else { //e.g. Photographer: <a href="https://commons.wikimedia.org/wiki/User:Biopics" title="User:Biopics">Hans Hillewaert</a>.
                 $d = strip_tags($description);
                 if(preg_match("/Photographer:(.*?)\./ims", $d, $a)) {
                     if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'photographer');
@@ -1318,14 +1309,12 @@ class WikiDataAPI
             // echo "\nelix 555\n";
             // echo "\n$description\n";
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
-            if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a)) {
-                // echo "\nelix 444\n";
+            if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a)) { // echo "\nelix 444\n";
                 $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'creator');
                 // print_r($final); exit("\n$description\n");
                 return $final;
             }
-            elseif(preg_match("/Fotograf oder Zeichner\:(.*?)Lizenzstatus/ims", $description, $a)) //Fotograf oder Zeichner: Goldlocki Lizenzstatus:
-            {
+            elseif(preg_match("/Fotograf oder Zeichner\:(.*?)Lizenzstatus/ims", $description, $a)) { //Fotograf oder Zeichner: Goldlocki Lizenzstatus:
                 if($val = trim($a[1])) {
                     $final[] = array('name' => $val, 'role' => 'creator');
                     return $final;
@@ -1340,34 +1329,25 @@ class WikiDataAPI
         }
         return false;
     }
-    
     private function remove_portions_of_wiki($wiki)
     {
         // =={{Assessment}}==
         $wiki = str_ireplace("=={{Assessment}}==", "", $wiki);
-
         //{{Assessment }}
         if(preg_match("/\{\{Assessment(.*?)\}\}/ims", $wiki, $a)) $wiki = str_ireplace("{{Assessment" . $a[1] . "}}", "", $wiki);
-
         // {{User:FlickreviewR }}
         if(preg_match("/\{\{User:FlickreviewR(.*?)\}\}/ims", $wiki, $a)) $wiki = str_ireplace("{{User:FlickreviewR" . $a[1] . "}}", "", $wiki);
-        
         // {{Check categories }}
         if(preg_match("/\{\{Check categories(.*?)\}\}/ims", $wiki, $a)) $wiki = str_ireplace("{{Check categories" . $a[1] . "}}", "", $wiki);
-        
         //===Versions:===
         $wiki = str_ireplace("===Versions:===", "", $wiki);
-        
-        //test...
         /*
         $wiki = str_ireplace("== {{int:license-header}} ==", "", $wiki);
         $wiki = str_ireplace("{{self|cc-by-sa-3.0}}", "", $wiki);
         */
-        
         $wiki = str_ireplace("{{gardenology}}", "", $wiki); //e.g. Gardenology.org-IMG_2825_rbgs11jan.jpg
         return $wiki;
     }
-    
     private function convert_wiki_2_html($wiki)
     {
         $url = "https://www.mediawiki.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text=";
