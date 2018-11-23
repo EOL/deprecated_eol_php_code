@@ -983,19 +983,14 @@ class WikiDataAPI
         $dump_arr = json_decode($json, true);
         $rek = array();
         $rek['pageid'] = $dump_arr['id'];
-        
-        // if($rek['pageid'] == "36373984") print_r($dump_arr); //exit;
         /* debug mode
-        if($rek['pageid'] == "9163872") { //9163872 10584787
+        if($rek['pageid'] == "9163872") { //9163872 10584787 36373984
             print_r($dump_arr); exit("\n-stop-\n");
         }
         */
-        
         $rek['timestamp'] = $dump_arr['revision']['timestamp'];
-
         $wiki = $dump_arr['revision']['text'];
         if(self::wiki_protected($wiki)) return "protected";
-
         //================================================================ ImageDescription
         if($rek['ImageDescription'] = self::convert_wiki_2_html($wiki)) {
             // print("\n".$rek['ImageDescription']."\n\n");
@@ -1011,14 +1006,14 @@ class WikiDataAPI
             $tmp = trim(str_replace("{", "", $a[1]));
             $rek['LicenseShortName'] = $tmp;
         }
-        // else echo "\n----111----\n";
+        // else echo "\n----111----\n"; //means no license
         //================================================================ LicenseUrl
         //  -- http://creativecommons.org/licenses/by-sa/3.0 
         if(preg_match("/http:\/\/creativecommons.org\/licenses\/(.*?)\"/ims", $rek['ImageDescription'], $a)) {
             $rek['LicenseUrl'] = "http://creativecommons.org/licenses/" . $a[1];
         }
         elseif(stripos($rek['ImageDescription'], "licensed with PD-self") !== false) $rek['LicenseUrl'] = $this->license['public domain']; //string is found
-        // else echo "\n----222----\n";
+        // else echo "\n----222----\n"; //means no license
         //================================================================ title
         if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
         else $rek['title'] = str_replace("_", " ", $title);
