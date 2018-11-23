@@ -1352,7 +1352,6 @@ class WikiDataAPI
     {
         $url = "https://www.mediawiki.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text=";
         $url = "https://commons.wikimedia.org/w/api.php?action=parse&contentmodel=wikitext&format=json&text="; //much better API version
-
         $wiki = self::remove_portions_of_wiki($wiki);
         $count = strlen($wiki);
         debug("\ncount = [$count]\n");
@@ -1368,31 +1367,25 @@ class WikiDataAPI
             $arr = json_decode($json, true);
             // echo "\n==========\n";
             // print_r($arr);
-            
             $html = $arr['parse']['text']['*'];
             if(preg_match("/elix(.*?)<!--/ims", "elix".$html, $a)) {
                 $html = trim($a[1]);
                 $html = str_ireplace('href="//', 'href="http://', $html);
                 $html = str_ireplace('href="/', 'href="https://commons.wikimedia.org/', $html);
                 $html = self::format_wiki_substr($html);
-                
                 $html = str_ireplace("&nbsp;", " ", $html);
                 $html = Functions::remove_whitespace($html);
-                
                 /*
                 //double Template:Information field -> not needed when using the commons.wikimedia.org API
                 $temp = '<a href="https://commons.wikimedia.org/w/index.php?title=Template:Information_field&action=edit&redlink=1" class="new" title="Template:Information field (page does not exist)">Template:Information field</a>';
                 $html = str_ireplace($temp.$temp, $temp, $html);
                 */
-                
                 //remove style
                 if(preg_match_all("/style=\"(.*?)\"/ims", $html, $a)) {
                     foreach($a[1] as $style) $html = str_ireplace('style="'.$style.'"', "", $html);
                 }
-
                 //others
                 $html = str_ireplace(" (page does not exist)", "", $html);
-                
                 /*
                 //Template removal when using API mediawiki.org -> not needed when using the commons.wikimedia.org API
                 $html = str_ireplace('<a href="https://commons.wikimedia.org/w/index.php?title=Template:Date-time_separator&action=edit&redlink=1" class="new" title="Template:Date-time separator">Template:Date-time separator</a>', "", $html);
@@ -1401,18 +1394,13 @@ class WikiDataAPI
                 $arr = array("Self", "Location dec", "Geograph");
                 foreach($arr as $t) $html = str_ireplace('<a href="https://commons.wikimedia.org/w/index.php?title=Template:'.str_replace(" ", "_", $t).'&action=edit&redlink=1" class="new" title="Template:'.$t.'">Template:'.$t.'</a>', "", $html);
                 */
-                
                 $html = strip_tags($html, "<table><tr><td><br><a><i>"); //strip_tags
-
                 $html = str_ireplace("([//www.mediawiki.org/w/index.php?title=API&action=purge# purge])", "", $html);
                 $html = Functions::remove_whitespace($html);
-                
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=1" class="mw-redirect" title="Edit section: Summary">edit</a>]', "", $html);
                 $html = str_ireplace('[<a href="https://commons.wikimedia.org/w/index.php?title=API&action=edit&section=2" class="mw-redirect" title="Edit section: Licensing">edit</a>]', "", $html);
-                
                 $arr = array("class", "id");
-                foreach($arr as $attrib) {
-                    //remove class="" id=""
+                foreach($arr as $attrib) { //remove class="" id=""
                     if(preg_match_all("/$attrib=\"(.*?)\"/ims", $html, $a)) {
                         foreach($a[1] as $style) $html = str_ireplace($attrib.'="'.$style.'"', "", $html);
                     }
@@ -1439,7 +1427,6 @@ class WikiDataAPI
         }
         return false;
     }
-    
     private function adjust_image_desc($html)
     {
         $html = trim(self::remove_space($html));
