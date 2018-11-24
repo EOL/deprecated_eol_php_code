@@ -29,6 +29,7 @@ class EnvironmentsEOLDataConnector
         
         $this->file['marine_terms'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Environments/marine_terms.csv";
         $this->file['terrestrial_taxa'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Environments/terrestrial_taxa.tsv";
+        $this->file['dangling_terrestrial_taxa'] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Environments/dangling terrestrial taxa.txt";
         
         // stats
         $this->TEMP_DIR = create_temp_dir() . "/";
@@ -87,30 +88,36 @@ class EnvironmentsEOLDataConnector
         */
         if($this->debug) print_r($this->debug);
     }
-    private function get_excluded_eol_ids()
+    private function get_excluded_eol_ids($file = false)
     {
-        $temp_file = Functions::save_remote_file_to_local($this->file['terrestrial_taxa'], $this->download_options);
-        $i = 0;
-        foreach(new FileIterator($temp_file) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $i++;
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t", $line);
-            if($i == 1) {
-                $fields = $row;
-                continue;
-            }
-            else {
-                if(!@$row[0]) continue; //$row[0] is gbifID
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = $row[$k];
-                    $k++;
+        if($file) $source_files = array($file);
+        else      $source_files = array($this->file['terrestrial_taxa'], $this->file['dangling_terrestrial_taxa']);
+        foreach($source_files as $source_file) {
+            $temp_file = Functions::save_remote_file_to_local($source_file, $this->download_options);
+            $i = 0;
+            foreach(new FileIterator($temp_file) as $line_number => $line) { // 'true' will auto delete temp_filepath
+                $i++;
+                if($i == 1) $line = strtolower($line);
+                $row = explode("\t", $line);
+                if($i == 1) {
+                    $fields = $row;
+                    continue;
                 }
+                else {
+                    if(!@$row[0]) continue; //$row[0] is gbifID
+                    $k = 0; $rec = array();
+                    foreach($fields as $fld) {
+                        $rec[$fld] = $row[$k];
+                        $k++;
+                    }
+                }
+                // print_r($rec); exit("\nstopx\n");
+                if($val = trim(@$rec['taxon id'])) $final[$val] = '';   //for original file
+                if($val = trim(@$rec['taxon url'])) $final[$val] = '';  //for dangling file
             }
-            // print_r($rec); exit("\nstopx\n");
-            $final[trim($rec['taxon id'])] = '';
+            unlink($temp_file);
+            echo "\n[$source_file: $i] [".count($final)."]\n";
         }
-        unlink($temp_file);
         return $final;
     }
     private function get_excluded_terms()
@@ -122,6 +129,17 @@ class EnvironmentsEOLDataConnector
     }
     private function csv_to_array($tsv_file)
     {
+        /* investigates if 'dangling' has taxon_ids not found in original 'terrestrial_taxa' file.
+        $terrestrial_taxa = self::get_excluded_eol_ids($this->file['terrestrial_taxa']);
+        $terrestrial_taxa = array_keys($terrestrial_taxa);
+        $dangling_terrestrial_taxa = self::get_excluded_eol_ids($this->file['dangling_terrestrial_taxa']);
+        // print_r($dangling_terrestrial_taxa); exit("\n111\n");
+        $dangling_terrestrial_taxa = array_keys($dangling_terrestrial_taxa);
+        $diff = array_diff($dangling_terrestrial_taxa, $terrestrial_taxa); //found in dangling but not found in original.
+        print_r($diff); //confirmed there are those records...
+        exit("\n-end tests...-\n");
+        */
+        
         //from here: https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
         $this->excluded_eol_ids = self::get_excluded_eol_ids();
         $this->excluded_terms = self::get_excluded_terms();
