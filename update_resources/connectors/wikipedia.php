@@ -84,7 +84,7 @@ elseif($language == 'de') $resource_id = 957;
 else $resource_id = "wikipedia-".$language;
 $func = new WikiDataAPI($resource_id, $language); //generic call
 
-if(in_array($language, array("en", "es", "fr", "de"))) {
+if(in_array($language, array("en", "es", "fr", "de", "it"))) {
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
     $status_arr = $func->generate_resource($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.
     if($status_arr[0]) {
