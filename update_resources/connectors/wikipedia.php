@@ -124,16 +124,19 @@ echo "\n Done processing.\n";
 /* http://opendata.eol.org/dataset/wikipedia_5k
 Data and Resources
 
-wikipedia-en.tar.gz
-wikipedia-es.tar.gz
-wikipedia-de.tar.gz
-wikipedia-ja.tar.gz
-wikipedia-fr.tar.gz
+wikipedia-en.tar.gz English *
+wikipedia-es.tar.gz Spanish *
+wikipedia-it.tar.gz Italian *
+wikipedia-de.tar.gz German *
+
+wikipedia-fr.tar.gz French *
+
 wikipedia-zh.tar.gz Chinese
-wikipedia-ko.tar.gz Korean
-wikipedia-it.tar.gz Italian
 wikipedia-ru.tar.gz Russian
 wikipedia-pt.tar.gz Portuguese
+wikipedia-ja.tar.gz Japanese
+wikipedia-ko.tar.gz Korean
+
 
 wikipedia-pl.tar.gz Polish
 wikipedia-uk.tar.gz Ukrainian
