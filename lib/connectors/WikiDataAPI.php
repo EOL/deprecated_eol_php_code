@@ -419,7 +419,10 @@ class WikiDataAPI
                                  
                                  // print_r($rek['obj_gallery']); exit;
                                  
-                                 if($range_maps = self::get_range_map($arr->claims)) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
+                                 if($range_maps = self::get_range_map($arr->claims)) {
+                                     if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
+                                     else                     $rek['obj_gallery'] = $range_maps
+                                 }
                                  
                                  /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
