@@ -13,9 +13,12 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Saturday 2018-10-06 04:19:13 AM	 {"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844,"vernacular_name.tab":291267}
 71	Monday 2018-11-19 11:36:53 AM	 {"agent.tab":267873,"media_resource.tab":1167960,"taxon.tab":113398,"vernacular_name.tab":315324} ??? big increase...will investigate
 71	Wednesday 2018-11-21 02:05:16 AM {"agent.tab":267877,"media_resource.tab":1167960,"taxon.tab":113398,"vernacular_name.tab":315324}
+71	Saturday 2018-11-24 09:54:22 PM	 {"agent.tab":268413,"media_resource.tab":1168639,"taxon.tab":113399,"vernacular_name.tab":315324}
 
+--- 71_new eventually becomes 71.tar.gz
 71_new	Monday 2018-11-19 11:48:24 AM   {"agent.tab":267873,"media_resource.tab":1167960,"taxon.tab":113398}
 71_new	Wednesday 2018-11-21 02:16:00 AM{"agent.tab":267877,"media_resource.tab":1167960,"taxon.tab":113398}
+71_new	Saturday 2018-11-24 10:05:39 PM	{"agent.tab":268413,"media_resource.tab":1168639,"taxon.tab":113399}
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource

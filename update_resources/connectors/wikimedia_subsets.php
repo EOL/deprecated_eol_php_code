@@ -7,7 +7,8 @@ The wikimedia_comnames.tar.gz is the resource with just vernaculars.
 
 wikimedia_comnames	Wednesday 2018-10-17 05:02:39 AM	{"taxon.tab": 90844,"vernacular_name.tab":291267}
 wikimedia_comnames	Monday 2018-11-19 11:38:23 AM	    {"taxon.tab":113398,"vernacular_name.tab":315324} --- big increase, not sure yet if anomaly or legit increase
-wikimedia_comnames	Wednesday 2018-11-21 02:06:35 AM	{"taxon.tab":113398,"vernacular_name.tab":315324}
+wikimedia_comnames	Wednesday 2018-11-21 02:06:35 AM    {"taxon.tab":113398,"vernacular_name.tab":315324}
+wikimedia_comnames	Saturday 2018-11-24 09:55:46 PM	    {"taxon.tab":113399,"vernacular_name.tab":315324}
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM	{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
