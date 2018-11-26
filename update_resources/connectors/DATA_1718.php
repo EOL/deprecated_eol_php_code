@@ -99,7 +99,10 @@ $func->taxonomic_propagation('image_ratings'); echo "\n end taxonomic_propagatio
 // $func->utility_compare_eol_pk();
 */
 
-
+// /* DATA-1788: re-locating selected images in v2 by old identifiers
+$func = new EOLv2MetadataAPI();
+$func->DATA_1788(); echo "\n end DATA_1788() \n"; return;
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

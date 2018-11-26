@@ -32,7 +32,52 @@ class EOLv2MetadataAPI
         $this->media_path = "https://editors.eol.org/other_files/EOL_media/";
         // http://localhost/other_files/EOL_media/28/28694_orig.jpg -- to test locally
     }
-    
+    public function DATA_1788()
+    {
+        $csv_file = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/DATA-1788/inat-eol-photos.csv";
+        $i = 0;
+        if(!$file = Functions::file_open($csv_file, "r")) return;
+        while(!feof($file)) {
+            $temp = fgetcsv($file);
+            $i++;
+            if(($i % 1000) == 0) echo "\nbatch $i";
+            if($i == 1) {
+                $fields = $temp;
+                print_r($fields);
+                continue;
+            }
+            else {
+                $rec = array();
+                $k = 0;
+                // 2 checks if valid record
+                if(!$temp) continue;
+                foreach($temp as $t) {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+            }
+            print_r($rec); exit;
+            /* Array
+                [id] => 2130772
+                [native_photo_id] => 5e36e830d8811dd0ce9a3b875e020c42
+                [native_page_url] => http://eol.org/data_objects/29464142
+                [original_url] => http://160.111.248.28/content/2014/05/31/06/84674_orig.jpg
+            */
+            mysql
+            
+        } // end while{}
+        fclose($file);
+    }
+    private function get_do_media_url($do_guid = false, $do_cache_url = false)
+    {
+        if($do_guid)      $sql = "SELECT d.* from DO_cache_url d where d.guid = $do_guid";
+        if($do_cache_url) $sql = "SELECT d.* from DO_cache_url d where d.object_cache_url = $do_cache_url";
+        $result = $this->mysqli->query($sql);
+        if($result && $row=$result->fetch_assoc()) {
+            return $row['object_url'];
+        }
+        return false;
+    }
     public function utility_compare_eol_pk()
     {
         $files = array("/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/V2_user_activity_v2/user activities 3/images_selected_as_exemplar.txt", CONTENT_RESOURCE_LOCAL_PATH ."images_selected_as_exemplar.txt");
