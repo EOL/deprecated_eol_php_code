@@ -421,7 +421,7 @@ class WikiDataAPI
                                  
                                  if($range_maps = self::get_range_map($arr->claims)) {
                                      if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
-                                     else                     $rek['obj_gallery'] = $range_maps
+                                     else                     $rek['obj_gallery'] = $range_maps;
                                  }
                                  
                                  /* eli's debug
