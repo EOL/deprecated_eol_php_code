@@ -133,7 +133,27 @@ class WikiDataAPI
         return true;
     }
     function test()
-    {
+    {   /* [file in question] => -----                              Nov 25, 2018
+            [File:Salix_sericea_NRCS-2.jpg] => 
+            [File:Przewalski_26-9-2004-2.jpg] => 
+            [File:Haworthia_arachnoidea_-_cobweb_aloe.jpg] => 
+            [File:Narcissus assoanus distrib.jpg] => 
+            [File:Narcissus serotinus distrib.jpg] => 
+            [File:Frazer%C2%B4s_dolphin_group.jpg] => 
+            [File:Ctenopharyngodon_idella_01_Pengo.jpg] => 
+            [File:Aix sponsa dis1.PNG] => 
+            [File:Aix_sponsa_dis1.PNG] => 
+            [File:Aix_sponsa_dis.PNG] => 
+            [File:Mitrula_paludosa_02.jpg] => 
+            [File:Verbreitungskarte des Kranichs.png] => 
+            [File:Rhacophoridae_diversity2.jpg] => 
+            [File:Broussonetia_papyrifera-fruits.jpg] => 
+            [File:Narcissus jonquilla distrib.jpg] => 
+            [File:Virgin%27s_bower_(Clematis_terniflora).jpg] => 
+            [File:Narcissus rupicola distrib.jpg] => 
+            [File:Rosa_glauca_inflorescence_(32).jpg] =>            no real agent
+            [File:Alnus_acuminata_4.jpg] =>                         no real agent
+        */
         // https://commons.wikimedia.org/wiki/File:Aa_species.jpg
         $arr = self::process_file("Aa_species.jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
         print_r($arr);
