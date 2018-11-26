@@ -731,6 +731,15 @@ class WikiDataAPI
         }
         return $media;
     }
+    private function clean_agent_rec($a)
+    {
+        $role = @$a['role'];    $role = str_replace("|", "", $role);
+        $name = $a['name'];     $name = strip_tags($name);
+        $a['name'] = $name;
+        $a['role'] = $role;
+        $a = array_map('trim', $a);
+        return $a;
+    }
     private function gen_agent_ids($artists, $role)
     {   
         /* $artists must not be:
@@ -758,6 +767,7 @@ class WikiDataAPI
         if(!@$artists) return array();
         foreach($artists as $a) {
             if(!$a['name']) continue;
+            $a = self::clean_agent_rec($a);
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
             $r->agentRole       = ($val = @$a['role']) ? (string) $val : (string) $role;
