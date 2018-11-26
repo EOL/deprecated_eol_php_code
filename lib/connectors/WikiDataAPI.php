@@ -189,7 +189,7 @@ class WikiDataAPI
             }
             else { //means finalize file
                 // if(true) { //use this when developing*** wikimedia only --- for 'en' and now 'es' -> those with multiple jobs
-                if(self::finalize_media_filenames_ready($what_generation_status)) { //un-comment in real operation
+                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force") { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
                     $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";

@@ -55,6 +55,12 @@ $func->process_wikimedia_txt_dump(); //initial verification of the wikimedia dum
 exit("\n Finished: just exploring... \n");
 */
 
+/* sample command eol-archive:
+php5.6 wikidata.php jenkins generate_resource 1 200000 1of6
+php5.6 wikidata.php jenkins generate_resource
+php5.6 wikidata.php jenkins generate_resource_force
+*/
+
 // print_r($argv);
 $params['jenkins_or_cron']  = @$argv[1];
 $params['task']             = @$argv[2];
@@ -89,7 +95,7 @@ elseif(@$params['task'] == "create_then_fill_commons_data")                     
     $func->fill_in_temp_files_with_wikimedia_dump_data();        //fill-in those blank json files
     echo("\n ==Finished preparing new WikiMedia dump== \n");
 }
-elseif(@$params['task'] == "generate_resource") { //step 4 (ran 6 connectors initially)
+elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_resource_force") { //step 4 (ran 6 connectors initially)
     /* orig when just 1 connector
     $func->generate_resource();
     Functions::finalize_dwca_resource($resource_id);
