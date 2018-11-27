@@ -673,7 +673,7 @@ class WikiDataAPI
                 // print_r($com);
                 
                 $role = Functions::get_role_given_datatype($media['type']);
-                if($agent_ids = self::gen_agent_ids($com['Artist'], $role)) $media['agentID'] = implode("; ", $agent_ids);
+                if($agent_ids = self::gen_agent_ids($com['Artist'], strtolower($role))) $media['agentID'] = implode("; ", $agent_ids);
 
                 if(!@$media['agentID']) {
                     echo "\n-------start investigate--------Undefined index: agentID---\n";
@@ -756,11 +756,15 @@ class WikiDataAPI
     }
     private function clean_agent_rec($a)
     {
-        $role = @$a['role'];    $role = str_replace("|", "", $role);
-        $name = @$a['name'];    $name = strip_tags($name);
-        $a['name'] = $name;
+        $role = @$a['role'];
+        $role = str_replace("|", "", $role);
         $a['role'] = $role;
-        $a = array_map('trim', $a);
+        if($name = @$a['name']) {
+            $name = strip_tags($name);
+            $name = str_replace(array("\t", "\n"), "", $name);
+            $a['name'] = $name;
+            $a = array_map('trim', $a);
+        }
         return $a;
     }
     private function gen_agent_ids($artists, $role)
@@ -793,7 +797,7 @@ class WikiDataAPI
             if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
-            $r->agentRole       = ($val = @$a['role']) ? (string) $val : str_replace("|", "", $role);
+            $r->agentRole       = ($val = @$a['role']) ? (string) $val : $role;
 
             /* to capture erroneous artist entries
             if(strlen($r->agentRole) == 1)
