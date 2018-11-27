@@ -757,7 +757,7 @@ class WikiDataAPI
     private function clean_agent_rec($a)
     {
         $role = @$a['role'];    $role = str_replace("|", "", $role);
-        $name = $a['name'];     $name = strip_tags($name);
+        $name = @$a['name'];    $name = strip_tags($name);
         $a['name'] = $name;
         $a['role'] = $role;
         $a = array_map('trim', $a);
@@ -789,11 +789,11 @@ class WikiDataAPI
         $agent_ids = array();
         if(!@$artists) return array();
         foreach($artists as $a) {
-            if(!$a['name']) continue;
             $a = self::clean_agent_rec($a);
+            if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
-            $r->agentRole       = ($val = @$a['role']) ? (string) $val : (string) $role;
+            $r->agentRole       = ($val = @$a['role']) ? (string) $val : str_replace("|", "", $role);
 
             /* to capture erroneous artist entries
             if(strlen($r->agentRole) == 1)
