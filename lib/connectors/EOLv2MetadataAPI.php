@@ -34,6 +34,10 @@ class EOLv2MetadataAPI
     }
     public function DATA_1788()
     {
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . "iNaturalist_EOL_images.txt";
+        $FILE = Functions::file_open($destination, "w");
+        $resource_head = array("iNaturalist_photo_ID", "EOL_V2_object_GUID", "Media_URL");
+        fwrite($FILE, implode("\t", $resource_head)."\n");
         $csv_file = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/DATA-1788/inat-eol-photos.csv";
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
@@ -56,21 +60,27 @@ class EOLv2MetadataAPI
                     $k++;
                 }
             }
-            print_r($rec); exit;
+            // print_r($rec); //exit;
             /* Array
                 [id] => 2130772
                 [native_photo_id] => 5e36e830d8811dd0ce9a3b875e020c42
                 [native_page_url] => http://eol.org/data_objects/29464142
                 [original_url] => http://160.111.248.28/content/2014/05/31/06/84674_orig.jpg
             */
-            mysql
-            
-        } // end while{}
+            $url1 = self::get_do_media_url($rec['native_photo_id'], false);
+            fwrite($FILE, implode("\t", array($rec['id'], $rec['native_photo_id'], $url1))."\n");
+            /* searching by object_cache_url is very slow, since field is not indexed in the table.
+            if(preg_match("/\/content\/(.*?)_orig/ims", $rec['original_url'], $arr)) {
+                $cache_url = str_replace("/","",$arr[1]);
+                $url2 = self::get_do_media_url(false, $cache_url);
+            }*/
+        }// end while{}
         fclose($file);
+        fclose($FILE);
     }
     private function get_do_media_url($do_guid = false, $do_cache_url = false)
     {
-        if($do_guid)      $sql = "SELECT d.* from DO_cache_url d where d.guid = $do_guid";
+        if($do_guid)      $sql = "SELECT d.* from DO_cache_url d where d.guid = '$do_guid'";
         if($do_cache_url) $sql = "SELECT d.* from DO_cache_url d where d.object_cache_url = $do_cache_url";
         $result = $this->mysqli->query($sql);
         if($result && $row=$result->fetch_assoc()) {
