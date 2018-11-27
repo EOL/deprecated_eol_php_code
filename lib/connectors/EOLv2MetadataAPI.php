@@ -33,10 +33,15 @@ class EOLv2MetadataAPI
         // http://localhost/other_files/EOL_media/28/28694_orig.jpg -- to test locally
     }
     public function DATA_1788()
-    {
-        $destination = CONTENT_RESOURCE_LOCAL_PATH . "iNaturalist_EOL_images.txt";
+    {   /*
+        $page_id = false;
+        $source_url = "http://www.biopix.com/PhotosMedium/Sigara lateralis 00022.JPG";
+        $ret = self::search_v2_images($page_id, $source_url); print_r($ret); exit("\nstopx\n");
+        */
+        // $destination = CONTENT_RESOURCE_LOCAL_PATH . "iNaturalist_EOL_images.txt";
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . "iNaturalist_EOL_images_v2.txt"; //with eol_pk
         $FILE = Functions::file_open($destination, "w");
-        $resource_head = array("iNaturalist_photo_ID", "EOL_V2_object_GUID", "Media_URL");
+        $resource_head = array("iNaturalist_photo_ID", "EOL_V3_imageID", "EOL_V2_object_GUID", "Media_URL");
         fwrite($FILE, implode("\t", $resource_head)."\n");
         $csv_file = "/Volumes/AKiTiO4/01 EOL Projects ++/JIRA/DATA-1788/inat-eol-photos.csv";
         $i = 0;
@@ -68,12 +73,17 @@ class EOLv2MetadataAPI
                 [original_url] => http://160.111.248.28/content/2014/05/31/06/84674_orig.jpg
             */
             $url1 = self::get_do_media_url($rec['native_photo_id'], false);
-            fwrite($FILE, implode("\t", array($rec['id'], $rec['native_photo_id'], $url1))."\n");
+
+            $eol_pk = '';
+            if($v2_image = self::search_v2_images(false, $url1)) $eol_pk = $v2_image['eol_pk'];
+            
+            fwrite($FILE, implode("\t", array($rec['id'], $eol_pk, $rec['native_photo_id'], $url1))."\n");
             /* searching by object_cache_url is very slow, since field is not indexed in the table.
             if(preg_match("/\/content\/(.*?)_orig/ims", $rec['original_url'], $arr)) {
                 $cache_url = str_replace("/","",$arr[1]);
                 $url2 = self::get_do_media_url(false, $cache_url);
             }*/
+            // if($i >= 5) break; //debug
         }// end while{}
         fclose($file);
         fclose($FILE);
