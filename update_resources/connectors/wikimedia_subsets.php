@@ -10,6 +10,7 @@ wikimedia_comnames	Monday 2018-11-19 11:38:23 AM	    {"taxon.tab":113398,"vernac
 wikimedia_comnames	Wednesday 2018-11-21 02:06:35 AM    {"taxon.tab":113398,"vernacular_name.tab":315324}
 wikimedia_comnames	Saturday 2018-11-24 09:55:46 PM	    {"taxon.tab":113399,"vernacular_name.tab":315324}
 wikimedia_comnames	Monday 2018-11-26 08:33:11 PM	    {"taxon.tab":114046,"vernacular_name.tab":316641}
+wikimedia_comnames	Tuesday 2018-11-27 09:05:47 PM	    {"taxon.tab":114046,"vernacular_name.tab":316641}
 */
 
 // ini_set('error_reporting', E_ALL);
