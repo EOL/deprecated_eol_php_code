@@ -13,6 +13,8 @@ vernacular  [3753]      [3911]      4023
 eol-archive:
 368 Sunday 2017-10-08 03:17:15 AM       {"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275509,"vernacular_name.tab":4023} eol-archive
 368	Wednesday 2017-12-20 10:07:26 AM	{"measurement_or_fact.tab":1156975,"occurrence.tab":1156975,"taxon.tab":275391,"vernacular_name.tab":4023} eol-archive
+368	Sunday 2018-11-11 12:50:28 AM	    {"measurement_or_fact.tab":2419162,"occurrence.tab":506549,"taxon.tab":367927,"vernacular_name.tab":6143}
+368	Tuesday 2018-11-27 09:26:42 PM	    {"measurement_or_fact.tab":2425387,"occurrence.tab":507303,"taxon.tab":368485,"vernacular_name.tab":6153}
 
 MacMini:
 368 Wednesday 2017-12-20 05:33:15 AM    {"measurement_or_fact.tab":1103650,"occurrence.tab":1103650,"taxon.tab":263656,"vernacular_name.tab":3911}
