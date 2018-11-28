@@ -33,6 +33,14 @@ Functions::file_rename($source, $destination);
 exit("\n\n");
 */
 
+// /*
+$func = new DWCADiagnoseAPI();
+$resource_id = 71; $tab_file = "media_resource.tab";
+$func->investigate_extension($resource_id, $tab_file);
+exit("\n-end-\n");
+// */
+
+
 // /* wikipedia in diff. languages from eol-archive:
 $resource_id = "es"; $resource_id = "957"; $resource_id = "wikipedia-it"; $resource_id = "wikipedia-es"; $resource_id = "80";
 $resource_id = "wikipedia-fr";
