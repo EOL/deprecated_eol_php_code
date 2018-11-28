@@ -133,9 +133,12 @@ class WikiDataAPI
         return true;
     }
     function test()
-    {   /*
+    {
+        /*
         $a['name'] = "#if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location";
-        $a['name'] = 'Eli E. Agbayani';
+        $a['name'] = "Author assumed|[[User:McLeod|McLeod]]";
+        // $a['role'] = "photographer";
+        // $a['name'] = 'Eli E. Agbayani';
         $a = self::clean_agent_rec($a); print_r($a); exit("\n");
         */
         /* [file in question] => -----                              Nov 25, 2018
@@ -760,16 +763,20 @@ class WikiDataAPI
         return $media;
     }
     private function fix_agent_name($a)
-    {   /* get flickr agent name: e.g.
-        #if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location
-        */
+    {   
         $name = trim(@$a['name']);
         $name = strip_tags($name);
         $name = str_replace(array("\t", "\n"), "", $name);
-        if(preg_match("/\#if\:\|\[2 (.*?)\]/ims", $name, $arr)) {
+        $name = str_replace(array("'''", "''"), "'", $name);
+        if(preg_match("/\#if\:\|\[2 (.*?)\]/ims", $name, $arr)) { /* #if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location */
             if(preg_match("/\[http\:\/\/flickr\.com\/photos\/(.*?)\]/ims", $name, $arr2)) $a['homepage'] = "http://flickr.com/photos/".$arr2[1];
             $name = trim($arr[1]);
             $a['role'] = 'creator';
+        }
+        elseif(preg_match("/\[User\:(.*?)\]/ims", $name, $arr)) { /* Author assumed|[[User:McLeod|McLeod]] */
+            $name = $arr[1];
+            $arr = explode("|", $name);
+            if(@$arr[0] == @$arr[1]) $name = trim($arr[0]);
         }
         $a['name'] = $name;
         return $a;
