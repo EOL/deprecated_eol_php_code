@@ -14,6 +14,32 @@ class DWCADiagnoseAPI
         $this->file['measurementorfact'] = "http://rs.tdwg.org/dwc/terms/measurementID"; //newly added
         // $this->file['association']       = "http://eol.org/schema/associationID";
     }
+    function investigate_extension($resource_id, $tab_file) //$tab_file e.g. 'taxon.tab'
+    {
+        $url = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/".$tab_file;
+        echo "\nProcessing file ($url)\n";
+        $i = 0;
+        foreach(new FileIterator($url) as $line_number => $temp) {
+            $temp = explode("\t", $temp);
+            $i++;
+            if(($i % 300000) == 0) echo "\n count:[$i] ";
+            if($i == 1) {
+                $fields = $temp;
+            }
+            else {
+                $rec = array();
+                $k = 0;
+                if(!$temp) continue;
+                foreach($temp as $t) {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); //exit;
+                if(@$rec['subtype'] == 'map') print_r($rec);
+            }
+        }
+    }
 
     function check_unique_ids($resource_id, $file_extension = ".tab")
     {
