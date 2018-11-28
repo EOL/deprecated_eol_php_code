@@ -41,6 +41,8 @@ class PaleoDBAPI_v2
         $this->map['nameAccordingTo']           = "ref";
         $this->map['vernacularName']            = "nm2";
 
+        $this->source_url = "https://paleobiodb.org/classic/checkTaxonInfo?is_real_user=1&taxon_no=";
+                             
         /* used in PaleoDBAPI.php
         $this->service["collection"] = "http://paleobiodb.org/data1.1/colls/list.csv?vocab=pbdb&limit=10&show=bin,attr,ref,loc,paleoloc,prot,time,strat,stratext,lith,lithext,geo,rem,ent,entname,crmod&taxon_name=";
         $this->service["occurrence"] = "http://paleobiodb.org/data1.1/occs/list.csv?show=loc,time&limit=10&base_name=";
@@ -146,7 +148,7 @@ class PaleoDBAPI_v2
         $rec = array();
         $rec["taxon_id"] = $taxon_id;
         $rec["catnum"]   = self::generate_id_from_array_record($a);
-        $rec['source']                = 'https://paleobiodb.org/classic/checkTaxonInfo?taxon_no='.self::numerical_part($a['oid']);
+        $rec['source']                = $this->source_url . self::numerical_part($a['oid']);
         $rec['bibliographicCitation'] = 'The Paleobiology Database, https://paleobiodb.org';
         //--------------------------------------------------------------------------------------------------------------------------------
         if(@$a['ext'] == '0') {
@@ -633,7 +635,7 @@ class PaleoDBAPI_v2
         $taxon->acceptedNameUsageID      = self::numerical_part(@$a[$this->map['acceptedNameUsageID']]);
         $taxon->nameAccordingTo          = @$a[$this->map['nameAccordingTo']];
 
-        if($val = @$a[$this->map['taxonID']]) $taxon->furtherInformationURL = "https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=" . self::numerical_part($val);
+        if($val = @$a[$this->map['taxonID']]) $taxon->furtherInformationURL = $this->source_url . self::numerical_part($val);
 
         if(@$a[$this->map['acceptedNameUsageID']]) {} //acceptedNameUsageID => "acc"
         else {
