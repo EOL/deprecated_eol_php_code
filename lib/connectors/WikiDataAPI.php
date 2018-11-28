@@ -1627,8 +1627,14 @@ class WikiDataAPI
                         else                                                  $atemp['homepage'] = trim($a[1]); //orig
                     }
                     if(preg_match("/\">(.*?)<\/a>/ims", $val, $a)) {
-                        $atemp['name'] = self::remove_role_from_name(strip_tags(trim($a[1]),''));
-                        $atemp['role'] = 'creator';
+                        if(stripos($val, " by ") !== false) { //string is found
+                            $atemp['name'] = strip_tags($val);
+                            $atemp['role'] = 'creator';
+                        }
+                        else {
+                            $atemp['name'] = self::remove_role_from_name(strip_tags(trim($a[1]),''));
+                            $atemp['role'] = 'creator';
+                        }
                     }
                     if(@$atemp['name']) $rek['Artist'][] = $atemp;
                     else                $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,'')), 'role' => 'creator'); // e.g. <span lang="en">Anonymous</span>
