@@ -133,7 +133,12 @@ class WikiDataAPI
         return true;
     }
     function test()
-    {   /* [file in question] => -----                              Nov 25, 2018
+    {   /*
+        $a['name'] = "#if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location";
+        $a['name'] = 'Eli E. Agbayani';
+        $a = self::clean_agent_rec($a); print_r($a); exit("\n");
+        */
+        /* [file in question] => -----                              Nov 25, 2018
             [File:Salix_sericea_NRCS-2.jpg] => 
             [File:Przewalski_26-9-2004-2.jpg] => 
             [File:Haworthia_arachnoidea_-_cobweb_aloe.jpg] => 
@@ -754,18 +759,36 @@ class WikiDataAPI
         }
         return $media;
     }
+    private function fix_agent_name($a)
+    {   /* get flickr agent name: e.g.
+        #if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location
+        */
+        $name = trim(@$a['name']);
+        $name = strip_tags($name);
+        $name = str_replace(array("\t", "\n"), "", $name);
+        if(preg_match("/\#if\:\|\[2 (.*?)\]/ims", $name, $arr)) {
+            if(preg_match("/\[http\:\/\/flickr\.com\/photos\/(.*?)\]/ims", $name, $arr2)) $a['homepage'] = "http://flickr.com/photos/".$arr2[1];
+            $name = trim($arr[1]);
+            $a['role'] = 'creator';
+        }
+        $a['name'] = $name;
+        return $a;
+    }
     private function clean_agent_rec($a)
     {
-        $role = @$a['role'];
+        $role = trim(@$a['role']);
         $role = str_replace("|", "", $role);
         $a['role'] = $role;
-        if($name = @$a['name']) {
-            $name = strip_tags($name);
-            $name = str_replace(array("\t", "\n"), "", $name);
-            $a['name'] = $name;
-            $a = array_map('trim', $a);
+        if(trim(@$a['name'])) {
+            $a = self::fix_agent_name($a);
+            if($a = array_map('trim', $a)) return $a;
+            else {
+                echo "\n--------investigate agent----start--------\n";
+                print_r($a);
+                echo "\n--------investigate agent----end--------\n";
+            }
         }
-        return $a;
+        return false;
     }
     private function gen_agent_ids($artists, $role)
     {   
@@ -793,7 +816,8 @@ class WikiDataAPI
         $agent_ids = array();
         if(!@$artists) return array();
         foreach($artists as $a) {
-            $a = self::clean_agent_rec($a);
+            if($a = self::clean_agent_rec($a)) {}
+            else continue;
             if(!$a['name']) continue;
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
