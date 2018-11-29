@@ -19,7 +19,7 @@ class CollectionsScrapeAPI
         $this->download_options = array("cache" => 1, "download_wait_time" => 2000000, "timeout" => 3600, "download_attempts" => 1); //"delay_in_minutes" => 1
         $this->download_options['expire_seconds'] = false; //always false, will not change anymore...
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_collections/";
-        else                           $this->download_options['cache_path'] = "/Volumes/AKiTiO4/eol_cache_collections/";
+        else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_collections/";
         
         $this->url["eol_collection"] = "https://eol.org/api/collections/1.0/".$collection_id.".json?filter=data_type&sort_by=recently_added&sort_field=&cache_ttl=";
         $this->url["eol_collection_page"] = "http://eol.org/collections/".$collection_id."/data_type?sort_by=1&view_as=3"; //&page=2 

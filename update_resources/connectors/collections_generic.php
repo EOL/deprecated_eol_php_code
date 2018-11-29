@@ -219,7 +219,7 @@ foreach($final as $lifedesk) {
     //  --------------------------------------------------- start compiling the 2 DwCA files into 1 final DwCA --------------------------------------------------- 
     if($cont_compile) {
         $dwca_file = false;
-        $resource_id = "EOL_".$lifedesk."_final";
+        $resource_id = "EOL_new_".$lifedesk."_final";
         $func2 = new DwCA_Utility($resource_id, $dwca_file); //2nd param is false bec. it'll process multiple archives, see convert_archive_files() in library DwCA_Utility.php
 
         $archives = array();
