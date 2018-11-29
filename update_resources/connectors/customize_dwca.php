@@ -11,14 +11,14 @@ $timestart = time_elapsed();
 require_library('connectors/DwCA_Utility');
 // ini_set('memory_limit','7096M'); //required
 
-// /* process just one DwCA
+// /* process just one DwCA -- Done
 $resource_id = 'EOL_79_final';
 process_dwca($resource_id);
 // */
 
-// /* process many DwCA
-// main();
-// */
+/* process many DwCA -- hasn't run yet, but should work just fine.
+main();
+*/
 
 function main()
 {
