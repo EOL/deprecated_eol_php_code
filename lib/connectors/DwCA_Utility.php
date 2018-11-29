@@ -310,7 +310,7 @@ class DwCA_Utility
             }
             $this->archive_builder->finalize(TRUE);
         }
-        else echo "\nCannot compute convert_archive_customize_tab.\n";
+        else echo "\nCannot customize ".$options['row_type']."\n";
         recursive_rmdir($temp_dir); echo ("\n temporary directory removed: " . $temp_dir); // remove temp dir
         if($this->debug) print_r($this->debug);
     }

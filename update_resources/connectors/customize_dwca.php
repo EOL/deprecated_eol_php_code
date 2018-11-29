@@ -13,17 +13,17 @@ require_library('connectors/DwCA_Utility');
 
 // /* process just one DwCA
 $resource_id = 'EOL_79_final';
-$resource_id = '26';
 process_dwca($resource_id);
 // */
 
-/* process many DwCA
-main();
-*/
+// /* process many DwCA
+// main();
+// */
 
 function main()
 {
-    $resources = resources_list();
+    $format = "EOL_*.tar.gz";
+    $resources = resources_list($format);
     print_r($resources); $i = 0; $total = count($resources);
     foreach($resources as $res) {
         $i++; echo "\n$i of resources total:$total\n";
@@ -42,10 +42,10 @@ function process_dwca($resource_id)
     $func->convert_archive_customize_tab($options);
     Functions::finalize_dwca_resource($resource_id, false, true); //2nd param false means not a big file, 3rd param true means delete working folder in CONTENT_RESOURCE_LOCAL_PATH
 }
-function resources_list()
+function resources_list($format)
 {
     $arr = array();
-    foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/EOL_*.tar.gz") as $filename) {
+    foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/".$format) as $filename) {
         $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
         $arr[$pathinfo] = '';
     }
