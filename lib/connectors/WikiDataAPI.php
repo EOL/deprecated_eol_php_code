@@ -788,6 +788,18 @@ class WikiDataAPI
         $a['role'] = $role;
         if(trim(@$a['name'])) {
             $a = self::fix_agent_name($a);
+            
+            // /* start debug mode... normally comment this. Uncomment only during investigation -------------
+            $keys = array_keys($a);
+            foreach($keys as $key) {
+                if(is_array($a[$key])) {
+                    echo "\n--------investigate agent----start---found array-----\n";
+                    print_r($a);
+                    echo "\n--------investigate agent----end-----found array-----\n";
+                }
+            }
+            // ----------------------------------------------------------------------------------------------- */
+            
             if($a = array_map('trim', $a)) return $a;
             else {
                 echo "\n--------investigate agent----start--------\n";
