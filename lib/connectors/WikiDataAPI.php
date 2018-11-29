@@ -136,9 +136,14 @@ class WikiDataAPI
     {
         /*
         $a['name'] = "#if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location";
+        $a = self::clean_agent_rec($a); print_r($a); //exit("\n");
         $a['name'] = "Author assumed|[[User:McLeod|McLeod]]";
+        $a = self::clean_agent_rec($a); print_r($a); //exit("\n");
         // $a['role'] = "photographer";
         // $a['name'] = 'Eli E. Agbayani';
+        $a['name'] = "User:Charly Morlock/crédito";
+        $a['name'] = "User:Raymond/author";
+        $a['name'] = "user:JoJan";
         $a = self::clean_agent_rec($a); print_r($a); exit("\n");
         */
         /* [file in question] => -----                              Nov 25, 2018
@@ -778,14 +783,24 @@ class WikiDataAPI
             $arr = explode("|", $name);
             if(@$arr[0] == @$arr[1]) $name = trim($arr[0]);
         }
+        elseif(strtolower(substr($name,0,5)) == "user:") {
+            $name = str_ireplace("user:", "", $name);
+            $arr = explode("/", $name);
+            $name = trim($arr[0]);
+        }
         $a['name'] = $name;
         return $a;
     }
     private function clean_agent_rec($a)
     {
         $role = trim(@$a['role']);
-        $role = str_replace("|", "", $role);
+        $role = str_replace(array("\t", "\n", "|"), "", $role);
         $a['role'] = $role;
+        
+        $homepage = trim(@$a['homepage']);
+        $homepage = str_replace(array("\t", "\n"), "", $homepage);
+        $a['homepage'] = $homepage;
+        
         if(trim(@$a['name'])) {
             $a = self::fix_agent_name($a);
             
