@@ -1,8 +1,6 @@
 <?php
 namespace php_active_record;
-/* DATA-1779
-
-*/
+/* DATA-1779 */
 
 // ini_set('error_reporting', E_ALL);
 // ini_set('display_errors', true);
@@ -13,22 +11,46 @@ $timestart = time_elapsed();
 require_library('connectors/DwCA_Utility');
 // ini_set('memory_limit','7096M'); //required
 
+// /* process just one DwCA
 $resource_id = 'EOL_79_final';
-$resource_id = 'eli';
-$func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . 'EOL_79_final' . ".tar.gz");
+$resource_id = '26';
+process_dwca($resource_id);
+// */
 
-$options['row_type'] = "http://eol.org/schema/media/Document";
-$options['fields']   = array("http://ns.adobe.com/xap/1.0/rights/Owner");
-$options['Jira']     = "DATA-1779"; // if license is 'public domain', make 'Owner' field blank.
+/* process many DwCA
+main();
+*/
 
-$func->convert_archive_customize_tab($options);
-Functions::finalize_dwca_resource($resource_id, false, false); //2nd param false means not a big file, 3rd param true means delete working folder in CONTENT_RESOURCE_LOCAL_PATH
-
-// if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . "71_new.tar.gz")) {
-//     if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz")) unlink(CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz");
-//     Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "71.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz");
-//     Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "71_new.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . "71.tar.gz");
-// }
+function main()
+{
+    $resources = resources_list();
+    print_r($resources); $i = 0; $total = count($resources);
+    foreach($resources as $res) {
+        $i++; echo "\n$i of resources total:$total\n";
+        $resource_id = str_replace(".tar.gz", "", $res);
+        echo "\n[$resource_id]";
+        process_dwca($resource_id);
+        // break; //debug
+    }
+}
+function process_dwca($resource_id)
+{
+    $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+    $options['row_type'] = "http://eol.org/schema/media/Document";
+    $options['fields']   = array("http://ns.adobe.com/xap/1.0/rights/Owner");
+    $options['Jira']     = "DATA-1779"; // if license is 'public domain', make 'Owner' field blank.
+    $func->convert_archive_customize_tab($options);
+    Functions::finalize_dwca_resource($resource_id, false, true); //2nd param false means not a big file, 3rd param true means delete working folder in CONTENT_RESOURCE_LOCAL_PATH
+}
+function resources_list()
+{
+    $arr = array();
+    foreach(glob(CONTENT_RESOURCE_LOCAL_PATH . "/EOL_*.tar.gz") as $filename) {
+        $pathinfo = pathinfo($filename, PATHINFO_BASENAME);
+        $arr[$pathinfo] = '';
+    }
+    return array_keys($arr);
+}
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
