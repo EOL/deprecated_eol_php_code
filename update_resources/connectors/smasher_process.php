@@ -1,21 +1,16 @@
 <?php
 namespace php_active_record;
 /* First draft of EOL Dynamic Hierarchy: Smasher output processing: https://eol-jira.bibalex.org/browse/TRAM-580 */
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-
 // echo "\n[".Functions::canonical_form("Aahithis Schallreuter 1988")."]";
-
 // echo "\n[".Functions::canonical_form("Abstrusomyzus Jensen & Stoetzel, 1999")."]";
-
 // echo "\n[".Functions::canonical_form("Aages prior Barovskij, 1926")."]";
-
 // exit("\n");
 
 require_library('connectors/DHSmasherOutputAPI');
 $timestart = time_elapsed();
 
-// This is build using this google sheet: https://docs.google.com/spreadsheets/d/1mBgsVZi1hqcwz37ZZI_5mEHdlXS_RiXpP_CY3RnLzXA/edit#gid=0
+// This is built using this google sheet: https://docs.google.com/spreadsheets/d/1mBgsVZi1hqcwz37ZZI_5mEHdlXS_RiXpP_CY3RnLzXA/edit#gid=0
 // and this Dropbox folder: https://www.dropbox.com/scl/fo/nn34xhcjcoxnuro65ryve/AACaBly_BUjkJDHMdHBr-hoka?dl=0&oref=e&r=AAdw397jN5KF6_UtynJjAYlSPhAGW7V4VHBVxs7tSv4Rrj0brXhqgzCKAOvkTbx0j-Tv6NI8eLsU1QHfg3o8VTy8r6GqE0jbHGXkn0S411EhTgS3hd1dQaIIILlsVFUJhpqGuD3Y1PYN_lApCOIQL5JiLCSQfQwvFe7KhsqHx3311A&sm=1
 $p["smasher"] = array("desc" => "Smasher Output file", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/EOLDynamicHierarchyDraftAug2017/dwh_taxa.txt");
 $p["EHE"] = array("desc" => "EOL Hierarchy Entries (EHE)", "url" => "http://localhost/cp/dynamic_hierarchy/smasher/richness_and_names.tsv");
