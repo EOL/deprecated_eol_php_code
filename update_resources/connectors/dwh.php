@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* */
+/* This was first used in preparation for the smasher task left by Anne. No Jira ticket then.
+Now this task has continued with a ticket from Katja: https://eol-jira.bibalex.org/browse/TRAM-800
+*/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 /* e.g. php dws.php _ gbif */
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
@@ -10,12 +12,10 @@ require_library('connectors/DHSourceHierarchiesAPI');
 $timestart = time_elapsed();
 ini_set('memory_limit','7096M'); //required
 
-
 // /* //main operation
 $func = new DHSourceHierarchiesAPI();
 $func->start($cmdline_params['what']); 
 // */
-
 
 /* utility ==========================
 require_library('connectors/DWCADiagnoseAPI');
