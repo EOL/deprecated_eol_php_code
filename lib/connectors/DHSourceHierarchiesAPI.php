@@ -50,9 +50,10 @@ class DHSourceHierarchiesAPI
         $this->sh['col']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
         $this->sh['kitchingetal']['source'] = $this->main_path."/kitchingetal2018/";
         $this->sh['ncbi']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
-        $this->sh['onychophora']['source']         = $this->main_path."/oliveira2012onychophora/";
-        
-        
+        $this->sh['ncbi']['run_gnparse']    = false; //has specific field for just canonical name
+        $this->sh['onychophora']['source']  = $this->main_path."/oliveira2012onychophora/";
+        $this->sh['odonata']['source']      = $this->main_path."/worldodonata/";
+        $this->sh['worms']['source']        = $this->main_path."/WoRMS_DH/";
         // */
         /* old list
         $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
@@ -211,7 +212,7 @@ class DHSourceHierarchiesAPI
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('ncbi', 'kitchingetal', 'col', 'trunk', 'odonata', 'onychophora', 'pbdb'))) {
+            if(in_array($what, array('worms', 'ncbi', 'kitchingetal', 'col', 'trunk', 'odonata', 'onychophora', 'pbdb'))) {
                 /*
                     [0] => 1
                     [1] => accepted
@@ -239,6 +240,11 @@ class DHSourceHierarchiesAPI
                     else:
                         out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
+                
+                if($what == "ncbi") {
+                    if($rec['taxonomicStatus'] == "authority") continue;
+                }
+                
                 $t = array();
                 $t['parent_id']     = $rec['parentNameUsageID'];    //row[4]
                 if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache'); //row[8]
@@ -315,7 +321,6 @@ class DHSourceHierarchiesAPI
             }
             
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('worms'))) {}
             /*
             if(in_array($what, array('ncbi'))) {
                 Array(
@@ -485,7 +490,11 @@ class DHSourceHierarchiesAPI
                 fclose($FILE);
             }
             //just to check if you can now get the canonical
-            echo " ---> ".self::gnsparse_canonical($name, 'cache');
+            if($obj = json_decode($json)) {
+                if($ret = @$obj->canonical_name->value)     echo " ---> OK [$ret]";
+                elseif($ret = @$obj->canonicalName->value)  echo " ---> OK [$ret]";
+                else                                        echo " ---> FAIL";
+            }
         }
         return $json;
     }
@@ -504,11 +513,15 @@ class DHSourceHierarchiesAPI
     }
     private function gnsparse_canonical($sciname, $method)
     {
+        $sciname = str_replace('"', "", $sciname);
+        
         if($sciname == "all") return "all";
         elseif($sciname == "root") return "root";
         elseif($sciname == "not Bacteria Haeckel 1894") return "not Bacteria";
         elseif($sciname == "unplaced extinct Onychophora") return "unplaced extinct Onychophora";
         elseif($sciname == "[Cellvibrio] gilvus") return "[Cellvibrio] gilvus";
+        elseif($sciname == "unplaced Cryptophyceae") return "unplaced Cryptophyceae";
+        
 
         //force
         if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
@@ -516,8 +529,13 @@ class DHSourceHierarchiesAPI
         elseif($sciname == "prokaryote") $sciname = "Prokaryote";
         elseif($sciname == "prokaryotes") $sciname = "Prokaryotes";
         elseif($sciname == "Amblyomma (Cernyomma) hirtum. Camicas et al., 1998") $sciname = "Amblyomma (Cernyomma) hirtum Camicas et al., 1998";
-        elseif($sciname == '"Cellulomonas gilvus" (Hulcher and King 1958) Christopherson et al. 2013') $sciname = "Cellulomonas gilvus (Hulcher and King 1958) Christopherson et al. 2013";
-        elseif($sciname == '"Cellvibrio gilvus" Hulcher and King 1958') $sciname = "Cellvibrio gilvus Hulcher and King 1958";
+        // elseif($sciname == '"Cellulomonas gilvus" (Hulcher and King 1958) Christopherson et al. 2013') $sciname = "Cellulomonas gilvus (Hulcher and King 1958) Christopherson et al. 2013";
+        // elseif($sciname == '"Cellvibrio gilvus" Hulcher and King 1958') $sciname = "Cellvibrio gilvus Hulcher and King 1958";
+        
+        
+        elseif($sciname == "Cryptops (Cryptops) vector Chamberlin 1939") $sciname = "Cryptops (Cryptops) vector";
+        
+        
         
         if($method == "api") {
             if($canonical = self::get_canonical_via_api($sciname, $this->smasher_download_options)) return $canonical;
@@ -535,10 +553,14 @@ class DHSourceHierarchiesAPI
                         if($ret = @$obj->canonical_name->value) return $ret;
                         elseif($ret = @$obj->canonicalName->value) return $ret;
                         else {
-                            
-                            print_r($obj); exit("\nInvestigate before use API($sciname)\n");
+
+                            return $obj->verbatim; //un-successfull
+                        
+                            /* workin OK but no need to call API
+                            print_r($obj); exit("\n".$obj->verbatim."\nInvestigate before use API($sciname)\n");
                             $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
                             if($canonical = self::get_canonical_via_api($sciname, $options)) return $canonical;
+                            */
                             
                         }
                     }
