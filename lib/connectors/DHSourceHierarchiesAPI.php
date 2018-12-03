@@ -28,14 +28,19 @@ class DHSourceHierarchiesAPI
                 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
                 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
-            $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/";
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/"; //old - initial runs
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh2/"; //new - TRAM-800
         }
         /* Functions::lookup_with_cache($this->gnparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
         
         $this->debug = array();
         $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
-        
+
+        // /* new list
+        $this->sh['earthworms']['source']   = $this->main_path."/eolearthwormpatch/";
+        // */
+        /* old list
         $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
         $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist_v3/";
         $this->sh['trunk']['source']        = $this->main_path."/trunk_20180521/";
@@ -47,7 +52,8 @@ class DHSourceHierarchiesAPI
         $this->sh['earthworms']['source']   = $this->main_path."/earthworms_v3/";
         $this->sh['pbdb']['source']         = $this->main_path."/pbdb_v1/";
         $this->sh['pbdb']['run_gnparse']    = false; //has separate field for 'scientificNameAuthorship'
-
+        */
+        
         //row_terminator was instroduced for ncbi
         //this was just Eli's initiative. May wait for Katja's instructions here...
         $this->sh['ncbi']['source']         = $this->main_path."/ncbi_v1/";
