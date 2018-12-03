@@ -41,6 +41,18 @@ class DHSourceHierarchiesAPI
         // /* new list
         $this->sh['earthworms']['source']   = $this->main_path."/eolearthwormpatch/";
         $this->sh['amphibians']['source']   = $this->main_path."/amphibianspeciesoftheworld/";
+        $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/";
+        $this->sh['ictv']['run_gnparse']    = false;
+        $this->sh['col_protists']['source'] = $this->main_path."/Catalogue_of_Life_Protists_DH/";
+        $this->sh['trunk']['source']        = $this->main_path."/dynamichierarchytrunk2018-11-21/";
+        $this->sh['erebidae']['source']     = $this->main_path."/eoldynamichierarchyerebidaepatch/";
+        $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist/";
+        $this->sh['col']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
+        $this->sh['kitchingetal']['source'] = $this->main_path."/kitchingetal2018/";
+        $this->sh['ncbi']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
+        $this->sh['onychophora']['source']         = $this->main_path."/oliveira2012onychophora/";
+        
+        
         // */
         /* old list
         $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
@@ -56,12 +68,13 @@ class DHSourceHierarchiesAPI
         $this->sh['pbdb']['run_gnparse']    = false; //has separate field for 'scientificNameAuthorship'
         */
         
+        /* old
         //row_terminator was instroduced for ncbi
         //this was just Eli's initiative. May wait for Katja's instructions here...
         $this->sh['ncbi']['source']         = $this->main_path."/ncbi_v1/";
         $this->sh['ncbi']['run_gnparse']    = false; //has specific field for just canonical name
         $this->sh['ncbi']['iterator_options'] = array('row_terminator' => "\t|\n");
-        
+        */
     }
     
     public function start($what)
@@ -151,18 +164,23 @@ class DHSourceHierarchiesAPI
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
+                if(!$field) continue;
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
             // echo "\n".count($tmp)."\n"; print_r($tmp);
-            // print_r($rec); exit; //use to test if field - value is OK
-            if(self::gnsparse_canonical($rec['scientificName'], "api") != $rec['scientificName']) return true;
+            // print_r($rec); exit; //use to test if field - value is OK ==================================================================
+            if($val = self::gnsparse_canonical($rec['scientificName'], "cache")) {
+                if($val != $rec['scientificName']) return true;
+            }
             if($i >= 15) break;
         }
         return false;
     }
     private function process_taxon_file($meta, $with_authorship)
     {
+        if($with_authorship) echo "\nWith authorship\n";
+        else                 echo "\nWithout authorship\n";
         $what = $meta['what']; $has_synonym = false;
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); //will overwrite existing
         $fn_syn = fopen($this->sh[$what]['source']."synonym.tsv", "w"); //will overwrite existing
@@ -176,20 +194,24 @@ class DHSourceHierarchiesAPI
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             
+            /* old
             if($what == 'ncbi') $tmp = explode("\t|\t", $row);
             else                $tmp = explode("\t", $row);
+            */
+                                $tmp = explode("\t", $row);
             
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
+                if(!$field) continue;
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
             // echo "\n".count($tmp)."\n"; print_r($tmp);
-            // print_r($rec); exit; //use to test if field - value is OK
+            // print_r($rec); exit("\ncheck first [$with_authorship]\n"); //use to test if field - value is OK
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('trunk', 'odonata', 'onychophora', 'pbdb'))) {
+            if(in_array($what, array('ncbi', 'kitchingetal', 'col', 'trunk', 'odonata', 'onychophora', 'pbdb'))) {
                 /*
                     [0] => 1
                     [1] => accepted
@@ -232,7 +254,7 @@ class DHSourceHierarchiesAPI
                 elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('amphibians', 'ioc-birdlist', 'ictv', 'earthworms'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
+            if(in_array($what, array('erebidae', 'col_protists', 'amphibians', 'ioc-birdlist', 'ictv', 'earthworms'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
                 /*
                     [0] => 09af091e166bfa45493c6242ebf16a7c
                     [1] => Celeus elegans leotaudi Hellmayr, 1906
@@ -294,14 +316,16 @@ class DHSourceHierarchiesAPI
             
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('worms'))) {}
+            /*
             if(in_array($what, array('ncbi'))) {
-                /* Array(
+                Array(
                     [taxonID] => 3830
                     [scientificName] => Crotalaria pallida
                     [xxx] => 
                     [taxonomicStatus] => scientific name OR synonym
                 )
-                */
+                
+                
                 $t = array();
                 $t['parent_id']     = '';
                 if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache');
@@ -316,7 +340,7 @@ class DHSourceHierarchiesAPI
                 }
                 elseif($rec['taxonomicStatus'] == "scientific name") self::write2file("tax", $fn_tax, $t);
             }
-            
+            */
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('col'))) {
                 /* breakdown when caching:
@@ -480,6 +504,21 @@ class DHSourceHierarchiesAPI
     }
     private function gnsparse_canonical($sciname, $method)
     {
+        if($sciname == "all") return "all";
+        elseif($sciname == "root") return "root";
+        elseif($sciname == "not Bacteria Haeckel 1894") return "not Bacteria";
+        elseif($sciname == "unplaced extinct Onychophora") return "unplaced extinct Onychophora";
+        elseif($sciname == "[Cellvibrio] gilvus") return "[Cellvibrio] gilvus";
+
+        //force
+        if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
+        elseif($sciname == "Raniadae- Smith, 1831") $sciname = "Raniadae Smith, 1831";
+        elseif($sciname == "prokaryote") $sciname = "Prokaryote";
+        elseif($sciname == "prokaryotes") $sciname = "Prokaryotes";
+        elseif($sciname == "Amblyomma (Cernyomma) hirtum. Camicas et al., 1998") $sciname = "Amblyomma (Cernyomma) hirtum Camicas et al., 1998";
+        elseif($sciname == '"Cellulomonas gilvus" (Hulcher and King 1958) Christopherson et al. 2013') $sciname = "Cellulomonas gilvus (Hulcher and King 1958) Christopherson et al. 2013";
+        elseif($sciname == '"Cellvibrio gilvus" Hulcher and King 1958') $sciname = "Cellvibrio gilvus Hulcher and King 1958";
+        
         if($method == "api") {
             if($canonical = self::get_canonical_via_api($sciname, $this->smasher_download_options)) return $canonical;
         }
@@ -489,8 +528,6 @@ class DHSourceHierarchiesAPI
                 if($ret = @$obj->canonical_name->value) return $ret;
                 elseif($ret = @$obj->canonicalName->value) return $ret;
                 else { //the gnparser code was updated due to bug. So some names has be be re-run using cmdline OR API with expire_seconds = 0
-
-                    if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
 
                     $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
                     $json = self::get_json_from_cache($sciname, $options);
@@ -502,13 +539,13 @@ class DHSourceHierarchiesAPI
                             print_r($obj); exit("\nInvestigate before use API($sciname)\n");
                             $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
                             if($canonical = self::get_canonical_via_api($sciname, $options)) return $canonical;
-                    
+                            
                         }
                     }
                 }
             }
         }
-        echo("\nInvestigate cannot get canonical name [$sciname][$method]\n[$json]\n");
+        echo("\nInvestigate cannot get canonical name [$sciname][$method]\n");
     }
     public function analyze_eol_meta_xml($meta_xml_path, $row_type = false)
     {
