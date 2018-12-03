@@ -25,7 +25,8 @@ class DHSourceHierarchiesAPI
         }
         else {
             $this->smasher_download_options = array(
-                'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
+                // 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
+                'cache_path'         => '/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_smasher/',
                 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/"; //old - initial runs
@@ -39,6 +40,7 @@ class DHSourceHierarchiesAPI
 
         // /* new list
         $this->sh['earthworms']['source']   = $this->main_path."/eolearthwormpatch/";
+        $this->sh['amphibians']['source']   = $this->main_path."/amphibianspeciesoftheworld/";
         // */
         /* old list
         $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
@@ -90,7 +92,7 @@ class DHSourceHierarchiesAPI
         */
         
         /*
-        $cmd = 'gnparser name "Gadus morhua Eli & Cha, 1972"';
+        $cmd = 'gnparser name "Notoscolex imparicystis (Jamieson, 1973)"';
         $json = shell_exec($cmd);
         print_r(json_decode($json, true));
         exit;
@@ -123,15 +125,17 @@ class DHSourceHierarchiesAPI
         $meta = self::analyze_meta_xml($meta_xml_path);
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
-        // print_r($meta); exit;
+        print_r($meta); //exit;
         
         $with_authorship = false;
         if(@$this->sh[$what]['run_gnparse'] === false) {}
         else { //normal
             if(self::need_2run_gnparser_YN($meta)) {
                 $with_authorship = true;
+                /* wise move before. That is when using the old gnparser version. The new doesn't have a \n line separator between json records.
                 self::run_file_with_gnparser($meta);
                 self::save_2local_gnparsed_file($what);
+                */
             }
         }
         self::process_taxon_file($meta, $with_authorship);
@@ -228,7 +232,7 @@ class DHSourceHierarchiesAPI
                 elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('ioc-birdlist', 'ictv', 'earthworms'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
+            if(in_array($what, array('amphibians', 'ioc-birdlist', 'ictv', 'earthworms'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
                 /*
                     [0] => 09af091e166bfa45493c6242ebf16a7c
                     [1] => Celeus elegans leotaudi Hellmayr, 1906
@@ -383,10 +387,13 @@ class DHSourceHierarchiesAPI
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
         }
         fclose($WRITE);
+ 
+        /* Works OK during older version of gnparser. The later version doesn't have a line separator (\n) between json record.
         //convert entire file (names) to gnparser version
         $cmd = "gnparser file --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
         $out = shell_exec($cmd);
         echo "\n$out\n";
+        */
     }
     private function save_2local_gnparsed_file($what, $filename = false)
     {
@@ -446,7 +453,7 @@ class DHSourceHierarchiesAPI
         }
         //generate json
         echo "\nGenerating cache json for the first time ($name)...\n";
-        $cmd = 'gnparser name "'.$name.'"';
+        $cmd = 'gnparser name -f json-compact "'.$name.'"';
         $json = shell_exec($cmd);
         if($json) {
             if($FILE = Functions::file_open($cache_path, 'w+')) {
@@ -464,18 +471,41 @@ class DHSourceHierarchiesAPI
         if($ext == "syn")     fwrite($fn, $t['accepted_id'] . "\t|\t" . $t['name'] . "\t|\t" . 'synonym' . "\t|\t" . "\t|\t" . "\n");
         elseif($ext == "tax") fwrite($fn, $t['taxon_id'] . "\t|\t" . $t['parent_id'] . "\t|\t" . $t['name'] . "\t|\t" . $t['rank'] . "\t|\t" . $t['source'] . "\t|\t" . "\n");
     }
+    private function get_canonical_via_api($sciname, $options)
+    {
+        $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $options);
+        if($obj = json_decode($json)) {
+            if($ret = @$obj->namesJson[0]->canonical_name->value) return $ret;
+        }
+    }
     private function gnsparse_canonical($sciname, $method)
     {
         if($method == "api") {
-            $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
-            if($obj = json_decode($json)) {
-                if($ret = @$obj->namesJson[0]->canonical_name->value) return $ret;
-            }
+            if($canonical = self::get_canonical_via_api($sciname, $this->smasher_download_options)) return $canonical;
         }
         elseif($method == "cache") {
             $json = self::get_json_from_cache($sciname);
             if($obj = json_decode($json)) {
                 if($ret = @$obj->canonical_name->value) return $ret;
+                elseif($ret = @$obj->canonicalName->value) return $ret;
+                else { //the gnparser code was updated due to bug. So some names has be be re-run using cmdline OR API with expire_seconds = 0
+
+                    if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
+
+                    $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
+                    $json = self::get_json_from_cache($sciname, $options);
+                    if($obj = json_decode($json)) {
+                        if($ret = @$obj->canonical_name->value) return $ret;
+                        elseif($ret = @$obj->canonicalName->value) return $ret;
+                        else {
+                            
+                            print_r($obj); exit("\nInvestigate before use API($sciname)\n");
+                            $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
+                            if($canonical = self::get_canonical_via_api($sciname, $options)) return $canonical;
+                    
+                        }
+                    }
+                }
             }
         }
         echo("\nInvestigate cannot get canonical name [$sciname][$method]\n[$json]\n");
