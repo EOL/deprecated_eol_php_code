@@ -521,7 +521,6 @@ class DHSourceHierarchiesAPI
         elseif($sciname == "unplaced extinct Onychophora") return "unplaced extinct Onychophora";
         elseif($sciname == "[Cellvibrio] gilvus") return "[Cellvibrio] gilvus";
         elseif($sciname == "unplaced Cryptophyceae") return "unplaced Cryptophyceae";
-        
 
         //force
         if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
@@ -529,13 +528,7 @@ class DHSourceHierarchiesAPI
         elseif($sciname == "prokaryote") $sciname = "Prokaryote";
         elseif($sciname == "prokaryotes") $sciname = "Prokaryotes";
         elseif($sciname == "Amblyomma (Cernyomma) hirtum. Camicas et al., 1998") $sciname = "Amblyomma (Cernyomma) hirtum Camicas et al., 1998";
-        // elseif($sciname == '"Cellulomonas gilvus" (Hulcher and King 1958) Christopherson et al. 2013') $sciname = "Cellulomonas gilvus (Hulcher and King 1958) Christopherson et al. 2013";
-        // elseif($sciname == '"Cellvibrio gilvus" Hulcher and King 1958') $sciname = "Cellvibrio gilvus Hulcher and King 1958";
-        
-        
         elseif($sciname == "Cryptops (Cryptops) vector Chamberlin 1939") $sciname = "Cryptops (Cryptops) vector";
-        
-        
         
         if($method == "api") {
             if($canonical = self::get_canonical_via_api($sciname, $this->smasher_download_options)) return $canonical;
