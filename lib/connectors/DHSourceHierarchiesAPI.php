@@ -114,8 +114,6 @@ class DHSourceHierarchiesAPI
     }
     public function start($what)
     {
-        $this->what = $what;
-        // self::get_problematic_names(); exit("\n-end-\n"); //works OK
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
@@ -166,6 +164,9 @@ class DHSourceHierarchiesAPI
         exit;
         */
         // self::parent_id_check($what); exit;
+        $this->what = $what;
+        $this->problematic_names = self::get_problematic_names(); 
+        // print_r($this->problematic_names); exit("\n-end-\n"); //works OK
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
         $meta = self::analyze_meta_xml($meta_xml_path);
@@ -199,7 +200,6 @@ class DHSourceHierarchiesAPI
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) $final[$item[0]] = $item[1];
-        print_r($final); exit;
         return $final;
     }
     private function show_totals($what)
@@ -534,6 +534,9 @@ class DHSourceHierarchiesAPI
     private function gnsparse_canonical($sciname, $method)
     {
         $sciname = str_replace('"', "", $sciname);
+        
+        if($ret = @$this->problematic_names[$sciname]) return $ret;
+        
         /*
         if($sciname == "all") return "all";
         elseif($sciname == "root") return "root";
