@@ -520,6 +520,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
+                if(!$field) continue;
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
