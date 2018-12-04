@@ -173,6 +173,15 @@ class DHSourceHierarchiesAPI
         $meta['what'] = $what;
         print_r($meta); //exit;
         
+        // /* 5. Duplicate taxa
+        // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
+        // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
+        // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
+        // removing the ones with the more recent data, along with their children.
+        
+        self::check_for_duplicate_canonicals($meta); exit;
+        // */
+        
         $with_authorship = false;
         if(@$this->sh[$what]['run_gnparse'] === false) {}
         else { //normal
@@ -211,6 +220,46 @@ class DHSourceHierarchiesAPI
                 $total = trim($total);  echo "\n$filename: [$total]\n";
             }
         }
+    }
+    private function check_for_duplicate_canonicals($meta)
+    {
+        $what = $meta['what']; $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++;
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            /* rray(
+                [taxonID] => 6
+                [furtherInformationURL] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=6
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 
+                [scientificName] => Bacteria
+                [taxonRank] => kingdom
+                [taxonomicStatus] => accepted
+                [taxonRemarks] => 
+            )*/
+            // print_r($rec); exit; //use to test if field - value is OK ==================================================================
+            if($canon = self::gnsparse_canonical($rec['scientificName'], "cache")) {
+                @$test[$canon][] = $rec['scientificName'];
+            }
+        }
+        
+        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
+        $FILE = Functions::file_open($path, 'w');
+        
+        foreach($test as $canon => $origs) {
+            if(count($origs) > 1) {
+                foreach($origs as $orig) fwrite($WRITE, $canon."\t".$orig."\n");
+            }
+        }
+        fclose($FILE);
     }
     private function need_2run_gnparser_YN($meta)
     {
@@ -363,8 +412,6 @@ class DHSourceHierarchiesAPI
                     [taxonRank] => genus
                 */
             }
-            
-            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('COL'))) {
                 /* breakdown when caching:
@@ -383,14 +430,12 @@ class DHSourceHierarchiesAPI
                 */
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         }
         fclose($fn_tax);
         fclose($fn_syn);
         if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
     }
-    private clean_rank($rank)
+    private function clean_rank($rank)
     {
         $rank = strtolower($rank);
         if($rank == "subsp.")       $rank = "subspecies";
@@ -571,7 +616,7 @@ class DHSourceHierarchiesAPI
                 elseif($ret = @$obj->canonicalName->value) return $ret;
                 else { //the gnparser code was updated due to bug. So some names has be be re-run using cmdline OR API with expire_seconds = 0
 
-                    $options = $this->smasher_download_options; $options['expire_seconds'] = 0; //60*60*24*7; //1 week
+                    $options = $this->smasher_download_options; $options['expire_seconds'] = 60*60*24*7; //1 week
                     $json = self::get_json_from_cache($sciname, $options);
                     if($obj = json_decode($json)) {
                         if($ret = @$obj->canonical_name->value) return $ret;
