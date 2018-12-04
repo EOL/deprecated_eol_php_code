@@ -39,32 +39,32 @@ class DHSourceHierarchiesAPI
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
 
         // /* new list
-        $this->sh['earthworms']['source']   = $this->main_path."/eolearthwormpatch/";
-        $this->sh['amphibians']['source']   = $this->main_path."/amphibianspeciesoftheworld/";
+        $this->sh['EET']['source']   = $this->main_path."/eolearthwormpatch/";
+        $this->sh['ASW']['source']   = $this->main_path."/amphibianspeciesoftheworld/";
         $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/";
         $this->sh['ictv']['run_gnparse']    = false;
-        $this->sh['col_protists']['source'] = $this->main_path."/Catalogue_of_Life_Protists_DH/";
+        $this->sh['CLP']['source'] = $this->main_path."/Catalogue_of_Life_Protists_DH/";
         $this->sh['trunk']['source']        = $this->main_path."/dynamichierarchytrunk2018-11-21/";
-        $this->sh['erebidae']['source']     = $this->main_path."/eoldynamichierarchyerebidaepatch/";
-        $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist/";
-        $this->sh['col']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
-        $this->sh['kitchingetal']['source'] = $this->main_path."/kitchingetal2018/";
-        $this->sh['ncbi']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
-        $this->sh['ncbi']['run_gnparse']    = false; //has specific field for just canonical name
-        $this->sh['onychophora']['source']  = $this->main_path."/oliveira2012onychophora/";
-        $this->sh['odonata']['source']      = $this->main_path."/worldodonata/";
-        $this->sh['worms']['source']        = $this->main_path."/WoRMS_DH/";
+        $this->sh['ERE']['source']     = $this->main_path."/eoldynamichierarchyerebidaepatch/";
+        $this->sh['IOC']['source'] = $this->main_path."/ioc-birdlist/";
+        $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
+        $this->sh['BOM']['source'] = $this->main_path."/kitchingetal2018/";
+        $this->sh['NCBI']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
+        $this->sh['NCBI']['run_gnparse']    = false; //has specific field for just canonical name
+        $this->sh['ONY']['source']  = $this->main_path."/oliveira2012onychophora/";
+        $this->sh['ODO']['source']      = $this->main_path."/worldodonata/";
+        $this->sh['WOR']['source']        = $this->main_path."/WoRMS_DH/";
         // */
         /* old list
-        $this->sh['worms']['source']        = $this->main_path."/worms_v5/";
-        $this->sh['ioc-birdlist']['source'] = $this->main_path."/ioc-birdlist_v3/";
+        $this->sh['WOR']['source']        = $this->main_path."/worms_v5/";
+        $this->sh['IOC']['source'] = $this->main_path."/ioc-birdlist_v3/";
         $this->sh['trunk']['source']        = $this->main_path."/trunk_20180521/";
-        $this->sh['col']['source']          = $this->main_path."/col_v1/";
+        $this->sh['COL']['source']          = $this->main_path."/col_v1/";
         $this->sh['ictv']['source']         = $this->main_path."/ictv_v3/";
         $this->sh['ictv']['run_gnparse']    = false; //
-        $this->sh['odonata']['source']      = $this->main_path."/odonata_v2/";
-        $this->sh['onychophora']['source']  = $this->main_path."/onychophora_v3/";
-        $this->sh['earthworms']['source']   = $this->main_path."/earthworms_v3/";
+        $this->sh['ODO']['source']      = $this->main_path."/odonata_v2/";
+        $this->sh['ONY']['source']  = $this->main_path."/onychophora_v3/";
+        $this->sh['EET']['source']   = $this->main_path."/earthworms_v3/";
         $this->sh['pbdb']['source']         = $this->main_path."/pbdb_v1/";
         $this->sh['pbdb']['run_gnparse']    = false; //has separate field for 'scientificNameAuthorship'
         */
@@ -212,7 +212,7 @@ class DHSourceHierarchiesAPI
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('worms', 'ncbi', 'kitchingetal', 'col', 'trunk', 'odonata', 'onychophora', 'pbdb'))) {
+            if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 'pbdb'))) {
                 /*
                     [0] => 1
                     [1] => accepted
@@ -241,7 +241,7 @@ class DHSourceHierarchiesAPI
                         out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
                 
-                if($what == "ncbi") {
+                if($what == "NCBI") {
                     if($rec['taxonomicStatus'] == "authority") continue;
                 }
                 
@@ -260,7 +260,7 @@ class DHSourceHierarchiesAPI
                 elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('erebidae', 'col_protists', 'amphibians', 'ioc-birdlist', 'ictv', 'earthworms'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
+            if(in_array($what, array('ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
                 /*
                     [0] => 09af091e166bfa45493c6242ebf16a7c
                     [1] => Celeus elegans leotaudi Hellmayr, 1906
@@ -321,33 +321,8 @@ class DHSourceHierarchiesAPI
             }
             
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            /*
-            if(in_array($what, array('ncbi'))) {
-                Array(
-                    [taxonID] => 3830
-                    [scientificName] => Crotalaria pallida
-                    [xxx] => 
-                    [taxonomicStatus] => scientific name OR synonym
-                )
-                
-                
-                $t = array();
-                $t['parent_id']     = '';
-                if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache');
-                else                 $t['name'] = $rec['scientificName'];
-                $t['taxon_id']      = $rec['taxonID'];
-                $t['accepted_id']   = '';
-                $t['rank']          = ($val = @$rec['taxonRank']) ? $val: "no rank";
-                $t['source']        = '';
-                if($rec['taxonomicStatus'] == "synonym") {
-                    self::write2file("syn", $fn_syn, $t);
-                    $has_synonym = true;
-                }
-                elseif($rec['taxonomicStatus'] == "scientific name") self::write2file("tax", $fn_tax, $t);
-            }
-            */
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('col'))) {
+            if(in_array($what, array('COL'))) {
                 /* breakdown when caching:
                 $cont = false;
                 // if($i >=  1    && $i < $m) $cont = true;
@@ -518,9 +493,9 @@ class DHSourceHierarchiesAPI
         if($sciname == "all") return "all";
         elseif($sciname == "root") return "root";
         elseif($sciname == "not Bacteria Haeckel 1894") return "not Bacteria";
-        elseif($sciname == "unplaced extinct Onychophora") return "unplaced extinct Onychophora";
-        elseif($sciname == "[Cellvibrio] gilvus") return "[Cellvibrio] gilvus";
-        elseif($sciname == "unplaced Cryptophyceae") return "unplaced Cryptophyceae";
+        // elseif($sciname == "unplaced extinct Onychophora") return "unplaced extinct Onychophora";
+        // elseif($sciname == "[Cellvibrio] gilvus") return "[Cellvibrio] gilvus";
+        // elseif($sciname == "unplaced Cryptophyceae") return "unplaced Cryptophyceae";
 
         //force
         if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
