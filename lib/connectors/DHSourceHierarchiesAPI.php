@@ -166,8 +166,15 @@ class DHSourceHierarchiesAPI
         exit;
         */
         // self::parent_id_check($what); exit;
+        /*===================================starts here=====================================================================*/
         $this->what = $what;
-        $this->problematic_names = self::get_problematic_names(); 
+        
+        //initialize this report file
+        $path = $this->sh[$what]['source']."../zFailures/$what".".txt";
+        if(file_exists($path)) unlink($path);
+        
+        //get problematic names from Google sheet
+        $this->problematic_names = self::get_problematic_names();
         // print_r($this->problematic_names); exit("\n-end-\n"); //works OK
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
