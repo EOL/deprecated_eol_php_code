@@ -240,9 +240,8 @@ class DHSourceHierarchiesAPI
             // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 'pbdb', 
-                                     'ictv'))) {
-                /*
-                    [index] => 1
+                                     'ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) {
+                /*  [index] => 1
                     [taxonomicStatus] => accepted
                     [taxonRank] => superfamily
                     [datasetID] => dd18e3cf-04ba-4b0d-8349-1dd4b7ac5000
@@ -261,7 +260,10 @@ class DHSourceHierarchiesAPI
                 */
                 
                 if($what == "NCBI") {
-                    if($rec['taxonomicStatus'] == "authority") continue;
+                    if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "misspelling", "equivalent name", "genbank synonym", "misnomer", "teleomorph"))) continue;
+                }
+                elseif($what == "COL") {
+                    if(in_array($rec['taxonomicStatus'], array("ambiguous synonym", "misapplied name"))) continue;
                 }
                 
                 $t = array();
