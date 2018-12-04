@@ -172,6 +172,15 @@ class DHSourceHierarchiesAPI
         }
         self::process_taxon_file($meta, $with_authorship);
         self::parent_id_check($what);
+        self::show_totals($what);
+    }
+    private function show_totals($what)
+    {
+        $filenames = array('taxonomy.tsv','taxon.tab');
+        foreach($filenames as $filename) {
+            $total = shell_exec("wc -l < ".escapeshellarg($this->sh[$what]['source'].$filename));
+            $total = trim($total);  echo "\n$filename: [$total]\n";
+        }
     }
     private function need_2run_gnparser_YN($meta)
     {
@@ -230,18 +239,9 @@ class DHSourceHierarchiesAPI
             if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 'pbdb'))) {
+            if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 'pbdb', 
+                                     'ictv'))) {
                 /*
-                    [0] => 1
-                    [1] => accepted
-                    [2] => superfamily
-                    [3] => dd18e3cf-04ba-4b0d-8349-1dd4b7ac5000
-                    [4] => 324b4a02-700b-4ae2-9dbd-65570f42f83c
-                    [5] => 
-                    [6] => life,cellular organisms,Eukaryota,Opisthokonta,Metazoa,Bilateria,Protostomia,Ecdysozoa,Panarthropoda,Arthropoda,Chelicerata,Arachnida,Acari,Acariformes,Trombidiformes,Prostigmata,Anystina,Parasitengona
-                    [7] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
-                    [8] => Arrenuroidea
-                    [9] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
                     [index] => 1
                     [taxonomicStatus] => accepted
                     [taxonRank] => superfamily
@@ -252,6 +252,7 @@ class DHSourceHierarchiesAPI
                     [acceptedNameUsageID] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
                     [scientificName] => Arrenuroidea
                     [taxonID] => 00016d53-eae4-494c-8f79-3e9ddcd5e634
+
                     if accepted_id != taxon_id:
                         print('synonym found')
                         out_file_s.write(accepted_id + '\t|\t' + name + '\t|\t' + 'synonym' + '\t|\t' + '\t|\t' + '\n')
@@ -268,42 +269,31 @@ class DHSourceHierarchiesAPI
                 if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache'); //row[8]
                 else                 $t['name'] = $rec['scientificName'];
                 $t['taxon_id']      = $rec['taxonID'];              //row[9]
-                $t['accepted_id']   = $rec['acceptedNameUsageID'];  //row[7]
+                $t['accepted_id']   = @$rec['acceptedNameUsageID'];  //row[7]
                 $t['rank']          = ($val = @$rec['taxonRank']) ? $val: "no rank"; //row[2]
                 $t['source']        = '';
-                if(($t['accepted_id'] != $t['taxon_id']) && $t['accepted_id'] != "") {
-                    self::write2file("syn", $fn_syn, $t);
-                    $has_synonym = true;
+
+                if($this->sh[$what]['has_syn']) {
+                    if(($t['accepted_id'] != $t['taxon_id']) && $t['accepted_id'] != "") {
+                        self::write2file("syn", $fn_syn, $t);
+                        $has_synonym = true;
+                    }
+                    elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
                 }
                 elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            /*
             if(in_array($what, array('ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
-                /*
-                    [0] => 09af091e166bfa45493c6242ebf16a7c
-                    [1] => Celeus elegans leotaudi Hellmayr, 1906
-                    [2] => subspecies
-                    [3] => d6edba5dd4d993cbab690c2df8fc937f
-                    [4] => 
-                    [5] => Celeus elegans leotaudi
-                    [6] => http://www.worldbirdnames.org/bow/woodpeckers/
-                    [7] => Hellmayr, 1906
-                    [taxonID] => 09af091e166bfa45493c6242ebf16a7c
-                    [scientificName] => Celeus elegans leotaudi Hellmayr, 1906
-                    [taxonRank] => subspecies
-                    [parentNameUsageID] => d6edba5dd4d993cbab690c2df8fc937f
-                    [taxonRemarks] => 
-                    [canonicalName] => Celeus elegans leotaudi
-                    [source] => http://www.worldbirdnames.org/bow/woodpeckers/
-                    [scientificNameAuthorship] => Hellmayr, 1906
-                    out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
-                */
-                
-                // status = row[6]
-                // parent_id = row[3]
-                // accepted_id = row[2]
-                // 
-                
+                    // [taxonID] => 09af091e166bfa45493c6242ebf16a7c
+                    // [scientificName] => Celeus elegans leotaudi Hellmayr, 1906
+                    // [taxonRank] => subspecies
+                    // [parentNameUsageID] => d6edba5dd4d993cbab690c2df8fc937f
+                    // [taxonRemarks] => 
+                    // [canonicalName] => Celeus elegans leotaudi
+                    // [source] => http://www.worldbirdnames.org/bow/woodpeckers/
+                    // [scientificNameAuthorship] => Hellmayr, 1906
+                    // out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 $t = array();
                 $t['parent_id'] = $rec['parentNameUsageID'];
                 if($with_authorship) $t['name'] = self::gnsparse_canonical($rec['scientificName'], 'cache');
@@ -312,7 +302,7 @@ class DHSourceHierarchiesAPI
                 $t['rank']      = ($val = @$rec['taxonRank']) ? $val: "no rank";
                 $t['source']    = '';
                 self::write2file("tax", $fn_tax, $t);
-            }
+            }*/
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('ictv'))) {
                 /*
