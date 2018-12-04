@@ -39,21 +39,21 @@ class DHSourceHierarchiesAPI
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
 
         // /* new list
-        $this->sh['EET']['source']   = $this->main_path."/eolearthwormpatch/";
-        $this->sh['ASW']['source']   = $this->main_path."/amphibianspeciesoftheworld/";
+        $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
+        $this->sh['ASW']['source']          = $this->main_path."/amphibianspeciesoftheworld/";
         $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/";
         $this->sh['ictv']['run_gnparse']    = false;
-        $this->sh['CLP']['source'] = $this->main_path."/Catalogue_of_Life_Protists_DH/";
+        $this->sh['CLP']['source']          = $this->main_path."/Catalogue_of_Life_Protists_DH/";
         $this->sh['trunk']['source']        = $this->main_path."/dynamichierarchytrunk2018-11-21/";
-        $this->sh['ERE']['source']     = $this->main_path."/eoldynamichierarchyerebidaepatch/";
-        $this->sh['IOC']['source'] = $this->main_path."/ioc-birdlist/";
+        $this->sh['ERE']['source']          = $this->main_path."/eoldynamichierarchyerebidaepatch/";
+        $this->sh['IOC']['source']          = $this->main_path."/ioc-birdlist/";
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
-        $this->sh['BOM']['source'] = $this->main_path."/kitchingetal2018/";
+        $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/";
         $this->sh['NCBI']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
         $this->sh['NCBI']['run_gnparse']    = false; //has specific field for just canonical name
-        $this->sh['ONY']['source']  = $this->main_path."/oliveira2012onychophora/";
-        $this->sh['ODO']['source']      = $this->main_path."/worldodonata/";
-        $this->sh['WOR']['source']        = $this->main_path."/WoRMS_DH/";
+        $this->sh['ONY']['source']          = $this->main_path."/oliveira2012onychophora/";
+        $this->sh['ODO']['source']          = $this->main_path."/worldodonata/";
+        $this->sh['WOR']['source']          = $this->main_path."/WoRMS_DH/";
         // */
         /* old list
         $this->sh['WOR']['source']        = $this->main_path."/worms_v5/";
