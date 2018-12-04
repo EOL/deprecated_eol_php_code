@@ -19,14 +19,14 @@ class DHSourceHierarchiesAPI
         if(Functions::is_production()) {
             $this->smasher_download_options = array(
                 'cache_path'         => '/extra/eol_cache_smasher/',
-                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => 60*60*24*7); //false
-            $this->main_path = "/extra/eli_dwh/";
+                'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false); //false
+            $this->main_path = "/extra/eli_dwh/"; //download_wait_time is 1/4 of a second -> 1000000/4
         }
         else {
             $this->smasher_download_options = array(
-                // 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
-                'cache_path'         => '/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_smasher/',
-                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => 60*60*24*7); //false
+                'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/', //new, started from blank
+                // 'cache_path'         => '/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_smasher/',
+                'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false); //false
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/"; //old - initial runs
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh2/"; //new - TRAM-800
@@ -71,7 +71,7 @@ class DHSourceHierarchiesAPI
         $this->sh['COL']['run_gnparse']     = true;
         
         $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/";
-        $this->sh['BOM']['has_syn']         = true; //?????
+        $this->sh['BOM']['has_syn']         = true;
         $this->sh['BOM']['run_gnparse']     = true;
         
         $this->sh['NCBI']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
@@ -183,14 +183,13 @@ class DHSourceHierarchiesAPI
         $meta['what'] = $what;
         print_r($meta); //exit;
         
-        // /* 5. Duplicate taxa
+        /* 5. Duplicate taxa
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
         // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
         // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
         // removing the ones with the more recent data, along with their children.
-        
         self::check_for_duplicate_canonicals($meta); exit;
-        // */
+        */
         
         $with_authorship = false;
         if(@$this->sh[$what]['run_gnparse'] === false) {}
@@ -208,6 +207,12 @@ class DHSourceHierarchiesAPI
         self::show_totals($what);
         if($this->sh[$what]['run_gnparse'] != $with_authorship) echo "\nInvestigate the need to run gnparser [$what]\n";
         else                                                    echo "\n-OK-\n";
+        
+        //just to clean-up, delete zero size files
+        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
+        if(!filesize($path)) {
+            echo "\nNo duplicates for [$what]\n"; unlink($path);
+        }
     }
     private function get_problematic_names() //sheet found here: https://eol-jira.bibalex.org/browse/TRAM-800
     {
@@ -263,7 +268,6 @@ class DHSourceHierarchiesAPI
         
         $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
         $FILE = Functions::file_open($path, 'w');
-        
         foreach($test as $canon => $origs) {
             if(count($origs) > 1) {
                 foreach($origs as $orig) fwrite($FILE, $canon."\t".$orig."\n");
@@ -305,13 +309,12 @@ class DHSourceHierarchiesAPI
         fwrite($fn_tax, implode("\t|\t", $this->taxonomy_header)."\t|\t"."\n");
         fwrite($fn_syn, implode("\t|\t", $this->synonym_header)."\t|\t"."\n");
         $i = 0;
-        $m = 3765285/10; //for CoL
-        
+        $m = 3620095/3; //for CoL
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file'], false, true, @$this->sh[$what]['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
-            
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
             /* old
             if($what == 'ncbi') $tmp = explode("\t|\t", $row);
             else                $tmp = explode("\t", $row);
@@ -326,8 +329,21 @@ class DHSourceHierarchiesAPI
             }
             // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); exit("\ncheck first [$with_authorship]\n"); //use to test if field - value is OK
-            if(($i % 5000) == 0) echo "\n".number_format($i)."\n";
+            if(($i % 1000) == 0) echo "\n".number_format($i)."\n";
             // echo "\n".number_format($i)."\n";
+            
+            
+            if(in_array($what, array('COL'))) {
+                // /* breakdown when caching:
+                $cont = false;
+                // if($i >=  1    && $i < $m)   $cont = true;
+                if($i >=  $m   && $i < $m*2) $cont = true;
+                // if($i >=  $m*2 && $i < $m*3) $cont = true;
+                if(!$cont) continue;
+                // */
+            }
+            
+            
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 'pbdb', 
                                      'ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) {
@@ -421,23 +437,6 @@ class DHSourceHierarchiesAPI
                     [scientificName] => Sobemovirus
                     [higherClassification] => Viruses|unplaced
                     [taxonRank] => genus
-                */
-            }
-            //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('COL'))) {
-                /* breakdown when caching:
-                $cont = false;
-                // if($i >=  1    && $i < $m) $cont = true;
-                // if($i >=  $m   && $i < $m*2) $cont = true;
-                // if($i >=  $m*2 && $i < $m*3) $cont = true;
-                // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                // if($i >=  $m*5 && $i < $m*6) $cont = true;
-                // if($i >=  $m*6 && $i < $m*7) $cont = true;
-                // if($i >=  $m*7 && $i < $m*8) $cont = true;
-                // if($i >=  $m*8 && $i < $m*9) $cont = true;
-                // if($i >=  $m*9 && $i < $m*10) $cont = true;
-                if(!$cont) continue;
                 */
             }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -598,6 +597,8 @@ class DHSourceHierarchiesAPI
     }
     private function gnsparse_canonical($sciname, $method, $download_options = array())
     {
+        if(!$download_options) $download_options = $this->smasher_download_options;
+        
         $sciname = str_replace('"', "", $sciname);
         
         if($ret = @$this->problematic_names[$sciname]) return $ret;
