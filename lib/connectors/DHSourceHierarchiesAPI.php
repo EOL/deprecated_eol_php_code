@@ -114,7 +114,8 @@ class DHSourceHierarchiesAPI
     }
     public function start($what)
     {
-        self::get_problematic_names(); exit("\n-end-\n");
+        $this->what = $what;
+        // self::get_problematic_names(); exit("\n-end-\n"); //works OK
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
@@ -203,10 +204,13 @@ class DHSourceHierarchiesAPI
     }
     private function show_totals($what)
     {
-        $filenames = array('taxonomy.tsv','taxon.tab');
+        $filenames = array('taxonomy.tsv', 'synonym.tsv', 'taxon.tab', 'taxa.txt');
         foreach($filenames as $filename) {
-            $total = shell_exec("wc -l < ".escapeshellarg($this->sh[$what]['source'].$filename));
-            $total = trim($total);  echo "\n$filename: [$total]\n";
+            $file = $this->sh[$what]['source'].$filename;
+            if(file_exists($file)) {
+                $total = shell_exec("wc -l < ".escapeshellarg($file));
+                $total = trim($total);  echo "\n$filename: [$total]\n";
+            }
         }
     }
     private function need_2run_gnparser_YN($meta)
@@ -286,9 +290,9 @@ class DHSourceHierarchiesAPI
                         out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
                 
-                if($rec['scientificName'] == "Cataladrilus (Cataladrilus) Qiu and Bouche, 1998") {
-                    print_r($rec); exit("\ndebugging...\n");
-                }
+                // if($rec['scientificName'] == "Cataladrilus (Cataladrilus) Qiu and Bouche, 1998") {
+                //     print_r($rec); exit("\ndebugging...\n");
+                // }
                 
                 if($what == "NCBI") {
                     if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "misspelling", "equivalent name", "genbank synonym", "misnomer", "teleomorph"))) continue;
@@ -530,14 +534,13 @@ class DHSourceHierarchiesAPI
     private function gnsparse_canonical($sciname, $method)
     {
         $sciname = str_replace('"', "", $sciname);
-        
+        /*
         if($sciname == "all") return "all";
         elseif($sciname == "root") return "root";
         elseif($sciname == "not Bacteria Haeckel 1894") return "not Bacteria";
         // elseif($sciname == "unplaced extinct Onychophora") return "unplaced extinct Onychophora";
         // elseif($sciname == "[Cellvibrio] gilvus") return "[Cellvibrio] gilvus";
         // elseif($sciname == "unplaced Cryptophyceae") return "unplaced Cryptophyceae";
-
         //force
         if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
         elseif($sciname == "Raniadae- Smith, 1831") $sciname = "Raniadae Smith, 1831";
@@ -545,7 +548,7 @@ class DHSourceHierarchiesAPI
         elseif($sciname == "prokaryotes") $sciname = "Prokaryotes";
         elseif($sciname == "Amblyomma (Cernyomma) hirtum. Camicas et al., 1998") $sciname = "Amblyomma (Cernyomma) hirtum Camicas et al., 1998";
         elseif($sciname == "Cryptops (Cryptops) vector Chamberlin 1939") $sciname = "Cryptops (Cryptops) vector";
-        
+        */
         if($method == "api") {
             if($canonical = self::get_canonical_via_api($sciname, $this->smasher_download_options)) return $canonical;
         }
@@ -562,9 +565,8 @@ class DHSourceHierarchiesAPI
                         if($ret = @$obj->canonical_name->value) return $ret;
                         elseif($ret = @$obj->canonicalName->value) return $ret;
                         else {
-
+                            self::write_gnparser_failures($this->what, $obj->verbatim);
                             return $obj->verbatim; //un-successfull
-                        
                             /* workin OK but no need to call API
                             print_r($obj); exit("\n".$obj->verbatim."\nInvestigate before use API($sciname)\n");
                             $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
@@ -577,6 +579,15 @@ class DHSourceHierarchiesAPI
             }
         }
         echo("\nInvestigate cannot get canonical name [$sciname][$method]\n");
+    }
+    private function write_gnparser_failures($what, $name)
+    {
+        $path = $this->sh[$what]['source']."../zFailures/$what".".txt";
+        if($FILE = Functions::file_open($path, 'a')) {
+            echo "\nadded name failures [$what]: [$name]\n";
+            fwrite($FILE, $name."\n");
+            fclose($FILE);
+        }
     }
     public function analyze_eol_meta_xml($meta_xml_path, $row_type = false)
     {
