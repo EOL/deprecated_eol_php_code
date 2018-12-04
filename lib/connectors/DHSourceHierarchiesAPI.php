@@ -100,14 +100,12 @@ class DHSourceHierarchiesAPI
         $this->sh['ncbi']['iterator_options'] = array('row_terminator' => "\t|\n");
         */
     }
-    
     public function start($what)
     {
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
         */
-        
         /*
         $sciname = "Gadus morhua Eli 1972";
         $canonical = self::gnsparse_canonical($sciname, 'api');
@@ -118,7 +116,6 @@ class DHSourceHierarchiesAPI
         echo "\n[$canonical]\n";
         exit("\nstopx\n");
         */
-
         /*
         $sciname = "Gadus morhua Eli 1972";
         $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
@@ -127,7 +124,6 @@ class DHSourceHierarchiesAPI
         print_r(json_decode($json, true));
         exit;
         */
-        
         /*
         $cmd = 'gnparser name "Notoscolex imparicystis (Jamieson, 1973)"';
         $json = shell_exec($cmd);
@@ -144,19 +140,18 @@ class DHSourceHierarchiesAPI
         gnparser file --input xah.txt --output xah_gnparsed.txt
         ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/
         */
-        // /* CoL divided into smaller chunks
-        // self::save_2local_gnparsed_file($what, "xaa_gnparsed.txt");
-        // self::save_2local_gnparsed_file($what, "xab_gnparsed.txt");
-        // self::save_2local_gnparsed_file($what, "xac_gnparsed.txt");
-        // self::save_2local_gnparsed_file($what, "xad_gnparsed.txt");
-        // self::save_2local_gnparsed_file($what, "xae_gnparsed.txt");
-        // self::save_2local_gnparsed_file($what, "xaf_gnparsed.txt");
-        // self::save_2local_gnparsed_file($what, "xag_gnparsed.txt");
-        // self::save_2local_gnparsed_file($what, "xah_gnparsed.txt");
-        // exit;
-        // */
-        // self::parent_id_check($what);
-        // exit;
+        /* CoL divided into smaller chunks
+        self::save_2local_gnparsed_file($what, "xaa_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xab_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xac_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xad_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xae_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xaf_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xag_gnparsed.txt");
+        self::save_2local_gnparsed_file($what, "xah_gnparsed.txt");
+        exit;
+        */
+        // self::parent_id_check($what); exit;
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
         $meta = self::analyze_meta_xml($meta_xml_path);
