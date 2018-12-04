@@ -198,9 +198,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $path = $this->sh[$what]['source']."../zFailures/$what".".txt";
         if(file_exists($path)) unlink($path);
         
-        /* get problematic names from Google sheet
+        // /* get problematic names from Google sheet
         $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
-        */
+        // */
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
         $meta = self::analyze_meta_xml($meta_xml_path);
@@ -208,9 +208,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $meta['what'] = $what;
         print_r($meta); //exit;
 
-        // /* this is one-time run for every dataset - all 13 datasets
+        /* this is one-time run for every dataset - all 13 datasets
         self::run_file_with_gnparser_new($meta); exit("\nCaching for [$what] done!\n");
-        // */
+        */
         
         /* 5. Duplicate taxa --- utility generating duplicates report for Katja
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
