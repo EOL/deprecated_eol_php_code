@@ -72,6 +72,7 @@ class DHSourceHierarchiesAPI
         $this->sh['COL']['run_gnparse']     = true;
         
         $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/";
+        $this->sh['BOM']['has_syn']         = true; //?????
         $this->sh['BOM']['run_gnparse']     = true;
         
         $this->sh['NCBI']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
@@ -113,6 +114,7 @@ class DHSourceHierarchiesAPI
     }
     public function start($what)
     {
+        self::get_problematic_names(); exit("\n-end-\n");
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
@@ -186,6 +188,18 @@ class DHSourceHierarchiesAPI
         self::show_totals($what);
         if($this->sh[$what]['run_gnparse'] != $with_authorship) echo "\nInvestigate the need to run gnparser [$what]\n";
         else                                                    echo "\n-OK-\n";
+    }
+    private function get_problematic_names() //sheet found here: https://eol-jira.bibalex.org/browse/TRAM-800
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg';
+        $params['range']         = 'gnparser failures!C2:D1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]] = $item[1];
+        print_r($final); exit;
+        return $final;
     }
     private function show_totals($what)
     {
@@ -271,6 +285,10 @@ class DHSourceHierarchiesAPI
                     else:
                         out_file_t.write(taxon_id + '\t|\t' + parent_id + '\t|\t' + name + '\t|\t' + rank + '\t|\t' + source + '\t|\t' + '\n')
                 */
+                
+                if($rec['scientificName'] == "Cataladrilus (Cataladrilus) Qiu and Bouche, 1998") {
+                    print_r($rec); exit("\ndebugging...\n");
+                }
                 
                 if($what == "NCBI") {
                     if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "misspelling", "equivalent name", "genbank synonym", "misnomer", "teleomorph"))) continue;
