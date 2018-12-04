@@ -19,14 +19,14 @@ class DHSourceHierarchiesAPI
         if(Functions::is_production()) {
             $this->smasher_download_options = array(
                 'cache_path'         => '/extra/eol_cache_smasher/',
-                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => 60*60*24*7); //false
             $this->main_path = "/extra/eli_dwh/";
         }
         else {
             $this->smasher_download_options = array(
                 // 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
                 'cache_path'         => '/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_smasher/',
-                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
+                'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => 60*60*24*7); //false
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/"; //old - initial runs
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh2/"; //new - TRAM-800
@@ -118,13 +118,16 @@ class DHSourceHierarchiesAPI
         exit("\n".$json."\n");
         */
         /*
-        $sciname = "Gadus morhua Eli 1972";
-        $canonical = self::gnsparse_canonical($sciname, 'api');
-        // print_r(json_decode($json, true));
-        echo "\n[$canonical]\n";
+        $sciname = "Rotalia offenbachensis Spandel, 1909";
+        // $canonical = self::gnsparse_canonical($sciname, 'api');
+        // echo "\n[$canonical]\n";
         $canonical = self::gnsparse_canonical($sciname, 'cache');
-        // print_r(json_decode($json, true));
-        echo "\n[$canonical]\n";
+        echo "\nparsing...[$sciname] ---> [$canonical]\n";
+        
+        $options = $this->smasher_download_options; $options['expire_seconds'] = 0; //expires now
+        $canonical = self::gnsparse_canonical($sciname, 'cache', $options);
+        echo "\nparsing...[$sciname] ---> [$canonical]\n";
+        
         exit("\nstopx\n");
         */
         /*
@@ -256,7 +259,8 @@ class DHSourceHierarchiesAPI
         
         foreach($test as $canon => $origs) {
             if(count($origs) > 1) {
-                foreach($origs as $orig) fwrite($WRITE, $canon."\t".$orig."\n");
+                foreach($origs as $orig) fwrite($FILE, $canon."\t".$orig."\n");
+                fwrite($FILE, "\n");
             }
         }
         fclose($FILE);
@@ -585,7 +589,7 @@ class DHSourceHierarchiesAPI
             if($ret = @$obj->namesJson[0]->canonical_name->value) return $ret;
         }
     }
-    private function gnsparse_canonical($sciname, $method)
+    private function gnsparse_canonical($sciname, $method, $download_options = array())
     {
         $sciname = str_replace('"', "", $sciname);
         
@@ -610,7 +614,7 @@ class DHSourceHierarchiesAPI
             if($canonical = self::get_canonical_via_api($sciname, $this->smasher_download_options)) return $canonical;
         }
         elseif($method == "cache") {
-            $json = self::get_json_from_cache($sciname);
+            $json = self::get_json_from_cache($sciname, $download_options);
             if($obj = json_decode($json)) {
                 if($ret = @$obj->canonical_name->value) return $ret;
                 elseif($ret = @$obj->canonicalName->value) return $ret;
