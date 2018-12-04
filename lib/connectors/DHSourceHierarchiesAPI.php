@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
 /* connector: [dwh.php] */
-
 class DHSourceHierarchiesAPI
 {
     function __construct()
@@ -12,11 +11,11 @@ class DHSourceHierarchiesAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         if(Functions::is_production()) {}
         */
+        /* not being used here
         $this->AphiaRecordByAphiaID_download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26, 'expire_seconds' => false);
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
-
+        */
         $this->gnparser = "http://parser.globalnames.org/api?q=";
-        
         if(Functions::is_production()) {
             $this->smasher_download_options = array(
                 'cache_path'         => '/extra/eol_cache_smasher/',
@@ -307,7 +306,7 @@ class DHSourceHierarchiesAPI
                 else                 $t['name'] = $rec['scientificName'];
                 $t['taxon_id']      = $rec['taxonID'];              //row[9]
                 $t['accepted_id']   = @$rec['acceptedNameUsageID'];  //row[7]
-                $t['rank']          = ($val = @$rec['taxonRank']) ? $val: "no rank"; //row[2]
+                $t['rank']          = ($val = @$rec['taxonRank']) ? self::clean_rank($val): "no rank"; //row[2]
                 $t['source']        = '';
 
                 if($this->sh[$what]['has_syn']) {
@@ -390,6 +389,16 @@ class DHSourceHierarchiesAPI
         fclose($fn_tax);
         fclose($fn_syn);
         if(!$has_synonym) unlink($this->sh[$what]['source']."synonym.tsv");
+    }
+    private clean_rank($rank)
+    {
+        $rank = strtolower($rank);
+        if($rank == "subsp.")       $rank = "subspecies";
+        elseif($rank == "var.")     $rank = "variety";
+        elseif($rank == "f.")       $rank = "form";
+        elseif($rank == "varietas") $rank = "variety";
+        elseif($rank == "forma")    $rank = "form";
+        return $rank;
     }
     private function parent_id_check($what)
     {
@@ -562,7 +571,7 @@ class DHSourceHierarchiesAPI
                 elseif($ret = @$obj->canonicalName->value) return $ret;
                 else { //the gnparser code was updated due to bug. So some names has be be re-run using cmdline OR API with expire_seconds = 0
 
-                    $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
+                    $options = $this->smasher_download_options; $options['expire_seconds'] = 0; //60*60*24*7; //1 week
                     $json = self::get_json_from_cache($sciname, $options);
                     if($obj = json_decode($json)) {
                         if($ret = @$obj->canonical_name->value) return $ret;
