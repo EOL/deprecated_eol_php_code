@@ -40,20 +40,44 @@ class DHSourceHierarchiesAPI
 
         // /* new list
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
+        $this->sh['EET']['has_syn']         = false;
+        
         $this->sh['ASW']['source']          = $this->main_path."/amphibianspeciesoftheworld/";
+        $this->sh['ASW']['has_syn']         = false; //has syn but we don't want them
+        
         $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/";
+        $this->sh['ictv']['has_syn']        = false;
         $this->sh['ictv']['run_gnparse']    = false;
+
         $this->sh['CLP']['source']          = $this->main_path."/Catalogue_of_Life_Protists_DH/";
+        $this->sh['CLP']['has_syn']         = false;
+        
         $this->sh['trunk']['source']        = $this->main_path."/dynamichierarchytrunk2018-11-21/";
+        $this->sh['trunk']['has_syn']       = false;
+
         $this->sh['ERE']['source']          = $this->main_path."/eoldynamichierarchyerebidaepatch/";
+        $this->sh['ERE']['has_syn']         = false;
+
         $this->sh['IOC']['source']          = $this->main_path."/ioc-birdlist/";
+        $this->sh['IOC']['has_syn']         = false;
+
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
+        $this->sh['COL']['has_syn']         = true;
+        
         $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/";
+        
         $this->sh['NCBI']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
+        $this->sh['NCBI']['has_syn']        = true;
         $this->sh['NCBI']['run_gnparse']    = false; //has specific field for just canonical name
+
         $this->sh['ONY']['source']          = $this->main_path."/oliveira2012onychophora/";
+        $this->sh['ONY']['has_syn']         = false;
+        
         $this->sh['ODO']['source']          = $this->main_path."/worldodonata/";
+        $this->sh['ODO']['has_syn']         = false; //has syn but we don't want them
+        
         $this->sh['WOR']['source']          = $this->main_path."/WoRMS_DH/";
+        $this->sh['WOR']['has_syn']         = true;
         // */
         /* old list
         $this->sh['WOR']['source']        = $this->main_path."/worms_v5/";
@@ -68,7 +92,6 @@ class DHSourceHierarchiesAPI
         $this->sh['pbdb']['source']         = $this->main_path."/pbdb_v1/";
         $this->sh['pbdb']['run_gnparse']    = false; //has separate field for 'scientificNameAuthorship'
         */
-        
         /* old
         //row_terminator was instroduced for ncbi
         //this was just Eli's initiative. May wait for Katja's instructions here...
