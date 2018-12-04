@@ -198,9 +198,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $path = $this->sh[$what]['source']."../zFailures/$what".".txt";
         if(file_exists($path)) unlink($path);
         
-        //get problematic names from Google sheet
-        // $this->problematic_names = self::get_problematic_names();   UN-COMMENT IN REAL OPERATION
-        // print_r($this->problematic_names); exit("\n-end-\n"); //works OK
+        /* get problematic names from Google sheet
+        $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
+        */
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
         $meta = self::analyze_meta_xml($meta_xml_path);
@@ -212,7 +212,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         self::run_file_with_gnparser_new($meta); exit("\nCaching for [$what] done!\n");
         // */
         
-        /* 5. Duplicate taxa
+        /* 5. Duplicate taxa --- utility generating duplicates report for Katja
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
         // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
         // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
@@ -239,8 +239,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         
         //just to clean-up, delete zero size files
         $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
-        if(!filesize($path)) {
-            echo "\nNo duplicates for [$what]\n"; unlink($path);
+        if(file_exists($path)) {
+            if(!filesize($path)) {
+                echo "\nNo duplicates for [$what]\n"; unlink($path);
+            }
         }
     }
     private function get_problematic_names() //sheet found here: https://eol-jira.bibalex.org/browse/TRAM-800
@@ -525,10 +527,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             // print_r($rec); //exit; //use to test if field - value is OK
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
             if(($i % 1000) == 0) {
+                echo "\nmain count:[$i]\n";
                 fclose($WRITE);
                 $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
-                $out = shell_exec($cmd);
-                echo "\n$out\n";
+                $out = shell_exec($cmd); echo "\n$out\n";
                 self::save_2local_gnparsed_file_new($what, "name_only_gnparsed.txt");
                 $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
             }
