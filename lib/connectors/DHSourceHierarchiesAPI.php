@@ -199,7 +199,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         if(file_exists($path)) unlink($path);
         
         //get problematic names from Google sheet
-        $this->problematic_names = self::get_problematic_names();
+        // $this->problematic_names = self::get_problematic_names();   UN-COMMENT IN REAL OPERATION
         // print_r($this->problematic_names); exit("\n-end-\n"); //works OK
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
@@ -207,6 +207,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
         print_r($meta); //exit;
+
+        // /* this is one-time run for every dataset - all 13 datasets
+        self::run_file_with_gnparser_new($meta); exit("\nCaching for [$what] done!\n");
+        // */
         
         /* 5. Duplicate taxa
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
@@ -501,6 +505,41 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         }
         echo "\nUndefined parents: ".count($undefined_parents)."\n";
     }
+    
+    private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
+    {
+        $what = $meta['what']; $i = 0;
+        echo "\nRunning gnparser...\n";
+        $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++;
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // echo "\n".count($tmp)."\n"; print_r($tmp);
+            // print_r($rec); //exit; //use to test if field - value is OK
+            if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
+            if(($i % 1000) == 0) {
+                fclose($WRITE);
+                $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
+                $out = shell_exec($cmd);
+                echo "\n$out\n";
+                self::save_2local_gnparsed_file_new($what, "name_only_gnparsed.txt");
+                $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
+            }
+        }
+        //last batch
+        fclose($WRITE);
+        $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
+        $out = shell_exec($cmd);
+        echo "\n$out\n";
+        self::save_2local_gnparsed_file_new($what, "name_only_gnparsed.txt");
+    }
     private function run_file_with_gnparser($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
         $what = $meta['what']; $i = 0;
@@ -545,7 +584,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             // echo "\n$json\n"; continue;
             //copied below -------------------------------------- start
             $name = $arr['verbatim'];
-            if(($i % 1) == 0) echo "\n".number_format($i)." $name - ";
+            if(($i % 1000) == 0) echo "\n".number_format($i)." $name - ";
             //now check if json already cached. Ignore if it does and save/cache it if it doesn't
             $options['cache_path'] = $this->smasher_download_options['cache_path'];
             $md5 = md5($name);
@@ -561,7 +600,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                     fclose($FILE);
                 }
             }
-            else if(($i % 1) == 0) echo " - already saved/cached";
+            else if(($i % 1000) == 0) echo " - already saved/cached";
             //copied below -------------------------------------- end
         }
     }
