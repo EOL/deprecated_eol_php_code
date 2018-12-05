@@ -208,17 +208,17 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $meta['what'] = $what;
         print_r($meta); //exit;
 
-        /* this is one-time run for every dataset - all 13 datasets
+        /* this is one-time run for every dataset - all 13 datasets =============================================================
         self::run_file_with_gnparser_new($meta); exit("\nCaching for [$what] done!\n");
-        */
+        // ====================================================================================================================== */
         
-        /* 5. Duplicate taxa --- utility generating duplicates report for Katja
+        // /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
         // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
         // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
         // removing the ones with the more recent data, along with their children.
-        self::check_for_duplicate_canonicals($meta); exit;
-        */
+        self::check_for_duplicate_canonicals($meta); exit("\n-end checking for duplicates [$what]-\n");
+        // ================================================================================================================================================================= */
         
         $with_authorship = false;
         if(@$this->sh[$what]['run_gnparse'] === false) {}
@@ -236,14 +236,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         self::show_totals($what);
         if($this->sh[$what]['run_gnparse'] != $with_authorship) echo "\nInvestigate the need to run gnparser [$what]\n";
         else                                                    echo "\n-OK-\n";
-        
-        //just to clean-up, delete zero size files
-        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
-        if(file_exists($path)) {
-            if(!filesize($path)) {
-                echo "\nNo duplicates for [$what]\n"; unlink($path);
-            }
-        }
     }
     private function get_problematic_names() //sheet found here: https://eol-jira.bibalex.org/browse/TRAM-800
     {
@@ -270,6 +262,11 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     private function check_for_duplicate_canonicals($meta)
     {
         $what = $meta['what']; $i = 0;
+
+        //initialize
+        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
+        if(file_exists($path)) unlink($path);
+        
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -306,6 +303,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
         }
         fclose($FILE);
+        //just to clean-up, delete zero size files
+        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
+        if(file_exists($path)) {
+            if(!filesize($path)) {
+                echo "\nNo duplicates for [$what]\n"; unlink($path);
+            }
+        }
     }
     private function need_2run_gnparser_YN($meta)
     {
@@ -506,13 +510,18 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
         }
         echo "\nUndefined parents: ".count($undefined_parents)."\n";
+        if($undefined_parents) {
+            echo "\nUndefined parents for [$what]:\n";
+            print_r($undefined_parents);
+        }
     }
     
     private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
+        $m = 3620095/3; //for CoL
         $what = $meta['what']; $i = 0;
         echo "\nRunning gnparser...\n";
-        $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
+        $WRITE = fopen($this->sh[$what]['source']."name_only3.txt", "w"); //will overwrite existing
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -526,22 +535,30 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
             // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); //exit; //use to test if field - value is OK
+            
+            /* breakdown when caching:
+            $cont = false;
+            // if($i >=  1    && $i < $m)   $cont = true;
+            // if($i >=  $m   && $i < $m*2) $cont = true;
+            if($i >=  $m*2 && $i < $m*3) $cont = true;
+            if(!$cont) continue;
+            */
+            
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
             if(($i % 1000) == 0) {
                 echo "\nmain count:[$i]\n";
                 fclose($WRITE);
-                $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
+                $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only3.txt --output ".$this->sh[$what]['source']."name_only3_gnparsed.txt";
                 $out = shell_exec($cmd); echo "\n$out\n";
-                self::save_2local_gnparsed_file_new($what, "name_only_gnparsed.txt");
-                $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
+                self::save_2local_gnparsed_file_new($what, "name_only3_gnparsed.txt");
+                $WRITE = fopen($this->sh[$what]['source']."name_only3.txt", "w"); //will overwrite existing
             }
         }
         //last batch
         fclose($WRITE);
-        $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
-        $out = shell_exec($cmd);
-        echo "\n$out\n";
-        self::save_2local_gnparsed_file_new($what, "name_only_gnparsed.txt");
+        $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only3.txt --output ".$this->sh[$what]['source']."name_only3_gnparsed.txt";
+        $out = shell_exec($cmd); echo "\n$out\n";
+        self::save_2local_gnparsed_file_new($what, "name_only3_gnparsed.txt");
     }
     private function run_file_with_gnparser($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
