@@ -208,9 +208,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $meta['what'] = $what;
         print_r($meta); //exit;
 
-        /* this is one-time run for every dataset - all 13 datasets =============================================================
+        // /* this is one-time run for every dataset - all 13 datasets =============================================================
         self::run_file_with_gnparser_new($meta); exit("\nCaching for [$what] done!\n");
-        // ====================================================================================================================== */
+        // ========================================================================================================================= */
         
         $with_authorship = false;
         if(@$this->sh[$what]['run_gnparse'] === false) {}
@@ -224,13 +224,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
         }
         
-        // /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
+        /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
         // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
         // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
         // removing the ones with the more recent data, along with their children.
         self::check_for_duplicate_canonicals($meta, $with_authorship); exit("\n-end checking for duplicates [$what]-\n");
-        // ================================================================================================================================================================= */
+        ================================================================================================================================================================= */
         
         self::process_taxon_file($meta, $with_authorship);
         self::parent_id_check($what);
@@ -383,13 +383,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             
             
             if(in_array($what, array('COL'))) {
-                // /* breakdown when caching:
+                /* breakdown when caching:
                 $cont = false;
                 // if($i >=  1    && $i < $m)   $cont = true;
                 if($i >=  $m   && $i < $m*2) $cont = true;
                 // if($i >=  $m*2 && $i < $m*3) $cont = true;
                 if(!$cont) continue;
-                // */
+                */
             }
             
             
@@ -527,10 +527,11 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     
     private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
-        $m = 3620095/3; //for CoL
+        $xname = "name_only16";
+        $m = 3620095/10; //for CoL
         $what = $meta['what']; $i = 0;
         echo "\nRunning gnparser...\n";
-        $WRITE = fopen($this->sh[$what]['source']."name_only3.txt", "w"); //will overwrite existing
+        $WRITE = fopen($this->sh[$what]['source'].$xname.".txt", "w"); //will overwrite existing
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -545,29 +546,49 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); //exit; //use to test if field - value is OK
             
-            /* breakdown when caching:
+            // /* breakdown when caching:
             $cont = false;
             // if($i >=  1    && $i < $m)   $cont = true;
             // if($i >=  $m   && $i < $m*2) $cont = true;
-            if($i >=  $m*2 && $i < $m*3) $cont = true;
+            // if($i >=  $m*2 && $i < $m*3) $cont = true;
+            // if($i >=  $m*3 && $i < $m*4) $cont = true;
+            // if($i >=  $m*4 && $i < $m*5) $cont = true;
+            // if($i >=  $m*5 && $i < $m*6) $cont = true;
+            // if($i >=  $m*6 && $i < $m*7) $cont = true;
+            // if($i >=  $m*7 && $i < $m*8) $cont = true;
+            // if($i >=  $m*8 && $i < $m*9) $cont = true;
+            // if($i >=  $m*9 && $i < $m*10) $cont = true;
+            
+            
+            // if($i >= 1900000 && $i < 2000000) $cont = true;
+
+            // if($i >= 3100000 && $i < 3200000) $cont = true;
+            // if($i >= 3200000 && $i < 3300000) $cont = true;
+            // if($i >= 3300000 && $i < 3400000) $cont = true;
+            // if($i >= 3400000 && $i < 3500000) $cont = true;
+            if($i >= 3500000 && $i < 3700000) $cont = true;
+            
+            
             if(!$cont) continue;
-            */
+            // */
+            
+            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
             if(($i % 1000) == 0) {
-                echo "\nmain count:[$i]\n";
+                echo "\nmain count:[".number_format($i)."]\n";
                 fclose($WRITE);
-                $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only3.txt --output ".$this->sh[$what]['source']."name_only3_gnparsed.txt";
+                $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source'].$xname.".txt --output ".$this->sh[$what]['source'].$xname."_gnparsed.txt";
                 $out = shell_exec($cmd); echo "\n$out\n";
-                self::save_2local_gnparsed_file_new($what, "name_only3_gnparsed.txt");
-                $WRITE = fopen($this->sh[$what]['source']."name_only3.txt", "w"); //will overwrite existing
+                self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
+                $WRITE = fopen($this->sh[$what]['source'].$xname.".txt", "w"); //will overwrite existing
             }
         }
         //last batch
         fclose($WRITE);
-        $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source']."name_only3.txt --output ".$this->sh[$what]['source']."name_only3_gnparsed.txt";
+        $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source'].$xname.".txt --output ".$this->sh[$what]['source'].$xname."_gnparsed.txt";
         $out = shell_exec($cmd); echo "\n$out\n";
-        self::save_2local_gnparsed_file_new($what, "name_only3_gnparsed.txt");
+        self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
     }
     private function run_file_with_gnparser($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
@@ -613,7 +634,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             // echo "\n$json\n"; continue;
             //copied below -------------------------------------- start
             $name = $arr['verbatim'];
-            if(($i % 1000) == 0) echo "\n".number_format($i)." $name - ";
+            if(($i % 500) == 0) echo "\n".number_format($i)." $name - ";
             //now check if json already cached. Ignore if it does and save/cache it if it doesn't
             $options['cache_path'] = $this->smasher_download_options['cache_path'];
             $md5 = md5($name);
@@ -623,13 +644,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
             $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
             if(!file_exists($cache_path) || filesize($cache_path) == 0) {
-                if(($i % 1000) == 0) echo " - saving...";
+                if(($i % 500) == 0) echo " - saving...";
                 if($FILE = Functions::file_open($cache_path, 'w')) {
                     fwrite($FILE, $json);
                     fclose($FILE);
                 }
             }
-            else if(($i % 1000) == 0) echo " - already saved/cached";
+            else if(($i % 500) == 0) echo " - already saved/cached";
             //copied below -------------------------------------- end
         }
     }
