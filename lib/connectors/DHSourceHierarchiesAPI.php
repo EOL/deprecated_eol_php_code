@@ -118,15 +118,15 @@ class DHSourceHierarchiesAPI
         exit("\n".$json."\n");
         */
         /*
-        $sciname = "Rotalia offenbachensis Spandel, 1909";
+        $sciname = "Amorimia exotropica (Griseb.) W.R.Anderson";
         // $canonical = self::gnsparse_canonical($sciname, 'api');
         // echo "\n[$canonical]\n";
         $canonical = self::gnsparse_canonical($sciname, 'cache');
         echo "\nparsing...[$sciname] ---> [$canonical]\n";
         
-        $options = $this->smasher_download_options; $options['expire_seconds'] = 0; //expires now
-        $canonical = self::gnsparse_canonical($sciname, 'cache', $options);
-        echo "\nparsing...[$sciname] ---> [$canonical]\n";
+        // $options = $this->smasher_download_options; $options['expire_seconds'] = 0; //expires now
+        // $canonical = self::gnsparse_canonical($sciname, 'cache', $options);
+        // echo "\nparsing...[$sciname] ---> [$canonical]\n";
         
         exit("\nstopx\n");
         */
@@ -154,7 +154,6 @@ class DHSourceHierarchiesAPI
         gnparser file --input xah.txt --output xah_gnparsed.txt
         ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/
         */
-
         /*
         gnparser file -f json-compact --input test.txt --output test_gnparsed.txt
         self::save_2local_gnparsed_file_new($what, "test_gnparsed.txt"); exit("\n-end test-\n");
@@ -207,6 +206,21 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
         print_r($meta); //exit;
+
+        /* utility write all names.
+        // self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                      step 1
+        // Then manually run this:                                                                                  step 2
+        // gnparser file -f simple --input COL_ALL_NAMES_1.txt --output COL_ALL_NAMES_1_gnparsed.txt
+        // gnparser file -f simple --input COL_ALL_NAMES_2.txt --output COL_ALL_NAMES_2_gnparsed.txt
+        // gnparser file -f simple --input COL_ALL_NAMES_3.txt --output COL_ALL_NAMES_3_gnparsed.txt
+        // gnparser file -f simple --input COL_ALL_NAMES_4.txt --output COL_ALL_NAMES_4_gnparsed.txt
+        // gnparser file -f simple --input COL_ALL_NAMES_5.txt --output COL_ALL_NAMES_5_gnparsed.txt
+        // gnparser file -f simple --input COL_ALL_NAMES_6.txt --output COL_ALL_NAMES_6_gnparsed.txt
+        // gnparser file -f simple --input COL_ALL_NAMES_7.txt --output COL_ALL_NAMES_7_gnparsed.txt
+        // gnparser file -f simple --input COL_ALL_NAMES_8.txt --output COL_ALL_NAMES_8_gnparsed.txt
+        // Then start caching...                                                                                   step 3
+        self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_4_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
+        */
 
         // /* this is one-time run for every dataset - all 13 datasets =============================================================
         self::run_file_with_gnparser_new($meta); exit("\nCaching for [$what] done!\n");
@@ -527,7 +541,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     
     private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
-        $xname = "name_only16";
+        $xname = "name_only8";
         $m = 3620095/10; //for CoL
         $what = $meta['what']; $i = 0;
         echo "\nRunning gnparser...\n";
@@ -546,6 +560,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); //exit; //use to test if field - value is OK
             
+            // if($rec['scientificName'] == "Trichaster isidis Duchassaing, 1850") exit("\n---[$i]---\n");
+            // else continue;
+            
+            
             // /* breakdown when caching:
             $cont = false;
             // if($i >=  1    && $i < $m)   $cont = true;
@@ -559,15 +577,24 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             // if($i >=  $m*8 && $i < $m*9) $cont = true;
             // if($i >=  $m*9 && $i < $m*10) $cont = true;
             
-            
-            // if($i >= 1900000 && $i < 2000000) $cont = true;
+            // if($i >= 1,851,000 && $i < 1900000) $cont = true; done
+            // if($i >= 1,908,000 && $i < 2000000) $cont = true; done
 
-            // if($i >= 3100000 && $i < 3200000) $cont = true;
-            // if($i >= 3200000 && $i < 3300000) $cont = true;
-            // if($i >= 3300000 && $i < 3400000) $cont = true;
-            // if($i >= 3400000 && $i < 3500000) $cont = true;
-            if($i >= 3500000 && $i < 3700000) $cont = true;
+
+            // if($i >= 1000000 && $i < 1500000) $cont = true;
+            // if($i >= 1400000 && $i < 1500000) $cont = true;
+            // if($i >= 1500000 && $i < 2000000) $cont = true;
+            // if($i >= 2000000 && $i < 2500000) $cont = true;
+            // if($i >= 2500000 && $i < 3000000) $cont = true;
+            if($i >= 3002214 && $i < 4000000) $cont = true;
             
+            
+            // if($i >= 3,063,000 && $i < 3106000) $cont = true; done
+            // if($i >= 3,107,000 && $i < 3200000) $cont = true; done
+            // if($i >= 3,206,000 && $i < 3300000) $cont = true; done
+            // if($i >= 3,305,000 && $i < 3400000) $cont = true; done
+            // if($i >= 3,404,000 && $i < 3500000) $cont = true; done
+            // if($i >= 3,504,000 && $i < 3700000) $cont = true; done
             
             if(!$cont) continue;
             // */
@@ -575,6 +602,8 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
+            
+            
             if(($i % 1000) == 0) {
                 echo "\nmain count:[".number_format($i)."]\n";
                 fclose($WRITE);
@@ -774,6 +803,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 elseif($ret = @$obj->canonicalName->value) return $ret;
                 else { //the gnparser code was updated due to bug. So some names has be be re-run using cmdline OR API with expire_seconds = 0
 
+                    self::write_gnparser_failures($this->what, $obj->verbatim);
+                    return $obj->verbatim; //un-successfull
+                    
+                    /* might need it in the future when a new version of gnparser will be used
                     $options = $this->smasher_download_options; $options['expire_seconds'] = 60*60*24*7; //1 week
                     $json = self::get_json_from_cache($sciname, $options);
                     if($obj = json_decode($json)) {
@@ -782,14 +815,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                         else {
                             self::write_gnparser_failures($this->what, $obj->verbatim);
                             return $obj->verbatim; //un-successfull
-                            /* workin OK but no need to call API
-                            print_r($obj); exit("\n".$obj->verbatim."\nInvestigate before use API($sciname)\n");
-                            $options = $this->smasher_download_options; $options['expire_seconds'] = 0;
-                            if($canonical = self::get_canonical_via_api($sciname, $options)) return $canonical;
-                            */
-                            
                         }
                     }
+                    */
                 }
             }
         }
@@ -865,6 +893,68 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             echo "\nNo meta.xml present. Will use first-row header from taxon file\n";
         }
         exit("\nInvestigate 01.\n");
+    }
+    private function utility_write_all_names($meta)
+    {
+        $what = $meta['what']; $i = 0; $ctr = 1;
+        $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //will overwrite existing
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++;
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); //exit; //use to test if field - value is OK
+            if(($i % 100000) == 0) echo "\n".number_format($i);
+            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
+            if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
+            if(($i % 500000) == 0) {
+                fclose($WRITE);
+                $ctr++;
+                $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //will overwrite existing
+            }
+        }
+        fclose($WRITE);
+    }
+    private function run_TSV_file_with_gnparser_new($file, $what)
+    {
+        $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].$file) as $line => $row) {
+            $i++;
+            if(!$row) continue;
+            $arr = explode("\t", $row);
+            // if(($i % 10000) == 0) echo "\n".number_format($i);
+            echo " -".number_format($i)."- ";
+            /*Array(
+                [0] => 77f24f37-c0ee-5d53-b21b-56a9c1c2e25b
+                [1] => Caulanthus crassicaulis var. glaber M.E. Jones   -   verbatim
+                [2] => Caulanthus crassicaulis glaber                   -   canonicalName->value
+                [3] => Caulanthus crassicaulis var. glaber              -   canonicalName->valueRanked
+                [4] => M. E. Jones
+                [5] => 
+                [6] => 1
+            )*/
+            $verbatim = $arr[1];
+            if(!self::cache_exists($verbatim)) {
+                echo "\n$verbatim -> no rec";
+                self::gnsparse_canonical($verbatim, 'cache');
+            }
+        }
+    }
+    private function cache_exists($name, $options = array())
+    {
+        if(!isset($options['cache_path'])) $options['cache_path'] = $this->smasher_download_options['cache_path'];
+        $md5 = md5($name);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
+        if(file_exists($cache_path)) return true;
+        else                         return false;
     }
 }
 ?>
