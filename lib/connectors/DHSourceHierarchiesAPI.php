@@ -212,14 +212,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         self::run_file_with_gnparser_new($meta); exit("\nCaching for [$what] done!\n");
         // ====================================================================================================================== */
         
-        // /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
-        // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
-        // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
-        // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
-        // removing the ones with the more recent data, along with their children.
-        self::check_for_duplicate_canonicals($meta); exit("\n-end checking for duplicates [$what]-\n");
-        // ================================================================================================================================================================= */
-        
         $with_authorship = false;
         if(@$this->sh[$what]['run_gnparse'] === false) {}
         else { //normal
@@ -231,6 +223,15 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 */
             }
         }
+        
+        // /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
+        // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
+        // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
+        // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
+        // removing the ones with the more recent data, along with their children.
+        self::check_for_duplicate_canonicals($meta, $with_authorship); exit("\n-end checking for duplicates [$what]-\n");
+        // ================================================================================================================================================================= */
+        
         self::process_taxon_file($meta, $with_authorship);
         self::parent_id_check($what);
         self::show_totals($what);
@@ -259,9 +260,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
         }
     }
-    private function check_for_duplicate_canonicals($meta)
+    private function check_for_duplicate_canonicals($meta, $with_authorship)
     {
-        $what = $meta['what']; $i = 0;
+        $what = $meta['what']; $i = 0; $test = array();
 
         //initialize
         $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
@@ -290,8 +291,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             )*/
             // print_r($rec); exit; //use to test if field - value is OK ==================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
-            if($canon = self::gnsparse_canonical($rec['scientificName'], "cache")) {
-                @$test[$canon][] = $rec['scientificName'];
+            if($with_authorship) {
+                if($canon = self::gnsparse_canonical($rec['scientificName'], "cache")) {
+                    @$test[$canon][] = $rec['scientificName'];
+                }
             }
         }
         
