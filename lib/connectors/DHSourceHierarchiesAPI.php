@@ -289,6 +289,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 [taxonRemarks] => 
             )*/
             // print_r($rec); exit; //use to test if field - value is OK ==================================================================
+            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             if($canon = self::gnsparse_canonical($rec['scientificName'], "cache")) {
                 @$test[$canon][] = $rec['scientificName'];
             }
@@ -310,6 +311,16 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 echo "\nNo duplicates for [$what]\n"; unlink($path);
             }
         }
+    }
+    private function is_record_valid($what, $rec)
+    {
+        if($what == "NCBI") {
+            if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "misspelling", "equivalent name", "genbank synonym", "misnomer", "teleomorph"))) return false;
+        }
+        elseif($what == "COL") {
+            if(in_array($rec['taxonomicStatus'], array("ambiguous synonym", "misapplied name"))) return false;
+        }
+        return true;
     }
     private function need_2run_gnparser_YN($meta)
     {
@@ -404,12 +415,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 //     print_r($rec); exit("\ndebugging...\n");
                 // }
                 
-                if($what == "NCBI") {
-                    if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "misspelling", "equivalent name", "genbank synonym", "misnomer", "teleomorph"))) continue;
-                }
-                elseif($what == "COL") {
-                    if(in_array($rec['taxonomicStatus'], array("ambiguous synonym", "misapplied name"))) continue;
-                }
+                if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
                 
                 $t = array();
                 $t['parent_id']     = $rec['parentNameUsageID'];    //row[4]
