@@ -37,15 +37,33 @@ class DHSourceHierarchiesAPI
         $this->taxonomy_header = array("uid", "parent_uid", "name", "rank", "sourceinfo"); //('uid	|	parent_uid	|	name	|	rank	|	sourceinfo	|	' + '\n')
         $this->synonym_header = array("uid", "name", "type", "rank");                      //('uid	|	name	|	type	|	rank	|	' + '\n')
 
+
+/*paste these in terminal
+php update_resources/connectors/dwh.php _ EET
+php update_resources/connectors/dwh.php _ ASW
+php update_resources/connectors/dwh.php _ ictv
+php update_resources/connectors/dwh.php _ CLP
+php update_resources/connectors/dwh.php _ trunk
+php update_resources/connectors/dwh.php _ ERE
+php update_resources/connectors/dwh.php _ IOC
+php update_resources/connectors/dwh.php _ BOM
+php update_resources/connectors/dwh.php _ NCBI
+php update_resources/connectors/dwh.php _ ONY
+php update_resources/connectors/dwh.php _ ODO
+php update_resources/connectors/dwh.php _ WOR
+
+php update_resources/connectors/dwh.php _ COL
+*/
+
         // /* new list
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
         $this->sh['EET']['has_syn']         = false;
         $this->sh['EET']['run_gnparse']     = true;
-        
+
         $this->sh['ASW']['source']          = $this->main_path."/amphibianspeciesoftheworld/";
         $this->sh['ASW']['has_syn']         = false; //has syn but we don't want them
         $this->sh['ASW']['run_gnparse']     = true;
-        
+
         $this->sh['ictv']['source']         = $this->main_path."/ICTV-virus_taxonomy-with-higherClassification/";
         $this->sh['ictv']['has_syn']        = false;
         $this->sh['ictv']['run_gnparse']    = false;
@@ -53,7 +71,7 @@ class DHSourceHierarchiesAPI
         $this->sh['CLP']['source']          = $this->main_path."/Catalogue_of_Life_Protists_DH/";
         $this->sh['CLP']['has_syn']         = false;
         $this->sh['CLP']['run_gnparse']     = true;
-        
+
         $this->sh['trunk']['source']        = $this->main_path."/dynamichierarchytrunk2018-11-21/";
         $this->sh['trunk']['has_syn']       = false;
         $this->sh['trunk']['run_gnparse']   = false;
@@ -61,7 +79,7 @@ class DHSourceHierarchiesAPI
         $this->sh['ERE']['source']          = $this->main_path."/eoldynamichierarchyerebidaepatch/";
         $this->sh['ERE']['has_syn']         = false;
         $this->sh['ERE']['run_gnparse']     = false;
-        
+
         $this->sh['IOC']['source']          = $this->main_path."/ioc-birdlist/";
         $this->sh['IOC']['has_syn']         = false;
         $this->sh['IOC']['run_gnparse']     = true;
@@ -69,11 +87,11 @@ class DHSourceHierarchiesAPI
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
         $this->sh['COL']['has_syn']         = true;
         $this->sh['COL']['run_gnparse']     = true;
-        
+
         $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/";
         $this->sh['BOM']['has_syn']         = true;
         $this->sh['BOM']['run_gnparse']     = true;
-        
+
         $this->sh['NCBI']['source']         = $this->main_path."/NCBI_Taxonomy_Harvest_DH/";
         $this->sh['NCBI']['has_syn']        = true;
         $this->sh['NCBI']['run_gnparse']    = false; //has specific field for just canonical name
@@ -85,7 +103,7 @@ class DHSourceHierarchiesAPI
         $this->sh['ODO']['source']          = $this->main_path."/worldodonata/";
         $this->sh['ODO']['has_syn']         = false; //has syn but we don't want them
         $this->sh['ODO']['run_gnparse']     = true;
-        
+
         $this->sh['WOR']['source']          = $this->main_path."/WoRMS_DH/";
         $this->sh['WOR']['has_syn']         = true;
         $this->sh['WOR']['run_gnparse']     = true;
@@ -114,8 +132,23 @@ class DHSourceHierarchiesAPI
         $this->sh['ncbi']['iterator_options'] = array('row_terminator' => "\t|\n");
         */
     }
+    public function compare_results()
+    {
+        // print_r($this->sh['WOR']['source'])
+        $sets = array_keys($this->sh);
+        print_r($sets);
+        foreach($sets as $set) {
+            // $txtfile = $this->sh[$what]['source'].$pre."_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
+            // $total_rows = self::get_total_rows($txtfile);
+        }
+    }
     public function start($what)
     {
+        // $cmd = "/usr/local/bin/gnparser name ".escapeshellarg("'Gadus morhua Eli 1972'");
+        // $out = shell_exec($cmd); echo "\n$out\n";
+        // exit;
+        // $total = shell_exec("wc -l < ".escapeshellarg($file));
+        
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
@@ -214,11 +247,11 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         print_r($meta); //exit;
 
         // /* utility write all names. This was used primarily for COL, since it has 3,620,095 rows and had to do some organization to make sure all names got cached.
-        // self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
+        self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
         
-        $meta['ctr'] = 8;
-        self::buil_final_taxonomy_tsv($meta, "taxonomy");
-        self::buil_final_taxonomy_tsv($meta, "synonym");
+        // $meta['ctr'] = 8;
+        // self::build_final_taxonomy_tsv($meta, "taxonomy");
+        // self::build_final_taxonomy_tsv($meta, "synonym"); exit("\n-end COL-\n");
         
         
         // Then manually run this: didn't actually use these COL_ALL_NAMES_?_gnparsed.txt                          step 2
@@ -962,7 +995,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
             elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file_tmp("tax", $fn_tax, $t);
             //=======================================================================================
-            if(($i % 500000) == 0) {
+            if(($i % 500000) == 0) { //500000 orig
                 // fclose($WRITE); //replaced...
                 fclose($fn_tax); fclose($fn_syn);
                 
@@ -993,18 +1026,28 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
         $meta['ctr'] = $ctr;
-        self::buil_final_taxonomy_tsv($meta, "taxonomy");
-        self::buil_final_taxonomy_tsv($meta, "synonym");
+        self::build_final_taxonomy_tsv($meta, "taxonomy");
+        self::build_final_taxonomy_tsv($meta, "synonym");
     }
-    private function buil_final_taxonomy_tsv($meta, $pre)
+    private function build_final_taxonomy_tsv($meta, $pre)
     {
         $ctr = $meta['ctr']; $what = $meta['what'];
         $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv", "w"); //will overwrite existing
+        fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
+        
         for ($c = 1; $c <= $ctr; $c++) {
             $txtfile = $this->sh[$what]['source'].$pre."_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
+
+            //just for progress indicator
+            $total_rows = self::get_total_rows($txtfile);
+            if($total_rows >= 500000) $modulo = 100000;
+            elseif($total_rows >= 100000 && $total_rows < 500000) $modulo = 50000;
+            elseif($total_rows >= 50000 && $total_rows < 100000) $modulo = 10000;
+            else $modulo = 5000;
+            
             $i = 0;
             foreach(new FileIterator($txtfile) as $line_number => $line) {
-                $i++; if(($i % 100000) == 0) echo "\n$c of $ctr - ".number_format($i)." ";
+                $i++; if(($i % $modulo) == 0) echo "\n $pre $c of $ctr - ".number_format($i)." ";
                 if($i == 1) $line = strtolower($line);
                 $row = explode("\t", $line); // print_r($row);
                 if($i == 1) {
@@ -1053,14 +1096,14 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 )*/
                 
                 $t = array();
-                $t['parent_id']     = $rec['parent_uid'];       //only for taxonomy
+                $t['parent_id']     = @$rec['parent_uid'];      //only for taxonomy
                 $t['name']          = $rec['canonicalName'];    //for both
                 $t['taxon_id']      = $rec['uid'];              //only for taxonomy
                 $t['accepted_id']   = $rec['uid'];              //only for synonym
-                $t['rank']          = @$rec['rank'];            //only for synonym
+                $t['rank']          = @$rec['rank'];            //only for taxonomy
                 $t['source']        = '';
                 if($pre == "taxonomy") self::write2file("tax", $fn_tax, $t);
-                else                   self::write2file("syn", $fn_syn, $t);
+                else                   self::write2file("syn", $fn_tax, $t); //originally fn_syn, from above
             }
         }
     }
@@ -1103,6 +1146,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
         if(file_exists($cache_path)) return true;
         else                         return false;
+    }
+    private function get_total_rows($file)
+    {
+        /* source: https://stackoverflow.com/questions/3137094/how-to-count-lines-in-a-document */
+        $total = shell_exec("wc -l < ".escapeshellarg($file));
+        $total = trim($total);  echo "\nTotal rows: [".number_format($total)."]\n";
+        return $total;
     }
 }
 ?>
