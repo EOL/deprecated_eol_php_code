@@ -137,9 +137,15 @@ php update_resources/connectors/dwh.php _ COL
         // print_r($this->sh['WOR']['source'])
         $sets = array_keys($this->sh);
         print_r($sets);
-        foreach($sets as $set) {
-            // $txtfile = $this->sh[$what]['source'].$pre."_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
-            // $total_rows = self::get_total_rows($txtfile);
+        foreach($sets as $what) {
+            $txtfile = $this->sh[$what]['source']."taxonomy.tsv";
+            $total_rows = self::get_total_rows($txtfile);
+            echo "\nTotal $what: [".number_format($total_rows)."]\n";
+
+            $txtfile = $this->sh[$what]['source']."taxonomy orig.tsv";
+            $total_rows = self::get_total_rows($txtfile);
+            echo "\nTotal $what old: [".number_format($total_rows)."]\n";
+            
         }
     }
     public function start($what)
@@ -1040,6 +1046,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
 
             //just for progress indicator
             $total_rows = self::get_total_rows($txtfile);
+            echo "\nTotal rows: [".number_format($total_rows)."]\n";
             if($total_rows >= 500000) $modulo = 100000;
             elseif($total_rows >= 100000 && $total_rows < 500000) $modulo = 50000;
             elseif($total_rows >= 50000 && $total_rows < 100000) $modulo = 10000;
@@ -1151,7 +1158,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     {
         /* source: https://stackoverflow.com/questions/3137094/how-to-count-lines-in-a-document */
         $total = shell_exec("wc -l < ".escapeshellarg($file));
-        $total = trim($total);  echo "\nTotal rows: [".number_format($total)."]\n";
+        $total = trim($total);
         return $total;
     }
 }
