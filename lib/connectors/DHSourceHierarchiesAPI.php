@@ -157,6 +157,9 @@ class DHSourceHierarchiesAPI
         /*
         gnparser file -f json-compact --input test.txt --output test_gnparsed.txt
         self::save_2local_gnparsed_file_new($what, "test_gnparsed.txt"); exit("\n-end test-\n");
+        
+        gnparser file -f simple --input test.txt --output test_gnparsed.txt
+        
 
 gnparser file -f json-compact --input xaa.txt --output xaa_gnparsed.txt
 gnparser file -f json-compact --input xab.txt --output xab_gnparsed.txt
@@ -207,16 +210,14 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $meta['what'] = $what;
         print_r($meta); //exit;
 
-        /* utility write all names. This was used primarily for COL, since it has 3,620,095 rows and had to do some organization to make sure all names got cached.
-        // self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
+        // /* utility write all names. This was used primarily for COL, since it has 3,620,095 rows and had to do some organization to make sure all names got cached.
+        self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
         // Then manually run this: didn't actually use these COL_ALL_NAMES_?_gnparsed.txt                          step 2
         // gnparser file -f simple --input COL_ALL_NAMES_1.txt --output COL_ALL_NAMES_1_gnparsed.txt
         // gnparser file -f simple --input COL_ALL_NAMES_2.txt --output COL_ALL_NAMES_2_gnparsed.txt
-        // ...
-        // gnparser file -f simple --input COL_ALL_NAMES_8.txt --output COL_ALL_NAMES_8_gnparsed.txt
         // Then start caching...                                                                                   step 3
-        self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_2_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
-        */
+        // self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_2_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
+        // */
 
         /* this is one-time run for every dataset - all 13 datasets =============================================================
         self::run_file_with_gnparser_new($meta);    exit("\nCaching for [$what] done!\n"); //is used for blank slate, meaning new cache path or new gnparser version.
@@ -367,7 +368,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $i = 0;
         $m = 3620095/3; //for CoL
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file'], false, true, @$this->sh[$what]['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
-            $i++;
+            $i++; if(($i % 10000) == 0) echo "\n".number_format($i)."\n";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -384,7 +385,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 $k++;
             }
             // print_r($rec); exit("\ncheck first [$with_authorship]\n"); //use to test if field - value is OK
-            if(($i % 10000) == 0) echo "\n".number_format($i)."\n";
 
             /*
             if(in_array($what, array('COL'))) {
@@ -396,8 +396,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 if(!$cont) continue;
             }*/
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 
-                                     'ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) { //excluded 'pbdb', from initial endeavor
+            // if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 'ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) { //excluded 'pbdb', from initial endeavor
                 /*  [index] => 1
                     [taxonomicStatus] => accepted
                     [taxonRank] => superfamily
@@ -439,7 +438,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                     elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
                 }
                 elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file("tax", $fn_tax, $t);
-            }
+            // }
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             /*
             if(in_array($what, array('ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) { //headers changed from version: ioc-birdlist_v2 to ioc-birdlist_v3
@@ -462,8 +461,8 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 self::write2file("tax", $fn_tax, $t);
             }*/
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+            /*
             if(in_array($what, array('ictv'))) {
-                /*
                 parent_id = row[2]
                 name = row[3]
                 taxon_id = row[0]
@@ -482,8 +481,8 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                     [scientificName] => Sobemovirus
                     [higherClassification] => Viruses|unplaced
                     [taxonRank] => genus
-                */
             }
+            */
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         }
         fclose($fn_tax);
@@ -910,11 +909,21 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     private function utility_write_all_names($meta)
     {
         $what = $meta['what']; $i = 0; $ctr = 1;
-        $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //will overwrite existing
+        // $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //replaced...
+        
+        $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
+        $this->synonym_header_tmp = array("name", "uid", "type");
+        
+        $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
+        $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
+        fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
+        fwrite($fn_syn, implode("\t", $this->synonym_header_tmp) ."\n");
+        
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++;
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta['fields'] as $field) {
@@ -923,16 +932,101 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 $k++;
             }
             // print_r($rec); //exit; //use to test if field - value is OK
-            if(($i % 100000) == 0) echo "\n".number_format($i);
+            
+            /*replaced...
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
+            */
+            
+            //=======================================================================================
+            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
+            $t = array();
+            $t['parent_id']     = $rec['parentNameUsageID'];
+            $t['name']          = $rec['scientificName'];
+            $t['taxon_id']      = $rec['taxonID'];
+            $t['accepted_id']   = @$rec['acceptedNameUsageID'];
+            $t['rank']          = ($val = @$rec['taxonRank']) ? self::clean_rank($val): "no rank";
+            $t['source']        = '';
+            if($this->sh[$what]['has_syn']) {
+                if(($t['accepted_id'] != $t['taxon_id']) && $t['accepted_id'] != "") {
+                    self::write2file_tmp("syn", $fn_syn, $t);
+                    $has_synonym = true;
+                }
+                elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file_tmp("tax", $fn_tax, $t);
+            }
+            elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file_tmp("tax", $fn_tax, $t);
+            //=======================================================================================
             if(($i % 500000) == 0) {
-                fclose($WRITE);
+                // fclose($WRITE); //replaced...
+                fclose($fn_tax); fclose($fn_syn);
+                
+                echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
+                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_".$ctr."_gnparsed.txt";
+                $out = shell_exec($cmd); echo "\n$out\n";
+                echo "\nrunning gnparser to synonym_".$ctr.".txt\n";
+                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_".$ctr."_gnparsed.txt";
+                $out = shell_exec($cmd); echo "\n$out\n";
+                
                 $ctr++;
-                $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //will overwrite existing
+                // $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //replaced...
+                $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
+                $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
+                fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
+                fwrite($fn_syn, implode("\t", $this->synonym_header_tmp) ."\n");
             }
         }
-        fclose($WRITE);
+        // fclose($WRITE); //replaced...
+        fclose($fn_tax); fclose($fn_syn);
+        //last batch
+        echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
+        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_".$ctr."_gnparsed.txt";
+        $out = shell_exec($cmd); echo "\n$out\n";
+        echo "\nrunning gnparser to synonym_".$ctr.".txt\n";
+        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_".$ctr."_gnparsed.txt";
+        $out = shell_exec($cmd); echo "\n$out\n";
+        
+        //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
+        $meta['ctr'] = $ctr;
+        self::buil_final_taxonomy_tsv($meta);
+    }
+    private function buil_final_taxonomy_tsv($meta)
+    {
+        $ctr = $meta['ctr']; $what = $meta['what']
+        $pre = "taxonomy_";
+        $fn_tax = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); //will overwrite existing
+        for ($i = 1; $i <= $ctr; $i++) {
+            foreach($files as $txtfile) {
+                $i = 0; $final = array(); echo "\n[$txtfile]\n";
+                foreach(new FileIterator($txtfile) as $line_number => $line) {
+                    $i++;
+                    // if(($i % 100) == 0) echo number_format($i)." ";
+                    if($i == 1) $line = strtolower($line);
+                    $row = explode("\t", $line);
+                    if($i == 1) {
+                        $fields = $row;
+                        continue;
+                    }
+                    else {
+                        if(!@$row[0]) continue;
+                        $k = 0; $rec = array();
+                        foreach($fields as $fld) {
+                            $rec[$fld] = @$row[$k];
+                            $k++;
+                        }
+                    }
+                    // print_r($rec); exit("\nstopx\n");
+                    if($val = @$rec['eol_pk']) $final[] = $val;
+                }
+                echo "\ncount: ".count($final)."\n";
+            }
+            
+        }
+        
+    }
+    private function write2file_tmp($ext, $fn, $t)
+    {
+        if($ext == "syn")     fwrite($fn, $t['name'] . "\t" . $t['accepted_id'] . "\t" . 'synonym' . "\n");
+        elseif($ext == "tax") fwrite($fn, $t['name'] . "\t" . $t['taxon_id'] . "\t" . $t['parent_id'] . "\t" . $t['rank'] . "\n");
     }
     private function run_TSV_file_with_gnparser_new($file, $what)
     {
