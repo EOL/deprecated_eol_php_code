@@ -592,7 +592,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $WRITE = fopen($this->sh[$what]['source'].$xname.".txt", "w"); //will overwrite existing
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
-            if(($i % 5000) == 0) echo "\n --->:[".number_format($i)."]";
+            if(($i % 5000) == 0) echo "\n --->:[".number_format($i)."]"; //stopped at 1,645,000 for COL
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
