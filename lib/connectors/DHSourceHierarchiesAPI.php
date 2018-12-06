@@ -966,12 +966,11 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     }
     private function utility_write_all_names($meta)
     {
+        $what = $meta['what']; $i = 0; $ctr = 1;
         //initialize this report file
         $path = $this->sh[$what]['source']."../zFailures/$what"."_failures.txt"; if(file_exists($path)) unlink($path);
         
-        $what = $meta['what']; $i = 0; $ctr = 1;
         // $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //replaced...
-        
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
         $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
@@ -1050,10 +1049,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     }
     private function fix_sciname($str)
     {
-        $str = str_ireplace("?kornick", "Škornick", $str)
-        $str = str_ireplace("?erný", "Černý", $str)
-        $str = str_ireplace("?tyroký", "Čtyroký", $str)
-        $str = str_ireplace("†", "", $str)
+        $str = str_ireplace("?kornick", "Škornick", $str);
+        $str = str_ireplace("?erný", "Černý", $str);
+        $str = str_ireplace("?tyroký", "Čtyroký", $str);
+        $str = str_ireplace("†", "", $str);
         return $str;
     }
     private function build_final_taxonomy_tsv($meta, $pre)
