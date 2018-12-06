@@ -276,6 +276,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $what = $meta['what']; $i = 0; $test = array();
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
+            if(($i % 10000) == 0) echo "\n".number_format($i)."\n";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
