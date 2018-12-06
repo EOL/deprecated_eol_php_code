@@ -274,11 +274,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     private function check_for_duplicate_canonicals($meta, $with_authorship)
     {
         $what = $meta['what']; $i = 0; $test = array();
-
-        //initialize
-        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
-        if(file_exists($path)) unlink($path);
-        
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++;
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
