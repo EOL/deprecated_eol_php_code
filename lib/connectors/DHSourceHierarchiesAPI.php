@@ -54,6 +54,10 @@ php update_resources/connectors/dwh.php _ WOR
 
 php update_resources/connectors/dwh.php _ COL
 */
+        //for testing
+        $this->sh['xxx']['source']          = $this->main_path."/xxx/";
+        $this->sh['xxx']['has_syn']         = false;
+        $this->sh['xxx']['run_gnparse']     = true;
 
         // /* new list
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
@@ -145,16 +149,24 @@ php update_resources/connectors/dwh.php _ COL
             $txtfile = $this->sh[$what]['source']."taxonomy orig.tsv";
             $total_rows = self::get_total_rows($txtfile);
             echo "\nTotal $what old: [".number_format($total_rows)."]\n";
-            
         }
     }
     public function start($what)
     {
-        // $cmd = "/usr/local/bin/gnparser name ".escapeshellarg("'Gadus morhua Eli 1972'");
-        // $out = shell_exec($cmd); echo "\n$out\n";
-        // exit;
-        // $total = shell_exec("wc -l < ".escapeshellarg($file));
-        
+        /*
+        $this->what = $what;
+        $string = "Malmopsylla† karatavica Bekker-Migdisova, 1985";
+        //$string = '“montereina” greeleyi (MacFarland, 1909)';
+        // $string = "V latipennis Baehr, 2006";
+        $string = "Curcuma vitellina Škornick. & H.Ð.Tran";
+        echo "\norig: $string";
+        $string = str_replace("†","",$string);
+        $string = Functions::conv_to_utf8($string);
+        echo "\nutf8: $string";
+        echo "\ngnparser canonical: ".self::gnsparse_canonical($string, 'cache');
+        $c = Functions::canonical_form($string);
+        exit("\ncanonical: $c\n");
+        */
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
@@ -883,11 +895,11 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         }
         echo("\nInvestigate cannot get canonical name [$sciname][$method]\n");
     }
-    private function write_gnparser_failures($what, $name)
+    private function write_gnparser_failures($what, $name, $postfix = "")
     {
-        $path = $this->sh[$what]['source']."../zFailures/$what".".txt";
+        $path = $this->sh[$what]['source']."../zFailures/$what".$postfix.".txt";
         if($FILE = Functions::file_open($path, 'a')) {
-            echo "\nadded name failures [$what]: [$name]\n";
+            // echo "\nadded name failures [$what]: [$name]\n"; //good debug
             fwrite($FILE, $name."\n");
             fclose($FILE);
         }
@@ -987,7 +999,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             $t = array();
             $t['parent_id']     = $rec['parentNameUsageID'];
-            $t['name']          = $rec['scientificName'];
+            $t['name']          = self::fix_sciname($rec['scientificName']);
             $t['taxon_id']      = $rec['taxonID'];
             $t['accepted_id']   = @$rec['acceptedNameUsageID'];
             $t['rank']          = ($val = @$rec['taxonRank']) ? self::clean_rank($val): "no rank";
@@ -1034,6 +1046,14 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $meta['ctr'] = $ctr;
         self::build_final_taxonomy_tsv($meta, "taxonomy");
         self::build_final_taxonomy_tsv($meta, "synonym");
+    }
+    private function fix_sciname($str)
+    {
+        $str = str_ireplace("?kornick", "Škornick", $str)
+        $str = str_ireplace("?erný", "Černý", $str)
+        $str = str_ireplace("?tyroký", "Čtyroký", $str)
+        $str = str_ireplace("†", "", $str)
+        return $str;
     }
     private function build_final_taxonomy_tsv($meta, $pre)
     {
@@ -1101,6 +1121,8 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                     [other2] => 1934
                     [other3] => 3
                 )*/
+                
+                if(!$rec['canonicalName']) self::write_gnparser_failures($what, $rec['name'], "_failures");
                 
                 $t = array();
                 $t['parent_id']     = @$rec['parent_uid'];      //only for taxonomy
