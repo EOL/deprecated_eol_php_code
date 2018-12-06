@@ -207,7 +207,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $meta['what'] = $what;
         print_r($meta); //exit;
 
-        /* utility write all names.
+        /* utility write all names. This was used primarily for COL, since it has 3,620,095 rows and had to do some organization to make sure all names got cached.
         // self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
         // Then manually run this: didn't actually use these COL_ALL_NAMES_?_gnparsed.txt                          step 2
         // gnparser file -f simple --input COL_ALL_NAMES_1.txt --output COL_ALL_NAMES_1_gnparsed.txt
@@ -235,13 +235,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
         }
         
-        // /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
+        /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
         // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
         // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
         // removing the ones with the more recent data, along with their children.
         self::check_for_duplicate_canonicals($meta, $with_authorship); exit("\n-end checking for duplicates [$what]-\n");
-        // ================================================================================================================================================================= */
+        ================================================================================================================================================================= */
         
         self::process_taxon_file($meta, $with_authorship);
         self::parent_id_check($what);
@@ -383,26 +383,21 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            // echo "\n".count($tmp)."\n"; print_r($tmp);
             // print_r($rec); exit("\ncheck first [$with_authorship]\n"); //use to test if field - value is OK
-            if(($i % 1000) == 0) echo "\n".number_format($i)."\n";
-            // echo "\n".number_format($i)."\n";
-            
-            
+            if(($i % 10000) == 0) echo "\n".number_format($i)."\n";
+
             if(in_array($what, array('COL'))) {
                 /* breakdown when caching:
                 $cont = false;
                 // if($i >=  1    && $i < $m)   $cont = true;
-                if($i >=  $m   && $i < $m*2) $cont = true;
+                // if($i >=  $m   && $i < $m*2) $cont = true;
                 // if($i >=  $m*2 && $i < $m*3) $cont = true;
                 if(!$cont) continue;
                 */
             }
-            
-            
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-            if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 'pbdb', 
-                                     'ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) {
+            if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 
+                                     'ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) { //excluded 'pbdb', from initial endeavor
                 /*  [index] => 1
                     [taxonomicStatus] => accepted
                     [taxonRank] => superfamily
@@ -481,7 +476,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                     [3] => Sobemovirus
                     [4] => Viruses|unplaced
                     [5] => genus
-
                     [taxonID] => ICTV:Sobemovirus
                     [source] => 
                     [parentNameUsageID] => ICTV:unplaced Viruses
