@@ -90,6 +90,9 @@ class DHSourceHierarchiesAPI
         $this->sh['WOR']['has_syn']         = true;
         $this->sh['WOR']['run_gnparse']     = true;
         // */
+        $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
+        $this->synonym_header_tmp = array("name", "uid", "type");
+        
         /* old list
         $this->sh['WOR']['source']        = $this->main_path."/worms_v5/";
         $this->sh['IOC']['source'] = $this->main_path."/ioc-birdlist_v3/";
@@ -211,7 +214,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         print_r($meta); //exit;
 
         // /* utility write all names. This was used primarily for COL, since it has 3,620,095 rows and had to do some organization to make sure all names got cached.
-        self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
+        // self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
+        
+        $meta['ctr'] = 8;
+        self::buil_final_taxonomy_tsv($meta, "taxonomy");
+        self::buil_final_taxonomy_tsv($meta, "synonym");
+        
+        
         // Then manually run this: didn't actually use these COL_ALL_NAMES_?_gnparsed.txt                          step 2
         // gnparser file -f simple --input COL_ALL_NAMES_1.txt --output COL_ALL_NAMES_1_gnparsed.txt
         // gnparser file -f simple --input COL_ALL_NAMES_2.txt --output COL_ALL_NAMES_2_gnparsed.txt
@@ -911,9 +920,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $what = $meta['what']; $i = 0; $ctr = 1;
         // $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //replaced...
         
-        $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
-        $this->synonym_header_tmp = array("name", "uid", "type");
-        
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
         $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
@@ -987,41 +993,76 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
         $meta['ctr'] = $ctr;
-        self::buil_final_taxonomy_tsv($meta);
+        self::buil_final_taxonomy_tsv($meta, "taxonomy");
+        self::buil_final_taxonomy_tsv($meta, "synonym");
     }
-    private function buil_final_taxonomy_tsv($meta)
+    private function buil_final_taxonomy_tsv($meta, $pre)
     {
-        $ctr = $meta['ctr']; $what = $meta['what']
-        $pre = "taxonomy_";
-        $fn_tax = fopen($this->sh[$what]['source']."taxonomy.tsv", "w"); //will overwrite existing
-        for ($i = 1; $i <= $ctr; $i++) {
-            foreach($files as $txtfile) {
-                $i = 0; $final = array(); echo "\n[$txtfile]\n";
-                foreach(new FileIterator($txtfile) as $line_number => $line) {
-                    $i++;
-                    // if(($i % 100) == 0) echo number_format($i)." ";
-                    if($i == 1) $line = strtolower($line);
-                    $row = explode("\t", $line);
-                    if($i == 1) {
-                        $fields = $row;
-                        continue;
-                    }
-                    else {
-                        if(!@$row[0]) continue;
-                        $k = 0; $rec = array();
-                        foreach($fields as $fld) {
-                            $rec[$fld] = @$row[$k];
-                            $k++;
-                        }
-                    }
-                    // print_r($rec); exit("\nstopx\n");
-                    if($val = @$rec['eol_pk']) $final[] = $val;
+        $ctr = $meta['ctr']; $what = $meta['what'];
+        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv", "w"); //will overwrite existing
+        for ($c = 1; $c <= $ctr; $c++) {
+            $txtfile = $this->sh[$what]['source'].$pre."_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
+            $i = 0;
+            foreach(new FileIterator($txtfile) as $line_number => $line) {
+                $i++; if(($i % 100000) == 0) echo "\n$c of $ctr - ".number_format($i)." ";
+                if($i == 1) $line = strtolower($line);
+                $row = explode("\t", $line); // print_r($row);
+                if($i == 1) {
+                    $fields = $row;
+                    //fix $fields: important
+                    $count = count($this->{$pre."_header_tmp"});
+                    $fields[$count+1] = 'canonicalName';
+                    $fields[$count+2] = 'valueRanked';
+                    $fields[$count+3] = 'other1';
+                    $fields[$count+4] = 'other2';
+                    $fields[$count+5] = 'other3';
+                    // print_r($fields);
+                    continue;
                 }
-                echo "\ncount: ".count($final)."\n";
+                else {
+                    if(!@$row[0]) continue;
+                    $k = 0; $rec = array();
+                    foreach($fields as $fld) {
+                        $rec[$fld] = @$row[$k];
+                        $k++;
+                    }
+                }
+                // print_r($rec); exit("\nstopx\n");
+                /*Array(
+                    [f33063e7-083e-5910-83b4-9a96c170f159] => 9d241baa-f15b-5231-815f-69c2b59ad659
+                    [name] => Limacoccus brasiliensis (Hempel, 1934)
+                    [uid] => 316423
+                    [parent_uid] => 43080004
+                    [rank] => species
+                    [canonicalName] => Limacoccus brasiliensis
+                    [valueRanked] => Limacoccus brasiliensis
+                    [other1] => (Hempel 1934)
+                    [other2] => 1934
+                    [other3] => 3
+                )
+                Array(
+                    [a274cdda-3ca9-559b-9476-6e45eea18eed] => 59f5f484-b052-52f1-8fc0-0b288ca6f2ee
+                    [name] => Canceraspis brasiliensis Hempel, 1934
+                    [uid] => 316423
+                    [type] => synonym
+                    [canonicalName] => Canceraspis brasiliensis
+                    [valueRanked] => Canceraspis brasiliensis
+                    [other1] => Hempel 1934
+                    [other2] => 1934
+                    [other3] => 3
+                )*/
+                
+                $t = array();
+                $t['parent_id']     = $rec['parent_uid'];       //only for taxonomy
+                $t['name']          = $rec['canonicalName'];    //for both
+                $t['taxon_id']      = $rec['uid'];              //only for taxonomy
+                $t['accepted_id']   = $rec['uid'];              //only for synonym
+                $t['rank']          = @$rec['rank'];            //only for synonym
+                $t['source']        = '';
+                if($pre == "taxonomy") self::write2file("tax", $fn_tax, $t);
+                else                   self::write2file("syn", $fn_syn, $t);
             }
-            
         }
-        
     }
     private function write2file_tmp($ext, $fn, $t)
     {
