@@ -386,15 +386,15 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             // print_r($rec); exit("\ncheck first [$with_authorship]\n"); //use to test if field - value is OK
             if(($i % 10000) == 0) echo "\n".number_format($i)."\n";
 
+            /*
             if(in_array($what, array('COL'))) {
-                /* breakdown when caching:
+                breakdown when caching:
                 $cont = false;
                 // if($i >=  1    && $i < $m)   $cont = true;
                 // if($i >=  $m   && $i < $m*2) $cont = true;
                 // if($i >=  $m*2 && $i < $m*3) $cont = true;
                 if(!$cont) continue;
-                */
-            }
+            }*/
             //--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
             if(in_array($what, array('WOR', 'NCBI', 'BOM', 'COL', 'trunk', 'ODO', 'ONY', 
                                      'ERE', 'CLP', 'ASW', 'IOC', 'ictv', 'EET'))) { //excluded 'pbdb', from initial endeavor
