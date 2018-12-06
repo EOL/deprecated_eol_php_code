@@ -250,10 +250,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         /*===================================starts here=====================================================================*/
         $this->what = $what;
         
-        //initialize this report file
-        $path = $this->sh[$what]['source']."../zFailures/$what".".txt";
-        if(file_exists($path)) unlink($path);
-        
         // /* get problematic names from Google sheet
         $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
         // */
@@ -303,6 +299,8 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         // removing the ones with the more recent data, along with their children.
         self::check_for_duplicate_canonicals($meta, $with_authorship); exit("\n-end checking for duplicates [$what]-\n");
         ================================================================================================================================================================= */
+        //initialize this report file
+        $path = $this->sh[$what]['source']."../zFailures/$what".".txt"; if(file_exists($path)) unlink($path);
         
         self::process_taxon_file($meta, $with_authorship);
         self::parent_id_check($what);
@@ -968,6 +966,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     }
     private function utility_write_all_names($meta)
     {
+        //initialize this report file
+        $path = $this->sh[$what]['source']."../zFailures/$what"."_failures.txt"; if(file_exists($path)) unlink($path);
+        
         $what = $meta['what']; $i = 0; $ctr = 1;
         // $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //replaced...
         
