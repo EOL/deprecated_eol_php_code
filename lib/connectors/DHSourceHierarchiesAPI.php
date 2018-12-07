@@ -368,7 +368,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $FILE = Functions::file_open($path, 'w');
         foreach($test as $canon => $origs) {
             if(count($origs) > 1) {
-                foreach($origs as $orig) fwrite($FILE, $canon."\t".$orig."\n");
+                foreach($origs as $orig) {
+                    if($canon != $orig) fwrite($FILE, $canon."\t".$orig."\n");
+                }
                 fwrite($FILE, "\n");
             }
         }
