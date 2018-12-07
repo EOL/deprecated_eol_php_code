@@ -339,25 +339,25 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         if($files) $filecount = count($files);
         return $filecount;
     }
-    private function check_for_duplicate_canonicals_new($meta, $pre)
+    private function check_for_duplicate_canonicals_new($meta, $pre, $test = array())
     {
         $what = $meta['what'];
         $ctr = self::get_ctr_value($what);
         echo "\nctr = $ctr \n";
-        // exit;
         for ($c = 1; $c <= $ctr; $c++) {
-            $txtfile = $this->sh[$what]['source'].$pre."_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
+            $txtfile = $this->sh[$what]['source'].$pre."_part_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
             //just for progress indicator
             $total_rows = self::get_total_rows($txtfile); echo "\nTotal rows: [".number_format($total_rows)."]\n"; $modulo = self::get_modulo($total_rows);
             $i = 0;
             foreach(new FileIterator($txtfile) as $line_number => $line) {
                 $i++; if(($i % $modulo) == 0) echo "\n $pre $c of $ctr - ".number_format($i)." ";
                 if($i == 1) $line = strtolower($line);
-                $row = explode("\t", $line); // print_r($row);
+                $row = explode("\t", $line);
+                // print_r($row);
                 if($i == 1) {
                     $fields = $row;
                     //fix $fields: important
-                    $count = count($this->{$pre."_header_tmp"});
+                    $count = 1; //since new gnparsed file only has 1 column
                     $fields[$count+1] = 'canonicalName';
                     $fields[$count+2] = 'valueRanked';
                     $fields[$count+3] = 'other1';
@@ -398,10 +398,10 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                     [other2] => 1934
                     [other3] => 3
                 )*/
-                @$test[$rec['canonicalName']][] = $rec['name'];
+                if($val = $rec['canonicalName']) @$test[$val][] = $rec['name'];
             }
         }
-        self::print_duplicates($what, $test, "_duplicates_new.txt");
+        return $test;
     }
     
     private function check_for_duplicate_canonicals($meta, $with_authorship)
@@ -1142,6 +1142,29 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $meta['ctr'] = $ctr;
         self::build_final_taxonomy_tsv($meta, "taxonomy");
         self::build_final_taxonomy_tsv($meta, "synonym");
+
+        $ret = self::check_for_duplicate_canonicals_new($meta, "synonym");
+        $ret = self::check_for_duplicate_canonicals_new($meta, "taxonomy", $ret);
+        self::print_duplicates($what, $ret, "_duplicates_new.txt");
+    }
+    private function get_canonicals_from_gnparser_generated_file($meta, $pre, $cur_ctr)
+    {
+        $what = $meta['what'];
+        $txtfile = $this->sh[$what]['source'].$pre."_part_".$cur_ctr."_gnparsed.txt"; echo "\nreading [$txtfile]\n";
+        $i = 0; $final = array();
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++;
+            $arr = explode("\t", $line);
+            if($i > 1) $final[] = $arr[2]; //canonicalName
+        }
+        echo "\ncanonicals $pre: ".count($final)."\n";
+        // echo "\n-".$final[0];
+        // echo "\n-".$final[1];
+        // echo "\n-".$final[2];
+        // echo "\n-".$final[7540];
+        // echo "\n-".$final[7541];
+        // exit("\n");
+        return $final;
     }
     private function build_final_taxonomy_tsv($meta, $pre)
     {
@@ -1150,11 +1173,12 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
         
         for ($c = 1; $c <= $ctr; $c++) {
-            $txtfile = $this->sh[$what]['source'].$pre."_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
+            $canonicals = self::get_canonicals_from_gnparser_generated_file($meta, $pre, $c);
+            $txtfile = $this->sh[$what]['source'].$pre."_".$c.".txt"; echo "\nprocessing [$txtfile]\n";
 
             //just for progress indicator
             $total_rows = self::get_total_rows($txtfile);
-            echo "\nTotal rows: [".number_format($total_rows)."]\n";
+            echo "\nTotal rows: [".number_format($total_rows-1)."]\n"; //minus 1 bec. first row is header
             $modulo = self::get_modulo($total_rows);
             
             $i = 0;
@@ -1164,13 +1188,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 $row = explode("\t", $line); // print_r($row);
                 if($i == 1) {
                     $fields = $row;
-                    //fix $fields: important
-                    $count = count($this->{$pre."_header_tmp"});
-                    $fields[$count+1] = 'canonicalName';
-                    $fields[$count+2] = 'valueRanked';
-                    $fields[$count+3] = 'other1';
-                    $fields[$count+4] = 'other2';
-                    $fields[$count+5] = 'other3';
                     // print_r($fields);
                     continue;
                 }
@@ -1183,35 +1200,25 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                     }
                 }
                 // print_r($rec); exit("\nstopx\n");
-                /*Array(
-                    [f33063e7-083e-5910-83b4-9a96c170f159] => 9d241baa-f15b-5231-815f-69c2b59ad659
-                    [name] => Limacoccus brasiliensis (Hempel, 1934)
-                    [uid] => 316423
-                    [parent_uid] => 43080004
-                    [rank] => species
-                    [canonicalName] => Limacoccus brasiliensis
-                    [valueRanked] => Limacoccus brasiliensis
-                    [other1] => (Hempel 1934)
-                    [other2] => 1934
-                    [other3] => 3
+                /*Array( --- taxonomy
+                    [name] => Erebidae
+                    [uid] => Erebidae
+                    [parent_uid] => 
+                    [rank] => family
                 )
-                Array(
-                    [a274cdda-3ca9-559b-9476-6e45eea18eed] => 59f5f484-b052-52f1-8fc0-0b288ca6f2ee
-                    [name] => Canceraspis brasiliensis Hempel, 1934
-                    [uid] => 316423
+                Array( --- synonym
+                    [name] => Zanolidae McDunnough 1938
+                    [uid] => Apatelodidae
                     [type] => synonym
-                    [canonicalName] => Canceraspis brasiliensis
-                    [valueRanked] => Canceraspis brasiliensis
-                    [other1] => Hempel 1934
-                    [other2] => 1934
-                    [other3] => 3
-                )*/
-                
-                if(!$rec['canonicalName']) self::write_gnparser_failures($what, $rec['name'], "_failures");
-                
+                )
+                */
+                $canon = $canonicals[$i-2];
+                if(!$canon) self::write_gnparser_failures($what, $rec['name'], "_failures");
+                // echo "\n[$canon] - [".$rec['name']."]\n"; //good debug
+
                 $t = array();
                 $t['parent_id']     = @$rec['parent_uid'];      //only for taxonomy
-                $t['name']          = $rec['canonicalName'];    //for both
+                $t['name']          = $canonicals[$i-2];        //for both
                 $t['taxon_id']      = $rec['uid'];              //only for taxonomy
                 $t['accepted_id']   = $rec['uid'];              //only for synonym
                 $t['rank']          = @$rec['rank'];            //only for taxonomy
