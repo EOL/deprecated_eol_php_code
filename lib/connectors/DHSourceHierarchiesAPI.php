@@ -1069,10 +1069,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             //just for progress indicator
             $total_rows = self::get_total_rows($txtfile);
             echo "\nTotal rows: [".number_format($total_rows)."]\n";
-            if($total_rows >= 500000) $modulo = 100000;
-            elseif($total_rows >= 100000 && $total_rows < 500000) $modulo = 50000;
-            elseif($total_rows >= 50000 && $total_rows < 100000) $modulo = 10000;
-            else $modulo = 5000;
+            $modulo = self::get_modulo($total_rows);
             
             $i = 0;
             foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -1184,6 +1181,13 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $total = shell_exec("wc -l < ".escapeshellarg($file));
         $total = trim($total);
         return $total;
+    }
+    private function get_modulo($total_rows)
+    {
+        if($total_rows >= 500000) $modulo = 100000;
+        elseif($total_rows >= 100000 && $total_rows < 500000) $modulo = 50000;
+        elseif($total_rows >= 50000 && $total_rows < 100000) $modulo = 10000;
+        else $modulo = 5000;
     }
 }
 ?>
