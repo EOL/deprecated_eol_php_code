@@ -297,7 +297,8 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
         // in previous smasher runs. If smasher can't handle these apparent duplicate taxa, we could consider cleaning them up by keeping the one with the oldest date and 
         // removing the ones with the more recent data, along with their children.
-        self::check_for_duplicate_canonicals($meta, $with_authorship); exit("\n-end checking for duplicates [$what]-\n");
+        // self::check_for_duplicate_canonicals($meta, $with_authorship); exit("\n-end checking for duplicates [$what]-\n");
+        self::check_for_duplicate_canonicals_new($meta, "taxonomy"); exit("\n-end checking for duplicates (new) [$what]-\n");
         ================================================================================================================================================================= */
         //initialize this report file
         $path = $this->sh[$what]['source']."../zFailures/$what".".txt"; if(file_exists($path)) unlink($path);
@@ -330,6 +331,79 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             }
         }
     }
+    private function get_ctr_value($what)
+    {
+        $directory = $this->sh[$what]['source'];
+        $filecount = 0;
+        $files = glob($directory . "taxonomy_*_gnparsed.txt"); //taxonomy_1_gnparsed.txt
+        if($files) $filecount = count($files);
+        return $filecount;
+    }
+    private function check_for_duplicate_canonicals_new($meta, $pre)
+    {
+        $what = $meta['what'];
+        $ctr = self::get_ctr_value($what);
+        echo "\nctr = $ctr \n";
+        // exit;
+        for ($c = 1; $c <= $ctr; $c++) {
+            $txtfile = $this->sh[$what]['source'].$pre."_".$c."_gnparsed.txt"; echo "\nprocessing [$txtfile]\n";
+            //just for progress indicator
+            $total_rows = self::get_total_rows($txtfile); echo "\nTotal rows: [".number_format($total_rows)."]\n"; $modulo = self::get_modulo($total_rows);
+            $i = 0;
+            foreach(new FileIterator($txtfile) as $line_number => $line) {
+                $i++; if(($i % $modulo) == 0) echo "\n $pre $c of $ctr - ".number_format($i)." ";
+                if($i == 1) $line = strtolower($line);
+                $row = explode("\t", $line); // print_r($row);
+                if($i == 1) {
+                    $fields = $row;
+                    //fix $fields: important
+                    $count = count($this->{$pre."_header_tmp"});
+                    $fields[$count+1] = 'canonicalName';
+                    $fields[$count+2] = 'valueRanked';
+                    $fields[$count+3] = 'other1';
+                    $fields[$count+4] = 'other2';
+                    $fields[$count+5] = 'other3';
+                    // print_r($fields);
+                    continue;
+                }
+                else {
+                    if(!@$row[0]) continue;
+                    $k = 0; $rec = array();
+                    foreach($fields as $fld) {
+                        $rec[$fld] = @$row[$k];
+                        $k++;
+                    }
+                }
+                // print_r($rec); exit("\nstopx\n");
+                /*Array(
+                    [f33063e7-083e-5910-83b4-9a96c170f159] => 9d241baa-f15b-5231-815f-69c2b59ad659
+                    [name] => Limacoccus brasiliensis (Hempel, 1934)
+                    [uid] => 316423
+                    [parent_uid] => 43080004
+                    [rank] => species
+                    [canonicalName] => Limacoccus brasiliensis
+                    [valueRanked] => Limacoccus brasiliensis
+                    [other1] => (Hempel 1934)
+                    [other2] => 1934
+                    [other3] => 3
+                )
+                Array(
+                    [a274cdda-3ca9-559b-9476-6e45eea18eed] => 59f5f484-b052-52f1-8fc0-0b288ca6f2ee
+                    [name] => Canceraspis brasiliensis Hempel, 1934
+                    [uid] => 316423
+                    [type] => synonym
+                    [canonicalName] => Canceraspis brasiliensis
+                    [valueRanked] => Canceraspis brasiliensis
+                    [other1] => Hempel 1934
+                    [other2] => 1934
+                    [other3] => 3
+                )*/
+                @$test[$rec['canonicalName']][] = $rec['name'];
+            }
+        }
+        self::print_duplicates($what, $test, "_duplicates_new.txt");
+    }
+    
     private function check_for_duplicate_canonicals($meta, $with_authorship)
     {
         $what = $meta['what']; $i = 0; $test = array();
@@ -363,8 +437,11 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 }
             }
         }
-        
-        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
+        self::print_duplicates($what, $test, "_duplicates.txt");
+    }
+    private function print_duplicates($what, $test, $postfix)
+    {
+        $path = $this->sh[$what]['source']."../zFailures/$what".$postfix;
         $FILE = Functions::file_open($path, 'w');
         foreach($test as $canon => $origs) {
             if(count($origs) > 1) {
@@ -376,7 +453,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         }
         fclose($FILE);
         //just to clean-up, delete zero size files
-        $path = $this->sh[$what]['source']."../zFailures/$what"."_duplicates.txt";
+        $path = $this->sh[$what]['source']."../zFailures/$what".$postfix;
         if(file_exists($path)) {
             if(!filesize($path)) {
                 echo "\nNo duplicates for [$what]\n"; unlink($path);
@@ -1188,6 +1265,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         elseif($total_rows >= 100000 && $total_rows < 500000) $modulo = 50000;
         elseif($total_rows >= 50000 && $total_rows < 100000) $modulo = 10000;
         else $modulo = 5000;
+        return $modulo;
     }
 }
 ?>
