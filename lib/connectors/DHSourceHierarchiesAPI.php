@@ -1054,6 +1054,11 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
         fwrite($fn_syn, implode("\t", $this->synonym_header_tmp) ."\n");
+
+        $fn_tax_part = fopen($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt", "w"); //will overwrite existing
+        $fn_syn_part = fopen($this->sh[$what]['source']."synonym_part_".$ctr.".txt", "w"); //will overwrite existing
+        fwrite($fn_tax_part, implode("\t", array("name"))."\n");
+        fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
         
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -1086,21 +1091,28 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
             if($this->sh[$what]['has_syn']) {
                 if(($t['accepted_id'] != $t['taxon_id']) && $t['accepted_id'] != "") {
                     self::write2file_tmp("syn", $fn_syn, $t);
+                    self::write2file_tmp("syn_part", $fn_syn_part, $t);
                     $has_synonym = true;
                 }
-                elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file_tmp("tax", $fn_tax, $t);
+                elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") {
+                    self::write2file_tmp("tax", $fn_tax, $t);
+                    self::write2file_tmp("tax_part", $fn_tax_part, $t);
+                }
             }
-            elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") self::write2file_tmp("tax", $fn_tax, $t);
+            elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") {
+                self::write2file_tmp("tax", $fn_tax, $t);
+                self::write2file_tmp("tax_part", $fn_tax_part, $t);
+            }
             //=======================================================================================
             if(($i % 500000) == 0) { //500000 orig
                 // fclose($WRITE); //replaced...
                 fclose($fn_tax); fclose($fn_syn);
                 
                 echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
-                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_".$ctr."_gnparsed.txt";
+                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_part_".$ctr."_gnparsed.txt";
                 $out = shell_exec($cmd); echo "\n$out\n";
                 echo "\nrunning gnparser to synonym_".$ctr.".txt\n";
-                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_".$ctr."_gnparsed.txt";
+                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_part_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_part_".$ctr."_gnparsed.txt";
                 $out = shell_exec($cmd); echo "\n$out\n";
                 
                 $ctr++;
@@ -1109,16 +1121,21 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
                 $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
                 fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
                 fwrite($fn_syn, implode("\t", $this->synonym_header_tmp) ."\n");
+                
+                $fn_tax_part = fopen($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt", "w"); //will overwrite existing
+                $fn_syn_part = fopen($this->sh[$what]['source']."synonym_part_".$ctr.".txt", "w"); //will overwrite existing
+                fwrite($fn_tax_part, implode("\t", array("name"))."\n");
+                fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
             }
         }
         // fclose($WRITE); //replaced...
         fclose($fn_tax); fclose($fn_syn);
         //last batch
         echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
-        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_".$ctr."_gnparsed.txt";
+        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_part_".$ctr."_gnparsed.txt";
         $out = shell_exec($cmd); echo "\n$out\n";
         echo "\nrunning gnparser to synonym_".$ctr.".txt\n";
-        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_".$ctr."_gnparsed.txt";
+        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_part_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_part_".$ctr."_gnparsed.txt";
         $out = shell_exec($cmd); echo "\n$out\n";
         
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
@@ -1216,6 +1233,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
     {
         if($ext == "syn")     fwrite($fn, $t['name'] . "\t" . $t['accepted_id'] . "\t" . 'synonym' . "\n");
         elseif($ext == "tax") fwrite($fn, $t['name'] . "\t" . $t['taxon_id'] . "\t" . $t['parent_id'] . "\t" . $t['rank'] . "\n");
+        if(in_array($ext, array("tax_part", "syn_part"))) fwrite($fn, $t['name'] . "\n");
     }
     private function run_TSV_file_with_gnparser_new($file, $what)
     {
