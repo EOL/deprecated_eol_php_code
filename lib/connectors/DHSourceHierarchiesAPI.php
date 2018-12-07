@@ -1151,7 +1151,7 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         $str = str_ireplace("†", "", $str);
         return $str;
     }
-    private function build_final_taxonomy_tsv($meta, $pre)
+    private function build_final_taxonomy_tsv_old($meta, $pre)
     {
         $ctr = $meta['ctr']; $what = $meta['what'];
         $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv", "w"); //will overwrite existing
