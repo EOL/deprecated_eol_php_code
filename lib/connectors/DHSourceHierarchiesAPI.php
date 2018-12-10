@@ -151,7 +151,7 @@ php update_resources/connectors/dwh.php _ COL
             echo "\nTotal $what old: [".number_format($total_rows)."]\n";
         }
     }
-    public function start($what)
+    public function test($what)
     {
         /*
         $this->what = $what;
@@ -177,11 +177,11 @@ php update_resources/connectors/dwh.php _ COL
         // echo "\n[$canonical]\n";
         $canonical = self::gnsparse_canonical($sciname, 'cache');
         echo "\nparsing...[$sciname] ---> [$canonical]\n";
-        
+
         // $options = $this->smasher_download_options; $options['expire_seconds'] = 0; //expires now
         // $canonical = self::gnsparse_canonical($sciname, 'cache', $options);
         // echo "\nparsing...[$sciname] ---> [$canonical]\n";
-        
+
         exit("\nstopx\n");
         */
         /*
@@ -197,7 +197,7 @@ php update_resources/connectors/dwh.php _ COL
         $json = shell_exec($cmd);
         print_r(json_decode($json, true));
         exit;
-        
+
         gnparser file --input xaa.txt --output xaa_gnparsed.txt
         gnparser file --input xab.txt --output xab_gnparsed.txt
         gnparser file --input xac.txt --output xac_gnparsed.txt
@@ -211,19 +211,19 @@ php update_resources/connectors/dwh.php _ COL
         /*
         gnparser file -f json-compact --input test.txt --output test_gnparsed.txt
         self::save_2local_gnparsed_file_new($what, "test_gnparsed.txt"); exit("\n-end test-\n");
-        
-        gnparser file -f simple --input test.txt --output test_gnparsed.txt
-        
 
-gnparser file -f json-compact --input xaa.txt --output xaa_gnparsed.txt
-gnparser file -f json-compact --input xab.txt --output xab_gnparsed.txt
-gnparser file -f json-compact --input xac.txt --output xac_gnparsed.txt
-gnparser file -f json-compact --input xad.txt --output xad_gnparsed.txt
-gnparser file -f json-compact --input xae.txt --output xae_gnparsed.txt
-gnparser file -f json-compact --input xaf.txt --output xaf_gnparsed.txt
-gnparser file -f json-compact --input xag.txt --output xag_gnparsed.txt
-gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
-        
+        gnparser file -f simple --input test.txt --output test_gnparsed.txt
+
+
+        gnparser file -f json-compact --input xaa.txt --output xaa_gnparsed.txt
+        gnparser file -f json-compact --input xab.txt --output xab_gnparsed.txt
+        gnparser file -f json-compact --input xac.txt --output xac_gnparsed.txt
+        gnparser file -f json-compact --input xad.txt --output xad_gnparsed.txt
+        gnparser file -f json-compact --input xae.txt --output xae_gnparsed.txt
+        gnparser file -f json-compact --input xaf.txt --output xaf_gnparsed.txt
+        gnparser file -f json-compact --input xag.txt --output xag_gnparsed.txt
+        gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
+
         self::save_2local_gnparsed_file_new($what, "xaa_gnparsed.txt"); exit("\n-end xaa_gnparsed-\n");
         self::save_2local_gnparsed_file_new($what, "xab_gnparsed.txt"); exit("\n-end xab_gnparsed-\n");
         self::save_2local_gnparsed_file_new($what, "xac_gnparsed.txt"); exit("\n-end xac_gnparsed-\n");
@@ -232,7 +232,6 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         self::save_2local_gnparsed_file_new($what, "xaf_gnparsed.txt"); exit("\n-end xaf_gnparsed-\n");
         self::save_2local_gnparsed_file_new($what, "xag_gnparsed.txt"); exit("\n-end xag_gnparsed-\n");
         self::save_2local_gnparsed_file_new($what, "xah_gnparsed.txt"); exit("\n-end xah_gnparsed-\n");
-        
         */
 
         /* CoL divided into smaller chunks
@@ -247,6 +246,9 @@ gnparser file -f json-compact --input xah.txt --output xah_gnparsed.txt
         exit;
         */
         // self::parent_id_check($what); exit;
+    }
+    public function start($what)
+    {
         /*===================================starts here=====================================================================*/
         $this->what = $what;
         
