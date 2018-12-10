@@ -930,6 +930,8 @@ php update_resources/connectors/dwh.php _ COL
         
         if($ret = @$this->problematic_names[$sciname]) return $ret;
         
+        $sciname = self::fix_sciname($sciname); //just to make-the-same approach as utility_write_all_names()
+        
         /*
         if($sciname == "all") return "all";
         elseif($sciname == "root") return "root";
