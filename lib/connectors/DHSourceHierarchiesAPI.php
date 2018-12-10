@@ -250,6 +250,22 @@ php update_resources/connectors/dwh.php _ COL
         $str = self::fix_with_period($str);                     exit("\n[$str]\n");
         */
         
+        
+        /*
+        Penicillium	Penicillium cvjetkovicii S.W. Peterson, Jurjevi? & Frisvad 2015
+        Zodarion	Zodarion van Bosmans, 2009
+        Selenops	Selenops ab Logunov & Jäger, 2015
+        Leptonetela	Leptonetela la Wang & Li, 2017
+        Hyalopsora	Hyalopsora adianti-capilli-veneris (DC.) Syd. & P. Syd. 1903
+        Uredo	Uredo elymi-capitis-medusae Gonz. Frag. 1913
+        Melanopsis	Melanopsis cvijici Brusina, 1902
+        Bythinella	Bythinella cvijici Pavlovi?, 1933
+        Viviparus	Viviparus cvijici Pavlovi?, 1932
+        Ruteloryctes	Ruteloryctes bis Dechambre, 2006
+        Catoptes	Catoptes interruptusfabricius,1781 (Fabricius, 1781)
+        
+        */
+        
         // /* get uuid from COL
         $str = "Hyalopsora adianti-capilli-veneris (DC.) Syd. & P. Syd. 1903
         Selenops ab Logunov & Jäger, 2015
@@ -438,6 +454,10 @@ php update_resources/connectors/dwh.php _ COL
                     [other2] => 1934
                     [other3] => 3
                 )*/
+                
+                /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
+                if($val = @$this->problematic_names[$rec['uid']]) $rec['canonicalName'] = $val;
+                
                 if($val = $rec['canonicalName']) @$test[$val][] = $rec['name'];
             }
         }
