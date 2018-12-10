@@ -317,10 +317,10 @@ php update_resources/connectors/dwh.php _ COL
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg';
-        $params['range']         = 'gnparser failures!C2:D1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'gnparser failures!B2:D1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         //start massage array
-        foreach($arr as $item) $final[$item[0]] = $item[1];
+        foreach($arr as $item) $final[$item[0]] = $item[2];
         return $final;
     }
     private function show_totals($what)
@@ -569,6 +569,9 @@ php update_resources/connectors/dwh.php _ COL
                 $t['accepted_id']   = @$rec['acceptedNameUsageID'];  //row[7]
                 $t['rank']          = ($val = @$rec['taxonRank']) ? self::clean_rank($val): "no rank"; //row[2]
                 $t['source']        = '';
+
+                /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
+                if($val = @$this->problematic_names[$rec['taxonID']]) $t['name'] = $val;
 
                 if($this->sh[$what]['has_syn']) {
                     if(($t['accepted_id'] != $t['taxon_id']) && $t['accepted_id'] != "") {
@@ -928,8 +931,6 @@ php update_resources/connectors/dwh.php _ COL
         
         $sciname = str_replace('"', "", $sciname);
         
-        if($ret = @$this->problematic_names[$sciname]) return $ret;
-        
         $sciname = self::fix_sciname($sciname); //just to make-the-same approach as utility_write_all_names()
         
         /*
@@ -1228,6 +1229,10 @@ php update_resources/connectors/dwh.php _ COL
                 $t['accepted_id']   = $rec['uid'];              //only for synonym
                 $t['rank']          = @$rec['rank'];            //only for taxonomy
                 $t['source']        = '';
+                
+                /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
+                if($val = @$this->problematic_names[$rec['uid']]) $t['name'] = $val;
+                
                 if($pre == "taxonomy") self::write2file("tax", $fn_tax, $t);
                 else                   self::write2file("syn", $fn_tax, $t); //originally fn_syn, from above
             }
@@ -1369,9 +1374,6 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function fix_sciname($str)
     {
-        /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
-        if($ret = @$this->problematic_names[$sciname]) return $ret;
-        
         $str = str_ireplace("?kornick", "Škornick", $str);
         $str = str_ireplace("?erný", "Černý", $str);
         $str = str_ireplace("?tyroký", "Čtyroký", $str);
