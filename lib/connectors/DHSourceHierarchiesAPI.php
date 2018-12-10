@@ -263,22 +263,18 @@ php update_resources/connectors/dwh.php _ COL
         $meta['what'] = $what;
         print_r($meta); //exit;
 
-        // /* utility write all names. This was used primarily for COL, since it has 3,620,095 rows and had to do some organization to make sure all names got cached.
-        self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK                     step 1 --- then step 3
+        // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
+        self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK
         
         // $meta['ctr'] = 8;
         // self::build_final_taxonomy_tsv($meta, "taxonomy");
         // self::build_final_taxonomy_tsv($meta, "synonym"); exit("\n-end COL-\n");
         
-        
-        // Then manually run this: didn't actually use these COL_ALL_NAMES_?_gnparsed.txt                          step 2
-        // gnparser file -f simple --input COL_ALL_NAMES_1.txt --output COL_ALL_NAMES_1_gnparsed.txt
-        // gnparser file -f simple --input COL_ALL_NAMES_2.txt --output COL_ALL_NAMES_2_gnparsed.txt
-        // Then start caching...                                                                                   step 3
+        // Then start caching... No longer used. OBSOLETE
         // self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_2_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
         // */
 
-        /* this is one-time run for every dataset - all 13 datasets =============================================================
+        /* this is one-time run for every dataset - all 13 datasets ============================================================= OBSOLETE ever since utility_write_all_names()
         self::run_file_with_gnparser_new($meta);    exit("\nCaching for [$what] done!\n"); //is used for blank slate, meaning new cache path or new gnparser version.
         self::run_file_with_gnparser_new_v2($meta); exit("\nCaching for [$what] done!\n"); //is used to get names left behind from above. Only processes names, where cache doesn't exist yet
         ========================================================================================================================= */
