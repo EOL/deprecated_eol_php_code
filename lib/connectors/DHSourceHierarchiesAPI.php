@@ -51,7 +51,6 @@ php update_resources/connectors/dwh.php _ NCBI
 php update_resources/connectors/dwh.php _ ONY
 php update_resources/connectors/dwh.php _ ODO
 php update_resources/connectors/dwh.php _ WOR
-
 php update_resources/connectors/dwh.php _ COL
 */
         //for testing
@@ -246,6 +245,48 @@ php update_resources/connectors/dwh.php _ COL
         exit;
         */
         // self::parent_id_check($what); exit;
+        /*
+        $str = "Aloencyrtus angustifrons. (Annecke, 1964)";     echo "\n[$str]";
+        $str = self::fix_with_period($str);                     exit("\n[$str]\n");
+        */
+        
+        // /* get uuid from COL
+        $str = "Hyalopsora adianti-capilli-veneris (DC.) Syd. & P. Syd. 1903
+        Selenops ab Logunov & Jäger, 2015
+        Leptonetela la Wang & Li, 2017
+        Melanopsis cvijici Brusina, 1902
+        Bythinella cvijici Pavlovi?, 1933
+        Ruteloryctes bis Dechambre, 2006
+        Uredo elymi-capitis-medusae Gonz. Frag. 1913
+        Phyllosticta chenopodii-boni-henrici S?vul. & Sandu 1933
+        Dactylaria cvetkovicii Munt.-Cvetk. 1957
+        Cercospora ipomoeae-pedis-caprae J.M. Yen & Lim 1970
+        Meliola strychni-nux-vomicae Gawande, D.K. Agarwal & Hosag. 2004
+        Phoma gentianae-sino-ornatae Punith. & R. Harling 1993
+        Aspergillus cvjetkovicii Jurjevi?, S.W. Peterson & B.W. Horn 2012
+        Agaricus iesu-et-marthae L.A. Parra 2013
+        Penicillium cvjetkovicii S.W. Peterson, Jurjevi? & Frisvad 2015
+        Zodarion van Bosmans, 2009
+        Melanopsis cvijici Brusina, 1902
+        Bythinella cvijici Pavlovi?, 1933
+        Viviparus cvijici Pavlovi?, 1932
+        Meroptera cviatella Dyar, 1905
+        Eilema cvirgineola Hampson, 1900
+        Drepana x-z-nigrum Bryk, 1942
+        Semiothisa da Dyar, 1916
+        Mimosa coelho-de-moraesii Pickel & Handro
+        Brownea rosa-de-monte Bergius
+        Lohmannella cvetkovi (Petrova 1965)
+        Plebejus lilacina-rufolunalata-casaicus (Tutt)
+        Catoptes interruptusfabricius,1781 (Fabricius, 1781)";
+        $arr = explode("\n", $str);
+        $arr = array_map('trim', $arr);
+        $arr = array_unique($arr);
+        foreach($arr as $a) $final[$a] = '';
+        print_r($final); //exit;
+        self::scan_resource_file($meta, $final);
+        exit("\n");
+        // */
     }
     public function start($what)
     {
@@ -1145,9 +1186,20 @@ php update_resources/connectors/dwh.php _ COL
         self::build_final_taxonomy_tsv($meta, "taxonomy");
         self::build_final_taxonomy_tsv($meta, "synonym");
 
+        /* orig
         $ret = self::check_for_duplicate_canonicals_new($meta, "synonym");
         $ret = self::check_for_duplicate_canonicals_new($meta, "taxonomy", $ret);
         self::print_duplicates($what, $ret, "_duplicates_new.txt");
+        */
+        $ret = self::check_for_duplicate_canonicals_new($meta, "synonym");
+        self::print_duplicates($what, $ret, "_duplicates_syn.txt");
+        $ret = self::check_for_duplicate_canonicals_new($meta, "taxonomy");
+        self::print_duplicates($what, $ret, "_duplicates_new.txt");
+        
+        //clean-up
+        $txtfile = $this->sh[$what]['source']."synonym.tsv";
+        $total_rows = self::get_total_rows($txtfile);
+        if($total_rows <= 1) unlink($txtfile);
     }
     private function get_canonicals_from_gnparser_generated_file($meta, $pre, $cur_ctr)
     {
@@ -1368,13 +1420,82 @@ php update_resources/connectors/dwh.php _ COL
         else $modulo = 5000;
         return $modulo;
     }
+    private function fix_with_period($str)
+    {   /* this:    Aloencyrtus angustifrons. (Annecke, 1964) 
+           becomes: Aloencyrtus angustifrons (Annecke, 1964) */
+        $str = trim($str);
+        $arr = explode(" ", $str);
+        if(count($arr) > 3) {
+            if(substr($arr[1], -1) == ".") {
+                $arr[1] = substr($arr[1], 0, -1); //remove last char
+                $str = implode(" ", $arr);
+            }
+        }
+        return $str;
+    }
     private function fix_sciname($str)
     {
+        $str = str_replace(",,", ",", $str); //e.g. Matsucoccus sinensis Chen,, 1937
+        //from COL ======================================================================================================= start
+        $str = str_ireplace("Curtitoma georg?ssiani", "Curtitoma georgossiani", $str);
+        $str = str_ireplace("Leptochiton ?ommandorensis", "Leptochiton commandorensis", $str);
+        $str = str_ireplace("Leptoplana lutea?", "Leptoplana lutea", $str);
+        $str = str_ireplace("Echinus e?culentus", "Echinus esculentus", $str);
+        $str = str_ireplace("Cucumaria croceo?da", "Cucumaria croceoida", $str);
+        $str = str_ireplace("Cossonus lacupros?", "Cossonus lacupros", $str);
+        $str = str_ireplace("Heterolaophonte islandi?a", "Heterolaophonte islandica", $str);
+        $str = str_ireplace("Paradiscogaster ?indersi", "Paradiscogaster flindersi", $str);
+        $str = str_ireplace("Dendronotus kalikal?", "Dendronotus kalikal", $str);
+
+        /* convert from: "Ontholestes rosti Bernhauer,ms" to: "Ontholestes rosti Bernhauer,(ms)" */
+        $str = str_ireplace("Bernhauer,ms", "Bernhauer,(ms)", $str);
+        $str = str_ireplace("Scheerpeltz,ms", "Scheerpeltz,(ms)", $str);    //Ocypus	Ocypus schaeferi Scheerpeltz,ms
+        $str = str_ireplace("Smetana,ms", "Smetana,(ms)", $str);            //Platydracus	Platydracus juang Smetana,ms
+        //from COL ======================================================================================================= end
+
+        //with (.) period
+        $str = self::fix_with_period($str); // convert from: "Amblyomma hirtum."  to: "Amblyomma hirtum"
+        
         $str = str_ireplace("?kornick", "Škornick", $str);
         $str = str_ireplace("?erný", "Černý", $str);
         $str = str_ireplace("?tyroký", "Čtyroký", $str);
         $str = str_ireplace("†", "", $str); //remove dagger
         return $str;
+    }
+    private function scan_resource_file($meta, $final) //a utility
+    {
+        $what = $meta['what']; $i = 0; $ctr = 1;
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit; //use to test if field - value is OK
+            //=======================================================================================
+            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
+            /* COL
+            Array(
+                [taxonID] => 328843
+                [furtherInformationURL] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/b928b50927a32e8d9075eee882eef492/synonym/912c3bee1ce61534d3a4daf2598266c5
+                [acceptedNameUsageID] => 328840
+                [parentNameUsageID] => 
+                [scientificName] => Pulvinaria maskelli novemarticulata Green, 1915
+                [taxonRank] => infraspecies
+                [taxonomicStatus] => synonym
+            )*/
+            $sciname = $rec['scientificName'];
+            if(isset($final[$sciname])) $final[$sciname] = $rec['taxonID'];
+        }
+        print_r($final); echo "\n";
+        foreach($final as $sci => $taxon_id) echo $taxon_id."\t".$sci."\n";
+        echo "\n-end-\n";
     }
 }
 ?>
