@@ -254,6 +254,7 @@ php update_resources/connectors/dwh.php _ COL
         
         // /* get problematic names from Google sheet
         $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
+        // print_r($this->problematic_names); exit;
         // */
         
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
@@ -1366,10 +1367,13 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function fix_sciname($str)
     {
+        /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
+        if($ret = @$this->problematic_names[$sciname]) return $ret;
+        
         $str = str_ireplace("?kornick", "Škornick", $str);
         $str = str_ireplace("?erný", "Černý", $str);
         $str = str_ireplace("?tyroký", "Čtyroký", $str);
-        $str = str_ireplace("†", "", $str);
+        $str = str_ireplace("†", "", $str); //remove dagger
         return $str;
     }
 }
