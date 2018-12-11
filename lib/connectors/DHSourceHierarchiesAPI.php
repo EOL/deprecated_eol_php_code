@@ -1009,19 +1009,6 @@ php update_resources/connectors/dwh.php _ COL
 
                     self::write_gnparser_failures($this->what, $obj->verbatim);
                     return $obj->verbatim; //un-successfull
-                    
-                    /* might need it in the future when a new version of gnparser will be used
-                    $options = $this->smasher_download_options; $options['expire_seconds'] = 60*60*24*7; //1 week
-                    $json = self::get_json_from_cache($sciname, $options);
-                    if($obj = json_decode($json)) {
-                        if($ret = @$obj->canonical_name->value) return $ret;
-                        elseif($ret = @$obj->canonicalName->value) return $ret;
-                        else {
-                            self::write_gnparser_failures($this->what, $obj->verbatim);
-                            return $obj->verbatim; //un-successfull
-                        }
-                    }
-                    */
                 }
             }
         }
