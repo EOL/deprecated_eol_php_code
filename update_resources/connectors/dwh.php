@@ -15,7 +15,9 @@ ini_set('memory_limit','7096M'); //required
 // /* //main operation
 $func = new DHSourceHierarchiesAPI();
 $func->start($cmdline_params['what']);
-// $func->compare_results(); //a utility to compare results
+
+// $func->test($cmdline_params['what']);    //for testing only
+// $func->compare_results();                //a utility to compare results. During initial stages
 // */
 
 /* utility ==========================

@@ -152,12 +152,18 @@ php update_resources/connectors/dwh.php _ COL
     }
     public function test($what)
     {
-        /*
+        // /*
         $this->what = $what;
         $string = "Malmopsylla† karatavica Bekker-Migdisova, 1985";
         //$string = '“montereina” greeleyi (MacFarland, 1909)';
         // $string = "V latipennis Baehr, 2006";
         $string = "Curcuma vitellina Škornick. & H.Ð.Tran";
+
+        $string = "Bolivina suЬincrassata Khalilov, 1956";
+        //$string = "Bolivina suЬincrassata var. caucasica Khalilov, 1956";
+        //$string = "Bolivina suЬincrassata var. costata Khalilov, 1956";
+        //$string = "Bolivina dilataЬilis Khalilov, 1956";
+        
         echo "\norig: $string";
         $string = str_replace("†","",$string);
         $string = Functions::conv_to_utf8($string);
@@ -165,7 +171,7 @@ php update_resources/connectors/dwh.php _ COL
         echo "\ngnparser canonical: ".self::gnsparse_canonical($string, 'cache');
         $c = Functions::canonical_form($string);
         exit("\ncanonical: $c\n");
-        */
+        // */
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
