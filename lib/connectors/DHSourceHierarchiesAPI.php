@@ -295,6 +295,9 @@ php update_resources/connectors/dwh.php _ COL
         Lohmannella cvetkovi (Petrova 1965)
         Plebejus lilacina-rufolunalata-casaicus (Tutt)
         Catoptes interruptusfabricius,1781 (Fabricius, 1781)";
+        $str = "Coscinospira hemprichii var. β bacillaris Ehrenberg, 1840
+        Coscinospira hemprichii var. γ compressa Ehrenberg, 1840
+        Coscinospira hemprichii var. α lenticularis Ehrenberg, 1840";
         $arr = explode("\n", $str);
         $arr = array_map('trim', $arr);
         $arr = array_unique($arr);
@@ -431,33 +434,18 @@ php update_resources/connectors/dwh.php _ COL
                     }
                 }
                 // print_r($rec); exit("\nstopx\n");
-                /*Array(
-                    [f33063e7-083e-5910-83b4-9a96c170f159] => 9d241baa-f15b-5231-815f-69c2b59ad659
-                    [name] => Limacoccus brasiliensis (Hempel, 1934)
-                    [uid] => 316423
-                    [parent_uid] => 43080004
-                    [rank] => species
-                    [canonicalName] => Limacoccus brasiliensis
-                    [valueRanked] => Limacoccus brasiliensis
-                    [other1] => (Hempel 1934)
-                    [other2] => 1934
-                    [other3] => 3
+                /*
+                Array
+                (
+                    [c48620d4-1a15-537f-aff7-80c2fd19d607] => 24696776-f258-5c5e-a9f6-6da439513efd
+                    [name] => Bacteria
+                    [canonicalName] => Bacteria
+                    [valueRanked] => Bacteria
+                    [other1] => 
+                    [other2] => 
+                    [other3] => 1
                 )
-                Array(
-                    [a274cdda-3ca9-559b-9476-6e45eea18eed] => 59f5f484-b052-52f1-8fc0-0b288ca6f2ee
-                    [name] => Canceraspis brasiliensis Hempel, 1934
-                    [uid] => 316423
-                    [type] => synonym
-                    [canonicalName] => Canceraspis brasiliensis
-                    [valueRanked] => Canceraspis brasiliensis
-                    [other1] => Hempel 1934
-                    [other2] => 1934
-                    [other3] => 3
-                )*/
-                
-                /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
-                if($val = @$this->problematic_names[$rec['uid']]) $rec['canonicalName'] = $val;
-                
+                */
                 if($val = $rec['canonicalName']) @$test[$val][] = $rec['name'];
             }
         }
@@ -501,12 +489,16 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function print_duplicates($what, $test, $postfix)
     {
+        // print_r($test);
+        echo "\n==============================\n";
+        echo "\nPrinting duplicates [$postfix]: ".count($test)."\n";
+        echo "\n==============================\n";
         $path = $this->sh[$what]['source']."../zFailures/$what".$postfix;
         $FILE = Functions::file_open($path, 'w');
         foreach($test as $canon => $origs) {
             if(count($origs) > 1) {
                 foreach($origs as $orig) {
-                    if($canon != $orig) fwrite($FILE, $canon."\t".$orig."\n");
+                    if($canon != $orig && $canon) fwrite($FILE, $canon."\t".$orig."\n");
                 }
                 fwrite($FILE, "\n");
             }
@@ -516,7 +508,7 @@ php update_resources/connectors/dwh.php _ COL
         $path = $this->sh[$what]['source']."../zFailures/$what".$postfix;
         if(file_exists($path)) {
             if(!filesize($path)) {
-                echo "\nNo duplicates for [$what]\n"; unlink($path);
+                echo "\nNo duplicates for [$postfix] [$what]\n"; unlink($path);
             }
         }
     }
@@ -1203,18 +1195,13 @@ php update_resources/connectors/dwh.php _ COL
         
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
         $meta['ctr'] = $ctr;
-        self::build_final_taxonomy_tsv($meta, "taxonomy");
-        self::build_final_taxonomy_tsv($meta, "synonym");
+        $ret = self::build_final_taxonomy_tsv($meta, "taxonomy");  self::print_duplicates($what, $ret, "_duplicates_new.txt");
+        $ret = self::build_final_taxonomy_tsv($meta, "synonym");   self::print_duplicates($what, $ret, "_duplicates_syn.txt");
 
-        /* orig
-        $ret = self::check_for_duplicate_canonicals_new($meta, "synonym");
-        $ret = self::check_for_duplicate_canonicals_new($meta, "taxonomy", $ret);
-        self::print_duplicates($what, $ret, "_duplicates_new.txt");
+        /* obsolete
+        $ret = self::check_for_duplicate_canonicals_new($meta, "synonym");      self::print_duplicates($what, $ret, "_duplicates_syn.txt");
+        $ret = self::check_for_duplicate_canonicals_new($meta, "taxonomy");     self::print_duplicates($what, $ret, "_duplicates_new.txt");
         */
-        $ret = self::check_for_duplicate_canonicals_new($meta, "synonym");
-        self::print_duplicates($what, $ret, "_duplicates_syn.txt");
-        $ret = self::check_for_duplicate_canonicals_new($meta, "taxonomy");
-        self::print_duplicates($what, $ret, "_duplicates_new.txt");
         
         //clean-up
         $txtfile = $this->sh[$what]['source']."synonym.tsv";
@@ -1225,29 +1212,36 @@ php update_resources/connectors/dwh.php _ COL
     {
         $what = $meta['what'];
         $txtfile = $this->sh[$what]['source'].$pre."_part_".$cur_ctr."_gnparsed.txt"; echo "\nreading [$txtfile]\n";
-        $i = 0; $final = array();
+        $i = 0; $final = array(); $withAuthor = array();
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++;
             $arr = explode("\t", $line);
-            if($i > 1) $final[] = $arr[2]; //canonicalName
+            if($i > 1) {
+                $final[] = $arr[2]; //canonicalName
+                $withAuthor[] = $arr[1];
+            }
         }
         echo "\ncanonicals $pre: ".count($final)."\n";
+        echo "\nwith author $pre: ".count($withAuthor)."\n";
         // echo "\n-".$final[0];
         // echo "\n-".$final[1];
         // echo "\n-".$final[2];
         // echo "\n-".$final[7540];
         // echo "\n-".$final[7541];
         // exit("\n");
-        return $final;
+        return array($final, $withAuthor);
     }
     private function build_final_taxonomy_tsv($meta, $pre)
     {
         $ctr = $meta['ctr']; $what = $meta['what'];
         $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
-        
+        $test = array();
         for ($c = 1; $c <= $ctr; $c++) {
-            $canonicals = self::get_canonicals_from_gnparser_generated_file($meta, $pre, $c);
+            $ret = self::get_canonicals_from_gnparser_generated_file($meta, $pre, $c);
+            $canonicals = $ret[0];
+            $withAuthor = $ret[1];
+            
             $txtfile = $this->sh[$what]['source'].$pre."_".$c.".txt"; echo "\nprocessing [$txtfile]\n";
 
             //just for progress indicator
@@ -1301,10 +1295,14 @@ php update_resources/connectors/dwh.php _ COL
                 /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
                 if($val = @$this->problematic_names[$rec['uid']]) $t['name'] = $val;
                 
+                $test[$t['name']][] = $withAuthor[$i-2]; //for computing duplicates
+                
                 if($pre == "taxonomy") self::write2file("tax", $fn_tax, $t);
                 else                   self::write2file("syn", $fn_tax, $t); //originally fn_syn, from above
             }
+            echo "\n[$c] - Incrementing count for checking duplicates [$pre]: ".count($test)."\n";
         }
+        return $test;
     }
     private function write2file_tmp($ext, $fn, $t)
     {
@@ -1431,6 +1429,16 @@ php update_resources/connectors/dwh.php _ COL
                 [scientificName] => Pulvinaria maskelli novemarticulata Green, 1915
                 [taxonRank] => infraspecies
                 [taxonomicStatus] => synonym
+            )
+            Array( WOR
+                [taxonID] => 6
+                [furtherInformationURL] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=6
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 
+                [scientificName] => Bacteria
+                [taxonRank] => kingdom
+                [taxonomicStatus] => accepted
+                [taxonRemarks] => 
             )*/
             $sciname = $rec['scientificName'];
             if(isset($final[$sciname])) $final[$sciname] = $rec['taxonID'];
