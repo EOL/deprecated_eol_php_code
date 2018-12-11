@@ -297,14 +297,14 @@ php update_resources/connectors/dwh.php _ COL
         Catoptes interruptusfabricius,1781 (Fabricius, 1781)";
         $str = "Coscinospira hemprichii var. β bacillaris Ehrenberg, 1840
         Coscinospira hemprichii var. γ compressa Ehrenberg, 1840
-        Coscinospira hemprichii var. α lenticularis Ehrenberg, 1840";
-        $arr = explode("\n", $str);
-        $arr = array_map('trim', $arr);
-        $arr = array_unique($arr);
-        foreach($arr as $a) $final[$a] = '';
-        print_r($final); //exit;
-        self::scan_resource_file($meta, $final);
-        exit("\n");
+        Coscinospira hemprichii var. α lenticularis Ehrenberg, 1840"; //WOR
+        $str = "Bolivina suЬincrassata Khalilov, 1956
+        Bolivina suЬincrassata var. caucasica Khalilov, 1956
+        Bolivina suЬincrassata var. costata Khalilov, 1956
+        Bolivina dilataЬilis Khalilov, 1956"; //WOR
+        $arr = explode("\n", $str); $arr = array_map('trim', $arr);
+        $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
+        print_r($final); self::scan_resource_file($meta, $final); exit("\n");
         // */
     }
     public function start($what)
@@ -977,9 +977,9 @@ php update_resources/connectors/dwh.php _ COL
     private function gnsparse_canonical($sciname, $method, $download_options = array())
     {
         if(!$download_options) $download_options = $this->smasher_download_options;
-        
+
         $sciname = str_replace('"', "", $sciname);
-        
+
         $sciname = self::fix_sciname($sciname); //just to make-the-same approach as utility_write_all_names()
         
         /*
@@ -1268,12 +1268,15 @@ php update_resources/connectors/dwh.php _ COL
                 )
                 */
                 $canon = $canonicals[$i-2];
-                if(!$canon) self::write_gnparser_failures($what, $rec['name'], "_failures");
+                if(!$canon) {
+                    self::write_gnparser_failures($what, $rec['name'], "_failures");
+                    $canon = $withAuthor[$i-2]; //if failure, will get the original string as the canonical.
+                }
                 // echo "\n[$canon] - [".$rec['name']."]\n"; //good debug
 
                 $t = array();
                 $t['parent_id']     = @$rec['parent_uid'];      //only for taxonomy
-                $t['name']          = $canonicals[$i-2];        //for both
+                $t['name']          = $canon;                   //for both
                 $t['taxon_id']      = $rec['uid'];              //only for taxonomy
                 $t['accepted_id']   = $rec['uid'];              //only for synonym
                 $t['rank']          = @$rec['rank'];            //only for taxonomy
