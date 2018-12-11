@@ -308,6 +308,7 @@ php update_resources/connectors/dwh.php _ COL
         Bolivina suЬincrassata var. caucasica Khalilov, 1956
         Bolivina suЬincrassata var. costata Khalilov, 1956
         Bolivina dilataЬilis Khalilov, 1956"; //WOR
+        $str = "Anolis bimaculatus ?lividus Underwood In Williams Et Al., 1959"; //COL
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
@@ -342,7 +343,7 @@ php update_resources/connectors/dwh.php _ COL
         ========================================================================================================================= */
         
         $with_authorship = false;
-        if($this->sh[$what]['run_gnparse'] === false) {}
+        if($this->sh[$what]['run_gnparse'] == false) {}
         else { //normal
             if(self::need_2run_gnparser_YN($meta)) {
                 $with_authorship = true;
@@ -1018,7 +1019,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function write_gnparser_failures($what, $name, $postfix = "")
     {
-        if($this->sh[$what]['run_gnparse'] === false) return;
+        if($this->sh[$what]['run_gnparse'] == false) return;
         
         $path = $this->sh[$what]['source']."../zFailures/$what".$postfix.".txt";
         if($FILE = Functions::file_open($path, 'a')) {
@@ -1177,9 +1178,9 @@ php update_resources/connectors/dwh.php _ COL
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
         $meta['ctr'] = $ctr;
         $ret = self::build_final_taxonomy_tsv($meta, "taxonomy");  
-        if($this->sh[$what]['run_gnparse'] === true) self::print_duplicates($what, $ret, "_duplicates_new.txt");
+        if($this->sh[$what]['run_gnparse'] == true) self::print_duplicates($what, $ret, "_duplicates_new.txt");
         $ret = self::build_final_taxonomy_tsv($meta, "synonym");   
-        if($this->sh[$what]['run_gnparse'] === true) self::print_duplicates($what, $ret, "_duplicates_syn.txt");
+        if($this->sh[$what]['run_gnparse'] == true) self::print_duplicates($what, $ret, "_duplicates_syn.txt");
 
         //clean-up
         $txtfile = $this->sh[$what]['source']."synonym.tsv";
@@ -1265,7 +1266,7 @@ php update_resources/connectors/dwh.php _ COL
                 }
                 // echo "\n[$canon] - [".$rec['name']."]\n"; //good debug
                 
-                if($this->sh[$what]['run_gnparse'] === false) $canon = $withAuthor[$i-2]; //e.g. NCBI should not compute for any canonical, no gnparser activity here.
+                if($this->sh[$what]['run_gnparse'] == false) $canon = $withAuthor[$i-2]; //e.g. NCBI should not compute for any canonical, no gnparser activity here.
 
                 $t = array();
                 $t['parent_id']     = @$rec['parent_uid'];      //only for taxonomy
