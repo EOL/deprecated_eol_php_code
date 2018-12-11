@@ -1097,7 +1097,6 @@ php update_resources/connectors/dwh.php _ COL
         //initialize this report file
         $path = $this->sh[$what]['source']."../zFailures/$what"."_failures.txt"; if(file_exists($path)) unlink($path);
         
-        // $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //replaced...
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
         $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
@@ -1121,12 +1120,6 @@ php update_resources/connectors/dwh.php _ COL
                 $k++;
             }
             // print_r($rec); //exit; //use to test if field - value is OK
-            
-            /*replaced...
-            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
-            if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
-            */
-            
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             $t = array();
@@ -1153,7 +1146,6 @@ php update_resources/connectors/dwh.php _ COL
             }
             //=======================================================================================
             if(($i % 500000) == 0) { //500000 orig
-                // fclose($WRITE); //replaced...
                 fclose($fn_tax); fclose($fn_syn);
                 
                 echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
@@ -1164,7 +1156,6 @@ php update_resources/connectors/dwh.php _ COL
                 $out = shell_exec($cmd); echo "\n$out\n";
                 
                 $ctr++;
-                // $WRITE = fopen($this->sh[$what]['source'].$what."_ALL_NAMES_".$ctr.".txt", "w"); //replaced...
                 $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
                 $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
                 fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
@@ -1176,7 +1167,6 @@ php update_resources/connectors/dwh.php _ COL
                 fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
             }
         }
-        // fclose($WRITE); //replaced...
         fclose($fn_tax); fclose($fn_syn);
         //last batch
         echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
