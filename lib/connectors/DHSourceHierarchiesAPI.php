@@ -112,7 +112,7 @@ php update_resources/connectors/dwh.php _ COL
         $this->sh['WOR']['run_gnparse']     = true;
         // */
         $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
-        $this->synonym_header_tmp = array("name", "uid", "type");
+        $this->synonym_header_tmp = array("name", "uid", "accepted_x_id", "type");
         
         /* old list
         $this->sh['WOR']['source']        = $this->main_path."/worms_v5/";
@@ -1246,6 +1246,11 @@ php update_resources/connectors/dwh.php _ COL
                         $k++;
                     }
                 }
+                
+                if($pre == "synonym") {
+                    // print_r($rec); 
+                    // exit("\nstopx\n");
+                }
                 // print_r($rec); exit("\nstopx\n");
                 /*Array( --- taxonomy
                     [name] => Erebidae
@@ -1255,10 +1260,10 @@ php update_resources/connectors/dwh.php _ COL
                 )
                 Array( --- synonym
                     [name] => Zanolidae McDunnough 1938
-                    [uid] => Apatelodidae
+                    [uid] => Zanolidae
+                    [accepted_x_id] => Apatelodidae
                     [type] => synonym
-                )
-                */
+                )*/
                 $canon = $canonicals[$i-2];
                 if(!$canon) {
                     self::write_gnparser_failures($what, $rec['name'], "_failures");
@@ -1272,7 +1277,7 @@ php update_resources/connectors/dwh.php _ COL
                 $t['parent_id']     = @$rec['parent_uid'];      //only for taxonomy
                 $t['name']          = $canon;                   //for both
                 $t['taxon_id']      = $rec['uid'];              //only for taxonomy
-                $t['accepted_id']   = $rec['uid'];              //only for synonym
+                $t['accepted_id']   = @$rec['accepted_x_id'];   //only for synonym
                 $t['rank']          = @$rec['rank'];            //only for taxonomy
                 $t['source']        = '';
                 
@@ -1290,7 +1295,8 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function write2file_tmp($ext, $fn, $t)
     {
-        if($ext == "syn")     fwrite($fn, $t['name'] . "\t" . $t['accepted_id'] . "\t" . 'synonym' . "\n");
+        // if($ext == "syn")     fwrite($fn, $t['name'] . "\t" . $t['accepted_id'] . "\t" . 'synonym' . "\n");
+        if($ext == "syn")     fwrite($fn, $t['name'] . "\t" . $t['taxon_id'] . "\t" . $t['accepted_id'] . "\t" . 'synonym' . "\n");
         elseif($ext == "tax") fwrite($fn, $t['name'] . "\t" . $t['taxon_id'] . "\t" . $t['parent_id'] . "\t" . $t['rank'] . "\n");
         if(in_array($ext, array("tax_part", "syn_part"))) fwrite($fn, $t['name'] . "\n");
     }
