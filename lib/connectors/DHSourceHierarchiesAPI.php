@@ -309,6 +309,8 @@ php update_resources/connectors/dwh.php _ COL
         Bolivina suЬincrassata var. costata Khalilov, 1956
         Bolivina dilataЬilis Khalilov, 1956"; //WOR
         $str = "Anolis bimaculatus ?lividus Underwood In Williams Et Al., 1959"; //COL
+        $str = "Vorticella d'udekemi Kahl, 1933
+        Zoothamnium d'udekemi Kahl, 1935"; //CLP
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
@@ -981,8 +983,6 @@ php update_resources/connectors/dwh.php _ COL
     {
         if(!$download_options) $download_options = $this->smasher_download_options;
 
-        $sciname = str_replace('"', "", $sciname);
-
         $sciname = self::fix_sciname($sciname); //just to make-the-same approach as utility_write_all_names()
         
         /*
@@ -1365,6 +1365,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function fix_sciname($str)
     {
+        $str = str_replace('"', "", $str);
         $str = str_replace(",,", ",", $str); //e.g. Matsucoccus sinensis Chen,, 1937
         //from COL ======================================================================================================= start
         $str = str_ireplace("Curtitoma georg?ssiani", "Curtitoma georgossiani", $str);
@@ -1381,6 +1382,8 @@ php update_resources/connectors/dwh.php _ COL
         $str = str_ireplace("Bernhauer,ms", "Bernhauer,(ms)", $str);
         $str = str_ireplace("Scheerpeltz,ms", "Scheerpeltz,(ms)", $str);    //Ocypus	Ocypus schaeferi Scheerpeltz,ms
         $str = str_ireplace("Smetana,ms", "Smetana,(ms)", $str);            //Platydracus	Platydracus juang Smetana,ms
+        
+        if(stripos($str, " pro syn.") !== false) $str = str_ireplace(" pro syn.", "", $str); //e.g. Aristida coerulescens pro	Aristida coerulescens Hochst. ex Steud., pro syn.
         //from COL ======================================================================================================= end
 
         //with (.) period
