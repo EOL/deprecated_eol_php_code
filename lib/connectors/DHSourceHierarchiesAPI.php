@@ -332,10 +332,6 @@ php update_resources/connectors/dwh.php _ COL
         // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
         self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK
         
-        // $meta['ctr'] = 8;
-        // self::build_final_taxonomy_tsv($meta, "taxonomy");
-        // self::build_final_taxonomy_tsv($meta, "synonym"); exit("\n-end COL-\n");
-        
         // Then start caching... No longer used. OBSOLETE
         // self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_2_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
         // */
@@ -346,7 +342,7 @@ php update_resources/connectors/dwh.php _ COL
         ========================================================================================================================= */
         
         $with_authorship = false;
-        if(@$this->sh[$what]['run_gnparse'] === false) {}
+        if($this->sh[$what]['run_gnparse'] === false) {}
         else { //normal
             if(self::need_2run_gnparser_YN($meta)) {
                 $with_authorship = true;
@@ -1022,6 +1018,8 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function write_gnparser_failures($what, $name, $postfix = "")
     {
+        if($this->sh[$what]['run_gnparse'] === false) return;
+        
         $path = $this->sh[$what]['source']."../zFailures/$what".$postfix.".txt";
         if($FILE = Functions::file_open($path, 'a')) {
             // echo "\nadded name failures [$what]: [$name]\n"; //good debug
@@ -1178,14 +1176,11 @@ php update_resources/connectors/dwh.php _ COL
         
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
         $meta['ctr'] = $ctr;
-        $ret = self::build_final_taxonomy_tsv($meta, "taxonomy");  self::print_duplicates($what, $ret, "_duplicates_new.txt");
-        $ret = self::build_final_taxonomy_tsv($meta, "synonym");   self::print_duplicates($what, $ret, "_duplicates_syn.txt");
+        $ret = self::build_final_taxonomy_tsv($meta, "taxonomy");  
+        if($this->sh[$what]['run_gnparse'] === true) self::print_duplicates($what, $ret, "_duplicates_new.txt");
+        $ret = self::build_final_taxonomy_tsv($meta, "synonym");   
+        if($this->sh[$what]['run_gnparse'] === true) self::print_duplicates($what, $ret, "_duplicates_syn.txt");
 
-        /* obsolete
-        $ret = self::check_for_duplicate_canonicals_new($meta, "synonym");      self::print_duplicates($what, $ret, "_duplicates_syn.txt");
-        $ret = self::check_for_duplicate_canonicals_new($meta, "taxonomy");     self::print_duplicates($what, $ret, "_duplicates_new.txt");
-        */
-        
         //clean-up
         $txtfile = $this->sh[$what]['source']."synonym.tsv";
         $total_rows = self::get_total_rows($txtfile);
@@ -1269,6 +1264,8 @@ php update_resources/connectors/dwh.php _ COL
                     $canon = $withAuthor[$i-2]; //if failure, will get the original string as the canonical.
                 }
                 // echo "\n[$canon] - [".$rec['name']."]\n"; //good debug
+                
+                if($this->sh[$what]['run_gnparse'] === false) $canon = $withAuthor[$i-2]; //e.g. NCBI should not compute for any canonical, no gnparser activity here.
 
                 $t = array();
                 $t['parent_id']     = @$rec['parent_uid'];      //only for taxonomy
