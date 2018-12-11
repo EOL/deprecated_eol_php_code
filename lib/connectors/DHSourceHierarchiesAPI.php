@@ -311,6 +311,44 @@ php update_resources/connectors/dwh.php _ COL
         $str = "Anolis bimaculatus ?lividus Underwood In Williams Et Al., 1959"; //COL
         $str = "Vorticella d'udekemi Kahl, 1933
         Zoothamnium d'udekemi Kahl, 1935"; //CLP
+        
+        $str = "Gamasiphis pulchellus (Berlese, 1887):
+        Gnathopleustes den (J. L. Barnard, 1969)
+        Sympycnus du Curran, 1929
+        Chrysosoma du Curran, 1929
+        Tanypus cvaneomaculatus (Doleschall, 1856)
+        Cnemaspis rammalensis Vidanapathirana, Gehan-rajeev, Wickramasinghe,fernando & Mendis-wickramasinghe, 2014
+        Cyrtodactylus ranongensis Sumontha, Pauwels,panitvong, Kunya & Grismer, 2015
+        Trimeresurus phuketensis Sumontha, Kunya, Pauwels,nitikul & Punnadee, 2011
+        Archarias cvlindrirostris Chevrolat, L.A.A., 1881
+        Cholus cvlindrirostris Klima, A., 1936
+        Spenophorus de haani Gyllenhal, L. in Schönherr, C.J., 1838
+        Prodioctes de haani Pascoe, F.P., 1873
+        Anapygus de haani Faust, J., 1894
+        Phaeophanus o´connori Broun, T., 1921
+        Phaedropholus o´connori Broun, T., 1910
+        Listroderes v.caudiculatus Fairmaire, L., 1890
+        Macromitrium st.-johnii E. B. Bartram, 1940
+        Athyrium boreo-occidentali-indobharaticola-birianum Fraser-Jenk.
+        Dryopteris papuae-novae-guineae Li Bing Zhang
+        Grammitis friderici-et-pauli (Christ) Copel.
+        Archigrammitis friderici-et-pauli (Christ) Parris
+        Crocus cvijicii Kosanin
+        Tillandsia van-den-bergii Ehlers & Hase
+        Omophron suturale2 Gistel, 1848
+        Chlaenius micans2 W.S.MacLeay, 1825
+        Papaver corona-sancti-stephani Zapal.
+        Astragalus kurnet-es-saudae Eig
+        Hoya mata-ole-afiensis Kloppenb.
+        Blepharis noli-me-tangere S. Moore
+        Artemisia duthreuil-de-rhinsi Krasch.
+        Trachymene ceratocarpa (W. Fitzg.) G,. Keighery &amp; B.L. Rye
+        Microsiphum nudum
+        Megakhosara sp Sharov, 1961
+        Stegopterum sp Sharov, 1961
+        Nocaracris van Ünal, 2016
+        Agnetina den Cao, T.K.T. & Bae, 2006"; //COL
+
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
@@ -502,10 +540,15 @@ php update_resources/connectors/dwh.php _ COL
         $FILE = Functions::file_open($path, 'w');
         foreach($test as $canon => $origs) {
             if(count($origs) > 1) {
+                $k = 0;
                 foreach($origs as $orig) {
-                    if($canon != $orig && $canon) fwrite($FILE, $canon."\t".$orig."\n");
+                    if($canon != $orig && $canon) {
+                        fwrite($FILE, $canon."\t".$orig."\n");
+                        $k++;
+                    }
                 }
                 fwrite($FILE, "\n");
+                if($k == 1) fwrite($FILE, "***\n");
             }
         }
         fclose($FILE);
@@ -1383,7 +1426,8 @@ php update_resources/connectors/dwh.php _ COL
         $str = str_ireplace("Scheerpeltz,ms", "Scheerpeltz,(ms)", $str);    //Ocypus	Ocypus schaeferi Scheerpeltz,ms
         $str = str_ireplace("Smetana,ms", "Smetana,(ms)", $str);            //Platydracus	Platydracus juang Smetana,ms
         
-        if(stripos($str, " pro syn.") !== false) $str = str_ireplace(" pro syn.", "", $str); //e.g. Aristida coerulescens pro	Aristida coerulescens Hochst. ex Steud., pro syn.
+        if(stripos($str, " pro syn.") !== false)    $str = str_ireplace(" pro syn.", "", $str); //e.g. Aristida coerulescens pro	Aristida coerulescens Hochst. ex Steud., pro syn.
+        if(stripos($str, "“montereina”") !== false) $str = str_ireplace("“montereina”", "Montereina", $str); //e.g. “montereina” greeleyi (MacFarland, 1909)
         //from COL ======================================================================================================= end
 
         //with (.) period
