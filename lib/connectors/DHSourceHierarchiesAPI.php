@@ -58,7 +58,7 @@ php update_resources/connectors/dwh.php _ COL
         $this->sh['xxx']['has_syn']         = false;
         $this->sh['xxx']['run_gnparse']     = true;
 
-        // /* new list
+        // /* new list ---------------------------------------------------------------------------------------------------
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
         $this->sh['EET']['has_syn']         = false;
         $this->sh['EET']['run_gnparse']     = true;
@@ -110,7 +110,7 @@ php update_resources/connectors/dwh.php _ COL
         $this->sh['WOR']['source']          = $this->main_path."/WoRMS_DH/";
         $this->sh['WOR']['has_syn']         = true;
         $this->sh['WOR']['run_gnparse']     = true;
-        // */
+        // --------------------------------------------------------------------------------------------------- */
         $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
         $this->synonym_header_tmp = array("name", "uid", "accepted_x_id", "type");
         
@@ -135,24 +135,12 @@ php update_resources/connectors/dwh.php _ COL
         $this->sh['ncbi']['iterator_options'] = array('row_terminator' => "\t|\n");
         */
     }
-    public function compare_results()
-    {
-        // print_r($this->sh['WOR']['source'])
-        $sets = array_keys($this->sh);
-        print_r($sets);
-        foreach($sets as $what) {
-            $txtfile = $this->sh[$what]['source']."taxonomy.tsv";
-            $total_rows = self::get_total_rows($txtfile);
-            echo "\nTotal $what: [".number_format($total_rows)."]\n";
-
-            $txtfile = $this->sh[$what]['source']."taxonomy orig.tsv";
-            $total_rows = self::get_total_rows($txtfile);
-            echo "\nTotal $what old: [".number_format($total_rows)."]\n";
-        }
-    }
+    
     public function test($what)
     {
-        // /*
+        $s = self::generate_syn_for_python_file();
+        print_r($s); exit("\n");
+        /*
         $this->what = $what;
         $string = "Malmopsylla† karatavica Bekker-Migdisova, 1985";
         //$string = '“montereina” greeleyi (MacFarland, 1909)';
@@ -171,7 +159,7 @@ php update_resources/connectors/dwh.php _ COL
         echo "\ngnparser canonical: ".self::gnsparse_canonical($string, 'cache');
         $c = Functions::canonical_form($string);
         exit("\ncanonical: $c\n");
-        // */
+        */
         /*
         $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
         exit("\n".$json."\n");
@@ -1483,6 +1471,56 @@ php update_resources/connectors/dwh.php _ COL
         print_r($final); echo "\n";
         foreach($final as $sci => $taxon_id) echo $taxon_id."\t".$sci."\n";
         echo "\n-end-\n";
+    }
+    public function compare_results()
+    {
+        // print_r($this->sh['WOR']['source'])
+        $sets = array_keys($this->sh);
+        print_r($sets);
+        foreach($sets as $what) {
+            $txtfile = $this->sh[$what]['source']."taxonomy.tsv";
+            $total_rows = self::get_total_rows($txtfile);
+            echo "\nTotal $what: [".number_format($total_rows)."]\n";
+
+            $txtfile = $this->sh[$what]['source']."taxonomy orig.tsv";
+            $total_rows = self::get_total_rows($txtfile);
+            echo "\nTotal $what old: [".number_format($total_rows)."]\n";
+        }
+    }
+    private function generate_syn_for_python_file()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng';
+        $params['range']         = 'Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName */
+        // foreach($arr as $item) $final[] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]);
+        foreach($arr as $item) $final[$item[3]][] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]);
+        // print_r($final);
+        $synonym_hierarchies = array_keys($final);
+        print_r($synonym_hierarchies);
+        $str = "";
+        foreach($synonym_hierarchies as $synonym_hierarchy) {
+            $str .= "alignment = dwh.alignment($synonym_hierarchy)\n";
+            foreach($final[$synonym_hierarchy] as $rec) {
+                $str .= "alignment.same(".$synonym_hierarchy.".taxon('".$rec['Synonym_sci']."'), "."dwh".".taxon('".$rec['Priority_sci']."'))\n";
+            }
+        }
+        echo $str;
+        /* $final array
+        [COL] => Array(
+                    [94] => Array(
+                             [PriorityH] => trunk
+                             [Priority_sci] => Scalidophora
+                             [SynonymH] => COL
+                             [Synonym_sci] => Cephalorhyncha
+                         )
+        alignment = dwh.alignment(wor)
+        alignment.same(wor.taxon('Cephalorhyncha'), dwh.taxon('Scalidophora'))
+        alignment.same(wor.taxon('Codonosiga'), dwh.taxon('Codosiga'))
+        */
     }
     /*
     private function build_final_taxonomy_tsv_old($meta, $pre)
