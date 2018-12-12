@@ -1492,7 +1492,11 @@ php update_resources/connectors/dwh.php _ COL
         $params['range']         = 'source data sets!C2:C50'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         foreach($arr as $item) $final[] = $item[0];
-        print_r($final); //good debug to see perfect order of hierarchies
+        // print_r($final); //good debug to see perfect order of hierarchies
+        $i = 0;
+        foreach($final as $hierarchy) {
+            $i++; echo "# $i. $hierarchy\n";
+        }
         /*
         trunk = Taxonomy.getTaxonomy('t/tax/trunk_20170614/', 'trunk')
         ictv = Taxonomy.getTaxonomy('t/tax/ictv_v2/', 'ictv')
@@ -1502,7 +1506,7 @@ php update_resources/connectors/dwh.php _ COL
             $folder = str_replace($this->main_path, "", $this->sh[$h]['source']);
             // echo "\n".$this->sh[$h]['source'];
             // echo "\n".$this->main_path;
-            $str .= "$h = Taxonomy.getTaxonomy('t/tax".$folder."', '".$h."')\n";
+            $str .= "$h = Taxonomy.getTaxonomy('t/tax/2018_12".$folder."', '".$h."')\n";
         }
         echo "\n$str\n";
         return $final;
@@ -1535,7 +1539,7 @@ php update_resources/connectors/dwh.php _ COL
             $str .= "alignment = dwh.alignment($hierarchy)\n";
             if($val = @$final[$hierarchy]) {
                 foreach($val as $rec) {
-                    $str .= "alignment.same(".$hierarchy.".taxon('".$rec['Synonym_sci']."'), "."dwh".".taxon('".$rec['Priority_sci']."'))\n";
+                    $str .= 'alignment.same('.$hierarchy.'.taxon("'.$rec['Synonym_sci'].'"), dwh.taxon("'.$rec['Priority_sci'].'"))'."\n";
                 }
             }
             $str .= "dwh.align(alignment)\n";
