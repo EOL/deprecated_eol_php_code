@@ -1507,10 +1507,17 @@ php update_resources/connectors/dwh.php _ COL
         echo "\n$str\n";
         return $final;
     }
-    public function generate_syn_for_python_file()
+    private function phython_file_start()
+    {
+        $str = "import sys, os, csv\n\n
+        from org.opentreeoflife.taxa import Taxonomy, SourceTaxonomy, Taxon\n
+        from org.opentreeoflife.smasher import UnionTaxonomy\n\n
+        dwh = UnionTaxonomy.newTaxonomy('dwh')\n\n";
+        return $str;
+    }
+    public function generate_python_file()
     {
         $hierarchies = self::priority_list_resources();
-        
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng';
@@ -1521,7 +1528,7 @@ php update_resources/connectors/dwh.php _ COL
            $item[0]                     $item[2]        $item[3]                    $item[5]);  */
         foreach($arr as $item) $final[$item[3]][] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]); // print_r($final);
         $str = "";
-        foreach($hierarchies as $hierarchy) {
+        foreach($hierarchies as $hierarchy) { //synonym portion
             $str .= "alignment = dwh.alignment($hierarchy)\n";
             if($val = @$final[$hierarchy]) {
                 foreach($val as $rec) {
@@ -1533,6 +1540,7 @@ php update_resources/connectors/dwh.php _ COL
             $str .= "for root in Taxonomy.roots(dwh):\n";
             $str .= "	print root\n\n";
         }
+        $str .= "dwh.dump('test/')\n"; //last line from build_dwh.py
         echo $str;
         /* $final array
         [COL] => Array(
