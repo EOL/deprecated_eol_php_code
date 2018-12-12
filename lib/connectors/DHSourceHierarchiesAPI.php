@@ -1492,12 +1492,12 @@ php update_resources/connectors/dwh.php _ COL
         $params['range']         = 'source data sets!C2:C50'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         foreach($arr as $item) $final[] = $item[0];
-        print_r($final);
+        print_r($final); //good debug to see perfect order of hierarchies
         /*
         trunk = Taxonomy.getTaxonomy('t/tax/trunk_20170614/', 'trunk')
         ictv = Taxonomy.getTaxonomy('t/tax/ictv_v2/', 'ictv')
         */
-        $str = "";
+        $str = "#use this to load the taxonomies\n\n";
         foreach($final as $h) {
             $folder = str_replace($this->main_path, "", $this->sh[$h]['source']);
             // echo "\n".$this->sh[$h]['source'];
@@ -1509,14 +1509,14 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function phython_file_start()
     {
-        $str = "import sys, os, csv\n\n
-        from org.opentreeoflife.taxa import Taxonomy, SourceTaxonomy, Taxon\n
-        from org.opentreeoflife.smasher import UnionTaxonomy\n\n
-        dwh = UnionTaxonomy.newTaxonomy('dwh')\n\n";
+        $str = "import sys, os, csv\n\nfrom org.opentreeoflife.taxa import Taxonomy, SourceTaxonomy, Taxon\nfrom org.opentreeoflife.smasher import UnionTaxonomy\n\ndwh = UnionTaxonomy.newTaxonomy('dwh')\n\n";
+        $str .= "#Use this to tell smasher what separation file to use\n";
+        $str .= "dwh.setSkeleton(Taxonomy.getTaxonomy('tax/separation/', 'separation'))\n\n";
         return $str;
     }
     public function generate_python_file()
     {
+        echo self::phython_file_start();
         $hierarchies = self::priority_list_resources();
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -1527,7 +1527,7 @@ php update_resources/connectors/dwh.php _ COL
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
            $item[0]                     $item[2]        $item[3]                    $item[5]);  */
         foreach($arr as $item) $final[$item[3]][] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]); // print_r($final);
-        $str = "";
+        $str = "#Use this to absorb one taxonomy into another\n\n";
         foreach($hierarchies as $hierarchy) { //synonym portion
             $str .= "alignment = dwh.alignment($hierarchy)\n";
             if($val = @$final[$hierarchy]) {
