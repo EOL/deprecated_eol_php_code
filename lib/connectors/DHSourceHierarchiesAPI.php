@@ -20,7 +20,7 @@ class DHSourceHierarchiesAPI
             $this->smasher_download_options = array(
                 'cache_path'         => '/extra/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false); //false
-            $this->main_path = "/extra/eli_dwh/"; //download_wait_time is 1/4 of a second -> 1000000/4
+            $this->main_path = "/extra/d_w_h/2018_12/"; //download_wait_time is 1/4 of a second -> 1000000/4
         }
         else {
             $this->smasher_download_options = array(
@@ -28,8 +28,8 @@ class DHSourceHierarchiesAPI
                 // 'cache_path'         => '/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false); //false
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/";
-            $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh/"; //old - initial runs
-            $this->main_path = "/Volumes/AKiTiO4/d_w_h/eli_dwh2/"; //new - TRAM-800
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/2018_06/"; //old - initial runs
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/2018_12/"; //new - TRAM-800
         }
         /* Functions::lookup_with_cache($this->gnparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
         
@@ -1206,7 +1206,7 @@ php update_resources/connectors/dwh.php _ COL
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
         $meta['ctr'] = $ctr;
         $ret = self::build_final_taxonomy_tsv($meta, "taxonomy");  
-        if($this->sh[$what]['run_gnparse'] == true) self::print_duplicates($what, $ret, "_duplicates_new.txt");
+        if($this->sh[$what]['run_gnparse'] == true) self::print_duplicates($what, $ret, "_duplicates.txt");
         $ret = self::build_final_taxonomy_tsv($meta, "synonym");   
         if($this->sh[$what]['run_gnparse'] == true) self::print_duplicates($what, $ret, "_duplicates_syn.txt");
 
@@ -1484,26 +1484,54 @@ php update_resources/connectors/dwh.php _ COL
             echo "\nTotal $what old: [".number_format($total_rows)."]\n";
         }
     }
+    private function priority_list_resources()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg';
+        $params['range']         = 'source data sets!C2:C50'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        foreach($arr as $item) $final[] = $item[0];
+        print_r($final);
+        /*
+        trunk = Taxonomy.getTaxonomy('t/tax/trunk_20170614/', 'trunk')
+        ictv = Taxonomy.getTaxonomy('t/tax/ictv_v2/', 'ictv')
+        */
+        $str = "";
+        foreach($final as $h) {
+            $folder = str_replace($this->main_path, "", $this->sh[$h]['source']);
+            // echo "\n".$this->sh[$h]['source'];
+            // echo "\n".$this->main_path;
+            $str .= "$h = Taxonomy.getTaxonomy('t/tax".$folder."', '".$h."')\n";
+        }
+        echo "\n$str\n";
+        return $final;
+    }
     public function generate_syn_for_python_file()
     {
+        $hierarchies = self::priority_list_resources();
+        
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng';
         $params['range']         = 'Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         //start massage array
-        /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName */
-        // foreach($arr as $item) $final[] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]);
-        foreach($arr as $item) $final[$item[3]][] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]);
-        // print_r($final);
-        $synonym_hierarchies = array_keys($final);
-        print_r($synonym_hierarchies);
+        /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
+           $item[0]                     $item[2]        $item[3]                    $item[5]);  */
+        foreach($arr as $item) $final[$item[3]][] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]); // print_r($final);
         $str = "";
-        foreach($synonym_hierarchies as $synonym_hierarchy) {
-            $str .= "alignment = dwh.alignment($synonym_hierarchy)\n";
-            foreach($final[$synonym_hierarchy] as $rec) {
-                $str .= "alignment.same(".$synonym_hierarchy.".taxon('".$rec['Synonym_sci']."'), "."dwh".".taxon('".$rec['Priority_sci']."'))\n";
+        foreach($hierarchies as $hierarchy) {
+            $str .= "alignment = dwh.alignment($hierarchy)\n";
+            if($val = @$final[$hierarchy]) {
+                foreach($val as $rec) {
+                    $str .= "alignment.same(".$hierarchy.".taxon('".$rec['Synonym_sci']."'), "."dwh".".taxon('".$rec['Priority_sci']."'))\n";
+                }
             }
+            $str .= "dwh.align(alignment)\n";
+            $str .= "dwh.merge(alignment)\n\n";
+            $str .= "for root in Taxonomy.roots(dwh):\n";
+            $str .= "	print root\n\n";
         }
         echo $str;
         /* $final array
