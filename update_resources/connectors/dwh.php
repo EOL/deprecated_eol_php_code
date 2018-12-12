@@ -12,13 +12,14 @@ require_library('connectors/DHSourceHierarchiesAPI');
 $timestart = time_elapsed();
 ini_set('memory_limit','7096M'); //required
 
-// /* //main operation
+// /* //main operation ------------------------------------------------------------
 $func = new DHSourceHierarchiesAPI();
 $func->start($cmdline_params['what']);
 
 // $func->test($cmdline_params['what']);    //for testing only
+// $func->generate_syn_for_python_file();   //to generate script entry to build_dwh.py
 // $func->compare_results();                //a utility to compare results. During initial stages
-// */
+// -------------------------------------------------------------------------------- */
 
 /* utility ==========================
 require_library('connectors/DWCADiagnoseAPI');

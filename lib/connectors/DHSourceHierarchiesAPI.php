@@ -135,11 +135,8 @@ php update_resources/connectors/dwh.php _ COL
         $this->sh['ncbi']['iterator_options'] = array('row_terminator' => "\t|\n");
         */
     }
-    
     public function test($what)
     {
-        $s = self::generate_syn_for_python_file();
-        print_r($s); exit("\n");
         /*
         $this->what = $what;
         $string = "Malmopsylla† karatavica Bekker-Migdisova, 1985";
@@ -1487,7 +1484,7 @@ php update_resources/connectors/dwh.php _ COL
             echo "\nTotal $what old: [".number_format($total_rows)."]\n";
         }
     }
-    private function generate_syn_for_python_file()
+    public function generate_syn_for_python_file()
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
