@@ -551,7 +551,13 @@ php update_resources/connectors/dwh.php _ COL
             if(in_array($rec['taxonomicStatus'], array("in-part", "authority", "misspelling", "equivalent name", "genbank synonym", "misnomer", "teleomorph"))) return false;
         }
         elseif($what == "COL") {
-            if(in_array($rec['taxonomicStatus'], array("ambiguous synonym", "misapplied name"))) return false;
+            if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) return false;
+        }
+        elseif($what == "ASW") {
+            if(in_array($rec['taxonomicStatus'], array("invalid"))) return false;
+        }
+        elseif($what == "ODO") {
+            if(in_array($rec['taxonomicStatus'], array("synonym"))) return false;
         }
         return true;
     }
@@ -1146,7 +1152,7 @@ php update_resources/connectors/dwh.php _ COL
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            // print_r($rec); //exit; //use to test if field - value is OK
+            print_r($rec); //exit; //use to test if field - value is OK
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             $t = array();
