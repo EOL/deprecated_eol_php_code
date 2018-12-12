@@ -1509,7 +1509,10 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function phython_file_start()
     {
-        $str = "import sys, os, csv\n\nfrom org.opentreeoflife.taxa import Taxonomy, SourceTaxonomy, Taxon\nfrom org.opentreeoflife.smasher import UnionTaxonomy\n\ndwh = UnionTaxonomy.newTaxonomy('dwh')\n\n";
+        $str  = "import sys, os, csv\n\n";
+        $str .= "from org.opentreeoflife.taxa import Taxonomy, SourceTaxonomy, Taxon\n";
+        $str .= "from org.opentreeoflife.smasher import UnionTaxonomy\n\n";
+        $str .= "dwh = UnionTaxonomy.newTaxonomy('dwh')\n\n";
         $str .= "#Use this to tell smasher what separation file to use\n";
         $str .= "dwh.setSkeleton(Taxonomy.getTaxonomy('tax/separation/', 'separation'))\n\n";
         return $str;
