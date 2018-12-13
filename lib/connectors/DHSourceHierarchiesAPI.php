@@ -114,19 +114,6 @@ php update_resources/connectors/dwh.php _ COL
         $this->taxonomy_header_tmp = array("name", "uid", "parent_uid", "rank");
         $this->synonym_header_tmp = array("name", "uid", "accepted_x_id", "type");
         
-        /* old list
-        $this->sh['WOR']['source']        = $this->main_path."/worms_v5/";
-        $this->sh['IOC']['source'] = $this->main_path."/ioc-birdlist_v3/";
-        $this->sh['trunk']['source']        = $this->main_path."/trunk_20180521/";
-        $this->sh['COL']['source']          = $this->main_path."/col_v1/";
-        $this->sh['ictv']['source']         = $this->main_path."/ictv_v3/";
-        $this->sh['ictv']['run_gnparse']    = false; //
-        $this->sh['ODO']['source']      = $this->main_path."/odonata_v2/";
-        $this->sh['ONY']['source']  = $this->main_path."/onychophora_v3/";
-        $this->sh['EET']['source']   = $this->main_path."/earthworms_v3/";
-        $this->sh['pbdb']['source']         = $this->main_path."/pbdb_v1/";
-        $this->sh['pbdb']['run_gnparse']    = false; //has separate field for 'scientificNameAuthorship'
-        */
         /* old
         //row_terminator was instroduced for ncbi
         //this was just Eli's initiative. May wait for Katja's instructions here...
@@ -158,52 +145,10 @@ php update_resources/connectors/dwh.php _ COL
         exit("\ncanonical: $c\n");
         */
         /*
-        $json = Functions::lookup_with_cache($this->gnparser.urlencode('Notoscolex wellingtonensis (Spencer, 1895)'), $this->smasher_download_options);
-        exit("\n".$json."\n");
-        */
-        /*
-        $sciname = "Amorimia exotropica (Griseb.) W.R.Anderson";
-        // $canonical = self::gnsparse_canonical($sciname, 'api');
-        // echo "\n[$canonical]\n";
-        $canonical = self::gnsparse_canonical($sciname, 'cache');
-        echo "\nparsing...[$sciname] ---> [$canonical]\n";
-
-        // $options = $this->smasher_download_options; $options['expire_seconds'] = 0; //expires now
-        // $canonical = self::gnsparse_canonical($sciname, 'cache', $options);
-        // echo "\nparsing...[$sciname] ---> [$canonical]\n";
-
-        exit("\nstopx\n");
-        */
-        /*
-        $sciname = "Gadus morhua Eli 1972";
-        $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $this->smasher_download_options);
-        print_r(json_decode($json, true));
-        $json = self::get_json_from_cache($sciname);
-        print_r(json_decode($json, true));
-        exit;
-        */
-        /*
-        $cmd = 'gnparser name "Notoscolex imparicystis (Jamieson, 1973)"';
-        $json = shell_exec($cmd);
-        print_r(json_decode($json, true));
-        exit;
-
-        gnparser file --input xaa.txt --output xaa_gnparsed.txt
-        gnparser file --input xab.txt --output xab_gnparsed.txt
-        gnparser file --input xac.txt --output xac_gnparsed.txt
-        gnparser file --input xad.txt --output xad_gnparsed.txt
-        gnparser file --input xae.txt --output xae_gnparsed.txt
-        gnparser file --input xaf.txt --output xaf_gnparsed.txt
-        gnparser file --input xag.txt --output xag_gnparsed.txt
-        gnparser file --input xah.txt --output xah_gnparsed.txt
-        ftp://ftp.ncbi.nlm.nih.gov/pub/taxonomy/
-        */
-        /*
         gnparser file -f json-compact --input test.txt --output test_gnparsed.txt
         self::save_2local_gnparsed_file_new($what, "test_gnparsed.txt"); exit("\n-end test-\n");
 
         gnparser file -f simple --input test.txt --output test_gnparsed.txt
-
 
         gnparser file -f json-compact --input xaa.txt --output xaa_gnparsed.txt
         gnparser file -f json-compact --input xab.txt --output xab_gnparsed.txt
@@ -224,116 +169,9 @@ php update_resources/connectors/dwh.php _ COL
         self::save_2local_gnparsed_file_new($what, "xah_gnparsed.txt"); exit("\n-end xah_gnparsed-\n");
         */
 
-        /* CoL divided into smaller chunks
-        self::save_2local_gnparsed_file($what, "xaa_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xab_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xac_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xad_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xae_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xaf_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xag_gnparsed.txt");
-        self::save_2local_gnparsed_file($what, "xah_gnparsed.txt");
-        exit;
-        */
         // self::parent_id_check($what); exit;
-        /*
-        $str = "Aloencyrtus angustifrons. (Annecke, 1964)";     echo "\n[$str]";
-        $str = self::fix_with_period($str);                     exit("\n[$str]\n");
-        */
         
-        
-        /*
-        Penicillium	Penicillium cvjetkovicii S.W. Peterson, Jurjevi? & Frisvad 2015
-        Zodarion	Zodarion van Bosmans, 2009
-        Selenops	Selenops ab Logunov & Jäger, 2015
-        Leptonetela	Leptonetela la Wang & Li, 2017
-        Hyalopsora	Hyalopsora adianti-capilli-veneris (DC.) Syd. & P. Syd. 1903
-        Uredo	Uredo elymi-capitis-medusae Gonz. Frag. 1913
-        Melanopsis	Melanopsis cvijici Brusina, 1902
-        Bythinella	Bythinella cvijici Pavlovi?, 1933
-        Viviparus	Viviparus cvijici Pavlovi?, 1932
-        Ruteloryctes	Ruteloryctes bis Dechambre, 2006
-        Catoptes	Catoptes interruptusfabricius,1781 (Fabricius, 1781)
-        
-        */
-        
-        // /* get uuid from COL
-        $str = "Hyalopsora adianti-capilli-veneris (DC.) Syd. & P. Syd. 1903
-        Selenops ab Logunov & Jäger, 2015
-        Leptonetela la Wang & Li, 2017
-        Melanopsis cvijici Brusina, 1902
-        Bythinella cvijici Pavlovi?, 1933
-        Ruteloryctes bis Dechambre, 2006
-        Uredo elymi-capitis-medusae Gonz. Frag. 1913
-        Phyllosticta chenopodii-boni-henrici S?vul. & Sandu 1933
-        Dactylaria cvetkovicii Munt.-Cvetk. 1957
-        Cercospora ipomoeae-pedis-caprae J.M. Yen & Lim 1970
-        Meliola strychni-nux-vomicae Gawande, D.K. Agarwal & Hosag. 2004
-        Phoma gentianae-sino-ornatae Punith. & R. Harling 1993
-        Aspergillus cvjetkovicii Jurjevi?, S.W. Peterson & B.W. Horn 2012
-        Agaricus iesu-et-marthae L.A. Parra 2013
-        Penicillium cvjetkovicii S.W. Peterson, Jurjevi? & Frisvad 2015
-        Zodarion van Bosmans, 2009
-        Melanopsis cvijici Brusina, 1902
-        Bythinella cvijici Pavlovi?, 1933
-        Viviparus cvijici Pavlovi?, 1932
-        Meroptera cviatella Dyar, 1905
-        Eilema cvirgineola Hampson, 1900
-        Drepana x-z-nigrum Bryk, 1942
-        Semiothisa da Dyar, 1916
-        Mimosa coelho-de-moraesii Pickel & Handro
-        Brownea rosa-de-monte Bergius
-        Lohmannella cvetkovi (Petrova 1965)
-        Plebejus lilacina-rufolunalata-casaicus (Tutt)
-        Catoptes interruptusfabricius,1781 (Fabricius, 1781)";
-        $str = "Coscinospira hemprichii var. β bacillaris Ehrenberg, 1840
-        Coscinospira hemprichii var. γ compressa Ehrenberg, 1840
-        Coscinospira hemprichii var. α lenticularis Ehrenberg, 1840"; //WOR
-        $str = "Bolivina suЬincrassata Khalilov, 1956
-        Bolivina suЬincrassata var. caucasica Khalilov, 1956
-        Bolivina suЬincrassata var. costata Khalilov, 1956
-        Bolivina dilataЬilis Khalilov, 1956"; //WOR
-        $str = "Anolis bimaculatus ?lividus Underwood In Williams Et Al., 1959"; //COL
-        $str = "Vorticella d'udekemi Kahl, 1933
-        Zoothamnium d'udekemi Kahl, 1935"; //CLP
-        
-        $str = "Gamasiphis pulchellus (Berlese, 1887):
-        Gnathopleustes den (J. L. Barnard, 1969)
-        Sympycnus du Curran, 1929
-        Chrysosoma du Curran, 1929
-        Tanypus cvaneomaculatus (Doleschall, 1856)
-        Cnemaspis rammalensis Vidanapathirana, Gehan-rajeev, Wickramasinghe,fernando & Mendis-wickramasinghe, 2014
-        Cyrtodactylus ranongensis Sumontha, Pauwels,panitvong, Kunya & Grismer, 2015
-        Trimeresurus phuketensis Sumontha, Kunya, Pauwels,nitikul & Punnadee, 2011
-        Archarias cvlindrirostris Chevrolat, L.A.A., 1881
-        Cholus cvlindrirostris Klima, A., 1936
-        Spenophorus de haani Gyllenhal, L. in Schönherr, C.J., 1838
-        Prodioctes de haani Pascoe, F.P., 1873
-        Anapygus de haani Faust, J., 1894
-        Phaeophanus o´connori Broun, T., 1921
-        Phaedropholus o´connori Broun, T., 1910
-        Listroderes v.caudiculatus Fairmaire, L., 1890
-        Macromitrium st.-johnii E. B. Bartram, 1940
-        Athyrium boreo-occidentali-indobharaticola-birianum Fraser-Jenk.
-        Dryopteris papuae-novae-guineae Li Bing Zhang
-        Grammitis friderici-et-pauli (Christ) Copel.
-        Archigrammitis friderici-et-pauli (Christ) Parris
-        Crocus cvijicii Kosanin
-        Tillandsia van-den-bergii Ehlers & Hase
-        Omophron suturale2 Gistel, 1848
-        Chlaenius micans2 W.S.MacLeay, 1825
-        Papaver corona-sancti-stephani Zapal.
-        Astragalus kurnet-es-saudae Eig
-        Hoya mata-ole-afiensis Kloppenb.
-        Blepharis noli-me-tangere S. Moore
-        Artemisia duthreuil-de-rhinsi Krasch.
-        Trachymene ceratocarpa (W. Fitzg.) G,. Keighery &amp; B.L. Rye
-        Microsiphum nudum
-        Megakhosara sp Sharov, 1961
-        Stegopterum sp Sharov, 1961
-        Nocaracris van Ünal, 2016
-        Agnetina den Cao, T.K.T. & Bae, 2006"; //COL
-
+        // /* get uuid
         $str = "unplaced extinct Onychophora\n";
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
