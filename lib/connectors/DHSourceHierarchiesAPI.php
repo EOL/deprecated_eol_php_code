@@ -759,6 +759,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function parent_id_check_synonyms($what)
     {
+        if(!file_exists($this->sh[$what]['source'].'synonym.tsv')) return array();
         echo "\nStarts parent_id check synonyms...\n"; $undefined_accepted_ids = array();
         $uids = self::get_uids_from_taxonomy_tsv($what);
         echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
