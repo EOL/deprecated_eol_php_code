@@ -357,7 +357,7 @@ php update_resources/connectors/dwh.php _ COL
 
         // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
         self::utility_write_all_names($meta);
-        self::parent_id_check($what);
+        if($undefined_parents = self::parent_id_check($what)) self::remove_undefined_parents_and_their_descendants($meta, $undefined_parents, 'taxonomy');
         exit("\n-end write all names-\n"); //works OK
         
         // Then start caching... No longer used. OBSOLETE
@@ -756,6 +756,7 @@ php update_resources/connectors/dwh.php _ COL
             echo "\nUndefined parents for [$what]:\n";
             print_r($undefined_parents);
         }
+        return $undefined_parents;
     }
     private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
@@ -1126,6 +1127,138 @@ php update_resources/connectors/dwh.php _ COL
         }
         exit("\nInvestigate 01.\n");
     }
+    //========================================================================================start fixing undefined parents
+    private function get_taxID_nodes_info($meta)
+    {
+        /*
+        echo "\nGenerating taxID_info..."; $final = array(); $i = 0;
+        $meta = self::get_meta_info();
+        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            $rec = self::format_ids($rec);
+            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
+        }
+        return $final;
+        */
+        
+        $what = $meta['what']; $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+            $i++; 
+            if($i == 1) $fields = explode("\t|\t", $row);
+            else {
+                $tmp = explode("\t|\t", $row);
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                /*Array(
+                    [uid] => Bombycoidea
+                    [parent_uid] => 
+                    [name] => Bombycoidea
+                    [rank] => superfamily
+                    [sourceinfo] => 
+                    [] => 
+                )*/
+                $final[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank']);
+            }
+        }
+        return $final;
+    }
+    private function get_ancestry_of_taxID($tax_id, $taxID_info)
+    {   /* Array(
+                [Ganisa-plana-yunnanensis] => Array
+                    (
+                        [pID] => Ganisa-plana
+                        [r] => subspecies
+                    )
+        )*/
+        $final = array();
+        $final[] = $tax_id;
+        while($parent_id = @$taxID_info[$tax_id]['pID']) {
+            if(!in_array($parent_id, $final)) $final[] = $parent_id;
+            else {
+                if($parent_id == 1) return $final;
+                else {
+                    print_r($final);
+                    exit("\nInvestigate $parent_id already in array.\n");
+                }
+            }
+            $tax_id = $parent_id;
+        }
+        return $final;
+    }
+    private function an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)
+    {
+        foreach($ancestry as $id) {
+            /* use isset() instead
+            if(in_array($id, $removed_branches)) return true;
+            */
+            if(isset($removed_branches[$id])) return true;
+        }
+        return false;
+    }
+    private function remove_undefined_parents_and_their_descendants($meta, $undefined_parents, $pre)
+    {
+        $taxID_info = self::get_taxID_nodes_info($meta); echo "\ntaxID_info (taxons.txt) total rows: ".count($taxID_info)."\n";
+        $what = $meta['what']; $i = 0; $removed = 0;
+        
+        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv.new", "w"); //will overwrite existing
+        fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
+        
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+            $i++; 
+            if($i == 1) {
+                $fields = explode("\t|\t", $row);
+                $fields = array_filter($fields);
+                // print_r($fields);
+            }
+            else {
+                $tmp = explode("\t|\t", $row);
+                if(!$row) continue;
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                /*Array(
+                    [uid] => Bombycoidea
+                    [parent_uid] => 
+                    [name] => Bombycoidea
+                    [rank] => superfamily
+                    [sourceinfo] => 
+                    [] => 
+                )*/
+                $ancestry = self::get_ancestry_of_taxID($rec['uid'], $taxID_info);
+                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $undefined_parents)) {
+                    $removed++;
+                    echo "\nto be removed:";
+                    print_r($rec); print_r($ancestry);
+                    continue;
+                }
+                else fwrite($fn_tax, $row."\n");
+            }
+        }
+        echo "\nTotal removed: [$removed]\n";
+        print_r($undefined_parents);
+        
+        $txtfile = $this->sh[$what]['source']."taxonomy.tsv"; $total_rows = self::get_total_rows($txtfile); echo "\ntaxonomy.tsv [$total_rows]\n";
+        $txtfile = $this->sh[$what]['source']."taxonomy.tsv.new"; $total_rows = self::get_total_rows($txtfile); echo "\ntaxonomy.tsv.new [$total_rows]\n";
+    }
+    //========================================================================================end fixing undefined parents
     private function utility_write_all_names($meta)
     {
         $what = $meta['what']; $i = 0; $ctr = 1;
@@ -1154,7 +1287,7 @@ php update_resources/connectors/dwh.php _ COL
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); //exit; //use to test if field - value is OK
+            // print_r($rec); //exit; //use to test if field - value is OK
             // if($rec['taxonID'] == "Sphingonaepiopsis-Genus-Group") exit;
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
