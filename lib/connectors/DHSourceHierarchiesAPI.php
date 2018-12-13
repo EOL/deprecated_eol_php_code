@@ -357,7 +357,10 @@ php update_resources/connectors/dwh.php _ COL
 
         // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
         self::utility_write_all_names($meta);
-        if($undefined_parents = self::parent_id_check($what)) self::remove_undefined_parents_and_their_descendants($meta, $undefined_parents, 'taxonomy');
+        if($undefined_parents = self::parent_id_check($what)) {
+            self::remove_undefined_parents_and_their_descendants($meta, $undefined_parents, 'taxonomy');
+            self::parent_id_check($what);
+        }
         exit("\n-end write all names-\n"); //works OK
         
         // Then start caching... No longer used. OBSOLETE
@@ -1155,6 +1158,7 @@ php update_resources/connectors/dwh.php _ COL
             $i++; 
             if($i == 1) $fields = explode("\t|\t", $row);
             else {
+                if(!$row) continue;
                 $tmp = explode("\t|\t", $row);
                 $rec = array(); $k = 0;
                 foreach($fields as $field) {
@@ -1214,10 +1218,10 @@ php update_resources/connectors/dwh.php _ COL
         $taxID_info = self::get_taxID_nodes_info($meta); echo "\ntaxID_info (taxons.txt) total rows: ".count($taxID_info)."\n";
         $what = $meta['what']; $i = 0; $removed = 0;
         
-        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv.new", "w"); //will overwrite existing
+        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv.txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
         
-        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+        foreach(new FileIterator($this->sh[$what]['source'].$pre.'.tsv') as $line => $row) {
             $i++; 
             if($i == 1) {
                 $fields = explode("\t|\t", $row);
@@ -1245,18 +1249,23 @@ php update_resources/connectors/dwh.php _ COL
                 $ancestry = self::get_ancestry_of_taxID($rec['uid'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $undefined_parents)) {
                     $removed++;
-                    echo "\nto be removed:";
-                    print_r($rec); print_r($ancestry);
+                    // echo "\nto be removed:"; print_r($rec); print_r($ancestry);
                     continue;
                 }
                 else fwrite($fn_tax, $row."\n");
             }
         }
-        echo "\nTotal removed: [$removed]\n";
-        print_r($undefined_parents);
+        fclose($fn_tax);
+        echo "\nTotal removed due to undefined parents: [$removed]\n";
+        // print_r($undefined_parents);
         
-        $txtfile = $this->sh[$what]['source']."taxonomy.tsv"; $total_rows = self::get_total_rows($txtfile); echo "\ntaxonomy.tsv [$total_rows]\n";
-        $txtfile = $this->sh[$what]['source']."taxonomy.tsv.new"; $total_rows = self::get_total_rows($txtfile); echo "\ntaxonomy.tsv.new [$total_rows]\n";
+        $txtfile_o = $this->sh[$what]['source']."taxonomy.tsv";     $old = self::get_total_rows($txtfile_o); echo "\ntaxonomy.tsv [$old]\n";
+        $txtfile_n = $this->sh[$what]['source']."taxonomy.tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\ntaxonomy.tsv.txt [$new]\n";
+        if($new < $old) {
+            unlink($txtfile_o);
+            Functions::file_rename($txtfile_n, $txtfile_o);
+        }
+        $txtfile_o = $this->sh[$what]['source']."taxonomy.tsv";     $old = self::get_total_rows($txtfile_o); echo "\ntaxonomy.tsv [$old]\n";
     }
     //========================================================================================end fixing undefined parents
     private function utility_write_all_names($meta)
