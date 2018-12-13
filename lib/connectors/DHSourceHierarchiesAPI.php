@@ -946,6 +946,7 @@ php update_resources/connectors/dwh.php _ COL
                 fclose($fn_tax); fclose($fn_tax_part);
                 fclose($fn_syn); fclose($fn_syn_part);
                 $total_rows = self::get_total_rows($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
+                if($total_rows > 500000) exit("\ngnparser cannot process more than 500K. Reduce batch process further. Current is 200K.\n");
                 
                 echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
                 $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_part_".$ctr."_gnparsed.txt";
