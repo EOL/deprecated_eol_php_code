@@ -334,6 +334,7 @@ php update_resources/connectors/dwh.php _ COL
         Nocaracris van Ünal, 2016
         Agnetina den Cao, T.K.T. & Bae, 2006"; //COL
 
+        $str = "unplaced extinct Onychophora\n";
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
@@ -345,6 +346,7 @@ php update_resources/connectors/dwh.php _ COL
         $this->what = $what;
         
         // /* get problematic names from Google sheet
+        $this->problematic_names = array();
         $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
         // print_r($this->problematic_names); exit;
         // */
@@ -741,7 +743,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function parent_id_check($what)
     {
-        echo "\nStarts parent_id check...\n"; $undefined_parents = array();
+        echo "\n-------------------------------\nStarts parent_id check...\n"; $undefined_parents = array();
         $uids = self::get_uids_from_taxonomy_tsv($what);
         echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
         foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
@@ -760,7 +762,7 @@ php update_resources/connectors/dwh.php _ COL
     private function parent_id_check_synonyms($what)
     {
         if(!file_exists($this->sh[$what]['source'].'synonym.tsv')) return array();
-        echo "\nStarts parent_id check synonyms...\n"; $undefined_accepted_ids = array();
+        echo "\n-------------------------------\nStarts parent_id check synonyms...\n"; $undefined_accepted_ids = array();
         $uids = self::get_uids_from_taxonomy_tsv($what);
         echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
         foreach(new FileIterator($this->sh[$what]['source'].'synonym.tsv') as $line => $row) {
@@ -1377,6 +1379,7 @@ php update_resources/connectors/dwh.php _ COL
         elseif($what == "BOM")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
         elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        elseif($what == "ONY")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "CLP")  { if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true; }
         elseif($what == "COL")  { if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true; }
         return false;
