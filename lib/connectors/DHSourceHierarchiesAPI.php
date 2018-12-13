@@ -1050,6 +1050,9 @@ php update_resources/connectors/dwh.php _ COL
             Functions::file_rename($txtfile_n, $txtfile_o);
         }
         $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
+        //step 3: rename BOM_duplicates_syn.txt to show it was already processed
+        $path = $this->sh['BOM']['source']."../zFailures/BOM_duplicates_syn.txt";
+        Functions::file_rename($path, $path.".proc"); //.proc for processed already
     }
     private function is_name_valid($what, $rec)
     {
