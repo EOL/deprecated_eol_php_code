@@ -361,9 +361,9 @@ php update_resources/connectors/dwh.php _ COL
             self::remove_undefined_parents_and_their_descendants($meta, $undefined_parents, 'taxonomy');
             self::parent_id_check($what);
         }
-        if($undefined_parents = self::parent_id_check_synonyms($what)) {
-            // self::remove_undefined_parents_and_their_descendants($meta, $undefined_parents, 'taxonomy');
-            // self::parent_id_check($what);
+        if($undefined_accepted_ids = self::parent_id_check_synonyms($what)) {
+            self::remove_undefined_parents_and_their_descendants($meta, $undefined_accepted_ids, 'synonym');
+            self::parent_id_check_synonyms($what);
         }
         exit("\n-end write all names-\n"); //works OK
         
@@ -741,12 +741,8 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function parent_id_check($what)
     {
-        echo "\nStarts parent_id check...\n"; $i = 0;
-        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
-            $i++; if($i == 1) continue;
-            $rec = explode("\t|\t", $row);
-            $uids[$rec[0]] = '';
-        }
+        echo "\nStarts parent_id check...\n"; $undefined_parents = array();
+        $uids = self::get_uids_from_taxonomy_tsv($what);
         echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
         foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
@@ -757,18 +753,14 @@ php update_resources/connectors/dwh.php _ COL
         }
         echo "\nUndefined parents: ".count($undefined_parents)."\n";
         if($undefined_parents) {
-            echo "\nUndefined parents for [$what]:\n"; print_r($undefined_parents);
+            // echo "\nUndefined parents for [$what]:\n"; print_r($undefined_parents);
         }
         return $undefined_parents;
     }
     private function parent_id_check_synonyms($what)
     {
-        echo "\nStarts parent_id check synonyms...\n"; $i = 0;
-        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
-            $i++; if($i == 1) continue;
-            $rec = explode("\t|\t", $row);
-            $uids[$rec[0]] = '';
-        }
+        echo "\nStarts parent_id check synonyms...\n"; $undefined_accepted_ids = array();
+        $uids = self::get_uids_from_taxonomy_tsv($what);
         echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
         foreach(new FileIterator($this->sh[$what]['source'].'synonym.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
@@ -779,11 +771,10 @@ php update_resources/connectors/dwh.php _ COL
         }
         echo "\nUndefined accepted ids: ".count($undefined_accepted_ids)."\n";
         if($undefined_accepted_ids) {
-            echo "\nUndefined accepted ids for [$what]:\n"; print_r($undefined_accepted_ids);
+            // echo "\nUndefined accepted ids for [$what]:\n"; print_r($undefined_accepted_ids);
         }
-        return $undefined_parents;
+        return $undefined_accepted_ids;
     }
-    
     private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
         $xname = "name_only1";
@@ -1151,26 +1142,6 @@ php update_resources/connectors/dwh.php _ COL
     //========================================================================================start fixing undefined parents
     private function get_taxID_nodes_info($meta)
     {
-        /*
-        echo "\nGenerating taxID_info..."; $final = array(); $i = 0;
-        $meta = self::get_meta_info();
-        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
-            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            if(!$row) continue;
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            $rec = array_map('trim', $rec);
-            $rec = self::format_ids($rec);
-            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
-        }
-        return $final;
-        */
-        
         $what = $meta['what']; $i = 0;
         foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
             $i++; 
@@ -1233,7 +1204,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function remove_undefined_parents_and_their_descendants($meta, $undefined_parents, $pre)
     {
-        $taxID_info = self::get_taxID_nodes_info($meta); echo "\ntaxID_info (taxons.txt) total rows: ".count($taxID_info)."\n";
+        $taxID_info = self::get_taxID_nodes_info($meta); echo "\ntaxID_info (taxonomy.tsv) total rows: ".count($taxID_info)."\n";
         $what = $meta['what']; $i = 0; $removed = 0;
         
         $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv.txt", "w"); //will overwrite existing
@@ -1256,6 +1227,9 @@ php update_resources/connectors/dwh.php _ COL
                 }
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
+                // if($pre == "synonym") {
+                //     print_r($rec); exit;
+                // }
                 /*Array( --- taxonomy
                     [uid] => Bombycoidea
                     [parent_uid] => 
@@ -1263,6 +1237,12 @@ php update_resources/connectors/dwh.php _ COL
                     [rank] => superfamily
                     [sourceinfo] => 
                     [] => 
+                )
+                Array( --- synonym
+                    [uid] => Apatelodidae
+                    [name] => Zanolidae
+                    [type] => synonym
+                    [rank] => 
                 )*/
                 $ancestry = self::get_ancestry_of_taxID($rec['uid'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $undefined_parents)) {
@@ -1276,13 +1256,13 @@ php update_resources/connectors/dwh.php _ COL
         fclose($fn_tax);
         echo "\nTotal removed due to undefined parents: [$removed]\n"; // print_r($undefined_parents);
         
-        $txtfile_o = $this->sh[$what]['source']."taxonomy.tsv";     $old = self::get_total_rows($txtfile_o); echo "\ntaxonomy.tsv [$old]\n";
-        $txtfile_n = $this->sh[$what]['source']."taxonomy.tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\ntaxonomy.tsv.txt [$new]\n";
+        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
+        $txtfile_n = $this->sh[$what]['source'].$pre.".tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\n$pre.tsv.txt [$new]\n";
         if($new < $old) {
             unlink($txtfile_o);
             Functions::file_rename($txtfile_n, $txtfile_o);
         }
-        $txtfile_o = $this->sh[$what]['source']."taxonomy.tsv";     $old = self::get_total_rows($txtfile_o); echo "\ntaxonomy.tsv [$old]\n";
+        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
     }
     //========================================================================================end fixing undefined parents
     private function utility_write_all_names($meta)
@@ -1759,6 +1739,17 @@ php update_resources/connectors/dwh.php _ COL
         alignment.same(wor.taxon('Codonosiga'), dwh.taxon('Codosiga'))
         */
     }
+    private function get_uids_from_taxonomy_tsv($what)
+    {
+        $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+            $i++; if($i == 1) continue;
+            $rec = explode("\t|\t", $row);
+            $uids[$rec[0]] = '';
+        }
+        return $uids;
+    }
+    
     /*
     private function build_final_taxonomy_tsv_old($meta, $pre)
     {
