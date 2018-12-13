@@ -1169,13 +1169,17 @@ php update_resources/connectors/dwh.php _ COL
                     $has_synonym = true;
                 }
                 elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") {
-                    self::write2file_tmp("tax", $fn_tax, $t);
-                    self::write2file_tmp("tax_part", $fn_tax_part, $t);
+                    if(self::is_name_valid($what, $rec)) {
+                        self::write2file_tmp("tax", $fn_tax, $t);
+                        self::write2file_tmp("tax_part", $fn_tax_part, $t);
+                    }
                 }
             }
             elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") {
-                self::write2file_tmp("tax", $fn_tax, $t);
-                self::write2file_tmp("tax_part", $fn_tax_part, $t);
+                if(self::is_name_valid($what, $rec)) {
+                    self::write2file_tmp("tax", $fn_tax, $t);
+                    self::write2file_tmp("tax_part", $fn_tax_part, $t);
+                }
             }
             //=======================================================================================
             if(($i % 500000) == 0) { //500000 orig
@@ -1220,6 +1224,24 @@ php update_resources/connectors/dwh.php _ COL
         $txtfile = $this->sh[$what]['source']."synonym.tsv";
         $total_rows = self::get_total_rows($txtfile);
         if($total_rows <= 1) unlink($txtfile);
+    }
+    private function is_name_valid($what, $rec)
+    {
+        if    ($what == "ASW")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
+        elseif($what == "ODO")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
+        elseif($what == "BOM")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
+        elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        elseif($what == "CLP")  { if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true; }
+        elseif($what == "COL")  { if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true; }
+        return false;
+    }
+    private function is_name_synonym($what, $rec)
+    {
+        if    ($what == "BOM")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
+        elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
+        elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("synonym"))) return true; }
+        return false;
     }
     private function get_canonicals_from_gnparser_generated_file($meta, $pre, $cur_ctr)
     {
