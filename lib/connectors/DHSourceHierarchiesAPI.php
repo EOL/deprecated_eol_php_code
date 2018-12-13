@@ -1470,8 +1470,12 @@ php update_resources/connectors/dwh.php _ COL
                 )*/
                 $canon = $canonicals[$i-2];
                 if(!$canon) {
-                    self::write_gnparser_failures($what, $rec['name'], "_failures");
-                    $canon = $withAuthor[$i-2]; //if failure, will get the original string as the canonical.
+                    /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
+                    if($val = @$this->problematic_names[$rec['uid']]) $canon = $val;
+                    else {
+                        self::write_gnparser_failures($what, $rec['name'], "_failures");
+                        $canon = $withAuthor[$i-2]; //if failure, will get the original string as the canonical.
+                    }
                 }
                 // echo "\n[$canon] - [".$rec['name']."]\n"; //good debug
                 
@@ -1484,9 +1488,6 @@ php update_resources/connectors/dwh.php _ COL
                 $t['accepted_id']   = @$rec['accepted_x_id'];   //only for synonym
                 $t['rank']          = @$rec['rank'];            //only for taxonomy
                 $t['source']        = '';
-                
-                /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
-                if($val = @$this->problematic_names[$rec['uid']]) $t['name'] = $val;
                 
                 $test[$t['name']][] = $withAuthor[$i-2]; //for computing duplicates
                 
