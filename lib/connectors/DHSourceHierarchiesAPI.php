@@ -1007,11 +1007,6 @@ php update_resources/connectors/dwh.php _ COL
         return $json;
     }
     
-    private function write2file($ext, $fn, $t)
-    {
-        if($ext == "syn")     fwrite($fn, $t['accepted_id'] . "\t|\t" . $t['name'] . "\t|\t" . 'synonym' . "\t|\t" . "\t|\t" . "\n");
-        elseif($ext == "tax") fwrite($fn, $t['taxon_id'] . "\t|\t" . $t['parent_id'] . "\t|\t" . $t['name'] . "\t|\t" . $t['rank'] . "\t|\t" . $t['source'] . "\t|\t" . "\n");
-    }
     private function get_canonical_via_api($sciname, $options)
     {
         $json = Functions::lookup_with_cache($this->gnparser.urlencode($sciname), $options);
@@ -1495,6 +1490,11 @@ php update_resources/connectors/dwh.php _ COL
             echo "\n[$c] - Incrementing count for checking duplicates [$pre]: ".count($test)."\n";
         }
         return $test;
+    }
+    private function write2file($ext, $fn, $t)
+    {
+        if($ext == "syn")     fwrite($fn, $t['accepted_id'] . "\t|\t" . $t['name'] . "\t|\t" . 'synonym' . "\t|\t" . "\t|\t" . "\n");
+        elseif($ext == "tax") fwrite($fn, $t['taxon_id'] . "\t|\t" . $t['parent_id'] . "\t|\t" . $t['name'] . "\t|\t" . $t['rank'] . "\t|\t" . $t['source'] . "\t|\t" . "\n");
     }
     private function write2file_tmp($ext, $fn, $t)
     {
