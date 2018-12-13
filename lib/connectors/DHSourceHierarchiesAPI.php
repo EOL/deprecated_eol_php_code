@@ -1155,6 +1155,7 @@ php update_resources/connectors/dwh.php _ COL
                 $k++;
             }
             print_r($rec); //exit; //use to test if field - value is OK
+            // if($rec['taxonID'] == "Sphingonaepiopsis-Genus-Group") exit;
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             $t = array();
@@ -1166,9 +1167,11 @@ php update_resources/connectors/dwh.php _ COL
             $t['source']        = '';
             if($this->sh[$what]['has_syn']) {
                 if(($t['accepted_id'] != $t['taxon_id']) && $t['accepted_id'] != "") {
-                    self::write2file_tmp("syn", $fn_syn, $t);
-                    self::write2file_tmp("syn_part", $fn_syn_part, $t);
-                    $has_synonym = true;
+                    if(self::is_name_synonym($what, $rec)) {
+                        self::write2file_tmp("syn", $fn_syn, $t);
+                        self::write2file_tmp("syn_part", $fn_syn_part, $t);
+                        $has_synonym = true;
+                    }
                 }
                 elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") {
                     if(self::is_name_valid($what, $rec)) {
