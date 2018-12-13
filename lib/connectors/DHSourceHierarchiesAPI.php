@@ -763,7 +763,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function parent_id_check_synonyms($what)
     {
-        echo "\nStarts parent_id check...\n"; $i = 0;
+        echo "\nStarts parent_id check synonyms...\n"; $i = 0;
         foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
@@ -774,12 +774,12 @@ php update_resources/connectors/dwh.php _ COL
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
             if($accepted_id = @$rec[0]) {
-                if(!isset($uids[$accepted_id])) $undefined_parents[$accepted_id] = '';
+                if(!isset($uids[$accepted_id])) $undefined_accepted_ids[$accepted_id] = '';
             }
         }
-        echo "\nUndefined parents: ".count($undefined_parents)."\n";
-        if($undefined_parents) {
-            echo "\nUndefined parents for [$what]:\n"; print_r($undefined_parents);
+        echo "\nUndefined accepted ids: ".count($undefined_accepted_ids)."\n";
+        if($undefined_accepted_ids) {
+            echo "\nUndefined accepted ids for [$what]:\n"; print_r($undefined_accepted_ids);
         }
         return $undefined_parents;
     }
