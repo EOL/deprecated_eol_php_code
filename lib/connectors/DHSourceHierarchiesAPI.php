@@ -361,6 +361,10 @@ php update_resources/connectors/dwh.php _ COL
             self::remove_undefined_parents_and_their_descendants($meta, $undefined_parents, 'taxonomy');
             self::parent_id_check($what);
         }
+        if($undefined_parents = self::parent_id_check_synonyms($what)) {
+            // self::remove_undefined_parents_and_their_descendants($meta, $undefined_parents, 'taxonomy');
+            // self::parent_id_check($what);
+        }
         exit("\n-end write all names-\n"); //works OK
         
         // Then start caching... No longer used. OBSOLETE
@@ -737,30 +741,49 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function parent_id_check($what)
     {
-        echo "\nStarts parent_id check...\n";
-        $i = 0;
+        echo "\nStarts parent_id check...\n"; $i = 0;
         foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
             $uids[$rec[0]] = '';
         }
-        echo "\nuids: ".count($uids)."\n";
-        $i = 0; $undefined_parents = array();
+        echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
         foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
             if($parent_uid = @$rec[1]) {
-                // echo " [$parent_uid]";
                 if(!isset($uids[$parent_uid])) $undefined_parents[$parent_uid] = '';
             }
         }
         echo "\nUndefined parents: ".count($undefined_parents)."\n";
         if($undefined_parents) {
-            echo "\nUndefined parents for [$what]:\n";
-            print_r($undefined_parents);
+            echo "\nUndefined parents for [$what]:\n"; print_r($undefined_parents);
         }
         return $undefined_parents;
     }
+    private function parent_id_check_synonyms($what)
+    {
+        echo "\nStarts parent_id check...\n"; $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+            $i++; if($i == 1) continue;
+            $rec = explode("\t|\t", $row);
+            $uids[$rec[0]] = '';
+        }
+        echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
+        foreach(new FileIterator($this->sh[$what]['source'].'synonym.tsv') as $line => $row) {
+            $i++; if($i == 1) continue;
+            $rec = explode("\t|\t", $row);
+            if($accepted_id = @$rec[0]) {
+                if(!isset($uids[$accepted_id])) $undefined_parents[$accepted_id] = '';
+            }
+        }
+        echo "\nUndefined parents: ".count($undefined_parents)."\n";
+        if($undefined_parents) {
+            echo "\nUndefined parents for [$what]:\n"; print_r($undefined_parents);
+        }
+        return $undefined_parents;
+    }
+    
     private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
         $xname = "name_only1";
@@ -1233,7 +1256,7 @@ php update_resources/connectors/dwh.php _ COL
                 }
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
-                /*Array(
+                /*Array( --- taxonomy
                     [uid] => Bombycoidea
                     [parent_uid] => 
                     [name] => Bombycoidea
@@ -1251,8 +1274,7 @@ php update_resources/connectors/dwh.php _ COL
             }
         }
         fclose($fn_tax);
-        echo "\nTotal removed due to undefined parents: [$removed]\n";
-        // print_r($undefined_parents);
+        echo "\nTotal removed due to undefined parents: [$removed]\n"; // print_r($undefined_parents);
         
         $txtfile_o = $this->sh[$what]['source']."taxonomy.tsv";     $old = self::get_total_rows($txtfile_o); echo "\ntaxonomy.tsv [$old]\n";
         $txtfile_n = $this->sh[$what]['source']."taxonomy.tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\ntaxonomy.tsv.txt [$new]\n";
