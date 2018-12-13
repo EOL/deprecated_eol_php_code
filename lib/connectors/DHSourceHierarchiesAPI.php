@@ -356,7 +356,9 @@ php update_resources/connectors/dwh.php _ COL
         print_r($meta); //exit;
 
         // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
-        self::utility_write_all_names($meta); exit("\n-end write all names-\n"); //works OK
+        self::utility_write_all_names($meta);
+        self::parent_id_check($what);
+        exit("\n-end write all names-\n"); //works OK
         
         // Then start caching... No longer used. OBSOLETE
         // self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_2_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
