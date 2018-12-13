@@ -942,8 +942,10 @@ php update_resources/connectors/dwh.php _ COL
                 }
             }
             //=======================================================================================
-            if(($i % 500000) == 0) { //500000 orig
-                fclose($fn_tax); fclose($fn_syn);
+            if(($i % 200000) == 0) { //500000 orig
+                fclose($fn_tax); fclose($fn_tax_part);
+                fclose($fn_syn); fclose($fn_syn_part);
+                $total_rows = self::get_total_rows($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
                 
                 echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
                 $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_part_".$ctr."_gnparsed.txt";
@@ -964,7 +966,10 @@ php update_resources/connectors/dwh.php _ COL
                 fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
             }
         }
-        fclose($fn_tax); fclose($fn_syn);
+        fclose($fn_tax); fclose($fn_tax_part);
+        fclose($fn_syn); fclose($fn_syn_part);
+        $total_rows = self::get_total_rows($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
+
         //last batch
         echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
         $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_part_".$ctr."_gnparsed.txt";
@@ -993,8 +998,14 @@ php update_resources/connectors/dwh.php _ COL
         elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "ONY")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
-        elseif($what == "CLP")  { if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true; }
-        elseif($what == "COL")  { if(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true; }
+        elseif($what == "CLP") {
+            if(!$rec['taxonomicStatus']) return true;
+            elseif(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true;
+        }
+        elseif($what == "COL") {
+            if(!$rec['taxonomicStatus']) return true;
+            elseif(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) return true;
+        }
         return false;
     }
     private function is_name_synonym($what, $rec)
