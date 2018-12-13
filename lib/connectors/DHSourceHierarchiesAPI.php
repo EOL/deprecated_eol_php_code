@@ -870,7 +870,7 @@ php update_resources/connectors/dwh.php _ COL
             }
         }
         fclose($fn_tax);
-        echo "\nTotal removed due to undefined parents: [$removed]\n"; // print_r($undefined_parents);
+        echo "\nTotal removed due to undefined ids: [$removed]\n"; // print_r($undefined_parents);
         
         $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
         $txtfile_n = $this->sh[$what]['source'].$pre.".tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\n$pre.tsv.txt [$new]\n";
@@ -986,10 +986,70 @@ php update_resources/connectors/dwh.php _ COL
         $ret = self::build_final_taxonomy_tsv($meta, "synonym");   
         if($this->sh[$what]['run_gnparse'] == true) self::print_duplicates($what, $ret, "_duplicates_syn.txt");
 
+        if($what == "BOM") self::special_case_for_BOM($meta, 'synonym');
+
         //clean-up
         $txtfile = $this->sh[$what]['source']."synonym.tsv";
         $total_rows = self::get_total_rows($txtfile);
         if($total_rows <= 1) unlink($txtfile);
+    }
+    private function special_case_for_BOM($meta, $pre)
+    {   /* special case for BOM where we need to remove from synonym.tsv those duplicates (same canonical but different authorities BOM_duplicates_syn.txt). 
+           That is taxonomicStatus:synonym. */
+        //step 1: get all canonicals from BOM_duplicates_syn.txt
+        $canonicals = array();
+        $path = $this->sh['BOM']['source']."../zFailures/BOM_duplicates_syn.txt";
+        foreach(new FileIterator($path) as $line => $row) {
+            if(!$row) continue;
+            $arr = explode("\t", $row);
+            $canonicals[$arr[0]] = '';
+        }
+        print_r($canonicals);
+        
+        //step 2: remove from .txt where canonicals from step 1.
+        $what = $meta['what']; $i = 0; $removed = 0;
+        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv.txt", "w"); //will overwrite existing. Same temp files used elsewhere but not related. Just a temp file.
+        fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
+        foreach(new FileIterator($this->sh[$what]['source'].$pre.'.tsv') as $line => $row) {
+            $i++; 
+            if($i == 1) {
+                $fields = explode("\t|\t", $row);
+                $fields = array_filter($fields);
+                // print_r($fields);
+            }
+            else {
+                $tmp = explode("\t|\t", $row);
+                if(!$row) continue;
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                /*Array( --- synonym
+                    [uid] => Apatelodidae
+                    [name] => Zanolidae
+                    [type] => synonym
+                    [rank] => 
+                )*/
+                if(isset($canonicals[$rec['name']])) {
+                    $removed++;
+                    // echo "\nto be removed:"; print_r($rec); print_r($ancestry);
+                    continue;
+                }
+                else fwrite($fn_tax, $row."\n");
+            }
+        }
+        fclose($fn_tax);
+        echo "\nTotal removed from special step: [$removed]\n";
+        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
+        $txtfile_n = $this->sh[$what]['source'].$pre.".tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\n$pre.tsv.txt [$new]\n";
+        if($new < $old) {
+            unlink($txtfile_o);
+            Functions::file_rename($txtfile_n, $txtfile_o);
+        }
+        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
     }
     private function is_name_valid($what, $rec)
     {
