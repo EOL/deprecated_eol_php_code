@@ -883,12 +883,15 @@ php update_resources/connectors/dwh.php _ COL
     //========================================================================================end fixing undefined parents
     private function utility_write_all_names($meta)
     {
+        $Taxa2Remove = array();
         $Taxa2Remove = self::Taxa2Remove_from_DH_Resources();
         $Taxa2Remove_resources = array_keys($Taxa2Remove);
         $what = $meta['what']; $i = 0; $ctr = 1;
         //initialize this report file
         $path = $this->sh[$what]['source']."../zFailures/$what"."_failures.txt"; if(file_exists($path)) unlink($path);
-        
+
+        // print_r($Taxa2Remove); print_r($Taxa2Remove_resources); exit("\n[$what]\n");
+
         $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
         $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
@@ -916,7 +919,7 @@ php update_resources/connectors/dwh.php _ COL
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             if(in_array($what, $Taxa2Remove_resources)) {
-                if(isset($Taxa2Remove[$rec['taxonID']])) continue;
+                if(isset($Taxa2Remove[$what][$rec['taxonID']])) continue;
             }
             $t = array();
             $t['parent_id']     = $rec['parentNameUsageID'];
