@@ -883,6 +883,8 @@ php update_resources/connectors/dwh.php _ COL
     //========================================================================================end fixing undefined parents
     private function utility_write_all_names($meta)
     {
+        $Taxa2Remove = self::Taxa2Remove_from_DH_Resources();
+        $Taxa2Remove_resources = array_keys($Taxa2Remove);
         $what = $meta['what']; $i = 0; $ctr = 1;
         //initialize this report file
         $path = $this->sh[$what]['source']."../zFailures/$what"."_failures.txt"; if(file_exists($path)) unlink($path);
@@ -913,6 +915,9 @@ php update_resources/connectors/dwh.php _ COL
             // if($rec['taxonID'] == "Sphingonaepiopsis-Genus-Group") exit;
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
+            if(in_array($what, $Taxa2Remove_resources)) {
+                if(isset($Taxa2Remove[$rec['taxonID']])) continue;
+            }
             $t = array();
             $t['parent_id']     = $rec['parentNameUsageID'];
             $t['name']          = self::fix_sciname($rec['scientificName']);
@@ -1441,6 +1446,17 @@ php update_resources/connectors/dwh.php _ COL
             $uids[$rec[0]] = '';
         }
         return $uids;
+    }
+    private function Taxa2Remove_from_DH_Resources()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1fK4QzdExFRY16Du8nSAY2sJf8NeykkFB8fD0DyKu2nM';
+        $params['range']         = 'Sheet1!A2:C2000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        //start massage array
+        foreach($arr as $item) $final[$item[0]][$item[1]] = '';
+        return $final;
     }
 }
 ?>
