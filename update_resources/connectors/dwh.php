@@ -18,6 +18,7 @@ $func->start($cmdline_params['what']);
 
 // $func->test($cmdline_params['what']);    //for testing only
 // $func->generate_python_file();           //to generate script entry to build_dwh.py
+// $func->start($cmdline_params['what'], "CLP_adjustment"); //from CLP #3 from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
 // $func->compare_results();                //a utility to compare results. During initial stages
 // -------------------------------------------------------------------------------- */
 
