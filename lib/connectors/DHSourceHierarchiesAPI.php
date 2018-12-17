@@ -88,7 +88,7 @@ php update_resources/connectors/dwh.php _ COL
         $this->sh['IOC']['run_gnparse']     = true;
 
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
-        $this->sh['COL']['has_syn']         = true;
+        $this->sh['COL']['has_syn']         = false; //false based from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
         $this->sh['COL']['run_gnparse']     = true;
 
         $this->sh['BOM']['source']          = $this->main_path."/kitchingetal2018/";
@@ -178,13 +178,13 @@ php update_resources/connectors/dwh.php _ COL
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
         // */
     }
-    public function start($what)
+    public function start($what, $special_task = false)
     {
         /*===================================starts here=====================================================================*/
         $this->what = $what;
-        
-        // /* get problematic names from Google sheet
+
         $this->problematic_names = array();
+        // /* get problematic names from Google sheet
         $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
         // print_r($this->problematic_names); exit;
         // */
@@ -194,6 +194,11 @@ php update_resources/connectors/dwh.php _ COL
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
         print_r($meta); //exit;
+
+        if($special_task == "CLP_adjustment") {
+            self::fix_CLP_taxa_with_not_assigned_entries($meta);
+            exit("\n-end fix CLP-\n");
+        }
 
         // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
         self::utility_write_all_names($meta);
@@ -205,7 +210,7 @@ php update_resources/connectors/dwh.php _ COL
             self::remove_undefined_parents_and_their_descendants($meta, $undefined_accepted_ids, 'synonym');
             self::parent_id_check_synonyms($what);
         }
-        exit("\n-end write all names-\n"); //works OK
+        exit("\n-end write all names [$what]-\n"); //works OK
         
         // Then start caching... No longer used. OBSOLETE
         // self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_2_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
@@ -287,10 +292,10 @@ php update_resources/connectors/dwh.php _ COL
             if(count($origs) > 1) {
                 $k = 0;
                 foreach($origs as $orig) {
-                    if($canon != $orig && $canon) {
+                    // if($canon != $orig && $canon) {
                         fwrite($FILE, $canon."\t".$orig."\n");
                         $k++;
-                    }
+                    // }
                 }
                 fwrite($FILE, "\n");
                 if($k == 1) fwrite($FILE, "***\n");
@@ -818,6 +823,113 @@ php update_resources/connectors/dwh.php _ COL
         }
         return false;
     }
+    //=========================================================================== start adjusting taxon.tab with those 'not assigned' entries
+    private function get_taxID_nodes_info_from_taxon_tab($meta)
+    {
+        $what = $meta['what']; $i = 0;
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit; //use to test if field - value is OK
+            /*Array(
+                [taxonID] => 10145025
+                [furtherInformationURL] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/fc0886d15759a01525b1469534189bb5
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 43060173
+                [scientificName] => Bryometopus alekperovi Foissner, 1998
+                [taxonRank] => species
+                [taxonomicStatus] => accepted name
+            )*/
+            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
+        }
+        return $final;
+    }
+    private function is_there_not_assigned_in_ancestry($ancestry)
+    {
+        // print_r($ancestry);
+        /* just for debug
+        foreach($ancestry as $taxon_id) {
+            $sci = $this->taxID_info[$taxon_id]['n'];
+            echo "\n$taxon_id -- $sci";
+        }
+        */
+        array_shift($ancestry); //remove first element of array, bec first element of $ancestry is the taxon in question.
+        // print_r($ancestry);
+        foreach($ancestry as $taxon_id) {
+            $sci = $this->taxID_info[$taxon_id]['n'];
+            if(stripos($sci, "not assigned") !== false) return true; //string is found
+        }
+        return false;
+    }
+    private function get_valid_parent_from_ancestry($ancestry, $taxonID)
+    {
+        foreach($ancestry as $taxon_id) {
+            if($taxon_id == $taxonID) continue; //exclude the first record
+            $sci = $this->taxID_info[$taxon_id]['n'];
+            if(stripos($sci, "not assigned") !== false) {} //string is found
+            else return $taxon_id;
+        }
+        exit("\nInvestigate no valid parent for taxon_id = [$taxonID]\n");
+    }
+    public function fix_CLP_taxa_with_not_assigned_entries($meta)
+    {
+        $this->taxID_info = self::get_taxID_nodes_info_from_taxon_tab($meta); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
+        // print_r($taxID_info);
+        $what = $meta['what']; $i = 0;
+        $WRITE = fopen($this->sh[$what]['source'].$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) {
+                fwrite($WRITE, $row."\n");
+                continue;
+            }
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit; //use to test if field - value is OK
+            $taxonID = $rec['taxonID'];
+            // if($taxonID == 42990672) { //42990672 //42998538
+                // print_r($rec);
+                $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $this->taxID_info); // print_r($ancestry);
+                if(self::name_is_not_assigned($rec['scientificName'])) continue; //ignore e.g. "Order not assigned" or "Family not assigned"
+                elseif(self::is_there_not_assigned_in_ancestry($ancestry)) {
+                    $valid_parent = self::get_valid_parent_from_ancestry($ancestry, $taxonID);
+                    echo "\nvalid parent is $valid_parent\n";
+                    echo "\nold row: $row\n";
+                    $rec['parentNameUsageID'] = $valid_parent;
+                    $new_row = implode("\t", $rec);
+                    echo "\nnew row: $new_row\n";
+                    fwrite($WRITE, $new_row."\n");
+                }
+                else fwrite($WRITE, $row."\n"); //regular row
+                // exit;
+            // }
+        }
+        fclose($WRITE);
+        $txtfile_o = $this->sh[$what]['source'].$meta['taxon_file'];        $old = self::get_total_rows($txtfile_o); echo "\nOld taxon.tab: [$old]\n";
+        $txtfile_n = $this->sh[$what]['source'].$meta['taxon_file'].".txt"; $new = self::get_total_rows($txtfile_n); echo "\nNew taxon.tab.txt: [$new]\n";
+    }
+    private function name_is_not_assigned($str)
+    {
+        if(stripos($str, "not assigned") !== false) return true;
+        return false;
+    }
+    //=========================================================================== end adjusting taxon.tab with those 'not assigned' entries
     private function remove_undefined_parents_and_their_descendants($meta, $undefined_parents, $pre)
     {
         $taxID_info = self::get_taxID_nodes_info($meta); echo "\ntaxID_info (taxonomy.tsv) total rows: ".count($taxID_info)."\n";
@@ -1064,12 +1176,17 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function is_name_valid($what, $rec)
     {
-        if    ($what == "ASW")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
+        if   ($what == "trunk") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        elseif($what == "ictv") return true;
+        elseif($what == "IOC") return true;
+        elseif($what == "ASW")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
         elseif($what == "ODO")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
         elseif($what == "BOM")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
+        elseif($what == "ERE")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        elseif($what == "ONY")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        elseif($what == "EET")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "NCBI") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "WOR")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
-        elseif($what == "ONY")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "CLP") {
             if(!$rec['taxonomicStatus']) return true;
             elseif(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name", ""))) return true;
@@ -1078,7 +1195,7 @@ php update_resources/connectors/dwh.php _ COL
             if(!$rec['taxonomicStatus']) return true;
             elseif(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) return true;
         }
-        return false;
+        exit("\nUndefined resource here\n");
     }
     private function is_name_synonym($what, $rec)
     {
