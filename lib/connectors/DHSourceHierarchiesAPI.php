@@ -1034,6 +1034,9 @@ php update_resources/connectors/dwh.php _ COL
             }
             // print_r($rec); //exit; //use to test if field - value is OK
             // if($rec['taxonID'] == "Sphingonaepiopsis-Genus-Group") exit;
+            
+            $this->debug[$rec['taxonomicStatus']] = ''; //for debug only
+            
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             if(in_array($what, $Taxa2Remove_resources)) {
@@ -1190,7 +1193,10 @@ php update_resources/connectors/dwh.php _ COL
         elseif($what == "IOC") return true;
         elseif($what == "ASW")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
         elseif($what == "ODO")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
-        elseif($what == "BOM")  { if(in_array($rec['taxonomicStatus'], array("valid"))) return true; }
+        elseif($what == "BOM")  { 
+            if(!$rec['taxonomicStatus']) return false;
+            if(in_array($rec['taxonomicStatus'], array("valid"))) return true; 
+        }
         elseif($what == "ERE")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "ONY")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         elseif($what == "EET")  { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
