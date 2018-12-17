@@ -186,12 +186,6 @@ php update_resources/connectors/dwh.php _ COL
         /*===================================starts here=====================================================================*/
         $this->what = $what;
 
-        $this->problematic_names = array();
-        // /* get problematic names from Google sheet
-        $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
-        // print_r($this->problematic_names); exit;
-        // */
-        
         $meta_xml_path = $this->sh[$what]['source']."meta.xml";
         $meta = self::analyze_meta_xml($meta_xml_path);
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
@@ -200,8 +194,14 @@ php update_resources/connectors/dwh.php _ COL
 
         if($special_task == "CLP_adjustment") {
             self::fix_CLP_taxa_with_not_assigned_entries($meta);
-            exit("\n-end fix CLP-\n");
+            exit("\n-end fix [$what]-\n");
         }
+
+        $this->problematic_names = array();
+        // /* get problematic names from Google sheet
+        $this->problematic_names = self::get_problematic_names();   //UN-COMMENT IN REAL OPERATION
+        // print_r($this->problematic_names); exit;
+        // */
 
         // /* utility write all names. This has now become the only sustainable approach especially for big resources like COL, since it has 3,620,095 rows
         self::utility_write_all_names($meta);
