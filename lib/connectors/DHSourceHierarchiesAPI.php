@@ -1014,7 +1014,9 @@ php update_resources/connectors/dwh.php _ COL
         fwrite($fn_tax_part, implode("\t", array("name"))."\n");
         fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
         
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+        $file = $this->sh[$what]['source'].$meta['taxon_file'];
+        if(in_array($what, array("COL", "CLP"))) $file .= ".txt"; //these 2 resources are fixed by fix_CLP_taxa_with_not_assigned_entries()
+        foreach(new FileIterator($file) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
