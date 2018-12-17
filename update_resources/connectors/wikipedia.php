@@ -155,6 +155,23 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	            Wednesday 2018-11-14 09:33:50 AM{"media_resource.tab":737715,"taxon.tab":388855}
 80	            Monday 2018-11-19 12:46:35 PM	{"media_resource.tab":573888,"taxon.tab":312084} -- big reduction
 80	            Tuesday 2018-11-20 12:22:44 PM	{"media_resource.tab":737413,"taxon.tab":388855} -- back to normal
+80	            Friday 2018-12-14 08:58:32 PM	{"media_resource.tab":738993,"taxon.tab":389728} -- looking good :-)
+
+wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
+wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
+wikipedia-es	Tuesday 2018-10-16 12:05:22 AM	{"media_resource.tab":300460,"taxon.tab":165470}
+wikipedia-es	Wednesday 2018-11-14 07:12:40 AM{"media_resource.tab":305501,"taxon.tab":168126}
+wikipedia-es	Monday 2018-11-19 12:45:00 PM	{"media_resource.tab":181219,"taxon.tab":107133} -- big reduction
+wikipedia-es	Monday 2018-11-19 05:22:14 PM	{"media_resource.tab":305501,"taxon.tab":168126} -- back to normal
+wikipedia-es	Sunday 2018-12-16 10:52:06 AM	{"media_resource.tab":306063,"taxon.tab":168420} -- looking good :-)
+
+wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
+wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
+wikipedia-it	Friday 2018-04-27 05:50:21 AM	{"media_resource.tab":64854,"taxon.tab":40067}
+wikipedia-it	Thursday 2018-10-11 11:05:17 AM	{"media_resource.tab":64853,"taxon.tab":40067}
+wikipedia-it	Tuesday 2018-11-13 07:56:41 PM	{"media_resource.tab":67470,"taxon.tab":41498}
+wikipedia-it	Monday 2018-11-19 05:38:43 AM	{"media_resource.tab":67470,"taxon.tab":41498}
+wikipedia-it	Sunday 2018-12-16 07:33:26 PM	{"media_resource.tab":67624,"taxon.tab":41605} -- looking good :-)
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
@@ -169,13 +186,6 @@ wikipedia-fr	Sunday 2018-10-14 11:36:53 AM	{"media_resource.tab":214976,"taxon.t
 wikipedia-fr	Wednesday 2018-11-14 09:40:10 PM{"media_resource.tab":224117,"taxon.tab":124547} might change...
 wikipedia-fr	Thursday 2018-11-15 05:24:25 AM	{"media_resource.tab":224055,"taxon.tab":124547}
 wikipedia-fr	Monday 2018-11-19 07:24:35 AM	{"media_resource.tab":224056,"taxon.tab":124547}
-
-wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
-wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
-wikipedia-es	Tuesday 2018-10-16 12:05:22 AM	{"media_resource.tab":300460,"taxon.tab":165470}
-wikipedia-es	Wednesday 2018-11-14 07:12:40 AM{"media_resource.tab":305501,"taxon.tab":168126}
-wikipedia-es	Monday 2018-11-19 12:45:00 PM	{"media_resource.tab":181219,"taxon.tab":107133} -- big reduction
-wikipedia-es	Monday 2018-11-19 05:22:14 PM	{"media_resource.tab":305501,"taxon.tab":168126} -- back to normal
 
 wikipedia-ko	Thursday 2017-11-30 10:29:47 PM	{"media_resource.tab":24527,"taxon.tab":16954}
 wikipedia-ko	Sunday 2017-12-03 12:48:17 AM	{"media_resource.tab":24701,"taxon.tab":17060}
@@ -196,13 +206,6 @@ wikipedia-ru	Saturday 2018-04-28 08:31:18 PM	{"media_resource.tab":77630,"taxon.
 wikipedia-ru	Saturday 2018-10-13 03:14:13 AM	{"media_resource.tab":77574,"taxon.tab":47321}
 wikipedia-ru	Saturday 2018-11-17 03:13:13 AM	{"media_resource.tab":81804,"taxon.tab":49707}
 wikipedia-ru	Monday 2018-11-19 11:20:03 AM	{"media_resource.tab":81804,"taxon.tab":49707}
-
-wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
-wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
-wikipedia-it	Friday 2018-04-27 05:50:21 AM	{"media_resource.tab":64854,"taxon.tab":40067}
-wikipedia-it	Thursday 2018-10-11 11:05:17 AM	{"media_resource.tab":64853,"taxon.tab":40067}
-wikipedia-it	Tuesday 2018-11-13 07:56:41 PM	{"media_resource.tab":67470,"taxon.tab":41498}
-wikipedia-it	Monday 2018-11-19 05:38:43 AM	{"media_resource.tab":67470,"taxon.tab":41498}
 
 wikipedia-pt	Sunday 2017-12-03 01:34:21 AM	{"media_resource.tab":192390,"taxon.tab":108840}
 wikipedia-pt	Friday 2018-05-04 01:26:59 PM	{"media_resource.tab":192384,"taxon.tab":108838}
