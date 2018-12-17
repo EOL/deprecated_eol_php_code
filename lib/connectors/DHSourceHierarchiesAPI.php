@@ -1035,7 +1035,7 @@ php update_resources/connectors/dwh.php _ COL
             // print_r($rec); //exit; //use to test if field - value is OK
             // if($rec['taxonID'] == "Sphingonaepiopsis-Genus-Group") exit;
             
-            $this->debug[$rec['taxonomicStatus']] = ''; //for debug only
+            // $this->debug[$rec['taxonomicStatus']] = ''; //for debug only
             
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
