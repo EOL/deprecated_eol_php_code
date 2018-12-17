@@ -173,6 +173,9 @@ php update_resources/connectors/dwh.php _ COL
         
         // /* get uuid
         $str = "unplaced extinct Onychophora\n";
+        $str = "Pseudostaffella bareпtsevensis Solovieva, 1984
+        Profusulinella оblопgа Potievskaya, 1964
+        Kanmeraia amdeгmensis Solovieva, 1984";
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
@@ -210,7 +213,7 @@ php update_resources/connectors/dwh.php _ COL
             self::remove_undefined_parents_and_their_descendants($meta, $undefined_accepted_ids, 'synonym');
             self::parent_id_check_synonyms($what);
         }
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
         exit("\n-end write all names [$what]-\n"); //works OK
         
         // Then start caching... No longer used. OBSOLETE
@@ -1290,10 +1293,10 @@ php update_resources/connectors/dwh.php _ COL
                     [type] => synonym
                 )*/
                 $canon = $canonicals[$i-2];
-                if(!$canon) {
-                    /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
-                    if($val = @$this->problematic_names[$rec['uid']]) $canon = $val;
-                    else {
+                /*this is to fix this issue: Notes on data set preprocessing: #2. gnparser https://docs.google.com/spreadsheets/d/1A08xM14uDjsrs-R5BXqZZrbI_LiDNKeO6IfmpHHc6wg/edit?usp=sharing#gid=789044618 */
+                if($val = @$this->problematic_names[$rec['uid']]) $canon = $val;
+                else {
+                    if(!$canon) {
                         self::write_gnparser_failures($what, $rec['name'], "_failures");
                         $canon = $withAuthor[$i-2]; //if failure, will get the original string as the canonical.
                     }
