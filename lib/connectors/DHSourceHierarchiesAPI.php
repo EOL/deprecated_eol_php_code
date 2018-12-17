@@ -210,6 +210,7 @@ php update_resources/connectors/dwh.php _ COL
             self::remove_undefined_parents_and_their_descendants($meta, $undefined_accepted_ids, 'synonym');
             self::parent_id_check_synonyms($what);
         }
+        print_r($this->debug);
         exit("\n-end write all names [$what]-\n"); //works OK
         
         // Then start caching... No longer used. OBSOLETE
@@ -1050,7 +1051,10 @@ php update_resources/connectors/dwh.php _ COL
                         $has_synonym = true;
                     }
                 }
-                elseif(($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == "") {
+                elseif( (
+                            ($t['accepted_id'] == $t['taxon_id']) || $t['accepted_id'] == ""
+                        ) && @$rec['taxonomicStatus'] != "synonym"
+                      ) {
                     if(self::is_name_valid($what, $rec)) {
                         self::write2file_tmp("tax", $fn_tax, $t);
                         self::write2file_tmp("tax_part", $fn_tax_part, $t);
@@ -1197,7 +1201,9 @@ php update_resources/connectors/dwh.php _ COL
             if(!$rec['taxonomicStatus']) return true;
             elseif(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) return true;
         }
-        exit("\nUndefined resource here\n");
+        // print_r($rec);
+        // $this->debug[$rec['taxonID']] = ''; //for debug only
+        exit("\nUndefined resource here [$what]\n");
     }
     private function is_name_synonym($what, $rec)
     {
