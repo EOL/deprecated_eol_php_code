@@ -60,6 +60,7 @@ php update_resources/connectors/dwh.php _ COL
 
         // /* new list ---------------------------------------------------------------------------------------------------
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
+        $this->sh['EET']['destin']          = $this->main_path."/zDestination/EET/";
         $this->sh['EET']['has_syn']         = false;
         $this->sh['EET']['run_gnparse']     = true;
 
@@ -459,6 +460,7 @@ php update_resources/connectors/dwh.php _ COL
         $out = shell_exec($cmd); echo "\n$out\n";
         self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
     }
+    /*
     private function run_file_with_gnparser_new_v2($meta) //
     {
         $xname = "name_onlyx2";
@@ -478,11 +480,11 @@ php update_resources/connectors/dwh.php _ COL
                 $k++;
             }
             // print_r($rec); //exit; //use to test if field - value is OK
-            // /* breakdown when caching:
-            $cont = false;
-            if($i >=  931834 && $i < 4000000) $cont = true;
-            if(!$cont) continue;
-            // */
+            // breakdown when caching:
+            // $cont = false;
+            // if($i >=  931834 && $i < 4000000) $cont = true;
+            // if(!$cont) continue;
+            //
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             if($val = @$rec['scientificName']) {
                 if(!self::cache_exists($val)) {
@@ -508,6 +510,7 @@ php update_resources/connectors/dwh.php _ COL
             self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
         }
     }
+    */
     /*
     private function run_file_with_gnparser($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
