@@ -183,6 +183,9 @@ php update_resources/connectors/dwh.php _ COL
         'gammarus' heteroclitus Viviani, 1805
         'gammarus'
         V";
+        $str = "Asaccus kurdistanensis Rastegar-pouyani,nilson & Faizi, 2006
+        Polydrosus van volxemi Dalla Torre & van Emden, 1936
+        Hilipus de geeri Boheman, C.H. in Schönherr, C.J., 1836";
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
