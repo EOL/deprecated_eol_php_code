@@ -60,7 +60,6 @@ php update_resources/connectors/dwh.php _ COL
 
         // /* new list ---------------------------------------------------------------------------------------------------
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
-        $this->sh['EET']['destin']          = $this->main_path."/zDestination/EET/";
         $this->sh['EET']['has_syn']         = false;
         $this->sh['EET']['run_gnparse']     = true;
 
@@ -177,6 +176,13 @@ php update_resources/connectors/dwh.php _ COL
         $str = "Pseudostaffella bareпtsevensis Solovieva, 1984
         Profusulinella оblопgа Potievskaya, 1964
         Kanmeraia amdeгmensis Solovieva, 1984";
+        $str = "V sinister Liebherr, 2005
+        V vanemdeni Liebherr, 2005
+        Mesochra incertae sedis
+        Mesochra incertae sedis lybica Blanchard & Richard, 1891
+        'gammarus' heteroclitus Viviani, 1805
+        'gammarus'
+        V";
         $arr = explode("\n", $str); $arr = array_map('trim', $arr);
         $arr = array_unique($arr);  foreach($arr as $a) $final[$a] = '';
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
@@ -184,6 +190,8 @@ php update_resources/connectors/dwh.php _ COL
     }
     public function start($what, $special_task = false)
     {
+        $this->sh[$what]['destin'] = $this->main_path."/zDestination/$what/";
+        if(!is_dir($this->sh[$what]['destin'])) mkdir($this->sh[$what]['destin']);
         /*===================================starts here=====================================================================*/
         $this->what = $what;
 
@@ -270,7 +278,7 @@ php update_resources/connectors/dwh.php _ COL
     {
         $filenames = array('taxonomy.tsv', 'synonym.tsv', 'taxon.tab', 'taxa.txt');
         foreach($filenames as $filename) {
-            $file = $this->sh[$what]['source'].$filename;
+            $file = $this->sh[$what]['destin'].$filename;
             if(file_exists($file)) {
                 $total = shell_exec("wc -l < ".escapeshellarg($file));
                 $total = trim($total);  echo "\n$filename: [$total]\n";
@@ -279,7 +287,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function get_ctr_value($what)
     {
-        $directory = $this->sh[$what]['source'];
+        $directory = $this->sh[$what]['destin'];
         $filecount = 0;
         $files = glob($directory . "taxonomy_*_gnparsed.txt"); //taxonomy_1_gnparsed.txt
         if($files) $filecount = count($files);
@@ -369,7 +377,7 @@ php update_resources/connectors/dwh.php _ COL
         echo "\n-------------------------------\nStarts parent_id check...\n"; $undefined_parents = array();
         $uids = self::get_uids_from_taxonomy_tsv($what);
         echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
-        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+        foreach(new FileIterator($this->sh[$what]['destin'].'taxonomy.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
             if($parent_uid = @$rec[1]) {
@@ -384,11 +392,11 @@ php update_resources/connectors/dwh.php _ COL
     }
     private function parent_id_check_synonyms($what)
     {
-        if(!file_exists($this->sh[$what]['source'].'synonym.tsv')) return array();
+        if(!file_exists($this->sh[$what]['destin'].'synonym.tsv')) return array();
         echo "\n-------------------------------\nStarts accepted_id check synonyms...\n"; $undefined_accepted_ids = array();
         $uids = self::get_uids_from_taxonomy_tsv($what);
         echo "\nuids: ".count($uids)."\n"; $i = 0; $undefined_parents = array();
-        foreach(new FileIterator($this->sh[$what]['source'].'synonym.tsv') as $line => $row) {
+        foreach(new FileIterator($this->sh[$what]['destin'].'synonym.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
             if($accepted_id = @$rec[0]) {
@@ -401,6 +409,7 @@ php update_resources/connectors/dwh.php _ COL
         }
         return $undefined_accepted_ids;
     }
+    /*
     private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
     {
         $xname = "name_only1";
@@ -421,27 +430,19 @@ php update_resources/connectors/dwh.php _ COL
             }
             // print_r($rec); //exit; //use to test if field - value is OK
             
-            /* A good way to pinpoint the row count - works OK
-            if($rec['scientificName'] == "Euchilofulvius carinatus (Poppius, 1913)") exit("\n---[$i]---\n");
-            else continue;
-            */
+            // A good way to pinpoint the row count - works OK
+            // if($rec['scientificName'] == "Euchilofulvius carinatus (Poppius, 1913)") exit("\n---[$i]---\n");
+            // else continue;
             
-            /* breakdown when caching:
-            $cont = false;
-            // if($i >=  1    && $i < $m)   $cont = true;
-            // if($i >=  $m   && $i < $m*2) $cont = true;
-            // if($i >=  $m*2 && $i < $m*3) $cont = true;
-            // if($i >=  $m*3 && $i < $m*4) $cont = true;
-            // if($i >=  $m*4 && $i < $m*5) $cont = true;
-            // if($i >=  $m*5 && $i < $m*6) $cont = true;
-            // if($i >=  $m*6 && $i < $m*7) $cont = true;
-            // if($i >=  $m*7 && $i < $m*8) $cont = true;
-            // if($i >=  $m*8 && $i < $m*9) $cont = true;
-            // if($i >=  $m*9 && $i < $m*10) $cont = true;
-            // if($i >= 1,851,000 && $i < 1900000) $cont = true; done
-            // if($i >= 1,908,000 && $i < 2000000) $cont = true; done
-            if(!$cont) continue;
-            */
+            
+            // breakdown when caching:
+            // $cont = false;
+            // // if($i >=  1    && $i < $m)   $cont = true;
+            // // if($i >=  $m   && $i < $m*2) $cont = true;
+            // // if($i >=  $m*2 && $i < $m*3) $cont = true;
+            // // if($i >=  $m*3 && $i < $m*4) $cont = true;
+            // if(!$cont) continue;
+            
             
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
             if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
@@ -460,6 +461,7 @@ php update_resources/connectors/dwh.php _ COL
         $out = shell_exec($cmd); echo "\n$out\n";
         self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
     }
+    */
     /*
     private function run_file_with_gnparser_new_v2($meta) //
     {
@@ -773,7 +775,7 @@ php update_resources/connectors/dwh.php _ COL
     private function get_taxID_nodes_info($meta)
     {
         $what = $meta['what']; $i = 0;
-        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+        foreach(new FileIterator($this->sh[$what]['destin'].'taxonomy.tsv') as $line => $row) {
             $i++; 
             if($i == 1) $fields = explode("\t|\t", $row);
             else {
@@ -944,10 +946,10 @@ php update_resources/connectors/dwh.php _ COL
         $taxID_info = self::get_taxID_nodes_info($meta); echo "\ntaxID_info (taxonomy.tsv) total rows: ".count($taxID_info)."\n";
         $what = $meta['what']; $i = 0; $removed = 0;
         
-        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv.txt", "w"); //will overwrite existing
+        $fn_tax = fopen($this->sh[$what]['destin'].$pre.".tsv.txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
         
-        foreach(new FileIterator($this->sh[$what]['source'].$pre.'.tsv') as $line => $row) {
+        foreach(new FileIterator($this->sh[$what]['destin'].$pre.'.tsv') as $line => $row) {
             $i++; 
             if($i == 1) {
                 $fields = explode("\t|\t", $row);
@@ -993,13 +995,13 @@ php update_resources/connectors/dwh.php _ COL
         fclose($fn_tax);
         echo "\nTotal removed due to undefined ids: [$removed]\n"; // print_r($undefined_parents);
         
-        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
-        $txtfile_n = $this->sh[$what]['source'].$pre.".tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\n$pre.tsv.txt [$new]\n";
+        $txtfile_o = $this->sh[$what]['destin'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
+        $txtfile_n = $this->sh[$what]['destin'].$pre.".tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\n$pre.tsv.txt [$new]\n";
         if($new < $old) {
             unlink($txtfile_o);
             Functions::file_rename($txtfile_n, $txtfile_o);
         }
-        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
+        $txtfile_o = $this->sh[$what]['destin'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
     }
     //========================================================================================end fixing undefined parents
     private function utility_write_all_names($meta)
@@ -1013,13 +1015,13 @@ php update_resources/connectors/dwh.php _ COL
 
         // print_r($Taxa2Remove); print_r($Taxa2Remove_resources); exit("\n[$what]\n");
 
-        $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
-        $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
+        $fn_tax = fopen($this->sh[$what]['destin']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
+        $fn_syn = fopen($this->sh[$what]['destin']."synonym_".$ctr.".txt", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
         fwrite($fn_syn, implode("\t", $this->synonym_header_tmp) ."\n");
 
-        $fn_tax_part = fopen($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt", "w"); //will overwrite existing
-        $fn_syn_part = fopen($this->sh[$what]['source']."synonym_part_".$ctr.".txt", "w"); //will overwrite existing
+        $fn_tax_part = fopen($this->sh[$what]['destin']."taxonomy_part_".$ctr.".txt", "w"); //will overwrite existing
+        $fn_syn_part = fopen($this->sh[$what]['destin']."synonym_part_".$ctr.".txt", "w"); //will overwrite existing
         fwrite($fn_tax_part, implode("\t", array("name"))."\n");
         fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
         
@@ -1082,38 +1084,38 @@ php update_resources/connectors/dwh.php _ COL
             if(($i % 200000) == 0) { //500000 orig
                 fclose($fn_tax); fclose($fn_tax_part);
                 fclose($fn_syn); fclose($fn_syn_part);
-                $total_rows = self::get_total_rows($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
+                $total_rows = self::get_total_rows($this->sh[$what]['destin']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
                 if($total_rows > 500000) exit("\ngnparser cannot process more than 500K. Reduce batch process further. Current is 200K.\n");
                 
                 echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
-                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_part_".$ctr."_gnparsed.txt";
+                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['destin']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['destin']."taxonomy_part_".$ctr."_gnparsed.txt";
                 $out = shell_exec($cmd); echo "\n$out\n";
                 echo "\nrunning gnparser to synonym_".$ctr.".txt\n";
-                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_part_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_part_".$ctr."_gnparsed.txt";
+                $cmd = "gnparser file -f simple --input ".$this->sh[$what]['destin']."synonym_part_".$ctr.".txt --output ".$this->sh[$what]['destin']."synonym_part_".$ctr."_gnparsed.txt";
                 $out = shell_exec($cmd); echo "\n$out\n";
                 
                 $ctr++;
-                $fn_tax = fopen($this->sh[$what]['source']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
-                $fn_syn = fopen($this->sh[$what]['source']."synonym_".$ctr.".txt", "w"); //will overwrite existing
+                $fn_tax = fopen($this->sh[$what]['destin']."taxonomy_".$ctr.".txt", "w"); //will overwrite existing
+                $fn_syn = fopen($this->sh[$what]['destin']."synonym_".$ctr.".txt", "w"); //will overwrite existing
                 fwrite($fn_tax, implode("\t", $this->taxonomy_header_tmp)."\n");
                 fwrite($fn_syn, implode("\t", $this->synonym_header_tmp) ."\n");
                 
-                $fn_tax_part = fopen($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt", "w"); //will overwrite existing
-                $fn_syn_part = fopen($this->sh[$what]['source']."synonym_part_".$ctr.".txt", "w"); //will overwrite existing
+                $fn_tax_part = fopen($this->sh[$what]['destin']."taxonomy_part_".$ctr.".txt", "w"); //will overwrite existing
+                $fn_syn_part = fopen($this->sh[$what]['destin']."synonym_part_".$ctr.".txt", "w"); //will overwrite existing
                 fwrite($fn_tax_part, implode("\t", array("name"))."\n");
                 fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
             }
         }
         fclose($fn_tax); fclose($fn_tax_part);
         fclose($fn_syn); fclose($fn_syn_part);
-        $total_rows = self::get_total_rows($this->sh[$what]['source']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
+        $total_rows = self::get_total_rows($this->sh[$what]['destin']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
 
         //last batch
         echo "\nrunning gnparser to taxonomy_".$ctr.".txt\n";
-        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['source']."taxonomy_part_".$ctr."_gnparsed.txt";
+        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['destin']."taxonomy_part_".$ctr.".txt --output ".$this->sh[$what]['destin']."taxonomy_part_".$ctr."_gnparsed.txt";
         $out = shell_exec($cmd); echo "\n$out\n";
         echo "\nrunning gnparser to synonym_".$ctr.".txt\n";
-        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['source']."synonym_part_".$ctr.".txt --output ".$this->sh[$what]['source']."synonym_part_".$ctr."_gnparsed.txt";
+        $cmd = "gnparser file -f simple --input ".$this->sh[$what]['destin']."synonym_part_".$ctr.".txt --output ".$this->sh[$what]['destin']."synonym_part_".$ctr."_gnparsed.txt";
         $out = shell_exec($cmd); echo "\n$out\n";
         
         //now we then create the final taxonomy.tsv by looping to all taxonomy_?.txt
@@ -1126,7 +1128,7 @@ php update_resources/connectors/dwh.php _ COL
         if($what == "BOM") self::special_case_for_BOM($meta, 'synonym');
 
         //clean-up
-        $txtfile = $this->sh[$what]['source']."synonym.tsv";
+        $txtfile = $this->sh[$what]['destin']."synonym.tsv";
         $total_rows = self::get_total_rows($txtfile);
         if($total_rows <= 1) unlink($txtfile);
     }
@@ -1145,9 +1147,9 @@ php update_resources/connectors/dwh.php _ COL
         
         //step 2: remove from .txt where canonicals from step 1.
         $what = $meta['what']; $i = 0; $removed = 0;
-        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv.txt", "w"); //will overwrite existing. Same temp files used elsewhere but not related. Just a temp file.
+        $fn_tax = fopen($this->sh[$what]['destin'].$pre.".tsv.txt", "w"); //will overwrite existing. Same temp files used elsewhere but not related. Just a temp file.
         fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
-        foreach(new FileIterator($this->sh[$what]['source'].$pre.'.tsv') as $line => $row) {
+        foreach(new FileIterator($this->sh[$what]['destin'].$pre.'.tsv') as $line => $row) {
             $i++; 
             if($i == 1) {
                 $fields = explode("\t|\t", $row);
@@ -1180,13 +1182,13 @@ php update_resources/connectors/dwh.php _ COL
         }
         fclose($fn_tax);
         echo "\nTotal removed from special step: [$removed]\n";
-        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
-        $txtfile_n = $this->sh[$what]['source'].$pre.".tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\n$pre.tsv.txt [$new]\n";
+        $txtfile_o = $this->sh[$what]['destin'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
+        $txtfile_n = $this->sh[$what]['destin'].$pre.".tsv.txt"; $new = self::get_total_rows($txtfile_n); echo "\n$pre.tsv.txt [$new]\n";
         if($new < $old) {
             unlink($txtfile_o);
             Functions::file_rename($txtfile_n, $txtfile_o);
         }
-        $txtfile_o = $this->sh[$what]['source'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
+        $txtfile_o = $this->sh[$what]['destin'].$pre.".tsv";     $old = self::get_total_rows($txtfile_o); echo "\n$pre.tsv [$old]\n";
         //step 3: rename BOM_duplicates_syn.txt to show it was already processed
         $path = $this->sh['BOM']['source']."../zFailures/BOM_duplicates_syn.txt";
         Functions::file_rename($path, $path.".proc"); //.proc for processed already
@@ -1229,7 +1231,7 @@ php update_resources/connectors/dwh.php _ COL
     private function get_canonicals_from_gnparser_generated_file($meta, $pre, $cur_ctr)
     {
         $what = $meta['what'];
-        $txtfile = $this->sh[$what]['source'].$pre."_part_".$cur_ctr."_gnparsed.txt"; echo "\nreading [$txtfile]\n";
+        $txtfile = $this->sh[$what]['destin'].$pre."_part_".$cur_ctr."_gnparsed.txt"; echo "\nreading [$txtfile]\n";
         $i = 0; $final = array(); $withAuthor = array();
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++;
@@ -1252,7 +1254,7 @@ php update_resources/connectors/dwh.php _ COL
     private function build_final_taxonomy_tsv($meta, $pre)
     {
         $ctr = $meta['ctr']; $what = $meta['what'];
-        $fn_tax = fopen($this->sh[$what]['source'].$pre.".tsv", "w"); //will overwrite existing
+        $fn_tax = fopen($this->sh[$what]['destin'].$pre.".tsv", "w"); //will overwrite existing
         fwrite($fn_tax, implode("\t|\t", $this->{$pre."_header"})."\t|\t"."\n");
         $test = array();
         for ($c = 1; $c <= $ctr; $c++) {
@@ -1260,7 +1262,7 @@ php update_resources/connectors/dwh.php _ COL
             $canonicals = $ret[0];
             $withAuthor = $ret[1];
             
-            $txtfile = $this->sh[$what]['source'].$pre."_".$c.".txt"; echo "\nprocessing [$txtfile]\n";
+            $txtfile = $this->sh[$what]['destin'].$pre."_".$c.".txt"; echo "\nprocessing [$txtfile]\n";
 
             //just for progress indicator
             $total_rows = self::get_total_rows($txtfile);
@@ -1345,6 +1347,7 @@ php update_resources/connectors/dwh.php _ COL
         elseif($ext == "tax") fwrite($fn, $t['name'] . "\t" . $t['taxon_id'] . "\t" . $t['parent_id'] . "\t" . $t['rank'] . "\n");
         if(in_array($ext, array("tax_part", "syn_part"))) fwrite($fn, $t['name'] . "\n");
     }
+    /*
     private function run_TSV_file_with_gnparser_new($file, $what)
     {
         $i = 0;
@@ -1354,15 +1357,15 @@ php update_resources/connectors/dwh.php _ COL
             $arr = explode("\t", $row);
             // if(($i % 10000) == 0) echo "\n".number_format($i);
             echo " -".number_format($i)."- ";
-            /*Array(
-                [0] => 77f24f37-c0ee-5d53-b21b-56a9c1c2e25b
-                [1] => Caulanthus crassicaulis var. glaber M.E. Jones   -   verbatim
-                [2] => Caulanthus crassicaulis glaber                   -   canonicalName->value
-                [3] => Caulanthus crassicaulis var. glaber              -   canonicalName->valueRanked
-                [4] => M. E. Jones
-                [5] => 
-                [6] => 1
-            )*/
+            // Array(
+            //     [0] => 77f24f37-c0ee-5d53-b21b-56a9c1c2e25b
+            //     [1] => Caulanthus crassicaulis var. glaber M.E. Jones   -   verbatim
+            //     [2] => Caulanthus crassicaulis glaber                   -   canonicalName->value
+            //     [3] => Caulanthus crassicaulis var. glaber              -   canonicalName->valueRanked
+            //     [4] => M. E. Jones
+            //     [5] => 
+            //     [6] => 1
+            // )
             $verbatim = $arr[1];
             if(!self::cache_exists($verbatim)) {
                 echo "\n$verbatim -> no rec";
@@ -1370,6 +1373,7 @@ php update_resources/connectors/dwh.php _ COL
             }
         }
     }
+    */
     private function cache_exists($name, $options = array())
     {
         if(!isset($options['cache_path'])) $options['cache_path'] = $this->smasher_download_options['cache_path'];
@@ -1492,11 +1496,11 @@ php update_resources/connectors/dwh.php _ COL
         $sets = array_keys($this->sh);
         print_r($sets);
         foreach($sets as $what) {
-            $txtfile = $this->sh[$what]['source']."taxonomy.tsv";
+            $txtfile = $this->sh[$what]['destin']."taxonomy.tsv";
             $total_rows = self::get_total_rows($txtfile);
             echo "\nTotal $what: [".number_format($total_rows)."]\n";
 
-            $txtfile = $this->sh[$what]['source']."taxonomy orig.tsv";
+            $txtfile = $this->sh[$what]['destin']."taxonomy orig.tsv";
             $total_rows = self::get_total_rows($txtfile);
             echo "\nTotal $what old: [".number_format($total_rows)."]\n";
         }
@@ -1513,6 +1517,7 @@ php update_resources/connectors/dwh.php _ COL
         $i = 0;
         foreach($final as $hierarchy) {
             $i++; echo "# $i. $hierarchy\n";
+            $this->sh[$hierarchy]['destin'] = $this->main_path."/zDestination/$hierarchy/";
         }
         /*
         trunk = Taxonomy.getTaxonomy('t/tax/trunk_20170614/', 'trunk')
@@ -1520,8 +1525,9 @@ php update_resources/connectors/dwh.php _ COL
         */
         $str = "#use this to load the taxonomies\n\n";
         foreach($final as $h) {
-            $folder = str_replace($this->main_path, "", $this->sh[$h]['source']);
-            // echo "\n".$this->sh[$h]['source'];
+            $folder = str_replace($this->main_path, "", $this->sh[$h]['destin']);
+            $folder = str_replace("zDestination/", "", $folder);
+            // echo "\n".$this->sh[$h]['destin'];
             // echo "\n".$this->main_path;
             $str .= "$h = Taxonomy.getTaxonomy('t/tax/2018_12".$folder."', '".$h."')\n";
         }
@@ -1540,6 +1546,7 @@ php update_resources/connectors/dwh.php _ COL
     }
     public function generate_python_file()
     {
+        
         echo self::phython_file_start();
         $hierarchies = self::priority_list_resources();
         require_library('connectors/GoogleClientAPI');
@@ -1582,7 +1589,7 @@ php update_resources/connectors/dwh.php _ COL
     private function get_uids_from_taxonomy_tsv($what)
     {
         $i = 0;
-        foreach(new FileIterator($this->sh[$what]['source'].'taxonomy.tsv') as $line => $row) {
+        foreach(new FileIterator($this->sh[$what]['destin'].'taxonomy.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
             $uids[$rec[0]] = '';
