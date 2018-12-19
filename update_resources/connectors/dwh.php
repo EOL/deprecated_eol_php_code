@@ -16,11 +16,12 @@ ini_set('memory_limit','7096M'); //required
 $func = new DHSourceHierarchiesAPI();
 $func->start($cmdline_params['what']);
 
-// $func->test($cmdline_params['what']);    //for testing only
-// $func->generate_python_file();           //to generate script entry to build_dwh.py
+// $func->syn_integrity_check();        //to check record integrity of synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
+// $func->generate_python_file();       //to generate script entry to build_dwh.py
+
+// $func->test($cmdline_params['what']);                    //for testing only
 // $func->start($cmdline_params['what'], "CLP_adjustment"); //from CLP #3 from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
-// $func->syn_integrity_check();           //to check record integrity of synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
-// $func->compare_results();                //a utility to compare results. During initial stages
+// $func->compare_results();                                //a utility to compare results. During initial stages
 // -------------------------------------------------------------------------------- */
 
 /* utility ==========================
