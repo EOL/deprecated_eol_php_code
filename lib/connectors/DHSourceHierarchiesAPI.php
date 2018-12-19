@@ -1508,7 +1508,8 @@ php update_resources/connectors/dwh.php _ COL
             echo "\nTotal $what old: [".number_format($total_rows)."]\n";
         }
     }
-    private function priority_list_resources()
+    
+    private function get_order_of_hierarchies()
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -1517,6 +1518,11 @@ php update_resources/connectors/dwh.php _ COL
         $arr = $func->access_google_sheet($params);
         foreach($arr as $item) $final[] = $item[0];
         // print_r($final); //good debug to see perfect order of hierarchies
+        return $final;
+    }
+    private function priority_list_resources()
+    {
+        $final = self::get_order_of_hierarchies();
         $i = 0;
         foreach($final as $hierarchy) {
             $i++; echo "# $i. $hierarchy\n";
@@ -1537,6 +1543,52 @@ php update_resources/connectors/dwh.php _ COL
         echo "\n$str\n";
         return $final;
     }
+    
+    public function syn_integrity_check()
+    {
+        $syn_ids_from_spreadsheet = self::get_syn_ids_from_spreadsheet();
+        /*[IOC] => Array(
+                    [0] => 6168a5808fb28ee5581c52a1994b97ab
+                    [1] => 2b4e5e944dabbf41930904d59ab8feb3
+                )
+        */
+        // exit("\n");
+        $hierarchies = self::get_order_of_hierarchies();
+        print_r($hierarchies);
+        $undefined_ids = array();
+        foreach($hierarchies as $what) {
+            $this->sh[$what]['destin'] = $this->main_path."/zDestination/$what/";
+            $uids = self::get_uids_from_taxonomy_tsv($what);
+            echo "\n $what uids: ".count($uids)."\n";
+            // print_r($uids); exit;
+            foreach($syn_ids_from_spreadsheet[$what] as $id) {
+                if(!isset($uids[$id])) $undefined_ids[$what][$id] = '';
+            }
+        }
+        print_r($undefined_ids);
+        // echo "\n".count($undefined_ids['COL'])."\n";
+    }
+    
+    private function get_syn_ids_from_spreadsheet()
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng';
+        //left side
+        $params['range']         = 'Updated_Sheet1!A2:B1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        foreach($arr as $item) $final[$item[0]][] = $item[1];
+        // print_r($final['WOR']); echo "\n".count($final['WOR'])."\n";
+        //right side
+        $params['range']         = 'Updated_Sheet1!D2:E1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        foreach($arr as $item) $final[$item[0]][] = $item[1];
+        // print_r($final['WOR']); echo "\n".count($final['WOR'])."\n";
+        // print_r($final);
+        return $final;
+    }
+    
+    
     private function phython_file_start()
     {
         $str  = "import sys, os, csv\n\n";
