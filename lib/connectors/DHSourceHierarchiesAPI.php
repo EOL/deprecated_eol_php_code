@@ -1509,6 +1509,20 @@ php update_resources/connectors/dwh.php _ COL
         }
     }
     
+    public function clean_up_destination_folder()
+    {
+        $hierarchies = self::get_order_of_hierarchies();
+        print_r($hierarchies);
+        foreach($hierarchies as $what) {
+            $this->sh[$what]['destin'] = $this->main_path."/zDestination/$what/";
+            $files = $this->sh[$what]['destin']."*.txt";
+            echo "\n\n$what";
+            foreach (glob($files) as $filename) {
+                echo "\n - $filename";
+                unlink($filename);
+            }
+        }
+    }
     private function get_order_of_hierarchies()
     {
         require_library('connectors/GoogleClientAPI');
@@ -1611,7 +1625,10 @@ php update_resources/connectors/dwh.php _ COL
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
            $item[0]                     $item[2]        $item[3]                    $item[5]);  */
-        foreach($arr as $item) $final[$item[3]][] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]); // print_r($final);
+        foreach($arr as $item) {
+            $item = array_map('trim', $item);
+            $final[$item[3]][] = array("PriorityH" => $item[0], "Priority_sci" => $item[2], "SynonymH" => $item[3], "Synonym_sci" => $item[5]); // print_r($final);
+        }
         $str = "#Use this to absorb one taxonomy into another\n\n";
         foreach($hierarchies as $hierarchy) { //synonym portion
             $str .= "alignment = dwh.alignment($hierarchy)\n";
