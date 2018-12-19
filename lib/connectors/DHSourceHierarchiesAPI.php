@@ -1532,7 +1532,7 @@ php update_resources/connectors/dwh.php _ COL
             $folder = str_replace("zDestination/", "", $folder);
             // echo "\n".$this->sh[$h]['destin'];
             // echo "\n".$this->main_path;
-            $str .= "$h = Taxonomy.getTaxonomy('t/tax/2018_12".$folder."', '".$h."')\n";
+            $str .= "$h = Taxonomy.getTaxonomy('t/tax_2018_12".$folder."', '".$h."')\n";
         }
         echo "\n$str\n";
         return $final;
@@ -1549,13 +1549,12 @@ php update_resources/connectors/dwh.php _ COL
     }
     public function generate_python_file()
     {
-        
         echo self::phython_file_start();
         $hierarchies = self::priority_list_resources();
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng';
-        $params['range']         = 'Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'Updated_Sheet1!A2:F1000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         //start massage array
         /* PriorityHierarchy	taxonID	scientificName	SynonymHierarchy	taxonID	scientificName 
