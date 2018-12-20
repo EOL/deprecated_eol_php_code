@@ -13,12 +13,19 @@ $timestart = time_elapsed();
 ini_set('memory_limit','7096M'); //required
 
 // /* //main operation ------------------------------------------------------------
-$func = new DHSourceHierarchiesAPI();
-$func->start($cmdline_params['what']);
+$resource_id = "2018_12_19";
+$func = new DHSourceHierarchiesAPI($resource_id);
+// $func->start($cmdline_params['what']);
 
 // $func->syn_integrity_check();        //to check record integrity of synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
 // $func->generate_python_file();       //to generate script entry to build_dwh.py
 // $func->clean_up_destination_folder();
+
+// /*
+$func->save_all_ids_from_all_hierarchies_2MySQL(); exit("\n-end txt 2MySQL-\n");
+$func->generate_dwca($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, false);
+// */
 
 // $func->test($cmdline_params['what']);                    //for testing only
 // $func->start($cmdline_params['what'], "CLP_adjustment"); //from CLP #3 from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045

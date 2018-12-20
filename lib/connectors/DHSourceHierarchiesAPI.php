@@ -3,18 +3,12 @@ namespace php_active_record;
 /* connector: [dwh.php] */
 class DHSourceHierarchiesAPI
 {
-    function __construct()
+    function __construct($folder)
     {
-        /*
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        if(Functions::is_production()) {}
-        */
-        /* not being used here
-        $this->AphiaRecordByAphiaID_download_options = array('download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26, 'expire_seconds' => false);
-        $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
-        */
+
         $this->gnparser = "http://parser.globalnames.org/api?q=";
         if(Functions::is_production()) {
             $this->smasher_download_options = array(
@@ -191,6 +185,15 @@ php update_resources/connectors/dwh.php _ COL
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
         // */
     }
+    private function get_meta($what)
+    {
+        $meta_xml_path = $this->sh[$what]['source']."meta.xml";
+        $meta = self::analyze_meta_xml($meta_xml_path);
+        if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
+        $meta['what'] = $what;
+        // print_r($meta); //exit;
+        return $meta;
+    }
     public function start($what, $special_task = false)
     {
         $this->sh[$what]['destin'] = $this->main_path."/zDestination/$what/";
@@ -198,11 +201,7 @@ php update_resources/connectors/dwh.php _ COL
         /*===================================starts here=====================================================================*/
         $this->what = $what;
 
-        $meta_xml_path = $this->sh[$what]['source']."meta.xml";
-        $meta = self::analyze_meta_xml($meta_xml_path);
-        if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
-        $meta['what'] = $what;
-        print_r($meta); //exit;
+        $meta = self::get_meta($what);
 
         if($special_task == "CLP_adjustment") {
             self::fix_CLP_taxa_with_not_assigned_entries($meta);
@@ -1657,13 +1656,14 @@ php update_resources/connectors/dwh.php _ COL
         alignment.same(wor.taxon('Codonosiga'), dwh.taxon('Codosiga'))
         */
     }
-    private function get_uids_from_taxonomy_tsv($what)
+    private function get_uids_from_taxonomy_tsv($what, $withNames = false)
     {
         $i = 0;
         foreach(new FileIterator($this->sh[$what]['destin'].'taxonomy.tsv') as $line => $row) {
             $i++; if($i == 1) continue;
             $rec = explode("\t|\t", $row);
-            $uids[$rec[0]] = '';
+            if($withNames)  $uids[$rec[0]] = $rec[2];
+            else            $uids[$rec[0]] = '';
         }
         return $uids;
     }
@@ -1677,6 +1677,82 @@ php update_resources/connectors/dwh.php _ COL
         //start massage array
         foreach($arr as $item) $final[$item[0]][$item[1]] = '';
         return $final;
+    }
+    
+    public function save_all_ids_from_all_hierarchies_2MySQL()
+    {
+        $file = $this->main_path."/zFiles/write2mysql.txt"; $WRITE = fopen($file, "w"); //will overwrite existing
+        $hierarchies = self::get_order_of_hierarchies(); print_r($hierarchies);
+        // $hierarchies = array("CLP");
+        foreach($hierarchies as $what) {
+            $meta = self::get_meta($what);
+            $file = $this->sh[$what]['source'].$meta['taxon_file']; $i = 0;
+            foreach(new FileIterator($file) as $line => $row) {
+                $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+                if($meta['ignoreHeaderLines'] && $i == 1) continue;
+                if(!$row) continue;
+                $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+                $tmp = explode("\t", $row);
+                $rec = array(); $k = 0;
+                foreach($meta['fields'] as $field) {
+                    if(!$field) continue;
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                // print_r($rec); exit("\n-elix-\n");
+                /*Array(
+                    [taxonID] => Erebidae
+                    [scientificName] => Erebidae
+                    [parentNameUsageID] => 
+                    [taxonRank] => family
+                    [taxonomicStatus] => accepted
+                )*/
+                $arr = array($what, $rec['taxonID'], $rec['scientificName']);
+                fwrite($WRITE, implode("\t", $arr)."\n");
+            }
+            echo "\n$what -> $i\n";
+        }
+        fclose($WRITE);
+    }
+    public function generate_dwca($resource_id)
+    {
+        $path = $this->main_path."/zresults_".$resource_id; 
+        $txtfile = $path.'/taxonomy.tsv'; $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t|\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [uid] => 3488a150-bbcb-44cd-b7cf-af758ef8686e
+                [parent_uid] => 
+                [name] => Life
+                [rank] => clade
+                [sourceinfo] => trunk:309e36b5-c6be-4663-80fc-e52b9002d574,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID             = $rec['uid'];
+            $taxon->scientificName      = $rec['name'];
+            $taxon->taxonRemarks        = $rec['sourceinfo'];
+            $this->archive_builder->write_object_to_file($taxon);
+            if($i >= 1000) break; //debug only
+        }
+        $this->archive_builder->finalize(true);
     }
 }
 ?>
