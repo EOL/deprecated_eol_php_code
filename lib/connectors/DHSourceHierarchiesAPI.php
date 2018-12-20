@@ -1715,6 +1715,49 @@ php update_resources/connectors/dwh.php _ COL
         }
         fclose($WRITE);
     }
+    private function generate_synonym_extension($resource_id)
+    {
+        $path = $this->main_path."/zresults_".$resource_id; 
+        $txtfile = $path.'/synonyms.tsv'; $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 100) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t|\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [name] => root
+                [uid] => 3488a150-bbcb-44cd-b7cf-af758ef8686e
+                [type] => synonym
+                [uniqname] => root (synonym for Life)
+                [sourceinfo] => NCBI:1
+            )*/
+            $arr = explode(",", $rec['sourceinfo']);
+            $tmp = $arr[0];
+            $tmp = explode(":", $tmp);
+            
+            $synonym = new \eol_schema\Taxon();
+            $synonym->taxonID               = $tmp[1];
+            $synonym->scientificName        = self::get_orig_sciname_from_mysql($rec);
+            $synonym->canonicalName         = $rec["name"];
+            $synonym->acceptedNameUsageID   = $rec["uid"];
+            $synonym->taxonomicStatus       = "synonym";
+            $synonym->taxonRemarks          = $rec['sourceinfo'];
+            $this->archive_builder->write_object_to_file($synonym);
+        }
+    }
     public function generate_dwca($resource_id)
     {
         $path = $this->main_path."/zresults_".$resource_id; 
@@ -1755,6 +1798,7 @@ php update_resources/connectors/dwh.php _ COL
             $this->archive_builder->write_object_to_file($taxon);
             // if($i >= 1000) break; //debug only
         }
+        self::generate_synonym_extension($resource_id);
         $this->archive_builder->finalize(true);
     }
     private function separate_what_and_taxon_id($haystack)
