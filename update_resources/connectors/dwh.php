@@ -12,6 +12,19 @@ require_library('connectors/DHSourceHierarchiesAPI');
 $timestart = time_elapsed();
 ini_set('memory_limit','7096M'); //required
 
+/*
+$haystack = "ASW:v-Diasporus-sapo-Batista-Köhler-Mebert-Hertz-and-Vesely-2016-Zool.-J.-Linn.-Soc.-178:-274.";
+$replace = "_elix_";
+$needle = ":";
+$pos = strpos($haystack, $needle);
+if ($pos !== false) {
+    $new = substr_replace($haystack, $replace, $pos, strlen($needle));
+}
+echo "\n$haystack";
+echo "\n$new";
+exit("\n");
+*/
+
 // /* //main operation ------------------------------------------------------------
 $resource_id = "2018_12_19";
 $func = new DHSourceHierarchiesAPI($resource_id);
@@ -22,7 +35,7 @@ $func = new DHSourceHierarchiesAPI($resource_id);
 // $func->clean_up_destination_folder();
 
 // /*
-$func->save_all_ids_from_all_hierarchies_2MySQL(); exit("\n-end txt 2MySQL-\n");
+// $func->save_all_ids_from_all_hierarchies_2MySQL(); exit("\n-end txt 2MySQL-\n"); //one-time only. DONE.
 $func->generate_dwca($resource_id);
 Functions::finalize_dwca_resource($resource_id, false, false);
 // */

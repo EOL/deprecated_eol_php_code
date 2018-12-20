@@ -5,6 +5,7 @@ class DHSourceHierarchiesAPI
 {
     function __construct($folder)
     {
+        $this->mysqli =& $GLOBALS['db_connection'];
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -1719,7 +1720,7 @@ php update_resources/connectors/dwh.php _ COL
         $path = $this->main_path."/zresults_".$resource_id; 
         $txtfile = $path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 25000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
             $row = explode("\t|\t", $line); // print_r($row);
             if($i == 1) {
@@ -1747,12 +1748,61 @@ php update_resources/connectors/dwh.php _ COL
             )*/
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID             = $rec['uid'];
-            $taxon->scientificName      = $rec['name'];
+            $taxon->scientificName      = self::get_orig_sciname_from_mysql($rec);
+            $taxon->canonicalName       = $rec['name'];
             $taxon->taxonRemarks        = $rec['sourceinfo'];
             $this->archive_builder->write_object_to_file($taxon);
-            if($i >= 1000) break; //debug only
+            // if($i >= 1000) break; //debug only
         }
         $this->archive_builder->finalize(true);
+    }
+    private function separate_what_and_taxon_id($haystack)
+    {
+        // $haystack = "ASW:v-Diasporus-sapo-Batista-Köhler-Mebert-Hertz-and-Vesely-2016-Zool.-J.-Linn.-Soc.-178:-274.";
+        $replace = "_elix_";
+        $needle = ":";
+        $pos = strpos($haystack, $needle);
+        if ($pos !== false) {
+            $new = substr_replace($haystack, $replace, $pos, strlen($needle));
+            // echo "\n$haystack";
+            // echo "\n$new";
+            $arr = explode($replace, $new);
+            $what = $arr[0];
+            $taxon_id = $arr[1];
+            return array($what, $taxon_id);
+        }
+        return false;
+    }
+    private function get_orig_sciname_from_mysql($rec)
+    {
+        $arr = explode(",", $rec['sourceinfo']);
+        $tmp = $arr[0];
+        $arr = self::separate_what_and_taxon_id($tmp);
+        if(!$arr) {
+            print_r($rec);
+            exit("\nInvestigate sourceinfo\n");
+        }
+        $what = $arr[0];
+        $taxon_id = $arr[1];
+
+        $taxon_id = str_replace("'", "\'", $taxon_id);
+
+        if($val = self::query_orig_sciname($what, $taxon_id)) return $val;
+        
+        echo "\nstart 2nd try:\n";
+        $taxon_id = urldecode($taxon_id);
+
+        if($val = self::query_orig_sciname($what, $taxon_id)) return $val;
+        
+        echo "\nNot found --> what: [$what]  taxon_id: [$taxon_id]";
+        return "";
+    }
+    private function query_orig_sciname($what, $taxon_id)
+    {
+        $sql = "SELECT t.sciname from DWH.ids_scinames t where t.what = '$what' and t.taxon_id = '$taxon_id'";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row['sciname'];
+        return false;
     }
 }
 ?>
