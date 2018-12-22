@@ -210,6 +210,7 @@ wikipedia-ru	Saturday 2018-04-28 08:31:18 PM	{"media_resource.tab":77630,"taxon.
 wikipedia-ru	Saturday 2018-10-13 03:14:13 AM	{"media_resource.tab":77574,"taxon.tab":47321}
 wikipedia-ru	Saturday 2018-11-17 03:13:13 AM	{"media_resource.tab":81804,"taxon.tab":49707}
 wikipedia-ru	Monday 2018-11-19 11:20:03 AM	{"media_resource.tab":81804,"taxon.tab":49707}
+wikipedia-ru	Thursday 2018-12-20 04:02:22 AM	{"media_resource.tab":82064,"taxon.tab":49847} -- looking good :-)
 
 wikipedia-pt	Sunday 2017-12-03 01:34:21 AM	{"media_resource.tab":192390,"taxon.tab":108840}
 wikipedia-pt	Friday 2018-05-04 01:26:59 PM	{"media_resource.tab":192384,"taxon.tab":108838}
@@ -223,6 +224,7 @@ wikipedia-zh	Sunday 2018-10-14 02:59:06 PM	{"media_resource.tab":156560,"taxon.t
 wikipedia-zh	Monday 2018-11-19 12:44:47 PM	{"media_resource.tab":127119,"taxon.tab":78239} -- big reduction
 wikipedia-zh	Tuesday 2018-11-20 07:47:50 AM	{"media_resource.tab":175752,"taxon.tab":103141} -- back to normal
 wikipedia-zh	Tuesday 2018-11-20 03:08:15 PM	{"media_resource.tab":175752,"taxon.tab":103141}
+wikipedia-zh	Friday 2018-12-21 11:58:59 PM	{"media_resource.tab":175948,"taxon.tab":103260} -- looking good :-)
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
