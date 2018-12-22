@@ -1794,6 +1794,7 @@ php update_resources/connectors/dwh.php _ COL
             $taxon->scientificName      = self::get_orig_sciname_from_mysql($rec);
             $taxon->canonicalName       = $rec['name'];
             $taxon->parentNameUsageID   = $rec["parent_uid"];
+            $taxon->taxonRank           = $rec["rank"];
             $taxon->taxonRemarks        = $rec['sourceinfo'];
             $this->archive_builder->write_object_to_file($taxon);
             // if($i >= 1000) break; //debug only
