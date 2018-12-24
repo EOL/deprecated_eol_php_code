@@ -216,6 +216,7 @@ wikipedia-pt	Sunday 2017-12-03 01:34:21 AM	{"media_resource.tab":192390,"taxon.t
 wikipedia-pt	Friday 2018-05-04 01:26:59 PM	{"media_resource.tab":192384,"taxon.tab":108838}
 wikipedia-pt	Monday 2018-11-19 12:44:50 PM	{"media_resource.tab":156778,"taxon.tab":91720} -- big reduction
 wikipedia-pt	Tuesday 2018-11-20 05:17:44 AM	{"media_resource.tab":197927,"taxon.tab":111719} -- back to normal
+wikipedia-pt	Saturday 2018-12-22 11:51:14 AM	{"media_resource.tab":198183,"taxon.tab":111889} -- looking good :-)
 
 wikipedia-zh	Tuesday 2017-11-14 03:41:12 PM	{"media_resource.tab":156137,"taxon.tab":91145}
 wikipedia-zh	Sunday 2017-12-03 12:33:20 AM	{"media_resource.tab":156585,"taxon.tab":91396}
