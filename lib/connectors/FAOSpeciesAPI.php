@@ -37,20 +37,37 @@ class FAOSpeciesAPI
             $sections = array("FAO Names", "Diagnostic Features", "Geographical Distribution", "Habitat and Biology", "Size", "Interest to Fisheries", "Local Names", "Source of Information");
             foreach($sections as $section) {
                 if(preg_match("/>$section<(.*?)bgcolor=\"#6699ff\" align=\"left\"/ims", $html, $arr)) {
-                    $str = "<".str_replace("<br>", " ", $arr[1]);
+                    $str = "<".str_replace(array("<br>", "&nbsp;"), " ", $arr[1]);
                     $str = Functions::remove_whitespace($str);
                     $str = strip_tags($str, "<p><i>");
                     echo "\n[$section]---------------------\n$str\n---------------------\n";
                     if($section == "FAO Names") $rec[$section] = self::parse_FAO_Names($str);
+                    elseif($section == "Geographical Distribution") $rec[$section] = self::parse_Geographical_Distribution($str);
+                    else {
+                        $rec[$section] = self::other_str_format($str);
+                    }
                 }
             }
         }
+        print_r($rec);
+        return $rec;
+    }
+    private function other_str_format($str)
+    {
+        $str = trim($str);
+        if(substr($str,0,3) == "<p>") $str = trim(substr($str,3,strlen($str)));
+        if(substr($str, -3) == "<p>") $str = substr($str,0,strlen($str)-3);
+        return $str;
+    }
+    private function parse_Geographical_Distribution($str)
+    {
+        return "";
     }
     private function parse_FAO_Names($str)
     {
         $final = array();
-        $str = str_replace("&nbsp;", " ", $str);
-        $str = Functions::remove_whitespace($str);
+        // $str = str_replace("&nbsp;", " ", $str);
+        // $str = Functions::remove_whitespace($str);
         // echo "\n[$str]\n";
         if(preg_match("/Taxonomic Code:(.*?)xxx/ims", $str."xxx", $arr)) $final['taxonomic_code'] = trim($arr[1]);
         //get comnames
@@ -68,7 +85,7 @@ class FAOSpeciesAPI
             $comnames[] = array("lang" => strtolower($tmp[0]), "comname" => $tmp[1]);
         }
         $final['comnames'] = $comnames;
-        print_r($final);
+        // print_r($final);
         // exit("\n-end FAO-\n");
         return $final;
     }
