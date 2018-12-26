@@ -41,9 +41,36 @@ class FAOSpeciesAPI
                     $str = Functions::remove_whitespace($str);
                     $str = strip_tags($str, "<p><i>");
                     echo "\n[$section]---------------------\n$str\n---------------------\n";
+                    if($section == "FAO Names") $rec[$section] = self::parse_FAO_Names($str);
                 }
             }
         }
+    }
+    private function parse_FAO_Names($str)
+    {
+        $final = array();
+        $str = str_replace("&nbsp;", " ", $str);
+        $str = Functions::remove_whitespace($str);
+        // echo "\n[$str]\n";
+        if(preg_match("/Taxonomic Code:(.*?)xxx/ims", $str."xxx", $arr)) $final['taxonomic_code'] = trim($arr[1]);
+        //get comnames
+        $tmp = explode("3Alpha", $str);
+        $str = $tmp[0];
+        $str = trim(strip_tags($str));
+        $str = str_replace(".", "", $str);
+        echo "\n[$str]\n";
+        $arr = explode(",", $str);
+        $arr = array_map("trim", $arr);
+        // print_r($arr);
+        $comnames = array();
+        foreach($arr as $val) {
+            $tmp = explode(" - ", $val);
+            $comnames[] = array("lang" => strtolower($tmp[0]), "comname" => $tmp[1]);
+        }
+        $final['comnames'] = $comnames;
+        print_r($final);
+        // exit("\n-end FAO-\n");
+        return $final;
     }
     private function get_ids()
     {
@@ -64,6 +91,5 @@ class FAOSpeciesAPI
         */
         exit("\n-end-\n");
     }
-
 }
 ?>
