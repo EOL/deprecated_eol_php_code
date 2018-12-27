@@ -32,6 +32,7 @@ class FAOSpeciesAPI
     }
     private function create_archive($rec)
     {
+        $rec['taxon_id'] = $rec['FAO Names']['taxonomic_code'];
         print_r($rec);
         self::create_taxon($rec);
         if($val = @$rec['Diagnostic Features'])   self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription", $rec);
@@ -41,7 +42,30 @@ class FAOSpeciesAPI
     }
     private function create_text_object($txt, $subject, $rec)
     {
-        
+        $mr = new \eol_schema\MediaResource();
+        $mr->taxonID        = $rec['taxon_id'];
+            $tmp = pathinfo($subject, PATHINFO_FILENAME);
+            $tmp = explode("#", $tmp);
+        $mr->identifier     = $rec['taxon_id']."_".$tmp[1];
+        $mr->type           = 'http://purl.org/dc/dcmitype/Text';
+        $mr->language       = 'en';
+        $mr->format         = 'text/html';
+        $mr->furtherInformationURL = $rec['furtherInformationURL'];
+        $mr->CVterm         = $subject;
+        // $mr->Owner          = '';
+        // $mr->rights         = $o['dc_rights'];
+        // $mr->title          = $o['dc_title'];
+        $mr->UsageTerms     = 'https://creativecommons.org/licenses/by-nc-sa/3.0/';
+        // $mr->audience       = 'Everyone';
+        $mr->description    = $txt;
+        // $mr->LocationCreated = $o['location'];
+        $mr->bibliographicCitation = $rec['biblio'];
+        // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+        // if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
+        }
     }
     private function create_taxon($rec)
     {   /*Array(
@@ -68,6 +92,8 @@ class FAOSpeciesAPI
             // echo $html; exit;
             $html = Functions::remove_whitespace($html);
             $rec = self::get_sciname($html, $id);
+            $rec['biblio'] = self::get_source_of_information($html, $id);
+            $rec['references'] = self::get_references($html, $id);
             $sections = array("FAO Names", "Diagnostic Features", "Geographical Distribution", "Habitat and Biology", "Size", "Interest to Fisheries", "Local Names", "Source of Information");
             foreach($sections as $section) {
                 if(preg_match("/>$section<(.*?)bgcolor=\"#6699ff\" align=\"left\"/ims", $html, $arr)) {
@@ -88,6 +114,31 @@ class FAOSpeciesAPI
         }
         // print_r($rec);
         return $rec;
+    }
+    private function get_source_of_information($html, $id)
+    {   /*bgcolor="#6699ff" align="left">Source of Information</td><td bgcolor="#6699ff" align="right" width="25%"></td></tr><tr><td colspan="2"><a href="http://www.fao.org/fi/eims_search/advanced_s_result.asp?JOB_NO=x9293" target="_blank">Sharks of the world </a> An annotated and illustrated catalogue of shark species known to date. Volume 2 Bullhead, mackerel and carpet sharks (Heterodontiformes, Lamniformes and Orectolobiformes). Leonard J.V. Compagno&nbsp;2001.&nbsp;
+         FAO Species Catalogue for Fishery Purposes. No. 1, Vol. 2. Rome, FAO. 2001. p.269.</td></tr></tbody></table>
+        */
+        if(preg_match("/>Source of Information<\/td>(.*?)<\/table>/ims", $html, $arr)) return strip_tags($arr[1], "<a>");
+        else exit("\nNo bilio [$id]\n");
+    }
+    private function get_references($html, $id)
+    {   /*>Bibliography</div><div>
+        <div class="sourceEntryTitle">Compagno, 1984</div>
+        <div class="sourceEntryTitle">Fowler, 1941</div>
+        <div class="sourceEntryTitle">Goto &amp; Nakaya, 1996</div>
+        <div class="sourceEntryTitle">Kharin, 1987</div>
+        <div class="sourceEntryTitle">Smith, 1913</div>
+        <div class="sourceEntryTitle">Teng, 1959b</div>
+        </div></div></td></tr></tbody></table>
+        */
+        if(preg_match("/>Bibliography<\/div>(.*?)<\/table>/ims", $html, $arr)) {
+            if(preg_match_all("/<div class=\"sourceEntryTitle\">(.*?)<\/div>/ims", $arr[1], $arr2)) {
+                $final = array_map('trim', $arr2[1]);
+                return $final;
+            }
+        }
+        else exit("\nNo refs [$id]\n");
     }
     private function get_sciname($html, $id)
     {
