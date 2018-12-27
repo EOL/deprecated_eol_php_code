@@ -140,6 +140,7 @@ class FAOSpeciesAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['FAO Names']['taxonomic_code'];
         $taxon->scientificName          = $rec['sciname'];
+        $taxon->taxonRank               = 'species';
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
         $this->archive_builder->write_object_to_file($taxon);
     }
