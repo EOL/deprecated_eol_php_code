@@ -25,7 +25,9 @@ class FAOSpeciesAPI
             // break;
             // exit("\n-stopx-\n");
         }
-        if($this->debug) print_r($this->debug['Country Local Names']);
+        if($val = @$this->debug['Country Local Names'])       print_r($val);
+        // if($val = @$this->debug['Geographical Distribution']) print_r($val);
+        
     }
     private function assemble_record($id)
     {
@@ -120,6 +122,9 @@ class FAOSpeciesAPI
             $arr2 = array_map('trim', $arr2);
             
             $lang_ctry = trim($arr2[0]);
+            $lang_ctry = str_replace("(see Bini, 1970[colon]56)", "(see Bini, 1970:56)", $lang_ctry);
+            
+            
             $arr3 = explode(",", $arr2[1]);
             $arr3 = array_map('trim', $arr3);
             // print_r($arr3);
