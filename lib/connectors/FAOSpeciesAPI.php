@@ -29,6 +29,8 @@ class FAOSpeciesAPI
         $this->archive_builder->finalize(true);
         // if($val = @$this->debug['Country Local Names'])       print_r($val);
         // if($val = @$this->debug['Geographical Distribution']) print_r($val);
+        if($val = @$this->debug['No biblio']) print_r($val);
+        if($val = @$this->debug['No refs']) print_r($val);
     }
     private function create_archive($rec)
     {
@@ -83,7 +85,7 @@ class FAOSpeciesAPI
     }
     private function assemble_record($id)
     {
-        // $id = 2004;
+        $id = 2996;
         $url = str_replace("the_id", $id, $this->local_species_page);
         echo "\n$url\n";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -120,7 +122,7 @@ class FAOSpeciesAPI
          FAO Species Catalogue for Fishery Purposes. No. 1, Vol. 2. Rome, FAO. 2001. p.269.</td></tr></tbody></table>
         */
         if(preg_match("/>Source of Information<\/td>(.*?)<\/table>/ims", $html, $arr)) return strip_tags($arr[1], "<a>");
-        else exit("\nNo bilio [$id]\n");
+        else $this->debug['No biblio'][$id] = '';
     }
     private function get_references($html, $id)
     {   /*>Bibliography</div><div>
@@ -138,7 +140,7 @@ class FAOSpeciesAPI
                 return $final;
             }
         }
-        else exit("\nNo refs [$id]\n");
+        else $this->debug['No refs'][$id] = '';
     }
     private function get_sciname($html, $id)
     {
