@@ -25,7 +25,7 @@ class FAOSpeciesAPI
             // break;
             // exit("\n-stopx-\n");
         }
-        if($val = @$this->debug['Country Local Names'])       print_r($val);
+        // if($val = @$this->debug['Country Local Names'])       print_r($val);
         // if($val = @$this->debug['Geographical Distribution']) print_r($val);
         
     }
@@ -39,13 +39,16 @@ class FAOSpeciesAPI
             $html = str_replace(array("\t"), "<br>", $html);
             // echo $html; exit;
             $html = Functions::remove_whitespace($html);
+            $rec['sciname'] = self::get_sciname($html, $id);
             $sections = array("FAO Names", "Diagnostic Features", "Geographical Distribution", "Habitat and Biology", "Size", "Interest to Fisheries", "Local Names", "Source of Information");
             foreach($sections as $section) {
                 if(preg_match("/>$section<(.*?)bgcolor=\"#6699ff\" align=\"left\"/ims", $html, $arr)) {
                     $str = "<".str_replace(array("<br>", "&nbsp;"), " ", $arr[1]);
                     $str = Functions::remove_whitespace($str);
                     $str = strip_tags($str, "<p><i>");
-                    if($section == "Local Names") echo "\n[$section][$id]---------------------\n$str\n---------------------\n";
+                    // if($section == "Local Names") {
+                        echo "\n[$section][$id]---------------------\n$str\n---------------------\n";
+                    // }
                     if($section == "FAO Names") $rec[$section] = self::parse_FAO_Names($str);
                     elseif($section == "Local Names") $rec[$section] = self::parse_Local_Names($str);
                     elseif($section == "Geographical Distribution") $rec[$section] = self::parse_Geographical_Distribution($str, $id);
@@ -55,8 +58,15 @@ class FAOSpeciesAPI
                 }
             }
         }
-        // print_r($rec);
+        print_r($rec);
         return $rec;
+    }
+    private function get_sciname($html, $id)
+    {
+        if(preg_match("/<td id=\"head_title_instance\" style=\";font-style:italic\">(.*?)<\/td>/ims", $html."xxx", $arr)) {
+            return strip_tags($arr[1]);
+        }
+        exit("\nNo sciname [$id]\n");
     }
     private function other_str_format($str)
     {
