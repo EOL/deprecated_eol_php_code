@@ -11,31 +11,35 @@ class FAOSpeciesAPI
         $this->download_options = array(
             'resource_id'        => 'FAO',                              //resource_id here is just a folder name in cache
             'expire_seconds'     => false,
-            'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 500000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->debug = array();
         $this->species_list = "http://www.fao.org/figis/ws/factsheets/domain/species/";
         $this->factsheet_page = "http://www.fao.org/fishery/species/the_id/en";
-        $this->local_species_page = "http://localhost/cp_new/FAO_species_catalog/www.fao.org/fishery/species/the_id/en.html";
+        // $this->local_species_page = "http://localhost/cp_new/FAO_species_catalog/www.fao.org/fishery/species/the_id/en.html";
+        $this->local_species_page = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FAO_species_catalog/www.fao.org/fishery/species/the_id/en.html";
     }
     function start()
     {
         $ids = self::get_ids(); echo "\n".count($ids)."\n";
+        $i = 0;
         foreach($ids as $id) {
+            $i++;
             $rec = self::assemble_record($id);
             self::create_archive($rec);
-            // break;
-            // exit("\n-stopx-\n");
+            // if($i >= 10) break;
         }
         $this->archive_builder->finalize(true);
+        /* used when creating reports for mapping and when investigating outputs
         // if($val = @$this->debug['Country Local Names'])       print_r($val);
         // if($val = @$this->debug['Geographical Distribution']) print_r($val);
         // if($val = @$this->debug['No biblio']) print_r($val);
         // if($val = @$this->debug['No refs']) print_r($val);
+        */
     }
     private function create_archive($rec)
     {
         $rec['taxon_id'] = $rec['FAO Names']['taxonomic_code'];
-        print_r($rec);
+        // print_r($rec);
         self::create_taxon($rec);
         self::create_vernaculars($rec);
         if($val = @$rec['Diagnostic Features'])   self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription", $rec);
@@ -44,8 +48,7 @@ class FAOSpeciesAPI
         if($val = @$rec['Interest to Fisheries']) self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use", $rec);
     }
     private function create_vernaculars($rec)
-    {
-        /*[FAO Names] => Array(
+    {   /*[FAO Names] => Array(
                 [taxonomic_code] => 1431300105
                 [comnames] => Array(
                         [0] => Array(
@@ -127,7 +130,6 @@ class FAOSpeciesAPI
         }
         return array_unique($reference_ids);
     }
-    
     private function create_taxon($rec)
     {   /*Array(
             [sciname] => Boops boops (Linnaeus, 1758) 
@@ -139,15 +141,15 @@ class FAOSpeciesAPI
         $taxon->taxonID                 = $rec['FAO Names']['taxonomic_code'];
         $taxon->scientificName          = $rec['sciname'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
-        // if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
         $this->archive_builder->write_object_to_file($taxon);
     }
     private function assemble_record($id)
     {
-        // $id = 2996;
+        // $id = 2996; //debug only - force value
         $url = str_replace("the_id", $id, $this->local_species_page);
         echo "\n$url\n";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            $html = Functions::conv_to_utf8($html);
             $html = str_replace(array("\n"), "<p>", $html);
             $html = str_replace(array("\t"), "<br>", $html);
             // echo $html; exit;
@@ -195,7 +197,13 @@ class FAOSpeciesAPI
         */
         if(preg_match("/>Bibliography<\/div>(.*?)<\/table>/ims", $html, $arr)) {
             if(preg_match_all("/<div class=\"sourceEntryTitle\">(.*?)<\/div>/ims", $arr[1], $arr2)) {
-                $final = array_map('trim', $arr2[1]);
+                $arr3 = $arr2[1];
+                $tmp = implode("xxxelixxx", $arr3);
+                $tmp = str_replace(array("&nbsp;","<p>"), " ", $tmp);
+                $tmp = Functions::remove_whitespace($tmp);
+                $tmp = str_replace(array(". .",".."), ".", $tmp);
+                $final = explode("xxxelixxx", $tmp);
+                $final = array_map('trim', $final);
                 return $final;
             }
         }
@@ -274,13 +282,14 @@ class FAOSpeciesAPI
             $lang_ctry = trim($arr2[0]);
             $lang_ctry = str_replace("(see Bini, 1970[colon]56)", "(see Bini, 1970:56)", $lang_ctry);
             
-            
-            $arr3 = explode(",", $arr2[1]);
-            $arr3 = array_map('trim', $arr3);
-            // print_r($arr3);
-            foreach($arr3 as $comname) {
-                $this->debug['Country Local Names'][$lang_ctry] = '';
-                $comnames[] = array("lang" => $lang_ctry, "comname" => $comname);
+            if($val = @$arr2[1]) {
+                $arr3 = explode(",", $val);
+                $arr3 = array_map('trim', $arr3);
+                // print_r($arr3);
+                foreach($arr3 as $comname) {
+                    $this->debug['Country Local Names'][$lang_ctry] = '';
+                    $comnames[] = array("lang" => $lang_ctry, "comname" => $comname);
+                }
             }
         }
         // exit("\n-end Local Names-\n");
@@ -306,7 +315,7 @@ class FAOSpeciesAPI
         $comnames = array();
         foreach($arr as $val) {
             $tmp = explode(" - ", $val);
-            $comnames[] = array("lang" => strtolower($tmp[0]), "comname" => $tmp[1]);
+            if($val = @$tmp[1]) $comnames[] = array("lang" => strtolower($tmp[0]), "comname" => $val);
         }
         $final['comnames'] = $comnames;
         // print_r($final);
