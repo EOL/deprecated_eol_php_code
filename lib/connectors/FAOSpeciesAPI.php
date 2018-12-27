@@ -22,10 +22,10 @@ class FAOSpeciesAPI
         $ids = self::get_ids(); echo "\n".count($ids)."\n";
         foreach($ids as $id) {
             $rec = self::assemble_record($id);
-            break;
+            // break;
             // exit("\n-stopx-\n");
         }
-        if($this->debug) print_r($this->debug);
+        if($this->debug) print_r($this->debug['Country Local Names']);
     }
     private function assemble_record($id)
     {
@@ -43,7 +43,7 @@ class FAOSpeciesAPI
                     $str = "<".str_replace(array("<br>", "&nbsp;"), " ", $arr[1]);
                     $str = Functions::remove_whitespace($str);
                     $str = strip_tags($str, "<p><i>");
-                    echo "\n[$section]---------------------\n$str\n---------------------\n";
+                    if($section == "Local Names") echo "\n[$section][$id]---------------------\n$str\n---------------------\n";
                     if($section == "FAO Names") $rec[$section] = self::parse_FAO_Names($str);
                     elseif($section == "Local Names") $rec[$section] = self::parse_Local_Names($str);
                     elseif($section == "Geographical Distribution") $rec[$section] = self::parse_Geographical_Distribution($str, $id);
@@ -65,7 +65,7 @@ class FAOSpeciesAPI
     }
     private function parse_Geographical_Distribution($str, $id)
     {
-        echo "\n[$str]\n";
+        // echo "\n[$str]\n";
         $str = str_replace(". </i>","</i> .", $str);
         $str = str_replace("e. g.", "e.g.", $str);
         
@@ -95,6 +95,9 @@ class FAOSpeciesAPI
     }
     private function parse_Local_Names($str)
     {
+        //manual adjustments
+        $str = str_replace("(see Bini, 1970:56)", "(see Bini, 1970[colon]56)", $str);
+        
         $comnames = array();
         /* 
         Japan : <p> <p> Higezame . 
@@ -103,7 +106,7 @@ class FAOSpeciesAPI
         $str = strip_tags($str);
         $str = Functions::remove_whitespace($str);
         
-        $letters = array("etc","U.S.A","S");
+        $letters = array("incl","are","etc","U.S.A","S");
         foreach($letters as $letter) $str = str_replace($letter.". ", $letter."xxx ", $str);
         
         $arr = explode('. ', $str." ");
