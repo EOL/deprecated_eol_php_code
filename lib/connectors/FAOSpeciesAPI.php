@@ -37,10 +37,35 @@ class FAOSpeciesAPI
         $rec['taxon_id'] = $rec['FAO Names']['taxonomic_code'];
         print_r($rec);
         self::create_taxon($rec);
+        self::create_vernaculars($rec);
         if($val = @$rec['Diagnostic Features'])   self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription", $rec);
         if($val = @$rec['Habitat and Biology'])   self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $rec);
         if($val = @$rec['Size'])                  self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size", $rec);
         if($val = @$rec['Interest to Fisheries']) self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use", $rec);
+    }
+    private function create_vernaculars($rec)
+    {
+        /*[FAO Names] => Array(
+                [taxonomic_code] => 1431300105
+                [comnames] => Array(
+                        [0] => Array(
+                                [lang] => en
+                                [comname] => Whitespotted conger
+                            )
+        */
+        if($names = @$rec['FAO Names']['comnames']) {}
+        else return;
+        foreach($names as $r) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $rec['taxon_id'];
+            $v->vernacularName  = $r['comname'];
+            $v->language        = $r['lang'];
+            $id = md5($r['comname'].$r['lang']);
+            if(!isset($this->vernaculars[$id])) {
+                $this->archive_builder->write_object_to_file($v);
+                $this->vernaculars[$id] = '';
+            }
+        }
     }
     private function create_text_object($txt, $subject, $rec)
     {
@@ -62,13 +87,46 @@ class FAOSpeciesAPI
         $mr->description    = $txt;
         // $mr->LocationCreated = $o['location'];
         $mr->bibliographicCitation = $rec['biblio'];
-        // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-        // if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
+        if($reference_ids = self::create_references($rec))  $mr->referenceID = implode("; ", $reference_ids);
+        if($agent_ids     = self::create_agents())          $mr->agentID     = implode("; ", $agent_ids);
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
     }
+    private function create_agents()
+    {
+        $r = new \eol_schema\Agent();
+        $r->term_name       = 'Food and Agriculture Organization of the UN';
+        $r->agentRole       = 'author';
+        $r->identifier      = md5("$r->term_name|$r->agentRole");
+        $r->term_homepage   = 'http://www.fao.org/home/en/';
+        $agent_ids[] = $r->identifier;
+        if(!isset($this->agent_ids[$r->identifier])) {
+           $this->agent_ids[$r->identifier] = $r->term_name;
+           $this->archive_builder->write_object_to_file($r);
+        }
+        return $agent_ids;
+    }
+    private function create_references($rec)
+    {
+        if($refs = $rec['references']) {}
+        else return false;
+        $reference_ids = array();
+        foreach($refs as $ref) {
+            $r = new \eol_schema\Reference();
+            $r->full_reference = $ref;
+            $r->identifier = md5($r->full_reference);
+            // $r->uri = '';
+            $reference_ids[] = $r->identifier;
+            if(!isset($this->reference_ids[$r->identifier])) {
+                $this->reference_ids[$r->identifier] = '';
+                $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        return array_unique($reference_ids);
+    }
+    
     private function create_taxon($rec)
     {   /*Array(
             [sciname] => Boops boops (Linnaeus, 1758) 
