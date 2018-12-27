@@ -23,14 +23,14 @@ class FAOSpeciesAPI
         foreach($ids as $id) {
             $rec = self::assemble_record($id);
             self::create_archive($rec);
-            break;
+            // break;
             // exit("\n-stopx-\n");
         }
         $this->archive_builder->finalize(true);
         // if($val = @$this->debug['Country Local Names'])       print_r($val);
         // if($val = @$this->debug['Geographical Distribution']) print_r($val);
-        if($val = @$this->debug['No biblio']) print_r($val);
-        if($val = @$this->debug['No refs']) print_r($val);
+        // if($val = @$this->debug['No biblio']) print_r($val);
+        // if($val = @$this->debug['No refs']) print_r($val);
     }
     private function create_archive($rec)
     {
@@ -56,6 +56,7 @@ class FAOSpeciesAPI
         if($names = @$rec['FAO Names']['comnames']) {}
         else return;
         foreach($names as $r) {
+            if(!$r['comname']) continue;
             $v = new \eol_schema\VernacularName();
             $v->taxonID         = $rec['taxon_id'];
             $v->vernacularName  = $r['comname'];
@@ -82,7 +83,7 @@ class FAOSpeciesAPI
         // $mr->Owner          = '';
         // $mr->rights         = $o['dc_rights'];
         // $mr->title          = $o['dc_title'];
-        $mr->UsageTerms     = 'https://creativecommons.org/licenses/by-nc-sa/3.0/';
+        $mr->UsageTerms     = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
         // $mr->audience       = 'Everyone';
         $mr->description    = $txt;
         // $mr->LocationCreated = $o['location'];
@@ -143,7 +144,7 @@ class FAOSpeciesAPI
     }
     private function assemble_record($id)
     {
-        $id = 2996;
+        // $id = 2996;
         $url = str_replace("the_id", $id, $this->local_species_page);
         echo "\n$url\n";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -161,7 +162,7 @@ class FAOSpeciesAPI
                     $str = Functions::remove_whitespace($str);
                     $str = strip_tags($str, "<p><i>");
                     // if($section == "Local Names") {
-                        echo "\n[$section][$id]---------------------\n$str\n---------------------\n";
+                        // echo "\n[$section][$id]---------------------\n$str\n---------------------\n";
                     // }
                     if($section == "FAO Names") $rec[$section] = self::parse_FAO_Names($str, $id);
                     elseif($section == "Local Names") $rec[$section] = self::parse_Local_Names($str);
@@ -298,7 +299,7 @@ class FAOSpeciesAPI
         $str = $tmp[0];
         $str = trim(strip_tags($str));
         $str = str_replace(".", "", $str);
-        echo "\n[$str]\n";
+        // echo "\n[$str]\n";
         $arr = explode(",", $str);
         $arr = array_map("trim", $arr);
         // print_r($arr);
