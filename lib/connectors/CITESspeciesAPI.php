@@ -15,7 +15,7 @@ class CITESspeciesAPI
         $this->debug = array();
         $this->service['per_page'] = 2; //orig 250, half of suggested which is 500
         $this->service['taxa'] = "https://api.speciesplus.net/api/v1/taxon_concepts?per_page=".$this->service['per_page']."&page=";
-        $this->service['distribution'] = "https://api.speciesplus.net/api/v1/taxon_concepts/taxon_concept_id/distributions?per_page=".$this->service['per_page']."&page=";
+        $this->service['distribution'] = "https://api.speciesplus.net/api/v1/taxon_concepts/taxon_concept_id/distributions";
         $this->service['token'] = "qHNzqizUVrNlriueu8FSrQtt";
 
         if(Functions::is_production()) $this->download_options['cache_path']   = '/extra/eol_php_cache2/';
@@ -50,25 +50,9 @@ class CITESspeciesAPI
         // exit("\n-exitx-\n");
         $this->archive_builder->finalize(true);
     }
-    private function get_distribution_per_id($taxon_id)
-    {
-        $page = 0;
-        $total_entries = 400;
-        while($total_entries == 400) {
-            $page++;
-            $url = str_replace("taxon_concept_id", $taxon_id, $this->service['distribution']);
-            $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
-            echo "\n$cmd\n";
-            $json = self::get_json_from_cache($cmd, $this->download_options);
-            $obj = json_decode($json);
-            print_r($obj); exit;
-            echo "\n".count($obj)."\n";
-            // $total_entries = count($obj->taxon_concepts);
-        }
-    }
     private function process_taxa($object)
     {
-        print_r($object); exit;
+        // print_r($object); exit;
         foreach($object->taxon_concepts as $obj) {
             /*  [id] => 12163
                 [full_name] => Antilocapra americana mexicana
@@ -84,8 +68,7 @@ class CITESspeciesAPI
                         [class] => Mammalia
                         [order] => Artiodactyla
                         [family] => Antilocapridae
-                    )
-            */
+                    )*/
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                  = $obj->id;
             $taxon->scientificName           = $obj->full_name;
@@ -102,6 +85,31 @@ class CITESspeciesAPI
             $this->archive_builder->write_object_to_file($taxon);
             if($val = @$obj->synonyms)     self::write_synonyms($val, $taxon->taxonID);
             if($val = @$obj->common_names) self::write_comnames($val, $taxon->taxonID);
+            self::get_distribution_per_id($taxon->taxonID);
+        }
+    }
+    private function get_distribution_per_id($taxon_id)
+    {
+        $url = str_replace("taxon_concept_id", $taxon_id, $this->service['distribution']);
+        $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
+        echo "\n$cmd\n";
+        $json = self::get_json_from_cache($cmd, $this->download_options);
+        $obj = json_decode($json);
+        // print_r($obj); exit;
+        echo "\nDistributions: ".count($obj)."\n";
+        /*Array(
+            [0] => stdClass Object(
+                    [id] => 50
+                    [iso_code2] => HR
+                    [name] => Croatia
+                    [tags] => Array()
+                    [type] => COUNTRY
+                    [references] => Array(
+                            [0] => Mitchell-Jones, A. J., Amori, G., Bogdanowicz, W., Krystufek, B., Reijnders, P. J. H., Spitzenberger, F., Stubbe, M., Thissen, J. B. M. et al. 1999. The atlas of European mammals. T. & A. D. Poyser. London.
+                        )
+                )*/
+        foreach($obj as $d) {
+            // print_r($d); exit;
         }
     }
     private function write_comnames($comnames, $taxon_id)
