@@ -6,7 +6,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CITESspeciesAPI');
 ini_set('memory_limit','7096M'); //required for checking uniqueness of measurementID
 $timestart = time_elapsed();
-$resource_id = 'fao_species';
+$resource_id = 'cites_taxa';
 $func = new CITESspeciesAPI($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id);
