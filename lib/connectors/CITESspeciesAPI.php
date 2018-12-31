@@ -68,7 +68,7 @@ class CITESspeciesAPI
     }
     private function process_taxa($object)
     {
-        // print_r($object); exit;
+        print_r($object); exit;
         foreach($object->taxon_concepts as $obj) {
             /*  [id] => 12163
                 [full_name] => Antilocapra americana mexicana
