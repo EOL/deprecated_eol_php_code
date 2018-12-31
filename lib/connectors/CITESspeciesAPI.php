@@ -17,7 +17,6 @@ class CITESspeciesAPI
         $this->service['taxa'] = "https://api.speciesplus.net/api/v1/taxon_concepts?per_page=".$this->service['per_page']."&page=";
         $this->service['distribution'] = "https://api.speciesplus.net/api/v1/taxon_concepts/taxon_concept_id/distributions";
         $this->service['token'] = "qHNzqizUVrNlriueu8FSrQtt";
-
         if(Functions::is_production()) $this->download_options['cache_path']   = '/extra/eol_php_cache2/';
         else                           $this->download_options['cache_path']   = '/Volumes/AKiTiO4/eol_php_cache2/';
         // $this->download_options['expire_seconds'] = 0; //to force re-create cache. comment in normal operation
@@ -25,14 +24,23 @@ class CITESspeciesAPI
     function start()
     {
         if(!is_dir($this->download_options['cache_path'])) mkdir($this->download_options['cache_path']);
-        
+
         /*
+        $json = '{"error":{"message":"Unpermitted parameters (per_page, page)"}}';
+        $obj = json_decode($json);
+        if(@$obj->error) {
+            print_r($obj);
+        }
+        else echo "\nno error\n";
+        exit;
+        */
+        /* just test
         self::get_distribution_per_id(4442); //works OK
         exit("\n-end test-\n");
         */
         
-        $page = 0;
-        $page = 100;
+        $page = 0; //normal operation
+        // $page = 100; //debug only - force
         $total_entries = $this->service['per_page'];
         while($total_entries == $this->service['per_page']) {
             $page++;
@@ -77,7 +85,6 @@ class CITESspeciesAPI
             $ranks = array('kingdom','phylum','class','order','family');
             foreach($ranks as $rank) {
                 if($rank != $taxon->taxonRank) {
-                    echo "\n[$rank]\n";
                     if($val = @$obj->higher_taxa->{"$rank"}) $taxon->{"$rank"} = $val;
                 }
             }
@@ -190,11 +197,14 @@ class CITESspeciesAPI
                 fwrite($FILE, $json);
                 fclose($FILE);
             }
-            //just to check if you can now get the canonical
-            // if($obj = json_decode($json)) {
-            //     if($ret = @$obj->xxx)    echo " ---> OK [$ret]";
-            //     else                     echo " ---> FAIL";
-            // }
+            // just to check if you can now get the canonical
+            $obj = json_decode($json);
+            if(@$obj->error) {
+                print("\n---------------------\n");
+                print_r($obj);
+                echo "\ncommand is: [$cmd]\n";
+                exit("\n---------------------\n");
+            }
         }
         return $json;
     }
