@@ -61,6 +61,7 @@ class CITESspeciesAPI
                 echo "\n".count($obj->taxon_concepts);
                 $total_entries = count($obj->taxon_concepts);
             }
+            else break;
             // if($page >= 5) break;
             // break;
         }
