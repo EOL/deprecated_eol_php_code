@@ -80,11 +80,20 @@ class CITESspeciesAPI
                 }
                 break;
             }
-            // if($page >= 5) break;
-            // break;
+            // if($page >= 5) break;   //debug only
+            // break;   //debug only
         }
         // exit("\n-exitx-\n");
         $this->archive_builder->finalize(true);
+        // print_r($this->debug);
+
+        //massage debug for printing
+        $countries = array_keys($this->debug['COUNTRY']); asort($countries);
+        $territories = array_keys($this->debug['TERRITORY']); asort($territories);
+        $this->debug = array();
+        foreach($countries as $c) $this->debug['COUNTRY'][$c] = '';
+        foreach($territories as $c) $this->debug['TERRITORY'][$c] = '';
+        Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function process_taxa($object)
     {
@@ -147,6 +156,7 @@ class CITESspeciesAPI
         if($obj) {
             foreach($obj as $d) {
                 // print_r($d); exit;
+                $this->debug[$d->type][$d->name] = '';
             }
         }
     }
@@ -348,13 +358,6 @@ class CITESspeciesAPI
         $taxon->taxonRank               = 'species';
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
         $this->archive_builder->write_object_to_file($taxon);
-    }
-    private function get_source_of_information($html, $id)
-    {   /*bgcolor="#6699ff" align="left">Source of Information</td><td bgcolor="#6699ff" align="right" width="25%"></td></tr><tr><td colspan="2"><a href="http://www.fao.org/fi/eims_search/advanced_s_result.asp?JOB_NO=x9293" target="_blank">Sharks of the world </a> An annotated and illustrated catalogue of shark species known to date. Volume 2 Bullhead, mackerel and carpet sharks (Heterodontiformes, Lamniformes and Orectolobiformes). Leonard J.V. Compagno&nbsp;2001.&nbsp;
-         FAO Species Catalogue for Fishery Purposes. No. 1, Vol. 2. Rome, FAO. 2001. p.269.</td></tr></tbody></table>
-        */
-        if(preg_match("/>Source of Information<\/td>(.*?)<\/table>/ims", $html, $arr)) return strip_tags($arr[1], "<a>");
-        else $this->debug['No biblio'][$id] = '';
     }
     private function get_references($html, $id)
     {   /*>Bibliography</div><div>
