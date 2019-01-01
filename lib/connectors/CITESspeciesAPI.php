@@ -203,6 +203,7 @@ class CITESspeciesAPI
         $json = shell_exec($cmd);
         if(true) {
             $json = Functions::conv_to_utf8($json);
+            if(!$json) $json = "[]";
             if($FILE = Functions::file_open($cache_path, 'w+')) {
                 fwrite($FILE, $json);
                 fclose($FILE);
