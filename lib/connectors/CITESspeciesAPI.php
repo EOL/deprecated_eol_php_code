@@ -57,10 +57,9 @@ class CITESspeciesAPI
             $json = self::get_json_from_cache($cmd, $this->download_options);
             $obj = json_decode($json);
             if(@$obj->taxon_concepts) {
-                echo "\nNo. of taxa in this batch: ".count($obj->taxon_concepts)."\n";
-                self::process_taxa($obj);
-                echo "\n".count($obj->taxon_concepts);
                 $total_entries = count($obj->taxon_concepts);
+                echo "\nNo. of taxa in this batch: ".$total_entries."\n";
+                self::process_taxa($obj);
             }
             else {
                 if($this->total_taxa >= $page*$this->service['per_page']) {
@@ -72,10 +71,9 @@ class CITESspeciesAPI
                     $json = self::get_json_from_cache($cmd, $options);
                     $obj = json_decode($json);
                     if(@$obj->taxon_concepts) {
-                        echo "\nNo. of taxa in this batch (2nd try): ".count($obj->taxon_concepts)."\n";
-                        self::process_taxa($obj);
-                        echo "\n".count($obj->taxon_concepts);
                         $total_entries = count($obj->taxon_concepts);
+                        echo "\nNo. of taxa in this batch (2nd try): ".$total_entries."\n";
+                        self::process_taxa($obj);
                         continue;
                     }
                     //end -
