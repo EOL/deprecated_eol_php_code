@@ -56,6 +56,7 @@ class CITESspeciesAPI
             $json = self::get_json_from_cache($cmd, $this->download_options);
             $obj = json_decode($json);
             if(@$obj->taxon_concepts) {
+                echo "\nNo. of taxa in this batch: ".count($obj->taxon_concepts)."\n";
                 self::process_taxa($obj);
                 echo "\n".count($obj->taxon_concepts);
                 $total_entries = count($obj->taxon_concepts);
