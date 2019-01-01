@@ -121,8 +121,10 @@ class CITESspeciesAPI
                             [0] => Mitchell-Jones, A. J., Amori, G., Bogdanowicz, W., Krystufek, B., Reijnders, P. J. H., Spitzenberger, F., Stubbe, M., Thissen, J. B. M. et al. 1999. The atlas of European mammals. T. & A. D. Poyser. London.
                         )
                 )*/
-        foreach($obj as $d) {
-            // print_r($d); exit;
+        if($obj) {
+            foreach($obj as $d) {
+                // print_r($d); exit;
+            }
         }
     }
     private function write_comnames($comnames, $taxon_id)
