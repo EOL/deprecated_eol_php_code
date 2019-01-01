@@ -201,7 +201,7 @@ class CITESspeciesAPI
         echo "\nGenerating cache json for the first time ($name)...\n";
         $cmd = $name;
         $json = shell_exec($cmd);
-        if($json || $json == "[]") {
+        if(true) {
             $json = Functions::conv_to_utf8($json);
             if($FILE = Functions::file_open($cache_path, 'w+')) {
                 fwrite($FILE, $json);
@@ -215,10 +215,6 @@ class CITESspeciesAPI
                 echo "\ncommand is: [$cmd]\n";
                 exit("\n---------------------\n");
             }
-        }
-        else {
-            echo "\njson is ($json)\n";
-            exit;
         }
         return $json;
     }
