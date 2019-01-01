@@ -65,7 +65,7 @@ class CITESspeciesAPI
             else {
                 if($this->total_taxa <= $page*$this->service['per_page']) {
                     echo "\nwe need to expire cache and overwrite the erroneous cache\n";
-                    //copied from above start
+                    //copied from above start -
                     $options = $this->download_options;
                     $options['expire_seconds'] = 0;
                     $json = self::get_json_from_cache($cmd, $options);
@@ -75,8 +75,9 @@ class CITESspeciesAPI
                         self::process_taxa($obj);
                         echo "\n".count($obj->taxon_concepts);
                         $total_entries = count($obj->taxon_concepts);
+                        continue;
                     }
-                    //end
+                    //end -
                 }
                 break;
             }
