@@ -65,6 +65,7 @@ class CITESspeciesAPI
             else {
                 if($this->total_taxa >= $page*$this->service['per_page']) {
                     echo "\nwe need to expire cache and overwrite the erroneous cache\n";
+                    sleep(60*2);
                     //copied from above start -
                     $options = $this->download_options;
                     $options['expire_seconds'] = 0;
