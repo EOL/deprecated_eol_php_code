@@ -19,6 +19,7 @@ class CITESspeciesAPI
         $this->service['token'] = "qHNzqizUVrNlriueu8FSrQtt";
         if(Functions::is_production()) $this->download_options['cache_path']   = '/extra/eol_php_cache2/';
         else                           $this->download_options['cache_path']   = '/Volumes/AKiTiO4/eol_php_cache2/';
+        $this->total_taxa = false;
         // $this->download_options['expire_seconds'] = 0; //to force re-create cache. comment in normal operation
     }
     private function initialize_mapping()
@@ -61,7 +62,24 @@ class CITESspeciesAPI
                 echo "\n".count($obj->taxon_concepts);
                 $total_entries = count($obj->taxon_concepts);
             }
-            else break;
+            else {
+                if($this->total_taxa <= $page*$this->service['per_page']) {
+                    echo "\nwe need to expire cache and overwrite the erroneous cache\n";
+                    //copied from above start
+                    $options = $this->download_options;
+                    $options['expire_seconds'] = 0;
+                    $json = self::get_json_from_cache($cmd, $options);
+                    $obj = json_decode($json);
+                    if(@$obj->taxon_concepts) {
+                        echo "\nNo. of taxa in this batch (2nd try): ".count($obj->taxon_concepts)."\n";
+                        self::process_taxa($obj);
+                        echo "\n".count($obj->taxon_concepts);
+                        $total_entries = count($obj->taxon_concepts);
+                    }
+                    //end
+                }
+                break;
+            }
             // if($page >= 5) break;
             // break;
         }
@@ -70,6 +88,7 @@ class CITESspeciesAPI
     }
     private function process_taxa($object)
     {
+        if(!$this->total_taxa) $this->total_taxa = $object->pagination->total_entries;
         // print_r($object); exit;
         foreach($object->taxon_concepts as $obj) {
             /*  [id] => 12163
