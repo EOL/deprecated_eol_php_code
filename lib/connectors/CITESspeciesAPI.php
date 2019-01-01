@@ -13,7 +13,7 @@ class CITESspeciesAPI
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->debug = array();
-        $this->service['per_page'] = 2; //orig 250, half of suggested which is 500
+        $this->service['per_page'] = 250; //orig 250, half of suggested which is 500
         $this->service['taxa'] = "https://api.speciesplus.net/api/v1/taxon_concepts?per_page=".$this->service['per_page']."&page=";
         $this->service['distribution'] = "https://api.speciesplus.net/api/v1/taxon_concepts/taxon_concept_id/distributions";
         $this->service['token'] = "qHNzqizUVrNlriueu8FSrQtt";
@@ -58,7 +58,7 @@ class CITESspeciesAPI
             self::process_taxa($obj);
             echo "\n".count($obj->taxon_concepts);
             $total_entries = count($obj->taxon_concepts);
-            if($page >= 4) break;
+            // if($page >= 4) break;
             // break;
         }
         // exit("\n-exitx-\n");
@@ -170,8 +170,7 @@ class CITESspeciesAPI
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = false;
         if(!isset($options['cache_path'])) $options['cache_path'] = $this->download_options['cache_path'];
 
-        if($resource_id = @$options['resource_id'])
-        {
+        if($resource_id = @$options['resource_id']) {
             $options['cache_path'] .= "$resource_id/";
             if(!file_exists($options['cache_path'])) mkdir($options['cache_path']);
         }
