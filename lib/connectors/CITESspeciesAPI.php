@@ -29,7 +29,7 @@ class CITESspeciesAPI
     }
     function start()
     {
-        self::initialize_mapping();
+        // self::initialize_mapping();
         if(!is_dir($this->download_options['cache_path'])) mkdir($this->download_options['cache_path']);
         /*
         $json = '{"error":{"message":"Unpermitted parameters (per_page, page)"}}';
@@ -60,7 +60,7 @@ class CITESspeciesAPI
                 echo "\n".count($obj->taxon_concepts);
                 $total_entries = count($obj->taxon_concepts);
             }
-            if($page >= 20) break;
+            if($page >= 10) break;
             // break;
         }
         // exit("\n-exitx-\n");
@@ -201,7 +201,7 @@ class CITESspeciesAPI
         echo "\nGenerating cache json for the first time ($name)...\n";
         $cmd = $name;
         $json = shell_exec($cmd);
-        if($json) {
+        if($json || $json == "[]") {
             $json = Functions::conv_to_utf8($json);
             if($FILE = Functions::file_open($cache_path, 'w+')) {
                 fwrite($FILE, $json);
