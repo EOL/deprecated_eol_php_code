@@ -60,7 +60,7 @@ class CITESspeciesAPI
                 echo "\n".count($obj->taxon_concepts);
                 $total_entries = count($obj->taxon_concepts);
             }
-            // if($page >= 4) break;
+            if($page >= 20) break;
             // break;
         }
         // exit("\n-exitx-\n");
