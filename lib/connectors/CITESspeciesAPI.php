@@ -55,9 +55,11 @@ class CITESspeciesAPI
             echo "\n$cmd\n";
             $json = self::get_json_from_cache($cmd, $this->download_options);
             $obj = json_decode($json);
-            if(@$obj->taxon_concepts) self::process_taxa($obj);
-            echo "\n".count($obj->taxon_concepts);
-            $total_entries = count($obj->taxon_concepts);
+            if(@$obj->taxon_concepts) {
+                self::process_taxa($obj);
+                echo "\n".count($obj->taxon_concepts);
+                $total_entries = count($obj->taxon_concepts);
+            }
             // if($page >= 4) break;
             // break;
         }
@@ -183,6 +185,7 @@ class CITESspeciesAPI
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
+        echo "\ncache_path: [$cache_path]\n";
         if(file_exists($cache_path)) {
             // echo "\nRetrieving cache ($name)...\n"; //good debug
             $file_contents = file_get_contents($cache_path);
