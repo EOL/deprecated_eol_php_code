@@ -11,7 +11,7 @@ class CITESspeciesAPI
         $this->download_options = array(
             'resource_id'        => 'CITES',    //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
-            'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->debug = array();
         $this->service['per_page'] = 250; //orig 250, half of suggested which is 500
         $this->service['taxa'] = "https://api.speciesplus.net/api/v1/taxon_concepts?per_page=".$this->service['per_page']."&page=";
