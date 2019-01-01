@@ -63,7 +63,7 @@ class CITESspeciesAPI
                 $total_entries = count($obj->taxon_concepts);
             }
             else {
-                if($this->total_taxa <= $page*$this->service['per_page']) {
+                if($this->total_taxa >= $page*$this->service['per_page']) {
                     echo "\nwe need to expire cache and overwrite the erroneous cache\n";
                     //copied from above start -
                     $options = $this->download_options;
