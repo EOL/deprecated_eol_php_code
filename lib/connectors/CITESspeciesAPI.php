@@ -21,8 +21,17 @@ class CITESspeciesAPI
         else                           $this->download_options['cache_path']   = '/Volumes/AKiTiO4/eol_php_cache2/';
         // $this->download_options['expire_seconds'] = 0; //to force re-create cache. comment in normal operation
     }
+
+    private function initialize_mapping()
+    {
+        $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        exit;
+    }
     function start()
     {
+        self::initialize_mapping();
         if(!is_dir($this->download_options['cache_path'])) mkdir($this->download_options['cache_path']);
 
         /*
