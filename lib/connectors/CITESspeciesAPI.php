@@ -25,12 +25,14 @@ class CITESspeciesAPI
     private function initialize_mapping()
     {
         $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        $mappings2 = Functions::get_eol_defined_uris_v1(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        $mappings = array_merge($mappings, $mappings2);
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
     }
     function start()
     {
-        // self::initialize_mapping();
+        self::initialize_mapping(); //un-comment in real operation
         if(!is_dir($this->download_options['cache_path'])) mkdir($this->download_options['cache_path']);
         /*
         $json = '{"error":{"message":"Unpermitted parameters (per_page, page)"}}';
@@ -45,11 +47,11 @@ class CITESspeciesAPI
         self::get_distribution_per_id(4442); //works OK
         exit("\n-end test-\n");
         */
-        
+
+        $total_pages = self::get_total_pages();
         $page = 0; //normal operation
         // $page = 100; //debug only - force
-        $total_entries = $this->service['per_page'];
-        while($total_entries == $this->service['per_page']) {
+        while($page <= $total_pages) {
             $page++;
             $url = $this->service['taxa'].$page;
             $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
@@ -94,6 +96,22 @@ class CITESspeciesAPI
         foreach($countries as $c) $this->debug['COUNTRY'][$c] = '';
         foreach($territories as $c) $this->debug['TERRITORY'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
+    }
+    private function get_total_pages()
+    {
+        $page = 1;
+        $url = $this->service['taxa'].$page;
+        $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
+        echo "\n$cmd\n";
+        $json = self::get_json_from_cache($cmd, $this->download_options);
+        $obj = json_decode($json);
+        print_r($obj->pagination);
+        $total_pages = $obj->pagination->total_entries/$this->service['per_page'];
+        // $total_pages = $obj->pagination->total_entries/250;
+        echo "\n$total_pages\n";
+        $total_pages = ceil($total_pages);
+        echo "\n$total_pages\n";
+        return $total_pages;
     }
     private function process_taxa($object)
     {
@@ -155,13 +173,76 @@ class CITESspeciesAPI
                 )*/
         if($obj) {
             foreach($obj as $d) {
-                // print_r($d); exit;
+                
+                if($country = @$d->name) {
+                    $rec = array();
+                    $rec["taxon_id"] = $taxon_id;
+                    $rec["catnum"] = $taxon_id.$d->id;
+                    if($country_uri = self::get_country_uri($country)) {
+                        self::add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
+                    }
+                    else $this->debug['undefined country'][$country] = '';
+                }
                 // /* for generating mapping report
                 $this->debug[$d->type][$d->name] = '';
                 // */
-                
             }
         }
+    }
+    private function get_country_uri($country)
+    {
+        if($country_uri = @$this->uris[$country]) return $country_uri;
+        else {
+            switch ($country) { //put here customized mapping
+                // case "Port of Entry":                return false; //"DO NOT USE";
+                // case "United States of America":     return "http://www.wikidata.org/entity/Q30";
+                // case "Dutch West Indies":            return "http://www.wikidata.org/entity/Q25227";
+            }
+        }
+    }
+    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
+    {
+        $taxon_id = $rec["taxon_id"];
+        $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
+        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+        $m = new \eol_schema\MeasurementOrFact();
+        $m->occurrenceID       = $occurrence_id;
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        if($measurementOfTaxon == "true") {
+            $m->source      = @$rec["url"];
+            $m->contributor = @$rec["contributor"];
+            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+        }
+        $m->measurementType  = $measurementType;
+        $m->measurementValue = $value;
+        // $m->bibliographicCitation = '';
+        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
+        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
+        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
+        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
+        
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
+    }
+    private function add_occurrence($taxon_id, $catnum, $rec)
+    {
+        $occurrence_id = md5($taxon_id . '_' . $catnum);
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $o->catalogNumber = @$rec['catalogNumber'];
+        $o->dateIdentified = @$rec['dateIdentified'];
+        $o->eventDate = @$rec['dateCollected'];
+        // $o->locality = '';
+        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
+        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$o->occurrenceID] = '';
+        return $o->occurrenceID;
     }
     private function write_comnames($comnames, $taxon_id)
     {
