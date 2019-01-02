@@ -116,6 +116,7 @@ class CITESspeciesAPI
                         [family] => Antilocapridae
                     )*/
             $this->debug['status'][$obj->name_status] = '';
+            if($obj->name_status == "S") continue;
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                  = $obj->id;
             $taxon->scientificName           = $obj->full_name;
@@ -132,9 +133,9 @@ class CITESspeciesAPI
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
-            /* synonyms are un-cleaned, unreliable
+            // /* synonyms are un-cleaned, unreliable
             if($val = @$obj->synonyms)     self::write_synonyms($val, $taxon->taxonID);
-            */
+            // */
             if($val = @$obj->common_names) self::write_comnames($val, $taxon->taxonID);
             self::get_distribution_per_id($taxon->taxonID);
         }
