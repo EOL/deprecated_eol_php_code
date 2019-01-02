@@ -19,7 +19,6 @@ class CITESspeciesAPI
         $this->service['token'] = "qHNzqizUVrNlriueu8FSrQtt";
         if(Functions::is_production()) $this->download_options['cache_path']   = '/extra/eol_php_cache2/';
         else                           $this->download_options['cache_path']   = '/Volumes/AKiTiO4/eol_php_cache2/';
-        $this->total_taxa = false;
         // $this->download_options['expire_seconds'] = 0; //to force re-create cache. comment in normal operation
     }
     private function initialize_mapping()
@@ -99,7 +98,6 @@ class CITESspeciesAPI
     }
     private function process_taxa($object)
     {
-        if(!$this->total_taxa) $this->total_taxa = $object->pagination->total_entries;
         // print_r($object); exit;
         foreach($object->taxon_concepts as $obj) {
             /*  [id] => 12163
