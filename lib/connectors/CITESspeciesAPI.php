@@ -129,7 +129,10 @@ class CITESspeciesAPI
                 }
             }
             // $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
-            $this->archive_builder->write_object_to_file($taxon);
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->archive_builder->write_object_to_file($taxon);
+                $this->taxon_ids[$taxon->taxonID] = '';
+            }
             // if($val = @$obj->synonyms)     self::write_synonyms($val, $taxon->taxonID);
             if($val = @$obj->common_names) self::write_comnames($val, $taxon->taxonID);
             self::get_distribution_per_id($taxon->taxonID);
