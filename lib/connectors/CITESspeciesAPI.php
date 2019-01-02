@@ -23,9 +23,11 @@ class CITESspeciesAPI
     }
     private function initialize_mapping()
     {
-        $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        /* no need to do this anymore
         $mappings2 = Functions::get_eol_defined_uris_v1(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         $mappings = array_merge($mappings, $mappings2);
+        */
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
     }
