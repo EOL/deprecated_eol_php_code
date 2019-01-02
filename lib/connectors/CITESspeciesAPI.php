@@ -86,7 +86,7 @@ class CITESspeciesAPI
         }
         // exit("\n-exitx-\n");
         $this->archive_builder->finalize(true);
-        // print_r($this->debug);
+        print_r($this->debug['status']);
 
         //massage debug for printing
         $countries = array_keys($this->debug['COUNTRY']); asort($countries);
@@ -115,6 +115,7 @@ class CITESspeciesAPI
                         [order] => Artiodactyla
                         [family] => Antilocapridae
                     )*/
+            $this->debug['status'][$obj->name_status] = '';
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                  = $obj->id;
             $taxon->scientificName           = $obj->full_name;
@@ -131,7 +132,9 @@ class CITESspeciesAPI
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
+            /* synonyms are un-cleaned, unreliable
             if($val = @$obj->synonyms)     self::write_synonyms($val, $taxon->taxonID);
+            */
             if($val = @$obj->common_names) self::write_comnames($val, $taxon->taxonID);
             self::get_distribution_per_id($taxon->taxonID);
         }
