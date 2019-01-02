@@ -384,33 +384,10 @@ class AntWebDataAPI
         if($country_uri = @$this->uri_values[$country]) return $country_uri;
         else {
             switch ($country) { //put here customized mapping
-                case "United States of America":        return "http://www.wikidata.org/entity/Q30";
-                case "Port of Entry":                   return false; //"DO NOT USE";
-                case "Dutch West Indies":               return "http://www.wikidata.org/entity/Q25227";
-                case "Democratic Republic of Congo":    return "http://www.wikidata.org/entity/Q974";
-                case "Myanmar":                         return "http://www.wikidata.org/entity/Q836";
-                case "Congo":                           return "http://www.wikidata.org/entity/Q974";
-                case "C?te d Ivoire":                   return "http://www.wikidata.org/entity/Q1008";
-                case "Côte d'Ivoire":                   return "http://www.wikidata.org/entity/Q1008";
-                case "United States Virgin Islands":    return "http://www.wikidata.org/entity/Q11703";
-                case "Netherlands Antilles":            return "http://www.wikidata.org/entity/Q25227";
-                case "Bonaire, Sint Eustatius and Saba": return "http://www.wikidata.org/entity/Q25227";
-                case "Rhodesia":                        return "http://www.wikidata.org/entity/Q954";
-                case "Timor-Leste":                     return "http://www.wikidata.org/entity/Q574";
-                case "Europa Island":                   return "http://www.wikidata.org/entity/Q193089";
-                case "Juan de Nova Island":             return "http://www.wikidata.org/entity/Q237034";
-                case "Kerguelen Islands":               return "http://www.wikidata.org/entity/Q46772";
-                case "Santa Lucia":                     return "http://www.wikidata.org/entity/Q760";
-                case "Macaronesia":                     return "http://www.wikidata.org/entity/Q105472";
-                case "Chagos Islands":                  return "http://www.wikidata.org/entity/Q192188";
-                case "Cabo Verde":                      return "http://www.wikidata.org/entity/Q1011";
-                case "Siam Thailand":                   return "http://www.wikidata.org/entity/Q869";
-                case "ECUADOR":                         return "http://www.wikidata.org/entity/Q736";
-                case "Federated States of Micronesia":  return "http://www.wikidata.org/entity/Q702";
-                case "French Equatorial Africa":        return "http://www.wikidata.org/entity/Q271894";
-                case "Palmyra Atoll":                   return "http://www.wikidata.org/entity/Q123076";
-                case "Cura ao":                         return "http://www.wikidata.org/entity/Q25279";
-                case "Mariana Islands":                 return "http://www.wikidata.org/entity/Q153732";
+                case "Port of Entry":   return false; //"DO NOT USE";
+                // just examples below. Real entries here were already added to /cp_new/GISD/mapped_location_strings.txt
+                // case "United States of America":        return "http://www.wikidata.org/entity/Q30";
+                // case "Dutch West Indies":               return "http://www.wikidata.org/entity/Q25227";
             }
         }
     }
