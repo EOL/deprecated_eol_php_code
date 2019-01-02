@@ -28,20 +28,23 @@ class AntWebDataAPI
         // $this->download_options['expire_seconds'] = false; //comment in normal operation
         $this->ant_habitat_mapping_file = "https://github.com/eliagbayani/EOL-connector-data-files/blob/master/AntWeb/ant habitats mapping.xlsx?raw=true";
     }
-    
+    private function initialize_mapping()
+    {
+        $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uri_values = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); exit;
+    }
     function start($harvester, $row_type)
     {   
+        self::initialize_mapping();
         // print_r($this->taxon_ids); exit;
-        $this->uri_values = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        // print_r($this->uri_values);
-        // echo("\n Philippines: ".$this->uri_values['Philippines']."\n"); exit;
         $genus_list = self::get_all_genus($harvester->process_row_type($row_type));
         echo "\n total genus: ".count($genus_list);
         /* $genus_list = self::get_all_genus_using_api(); //working but instead of genus; family values are given by API */
         self::process_genus($genus_list);
         print_r($this->debug);
     }
-    
     private function process_genus($genus_list)
     {
         $habitat_map = self::initialize_habitat_mapping();
