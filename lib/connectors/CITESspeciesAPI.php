@@ -64,7 +64,7 @@ class CITESspeciesAPI
                 self::process_taxa($obj);
             }
             else {
-                if($this->total_taxa >= $page*$this->service['per_page']) {
+                if($page <= $total_pages) {
                     echo "\nwe need to expire cache and overwrite the erroneous cache\n";
                     sleep(60*2);
                     //copied from above start ------------------------------------------------------------
