@@ -97,22 +97,6 @@ class CITESspeciesAPI
         foreach($territories as $c) $this->debug['TERRITORY'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
     }
-    private function get_total_pages()
-    {
-        $page = 1;
-        $url = $this->service['taxa'].$page;
-        $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
-        echo "\n$cmd\n";
-        $json = self::get_json_from_cache($cmd, $this->download_options);
-        $obj = json_decode($json);
-        print_r($obj->pagination);
-        $total_pages = $obj->pagination->total_entries/$this->service['per_page'];
-        // $total_pages = $obj->pagination->total_entries/250;
-        echo "\n$total_pages\n";
-        $total_pages = ceil($total_pages);
-        echo "\n$total_pages\n";
-        return $total_pages;
-    }
     private function process_taxa($object)
     {
         if(!$this->total_taxa) $this->total_taxa = $object->pagination->total_entries;
@@ -330,6 +314,22 @@ class CITESspeciesAPI
             }
         }
         return $json;
+    }
+    private function get_total_pages()
+    {
+        $page = 1;
+        $url = $this->service['taxa'].$page;
+        $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
+        echo "\n$cmd\n";
+        $json = self::get_json_from_cache($cmd, $this->download_options);
+        $obj = json_decode($json);
+        print_r($obj->pagination);
+        $total_pages = $obj->pagination->total_entries/$this->service['per_page'];
+        // $total_pages = $obj->pagination->total_entries/250;
+        echo "\n$total_pages\n";
+        $total_pages = ceil($total_pages);
+        echo "\n$total_pages\n";
+        return $total_pages;
     }
     //#######################################################################################################################################################################
     private function create_archive($rec)
