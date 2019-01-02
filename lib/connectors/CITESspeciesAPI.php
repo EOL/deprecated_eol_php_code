@@ -181,11 +181,8 @@ class CITESspeciesAPI
                     if($country_uri = self::get_country_uri($country)) {
                         self::add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
                     }
-                    else $this->debug['undefined country'][$country] = '';
+                    else $this->debug[$d->type][$country] = '';
                 }
-                // /* for generating mapping report
-                $this->debug[$d->type][$d->name] = '';
-                // */
             }
         }
     }
