@@ -117,6 +117,13 @@ class CITESspeciesAPI
                         [order] => Artiodactyla
                         [family] => Antilocapridae
                     )*/
+            
+            /* debug only
+            if($obj->name_status == "S") {
+                print_r($obj); exit("\nsample of a synonym record\n");
+            }
+            */
+            
             $this->debug['status'][$obj->name_status] = '';
             if($obj->name_status == "S") continue;
             $taxon = new \eol_schema\Taxon();
