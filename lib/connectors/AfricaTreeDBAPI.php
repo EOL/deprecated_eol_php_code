@@ -45,10 +45,7 @@ class AfricaTreeDBAPI
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
-        // print_r($tables['http://eol.org/schema/media/document']); exit;
         $locations = array("distribution.csv", "use.csv");
-        // $locations = array("use.csv");
-        
         echo "\nProcessing CSV archive...\n";
         foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
             if(in_array($tbl->location, $locations)) {
@@ -68,8 +65,6 @@ class AfricaTreeDBAPI
         foreach($countries as $c) $this->for_mapping['use.csv'][$c] = '';
         foreach($territories as $c) $this->for_mapping['distribution.csv'][$c] = '';
         Functions::start_print_debug($this->for_mapping, $this->resource_id);
-        
-        exit;
     }
     function convert_archive()
     {
