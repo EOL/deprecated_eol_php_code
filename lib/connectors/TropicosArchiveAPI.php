@@ -771,13 +771,13 @@ class TropicosArchiveAPI
     /*
     these params ($return_d_value and $url_path_2mappings) are used when this func() is called outside this library. e.g. TurbellarianAPI_v2.php
     */
-    public function add_additional_mappings($return_d_value = false, $url_path_2mappings = false)
+    public function add_additional_mappings($return_d_value = false, $url_path_2mappings = false, $expire_seconds = 60*60*24*25)
     {
         if($url_path_2mappings) $url = $url_path_2mappings;
         else $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Tropicos/countries with added URIs.txt";
         $options = $this->download_options;
         $options['cache'] = 1;
-        $options['expire_seconds'] = 60*60*24*25; //25 days
+        $options['expire_seconds'] = $expire_seconds; //25 days
         $local = Functions::save_remote_file_to_local($url, $options);
         $handle = fopen($local, "r");
         if ($handle) {
