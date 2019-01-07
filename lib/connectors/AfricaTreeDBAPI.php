@@ -14,23 +14,7 @@ class AfricaTreeDBAPI
         }
         $this->dwca_file = $dwca_file;
         $this->debug = array();
-        
-        /* Please take note of some Meta XML entries have upper and lower case differences */
-        $this->extensions = array("http://rs.gbif.org/terms/1.0/vernacularname"     => "vernacular",
-                                  "http://rs.tdwg.org/dwc/terms/occurrence"         => "occurrence",
-                                  "http://rs.tdwg.org/dwc/terms/measurementorfact"  => "measurementorfact",
-                                  "http://rs.tdwg.org/dwc/terms/taxon"              => "taxon",
-                                  "http://eol.org/schema/media/document"            => "document",
-                                  "http://rs.gbif.org/terms/1.0/reference"          => "reference",
-                                  "http://eol.org/schema/agent/agent"               => "agent",
-
-                                  //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
-                                  "http://rs.gbif.org/terms/1.0/description"        => "document",
-                                  "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
-                                  "http://eol.org/schema/reference/reference"       => "reference",
-                                  "http://rs.tdwg.org/dwc/terms/Taxon"              => "taxon",
-                                  "http://eol.org/schema/media/Document"            => "document"
-                                  );
+        $this->for_mapping = array();
     }
 
     private function start()
@@ -50,28 +34,42 @@ class AfricaTreeDBAPI
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
+    // <extension encoding="UTF-8" fieldsTerminatedBy=","                           linesTerminatedBy="\n" ignoreHeaderLines="1" rowType="http://eol.org/schema/media/Document">
+    // <extension encoding="UTF-8" fieldsTerminatedBy="," fieldsEnclosedBy="&quot;" linesTerminatedBy="\n" ignoreHeaderLines="1" rowType="http://eol.org/schema/media/Document">
+    
     function get_unmapped_strings()
     {
+        self::initialize_mapping(); //un-comment in real operation
         if(!($info = self::start())) return;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
-        // print_r($tables); exit;
+        // print_r($tables['http://eol.org/schema/media/document']); exit;
         $locations = array("distribution.csv", "use.csv");
+        // $locations = array("use.csv");
+        
         echo "\nProcessing CSV archive...\n";
-        foreach($tables as $key => $values) {
-            $tbl = $values[0];
-            // print_r($tbl); exit;
+        foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
             if(in_array($tbl->location, $locations)) {
                 echo "\n -- Processing [$tbl->location]...\n";
-                self::process_extension($tbl->file_uri, $tbl);
+                self::process_extension($tbl->file_uri, $tbl, $tbl->location);
             }
         }
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         if($this->debug) print_r($this->debug);
+        
+        //massage debug for printing
+        $countries = array_keys($this->for_mapping['use.csv']); asort($countries);
+        $territories = array_keys($this->for_mapping['distribution.csv']); asort($territories);
+        $this->for_mapping = array();
+        foreach($countries as $c) $this->for_mapping['use.csv'][$c] = '';
+        foreach($territories as $c) $this->for_mapping['distribution.csv'][$c] = '';
+        Functions::start_print_debug($this->for_mapping, $this->resource_id);
+        
+        exit;
     }
     function convert_archive()
     {
@@ -88,7 +86,7 @@ class AfricaTreeDBAPI
         // return Functions::remove_whitespace($html);
     }
     
-    private function process_extension($csv_file, $tbl)
+    private function process_extension($csv_file, $tbl, $group)
     {
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
@@ -130,12 +128,23 @@ class AfricaTreeDBAPI
                     [blank_3] => http://creativecommons.org/licenses/by-sa/3.0/
                 )
                 */
-                $this->
+                if($val = @$rec['Region']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
+                if($val = @$rec['Use']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
                 
                 
             } //main records
         } //main loop
         fclose($file);
+    }
+    private function separate_strings($str, $ret, $group)
+    {
+        $arr = explode(";", $str);
+        $arr = array_map('trim', $arr);
+        foreach($arr as $item) {
+            if(!isset($this->uris[$item])) $ret[$group][$item] = '';
+                                        // $ret[$group][$item] = '';
+        }
+        return $ret;
     }
     private function fill_up_blank_fieldnames($fields)
     {
@@ -148,6 +157,12 @@ class AfricaTreeDBAPI
             } 
         }
         return array_keys($final);
+    }
+    private function initialize_mapping()
+    {
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
     }
 }
 ?>
