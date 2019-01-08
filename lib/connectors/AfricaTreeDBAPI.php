@@ -18,8 +18,8 @@ class AfricaTreeDBAPI
     }
     function convert_archive()
     {
-        require_library('connectors/CITESspeciesAPI');
-        $this->func = new CITESspeciesAPI($this->resource_id);
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         self::initialize_mapping(); //un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
@@ -29,12 +29,19 @@ class AfricaTreeDBAPI
         $index = $info['index'];
         $locations = array("distribution.csv", "use.csv");
         echo "\nProcessing CSV archive...\n";
+        // print_r($tables); exit;
         foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
             if(in_array($tbl->location, $locations)) {
                 echo "\n -- Processing [$tbl->location]...\n";
                 self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'traitbank');
             }
         }
+
+        foreach($tables['http://rs.tdwg.org/dwc/terms/taxon'] as $tbl) {
+            echo "\n -- Processing [$tbl->location]...\n";
+            self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'taxon');
+        }
+        
         $this->archive_builder->finalize(true);
         
         // remove temp dir
@@ -161,6 +168,30 @@ class AfricaTreeDBAPI
         } //main loop
         fclose($file);
     }
+    private function create_taxon($rec)
+    {
+        if(!isset($this->taxa_with_trait[$rec['DEF_id']])) return;
+        // print_r($rec); exit;
+        /*Array(
+            [DEF_id] => 1
+            [family] => Alangiaceae 
+            [genus] => Alangium
+            [scientific name] => Alangium chinense 
+            [species] => chinense
+            [subspecies] => 
+        )*/
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $rec['DEF_id'];
+        $taxon->scientificName  = $rec['scientific name'];
+        $taxon->family          = $rec['family'];
+        $taxon->genus           = $rec['genus'];
+        // $taxon->taxonRank             = '';
+        // $taxon->furtherInformationURL = '';
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+    }
     private function create_trait($rek, $group)
     {
         if($group == "distribution.csv") {
@@ -173,6 +204,7 @@ class AfricaTreeDBAPI
             $taxon_id = $rek['Plant'];
             $mtype = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use";
         }
+        $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
         $arr = array_map('trim', $arr);
         // print_r($arr); exit;
         foreach($arr as $string_val) {
