@@ -16,8 +16,10 @@ class AfricaTreeDBAPI
         $this->debug = array();
         $this->for_mapping = array();
     }
-
-    private function start()
+    function convert_archive()
+    {
+    }
+    private function prepare_archive_for_access()
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -27,20 +29,16 @@ class AfricaTreeDBAPI
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
-        {
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    // <extension encoding="UTF-8" fieldsTerminatedBy=","                           linesTerminatedBy="\n" ignoreHeaderLines="1" rowType="http://eol.org/schema/media/Document">
-    // <extension encoding="UTF-8" fieldsTerminatedBy="," fieldsEnclosedBy="&quot;" linesTerminatedBy="\n" ignoreHeaderLines="1" rowType="http://eol.org/schema/media/Document">
-    
     function get_unmapped_strings()
     {
         self::initialize_mapping(); //un-comment in real operation
-        if(!($info = self::start())) return;
+        if(!($info = self::prepare_archive_for_access())) return;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
@@ -57,7 +55,6 @@ class AfricaTreeDBAPI
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         if($this->debug) print_r($this->debug);
-        
         //massage debug for printing
         $countries = array_keys($this->for_mapping['use.csv']); asort($countries);
         $territories = array_keys($this->for_mapping['distribution.csv']); asort($territories);
@@ -66,10 +63,6 @@ class AfricaTreeDBAPI
         foreach($territories as $c) $this->for_mapping['distribution.csv'][$c] = '';
         Functions::start_print_debug($this->for_mapping, $this->resource_id);
     }
-    function convert_archive()
-    {
-    }
-
     private function clean_html($arr)
     {
         $delimeter = "elicha173";
@@ -78,9 +71,7 @@ class AfricaTreeDBAPI
         $html = str_ireplace("> |", ">", $html);
         $arr = explode($delimeter, $html);
         return $arr;
-        // return Functions::remove_whitespace($html);
     }
-    
     private function process_extension($csv_file, $tbl, $group)
     {
         $i = 0;
@@ -124,7 +115,7 @@ class AfricaTreeDBAPI
                 )
                 */
                 if($val = @$rec['Region']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
-                if($val = @$rec['Use']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
+                if($val = @$rec['Use'])    $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
                 
                 
             } //main records
