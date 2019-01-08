@@ -204,7 +204,6 @@ class AfricaTreeDBAPI
             $taxon_id = $rek['Plant'];
             $mtype = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use";
         }
-        $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
         $arr = array_map('trim', $arr);
         // print_r($arr); exit;
         foreach($arr as $string_val) {
@@ -213,6 +212,7 @@ class AfricaTreeDBAPI
                 $rec["taxon_id"] = $taxon_id;
                 $rec["catnum"] = $taxon_id.'_'.$rek['id'];
                 if($string_uri = self::get_string_uri($string_val)) {
+                    $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
                     $this->func->add_string_types($rec, $string_uri, $mtype, "true");
                 }
                 else $this->debug[$group][$string_val] = '';
@@ -225,8 +225,8 @@ class AfricaTreeDBAPI
         else {
             switch ($string) { //put here customized mapping
                 // case "Port of Entry":                return false; //"DO NOT USE";
-                case "United States of America":     return "http://www.wikidata.org/entity/Q30";
-                case "fools":            return "http://www.april.fools.day/index.html";
+                case "United States of America":    return "http://www.wikidata.org/entity/Q30";
+                // case "fools":                       return "http://www.april.fools.day/index.html";
             }
         }
     }
