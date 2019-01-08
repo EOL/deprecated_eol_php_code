@@ -18,6 +18,7 @@ class AfricaTreeDBAPI
     }
     function convert_archive()
     {
+        
     }
     private function prepare_archive_for_access()
     {
@@ -48,7 +49,7 @@ class AfricaTreeDBAPI
         foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
             if(in_array($tbl->location, $locations)) {
                 echo "\n -- Processing [$tbl->location]...\n";
-                self::process_extension($tbl->file_uri, $tbl, $tbl->location);
+                self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'utility');
             }
         }
         // remove temp dir
@@ -72,7 +73,7 @@ class AfricaTreeDBAPI
         $arr = explode($delimeter, $html);
         return $arr;
     }
-    private function process_extension($csv_file, $tbl, $group)
+    private function process_extension($csv_file, $tbl, $group, $purpose = 'dwca') //purpose = dwca OR utility
     {
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
@@ -103,7 +104,6 @@ class AfricaTreeDBAPI
                     $k++;
                 }
                 // print_r($fields); print_r($rec); exit;
-                
                 /*Array(
                     [id] => dist_99
                     [blank_1] => http://purl.org/dc/dcmitype/Text
