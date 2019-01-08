@@ -15,6 +15,12 @@ class AfricaTreeDBAPI
         $this->dwca_file = $dwca_file;
         $this->debug = array();
         $this->for_mapping = array();
+        
+        $this->download_options = array(
+            'expire_seconds'     => 60*60*24*30, //expires in 1 month
+            'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+        /* 'Use' mapping from Jen: https://opendata.eol.org/dataset/africa-tree-database/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf */
+        $this->use_mapping_from_jen = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fadcd/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf/download/use-mapping.csv";
     }
     function convert_archive()
     {
@@ -47,9 +53,15 @@ class AfricaTreeDBAPI
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
+
         //massage debug for printing
-        $countries = array_keys($this->debug['use.csv']); asort($countries);
-        $territories = array_keys($this->debug['distribution.csv']); asort($territories);
+        $countries = array(); $territories = array();
+        if($use_csv = @$this->debug['use.csv']) {
+            if($countries = array_keys($use_csv)) asort($countries);
+        }
+        if($distribution_csv = @$this->debug['distribution.csv']) {
+            if($territories = array_keys($distribution_csv)) asort($territories);
+        }
         $this->debug = array();
         foreach($countries as $c) $this->debug['use.csv'][$c] = '';
         foreach($territories as $c) $this->debug['distribution.csv'][$c] = '';
@@ -213,6 +225,7 @@ class AfricaTreeDBAPI
                 $rec["catnum"] = $taxon_id.'_'.$rek['id'];
                 if($string_uri = self::get_string_uri($string_val)) {
                     $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
+                    $rec['measurementRemarks'] = $string_val;
                     $this->func->add_string_types($rec, $string_uri, $mtype, "true");
                 }
                 else $this->debug[$group][$string_val] = '';
@@ -221,14 +234,11 @@ class AfricaTreeDBAPI
     }
     private function get_string_uri($string)
     {
-        if($string_uri = @$this->uris[$string]) return $string_uri;
-        else {
-            switch ($string) { //put here customized mapping
-                // case "Port of Entry":                return false; //"DO NOT USE";
-                case "United States of America":    return "http://www.wikidata.org/entity/Q30";
-                // case "fools":                       return "http://www.april.fools.day/index.html";
-            }
+        switch ($string) { //put here customized mapping
+            case "NR":                return false; //"DO NOT USE";
+            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
         }
+        if($string_uri = @$this->uris[$string]) return $string_uri;
     }
     private function separate_strings($str, $ret, $group)
     {
@@ -257,6 +267,54 @@ class AfricaTreeDBAPI
         $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        self::use_mapping_from_jen();
+        // print_r($this->uris);
+    }
+    private function use_mapping_from_jen()
+    {
+        $csv_file = Functions::save_remote_file_to_local($this->use_mapping_from_jen, $this->download_options);
+        $i = 0;
+        $file = Functions::file_open($csv_file, "r");
+        while(!feof($file)) {
+            $row = fgetcsv($file);
+            if(!$row) break;
+            $row = self::clean_html($row);
+            // print_r($row);
+            $i++; if(($i % 2000) == 0) echo "\n $i ";
+            if($i == 1) {
+                $fields = $row;
+                $fields = self::fill_up_blank_fieldnames($fields);
+                $count = count($fields);
+                print_r($fields);
+            }
+            else { //main records
+                $values = $row;
+                if($count != count($values)) { //row validation - correct no. of columns
+                    // print_r($values); print_r($rec);
+                    echo("\nWrong CSV format for this row.\n");
+                    // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
+                    continue;
+                }
+                $k = 0;
+                $rec = array();
+                foreach($fields as $field) {
+                    $rec[$field] = $values[$k];
+                    $k++;
+                }
+                // print_r($fields); print_r($rec); exit;
+                /*Array(
+                    [Use string] => timber
+                    [URI] => http://purl.obolibrary.org/obo/EUPATH_0000001
+                    [blank_1] => 
+                    [blank_2] => 
+                    [blank_3] => 
+                    [blank_4] => 
+                )*/
+                $this->uris[$rec['Use string']] = $rec['URI'];
+            } //main records
+        } //main loop
+        fclose($file);
+        unlink($csv_file);
     }
 }
 ?>
