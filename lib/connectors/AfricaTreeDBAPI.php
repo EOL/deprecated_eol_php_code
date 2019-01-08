@@ -32,7 +32,7 @@ class AfricaTreeDBAPI
         foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
             if(in_array($tbl->location, $locations)) {
                 echo "\n -- Processing [$tbl->location]...\n";
-                self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'dwca');
+                self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'traitbank');
             }
         }
         $this->archive_builder->finalize(true);
@@ -40,7 +40,13 @@ class AfricaTreeDBAPI
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        if($this->debug) print_r($this->debug);
+        //massage debug for printing
+        $countries = array_keys($this->debug['use.csv']); asort($countries);
+        $territories = array_keys($this->debug['distribution.csv']); asort($territories);
+        $this->debug = array();
+        foreach($countries as $c) $this->debug['use.csv'][$c] = '';
+        foreach($territories as $c) $this->debug['distribution.csv'][$c] = '';
+        Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function prepare_archive_for_access()
     {
@@ -95,7 +101,7 @@ class AfricaTreeDBAPI
         $arr = explode($delimeter, $html);
         return $arr;
     }
-    private function process_extension($csv_file, $tbl, $group, $purpose = 'dwca') //purpose = dwca OR utility
+    private function process_extension($csv_file, $tbl, $group, $purpose = 'traitbank') //purpose = traitbank OR utility
     {
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
@@ -145,9 +151,8 @@ class AfricaTreeDBAPI
                     [6] => blank_3
                 )
                 */
-                if($purpose == 'dwca') {
-                    self::create_trait($rec, $group);
-                }
+                if($purpose == 'traitbank') self::create_trait($rec, $group);
+                elseif($purpose == 'taxon') self::create_taxon($rec);
                 elseif($purpose == 'utility') {
                     if($val = @$rec['Region']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
                     if($val = @$rec['Use'])    $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
@@ -177,7 +182,6 @@ class AfricaTreeDBAPI
                 $rec["catnum"] = $taxon_id.'_'.$rek['id'];
                 if($string_uri = self::get_string_uri($string_val)) {
                     $this->func->add_string_types($rec, $string_uri, $mtype, "true");
-                    // exit("\nwent here\n");
                 }
                 else $this->debug[$group][$string_val] = '';
             }
