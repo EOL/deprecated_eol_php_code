@@ -18,7 +18,29 @@ class AfricaTreeDBAPI
     }
     function convert_archive()
     {
+        require_library('connectors/CITESspeciesAPI');
+        $this->func = new CITESspeciesAPI($this->resource_id);
         
+        self::initialize_mapping(); //un-comment in real operation
+        if(!($info = self::prepare_archive_for_access())) return;
+        $temp_dir = $info['temp_dir'];
+        $harvester = $info['harvester'];
+        $tables = $info['tables'];
+        $index = $info['index'];
+        $locations = array("distribution.csv", "use.csv");
+        echo "\nProcessing CSV archive...\n";
+        foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
+            if(in_array($tbl->location, $locations)) {
+                echo "\n -- Processing [$tbl->location]...\n";
+                self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'dwca');
+            }
+        }
+        $this->archive_builder->finalize(true);
+        
+        // remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        if($this->debug) print_r($this->debug);
     }
     private function prepare_archive_for_access()
     {
@@ -113,14 +135,64 @@ class AfricaTreeDBAPI
                     [Ref] => 1
                     [blank_3] => http://creativecommons.org/licenses/by-sa/3.0/
                 )
+                Array(
+                    [0] => id
+                    [1] => blank_1
+                    [2] => blank_2
+                    [3] => Plant
+                    [4] => Use
+                    [5] => Ref
+                    [6] => blank_3
+                )
                 */
-                if($val = @$rec['Region']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
-                if($val = @$rec['Use'])    $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
-                
-                
+                if($purpose == 'dwca') {
+                    self::create_trait($rec, $group);
+                }
+                elseif($purpose == 'utility') {
+                    if($val = @$rec['Region']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
+                    if($val = @$rec['Use'])    $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
+                }
             } //main records
         } //main loop
         fclose($file);
+    }
+    private function create_trait($rek, $group)
+    {
+        if($group == "distribution.csv") {
+            $arr = explode(";", $rek['Region']);
+            $taxon_id = $rek['Plant No'];
+            $mtype = "http://eol.org/schema/terms/Present";
+        }
+        elseif($group == "use.csv") {
+            $arr = explode(";", $rek['Use']);
+            $taxon_id = $rek['Plant'];
+            $mtype = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use";
+        }
+        $arr = array_map('trim', $arr);
+        // print_r($arr); exit;
+        foreach($arr as $string_val) {
+            if($string_val) {
+                $rec = array();
+                $rec["taxon_id"] = $taxon_id;
+                $rec["catnum"] = $taxon_id.'_'.$rek['id'];
+                if($string_uri = self::get_string_uri($string_val)) {
+                    $this->func->add_string_types($rec, $string_uri, $mtype, "true");
+                    // exit("\nwent here\n");
+                }
+                else $this->debug[$group][$string_val] = '';
+            }
+        }
+    }
+    private function get_string_uri($string)
+    {
+        if($string_uri = @$this->uris[$string]) return $string_uri;
+        else {
+            switch ($string) { //put here customized mapping
+                // case "Port of Entry":                return false; //"DO NOT USE";
+                case "United States of America":     return "http://www.wikidata.org/entity/Q30";
+                case "fools":            return "http://www.april.fools.day/index.html";
+            }
+        }
     }
     private function separate_strings($str, $ret, $group)
     {

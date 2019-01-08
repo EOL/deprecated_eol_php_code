@@ -11,12 +11,12 @@ $dwca_file = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fa
 $resource_id = "africa_tree_db";
 $func = new AfricaTreeDBAPI($resource_id, $dwca_file);
 
-// /* utilities - to get the un-mapped strings
+/* utilities - to get the un-mapped strings
 $func->get_unmapped_strings();
 exit("\n-end utility-\n");
-// */
+*/
 
-// $func->convert_archive();
+$func->convert_archive(); //main operation
 // Functions::finalize_dwca_resource($resource_id, false);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

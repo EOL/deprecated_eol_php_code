@@ -195,7 +195,7 @@ class CITESspeciesAPI
             }
         }
     }
-    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
+    public function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
