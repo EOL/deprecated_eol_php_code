@@ -1,14 +1,13 @@
 <?php
 namespace php_active_record;
-/* This can be a generic connector for CSV DwCA resources. (Another similar resource is try.php)
-*/
+/* DATA-1792 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AfricaTreeDBAPI');
 $timestart = time_elapsed();
 
 $dwca_file = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fadcd/resource/c39822fe-79a1-4fd9-929f-0ca6e495f3b4/download/archive.zip";
-$resource_id = "africa_tree_db";
+$resource_id = "atdb"; //africa tree db
 $func = new AfricaTreeDBAPI($resource_id, $dwca_file);
 
 /* utilities - to get the un-mapped strings
