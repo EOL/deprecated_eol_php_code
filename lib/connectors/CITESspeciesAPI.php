@@ -109,6 +109,7 @@ class CITESspeciesAPI
         foreach($countries as $c) $this->debug['COUNTRY'][$c] = '';
         foreach($territories as $c) $this->debug['TERRITORY'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
+        print_r($this->debug['listings']);
     }
     private function process_taxa($object)
     {
