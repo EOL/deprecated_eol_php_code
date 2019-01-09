@@ -161,7 +161,7 @@ class CITESspeciesAPI
             // */
             if($val = @$obj->common_names) self::write_comnames($val, $taxon->taxonID);
             self::get_distribution_per_id($taxon->taxonID);
-            if($val = @$obj->cites_listings) self::write_cites_listings($val, $taxon->taxonID);
+            // if($val = @$obj->cites_listings) self::write_cites_listings($val, $taxon->taxonID);
         }
     }
     private function write_cites_listings($obj, $taxon_id)
