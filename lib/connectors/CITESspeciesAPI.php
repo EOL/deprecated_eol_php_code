@@ -20,6 +20,10 @@ class CITESspeciesAPI
         if(Functions::is_production()) $this->download_options['cache_path']   = '/extra/eol_php_cache2/';
         else                           $this->download_options['cache_path']   = '/Volumes/AKiTiO4/eol_php_cache2/';
         // $this->download_options['expire_seconds'] = 0; //to force re-create cache. comment in normal operation
+        
+        $this->listings_uri['I'] = "http://eol.org/schema/terms/CITES_I";
+        $this->listings_uri['II'] = "http://eol.org/schema/terms/CITES_II";
+        $this->listings_uri['III'] = "http://eol.org/schema/terms/CITES_III";
     }
     private function initialize_mapping()
     {
@@ -33,6 +37,9 @@ class CITESspeciesAPI
     }
     function start()
     {
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
         self::initialize_mapping(); //un-comment in real operation
         if(!is_dir($this->download_options['cache_path'])) mkdir($this->download_options['cache_path']);
         /*
@@ -91,8 +98,13 @@ class CITESspeciesAPI
         print_r($this->debug['status']);
 
         //massage debug for printing
-        $countries = array_keys($this->debug['COUNTRY']); asort($countries);
-        $territories = array_keys($this->debug['TERRITORY']); asort($territories);
+        $countries = array(); $territories = array();
+        if($val = @$this->debug['COUNTRY']) {
+            $countries = array_keys($val); asort($countries);
+        }
+        if($val = @$this->debug['TERRITORY']) {
+            $territories = array_keys($val); asort($territories);
+        }
         $this->debug = array();
         foreach($countries as $c) $this->debug['COUNTRY'][$c] = '';
         foreach($territories as $c) $this->debug['TERRITORY'][$c] = '';
@@ -147,6 +159,45 @@ class CITESspeciesAPI
             // */
             if($val = @$obj->common_names) self::write_comnames($val, $taxon->taxonID);
             self::get_distribution_per_id($taxon->taxonID);
+            // if($val = @$obj->cites_listings) self::write_cites_listings($val, $taxon->taxonID);
+        }
+    }
+    private function write_cites_listings($obj, $taxon_id)
+    {
+        // print_r($obj); exit;
+        /*Array(
+                [0] => stdClass Object(
+                        [id] => 4679
+                        [appendix] => II
+                        [annotation] => [ORDER listing Cetacea spp.] Included in Appendix II, except for the species included in Appendix I. A zero annual export quota has been established for live specimens from the Black Sea population of Tursiops truncatus removed from the wild and traded for primarily commercial purposes.
+                        [hash_annotation] => 
+                        [effective_at] => 2003-02-13
+                        [party] => 
+                    )
+            )
+        measurementType=http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus
+        measurementValue-> [appendix] via the three URIs above
+        determinedDate= [effective_at]
+        determinedBy=[party] (if this is ever populated)
+        measurementRemarks=[annotation]
+        furtherInformationURL-> of the form https://www.speciesplus.net/#/taxon_concepts/4464/legal, if you can access the taxon concept IDs
+        */
+        foreach($obj as $d) {
+            if(@$d->appendix) {
+                $rec = array();
+                $rec["taxon_id"] = $taxon_id;
+                $rec["catnum"] = $taxon_id.$d->id;
+
+                $rec['measurementDeterminedDate'] = $d->effective_at;
+                $rec['measurementDeterminedBy'] = $d->party;
+                $rec['measurementRemarks'] = $d->annotation;
+                $rec['source'] = "https://www.speciesplus.net/#/taxon_concepts/$taxon_id/legal";
+                
+                if($string_uri = $this->listings_uri[$d->appendix]) {
+                    $this->func->add_string_types($rec, $string_uri, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", "true");
+                }
+                else $this->debug['listings'][$d->appendix] = '';
+            }
         }
     }
     private function get_distribution_per_id($taxon_id)
@@ -176,8 +227,11 @@ class CITESspeciesAPI
                     $rec = array();
                     $rec["taxon_id"] = $taxon_id;
                     $rec["catnum"] = $taxon_id.$d->id;
+                    
+                    $rec['source'] = "https://www.speciesplus.net/#/taxon_concepts/$taxon_id/distribution";
+                    
                     if($country_uri = self::get_country_uri($country)) {
-                        self::add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
+                        $this->func->add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
                     }
                     else $this->debug[$d->type][$country] = '';
                 }
@@ -194,50 +248,6 @@ class CITESspeciesAPI
                 // case "Dutch West Indies":            return "http://www.wikidata.org/entity/Q25227";
             }
         }
-    }
-    public function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
-    {
-        $taxon_id = $rec["taxon_id"];
-        $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
-        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
-        $m = new \eol_schema\MeasurementOrFact();
-        $m->occurrenceID       = $occurrence_id;
-        $m->measurementOfTaxon = $measurementOfTaxon;
-        if($measurementOfTaxon == "true") {
-            $m->source      = @$rec["url"];
-            $m->contributor = @$rec["contributor"];
-            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
-        }
-        $m->measurementType  = $measurementType;
-        $m->measurementValue = $value;
-        // $m->bibliographicCitation = '';
-        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
-        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
-        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
-        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
-        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
-        
-        if(!isset($this->measurement_ids[$m->measurementID])) {
-            $this->archive_builder->write_object_to_file($m);
-            $this->measurement_ids[$m->measurementID] = '';
-        }
-    }
-    private function add_occurrence($taxon_id, $catnum, $rec)
-    {
-        $occurrence_id = md5($taxon_id . '_' . $catnum);
-        $o = new \eol_schema\Occurrence();
-        $o->occurrenceID = $occurrence_id;
-        $o->taxonID = $taxon_id;
-        $o->catalogNumber = @$rec['catalogNumber'];
-        $o->dateIdentified = @$rec['dateIdentified'];
-        $o->eventDate = @$rec['dateCollected'];
-        // $o->locality = '';
-        $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
-        if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
-        $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$o->occurrenceID] = '';
-        return $o->occurrenceID;
     }
     private function write_comnames($comnames, $taxon_id)
     {
