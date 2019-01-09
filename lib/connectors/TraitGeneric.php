@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* first client is AfricaTreeDBAPI.php */
+/* connectors which used this are:
+ - AfricaTreeDBAPI.php 
+ - CITESspeciesAPI.php
+*/
 class TraitGeneric
 {
     function __construct($resource_id, $archive_builder)
@@ -16,18 +19,25 @@ class TraitGeneric
         $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
+        $m->measurementType    = $measurementType;
+        $m->measurementValue   = $value;
+        if($val = @$rec['measurementUnit'])         $m->measurementUnit = $val;
+        if($val = @$rec['measurementMethod'])       $m->measurementMethod = $val;
+        if($val = @$rec['statisticalMethod'])       $m->statisticalMethod = $val;
+        if($val = @$rec['measurementRemarks'])      $m->measurementRemarks = $val;
+
         if($measurementOfTaxon == "true") {
-            $m->source      = @$rec["url"];
-            $m->contributor = @$rec["contributor"];
-            if($referenceID = @$rec["referenceID"]) $m->referenceID = $referenceID;
+            if($val = @$rec['measurementDeterminedDate']) $m->measurementDeterminedDate = $val;
+            if($val = @$rec['measurementDeterminedBy']) $m->measurementDeterminedBy = $val;
+            if($val = @$rec['source'])                  $m->source = $val;
+            if($val = @$rec['associationID'])           $m->associationID = $val;
+            if($val = @$rec['parentMeasurementID'])     $m->parentMeasurementID = $val;
+            if($val = @$rec['measurementAccuracy'])     $m->measurementAccuracy = $val;
+            if($val = @$rec['bibliographicCitation'])   $m->bibliographicCitation = $val;
+            if($val = @$rec['contributor'])             $m->contributor = $val;
+            if($val = @$rec['referenceID'])             $m->referenceID = $val;
         }
-        $m->measurementType  = $measurementType;
-        $m->measurementValue = $value;
-        // $m->bibliographicCitation = '';
-        if($val = @$rec['measurementUnit'])     $m->measurementUnit = $val;
-        if($val = @$rec['measurementMethod'])   $m->measurementMethod = $val;
-        if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
-        if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
         
