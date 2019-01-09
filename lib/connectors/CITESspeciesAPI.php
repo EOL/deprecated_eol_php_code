@@ -159,7 +159,7 @@ class CITESspeciesAPI
             // */
             if($val = @$obj->common_names) self::write_comnames($val, $taxon->taxonID);
             self::get_distribution_per_id($taxon->taxonID);
-            // if($val = @$obj->cites_listings) self::write_cites_listings($val, $taxon->taxonID);
+            if($val = @$obj->cites_listings) self::write_cites_listings($val, $taxon->taxonID);
         }
     }
     private function write_cites_listings($obj, $taxon_id)
@@ -227,9 +227,7 @@ class CITESspeciesAPI
                     $rec = array();
                     $rec["taxon_id"] = $taxon_id;
                     $rec["catnum"] = $taxon_id.$d->id;
-                    
                     $rec['source'] = "https://www.speciesplus.net/#/taxon_concepts/$taxon_id/distribution";
-                    
                     if($country_uri = self::get_country_uri($country)) {
                         $this->func->add_string_types($rec, $country_uri, "http://eol.org/schema/terms/Present", "true");
                     }
