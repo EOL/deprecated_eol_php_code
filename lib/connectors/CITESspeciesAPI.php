@@ -109,7 +109,8 @@ class CITESspeciesAPI
         foreach($countries as $c) $this->debug['COUNTRY'][$c] = '';
         foreach($territories as $c) $this->debug['TERRITORY'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
-        print_r($this->debug['listings']);
+        if($val = @$this->debug['listings']) print_r($val);
+        else echo "\nNo undefined appendix URI.\n";
     }
     private function process_taxa($object)
     {
