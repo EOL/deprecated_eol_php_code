@@ -43,7 +43,16 @@ class FAOSpeciesAPI
         // if($val = @$this->debug['No biblio']) print_r($val);
         // if($val = @$this->debug['No refs']) print_r($val);
         */
-        Functions::start_print_debug($this->debug, $this->resource_id);
+        Functions::start_print_debug($this->debug, $this->resource_id."_a");
+        
+        //massage debug for printing
+        $items = array();
+        if($val = @$this->debug['country for common names that need language code']) {
+            $items = array_keys($val); asort($items);
+        }
+        $this->debug = array();
+        foreach($items as $c) $this->debug['country for common names that need language code'][$c] = '';
+        Functions::start_print_debug($this->debug, $this->resource_id."_b");
     }
     private function create_archive($rec)
     {
