@@ -39,7 +39,9 @@ class FAOSpeciesAPI
     private function create_archive($rec)
     {
         $rec['taxon_id'] = $rec['FAO Names']['taxonomic_code'];
-        // print_r($rec);
+        if($rec['Geographical Distribution']) {
+            print_r($rec); exit;
+        }
         self::create_taxon($rec);
         self::create_vernaculars($rec);
         if($val = @$rec['Diagnostic Features'])   self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription", $rec);
@@ -158,7 +160,8 @@ class FAOSpeciesAPI
             $rec = self::get_sciname($html, $id);
             $rec['biblio'] = self::get_source_of_information($html, $id);
             $rec['references'] = self::get_references($html, $id);
-            $sections = array("FAO Names", "Diagnostic Features", "Geographical Distribution", "Habitat and Biology", "Size", "Interest to Fisheries", "Local Names", "Source of Information");
+            $sections = array("FAO Names", "Diagnostic Features", "Geographical Distribution", "Habitat and Biology", 
+                              "Size", "Interest to Fisheries", "Local Names", "Source of Information");
             foreach($sections as $section) {
                 if(preg_match("/>$section<(.*?)bgcolor=\"#6699ff\" align=\"left\"/ims", $html, $arr)) {
                     $str = "<".str_replace(array("<br>", "&nbsp;"), " ", $arr[1]);
@@ -231,13 +234,13 @@ class FAOSpeciesAPI
         $str = str_replace("e. g.", "e.g.", $str);
         
         $arr = explode("<p>", $str);
-        // print_r($arr);
-        if($str = @$arr[2]) {}
+        // print_r($arr); exit;
+        if($str = @$arr[2]) return trim(Functions::remove_whitespace($str)); //to be used as distribution text object
         else {
             return;
             exit("\nInvestigate id [$id]. No geographical dist.\n");
         }
-        
+        /*  Below if u want to proceed massage str to have an array of strings. Initially was used to kinda map the strings to known URIs. */
         $letters = array("N.W","e.g","i.e","fig19","St","fig","D","S","P","L","A","E","h","p","N","R","M","O","T","I","C");
         foreach($letters as $letter) $str = str_replace($letter.". ", $letter."xxx ", $str);
         // $str = str_replace("S. ", "Sxxx ", $str);
