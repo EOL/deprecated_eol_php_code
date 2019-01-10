@@ -39,15 +39,14 @@ class FAOSpeciesAPI
     private function create_archive($rec)
     {
         $rec['taxon_id'] = $rec['FAO Names']['taxonomic_code'];
-        if($rec['Geographical Distribution']) {
-            print_r($rec); exit;
-        }
+        // print_r($rec); exit;
         self::create_taxon($rec);
         self::create_vernaculars($rec);
         if($val = @$rec['Diagnostic Features'])   self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription", $rec);
         if($val = @$rec['Habitat and Biology'])   self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology", $rec);
         if($val = @$rec['Size'])                  self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Size", $rec);
         if($val = @$rec['Interest to Fisheries']) self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use", $rec);
+        if($val = @$rec['Geographical Distribution']) self::create_text_object($val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution", $rec);
     }
     private function create_vernaculars($rec)
     {   /*[FAO Names] => Array(
