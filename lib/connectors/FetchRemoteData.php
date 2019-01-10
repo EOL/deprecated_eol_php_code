@@ -29,6 +29,7 @@ class FetchRemoteData
                             $country = strip_tags($r[0]);
                             $tmp = explode("/", $r[2]);
                             $tmp = array_map('trim', $tmp);
+                            $tmp = array_map('strtolower', $tmp);
                             $final[strtoupper($country)] = $tmp;
                         }
                     }
