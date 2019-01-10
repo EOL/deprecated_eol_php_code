@@ -43,6 +43,7 @@ class FAOSpeciesAPI
         // if($val = @$this->debug['No biblio']) print_r($val);
         // if($val = @$this->debug['No refs']) print_r($val);
         */
+        Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function create_archive($rec)
     {
@@ -65,6 +66,7 @@ class FAOSpeciesAPI
                                 [comname] => Whitespotted conger
                             )
         */
+        // /* un-comment in real operation
         if($names = @$rec['FAO Names']['comnames']) {}
         else return;
         foreach($names as $r) {
@@ -78,6 +80,35 @@ class FAOSpeciesAPI
                 $this->archive_builder->write_object_to_file($v);
                 $this->vernaculars[$id] = '';
             }
+        }
+        // */
+        
+        /*[Local Names] => Array(
+                [0] => Array(
+                        [lang] => Japan
+                        [comname] => Higezame
+                    )
+            )
+        */
+        if($names = @$rec['Local Names']) {}
+        else return;
+        foreach($names as $r) {
+            if(!$r['comname']) continue;
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $rec['taxon_id'];
+            $v->vernacularName  = $r['comname'];
+            
+            $country_name = $r['lang'];
+            if($val = @$this->country_codes[strtoupper($country_name)]) {
+                $language_code = @$val[1] ? $val[1] : $val[0];
+                $v->language = $language_code;
+                $id = md5($r['comname'].$r['lang']);
+                if(!isset($this->vernaculars[$id])) {
+                    $this->archive_builder->write_object_to_file($v);
+                    $this->vernaculars[$id] = '';
+                }
+            }
+            else $this->debug['country for common names that need language code'][$country_name] = '';
         }
     }
     private function create_text_object($txt, $subject, $rec)
