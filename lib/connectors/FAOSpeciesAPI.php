@@ -109,7 +109,8 @@ class FAOSpeciesAPI
             
             $country_name = $r['lang'];
             if($val = @$this->country_codes[strtoupper($country_name)]) {
-                $language_code = @$val[1] ? $val[1] : $val[0];
+                $contingency = @$val[1] ? $val[1] : $val[0];
+                $language_code = @$val[0] ? $val[0] : $contingency;
                 $v->language = $language_code;
                 $id = md5($r['comname'].$r['lang']);
                 if(!isset($this->vernaculars[$id])) {
