@@ -18,8 +18,16 @@ class FAOSpeciesAPI
         // $this->local_species_page = "http://localhost/cp_new/FAO_species_catalog/www.fao.org/fishery/species/the_id/en.html";
         $this->local_species_page = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FAO_species_catalog/www.fao.org/fishery/species/the_id/en.html";
     }
+    
+    private function initialize()
+    {
+        require_library('connectors/FetchRemoteData');
+        $func = new FetchRemoteData();
+        $this->country_codes = $func->get_country_codes();
+    }
     function start()
     {
+        self::initialize();
         $ids = self::get_ids(); echo "\n".count($ids)."\n";
         $i = 0;
         foreach($ids as $id) {
