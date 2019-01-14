@@ -21,6 +21,43 @@ class AfricaTreeDBAPI
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         /* 'Use' mapping from Jen: https://opendata.eol.org/dataset/africa-tree-database/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf */
         $this->use_mapping_from_jen = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fadcd/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf/download/use-mapping.csv";
+        $this->addtl_mapping_from_jen = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AfricaTreeDB/AfricaTreeLocalities.txt"; //based from Eli's un-mapped string report.
+    }
+    private function addtl_mappings()
+    {
+        $tmp_file = Functions::save_remote_file_to_local($this->addtl_mapping_from_jen, $this->download_options);
+        $i = 0;
+        foreach(new FileIterator($tmp_file) as $line => $row) {
+            $row = Functions::conv_to_utf8($row);
+            $i++; 
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                if(!$row) continue;
+                $tmp = explode("\t", $row);
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); //exit;
+                /*Array(
+                    [distribution.csv] => southern Africa to Madagascar
+                    [measurementType] => http://eol.org/schema/terms/Present
+                    [measurementValue] => "http://www.geonames.org/9406051, http://www.geonames.org/1062947"
+                    [measurementRemarks] => 
+                )
+                OR
+                [measurementValue] => http://eol.org/schema/terms/TropicalAfrica
+                */
+                $str = strtoupper($rec['distribution.csv']);
+                $str = str_replace('"', "", $str);
+                $final[$str] = $rec;
+            }
+        }
+        unlink($tmp_file);
+        $this->addtl_mappings = $final;
+        // print_r($final); exit;
     }
     function convert_archive()
     {
@@ -28,6 +65,7 @@ class AfricaTreeDBAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         self::initialize_mapping(); //un-comment in real operation
+        self::addtl_mappings(); //from Jen, based on Eli's un-mapped string report
         if(!($info = self::prepare_archive_for_access())) return;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
@@ -228,9 +266,14 @@ class AfricaTreeDBAPI
                     $rec['measurementRemarks'] = $string_val;
                     $this->func->add_string_types($rec, $string_uri, $mtype, "true");
                 }
+                elseif($val = @$this->addtl_mappings[strtoupper($string_val)]) self::write_addtl_mappings($val);
                 else $this->debug[$group][$string_val] = '';
             }
         }
+    }
+    private function write_addtl_mappings($rek)
+    {
+        
     }
     private function get_string_uri($string)
     {
