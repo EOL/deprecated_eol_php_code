@@ -18,6 +18,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Tuesday 2018-11-27 09:04:20 PM	 {"agent.tab":268815,"media_resource.tab":1169511,"taxon.tab":114046,"vernacular_name.tab":316641}
 71	Thursday 2018-11-29 03:56:14 AM	 {"agent.tab":268392,"media_resource.tab":1169511,"taxon.tab":114046,"vernacular_name.tab":316641}
 71	Tuesday 2018-12-11 09:38:50 AM	 {"agent.tab":272340,"media_resource.tab":1220196,"taxon.tab":123249,"vernacular_name.tab":327414}
+71	Tuesday 2019-01-08 09:43:26 PM	 {"agent.tab":272517,"media_resource.tab":1237531,"taxon.tab":123849,"vernacular_name.tab":327898}
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -28,6 +29,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Tuesday 2018-11-27 09:15:51 PM	{"agent.tab":268815,"media_resource.tab":1169511,"taxon.tab":114046}
 71_new	Thursday 2018-11-29 04:07:29 AM	{"agent.tab":268392,"media_resource.tab":1169511,"taxon.tab":114046}
 71_new	Tuesday 2018-12-11 09:50:47 AM	{"agent.tab":272340,"media_resource.tab":1220196,"taxon.tab":123249}
+71_new	Tuesday 2019-01-08 09:55:37 PM	{"agent.tab":272517,"media_resource.tab":1237531,"taxon.tab":123849}
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
@@ -35,6 +37,12 @@ php update_resources/connectors/wikidata.php _ generate_resource_force
 
 historical investigations:
 /01 EOL Projects ++/Wikimedia run status/2018 07 06 consoleText.txt
+*/
+
+/* for DATA-1784 - https://eol-jira.bibalex.org/browse/DATA-1784?focusedCommentId=63160&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63160
+2-steps on how to extract 71.tar.gz ---> works OK
+mkdir 71
+tar xvzf 71.tar.gz -C 71/
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
