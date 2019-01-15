@@ -24,6 +24,7 @@ class FAOSpeciesAPI
         require_library('connectors/FetchRemoteData');
         $func = new FetchRemoteData();
         $this->country_codes = $func->get_country_codes();
+        // print_r($this->country_codes); exit;
     }
     function start()
     {

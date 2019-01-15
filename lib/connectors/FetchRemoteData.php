@@ -36,6 +36,32 @@ class FetchRemoteData
                 }
             }
         }
+        /* manual addition used for FAOSpeciesAPI.php DATA-1787
+        [ZIMBABWE] => Array(
+                    [0] => zw
+                    [1] => zwe
+                )
+        */
+        $final["ADEN (GULF OF)"][] = "ara";
+        $final["ARABIAN PENINSULA"][] = "ara";
+        $final["AFRIKAANS"][] = "afr";
+        $final["ARABIC"][] = "ara";
+        $final["BULGARIAN"][] = "bul";
+        $final["BURMESE"][] = "bur";
+        $final["CATALAN"][] = "cat";
+        $final["CREE"][] = "cre";
+        $final["DANISH"][] = "dan";
+        $final["ENGLAND"][] = "eng";
+        $final["ENGLAND AND USA);"][] = "eng";
+        $final["ENGLISH"][] = "eng";
+        $final["JAPANESE"][] = "jpn";
+        $final["MARMOTAPORTUGAL"][] = "por";
+        $final["SPANISH"][] = "spa";
+        $final["U.S.A."][] = "eng";
+        $final["USA"][] = "eng";
+        $final["ZANZIBAR"][] = "swa";
+        $final["CZECZUGA .ROMANIA"][] = "rum";
+        
         // print_r($final);
         return $final;
     }
