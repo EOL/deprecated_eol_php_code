@@ -53,36 +53,20 @@ class WikimediaPartialRes
                     [Owner] => 
                     [agentID] => 101547869c8c59ff4d957018c28441f8
                 )*/
-
                 $mr = new \eol_schema\MediaResource();
                 $mr->accessURI  = $rec['accessURI'];
                 $mr->subtype    = $rec['subtype'];
                 $mr->UsageTerms = $rec['UsageTerms'];
                 $mr->Owner      = $rec['Owner'];
                 $mr->agentID    = $rec['agentID'];
-
                 if(!isset($this->object_ids[$mr->accessURI])) {
                     $this->archive_builder->write_object_to_file($mr);
                     $this->object_ids[$mr->accessURI] = '';
                 }
-                
-                
             }
-            if($i >= 10) break; //debug
+            // if($i >= 10) break; //debug
         }
         $this->archive_builder->finalize(true);
-    }
-    private function create_taxon($rec)
-    {
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $rec['DEF_id'];
-        $taxon->scientificName  = $rec['scientific name'];
-        $taxon->family          = $rec['family'];
-        $taxon->genus           = $rec['genus'];
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
     }
 }
 ?>
