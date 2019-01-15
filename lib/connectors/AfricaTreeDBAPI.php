@@ -25,7 +25,9 @@ class AfricaTreeDBAPI
     }
     private function addtl_mappings()
     {
-        $tmp_file = Functions::save_remote_file_to_local($this->addtl_mapping_from_jen, $this->download_options);
+        $options = $this->download_options;
+        // $options['expire_seconds'] = true; //debug only
+        $tmp_file = Functions::save_remote_file_to_local($this->addtl_mapping_from_jen, $options);
         $i = 0;
         foreach(new FileIterator($tmp_file) as $line => $row) {
             $row = Functions::conv_to_utf8($row);
@@ -50,8 +52,8 @@ class AfricaTreeDBAPI
                 OR
                 [measurementValue] => http://eol.org/schema/terms/TropicalAfrica
                 */
-                $str = strtoupper($rec['distribution.csv']);
-                $str = str_replace('"', "", $str);
+                $str = str_replace('"', "", $rec['distribution.csv']);
+                $str = strtoupper($str);
                 $final[$str] = $rec;
             }
         }
@@ -65,7 +67,7 @@ class AfricaTreeDBAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         self::initialize_mapping(); //un-comment in real operation
-        self::addtl_mappings(); //from Jen, based on Eli's un-mapped string report
+        self::addtl_mappings(); //initialize addtl mappings from Jen, based on Eli's un-mapped string report
         if(!($info = self::prepare_archive_for_access())) return;
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
@@ -258,6 +260,7 @@ class AfricaTreeDBAPI
         // print_r($arr); exit;
         foreach($arr as $string_val) {
             if($string_val) {
+                $string_val = Functions::conv_to_utf8($string_val);
                 $rec = array();
                 $rec["taxon_id"] = $taxon_id;
                 $rec["catnum"] = $taxon_id.'_'.$rek['id'];
@@ -266,14 +269,41 @@ class AfricaTreeDBAPI
                     $rec['measurementRemarks'] = $string_val;
                     $this->func->add_string_types($rec, $string_uri, $mtype, "true");
                 }
-                elseif($val = @$this->addtl_mappings[strtoupper($string_val)]) self::write_addtl_mappings($val);
+                elseif($val = @$this->addtl_mappings[strtoupper(str_replace('"', "", $string_val))]) {
+                    $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
+                    $rec['measurementRemarks'] = $string_val;
+                    self::write_addtl_mappings($val, $rec);
+                }
                 else $this->debug[$group][$string_val] = '';
             }
         }
     }
-    private function write_addtl_mappings($rek)
+    private function write_addtl_mappings($rek, $rec)
     {
-        
+        // print_r($rek); exit;
+        /*Array(
+            [distribution.csv] => Central Africa
+            [measurementType] => http://eol.org/schema/terms/Present
+            [measurementValue] => http://www.geonames.org/7729886
+            [measurementRemarks] => 
+        )*/
+        $rec['measurementRemarks'] = $rek['measurementRemarks'];
+        // print_r($rec); exit;
+        /*Array(
+            [taxon_id] => 1
+            [catnum] => 1_dist_1
+            [measurementRemarks] => 
+        )*/
+        $tmp = str_replace('"', "", $rek['measurementValue']);
+        $tmp = explode(",", $tmp);
+        $tmp = array_map('trim', $tmp);
+        // print_r($tmp); exit;
+        /*Array(
+            [0] => http://www.geonames.org/7729886
+        )*/
+        foreach($tmp as $string_uri) {
+            $this->func->add_string_types($rec, $string_uri, $rek['measurementType'], "true");
+        }
     }
     private function get_string_uri($string)
     {
