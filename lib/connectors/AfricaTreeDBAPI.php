@@ -287,6 +287,7 @@ class AfricaTreeDBAPI
             [measurementValue] => http://www.geonames.org/7729886
             [measurementRemarks] => 
         )*/
+        if($rek['measurementType'] == "DISCARD") return;
         $rec['measurementRemarks'] = $rek['measurementRemarks'];
         // print_r($rec); exit;
         /*Array(
