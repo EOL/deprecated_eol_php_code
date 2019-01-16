@@ -73,13 +73,21 @@ class AfricaTreeDBAPI
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
-        $locations = array("distribution.csv", "use.csv");
+        $locations = array("distribution.csv", "use.csv", "description.csv");
         echo "\nProcessing CSV archive...\n";
         // print_r($tables); exit;
+        // print_r($tables['http://eol.org/schema/media/document']); exit;
+        
+        foreach($tables['http://eol.org/schema/reference/reference'] as $tbl) {
+            echo "\n -- Processing [$tbl->location]...\n";
+            self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'reference');
+        }
+        
         foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
             if(in_array($tbl->location, $locations)) {
                 echo "\n -- Processing [$tbl->location]...\n";
-                self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'traitbank');
+                if($tbl->location == "description.csv") self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'text_object');
+                else                                    self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'traitbank');
             }
         }
 
@@ -212,6 +220,8 @@ class AfricaTreeDBAPI
                 */
                 if($purpose == 'traitbank') self::create_trait($rec, $group);
                 elseif($purpose == 'taxon') self::create_taxon($rec);
+                elseif($purpose == 'reference') self::create_reference($rec);
+                elseif($purpose == 'text_object') self::create_text_object($rec);
                 elseif($purpose == 'utility') {
                     if($val = @$rec['Region']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
                     if($val = @$rec['Use'])    $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
@@ -219,6 +229,75 @@ class AfricaTreeDBAPI
             } //main records
         } //main loop
         fclose($file);
+    }
+    private function create_reference($rec)
+    {
+        // print_r($rec); exit;
+        /*Array(
+            [DEF_id] => 1
+            [author] => Lovett; J.C. and Sorensen; L. and Lovett; J.
+            [year] => 2006
+            [title] => Field guide to the moist forest trees of Tanzania
+            [journal] => 
+            [volume] => 
+            [number] => 
+            [pages] => 
+        )*/
+        $r = new \eol_schema\Reference();
+        $r->identifier = $rec['DEF_id'];
+        $r->full_reference = $rec['author']." ".$rec['year'].". ".$rec['title'].".";
+        $r->authorList = $rec['author'];
+        $r->title = $rec['title'];
+        // $r->uri = '';
+        if(!isset($this->reference_ids[$r->identifier])) {
+            $this->reference_ids[$r->identifier] = '';
+            $this->archive_builder->write_object_to_file($r);
+        }
+    }
+    private function create_text_object($rec)
+    {
+        // print_r($rec); //exit;
+        /*Array(
+            [DEF_id] => desc_1
+            [type] => http://purl.org/dc/dcmitype/Text
+            [Subject] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription
+            [REF|Plant|theplant] => 1
+            [description] => <b>Bole:</b>  Small/medium. To 24 m.  <b>Bark:</b>  Grey/pale green. Smooth.  <b>Slash:</b>  Yellow with white or yellow lines.  <b>Leaf:</b>  Simple. Alternate.  <b>Petiole:</b>  0.5 - 2.5 cm.  <b>Lamina:</b>  Medium. 4 - 19 × 2.5 - 10 cm (Juvenile up to 25 × 27 cm). Ovate/elliptic. Cuneate/cordate. Asymmetric. 5 - 7 nerved from base. Acuminate. Entire. Hairy/glabrous. Simple.  <b>Domatia:</b>  Present/absent. Small tufts of hairs.  <b>Glands:</b>   Absent.  <b>Stipules:</b>  Absent.  <b>Thorns & Spines:</b>  Absent.  <b>Flower:</b>  White/pale yellow. Fragrant. Infloresence 3 - 23 flowered axillary cymes. Hermaphrodite.  <b>Fruit:</b>  Globose 0.8 - 1.0 × 0.4 - 0.9 cm.
+            [REF|Reference|ref] => 1
+            [blank_1] => http://creativecommons.org/licenses/by-sa/3.0/
+            [Title] => Botanical Description
+        )
+        Array(
+            [DEF_id] => desc_659
+            [type] => http://purl.org/dc/dcmitype/Text
+            [Subject] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription
+            [REF|Plant|theplant] => 654
+            [description] => <b>Bole:</b>  Small. To 10 m.  <b>Bark:</b>  NR.  <b>Slash:</b>  NR.  <b>Leaf:</b>  Simple. Alternate.  <b>Petiole:</b>  0.5 - 3 cm. Bristly pubescent.  <b>Lamina:</b>  Medium. 7 - 18 × 3 - 7 cm. Ovate/oblong/oblong-lanceolate. Cuneate. Acuminate. Serrate. Glabrous above; slightly hairy beneath.  <b>Domatia:</b>  Absent.  <b>Glands:</b>   Brown dots underneath leaves.  <b>Stipules:</b>  Present.  <b>Thorns & Spines:</b>  Absent.  <b>Flower:</b>  Slender terminal thyrse.  <b>Fruit:</b>  Capsule 3-lobed. 0.1 - 1.7 cm long.
+            [REF|Reference|ref] => 1
+            [blank_1] => http://creativecommons.org/licenses/by-sa/3.0/
+            [Title] => Botanical Description
+        )*/
+        $this->taxa_with_trait[$rec['REF|Plant|theplant']] = ''; //to be used when creating taxon.tab
+        $mr = new \eol_schema\MediaResource();
+        $mr->taxonID        = $rec['REF|Plant|theplant'];
+        $mr->identifier     = $rec['DEF_id'];
+        $mr->type           = $rec['type'];
+        $mr->language       = 'en';
+        $mr->format         = "text/html";
+        $mr->CVterm         = $rec['Subject'];
+        // $mr->Owner          = '';
+        // $mr->rights         = '';
+        $mr->title          = $rec['Title'];
+        $mr->UsageTerms     = $rec['blank_1'];
+        $mr->description    = $rec['description'];
+        // $mr->LocationCreated = '';
+        // $mr->bibliographicCitation = '';
+        $mr->referenceID = $rec['REF|Reference|ref'];
+        // if($agent_ids = )  $mr->agentID = implode("; ", $agent_ids);
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
+        }
     }
     private function create_taxon($rec)
     {
