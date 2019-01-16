@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-/* connector: [wikimedia_partial.php] From request: https://eol-jira.bibalex.org/browse/DATA-1784?focusedCommentId=63160&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63160
+/* connector: [wikimedia_partial.php] 
+From request: https://eol-jira.bibalex.org/browse/DATA-1784?focusedCommentId=63160&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63160
 */
 class WikimediaPartialRes
 {
@@ -67,6 +68,23 @@ class WikimediaPartialRes
             // if($i >= 10) break; //debug
         }
         $this->archive_builder->finalize(true);
+        self::move_files();
+    }
+    private function move_files()
+    {
+        $source = CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial_working/media_resource.tab';
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial';
+        if(!is_dir($destination)) mkdir($destination);
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial/media_resource.tab';
+        if(copy($source, $destination)) echo "\n - media_resource.tab copied \n";
+
+        $source = CONTENT_RESOURCE_LOCAL_PATH . '/71/agent.tab';
+        $destination = CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial/agent.tab';
+        if(copy($source, $destination)) echo "\n - agent.tab copied \n";
+        //create wikimedia_partial.tar.gz
+        $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_partial" . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_partial" . " .";
+        $output = shell_exec($command_line);
+        echo "\n$output\n";
     }
 }
 ?>
