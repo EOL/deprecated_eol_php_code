@@ -33,6 +33,13 @@ class WikimediaPartialRes
                 }
                 $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
+                
+                /* good debug
+                if($rec['agentID'] == "859951d6f99ff1be39433054e4da1047" || $rec['agentID'] == "1001caa28dff2db8e69ae7200f99dc41") {
+                    print_r($rec);
+                }
+                */
+                
                 /*
                 http://rs.tdwg.org/ac/terms/accessURI
                 http://rs.tdwg.org/audubon_core/subtype
