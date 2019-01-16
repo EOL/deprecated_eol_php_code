@@ -85,6 +85,9 @@ class WikimediaPartialRes
         $command_line = "tar -czf " . CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_partial" . ".tar.gz --directory=" . CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_partial" . " .";
         $output = shell_exec($command_line);
         echo "\n$output\n";
+        //delete temp folder [wikimedia_partial_working]
+        recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial_working');
+        unlink(CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial_working.tar.gz');
     }
 }
 ?>
