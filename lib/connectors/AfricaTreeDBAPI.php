@@ -248,6 +248,7 @@ class AfricaTreeDBAPI
             [REF|Reference|ref] => 1
             [blank_1] => http://creativecommons.org/licenses/by-sa/3.0/
         )*/
+        $this->taxa_with_trait[$rec['REF|Plant|theplant']] = ''; //to be used when creating taxon.tab
         $v = new \eol_schema\VernacularName();
         $v->taxonID         = $rec['REF|Plant|theplant'];
         $v->vernacularName  = $rec['common'];

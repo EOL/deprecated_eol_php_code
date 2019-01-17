@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* DATA-1792 */
+/* DATA-1792 
+                                        {"measurement_or_fact.tab":5574,                         "occurrence.tab":1225,                  "taxon.tab":657}
+atdb	Thursday 2019-01-17 03:00:02 AM	{"measurement_or_fact.tab":5574,"media_resource.tab":659,"occurrence.tab":1225,"reference.tab":1,"taxon.tab":660,"vernacular_name.tab":995}
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AfricaTreeDBAPI');
