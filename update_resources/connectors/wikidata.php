@@ -76,6 +76,9 @@ exit("\n Finished: just exploring... \n");
 php5.6 wikidata.php jenkins generate_resource 1 200000 1of6
 php5.6 wikidata.php jenkins generate_resource
 php5.6 wikidata.php jenkins generate_resource_force
+
+when debugging in MacMini, to generate DwCA - works OK
+php update_resources/connectors/wikidata.php _ generate_resource_force
 */
 
 // print_r($argv);
