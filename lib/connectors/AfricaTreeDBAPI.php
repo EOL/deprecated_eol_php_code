@@ -203,6 +203,7 @@ class AfricaTreeDBAPI
                     $rec[$field] = $values[$k];
                     $k++;
                 }
+                $rec = array_map('trim', $rec); //important step
                 // print_r($fields); print_r($rec); exit;
                 /*Array(
                     [id] => dist_99
