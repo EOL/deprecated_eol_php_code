@@ -83,6 +83,11 @@ class AfricaTreeDBAPI
             self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'reference');
         }
         
+        foreach($tables['http://rs.gbif.org/terms/1.0/vernacularname'] as $tbl) {
+            echo "\n -- Processing [$tbl->location]...\n";
+            self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'comnames');
+        }
+
         foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
             if(in_array($tbl->location, $locations)) {
                 echo "\n -- Processing [$tbl->location]...\n";
@@ -220,6 +225,7 @@ class AfricaTreeDBAPI
                 */
                 if($purpose == 'traitbank') self::create_trait($rec, $group);
                 elseif($purpose == 'taxon') self::create_taxon($rec);
+                elseif($purpose == 'comnames') self::create_vernaculars($rec);
                 elseif($purpose == 'reference') self::create_reference($rec);
                 elseif($purpose == 'text_object') self::create_text_object($rec);
                 elseif($purpose == 'utility') {
@@ -229,6 +235,24 @@ class AfricaTreeDBAPI
             } //main records
         } //main loop
         fclose($file);
+    }
+    private function create_vernaculars($rec)
+    {
+        // print_r($rec); exit;
+        /*Array(
+            [REF|Plant|theplant] => 111
+            [common] =>  Ol darakwa 
+            [Language to Change ISO 639-3] => mas
+            [country] => TZ
+            [REF|Reference|ref] => 1
+            [blank_1] => http://creativecommons.org/licenses/by-sa/3.0/
+        )*/
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID         = $rec['REF|Plant|theplant'];
+        $v->vernacularName  = $rec['common'];
+        $v->language        = $rec['Language to Change ISO 639-3'];
+        $v->countryCode     = $rec['country'];
+        $this->archive_builder->write_object_to_file($v);
     }
     private function create_reference($rec)
     {
