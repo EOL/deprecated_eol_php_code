@@ -907,7 +907,7 @@ class WikiDataAPI
                     if(!$rek) continue;
                     
                     /* debug only -- use when u want to generate DwCA with just one media       //use this when developing*** wikimedia only
-                    $rek = self::process_file("Ctenopharyngodon_idella_01_Pengo.jpg");    //no artist
+                    $rek = self::process_file("Tanzanie_Lionne.jpg");    //??? wrong license
                     // $rek = self::process_file("Frazer´s_dolphin_group.jpg");    //no artist
                     // $rek = self::process_file("Haworthia_arachnoidea_-_cobweb_aloe.jpg");    //no artist
                     // $rek = self::process_file("Aa_species.jpg");
@@ -2884,10 +2884,10 @@ class WikiDataAPI
                 if(substr($shortname,0,3) == strtolower("pd/"))              return $this->license['public domain']; // e.g. "Pd/1923|1982"
                 if($shortname == strtolower("FlickrVerifiedByUploadWizard")) return $this->license['by'];
 
-                if(substr($shortname,0,6) == "cc-by-")                          return $this->license['by'];
+                if(substr($shortname,0,12) == "cc-by-nc-sa-")                   return $this->license['by-nc-sa'];
                 if(substr($shortname,0,9) == "cc-by-nc-")                       return $this->license['by-nc'];
                 if(substr($shortname,0,9) == "cc-by-sa-")                       return $this->license['by-sa'];
-                if(substr($shortname,0,12) == "cc-by-nc-sa-")                   return $this->license['by-nc-sa'];
+                if(substr($shortname,0,6) == "cc-by-")                          return $this->license['by'];
                 if(stripos($shortname, "self|own-pd") !== false)                return $this->license['public domain'];
                 if(stripos($shortname, "no known copyright restriction") !== false) return $this->license['no restrictions'];
                 if(stripos($shortname, "BHL-no known restriction") !== false)       return $this->license['no restrictions'];
