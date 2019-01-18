@@ -13,46 +13,25 @@ class MADtoolNatDBAPI
         $this->dwca_file = $dwca_file;
         $this->debug = array();
         $this->for_mapping = array();
-        
         $this->download_options = array(
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
-        /* 'Use' mapping from Jen: https://opendata.eol.org/dataset/africa-tree-database/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf */
-        $this->use_mapping_from_jen = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fadcd/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf/download/use-mapping.csv";
+        $this->spreadsheet_mapping_from_jen = "";
+        $this->source_csv_path = DOC_ROOT."../other_files/natdb_harvest/";
     }
-    function convert_archive()
+    function start()
     {
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
-        self::initialize_mapping(); //un-comment in real operation
-        if(!($info = self::prepare_archive_for_access())) return;
-        $temp_dir = $info['temp_dir'];
-        $harvester = $info['harvester'];
-        $tables = $info['tables'];
-        $index = $info['index'];
-        $locations = array("distribution.csv", "use.csv");
-        echo "\nProcessing CSV archive...\n";
-        // print_r($tables); exit;
-        foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
-            if(in_array($tbl->location, $locations)) {
-                echo "\n -- Processing [$tbl->location]...\n";
-                self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'traitbank');
-            }
-        }
-
-        foreach($tables['http://rs.tdwg.org/dwc/terms/taxon'] as $tbl) {
-            echo "\n -- Processing [$tbl->location]...\n";
-            self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'taxon');
-        }
+        $csv_file = $this->source_csv_path."categorical.csv";
+        $csv_file = $this->source_csv_path."numeric.csv";
+        self::process_extension($csv_file, 'categorical.csv');
         
-        $this->archive_builder->finalize(true);
+        // $this->archive_builder->finalize(true);
         
-        // remove temp dir
-        recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: " . $temp_dir);
-
         //massage debug for printing
+        /*
         $countries = array(); $territories = array();
         if($use_csv = @$this->debug['use.csv']) {
             if($countries = array_keys($use_csv)) asort($countries);
@@ -64,61 +43,10 @@ class MADtoolNatDBAPI
         foreach($countries as $c) $this->debug['use.csv'][$c] = '';
         foreach($territories as $c) $this->debug['distribution.csv'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
+        */
+        exit("\n-end for now-\n");
     }
-    private function prepare_archive_for_access()
-    {
-        require_library('connectors/INBioAPI');
-        $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => false)); //won't expire anymore
-        $archive_path = $paths['archive_path'];
-        $temp_dir = $paths['temp_dir'];
-        $harvester = new ContentArchiveReader(NULL, $archive_path);
-        $tables = $harvester->tables;
-        $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
-            debug("Invalid archive file. Program will terminate.");
-            return false;
-        }
-        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
-    }
-    function get_unmapped_strings()
-    {
-        self::initialize_mapping(); //un-comment in real operation
-        if(!($info = self::prepare_archive_for_access())) return;
-        $temp_dir = $info['temp_dir'];
-        $harvester = $info['harvester'];
-        $tables = $info['tables'];
-        $index = $info['index'];
-        $locations = array("distribution.csv", "use.csv");
-        echo "\nProcessing CSV archive...\n";
-        foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
-            if(in_array($tbl->location, $locations)) {
-                echo "\n -- Processing [$tbl->location]...\n";
-                self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'utility');
-            }
-        }
-        // remove temp dir
-        recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: " . $temp_dir);
-        if($this->debug) print_r($this->debug);
-        //massage debug for printing
-        $countries = array_keys($this->for_mapping['use.csv']); asort($countries);
-        $territories = array_keys($this->for_mapping['distribution.csv']); asort($territories);
-        $this->for_mapping = array();
-        foreach($countries as $c) $this->for_mapping['use.csv'][$c] = '';
-        foreach($territories as $c) $this->for_mapping['distribution.csv'][$c] = '';
-        Functions::start_print_debug($this->for_mapping, $this->resource_id);
-    }
-    private function clean_html($arr)
-    {
-        $delimeter = "elicha173";
-        $html = implode($delimeter, $arr);
-        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
-        $html = str_ireplace("> |", ">", $html);
-        $arr = explode($delimeter, $html);
-        return $arr;
-    }
-    private function process_extension($csv_file, $tbl, $group, $purpose = 'traitbank') //purpose = traitbank OR utility
+    private function process_extension($csv_file, $purpose)
     {
         $i = 0;
         $file = Functions::file_open($csv_file, "r");
@@ -138,7 +66,7 @@ class MADtoolNatDBAPI
                 $values = $row;
                 if($count != count($values)) { //row validation - correct no. of columns
                     // print_r($values); print_r($rec);
-                    echo("\nWrong CSV format for this row.\n");
+                    echo("\nWrong CSV format for this row.\n"); exit;
                     // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
                     continue;
                 }
@@ -148,36 +76,33 @@ class MADtoolNatDBAPI
                     $rec[$field] = $values[$k];
                     $k++;
                 }
-                // print_r($fields); print_r($rec); exit;
-                /*Array(
-                    [id] => dist_99
-                    [blank_1] => http://purl.org/dc/dcmitype/Text
-                    [blank_2] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution
-                    [Plant No] => 99
-                    [Region] => Eastern Arc Mountains: Udzungwa Mts ; Eastern Arc Mountains: West Usambara Mts
-                    [Ref] => 1
-                    [blank_3] => http://creativecommons.org/licenses/by-sa/3.0/
-                )
-                Array(
-                    [0] => id
-                    [1] => blank_1
-                    [2] => blank_2
-                    [3] => Plant
-                    [4] => Use
-                    [5] => Ref
-                    [6] => blank_3
-                )
+                $rec = array_map('trim', $rec); //important step
+                print_r($rec); //exit;
+                /*
                 */
+                /* template from othe Africa Tree DB
                 if($purpose == 'traitbank') self::create_trait($rec, $group);
                 elseif($purpose == 'taxon') self::create_taxon($rec);
-                elseif($purpose == 'utility') {
-                    if($val = @$rec['Region']) $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
-                    if($val = @$rec['Use'])    $this->for_mapping = self::separate_strings($val, $this->for_mapping, $group);
-                }
+                elseif($purpose == 'comnames') self::create_vernaculars($rec);
+                elseif($purpose == 'reference') self::create_reference($rec);
+                elseif($purpose == 'text_object') self::create_text_object($rec);
+                */
             } //main records
         } //main loop
         fclose($file);
     }
+    private function clean_html($arr)
+    {
+        $delimeter = "elicha173";
+        $html = implode($delimeter, $arr);
+        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
+        $html = str_ireplace("> |", ">", $html);
+        $arr = explode($delimeter, $html);
+        return $arr;
+    }
+    /* ######################################################################################################################################### */
+    /* ######################################################################################################################################### */
+    /* ######################################################################################################################################### */
     private function create_taxon($rec)
     {
         if(!isset($this->taxa_with_trait[$rec['DEF_id']])) return;

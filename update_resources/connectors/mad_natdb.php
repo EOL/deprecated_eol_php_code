@@ -7,9 +7,8 @@ require_library('connectors/MADtoolNatDBAPI');
 $timestart = time_elapsed();
 
 $resource_id = "mad_natdb";
-$func = new MADtoolNatDBAPI($resource_id, $dwca_file);
-
-$func->convert_archive(); //main operation
+$func = new MADtoolNatDBAPI($resource_id);
+$func->start(); //main operation
 Functions::finalize_dwca_resource($resource_id, false);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

@@ -19,6 +19,9 @@ class WikimediaPartialRes
     {
         $tmp_file = CONTENT_RESOURCE_LOCAL_PATH . '/71/media_resource.tab';
         $i = 0;
+        if(!file_exists($tmp_file)) {
+            exit("\nFile does not exist: [$tmp_file]\nMay need to be extracted from 71.tar.gz first.\n");
+        }
         foreach(new FileIterator($tmp_file) as $line => $row) {
             $row = Functions::conv_to_utf8($row);
             $i++; 
