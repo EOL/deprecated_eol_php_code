@@ -18,6 +18,9 @@ class WikimediaPartialRes
     function generate_partial_wikimedia_resource()
     {
         $tmp_file = CONTENT_RESOURCE_LOCAL_PATH . '/71/media_resource.tab';
+        /* good debug
+        $tmp_file = CONTENT_RESOURCE_LOCAL_PATH . '/wikimedia_partial/media_resource.tab';
+        */
         $i = 0;
         if(!file_exists($tmp_file)) {
             exit("\nFile does not exist: [$tmp_file]\nMay need to be extracted from 71.tar.gz first.\n");
@@ -38,8 +41,11 @@ class WikimediaPartialRes
                 // print_r($rec); exit;
                 
                 /* good debug
-                if($rec['agentID'] == "859951d6f99ff1be39433054e4da1047" || $rec['agentID'] == "1001caa28dff2db8e69ae7200f99dc41") {
-                    print_r($rec);
+                // if($rec['agentID'] == "859951d6f99ff1be39433054e4da1047" || $rec['agentID'] == "1001caa28dff2db8e69ae7200f99dc41") {
+                //     print_r($rec);
+                // }
+                if($rec['accessURI'] == "https://upload.wikimedia.org/wikipedia/commons/e/ed/Tanzanie_Lionne.jpg") {
+                    print_r($rec); exit;
                 }
                 */
                 
