@@ -24,9 +24,9 @@ class MADtoolNatDBAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
-        $csv_file = $this->source_csv_path."categorical.csv";
-        $csv_file = $this->source_csv_path."numeric.csv";
-        self::process_extension($csv_file, 'categorical.csv');
+        $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
+        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        self::process_extension($csv);
         
         // $this->archive_builder->finalize(true);
         
@@ -46,10 +46,10 @@ class MADtoolNatDBAPI
         */
         exit("\n-end for now-\n");
     }
-    private function process_extension($csv_file, $purpose)
+    private function process_extension($csv)
     {
         $i = 0;
-        $file = Functions::file_open($csv_file, "r");
+        $file = Functions::file_open($csv['file'], "r");
         while(!feof($file)) {
             $row = fgetcsv($file);
             if(!$row) break;
@@ -77,19 +77,29 @@ class MADtoolNatDBAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); //exit;
-                /*
+                print_r($rec); exit;
+                /* If the columns variable, value, dataset, and unit match the mapping, generate a record using the fields on the right of the mapping. 
+                Where the mapping has nothing in the value field, any value from the source file will do, 
+                and should be copied into the measurementValue in the created record. 
+                This is mostly for numeric records.
                 */
-                /* template from othe Africa Tree DB
-                if($purpose == 'traitbank') self::create_trait($rec, $group);
-                elseif($purpose == 'taxon') self::create_taxon($rec);
-                elseif($purpose == 'comnames') self::create_vernaculars($rec);
-                elseif($purpose == 'reference') self::create_reference($rec);
-                elseif($purpose == 'text_object') self::create_text_object($rec);
-                */
+                self::process_record($rec, $csv)
             } //main records
         } //main loop
         fclose($file);
+    }
+    private function process_record($rec, $csv)
+    {
+        /*Array(
+            [blank_1] => 1
+            [species] => abudefduf vaigiensis
+            [metadata] => id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf
+            *[variable] => IUCN_Red_List_Category
+            *[value] => np
+            *[units] => NA
+            *[dataset] => .albouy.2015
+        )*/
+        
     }
     private function clean_html($arr)
     {
