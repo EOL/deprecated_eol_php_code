@@ -16,13 +16,55 @@ class MADtoolNatDBAPI
         $this->download_options = array(
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
-        $this->spreadsheet_mapping_from_jen = "";
         $this->source_csv_path = DOC_ROOT."../other_files/natdb_harvest/";
+        $this->spreadsheet_for_mapping = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MAD_tool_NatDB/MADmap.xlsx"; //from Jen (DATA-1754)
+    }
+    private function initialize_mapping()
+    {
+        /* un-comment in real operation
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // print_r($this->uris);
+        */
+        self::initialize_spreadsheet_mapping();
+    }
+    
+    private function initialize_spreadsheet_mapping()
+    {
+        $final = array();
+        $options = $this->download_options;
+        $options['file_extension'] = 'xlsx';
+        $local_xls = Functions::save_remote_file_to_local($this->spreadsheet_for_mapping, $options);
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        debug("\n reading: " . $local_xls . "\n");
+        $map = $parser->convert_sheet_to_array($local_xls);
+        $fields = array_keys($map);
+        print_r($map);
+        print_r($fields);
+        foreach($fields as $field) {
+            echo "\n$field: ".count($map[$field]);
+        }
+        
+        $i = -1;
+        foreach($map['variable'] as $var)
+        {
+            $i++;
+            $tmp = $var."_".$map['value'][$i]."_".$map['dataset'][$i]."_".$map['unit'][$i]."_";
+            $valid_set[$tmp] = '';
+        }
+        print_r($valid_set);
+        
+        
+        unlink($local_xls);
+        exit;
     }
     function start()
     {
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        self::initialize_mapping();
         
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
         // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
@@ -77,14 +119,10 @@ class MADtoolNatDBAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); exit;
-                /* If the columns variable, value, dataset, and unit match the mapping, generate a record using the fields on the right of the mapping. 
-                Where the mapping has nothing in the value field, any value from the source file will do, 
-                and should be copied into the measurementValue in the created record. 
-                This is mostly for numeric records.
-                */
-                self::process_record($rec, $csv)
+                print_r($rec); //exit;
+                self::process_record($rec, $csv);
             } //main records
+            if($i > 5) break;
         } //main loop
         fclose($file);
     }
@@ -98,7 +136,13 @@ class MADtoolNatDBAPI
             *[value] => np
             *[units] => NA
             *[dataset] => .albouy.2015
-        )*/
+        )
+        If the columns variable, value, dataset, and unit match the mapping, generate a record using the fields on the right of the mapping. 
+        Where the mapping has nothing in the value field, any value from the source file will do, 
+        and should be copied into the measurementValue in the created record. 
+        This is mostly for numeric records.
+        */
+        
         
     }
     private function clean_html($arr)
@@ -194,14 +238,6 @@ class MADtoolNatDBAPI
             } 
         }
         return array_keys($final);
-    }
-    private function initialize_mapping()
-    {
-        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
-        self::use_mapping_from_jen();
-        // print_r($this->uris);
     }
     private function use_mapping_from_jen()
     {
