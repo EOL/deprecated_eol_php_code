@@ -159,20 +159,28 @@ class MADtoolNatDBAPI
         if($mapped_record = @$this->valid_set[$tmp]) {
             // @$this->debug[$rec['variable']][$rec['value']] = ''; //debug only
             
-            // /*
+            /*
             if($rec['species'] == 'Catharus fuscescens' || $rec['species'] == 'catharus_fuscescens') {
-                print_r($rec); print_r($mapped_record); 
-                $this->debug['test_taxon'][$mapped_record['record type']] = '';
+                // print_r($rec); print_r($mapped_record); 
+                @$this->debug['test_taxon'][$mapped_record['record type']]++;
+                if($mapped_record['record type'] == 'occurrence') {
+                    print_r($rec); print_r($mapped_record); 
+                }
                 return;
             }
-            // */
-
+            */
             /*
             if($mapped_record['record type'] == 'occurrence') {
                 print_r($rec); print_r($mapped_record); 
                 return;
             }
             */
+            // /*
+            if($mapped_record['measurementType'] == 'http://rs.tdwg.org/dwc/terms/lifeStage') {
+                print_r($rec); print_r($mapped_record); 
+                return;
+            }
+            // */
             
             // echo "\n[$tmp]"; print_r($mapped_record); print_r($rec); exit("\n111\n");
             /*[common_length__.albouy.2015_cm_]Array( --- $mapped_record
