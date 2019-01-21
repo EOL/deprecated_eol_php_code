@@ -72,7 +72,7 @@ class MADtoolNatDBAPI
         self::initialize_mapping();
         
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
         self::process_extension($csv);
         
         // $this->archive_builder->finalize(true);
@@ -152,15 +152,62 @@ class MADtoolNatDBAPI
         if(isset($this->numeric_fields[$rec['variable']])) $value = "";
         else                                               $value = $rec['value'];
         
-        
         $tmp = $rec['variable']."_".$value."_".$rec['dataset']."_".self::blank_if_NA($rec['units'])."_";
         $tmp = strtolower($tmp);
         // echo "\n[$tmp]"; exit;
         
-        if(isset($this->valid_set[$tmp])) {
-            @$this->debug[$rec['variable']][$rec['value']] = '';
-            $mapped_record = $this->valid_set[$tmp];
-            echo "\n[$tmp]"; print_r($mapped_record); print_r($rec); exit("\n111\n");
+        if($mapped_record = @$this->valid_set[$tmp]) {
+            // @$this->debug[$rec['variable']][$rec['value']] = ''; //debug only
+            
+            if($rec['species'] == 'artibeus_cinereus') {
+                print_r($rec); print_r($mapped_record); return;
+            }
+            
+            // echo "\n[$tmp]"; print_r($mapped_record); print_r($rec); exit("\n111\n");
+            /*[common_length__.albouy.2015_cm_]Array( --- $mapped_record
+                [variable] => Common_length
+                [value] => 
+                [dataset] => .albouy.2015
+                [unit] => cm
+                [-->] => -->
+                [measurementType] => http://purl.obolibrary.org/obo/CMO_0000013
+                [measurementValue] => 
+                [record type] => MeasurementOfTaxon=true
+                [http://rs.tdwg.org/dwc/terms/measurementUnit] => http://purl.obolibrary.org/obo/UO_0000015
+                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                [http://eol.org/schema/terms/statisticalMethod] => http://eol.org/schema/terms/average
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+            )
+            Array( --- $rec
+                [blank_1] => 1
+                [species] => abudefduf vaigiensis
+                [metadata] => id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf
+                [variable] => Common_length
+                [value] => 15
+                [units] => cm
+                [dataset] => .albouy.2015
+            )
+            */
+            
+            /*
+            $taxon_id = str_replace(" ", "_", strtolower($rec['species']));
+            $rek = array();
+            $rek["taxon_id"] = $taxon_id;
+            $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
+            
+            $mOfTaxon = ($mapped_record['record type'] == "MeasurementOfTaxon=true") ? "true" : "";
+            if(isset($this->numeric_fields[$rec['variable']])) {
+                $this->func->add_string_types($rek, $rec['value'], $mapped_record['measurementType'], $mOfTaxon);
+            }
+            else {
+                if($string_uri = self::get_string_uri($string_val)) {
+                    $this->func->add_string_types($rec, $string_uri, $mtype, "true");
+                }
+                // else $this->debug[$group][$string_val] = ''; //from copied template
+            }
+            
+            */
+            
         }
         
         /* good debug
@@ -270,52 +317,6 @@ class MADtoolNatDBAPI
             } 
         }
         return array_keys($final);
-    }
-    private function use_mapping_from_jen()
-    {
-        $csv_file = Functions::save_remote_file_to_local($this->use_mapping_from_jen, $this->download_options);
-        $i = 0;
-        $file = Functions::file_open($csv_file, "r");
-        while(!feof($file)) {
-            $row = fgetcsv($file);
-            if(!$row) break;
-            $row = self::clean_html($row);
-            // print_r($row);
-            $i++; if(($i % 2000) == 0) echo "\n $i ";
-            if($i == 1) {
-                $fields = $row;
-                $fields = self::fill_up_blank_fieldnames($fields);
-                $count = count($fields);
-                print_r($fields);
-            }
-            else { //main records
-                $values = $row;
-                if($count != count($values)) { //row validation - correct no. of columns
-                    // print_r($values); print_r($rec);
-                    echo("\nWrong CSV format for this row.\n");
-                    // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
-                    continue;
-                }
-                $k = 0;
-                $rec = array();
-                foreach($fields as $field) {
-                    $rec[$field] = $values[$k];
-                    $k++;
-                }
-                // print_r($fields); print_r($rec); exit;
-                /*Array(
-                    [Use string] => timber
-                    [URI] => http://purl.obolibrary.org/obo/EUPATH_0000001
-                    [blank_1] => 
-                    [blank_2] => 
-                    [blank_3] => 
-                    [blank_4] => 
-                )*/
-                $this->uris[$rec['Use string']] = $rec['URI'];
-            } //main records
-        } //main loop
-        fclose($file);
-        unlink($csv_file);
     }
 }
 ?>
