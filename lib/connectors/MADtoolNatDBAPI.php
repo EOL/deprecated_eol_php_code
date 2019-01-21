@@ -51,13 +51,19 @@ class MADtoolNatDBAPI
             $i++;
             $tmp = $var."_".$map['value'][$i]."_".$map['dataset'][$i]."_".$map['unit'][$i]."_";
             $tmp = strtolower($tmp);
-            $valid_set[$tmp] = '';
+            $valid_set[$tmp] = self::get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map);
             //get numeric fields (e.g. Maximum_length). To be used when figuring out which are valid sets, where numeric values should be blank.
             if(!$map['value'][$i]) $this->numeric_fields[$var] = '';
         }
         // print_r($valid_set); exit;
         $this->valid_set = $valid_set;
         unlink($local_xls);
+    }
+    private function get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map)
+    {
+        $final = array();
+        foreach($fields as $field) $final[$field] = $map[$field][$i];
+        return $final;
     }
     function start()
     {
@@ -66,7 +72,7 @@ class MADtoolNatDBAPI
         self::initialize_mapping();
         
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
         self::process_extension($csv);
         
         // $this->archive_builder->finalize(true);
@@ -86,7 +92,7 @@ class MADtoolNatDBAPI
         Functions::start_print_debug($this->debug, $this->resource_id);
         */
         print_r($this->debug);
-        print_r($this->numeric_fields);
+        // print_r($this->numeric_fields);
         exit("\n-end for now-\n");
     }
     private function process_extension($csv)
@@ -96,8 +102,7 @@ class MADtoolNatDBAPI
         while(!feof($file)) {
             $row = fgetcsv($file);
             if(!$row) break;
-            $row = self::clean_html($row);
-            // print_r($row);
+            $row = self::clean_html($row); // print_r($row);
             $i++; if(($i % 100000) == 0) echo "\n $i ";
             if($i == 1) {
                 $fields = $row;
@@ -154,6 +159,8 @@ class MADtoolNatDBAPI
         
         if(isset($this->valid_set[$tmp])) {
             @$this->debug[$rec['variable']][$rec['value']] = '';
+            $mapped_record = $this->valid_set[$tmp];
+            echo "\n[$tmp]"; print_r($mapped_record); exit("\n111\n");
         }
         
         /* good debug
