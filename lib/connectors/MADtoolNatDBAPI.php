@@ -41,24 +41,23 @@ class MADtoolNatDBAPI
         debug("\n reading: " . $local_xls . "\n");
         $map = $parser->convert_sheet_to_array($local_xls);
         $fields = array_keys($map);
-        print_r($map);
-        print_r($fields);
-        foreach($fields as $field) {
-            echo "\n$field: ".count($map[$field]);
-        }
+        // print_r($map);
+        print_r($fields); //exit;
+        // foreach($fields as $field) echo "\n$field: ".count($map[$field]); //debug only
         
+        /* get valid_set - the magic 4 fields */
         $i = -1;
-        foreach($map['variable'] as $var)
-        {
+        foreach($map['variable'] as $var) {
             $i++;
             $tmp = $var."_".$map['value'][$i]."_".$map['dataset'][$i]."_".$map['unit'][$i]."_";
+            $tmp = strtolower($tmp);
             $valid_set[$tmp] = '';
+            //get numeric fields (e.g. Maximum_length). To be used when figuring out which are valid sets, where numeric values should be blank.
+            if(!$map['value'][$i]) $this->numeric_fields[$var] = '';
         }
-        print_r($valid_set);
-        
-        
+        // print_r($valid_set); exit;
+        $this->valid_set = $valid_set;
         unlink($local_xls);
-        exit;
     }
     function start()
     {
@@ -67,7 +66,7 @@ class MADtoolNatDBAPI
         self::initialize_mapping();
         
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
         self::process_extension($csv);
         
         // $this->archive_builder->finalize(true);
@@ -86,6 +85,8 @@ class MADtoolNatDBAPI
         foreach($territories as $c) $this->debug['distribution.csv'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
         */
+        print_r($this->debug);
+        print_r($this->numeric_fields);
         exit("\n-end for now-\n");
     }
     private function process_extension($csv)
@@ -97,7 +98,7 @@ class MADtoolNatDBAPI
             if(!$row) break;
             $row = self::clean_html($row);
             // print_r($row);
-            $i++; if(($i % 2000) == 0) echo "\n $i ";
+            $i++; if(($i % 100000) == 0) echo "\n $i ";
             if($i == 1) {
                 $fields = $row;
                 $fields = self::fill_up_blank_fieldnames($fields);
@@ -119,10 +120,10 @@ class MADtoolNatDBAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); //exit;
+                // print_r($rec); //exit;
                 self::process_record($rec, $csv);
             } //main records
-            if($i > 5) break;
+            // if($i > 5) break;
         } //main loop
         fclose($file);
     }
@@ -143,7 +144,31 @@ class MADtoolNatDBAPI
         This is mostly for numeric records.
         */
         
+        if(isset($this->numeric_fields[$rec['variable']])) $value = "";
+        else                                               $value = $rec['value'];
         
+        
+        $tmp = $rec['variable']."_".$value."_".$rec['dataset']."_".self::blank_if_NA($rec['units'])."_";
+        $tmp = strtolower($tmp);
+        // echo "\n[$tmp]"; exit;
+        
+        if(isset($this->valid_set[$tmp])) {
+            @$this->debug[$rec['variable']][$rec['value']] = '';
+        }
+        
+        /* good debug
+        if($rec['variable'] == "Maximum_length") {
+            // print_r($rec); exit;
+            @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
+        }
+        */
+        
+        
+    }
+    private function blank_if_NA($str)
+    {
+        if($str == "NA") return "";
+        else return $str;
     }
     private function clean_html($arr)
     {
