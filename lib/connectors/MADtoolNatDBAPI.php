@@ -29,42 +29,6 @@ class MADtoolNatDBAPI
         */
         self::initialize_spreadsheet_mapping();
     }
-    
-    private function initialize_spreadsheet_mapping()
-    {
-        $final = array();
-        $options = $this->download_options;
-        $options['file_extension'] = 'xlsx';
-        $local_xls = Functions::save_remote_file_to_local($this->spreadsheet_for_mapping, $options);
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        debug("\n reading: " . $local_xls . "\n");
-        $map = $parser->convert_sheet_to_array($local_xls);
-        $fields = array_keys($map);
-        // print_r($map);
-        print_r($fields); //exit;
-        // foreach($fields as $field) echo "\n$field: ".count($map[$field]); //debug only
-        
-        /* get valid_set - the magic 4 fields */
-        $i = -1;
-        foreach($map['variable'] as $var) {
-            $i++;
-            $tmp = $var."_".$map['value'][$i]."_".$map['dataset'][$i]."_".$map['unit'][$i]."_";
-            $tmp = strtolower($tmp);
-            $valid_set[$tmp] = self::get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map);
-            //get numeric fields (e.g. Maximum_length). To be used when figuring out which are valid sets, where numeric values should be blank.
-            if(!$map['value'][$i]) $this->numeric_fields[$var] = '';
-        }
-        // print_r($valid_set); exit;
-        $this->valid_set = $valid_set;
-        unlink($local_xls);
-    }
-    private function get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map)
-    {
-        $final = array();
-        foreach($fields as $field) $final[$field] = $map[$field][$i];
-        return $final;
-    }
     function start()
     {
         require_library('connectors/TraitGeneric');
@@ -234,8 +198,6 @@ class MADtoolNatDBAPI
             @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
         }
         */
-        
-        
     }
     private function blank_if_NA($str)
     {
@@ -250,6 +212,40 @@ class MADtoolNatDBAPI
         $html = str_ireplace("> |", ">", $html);
         $arr = explode($delimeter, $html);
         return $arr;
+    }
+    private function initialize_spreadsheet_mapping()
+    {
+        $final = array();
+        $options = $this->download_options;
+        $options['file_extension'] = 'xlsx';
+        $local_xls = Functions::save_remote_file_to_local($this->spreadsheet_for_mapping, $options);
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        debug("\n reading: " . $local_xls . "\n");
+        $map = $parser->convert_sheet_to_array($local_xls);
+        $fields = array_keys($map);
+        // print_r($map);
+        print_r($fields); //exit;
+        // foreach($fields as $field) echo "\n$field: ".count($map[$field]); //debug only
+        /* get valid_set - the magic 4 fields */
+        $i = -1;
+        foreach($map['variable'] as $var) {
+            $i++;
+            $tmp = $var."_".$map['value'][$i]."_".$map['dataset'][$i]."_".$map['unit'][$i]."_";
+            $tmp = strtolower($tmp);
+            $valid_set[$tmp] = self::get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map);
+            //get numeric fields (e.g. Maximum_length). To be used when figuring out which are valid sets, where numeric values should be blank.
+            if(!$map['value'][$i]) $this->numeric_fields[$var] = '';
+        }
+        // print_r($valid_set); exit;
+        $this->valid_set = $valid_set;
+        unlink($local_xls);
+    }
+    private function get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map)
+    {
+        $final = array();
+        foreach($fields as $field) $final[$field] = $map[$field][$i];
+        return $final;
     }
     /* ######################################################################################################################################### */
     /* ######################################################################################################################################### */
