@@ -72,7 +72,7 @@ class MADtoolNatDBAPI
         self::initialize_mapping();
         
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
         self::process_extension($csv);
         
         // $this->archive_builder->finalize(true);
@@ -160,7 +160,7 @@ class MADtoolNatDBAPI
         if(isset($this->valid_set[$tmp])) {
             @$this->debug[$rec['variable']][$rec['value']] = '';
             $mapped_record = $this->valid_set[$tmp];
-            echo "\n[$tmp]"; print_r($mapped_record); exit("\n111\n");
+            echo "\n[$tmp]"; print_r($mapped_record); print_r($rec); exit("\n111\n");
         }
         
         /* good debug
