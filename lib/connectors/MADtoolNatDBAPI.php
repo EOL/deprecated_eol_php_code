@@ -135,7 +135,7 @@ class MADtoolNatDBAPI
         
         if($mapped_record = @$this->valid_set[$tmp]) {
             
-            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            if($rec['species'] != 'Catharus fuscescens') return; //debug only "Catharus fuscescens" "acer_pensylvanicum"
             
             if($purpose == "taxa") {
                 if($mapped_record['record type'] == 'taxa') self::assign_ancestry($rec, $mapped_record);
