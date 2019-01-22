@@ -34,10 +34,22 @@ class MADtoolNatDBAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::initialize_mapping();
+
+        // /* un-comment in real operation
+        // $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical'); //only categorical.csv have 'record type' = taxa
+        // self::process_extension($csv, "taxa"); //purpose = taxa
+        // print_r($this->ancestry); exit("\n-end ancestry-\n");
         
+        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
+        self::process_extension($csv, "child measurement"); //purpose = child measurement
+        print_r($this->childm); exit("\n-end childm-\n");
+        // */
+        
+        // /*
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
         self::process_extension($csv);
+        // */
         
         $this->archive_builder->finalize(true);
         
@@ -59,7 +71,7 @@ class MADtoolNatDBAPI
         // print_r($this->numeric_fields);
         // exit("\n-end for now-\n");
     }
-    private function process_extension($csv)
+    private function process_extension($csv, $purpose = "taxa")
     {
         $i = 0;
         $file = Functions::file_open($csv['file'], "r");
@@ -90,13 +102,13 @@ class MADtoolNatDBAPI
                 }
                 $rec = array_map('trim', $rec); //important step
                 // print_r($rec); //exit;
-                self::process_record($rec, $csv);
+                self::process_record($rec, $csv, $purpose);
             } //main records
             // if($i > 5) break;
         } //main loop
         fclose($file);
     }
-    private function process_record($rec, $csv)
+    private function process_record($rec, $csv, $purpose)
     {
         /*Array(
             [blank_1] => 1
@@ -121,6 +133,25 @@ class MADtoolNatDBAPI
         // echo "\n[$tmp]"; exit;
         
         if($mapped_record = @$this->valid_set[$tmp]) {
+            
+            // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            
+            if($purpose == "taxa") {
+                if($mapped_record['record type'] == 'taxa') self::assign_ancestry($rec, $mapped_record);
+            }
+            elseif($purpose == "child measurement") {
+                if($mapped_record['record type'] == 'child measurement') self::assign_child_measurement($rec, $mapped_record);
+            }
+            
+            // if($mapped_record['record type'] == 'child measurement') {
+                if($rec['species'] == 'acer_pensylvanicum') {
+                    @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']][$rec['value']]++;
+                    print_r($rec); print_r($mapped_record); 
+                }
+                else return;
+            // }
+            // else return;
+            
             // print_r($rec); print_r($mapped_record); exit;
             /*
             if($rec['species'] == 'Catharus fuscescens' || $rec['species'] == 'catharus_fuscescens') {
@@ -132,7 +163,7 @@ class MADtoolNatDBAPI
                 return;
             }
             */
-            // /*
+            /*
             // if($rec['metadata'] == 'id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf')
             // if($rec['metadata'] == 'Species.common.name:Veery' && $rec['dataset'] == ".brown.2015")
             if($rec['species'] == 'Catharus fuscescens') //has MOF and occurrence, good for testing
@@ -146,13 +177,16 @@ class MADtoolNatDBAPI
                 // return;
             }
             else return;
-            // */
-            /*
-            if($mapped_record['record type'] == 'occurrence') {
+            */
+            // /*
+            // if($mapped_record['record type'] == 'child measurement') {
+            if($rec['species'] == 'Tsuga heterophylla') {
+                @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
                 print_r($rec); print_r($mapped_record); //exit;
                 return;
             }
-            */
+            // */
+            
             /*
             if($mapped_record['measurementType'] == 'http://rs.tdwg.org/dwc/terms/lifeStage') {
                 print_r($rec); print_r($mapped_record); 
@@ -186,7 +220,7 @@ class MADtoolNatDBAPI
             )
             */
             
-            // /* actual record assignment
+            /* actual record assignment
             $taxon_id = str_replace(" ", "_", strtolower($rec['species']));
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
@@ -205,7 +239,7 @@ class MADtoolNatDBAPI
             }
             
             // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
-            // */
+            */
             
         }
         
@@ -215,6 +249,68 @@ class MADtoolNatDBAPI
             @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
         }
         */
+    }
+    private function assign_child_measurement($rec, $mapped_record)
+    {
+        /*Array( --- $rec
+            [blank_1] => 1999010
+            [species] => acer_pensylvanicum
+            [metadata] => studyName:Whittaker1974;location:Hubbard Brook Experimental Forest;latitude:44;longitude:-72;species:Acer pensylvanicum;family:Aceraceae
+            [variable] => map
+            [value] => 1300
+            [units] => mm
+            [dataset] => .falster.2015
+        )
+        Array( --- $mapped_record
+            [variable] => map
+            [value] => 
+            [dataset] => .falster.2015
+            [unit] => mm
+            [-->] => -->
+            [measurementType] => http://eol.org/schema/terms/AnnualPrecipitation
+            [measurementValue] => 
+            [record type] => child measurement
+            [http://rs.tdwg.org/dwc/terms/measurementUnit] => http://purl.obolibrary.org/obo/UO_0000016
+            [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+            [http://eol.org/schema/terms/statisticalMethod] => 
+            [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+        )
+        */
+        $mType  = $mapped_record['measurementType'];
+        $mValue = ($mapped_record['measurementValue'] != "")                             ? $mapped_record['measurementValue']                             : $rec['value'];
+        $mUnit  = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] : $rec['units'];
+        
+        $this->childm[$rec['species']][$mType][$mValue][$mUnit] = array('metadata' => $rec['metadata'], 'dataset' => $rec['dataset']);
+    }
+    private function assign_ancestry($rec, $mapped_record)
+    {
+        /*Array( --- $rec
+            [blank_1] => 143100
+            [species] => Tsuga heterophylla
+            [metadata] => Family:Pinaceae;Genus:Tsuga;Phylum:G
+            [variable] => Phylum
+            [value] => G
+            [units] => NA
+            [dataset] => .ameztegui.2016
+        )
+        Array( --- $mapped_record
+            [variable] => Phylum
+            [value] => G
+            [dataset] => .ameztegui.2016
+            [unit] => 
+            [-->] => -->
+            [measurementType] => http://rs.tdwg.org/dwc/terms/phylum
+            [measurementValue] => Gymnosperms
+            [record type] => taxa
+            [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+            [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+            [http://eol.org/schema/terms/statisticalMethod] => 
+            [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+        )
+        */
+        if    ($val = $mapped_record['measurementValue']) $value = $val;
+        elseif($val = $rec['value'])                      $value = $val;
+        $this->ancestry[$rec['species']][$rec['variable']] = $value;
     }
     private function blank_if_NA($str)
     {
