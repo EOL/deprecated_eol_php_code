@@ -142,8 +142,9 @@ class MADtoolNatDBAPI
                 if($mapped_record['record type'] == 'MeasurementOfTaxon=true') { //MeasurementOfTaxon=true OR occurrence
                     // print_r($rec); print_r($mapped_record); 
                 }
-                return;
+                // return;
             }
+            else return;
             // */
             /*
             if($mapped_record['record type'] == 'occurrence') {
