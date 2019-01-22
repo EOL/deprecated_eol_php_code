@@ -36,10 +36,10 @@ class MADtoolNatDBAPI
         self::initialize_mapping();
         
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
         self::process_extension($csv);
         
-        // $this->archive_builder->finalize(true);
+        $this->archive_builder->finalize(true);
         
         //massage debug for printing
         /*
@@ -57,7 +57,7 @@ class MADtoolNatDBAPI
         */
         print_r($this->debug);
         // print_r($this->numeric_fields);
-        exit("\n-end for now-\n");
+        // exit("\n-end for now-\n");
     }
     private function process_extension($csv)
     {
@@ -122,8 +122,6 @@ class MADtoolNatDBAPI
         
         if($mapped_record = @$this->valid_set[$tmp]) {
             // print_r($rec); print_r($mapped_record); exit;
-            // @$this->debug[$rec['variable']][$rec['value']] = ''; //debug only
-            
             /*
             if($rec['species'] == 'Catharus fuscescens' || $rec['species'] == 'catharus_fuscescens') {
                 // print_r($rec); print_r($mapped_record); 
@@ -134,22 +132,19 @@ class MADtoolNatDBAPI
                 return;
             }
             */
-
             // /*
             // if($rec['metadata'] == 'id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf')
-
             // if($rec['metadata'] == 'Species.common.name:Veery' && $rec['dataset'] == ".brown.2015")
             if($rec['species'] == 'Catharus fuscescens') 
             {
                 // print_r($rec); print_r($mapped_record); 
                 @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
-                if($mapped_record['record type'] == 'occurrence') { //MeasurementOfTaxon=true
-                    print_r($rec); print_r($mapped_record); 
+                if($mapped_record['record type'] == 'MeasurementOfTaxon=true') { //MeasurementOfTaxon=true OR occurrence
+                    // print_r($rec); print_r($mapped_record); 
                 }
                 return;
             }
             // */
-            
             /*
             if($mapped_record['record type'] == 'occurrence') {
                 print_r($rec); print_r($mapped_record); //exit;
@@ -189,23 +184,22 @@ class MADtoolNatDBAPI
             )
             */
             
-            /*
+            // /* actual record assignment
             $taxon_id = str_replace(" ", "_", strtolower($rec['species']));
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
             $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
             
-            $mOfTaxon = ($mapped_record['record type'] == "MeasurementOfTaxon=true") ? "true" : "";
-            if(isset($this->numeric_fields[$rec['variable']])) {
-                $this->func->add_string_types($rek, $rec['value'], $mapped_record['measurementType'], $mOfTaxon);
+            $record_type = $mapped_record['record type'];
+            $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
+            $mValue = ($mapped_record['measurementValue'] != "") ? $mapped_record['measurementValue'] : $rec['value'];
+            
+            if($record_type == "MeasurementOfTaxon=true") {
+                $this->func->add_string_types($rek, $mValue, $mapped_record['measurementType'], $mOfTaxon);
             }
-            else {
-                if($string_uri = self::get_string_uri($string_val)) {
-                    $this->func->add_string_types($rec, $string_uri, $mtype, "true");
-                }
-                // else $this->debug[$group][$string_val] = ''; //from copied template
-            }
-            */
+            
+            // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
+            // */
             
         }
         
