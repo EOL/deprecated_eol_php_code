@@ -136,10 +136,11 @@ class MADtoolNatDBAPI
             // if($rec['metadata'] == 'id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf')
             // if($rec['metadata'] == 'Species.common.name:Veery' && $rec['dataset'] == ".brown.2015")
             if($rec['species'] == 'Catharus fuscescens') //has MOF and occurrence, good for testing
+            // if($rec['species'] == 'Catharus fuscescens' && $mapped_record['variable'] == "Migration.Strategy")
             {
                 // print_r($rec); print_r($mapped_record); 
                 @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
-                if($mapped_record['record type'] == 'occurrence') { //MeasurementOfTaxon=true OR occurrence
+                if($mapped_record['record type'] == 'MeasurementOfTaxon=true') { //MeasurementOfTaxon=true OR occurrence
                     print_r($rec); print_r($mapped_record); 
                 }
                 // return;
@@ -190,7 +191,9 @@ class MADtoolNatDBAPI
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
             $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
+            $rek["catnum"] = ""; //bec. of redundant value, non-unique
             
+            $mType = $mapped_record['measurementType'];
             $record_type = $mapped_record['record type'];
             $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
             $mValue   = ($mapped_record['measurementValue'] != "")                                ? $mapped_record['measurementValue']                                : $rec['value'];
@@ -198,7 +201,7 @@ class MADtoolNatDBAPI
             
             $rek['measurementRemarks'] = $mRemarks;
             if($record_type == "MeasurementOfTaxon=true") {
-                $this->func->add_string_types($rek, $mValue, $mapped_record['measurementType'], $mOfTaxon);
+                $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
             }
             
             // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
