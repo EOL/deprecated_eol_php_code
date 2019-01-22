@@ -36,17 +36,18 @@ class MADtoolNatDBAPI
         self::initialize_mapping();
 
         // /* un-comment in real operation
-        // $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical'); //only categorical.csv have 'record type' = taxa
-        // self::process_extension($csv, "taxa"); //purpose = taxa
-        // print_r($this->ancestry); exit("\n-end ancestry-\n");
+        $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical'); //only categorical.csv have 'record type' = taxa
+        self::process_extension($csv, "taxa"); //purpose = taxa
+        print_r($this->ancestry); //exit("\n-end ancestry-\n");
         
         $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
         self::process_extension($csv, "child measurement"); //purpose = child measurement
-        print_r($this->childm); exit("\n-end childm-\n");
+        print_r($this->childm); //exit("\n-end childm-\n");
         // */
         
         // /*
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
+        self::process_extension($csv);
         $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
         self::process_extension($csv);
         // */
@@ -134,7 +135,7 @@ class MADtoolNatDBAPI
         
         if($mapped_record = @$this->valid_set[$tmp]) {
             
-            // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
             
             if($purpose == "taxa") {
                 if($mapped_record['record type'] == 'taxa') self::assign_ancestry($rec, $mapped_record);
@@ -143,14 +144,16 @@ class MADtoolNatDBAPI
                 if($mapped_record['record type'] == 'child measurement') self::assign_child_measurement($rec, $mapped_record);
             }
             
+            /*
             // if($mapped_record['record type'] == 'child measurement') {
                 if($rec['species'] == 'acer_pensylvanicum') {
                     @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']][$rec['value']]++;
-                    print_r($rec); print_r($mapped_record); 
+                    // print_r($rec); print_r($mapped_record); 
                 }
                 else return;
             // }
             // else return;
+            */
             
             // print_r($rec); print_r($mapped_record); exit;
             /*
@@ -178,14 +181,14 @@ class MADtoolNatDBAPI
             }
             else return;
             */
-            // /*
+            /*
             // if($mapped_record['record type'] == 'child measurement') {
             if($rec['species'] == 'Tsuga heterophylla') {
                 @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
                 print_r($rec); print_r($mapped_record); //exit;
                 return;
             }
-            // */
+            */
             
             /*
             if($mapped_record['measurementType'] == 'http://rs.tdwg.org/dwc/terms/lifeStage') {
@@ -220,7 +223,7 @@ class MADtoolNatDBAPI
             )
             */
             
-            /* actual record assignment
+            // /* actual record assignment
             $taxon_id = str_replace(" ", "_", strtolower($rec['species']));
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
@@ -235,11 +238,14 @@ class MADtoolNatDBAPI
             
             $rek['measurementRemarks'] = $mRemarks;
             if($record_type == "MeasurementOfTaxon=true") {
-                $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+                // $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
             }
             
+            @$this->debug['test_taxon'][$mapped_record['record type']][$mType][$mValue]++;
+            
+            
             // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
-            */
+            // */
             
         }
         
