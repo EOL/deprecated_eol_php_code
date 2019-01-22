@@ -36,7 +36,7 @@ class MADtoolNatDBAPI
         self::initialize_mapping();
         
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        // $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
+        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric');
         self::process_extension($csv);
         
         // $this->archive_builder->finalize(true);
@@ -113,14 +113,15 @@ class MADtoolNatDBAPI
         This is mostly for numeric records.
         */
         
+        /* generating index value $tmp for $this->valid_set */
         if(isset($this->numeric_fields[$rec['variable']])) $value = "";
         else                                               $value = $rec['value'];
-        
         $tmp = $rec['variable']."_".$value."_".$rec['dataset']."_".self::blank_if_NA($rec['units'])."_";
         $tmp = strtolower($tmp);
         // echo "\n[$tmp]"; exit;
         
         if($mapped_record = @$this->valid_set[$tmp]) {
+            // print_r($rec); print_r($mapped_record); exit;
             // @$this->debug[$rec['variable']][$rec['value']] = ''; //debug only
             
             /*
@@ -133,18 +134,34 @@ class MADtoolNatDBAPI
                 return;
             }
             */
+
+            // /*
+            // if($rec['metadata'] == 'id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf')
+
+            // if($rec['metadata'] == 'Species.common.name:Veery' && $rec['dataset'] == ".brown.2015")
+            if($rec['species'] == 'Catharus fuscescens') 
+            {
+                // print_r($rec); print_r($mapped_record); 
+                @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
+                if($mapped_record['record type'] == 'occurrence') { //MeasurementOfTaxon=true
+                    print_r($rec); print_r($mapped_record); 
+                }
+                return;
+            }
+            // */
+            
             /*
             if($mapped_record['record type'] == 'occurrence') {
-                print_r($rec); print_r($mapped_record); 
+                print_r($rec); print_r($mapped_record); //exit;
                 return;
             }
             */
-            // /*
+            /*
             if($mapped_record['measurementType'] == 'http://rs.tdwg.org/dwc/terms/lifeStage') {
                 print_r($rec); print_r($mapped_record); 
                 return;
             }
-            // */
+            */
             
             // echo "\n[$tmp]"; print_r($mapped_record); print_r($rec); exit("\n111\n");
             /*[common_length__.albouy.2015_cm_]Array( --- $mapped_record
