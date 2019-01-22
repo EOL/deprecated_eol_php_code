@@ -135,12 +135,12 @@ class MADtoolNatDBAPI
             // /*
             // if($rec['metadata'] == 'id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf')
             // if($rec['metadata'] == 'Species.common.name:Veery' && $rec['dataset'] == ".brown.2015")
-            if($rec['species'] == 'Catharus fuscescens') 
+            if($rec['species'] == 'Catharus fuscescens') //has MOF and occurrence, good for testing
             {
                 // print_r($rec); print_r($mapped_record); 
                 @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
-                if($mapped_record['record type'] == 'MeasurementOfTaxon=true') { //MeasurementOfTaxon=true OR occurrence
-                    // print_r($rec); print_r($mapped_record); 
+                if($mapped_record['record type'] == 'occurrence') { //MeasurementOfTaxon=true OR occurrence
+                    print_r($rec); print_r($mapped_record); 
                 }
                 // return;
             }
@@ -193,8 +193,10 @@ class MADtoolNatDBAPI
             
             $record_type = $mapped_record['record type'];
             $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
-            $mValue = ($mapped_record['measurementValue'] != "") ? $mapped_record['measurementValue'] : $rec['value'];
+            $mValue   = ($mapped_record['measurementValue'] != "")                                ? $mapped_record['measurementValue']                                : $rec['value'];
+            $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
             
+            $rek['measurementRemarks'] = $mRemarks;
             if($record_type == "MeasurementOfTaxon=true") {
                 $this->func->add_string_types($rek, $mValue, $mapped_record['measurementType'], $mOfTaxon);
             }
