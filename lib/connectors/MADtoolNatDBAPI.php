@@ -71,26 +71,67 @@ class MADtoolNatDBAPI
         Functions::start_print_debug($this->debug, $this->resource_id);
         */
         print_r($this->debug);
+        print_r($this->main);
         // print_r($this->numeric_fields);
         // exit("\n-end for now-\n");
     }
     private function main_write_archive()
     {
-        foreach($a['acer_pensylvanicum']['child measurement'] as $mType => $rec3) {
-            echo "\n ------ $mType\n";
-            // print_r($rec3);
-            foreach($rec3 as $mVal => $rec4) {
-                echo "\n --------- $mVal\n";
-                // print_r($rec4);
-                $keys = array_keys($rec4);
-                // print_r($keys);
-                $tmp = $keys[0];
-                $metadata = $rec4['m'];
-                $samplesize = $rec4[$keys[0]];
-                echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
+        $taxa = array_keys($this->main);
+        print_r($taxa);
+        foreach($taxa as $species) {
+            $taxon_id = self::create_taxon($species);
+
+            foreach($this->main[$species]['MeasurementOfTaxon=true'] as $mType => $rec3) {
+                echo "\n ------ $mType\n";
+                // print_r($rec3);
+                foreach($rec3 as $mValue => $rec4) {
+                    echo "\n --------- $mValue\n";
+                    // print_r($rec4);
+                    $keys = array_keys($rec4);
+                    // print_r($keys);
+                    $tmp = $keys[0];
+                    $samplesize = $rec4[$keys[0]];
+                    $metadata = $rec4['r']['md'];
+                    $mRemarks = $rec4['r']['mr'];
+                    echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
+                    
+                    $rek = array();
+                    $rek["taxon_id"] = $taxon_id;
+                    $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
+                    $rek["catnum"] = ""; //bec. of redundant value, non-unique
+                    $mOfTaxon = "true";
+                    $rek['measurementRemarks'] = $mRemarks;
+                    $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+                }
             }
+            
+            
         }
-        
+    }
+    private function create_taxon($species)
+    {
+        /*[Tsuga canadensis] => Array(
+                [ancestry] => Array(
+                        [Family] => Pinaceae
+                        [Genus] => Tsuga
+                        [Phylum] => Gymnosperms
+                    )
+            )*/
+        $taxon_id = str_replace(" ", "_", strtolower($species));
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $taxon_id;
+        $taxon->scientificName  = $species;
+        if($val = @$this->main[$species]['ancestry']['Family']) $taxon->family = $val;
+        if($val = @$this->main[$species]['ancestry']['Genus']) $taxon->genus = $val;
+        if($val = @$this->main[$species]['ancestry']['Phylum']) $taxon->phylum = $val;
+        // $taxon->taxonRank             = '';
+        // $taxon->furtherInformationURL = '';
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+        return $taxon_id;
     }
     private function process_extension($csv, $purpose = "taxa")
     {
@@ -180,25 +221,15 @@ class MADtoolNatDBAPI
                 $record_type = $mapped_record['record type'];
                 if($record_type == 'taxa') return;
 
-                $taxon_id = str_replace(" ", "_", strtolower($rec['species']));
-                $rek = array();
-                $rek["taxon_id"] = $taxon_id;
-                $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
-                $rek["catnum"] = ""; //bec. of redundant value, non-unique
-
                 $mType = $mapped_record['measurementType'];
-                $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
-                $mValue   = ($mapped_record['measurementValue'] != "")                                ? $mapped_record['measurementValue']                                : $rec['value'];
+                // $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
+                $mValue   = ($mapped_record['measurementValue'] != "")                             ? $mapped_record['measurementValue']                             : $rec['value'];
+                $mUnit    = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] : $rec['units'];
                 $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
                 if($mValue == $mRemarks) $mRemarks = "";
 
-                $rek['measurementRemarks'] = $mRemarks;
-                if($record_type == "MeasurementOfTaxon=true") {
-                    // $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
-                }
-
-                @$this->debug[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
-                @$this->debug[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks);
+                @$this->main[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
+                @$this->main[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks, 'mu' => $mUnit);
 
                 // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
                 // */
@@ -353,7 +384,7 @@ class MADtoolNatDBAPI
         if    ($val = $mapped_record['measurementValue']) $value = $val;
         elseif($val = $rec['value'])                      $value = $val;
         // $this->ancestry[$rec['species']][$rec['variable']] = $value;
-        $this->debug[$rec['species']]['ancestry'][$rec['variable']] = $value;
+        $this->main[$rec['species']]['ancestry'][$rec['variable']] = $value;
     }
     private function blank_if_NA($str)
     {
@@ -407,58 +438,6 @@ class MADtoolNatDBAPI
     /* ######################################################################################################################################### */
     /* ######################################################################################################################################### */
     /* ######################################################################################################################################### */
-    private function create_taxon($rec)
-    {
-        if(!isset($this->taxa_with_trait[$rec['DEF_id']])) return;
-        // print_r($rec); exit;
-        /*Array(
-            [DEF_id] => 1
-            [family] => Alangiaceae 
-            [genus] => Alangium
-            [scientific name] => Alangium chinense 
-            [species] => chinense
-            [subspecies] => 
-        )*/
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $rec['DEF_id'];
-        $taxon->scientificName  = $rec['scientific name'];
-        $taxon->family          = $rec['family'];
-        $taxon->genus           = $rec['genus'];
-        // $taxon->taxonRank             = '';
-        // $taxon->furtherInformationURL = '';
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
-    }
-    private function create_trait($rek, $group)
-    {
-        if($group == "distribution.csv") {
-            $arr = explode(";", $rek['Region']);
-            $taxon_id = $rek['Plant No'];
-            $mtype = "http://eol.org/schema/terms/Present";
-        }
-        elseif($group == "use.csv") {
-            $arr = explode(";", $rek['Use']);
-            $taxon_id = $rek['Plant'];
-            $mtype = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use";
-        }
-        $arr = array_map('trim', $arr);
-        // print_r($arr); exit;
-        foreach($arr as $string_val) {
-            if($string_val) {
-                $rec = array();
-                $rec["taxon_id"] = $taxon_id;
-                $rec["catnum"] = $taxon_id.'_'.$rek['id'];
-                if($string_uri = self::get_string_uri($string_val)) {
-                    $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
-                    $rec['measurementRemarks'] = $string_val;
-                    $this->func->add_string_types($rec, $string_uri, $mtype, "true");
-                }
-                else $this->debug[$group][$string_val] = '';
-            }
-        }
-    }
     private function get_string_uri($string)
     {
         switch ($string) { //put here customized mapping
