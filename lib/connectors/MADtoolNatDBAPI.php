@@ -40,12 +40,12 @@ class MADtoolNatDBAPI
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical'); //only categorical.csv have 'record type' = taxa
         self::process_extension($csv, "taxa"); //purpose = taxa
         print_r($this->ancestry); //exit("\n-end ancestry-\n");
-        
+        // */
+        /* not needed anymore
         $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
         self::process_extension($csv, "child measurement"); //purpose = child measurement
         print_r($this->childm); //exit("\n-end childm-\n");
-        // */
-        
+        */
         // /*
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
         self::process_extension($csv);
@@ -53,6 +53,7 @@ class MADtoolNatDBAPI
         self::process_extension($csv);
         // */
         
+        self::main_write_archive();
         $this->archive_builder->finalize(true);
         
         //massage debug for printing
@@ -72,6 +73,10 @@ class MADtoolNatDBAPI
         print_r($this->debug);
         // print_r($this->numeric_fields);
         // exit("\n-end for now-\n");
+    }
+    private function main_write_archive()
+    {
+        
     }
     private function process_extension($csv, $purpose = "taxa")
     {
@@ -256,7 +261,6 @@ class MADtoolNatDBAPI
                 // $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
             }
             
-            // @$this->debug[$rec['species']][$record_type][$mType][$mValue]++;
             @$this->debug[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
             @$this->debug[$rec['species']][$record_type][$mType][$mValue]['m'] = $rec['metadata'];
             
