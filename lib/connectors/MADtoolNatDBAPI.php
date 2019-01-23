@@ -28,6 +28,7 @@ class MADtoolNatDBAPI
         // print_r($this->uris);
         */
         self::initialize_spreadsheet_mapping();
+        // print_r($this->valid_set['map__.falster.2015_mm_']); exit("\n222\n");
     }
     function start()
     {
@@ -142,11 +143,12 @@ class MADtoolNatDBAPI
             }
             */
             
-            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
             "Catharus fuscescens" -- has MOF, occurrence, good for testing
+            "Tsuga canadensis" -- has taxa
             */
             
             if($purpose == "taxa") {
@@ -255,8 +257,7 @@ class MADtoolNatDBAPI
             
             // @$this->debug[$rec['species']][$record_type][$mType][$mValue]++;
             @$this->debug[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
-            
-            
+            @$this->debug[$rec['species']][$record_type][$mType][$mValue]['m'] = $rec['metadata'];
             
             // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
             // */
