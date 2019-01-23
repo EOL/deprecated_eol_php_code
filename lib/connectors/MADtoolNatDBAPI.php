@@ -39,7 +39,7 @@ class MADtoolNatDBAPI
         // /* un-comment in real operation
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical'); //only categorical.csv have 'record type' = taxa
         self::process_extension($csv, "taxa"); //purpose = taxa
-        print_r($this->ancestry); //exit("\n-end ancestry-\n");
+        // print_r($this->ancestry); exit("\n-end ancestry-\n");
         // */
         /* not needed anymore
         $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
@@ -48,9 +48,9 @@ class MADtoolNatDBAPI
         */
         // /*
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        self::process_extension($csv);
+        self::process_extension($csv, 'mof occurrence child');
         $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
-        self::process_extension($csv);
+        self::process_extension($csv, 'mof occurrence child');
         // */
         
         self::main_write_archive();
@@ -76,6 +76,20 @@ class MADtoolNatDBAPI
     }
     private function main_write_archive()
     {
+        foreach($a['acer_pensylvanicum']['child measurement'] as $mType => $rec3) {
+            echo "\n ------ $mType\n";
+            // print_r($rec3);
+            foreach($rec3 as $mVal => $rec4) {
+                echo "\n --------- $mVal\n";
+                // print_r($rec4);
+                $keys = array_keys($rec4);
+                // print_r($keys);
+                $tmp = $keys[0];
+                $metadata = $rec4['m'];
+                $samplesize = $rec4[$keys[0]];
+                echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
+            }
+        }
         
     }
     private function process_extension($csv, $purpose = "taxa")
@@ -148,7 +162,7 @@ class MADtoolNatDBAPI
                 @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
             }
             */
-            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            if($rec['species'] != 'Tsuga canadensis') return; //debug only
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
@@ -159,10 +173,41 @@ class MADtoolNatDBAPI
             
             if($purpose == "taxa") {
                 if($mapped_record['record type'] == 'taxa') self::assign_ancestry($rec, $mapped_record);
+                return;
             }
+            elseif($purpose == "mof occurrence child") {
+                // /* actual record assignment
+                $record_type = $mapped_record['record type'];
+                if($record_type == 'taxa') return;
+
+                $taxon_id = str_replace(" ", "_", strtolower($rec['species']));
+                $rek = array();
+                $rek["taxon_id"] = $taxon_id;
+                $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
+                $rek["catnum"] = ""; //bec. of redundant value, non-unique
+
+                $mType = $mapped_record['measurementType'];
+                $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
+                $mValue   = ($mapped_record['measurementValue'] != "")                                ? $mapped_record['measurementValue']                                : $rec['value'];
+                $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
+
+                $rek['measurementRemarks'] = $mRemarks;
+                if($record_type == "MeasurementOfTaxon=true") {
+                    // $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+                }
+
+                @$this->debug[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
+                @$this->debug[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks);
+
+                // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
+                // */
+                return;
+            }
+            /* obsolete
             elseif($purpose == "child measurement") {
                 if($mapped_record['record type'] == 'child measurement') self::assign_child_measurement($rec, $mapped_record);
             }
+            */
             
             /*
             // if($mapped_record['record type'] == 'child measurement') {
@@ -243,29 +288,6 @@ class MADtoolNatDBAPI
             )
             */
             
-            // /* actual record assignment
-            $taxon_id = str_replace(" ", "_", strtolower($rec['species']));
-            $rek = array();
-            $rek["taxon_id"] = $taxon_id;
-            $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
-            $rek["catnum"] = ""; //bec. of redundant value, non-unique
-            
-            $mType = $mapped_record['measurementType'];
-            $record_type = $mapped_record['record type'];
-            $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
-            $mValue   = ($mapped_record['measurementValue'] != "")                                ? $mapped_record['measurementValue']                                : $rec['value'];
-            $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
-            
-            $rek['measurementRemarks'] = $mRemarks;
-            if($record_type == "MeasurementOfTaxon=true") {
-                // $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
-            }
-            
-            @$this->debug[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
-            @$this->debug[$rec['species']][$record_type][$mType][$mValue]['m'] = $rec['metadata'];
-            
-            // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
-            // */
             
         }
     }
@@ -329,7 +351,8 @@ class MADtoolNatDBAPI
         */
         if    ($val = $mapped_record['measurementValue']) $value = $val;
         elseif($val = $rec['value'])                      $value = $val;
-        $this->ancestry[$rec['species']][$rec['variable']] = $value;
+        // $this->ancestry[$rec['species']][$rec['variable']] = $value;
+        $this->debug[$rec['species']]['ancestry'][$rec['variable']] = $value;
     }
     private function blank_if_NA($str)
     {
