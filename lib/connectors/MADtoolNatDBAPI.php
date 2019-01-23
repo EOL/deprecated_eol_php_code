@@ -135,6 +135,7 @@ class MADtoolNatDBAPI
         // echo "\n[$tmp]"; exit;
         
         if($mapped_record = @$this->valid_set[$tmp]) {
+            if(stripos($rec['species'], "unknown") !== false) return; //string is found
             
             /* good debug
             if($rec['variable'] == "growingCondition") {
@@ -142,13 +143,13 @@ class MADtoolNatDBAPI
                 @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
             }
             */
-            
-            // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
             "Catharus fuscescens" -- has MOF, occurrence, good for testing
             "Tsuga canadensis" -- has taxa
+            "ctenomys_minutus" -- has special char in metadata "Cherem/Maur?cio"
             */
             
             if($purpose == "taxa") {
