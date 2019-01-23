@@ -162,7 +162,7 @@ class MADtoolNatDBAPI
                 @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
             }
             */
-            if($rec['species'] != 'Tsuga canadensis') return; //debug only
+            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
@@ -190,6 +190,7 @@ class MADtoolNatDBAPI
                 $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
                 $mValue   = ($mapped_record['measurementValue'] != "")                                ? $mapped_record['measurementValue']                                : $rec['value'];
                 $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
+                if($mValue == $mRemarks) $mRemarks = "";
 
                 $rek['measurementRemarks'] = $mRemarks;
                 if($record_type == "MeasurementOfTaxon=true") {
