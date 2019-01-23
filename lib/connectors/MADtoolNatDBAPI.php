@@ -80,12 +80,12 @@ class MADtoolNatDBAPI
             $row = fgetcsv($file);
             if(!$row) break;
             $row = self::clean_html($row); // print_r($row);
-            $i++; if(($i % 200000) == 0) echo "\n $i ";
+            $i++; if(($i % 300000) == 0) echo "\n $i ";
             if($i == 1) {
                 $fields = $row;
                 $fields = self::fill_up_blank_fieldnames($fields);
                 $count = count($fields);
-                print_r($fields);
+                // print_r($fields);
             }
             else { //main records
                 $values = $row;
@@ -135,7 +135,19 @@ class MADtoolNatDBAPI
         
         if($mapped_record = @$this->valid_set[$tmp]) {
             
-            if($rec['species'] != 'Catharus fuscescens') return; //debug only "Catharus fuscescens" "acer_pensylvanicum"
+            /* good debug
+            if($rec['variable'] == "growingCondition") {
+                print_r($rec); print_r($mapped_record); exit("\n-end muna-\n");
+                @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
+            }
+            */
+            
+            if($rec['species'] != 'abies_sachalinensis') return; //debug only
+            /*
+            "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
+            "abies_sachalinensis" -- with occurrence
+            "Catharus fuscescens" -- has MOF, occurrence, good for testing
+            */
             
             if($purpose == "taxa") {
                 if($mapped_record['record type'] == 'taxa') self::assign_ancestry($rec, $mapped_record);
@@ -241,20 +253,15 @@ class MADtoolNatDBAPI
                 // $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
             }
             
-            @$this->debug['test_taxon'][$mapped_record['record type']][$mType][$mValue]++;
+            @$this->debug[$rec['species']][$record_type][$mType][$mValue]++;
+            @$this->debug[$rec['species']][$record_type][$mType][$mValue]++;
+            
             
             
             // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
             // */
             
         }
-        
-        /* good debug
-        if($rec['variable'] == "Maximum_length") {
-            // print_r($rec); exit;
-            @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
-        }
-        */
     }
     private function assign_child_measurement($rec, $mapped_record)
     {
