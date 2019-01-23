@@ -80,7 +80,7 @@ class MADtoolNatDBAPI
             $row = fgetcsv($file);
             if(!$row) break;
             $row = self::clean_html($row); // print_r($row);
-            $i++; if(($i % 100000) == 0) echo "\n $i ";
+            $i++; if(($i % 200000) == 0) echo "\n $i ";
             if($i == 1) {
                 $fields = $row;
                 $fields = self::fill_up_blank_fieldnames($fields);
@@ -350,6 +350,7 @@ class MADtoolNatDBAPI
         $i = -1;
         foreach($map['variable'] as $var) {
             $i++;
+            if(in_array($var, array("Location.Code"))) continue;
             $tmp = $var."_".$map['value'][$i]."_".$map['dataset'][$i]."_".$map['unit'][$i]."_";
             $tmp = strtolower($tmp);
             $valid_set[$tmp] = self::get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map);
