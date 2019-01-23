@@ -142,7 +142,7 @@ class MADtoolNatDBAPI
             }
             */
             
-            if($rec['species'] != 'abies_sachalinensis') return; //debug only
+            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
@@ -253,8 +253,8 @@ class MADtoolNatDBAPI
                 // $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
             }
             
-            @$this->debug[$rec['species']][$record_type][$mType][$mValue]++;
-            @$this->debug[$rec['species']][$record_type][$mType][$mValue]++;
+            // @$this->debug[$rec['species']][$record_type][$mType][$mValue]++;
+            @$this->debug[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
             
             
             
