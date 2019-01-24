@@ -130,6 +130,14 @@ class MADtoolNatDBAPI
                     if($samplesize > 1) {
                         $this->func->add_string_types($rek, $samplesize, 'http://eol.org/schema/terms/SampleSize', "false");
                     }
+                    
+                    if($mapped_record['dataset'] == ".benesh.2017") {
+                        $mType = 'http://eol.org/schema/terms/TrophicGuild';
+                        $mValue = 'http://www.wikidata.org/entity/Q12806437';
+                        $this->func->add_string_types($rek, $mValue, $mType, "false");
+                    }
+
+
                 }
             }
             
