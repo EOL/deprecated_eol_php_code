@@ -117,6 +117,8 @@ class MADtoolNatDBAPI
                     $rek["taxon_id"] = $taxon_id;
                     $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
                     $rek["catnum"] = ""; //bec. of redundant value, non-unique
+                    $rek["catnum"] = substr($csv['type'],0,1)."_".$mValue;
+                    
                     $mOfTaxon = "true";
                     $rek['measurementUnit'] = $mUnit;
                     $rek['measurementRemarks'] = $mRemarks;
@@ -126,13 +128,7 @@ class MADtoolNatDBAPI
                     $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
                     
                     if($samplesize > 1) {
-                        $rek = array();
-                        $rek["taxon_id"] = $taxon_id;
-                        $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
-                        // $rek["catnum"] = ""; //bec. of redundant value, non-unique
-                        $rek["catnum"] = substr($csv['type'],0,1)."_".$mValue;
-                        $mOfTaxon = "";
-                        $this->func->add_string_types($rek, $samplesize, 'http://eol.org/schema/terms/SampleSize', $mOfTaxon);
+                        $this->func->add_string_types($rek, $samplesize, 'http://eol.org/schema/terms/SampleSize', "false");
                     }
                 }
             }
