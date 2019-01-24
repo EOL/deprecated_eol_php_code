@@ -150,6 +150,9 @@ class MADtoolNatDBAPI
                         $mValue = 'http://www.wikidata.org/entity/Q12806437';
                         $this->func->add_string_types($rek, $mValue, $mType, "false");
                     }
+                    
+                    
+                    
 
 
                 }
@@ -524,6 +527,14 @@ class MADtoolNatDBAPI
         $final = array();
         foreach($fields as $field) $final[$field] = $map[$field][$i];
         return $final;
+    }
+    function get_occurrence_properties()
+    {
+        if($xml = Functions::lookup_with_cache("https://editors.eol.org/other_files/ontology/occurrence_extension.xml", $this->download_options)) {
+            if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $arr)) {
+                print_r($arr[1]);
+            }
+        }
     }
     /* ######################################################################################################################################### */
     /* ######################################################################################################################################### */
