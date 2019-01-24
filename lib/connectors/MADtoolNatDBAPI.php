@@ -32,6 +32,8 @@ class MADtoolNatDBAPI
     }
     function start()
     {
+        $this->occurrence_properties = self::get_occurrence_properties();
+        
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::initialize_mapping();
@@ -218,6 +220,7 @@ class MADtoolNatDBAPI
         if($final) {
             print_r($final);
             foreach($final as $property => $value) {
+                if(!in_array($property, $this->occurrence_properties)) continue;
                 if(!isset($retx[$property])) $retx[$property] = $value;
                 else {
                     if($retx[$property]) $retx[$property] .= ". Addtl: $value";
@@ -571,6 +574,7 @@ class MADtoolNatDBAPI
         if($xml = Functions::lookup_with_cache("https://editors.eol.org/other_files/ontology/occurrence_extension.xml", $this->download_options)) {
             if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $arr)) {
                 print_r($arr[1]);
+                return $arr[1];
             }
         }
     }

@@ -129,7 +129,6 @@ exit("\n");
 
 $resource_id = "natdb";
 $func = new MADtoolNatDBAPI($resource_id);
-$func->get_occurrence_properties(); exit;
 $func->start(); //main operation
 Functions::finalize_dwca_resource($resource_id, false);
 $elapsed_time_sec = time_elapsed() - $timestart;
