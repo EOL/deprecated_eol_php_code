@@ -84,7 +84,7 @@ class MADtoolNatDBAPI
             $taxon_id = self::create_taxon($species);
 
             if($val = @$this->main[$species]['child measurement']) {
-                $child_measurements = get_child_measurements($val);
+                $child_measurements = self::get_child_measurements($val);
             }
             else $child_measurements = array();
             
