@@ -5,6 +5,13 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
 $timestart = time_elapsed();
 
+
+// $str = "eliboy";
+// echo "\n[".substr($str, -3)."]\n";
+// $str = substr($str,0,strlen($str)-3);
+// echo "\n[$str]\n";
+// exit;
+
 /*
 $a['eli boy']["child measurement"] = Array
     (

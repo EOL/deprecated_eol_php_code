@@ -295,8 +295,11 @@ class MADtoolNatDBAPI
     private function process_record($rec, $csv, $purpose)
     {
         $species = $rec['species'];
-        $species = str_replace("_", " ", ucfirst($species));
+        $species = trim(str_replace("_", " ", ucfirst($species)));
+        //remove _sp
+        if(substr($species, -3) == "_sp") $species = substr($species, 0, strlen($species)-3);
         $rec['species'] = trim($species);
+        
         /*Array(
             [blank_1] => 1
             [species] => abudefduf vaigiensis
@@ -328,7 +331,9 @@ class MADtoolNatDBAPI
                 @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
             }
             */
-            if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
+            if($rec['species'] != 'Acer pensylvanicum') return; //debug only
+            
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
