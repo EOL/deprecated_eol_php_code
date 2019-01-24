@@ -81,13 +81,17 @@ class MADtoolNatDBAPI
         foreach($taxa as $species) {
             $taxon_id = self::create_taxon($species);
 
+            if($val = @$this->main[$species]['child measurement']) {
+                $child_measurements = get_child_measurements($val);
+            }
+            else $child_measurements = array();
             
 
             foreach($this->main[$species]['MeasurementOfTaxon=true'] as $mType => $rec3) {
-                echo "\n ------ $mType\n";
+                // echo "\n ------ $mType\n";
                 // print_r($rec3);
                 foreach($rec3 as $mValue => $rec4) {
-                    echo "\n --------- $mValue\n";
+                    // echo "\n --------- $mValue\n";
                     // print_r($rec4);
                     $keys = array_keys($rec4);
                     // print_r($keys);
@@ -98,7 +102,7 @@ class MADtoolNatDBAPI
                     $mRemarks = $rec4['r']['mr'];
                     $mUnit = $rec4['r']['mu'];
                     $csv_type = $rec4['r']['ty']; //this is either 'c' or 'n'. Came from 'categorical.csv' or 'numerical.csv'.
-                    echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
+                    // echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
                     
                     /*Array( --- $mapped_record
                         [variable] => Common_length
@@ -151,7 +155,27 @@ class MADtoolNatDBAPI
                         $this->func->add_string_types($rek, $mValue, $mType, "false");
                     }
                     
-                    
+                    if($val = $child_measurements) {
+                        foreach($child_measurements as $m) {
+                            /*Array(
+                                        [mType] => http://eol.org/schema/terms/AnnualPrecipitation
+                                        [mValue] => 1300
+                                        [info] => Array(
+                                                [md] => studyName:Whittaker1974;location:Hubbard Brook Experimental Forest;latitude:44;longitude:-72;species:Acer pensylvanicum;family:Aceraceae
+                                                [mr] => 
+                                                [mu] => http://purl.obolibrary.org/obo/UO_0000016
+                                                [ds] => .falster.2015
+                                                [ty] => n
+                                            )
+                                    )
+                            */
+                            if($metadata == $m['info']['md'] && $dataset == $m['info']['ds']) {
+                                $mType = $m['mType'];
+                                $mValue = $m['mValue'];
+                                $this->func->add_string_types($rek, $mValue, $mType, "false");
+                            }
+                        }
+                    }
                     
 
 
@@ -526,6 +550,20 @@ class MADtoolNatDBAPI
     {
         $final = array();
         foreach($fields as $field) $final[$field] = $map[$field][$i];
+        return $final;
+    }
+    private function get_child_measurements($arr)
+    {
+        $final = array();
+        foreach($arr as $mType => $rek1) {
+            $rec = array();
+            foreach($rek1 as $mValue => $rek2) {
+                $rec['mType'] = $mType;
+                $rec['mValue'] = $mValue;
+                $rec['info'] = $rek2['r'];
+            }
+            if($rec) $final[] = $rec;
+        }
         return $final;
     }
     function get_occurrence_properties()

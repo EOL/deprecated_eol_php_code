@@ -6,6 +6,45 @@ require_library('connectors/MADtoolNatDBAPI');
 $timestart = time_elapsed();
 
 /*
+$a['eli boy']["child measurement"] = Array
+    (
+        "http://eol.org/schema/terms/AnnualPrecipitation" => Array
+            (
+                1300 => Array
+                    (
+                        "map__.falster.2015_mm_" => 15,
+                        "r" => Array
+                            (
+                                'md' => "studyName:Whittaker1974;location:Hubbard Brook Experimental Forest;latitude:44;longitude:-72;species:Acer pensylvanicum;family:Aceraceae",
+                                'mr' => "",
+                                'mu' => "http://purl.obolibrary.org/obo/UO_0000016",
+                                'ds' => ".falster.2015",
+                                'ty' => "n"
+                            )
+                    )
+            ),
+        "http://eol.org/schema/terms/meanAnnualTemperature" => Array
+            (
+                6 => Array
+                    (
+                        "mat__.falster.2015_deg_" => 15,
+                        "r" => Array
+                            (
+                                'md' => "studyName:Whittaker1974;location:Hubbard Brook Experimental Forest;latitude:44;longitude:-72;species:Acer pensylvanicum;family:Aceraceae",
+                                'mr' => "",
+                                'mu' => "http://purl.obolibrary.org/obo/UO_0000027",
+                                'ds' => ".falster.2015",
+                                'ty' => "n"
+                            )
+                    )
+            )
+    );
+print_r($a);
+$measurements = get_child_measurements($a['eli boy']['child measurement']);
+print_r($measurements); exit;
+*/
+
+/*
 $a['acer_pensylvanicum'] = Array(
             'MeasurementOfTaxon=true' => Array(
                     'http://purl.obolibrary.org/obo/FLOPO_0008548' => Array(
