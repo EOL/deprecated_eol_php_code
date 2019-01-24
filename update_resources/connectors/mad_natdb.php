@@ -4,6 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
 $timestart = time_elapsed();
+
 /*
 $a['acer_pensylvanicum'] = Array(
             'MeasurementOfTaxon=true' => Array(
@@ -87,7 +88,7 @@ foreach($a['acer_pensylvanicum']['child measurement'] as $mType => $rec3) {
 exit("\n");
 */
 
-$resource_id = "mad_natdb";
+$resource_id = "natdb";
 $func = new MADtoolNatDBAPI($resource_id);
 $func->start(); //main operation
 Functions::finalize_dwca_resource($resource_id, false);
