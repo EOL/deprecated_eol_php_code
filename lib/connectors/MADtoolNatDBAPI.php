@@ -93,6 +93,7 @@ class MADtoolNatDBAPI
                     $samplesize = $rec4[$keys[0]];
                     $metadata = $rec4['r']['md'];
                     $mRemarks = $rec4['r']['mr'];
+                    $mUnit = $rec4['r']['mu'];
                     echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
                     
                     /*Array( --- $mapped_record
@@ -109,14 +110,30 @@ class MADtoolNatDBAPI
                         [http://eol.org/schema/terms/statisticalMethod] => http://eol.org/schema/terms/average
                         [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
                     )*/
+                    if($mapped_record = @$this->valid_set[$tmp]) {}
+                    else exit("\nShould not go here...\n");
                     
                     $rek = array();
                     $rek["taxon_id"] = $taxon_id;
                     $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
                     $rek["catnum"] = ""; //bec. of redundant value, non-unique
                     $mOfTaxon = "true";
+                    $rek['measurementUnit'] = $mUnit;
                     $rek['measurementRemarks'] = $mRemarks;
+                    $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
+                    $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];   //occurrence_property
+                    $rek['occurrenceRemarks'] = $metadata;                                          //occurrence_property
                     $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+                    
+                    if($samplesize > 1) {
+                        $rek = array();
+                        $rek["taxon_id"] = $taxon_id;
+                        $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
+                        // $rek["catnum"] = ""; //bec. of redundant value, non-unique
+                        $rek["catnum"] = substr($csv['type'],0,1)."_".$mValue;
+                        $mOfTaxon = "";
+                        $this->func->add_string_types($rek, $samplesize, 'http://eol.org/schema/terms/SampleSize', $mOfTaxon);
+                    }
                 }
             }
             
