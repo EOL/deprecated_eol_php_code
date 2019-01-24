@@ -81,6 +81,8 @@ class MADtoolNatDBAPI
         foreach($taxa as $species) {
             $taxon_id = self::create_taxon($species);
 
+            
+
             foreach($this->main[$species]['MeasurementOfTaxon=true'] as $mType => $rec3) {
                 echo "\n ------ $mType\n";
                 // print_r($rec3);
@@ -94,6 +96,7 @@ class MADtoolNatDBAPI
                     $metadata = $rec4['r']['md'];
                     $mRemarks = $rec4['r']['mr'];
                     $mUnit = $rec4['r']['mu'];
+                    $csv_type = $rec4['r']['ty']; //this is either 'c' or 'n'. Came from 'categorical.csv' or 'numerical.csv'.
                     echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
                     
                     /*Array( --- $mapped_record
@@ -115,9 +118,9 @@ class MADtoolNatDBAPI
                     
                     $rek = array();
                     $rek["taxon_id"] = $taxon_id;
-                    $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
-                    $rek["catnum"] = ""; //bec. of redundant value, non-unique
-                    $rek["catnum"] = substr($csv['type'],0,1)."_".$mValue;
+                    // $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
+                    // $rek["catnum"] = ""; //bec. of redundant value, non-unique
+                    $rek["catnum"] = $csv_type."_".$mValue;
                     
                     $mOfTaxon = "true";
                     $rek['measurementUnit'] = $mUnit;
@@ -125,10 +128,20 @@ class MADtoolNatDBAPI
                     $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
                     $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];   //occurrence_property
                     $rek['occurrenceRemarks'] = $metadata;                                          //occurrence_property
-                    $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
                     
+                    if($val = @$this->main[$species]['occurrence']) {
+                        $rek = self::additional_occurrence_property($val, $rek, $metadata);
+                    }
+                    $occurrenceID = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+
+                    $rek = array();
+                    $rek["taxon_id"] = $taxon_id;
+                    $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
+                    $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                     if($samplesize > 1) {
-                        $this->func->add_string_types($rek, $samplesize, 'http://eol.org/schema/terms/SampleSize', "false");
+                        $mType = 'http://eol.org/schema/terms/SampleSize';
+                        $mValue = $samplesize;
+                        $this->func->add_string_types($rek, $mValue, $mType, "false");
                     }
                     
                     if($mapped_record['dataset'] == ".benesh.2017") {
@@ -143,6 +156,48 @@ class MADtoolNatDBAPI
             
             
         }
+    }
+    private function additional_occurrence_property($arr, $retx, $metadata_x, $dataset_x)
+    {
+        /* sample $arr value
+        $a['Gadus morhua']['occurrence'] = Array
+            (
+                "http://rs.tdwg.org/dwc/terms/fieldNotes" => Array
+                    (
+                        "field wild" => Array
+                            (
+                                "growingcondition_fw_.falster.2015__" => 15,
+                                "r" => Array
+                                    (
+                                        "md" => "studyName:Whittaker1974;location:Hubbard Brook Experimental Forest;latitude:44;longitude:-72;species:Acer pensylvanicum;family:Aceraceae",
+                                        "mr" => "FW",
+                                        "mu" => "NA"
+                                    )
+                            )
+                    ),
+                "sex" => array("male" => array())
+            );
+        */
+        $final = array();
+        foreach($arr as $property => $rek1) {
+            echo "\nproperty = $property\n";
+            print_r($rek1);
+            foreach($rek1 as $prop_value => $rek2) {
+                if($rek2['r']['md'] == $metadata_x && $rek2['r']['ds'] == $dataset_x) $final[pathinfo($property, PATHINFO_FILENAME)] = $prop_value;
+            }
+        }
+        if($final) {
+            print_r($final);
+            foreach($final as $property => $value) {
+                if(!isset($retx[$property])) $retx[$property] = $value;
+                else {
+                    if($retx[$property]) $retx[$property] .= ". Addtl: $value";
+                    else $retx[$property] = $value;
+                }
+            }
+            print_r($retx);
+        }
+        return $retx;
     }
     private function create_taxon($species)
     {
@@ -264,7 +319,8 @@ class MADtoolNatDBAPI
                 if($mValue == $mRemarks) $mRemarks = "";
 
                 @$this->main[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
-                @$this->main[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks, 'mu' => $mUnit);
+                @$this->main[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks, 'mu' => $mUnit, 
+                                                                                          'ds' => $rec['dataset'], 'ty' => substr($csv['type'],0,1));
 
                 // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
                 // */
