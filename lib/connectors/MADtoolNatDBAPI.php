@@ -294,6 +294,9 @@ class MADtoolNatDBAPI
     }
     private function process_record($rec, $csv, $purpose)
     {
+        $species = $rec['species'];
+        $species = str_replace("_", " ", ucfirst($species));
+        $rec['species'] = trim($species);
         /*Array(
             [blank_1] => 1
             [species] => abudefduf vaigiensis
