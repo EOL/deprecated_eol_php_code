@@ -255,7 +255,7 @@ class MADtoolNatDBAPI
             }
             */
             
-            /*
+            /*  ------------------------------------------------------- all these below here are only debug purposes only -------------------------------------------------------
             // if($mapped_record['record type'] == 'child measurement') {
                 if($rec['species'] == 'acer_pensylvanicum') {
                     @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']][$rec['value']]++;
@@ -333,8 +333,6 @@ class MADtoolNatDBAPI
                 [dataset] => .albouy.2015
             )
             */
-            
-            
         }
     }
     private function assign_child_measurement($rec, $mapped_record)
