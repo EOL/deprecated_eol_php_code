@@ -131,7 +131,7 @@ class MADtoolNatDBAPI
                     $rek['occurrenceRemarks'] = $metadata;                                          //occurrence_property
                     
                     if($val = @$this->main[$species]['occurrence']) {
-                        $rek = self::additional_occurrence_property($val, $rek, $metadata);
+                        $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
                     }
                     $occurrenceID = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
 
@@ -184,7 +184,8 @@ class MADtoolNatDBAPI
             echo "\nproperty = $property\n";
             print_r($rek1);
             foreach($rek1 as $prop_value => $rek2) {
-                if($rek2['r']['md'] == $metadata_x && $rek2['r']['ds'] == $dataset_x) $final[pathinfo($property, PATHINFO_FILENAME)] = $prop_value;
+                if($rek2['r']['md'] == $metadata_x && 
+                   $rek2['r']['ds'] == $dataset_x) $final[pathinfo($property, PATHINFO_FILENAME)] = $prop_value;
             }
         }
         if($final) {
