@@ -332,7 +332,7 @@ class MADtoolNatDBAPI
             }
             */
             // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
-            if($rec['species'] != 'Acer pensylvanicum') return; //debug only
+            // if($rec['species'] != 'Acer pensylvanicum') return; //debug only
             
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
