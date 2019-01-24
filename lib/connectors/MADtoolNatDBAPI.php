@@ -88,7 +88,7 @@ class MADtoolNatDBAPI
             }
             else $child_measurements = array();
             
-
+               if(!@$this->main[$species]['MeasurementOfTaxon=true']) continue;
             foreach($this->main[$species]['MeasurementOfTaxon=true'] as $mType => $rec3) {
                 // echo "\n ------ $mType\n";
                 // print_r($rec3);
