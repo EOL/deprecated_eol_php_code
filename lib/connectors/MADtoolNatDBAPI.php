@@ -71,15 +71,15 @@ class MADtoolNatDBAPI
         foreach($territories as $c) $this->debug['distribution.csv'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
         */
-        print_r($this->debug);
-        print_r($this->main);
+        // print_r($this->debug);
+        // print_r($this->main);
         // print_r($this->numeric_fields);
         // exit("\n-end for now-\n");
     }
     private function main_write_archive()
     {
         $taxa = array_keys($this->main);
-        print_r($taxa);
+        // print_r($taxa);
         foreach($taxa as $species) {
             $taxon_id = self::create_taxon($species);
 
@@ -146,15 +146,15 @@ class MADtoolNatDBAPI
                     $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
                     $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                     if($samplesize > 1) {
-                        $mType = 'http://eol.org/schema/terms/SampleSize';
-                        $mValue = $samplesize;
-                        $this->func->add_string_types($rek, $mValue, $mType, "false");
+                        $mType_var = 'http://eol.org/schema/terms/SampleSize';
+                        $mValue_var = $samplesize;
+                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
                     }
                     
                     if($mapped_record['dataset'] == ".benesh.2017") {
-                        $mType = 'http://eol.org/schema/terms/TrophicGuild';
-                        $mValue = 'http://www.wikidata.org/entity/Q12806437';
-                        $this->func->add_string_types($rek, $mValue, $mType, "false");
+                        $mType_var = 'http://eol.org/schema/terms/TrophicGuild';
+                        $mValue_var = 'http://www.wikidata.org/entity/Q12806437';
+                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
                     }
                     
                     if($val = $child_measurements) {
@@ -172,9 +172,9 @@ class MADtoolNatDBAPI
                                     )
                             */
                             if($metadata == $m['info']['md'] && $dataset == $m['info']['ds']) {
-                                $mType = $m['mType'];
-                                $mValue = $m['mValue'];
-                                $this->func->add_string_types($rek, $mValue, $mType, "false");
+                                $mType_var = $m['mType'];
+                                $mValue_var = $m['mValue'];
+                                $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
                             }
                         }
                     }
@@ -211,14 +211,14 @@ class MADtoolNatDBAPI
         $final = array();
         foreach($arr as $property => $rek1) {
             echo "\nproperty = $property\n";
-            print_r($rek1);
+            // print_r($rek1);
             foreach($rek1 as $prop_value => $rek2) {
                 if($rek2['r']['md'] == $metadata_x && 
                    $rek2['r']['ds'] == $dataset_x) $final[pathinfo($property, PATHINFO_FILENAME)] = $prop_value;
             }
         }
         if($final) {
-            print_r($final);
+            // print_r($final);
             foreach($final as $property => $value) {
                 if(!in_array($property, $this->occurrence_properties)) continue;
                 if(!isset($retx[$property])) $retx[$property] = $value;
@@ -227,7 +227,7 @@ class MADtoolNatDBAPI
                     else $retx[$property] = $value;
                 }
             }
-            print_r($retx);
+            // print_r($retx);
         }
         return $retx;
     }
@@ -333,6 +333,7 @@ class MADtoolNatDBAPI
             */
             // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
             // if($rec['species'] != 'Acer pensylvanicum') return; //debug only
+            // if($rec['species'] != 'Acer saccharum') return; //debug only
             
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
@@ -581,7 +582,7 @@ class MADtoolNatDBAPI
     {
         if($xml = Functions::lookup_with_cache("https://editors.eol.org/other_files/ontology/occurrence_extension.xml", $this->download_options)) {
             if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $arr)) {
-                print_r($arr[1]);
+                // print_r($arr[1]);
                 return $arr[1];
             }
         }
