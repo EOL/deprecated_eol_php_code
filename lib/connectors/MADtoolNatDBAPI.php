@@ -94,6 +94,7 @@ class MADtoolNatDBAPI
                     $tmp = $keys[0];
                     $samplesize = $rec4[$keys[0]];
                     $metadata = $rec4['r']['md'];
+                    $dataset = $rec4['r']['ds'];
                     $mRemarks = $rec4['r']['mr'];
                     $mUnit = $rec4['r']['mu'];
                     $csv_type = $rec4['r']['ty']; //this is either 'c' or 'n'. Came from 'categorical.csv' or 'numerical.csv'.
