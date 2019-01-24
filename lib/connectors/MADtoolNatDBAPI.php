@@ -39,7 +39,6 @@ class MADtoolNatDBAPI
         // /* un-comment in real operation
         $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical'); //only categorical.csv have 'record type' = taxa
         self::process_extension($csv, "taxa"); //purpose = taxa
-        // print_r($this->ancestry); exit("\n-end ancestry-\n");
         // */
         /* not needed anymore
         $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
@@ -96,6 +95,21 @@ class MADtoolNatDBAPI
                     $mRemarks = $rec4['r']['mr'];
                     echo "\n - tmp = [$tmp]\n - metadata = [$metadata]\n - samplesize = [$samplesize]\n";
                     
+                    /*Array( --- $mapped_record
+                        [variable] => Common_length
+                        [value] => 
+                        [dataset] => .albouy.2015
+                        [unit] => cm
+                        [-->] => -->
+                        [measurementType] => http://purl.obolibrary.org/obo/CMO_0000013
+                        [measurementValue] => 
+                        [record type] => MeasurementOfTaxon=true
+                        [http://rs.tdwg.org/dwc/terms/measurementUnit] => http://purl.obolibrary.org/obo/UO_0000015
+                        [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                        [http://eol.org/schema/terms/statisticalMethod] => http://eol.org/schema/terms/average
+                        [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                    )*/
+                    
                     $rek = array();
                     $rek["taxon_id"] = $taxon_id;
                     $rek["catnum"] = substr($csv['type'],0,1)."_".$rec['blank_1'];
@@ -133,7 +147,7 @@ class MADtoolNatDBAPI
         }
         return $taxon_id;
     }
-    private function process_extension($csv, $purpose = "taxa")
+    private function process_extension($csv, $purpose)
     {
         $i = 0;
         $file = Functions::file_open($csv['file'], "r");
@@ -383,7 +397,6 @@ class MADtoolNatDBAPI
         */
         if    ($val = $mapped_record['measurementValue']) $value = $val;
         elseif($val = $rec['value'])                      $value = $val;
-        // $this->ancestry[$rec['species']][$rec['variable']] = $value;
         $this->main[$rec['species']]['ancestry'][$rec['variable']] = $value;
     }
     private function blank_if_NA($str)
