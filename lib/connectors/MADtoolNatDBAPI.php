@@ -210,7 +210,7 @@ class MADtoolNatDBAPI
         */
         $final = array();
         foreach($arr as $property => $rek1) {
-            echo "\nproperty = $property\n";
+            // echo "\nproperty = $property\n";
             // print_r($rek1);
             foreach($rek1 as $prop_value => $rek2) {
                 if($rek2['r']['md'] == $metadata_x && 
@@ -582,7 +582,7 @@ class MADtoolNatDBAPI
     {
         if($xml = Functions::lookup_with_cache("https://editors.eol.org/other_files/ontology/occurrence_extension.xml", $this->download_options)) {
             if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $arr)) {
-                // print_r($arr[1]);
+                print_r($arr[1]);
                 return $arr[1];
             }
         }
