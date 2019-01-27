@@ -188,17 +188,12 @@ class MADtoolNatDBAPI
         }
     }
     private function additional_occurrence_property($arr, $retx, $metadata_x, $dataset_x)
-    {
-        /* sample $arr value
-        $a['Gadus morhua']['occurrence'] = Array
-            (
-                "http://rs.tdwg.org/dwc/terms/fieldNotes" => Array
-                    (
-                        "field wild" => Array
-                            (
+    {   /* sample $arr value
+        $a['Gadus morhua']['occurrence'] = Array(
+                "http://rs.tdwg.org/dwc/terms/fieldNotes" => Array(
+                        "field wild" => Array(
                                 "growingcondition_fw_.falster.2015__" => 15,
-                                "r" => Array
-                                    (
+                                "r" => Array(
                                         "md" => "studyName:Whittaker1974;location:Hubbard Brook Experimental Forest;latitude:44;longitude:-72;species:Acer pensylvanicum;family:Aceraceae",
                                         "mr" => "FW",
                                         "mu" => "NA"
