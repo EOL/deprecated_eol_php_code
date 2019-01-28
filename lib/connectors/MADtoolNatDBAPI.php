@@ -132,8 +132,8 @@ class MADtoolNatDBAPI
                     $rek['measurementUnit'] = $mUnit;
                     $rek['measurementRemarks'] = $mRemarks;
                     $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
-                    $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];   //occurrence_property
-                    $rek['occurrenceRemarks'] = $metadata;                                          //occurrence_property
+                    $rek['occur']['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];   //occurrence_property
+                    $rek['occur']['occurrenceRemarks'] = $metadata;                                          //occurrence_property
                     
                     if($val = @$this->main[$species]['occurrence']) {
                         $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
