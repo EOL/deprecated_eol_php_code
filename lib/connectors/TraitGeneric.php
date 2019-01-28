@@ -49,48 +49,48 @@ class TraitGeneric
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
-        if($val = @$rec['occurrenceID']) $occurrence_id = $val;
-        else                             $occurrence_id = md5($taxon_id . '_' . $catnum);
+        if($val = @$rec['occur']['occurrenceID']) $occurrence_id = $val;
+        else                                      $occurrence_id = md5($taxon_id . '_' . $catnum);
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
 
         //below are non-standard assignments, used by partner source files
-        if($val = @$rec['dateCollected'])   $o->eventDate = $val;
+        if($val = @$rec['occur']['dateCollected'])   $o->eventDate = $val;
         
         //below are standard properties from https://editors.eol.org/other_files/ontology/occurrence_extension.xml
         /* normally I assign these two: see above
-        if($val = @$rec['occurrenceID'])    $o->occurrenceID = $val; 
-        if($val = @$rec['taxonID'])         $o->taxonID = $val;
+        if($val = @$rec['occur']['occurrenceID'])    $o->occurrenceID = $val; 
+        if($val = @$rec['occur']['taxonID'])         $o->taxonID = $val;
         */
-        if($val = @$rec['eventID'])             $o->eventID = $val;
-        if($val = @$rec['institutionCode'])     $o->institutionCode = $val;
-        if($val = @$rec['collectionCode'])      $o->collectionCode = $val;
-        if($val = @$rec['catalogNumber'])       $o->catalogNumber = $val;
-        if($val = @$rec['sex'])                 $o->sex = $val;
-        if($val = @$rec['lifeStage'])           $o->lifeStage = $val;
-        if($val = @$rec['reproductiveCondition']) $o->reproductiveCondition = $val;
-        if($val = @$rec['behavior'])            $o->behavior = $val;
-        if($val = @$rec['establishmentMeans'])  $o->establishmentMeans = $val;
-        if($val = @$rec['occurrenceRemarks'])   $o->occurrenceRemarks = $val;
-        if($val = @$rec['individualCount'])     $o->individualCount = $val;
-        if($val = @$rec['preparations'])        $o->preparations = $val;
-        if($val = @$rec['fieldNotes'])          $o->fieldNotes = $val;
-        if($val = @$rec['samplingProtocol'])    $o->samplingProtocol = $val;
-        if($val = @$rec['samplingEffort'])      $o->samplingEffort = $val;
-        if($val = @$rec['recordedBy'])          $o->recordedBy = $val;
-        if($val = @$rec['identifiedBy'])        $o->identifiedBy = $val;
-        if($val = @$rec['dateIdentified'])      $o->dateIdentified = $val;
-        if($val = @$rec['eventDate'])           $o->eventDate = $val;
-        if($val = @$rec['modified'])            $o->modified = $val;
-        if($val = @$rec['locality'])            $o->locality = $val;
-        if($val = @$rec['decimalLatitude'])     $o->decimalLatitude = $val;
-        if($val = @$rec['decimalLongitude'])    $o->decimalLongitude = $val;
-        if($val = @$rec['verbatimLatitude'])    $o->verbatimLatitude = $val;
-        if($val = @$rec['verbatimLongitude'])   $o->verbatimLongitude = $val;
-        if($val = @$rec['verbatimElevation'])   $o->verbatimElevation = $val;
+        if($val = @$rec['occur']['eventID'])             $o->eventID = $val;
+        if($val = @$rec['occur']['institutionCode'])     $o->institutionCode = $val;
+        if($val = @$rec['occur']['collectionCode'])      $o->collectionCode = $val;
+        if($val = @$rec['occur']['catalogNumber'])       $o->catalogNumber = $val;
+        if($val = @$rec['occur']['sex'])                 $o->sex = $val;
+        if($val = @$rec['occur']['lifeStage'])           $o->lifeStage = $val;
+        if($val = @$rec['occur']['reproductiveCondition']) $o->reproductiveCondition = $val;
+        if($val = @$rec['occur']['behavior'])            $o->behavior = $val;
+        if($val = @$rec['occur']['establishmentMeans'])  $o->establishmentMeans = $val;
+        if($val = @$rec['occur']['occurrenceRemarks'])   $o->occurrenceRemarks = $val;
+        if($val = @$rec['occur']['individualCount'])     $o->individualCount = $val;
+        if($val = @$rec['occur']['preparations'])        $o->preparations = $val;
+        if($val = @$rec['occur']['fieldNotes'])          $o->fieldNotes = $val;
+        if($val = @$rec['occur']['samplingProtocol'])    $o->samplingProtocol = $val;
+        if($val = @$rec['occur']['samplingEffort'])      $o->samplingEffort = $val;
+        if($val = @$rec['occur']['recordedBy'])          $o->recordedBy = $val;
+        if($val = @$rec['occur']['identifiedBy'])        $o->identifiedBy = $val;
+        if($val = @$rec['occur']['dateIdentified'])      $o->dateIdentified = $val;
+        if($val = @$rec['occur']['eventDate'])           $o->eventDate = $val;
+        if($val = @$rec['occur']['modified'])            $o->modified = $val;
+        if($val = @$rec['occur']['locality'])            $o->locality = $val;
+        if($val = @$rec['occur']['decimalLatitude'])     $o->decimalLatitude = $val;
+        if($val = @$rec['occur']['decimalLongitude'])    $o->decimalLongitude = $val;
+        if($val = @$rec['occur']['verbatimLatitude'])    $o->verbatimLatitude = $val;
+        if($val = @$rec['occur']['verbatimLongitude'])   $o->verbatimLongitude = $val;
+        if($val = @$rec['occur']['verbatimElevation'])   $o->verbatimElevation = $val;
         
-        if(@$rec['occurrenceID']) {}
+        if(@$rec['occur']['occurrenceID']) {}
         else $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
