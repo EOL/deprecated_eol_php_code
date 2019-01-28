@@ -51,7 +51,7 @@ class TraitGeneric
     {
         if($val = @$rec['occur']['occurrenceID']) $occurrence_id = $val;
         else                                      $occurrence_id = md5($taxon_id . '_' . $catnum);
-        $o = new \eol_schema\Occurrence();
+        $o = new \eol_schema\Occurrence_specific();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
 
