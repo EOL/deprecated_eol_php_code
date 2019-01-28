@@ -215,11 +215,13 @@ class MADtoolNatDBAPI
         if($final) {
             // print_r($final);
             foreach($final as $property => $value) {
+                /* per Jen: You can put arbitrary columns in the occurrences file now, not just a set list of "valid" fields. https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=63183&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63183
                 if(!in_array($property, $this->occurrence_properties)) continue;
-                if(!isset($retx[$property])) $retx[$property] = $value;
+                */
+                if(!isset($retx['occur'][$property])) $retx['occur'][$property] = $value;
                 else {
-                    if($retx[$property]) $retx[$property] .= ". Addtl: $value";
-                    else $retx[$property] = $value;
+                    if($retx['occur'][$property]) $retx['occur'][$property] .= ". Addtl: $value";
+                    else                          $retx['occur'][$property] = $value;
                 }
             }
             // print_r($retx);
