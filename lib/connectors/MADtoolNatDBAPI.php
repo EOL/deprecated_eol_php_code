@@ -16,6 +16,7 @@ class MADtoolNatDBAPI
         $this->download_options = array(
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+        // $this->download_options['expire_seconds'] = 0; //debug only
         $this->source_csv_path = DOC_ROOT."../other_files/natdb_harvest/";
         $this->spreadsheet_for_mapping = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MAD_tool_NatDB/MADmap.xlsx"; //from Jen (DATA-1754)
     }
@@ -161,7 +162,7 @@ class MADtoolNatDBAPI
                         $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                         $mType_var = 'http://eol.org/schema/terms/TrophicGuild';
                         $mValue_var = 'http://www.wikidata.org/entity/Q12806437';
-                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
+                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "true");
                     }
                     
                     if($val = $child_measurements) {
@@ -341,7 +342,9 @@ class MADtoolNatDBAPI
             // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
             // if($rec['species'] != 'Acer pensylvanicum') return; //debug only
             // if($rec['species'] != 'Acer saccharum') return; //debug only
-            
+            // if($rec['species'] != 'Acer campestre') return; //debug only - with seed_mass & wood_density
+            // if($rec['species'] != 'Abbreviata caucasica') return; //debug only - with Host.no
+
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
@@ -366,7 +369,8 @@ class MADtoolNatDBAPI
                 if($mUnit == "NA") $mUnit = '';
                 $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
                 if($mValue == $mRemarks) $mRemarks = "";
-
+                $mRemarks = self::mRemarks_map($mRemarks, $rec['dataset'], $mType);
+                
                 @$this->main[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
                 @$this->main[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks, 'mu' => $mUnit, 
                                                                                           'ds' => $rec['dataset'], 'ty' => substr($csv['type'],0,1));
@@ -459,6 +463,35 @@ class MADtoolNatDBAPI
             )
             */
         }
+    }
+    private function mRemarks_map($str, $dataset, $mType)
+    {   /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=63188&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63188
+        Interesting! You found a second use of some two letter codes that I'd only seen as primary measurementValue. Another fiddly one, then:
+        where dataset =.falster.2015
+        in measurementRemarks, please map these four values as follows:
+        DA -> http://purl.obolibrary.org/obo/PATO_0001731
+        DG -> http://purl.obolibrary.org/obo/PATO_0001731
+        EA -> http://purl.obolibrary.org/obo/PATO_0001733
+        EG -> http://purl.obolibrary.org/obo/PATO_0001733
+        */
+        if($dataset == ".falster.2015") {
+            if(in_array($str, array('DA', 'DG'))) $final = 'http://purl.obolibrary.org/obo/PATO_0001731';
+            if(in_array($str, array('EA', 'EG'))) $final = 'http://purl.obolibrary.org/obo/PATO_0001733';
+        }
+        $final = $str;
+        /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=63189&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63189
+        Some measurementRemarks to remove. Keeping original values in this field if available is nearly always helpful, but not in these cases:
+        where measurementType is one of these
+        http://purl.obolibrary.org/obo/GO_0000003
+        http://purl.obolibrary.org/obo/GO_0007530
+        http://purl.obolibrary.org/obo/IDOMAL_0002084
+        and (measurementRemarks= yes OR measurementRemarks= no)
+        please take the string out, leaving measurementRemarks blank. No need to map to anything new
+        */
+        if(in_array($mType, array("http://purl.obolibrary.org/obo/GO_0000003", "http://purl.obolibrary.org/obo/GO_0007530", "http://purl.obolibrary.org/obo/IDOMAL_0002084"))) {
+            if(in_array($str, array("yes", "no"))) $final = "";
+        }
+        return $final;
     }
     private function assign_child_measurement($rec, $mapped_record)
     {
