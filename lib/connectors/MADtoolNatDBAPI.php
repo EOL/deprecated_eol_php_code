@@ -159,7 +159,7 @@ class MADtoolNatDBAPI
                         $rek = array();
                         $rek["taxon_id"] = $taxon_id;
                         $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
-                        $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
+                        $rek['occur']['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                         $mType_var = 'http://eol.org/schema/terms/TrophicGuild';
                         $mValue_var = 'http://www.wikidata.org/entity/Q12806437';
                         $this->func->add_string_types($rek, $mValue_var, $mType_var, "true");
@@ -183,7 +183,7 @@ class MADtoolNatDBAPI
                                 $rek = array();
                                 $rek["taxon_id"] = $taxon_id;
                                 $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
-                                $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
+                                $rek['occur']['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                                 $mType_var = $m['mType'];
                                 $mValue_var = $m['mValue'];
                                 if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
@@ -340,11 +340,12 @@ class MADtoolNatDBAPI
             }
             */
             // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
-            // if($rec['species'] != 'Acer pensylvanicum') return; //debug only
+            if($rec['species'] != 'Acer pensylvanicum') return; //debug only
             // if($rec['species'] != 'Acer saccharum') return; //debug only
             // if($rec['species'] != 'Acer campestre') return; //debug only - with seed_mass & wood_density
             // if($rec['species'] != 'Abbreviata caucasica') return; //debug only - with Host.no
-
+            // if($rec['species'] != 'Anguilla anguilla') return; //debug only
+            
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
             "abies_sachalinensis" -- with occurrence
@@ -366,7 +367,7 @@ class MADtoolNatDBAPI
                 // $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
                 $mValue   = ($mapped_record['measurementValue'] != "")                             ? $mapped_record['measurementValue']                             : $rec['value'];
                 $mUnit    = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] : $rec['units'];
-                if($mUnit == "NA") $mUnit = '';
+                if(in_array($mUnit, array('NA', '#'))) $mUnit = '';
                 $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
                 if($mValue == $mRemarks) $mRemarks = "";
                 $mRemarks = self::mRemarks_map($mRemarks, $rec['dataset'], $mType);
@@ -475,10 +476,18 @@ class MADtoolNatDBAPI
         EG -> http://purl.obolibrary.org/obo/PATO_0001733
         */
         if($dataset == ".falster.2015") {
-            if(in_array($str, array('DA', 'DG'))) $final = 'http://purl.obolibrary.org/obo/PATO_0001731';
-            if(in_array($str, array('EA', 'EG'))) $final = 'http://purl.obolibrary.org/obo/PATO_0001733';
+            if    (in_array($str, array('DA', 'DG'))) $final = 'http://purl.obolibrary.org/obo/PATO_0001731';
+            elseif(in_array($str, array('EA', 'EG'))) $final = 'http://purl.obolibrary.org/obo/PATO_0001733';
+            else $final = $str;
         }
-        $final = $str;
+        else $final = $str;
+        /* debug only
+        if($final == "DA") {
+            echo "\nstr: [$str]\n";
+            echo "\ndataset: [$dataset]\n";
+            echo "\nmType: [$mType]\n";
+        }
+        */
         /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=63189&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63189
         Some measurementRemarks to remove. Keeping original values in this field if available is nearly always helpful, but not in these cases:
         where measurementType is one of these
@@ -489,7 +498,7 @@ class MADtoolNatDBAPI
         please take the string out, leaving measurementRemarks blank. No need to map to anything new
         */
         if(in_array($mType, array("http://purl.obolibrary.org/obo/GO_0000003", "http://purl.obolibrary.org/obo/GO_0007530", "http://purl.obolibrary.org/obo/IDOMAL_0002084"))) {
-            if(in_array($str, array("yes", "no"))) $final = "";
+            if(in_array($final, array("yes", "no"))) $final = "";
         }
         return $final;
     }
