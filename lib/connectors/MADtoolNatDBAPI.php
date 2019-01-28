@@ -181,12 +181,9 @@ class MADtoolNatDBAPI
                             }
                         }
                     }
-                    
-
 
                 }
             }
-            
             
         }
     }
@@ -363,7 +360,6 @@ class MADtoolNatDBAPI
                 @$this->main[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
                 @$this->main[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks, 'mu' => $mUnit, 
                                                                                           'ds' => $rec['dataset'], 'ty' => substr($csv['type'],0,1));
-
                 // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
                 // */
                 return;
