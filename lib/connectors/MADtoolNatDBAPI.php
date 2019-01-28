@@ -188,7 +188,7 @@ class MADtoolNatDBAPI
                                 $mValue_var = $m['mValue'];
                                 if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
                                 if($val = $m['info']['mr']) $rek['measurementRemarks'] = $val;
-                                $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
+                                $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
                             }
                         }
                     }
