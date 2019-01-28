@@ -132,8 +132,11 @@ class MADtoolNatDBAPI
                     $rek['measurementUnit'] = $mUnit;
                     $rek['measurementRemarks'] = $mRemarks;
                     $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
-                    $rek['occur']['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];   //occurrence_property
-                    $rek['occur']['occurrenceRemarks'] = $metadata;                                          //occurrence_property
+                    $rek['occur']['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //occurrence_property
+                    $rek['occur']['occurrenceRemarks'] = $metadata;                                         //occurrence_property
+                    if($samplesize > 1) { //you can now add arbitrary cols in occurrence
+                        $rek['occur']['SampleSize'] = $samplesize;              //occurrence_property - http://eol.org/schema/terms/SampleSize
+                    }
                     
                     if($val = @$this->main[$species]['occurrence']) {
                         $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
@@ -144,12 +147,13 @@ class MADtoolNatDBAPI
                     $rek["taxon_id"] = $taxon_id;
                     $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
                     $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
+                    /* now moved to occurrence
                     if($samplesize > 1) {
                         $mType_var = 'http://eol.org/schema/terms/SampleSize';
                         $mValue_var = $samplesize;
                         $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
                     }
-                    
+                    */
                     if($mapped_record['dataset'] == ".benesh.2017") {
                         $mType_var = 'http://eol.org/schema/terms/TrophicGuild';
                         $mValue_var = 'http://www.wikidata.org/entity/Q12806437';
@@ -352,6 +356,7 @@ class MADtoolNatDBAPI
                 // $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
                 $mValue   = ($mapped_record['measurementValue'] != "")                             ? $mapped_record['measurementValue']                             : $rec['value'];
                 $mUnit    = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] : $rec['units'];
+                if($mUnit == "NA") $mUnit = '';
                 $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
                 if($mValue == $mRemarks) $mRemarks = "";
 
@@ -478,7 +483,7 @@ class MADtoolNatDBAPI
         $mType  = $mapped_record['measurementType'];
         $mValue = ($mapped_record['measurementValue'] != "")                             ? $mapped_record['measurementValue']                             : $rec['value'];
         $mUnit  = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] : $rec['units'];
-        
+        if($mUnit == "NA") $mUnit = '';
         $this->childm[$rec['species']][$mType][$mValue][$mUnit] = array('metadata' => $rec['metadata'], 'dataset' => $rec['dataset']);
     }
     private function assign_ancestry($rec, $mapped_record)
