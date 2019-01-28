@@ -32,8 +32,7 @@ class MADtoolNatDBAPI
     }
     function start()
     {
-        $this->occurrence_properties = self::get_occurrence_properties();
-        
+        /* $this->occurrence_properties = self::get_occurrence_properties(); --- You can now put arbitrary columns in the occurrences file */
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::initialize_mapping();
