@@ -340,11 +340,14 @@ class MADtoolNatDBAPI
             }
             */
             // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
-            if($rec['species'] != 'Acer pensylvanicum') return; //debug only
+            // if($rec['species'] != 'Acer pensylvanicum') return; //debug only
             // if($rec['species'] != 'Acer saccharum') return; //debug only
             // if($rec['species'] != 'Acer campestre') return; //debug only - with seed_mass & wood_density
             // if($rec['species'] != 'Abbreviata caucasica') return; //debug only - with Host.no
             // if($rec['species'] != 'Anguilla anguilla') return; //debug only
+            
+            // if(in_array($rec['species'], array('Acer pensylvanicum', 'Acer saccharum', 'Acer campestre', 'Abbreviata caucasica', 'Anguilla anguilla'))) {}
+            // else return;
             
             /*
             "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
