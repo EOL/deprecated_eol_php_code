@@ -90,6 +90,12 @@ class TraitGeneric
         if($val = @$rec['occur']['verbatimLongitude'])   $o->verbatimLongitude = $val;
         if($val = @$rec['occur']['verbatimElevation'])   $o->verbatimElevation = $val;
         
+        //start adding arbitrary fields in occurrence file --------------------------------------------
+        if($val = @$rec['occur']['SampleSize'])     $o->SampleSize = $val;
+        if($val = @$rec['occur']['PATO_0000146'])   $o->PATO_0000146 = $val;
+        if($val = @$rec['occur']['EO_0007196'])     $o->EO_0007196 = $val;
+        //end adding -----------------------------------------------------------------------------------
+        
         if(@$rec['occur']['occurrenceID']) {}
         else $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
