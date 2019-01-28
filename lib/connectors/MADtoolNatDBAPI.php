@@ -143,11 +143,11 @@ class MADtoolNatDBAPI
                     }
                     $occurrenceID = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
 
+                    /* now moved to occurrence
                     $rek = array();
                     $rek["taxon_id"] = $taxon_id;
                     $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
                     $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
-                    /* now moved to occurrence
                     if($samplesize > 1) {
                         $mType_var = 'http://eol.org/schema/terms/SampleSize';
                         $mValue_var = $samplesize;
@@ -155,6 +155,10 @@ class MADtoolNatDBAPI
                     }
                     */
                     if($mapped_record['dataset'] == ".benesh.2017") {
+                        $rek = array();
+                        $rek["taxon_id"] = $taxon_id;
+                        $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
+                        $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                         $mType_var = 'http://eol.org/schema/terms/TrophicGuild';
                         $mValue_var = 'http://www.wikidata.org/entity/Q12806437';
                         $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
@@ -175,8 +179,14 @@ class MADtoolNatDBAPI
                                     )
                             */
                             if($metadata == $m['info']['md'] && $dataset == $m['info']['ds']) {
+                                $rek = array();
+                                $rek["taxon_id"] = $taxon_id;
+                                $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
+                                $rek['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                                 $mType_var = $m['mType'];
                                 $mValue_var = $m['mValue'];
+                                if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
+                                if($val = $m['info']['mr']) $rek['measurementRemarks'] = $val;
                                 $this->func->add_string_types($rek, $mValue_var, $mType_var, "false");
                             }
                         }
