@@ -2,7 +2,10 @@
 namespace php_active_record;
 /* DATA-1792 
                                         {"measurement_or_fact.tab":5574,                         "occurrence.tab":1225,                  "taxon.tab":657}
-atdb	Thursday 2019-01-17 03:00:02 AM	{"measurement_or_fact.tab":5574,"media_resource.tab":659,"occurrence.tab":1225,"reference.tab":1,"taxon.tab":660,"vernacular_name.tab":995}
+atdb	Thursday 2019-01-17 03:00:02 AM	{"measurement_or_fact.tab":5574,         "media_resource.tab":659,"occurrence.tab"         :1225,"reference.tab":1,"taxon.tab":660,"vernacular_name.tab":995}
+atdb	Tuesday 2019-01-29 08:46:57 AM	{"measurement_or_fact_specific.tab":5574,"media_resource.tab":659,"occurrence_specific.tab":1225,"reference.tab":1,"taxon.tab":661,"vernacular_name.tab":995} MacMini
+atdb	Tuesday 2019-01-29 09:23:59 AM	{"measurement_or_fact_specific.tab":5574,"media_resource.tab":659,"occurrence_specific.tab":1225,"reference.tab":1,"taxon.tab":661,"vernacular_name.tab":995} Archive
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
