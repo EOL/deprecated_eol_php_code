@@ -4,6 +4,7 @@ namespace php_active_record;
 natdb	Thursday 2019-01-24 10:37:40 AM	{"measurement_or_fact.tab"         :165791,"occurrence.tab"         :92783,"taxon.tab":2778}
 natdb	Monday 2019-01-28 10:56:44 AM	{"measurement_or_fact.tab"         :150997,"occurrence_specific.tab":92783,"taxon.tab":2778}
 natdb	Tuesday 2019-01-29 05:00:27 AM	{"measurement_or_fact_specific.tab":127187,"occurrence_specific.tab":94701,"taxon.tab":2778}
+natdb	Tuesday 2019-01-29 08:09:05 AM	{"measurement_or_fact_specific.tab":127187,"occurrence_specific.tab":94701,"reference.tab":8,"taxon.tab":2778}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
