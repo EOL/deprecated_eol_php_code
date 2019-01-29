@@ -142,7 +142,9 @@ class MADtoolNatDBAPI
                     if($val = @$this->main[$species]['occurrence']) {
                         $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
                     }
-                    $occurrenceID = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+                    $ret_MoT_true = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+                    $occurrenceID = $ret_MoT_true['occurrenceID'];
+                    $measurementID = $ret_MoT_true['measurementID'];
 
                     /* now moved to occurrence
                     $rek = array();
@@ -183,7 +185,8 @@ class MADtoolNatDBAPI
                                 $rek = array();
                                 $rek["taxon_id"] = $taxon_id;
                                 $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
-                                $rek['occur']['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
+                                $rek['occur']['occurrenceID'] = ''; //child measurements don't have occurrenceID
+                                $rek['parentMeasurementID'] = $measurementID;
                                 $mType_var = $m['mType'];
                                 $mValue_var = $m['mValue'];
                                 if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;

@@ -15,7 +15,14 @@ class TraitGeneric
     {
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
-        $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+
+        if($measurementOfTaxon == "child") { //per Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=63196&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63196
+            /* child records: they will have no occurrence ID, MoT can be blank or false */
+            $occurrence_id = "";
+            $measurementOfTaxon = "";
+        }
+        else $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
+
         $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
@@ -25,13 +32,13 @@ class TraitGeneric
         if($val = @$rec['measurementMethod'])       $m->measurementMethod = $val;
         if($val = @$rec['statisticalMethod'])       $m->statisticalMethod = $val;
         if($val = @$rec['measurementRemarks'])      $m->measurementRemarks = $val;
+        if($val = @$rec['parentMeasurementID'])     $m->parentMeasurementID = $val;
 
         if($measurementOfTaxon == "true") {
             if($val = @$rec['measurementDeterminedDate']) $m->measurementDeterminedDate = $val;
             if($val = @$rec['measurementDeterminedBy']) $m->measurementDeterminedBy = $val;
             if($val = @$rec['source'])                  $m->source = $val;
             if($val = @$rec['associationID'])           $m->associationID = $val;
-            if($val = @$rec['parentMeasurementID'])     $m->parentMeasurementID = $val;
             if($val = @$rec['measurementAccuracy'])     $m->measurementAccuracy = $val;
             if($val = @$rec['bibliographicCitation'])   $m->bibliographicCitation = $val;
             if($val = @$rec['contributor'])             $m->contributor = $val;
@@ -45,7 +52,7 @@ class TraitGeneric
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->measurementID] = '';
         }
-        return $occurrence_id;
+        return array('occurrenceID' => $occurrence_id, 'measurementID' => $m->measurementID);
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
