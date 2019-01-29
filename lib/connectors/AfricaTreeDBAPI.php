@@ -22,6 +22,8 @@ class AfricaTreeDBAPI
         /* 'Use' mapping from Jen: https://opendata.eol.org/dataset/africa-tree-database/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf */
         $this->use_mapping_from_jen = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fadcd/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf/download/use-mapping.csv";
         $this->addtl_mapping_from_jen = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AfricaTreeDB/AfricaTreeLocalities.txt"; //based from Eli's un-mapped string report.
+        $this->partner_bibliographicCitation = "Carrie Seltzer, William Wysocki, Melissa Palacios, Anna Eickhoff, Hannah Pilla, Jordan Aungst, Aaron Mercer, Jamie Quicho, Neil Voss, Man Xu, Henry J. Ndangalasi, Jon C. Lovett, Norbert J. Cordeiro. Posted October 21, 2015. The Africa Tree Database. Accessed at https://figshare.com/articles/SQL_of_Africa_Tree_Database/1526125, January 16, 2019.";
+        $this->partner_source_url = "https://figshare.com/articles/SQL_of_Africa_Tree_Database/1526125";
     }
     private function addtl_mappings()
     {
@@ -317,8 +319,13 @@ class AfricaTreeDBAPI
         $mr->UsageTerms     = $rec['blank_1'];
         $mr->description    = $rec['description'];
         // $mr->LocationCreated = '';
-        // $mr->bibliographicCitation = '';
+        $mr->bibliographicCitation = $this->partner_bibliographicCitation;
+        $mr->furtherInformationURL = $this->partner_source_url;
         $mr->referenceID = $rec['REF|Reference|ref'];
+        if(!@$rec['REF|Reference|ref']) {
+            print_r($rec);
+            exit("\nNo reference!\n");
+        }
         // if($agent_ids = )  $mr->agentID = implode("; ", $agent_ids);
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
@@ -372,6 +379,9 @@ class AfricaTreeDBAPI
                 if($string_uri = self::get_string_uri($string_val)) {
                     $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
                     $rec['measurementRemarks'] = $string_val;
+                    $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
+                    $rec['source'] = $this->partner_source_url;
+                    $rec['referenceID'] = 1;
                     $this->func->add_string_types($rec, $string_uri, $mtype, "true");
                 }
                 elseif($val = @$this->addtl_mappings[strtoupper(str_replace('"', "", $string_val))]) {
@@ -408,6 +418,9 @@ class AfricaTreeDBAPI
             [0] => http://www.geonames.org/7729886
         )*/
         foreach($tmp as $string_uri) {
+            $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
+            $rec['source'] = $this->partner_source_url;
+            $rec['referenceID'] = 1;
             $this->func->add_string_types($rec, $string_uri, $rek['measurementType'], "true");
         }
     }
