@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* DATA-1754 */
+/* DATA-1754 
+natdb	Thursday 2019-01-24 10:37:40 AM	{"measurement_or_fact.tab":165791,"occurrence.tab":92783,"taxon.tab":2778}
+natdb	Monday 2019-01-28 10:56:44 AM	{"measurement_or_fact.tab":150997,"occurrence_specific.tab":92783,"taxon.tab":2778}
+*/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
 $timestart = time_elapsed();
