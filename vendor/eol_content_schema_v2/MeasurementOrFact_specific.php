@@ -8,8 +8,9 @@ namespace eol_schema;
 */
 class MeasurementOrFact_specific extends DarwinCoreExtensionBase
 {
-    const EXTENSION_URL = "http://editors.eol.org/other_files/ontology/measurement_extension_specific.xml";
-    // const EXTENSION_URL = "http://localhost/cp/TRY/measurement_extension_specific.xml";
+    const EXTENSION_URL = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/ontology/measurement_extension_specific.xml";
+    // const EXTENSION_URL = "http://editors.eol.org/other_files/ontology/measurement_extension_specific.xml"; - obsolete
+    // const EXTENSION_URL = "http://localhost/cp/TRY/measurement_extension_specific.xml"; - obsolete
     
     const ROW_TYPE = "http://rs.tdwg.org/dwc/terms/MeasurementOrFact";
     const PRIMARY_KEY = "http://rs.tdwg.org/dwc/terms/measurementID";

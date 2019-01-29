@@ -3,8 +3,9 @@ namespace eol_schema;
 
 class Association_specific extends DarwinCoreExtensionBase
 {
-    const EXTENSION_URL = "https://editors.eol.org/other_files/ontology/association_extension_specific.xml";
-    // const EXTENSION_URL = "http://localhost/cp/TRY/association_extension_specific.xml";
+    const EXTENSION_URL = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/ontology/association_extension_specific.xml";
+    // const EXTENSION_URL = "https://editors.eol.org/other_files/ontology/association_extension_specific.xml"; - obsolete
+    // const EXTENSION_URL = "http://localhost/cp/TRY/association_extension_specific.xml"; - obsolete
     const ROW_TYPE = "http://eol.org/schema/Association";
     const PRIMARY_KEY = "http://eol.org/schema/associationID";
     const GRAPH_NAME = "associations";
