@@ -23,7 +23,7 @@ class TraitGeneric
         }
         else $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
 
-        $m = new \eol_schema\MeasurementOrFact();
+        $m = new \eol_schema\MeasurementOrFact_specific();
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         $m->measurementType    = $measurementType;
