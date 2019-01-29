@@ -81,6 +81,7 @@ class MADtoolNatDBAPI
         // print_r($this->main);
         // print_r($this->numeric_fields);
         // exit("\n-end for now-\n");
+        Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function main_write_archive()
     {
@@ -657,7 +658,7 @@ class MADtoolNatDBAPI
     }
     private function generate_reference($dataset)
     {
-        if($ref = $this->refs[$dataset]) {
+        if($ref = @$this->refs[$dataset]) {
             /* [.aubret.2015] => Array(
                     *[URL to paper] => http://www.nature.com/hdy/journal/v115/n4/full/hdy201465a.html
                     *[DOI] => 10.1038/hdy.2014.65
@@ -692,6 +693,7 @@ class MADtoolNatDBAPI
                 return $ref_id;
             }
         }
+        else $this->debug['no citations yet'][$dataset] = '';
     }
     private function initialize_citations_file()
     {
