@@ -33,6 +33,7 @@ class MADtoolNatDBAPI
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
         // print_r($this->uris);
         */
+        self::initialize_citations_file();
         self::initialize_spreadsheet_mapping();
         // print_r($this->valid_set['map__.falster.2015_mm_']); exit("\n222\n");
     }
@@ -151,6 +152,7 @@ class MADtoolNatDBAPI
                     if($val = @$this->main[$species]['occurrence']) {
                         $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
                     }
+                    $rek['referenceID'] = self::generate_reference($dataset);
                     $ret_MoT_true = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
                     $occurrenceID = $ret_MoT_true['occurrenceID'];
                     $measurementID = $ret_MoT_true['measurementID'];
@@ -173,6 +175,7 @@ class MADtoolNatDBAPI
                         $rek["taxon_id"] = $taxon_id;
                         $rek["catnum"] = $csv_type."_".$mValue_var;
                         $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //measurement_property, yes this is arbitrary field in MoF
+                        $rek['referenceID'] = self::generate_reference($mapped_record['dataset']);
                         $this->func->add_string_types($rek, $mValue_var, $mType_var, "true");
                     }
                     
@@ -200,6 +203,7 @@ class MADtoolNatDBAPI
                                 $mValue_var = $m['mValue'];
                                 if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
                                 if($val = $m['info']['mr']) $rek['measurementRemarks'] = $val;
+                                $rek['referenceID'] = self::generate_reference($dataset);
                                 $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
                             }
                         }
@@ -650,6 +654,92 @@ class MADtoolNatDBAPI
                 return $arr[1];
             }
         }
+    }
+    private function generate_reference($dataset)
+    {
+        if($ref = $this->refs[$dataset]) {
+            /* [.aubret.2015] => Array(
+                    *[URL to paper] => http://www.nature.com/hdy/journal/v115/n4/full/hdy201465a.html
+                    *[DOI] => 10.1038/hdy.2014.65
+                    [Journal] => Heredity
+                    *[Publisher] => Springer Nature
+                    *[Title] => Island colonisation and the evolutionary rates of body size in insular neonate snakes
+                    *[Author] => Aubret
+                    [Year] => 2015
+                    *[author_year] => .aubret.2015
+                    [BibTeX citation] => @article{aubret2015,title={Island colonisation and the evolutionary rates of body size in insular neonate snakes},author={Aubret, F},journal={Heredity},volume={115},number={4},pages={349--356},year={2015},publisher={Nature Publishing Group}}
+                    [Taxonomy ] => Animalia/Serpentes
+                    [Person] => Katie
+                    [WhoWroteFunction] => 
+                    [Everything Completed?] => 
+                    [] => 
+                    *[full_ref] => Aubret. (2015). Island colonisation and the evolutionary rates of body size in insular neonate snakes. Heredity. Springer Nature.
+                )
+            */
+            if($ref_id = @$ref['author_year']) {
+                $r = new \eol_schema\Reference();
+                $r->identifier = $ref_id;
+                $r->full_reference = $ref['full_ref'];
+                $r->uri = $ref['URL to paper'];
+                $r->doi = $ref['DOI'];
+                $r->publisher = $ref['Publisher'];
+                $r->title = $ref['Title'];
+                $r->authorList = $ref['Author'];
+                if(!isset($this->reference_ids[$ref_id])) {
+                    $this->reference_ids[$ref_id] = '';
+                    $this->archive_builder->write_object_to_file($r);
+                }
+                return $ref_id;
+            }
+        }
+    }
+    private function initialize_citations_file()
+    {
+        $tmp_file = $this->source_csv_path."/citations.tsv";
+        $i = 0;
+        if(!file_exists($tmp_file)) {
+            exit("\nFile does not exist: [$tmp_file]\n");
+        }
+        foreach(new FileIterator($tmp_file) as $line => $row) {
+            $row = Functions::conv_to_utf8($row);
+            $i++; 
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                if(!$row) continue;
+                $tmp = explode("\t", $row);
+                $rec = array(); $k = 0;
+                foreach($fields as $field) {
+                    $rec[$field] = $tmp[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                /*Array(
+                    [URL to paper] => http://onlinelibrary.wiley.com/doi/10.1111/nph.13935/abstract
+                    [DOI] => 10.1111/nph.13935
+                    [Journal] => New Phytologist
+                    [Publisher] => Wiley
+                    [Title] => Plasticity in plant functional traits is shaped by variability in neighbourhood species composition
+                    [Author] => Abakumova
+                    [Year] => 2016
+                    [author_year] => .abakumova.2016
+                    [BibTeX citation] => @article {NPH:NPH13935,author = {Abakumova, Maria and Zobel, Kristjan and Lepik, Anu and Semchenko, Marina},title = {Plasticity in plant functional traits is shaped by variability in neighbourhood species composition},journal = {New Phytologist},volume = {211},number = {2},issn = {1469-8137},url = {http://dx.doi.org/10.1111/nph.13935},doi = {10.1111/nph.13935},pages = {455--463},keywords = {biotic environment, competition, functional traits, local adaptation, neighbour recognition, phenotypic plasticity, selection, spatial patterns},year = {2016},note = {2015-20353},}
+                    [Taxonomy ] => Plantae
+                    [Person] => Anne
+                    [WhoWroteFunction] => 
+                    [Everything Completed?] => 
+                    [] => 
+                )
+                Last, F. M. (Year, Month Date Published). Article title. Retrieved from URL
+                Last, F. M. (Year Published) Book. City, State: Publisher.
+                */
+                $full_ref = "$rec[Author]. ($rec[Year]). $rec[Title]. $rec[Journal]. $rec[Publisher].";
+                $full_ref = trim(Functions::remove_whitespace($full_ref));
+                $rec['full_ref'] = $full_ref;
+                $this->refs[$rec['author_year']] = $rec;
+            }
+        }
+        // print_r($this->refs); exit;
     }
     /* ######################################################################################################################################### */
     /* ######################################################################################################################################### */
