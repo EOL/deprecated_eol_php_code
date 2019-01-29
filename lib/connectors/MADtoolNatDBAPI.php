@@ -14,9 +14,9 @@ class MADtoolNatDBAPI
         $this->debug = array();
         $this->for_mapping = array();
         $this->download_options = array(
-            'expire_seconds'     => 60*60*24*30, //expires in 1 month
+            'expire_seconds'     => 60*60*24, //expires in 1 day
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
-        $this->download_options['expire_seconds'] = 0; //debug only
+        // $this->download_options['expire_seconds'] = 0; //debug only
         $this->source_csv_path = DOC_ROOT."../other_files/natdb_harvest/";
         $this->spreadsheet_for_mapping = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MAD_tool_NatDB/MADmap.xlsx"; //from Jen (DATA-1754)
         /* Reminder 'unit' to use in spreadsheet. Will need to edit Jen's spreadsheet version in Jira, if u want to download it again.
