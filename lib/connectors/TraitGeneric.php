@@ -45,6 +45,10 @@ class TraitGeneric
             if($val = @$rec['referenceID'])             $m->referenceID = $val;
         }
         
+        // start arbitrary fields here ---------------------------
+        if($val = @$rec['lifeStage']) $m->lifeStage = $val;
+        // end ---------------------------------------------------
+        
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
         

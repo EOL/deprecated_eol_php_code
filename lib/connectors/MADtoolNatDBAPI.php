@@ -133,8 +133,12 @@ class MADtoolNatDBAPI
                     $rek['measurementUnit'] = $mUnit;
                     $rek['measurementRemarks'] = $mRemarks;
                     $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
-                    $rek['occur']['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //occurrence_property
-                    $rek['occur']['occurrenceRemarks'] = $metadata;                                         //occurrence_property
+                    
+                    if(in_array($mType, array("http://www.wikidata.org/entity/Q1053008", "http://eol.org/schema/terms/TrophicGuild"))) {
+                        $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //measurement_property, yes this is arbitrary field in MoF
+                    }
+                    else $rek['occur']['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //occurrence_property
+                    $rek['occur']['occurrenceRemarks'] = $metadata;                                              //occurrence_property
                     if($samplesize > 1) { //you can now add arbitrary cols in occurrence
                         $rek['occur']['SampleSize'] = $samplesize;              //occurrence_property - http://eol.org/schema/terms/SampleSize
                     }
@@ -158,12 +162,12 @@ class MADtoolNatDBAPI
                     }
                     */
                     if($mapped_record['dataset'] == ".benesh.2017") {
-                        $rek = array();
-                        $rek["taxon_id"] = $taxon_id;
-                        $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
-                        $rek['occur']['occurrenceID'] = $occurrenceID; //this will be the occurrenceID for all mOfTaxon that is equal to 'false'. That is required.
                         $mType_var = 'http://eol.org/schema/terms/TrophicGuild';
                         $mValue_var = 'http://www.wikidata.org/entity/Q12806437';
+                        $rek = array();
+                        $rek["taxon_id"] = $taxon_id;
+                        $rek["catnum"] = $csv_type."_".$mValue_var;
+                        $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //measurement_property, yes this is arbitrary field in MoF
                         $this->func->add_string_types($rek, $mValue_var, $mType_var, "true");
                     }
                     
