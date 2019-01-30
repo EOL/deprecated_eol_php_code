@@ -745,27 +745,6 @@ class MADtoolNatDBAPI
         }
         // print_r($this->refs); exit;
     }
-    /* ######################################################################################################################################### */
-    /* ######################################################################################################################################### */
-    /* ######################################################################################################################################### */
-    private function get_string_uri($string)
-    {
-        switch ($string) { //put here customized mapping
-            case "NR":                return false; //"DO NOT USE";
-            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
-        }
-        if($string_uri = @$this->uris[$string]) return $string_uri;
-    }
-    private function separate_strings($str, $ret, $group)
-    {
-        $arr = explode(";", $str);
-        $arr = array_map('trim', $arr);
-        foreach($arr as $item) {
-            if(!isset($this->uris[$item])) $ret[$group][$item] = '';
-                                        // $ret[$group][$item] = '';
-        }
-        return $ret;
-    }
     private function fill_up_blank_fieldnames($fields)
     {
         $i = 0;
@@ -777,6 +756,17 @@ class MADtoolNatDBAPI
             } 
         }
         return array_keys($final);
+    }
+    /* ######################################################################################################################################### */
+    /* ######################################################################################################################################### */
+    /* ######################################################################################################################################### */
+    private function get_string_uri($string)
+    {
+        switch ($string) { //put here customized mapping
+            case "NR":                return false; //"DO NOT USE";
+            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
+        }
+        if($string_uri = @$this->uris[$string]) return $string_uri;
     }
 }
 ?>
