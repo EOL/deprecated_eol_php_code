@@ -48,7 +48,8 @@ class CoralTraitsAPI
     {
         self::load_zip_contents();
         
-        self::process_csv('data');
+        // self::process_csv('data');
+        self::process_csv('resources');
         
         //remove temp folder and file
         recursive_rmdir($this->TEMP_FILE_PATH); // remove temp dir
