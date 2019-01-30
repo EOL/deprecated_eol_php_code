@@ -5,6 +5,8 @@ natdb	Thursday 2019-01-24 10:37:40 AM	{"measurement_or_fact.tab"         :165791
 natdb	Monday 2019-01-28 10:56:44 AM	{"measurement_or_fact.tab"         :150997,"occurrence_specific.tab":92783,"taxon.tab":2778}
 natdb	Tuesday 2019-01-29 05:00:27 AM	{"measurement_or_fact_specific.tab":127187,"occurrence_specific.tab":94701,"taxon.tab":2778}
 natdb	Tuesday 2019-01-29 08:09:05 AM	{"measurement_or_fact_specific.tab":127187,"occurrence_specific.tab":94701,"reference.tab":8,"taxon.tab":2778}
+natdb	Tuesday 2019-01-29 05:57:54 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - PATO_0000146 now as 'child measurement'. Before it was as 'occurrence'
+natdb	Tuesday 2019-01-29 06:41:50 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - MacMini
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
