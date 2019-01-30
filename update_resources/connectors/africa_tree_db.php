@@ -12,6 +12,11 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AfricaTreeDBAPI');
 $timestart = time_elapsed();
 
+/* just a test
+$arr = Functions::get_eol_defined_uris();
+print_r($arr); exit("\n-end-\n");
+*/
+
 $dwca_file = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fadcd/resource/c39822fe-79a1-4fd9-929f-0ca6e495f3b4/download/archive.zip";
 $resource_id = "atdb"; //africa tree db
 $func = new AfricaTreeDBAPI($resource_id, $dwca_file);
