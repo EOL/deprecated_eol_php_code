@@ -453,10 +453,10 @@ class Functions
             $arr = Functions::count_resource_tab_files($resource_id);
             self::finalize_connector_run($resource_id, json_encode($arr));
             if(!$big_file) {
-                /* temporarily commented until the trait terms service is back.
+                // /* temporarily commented until the trait terms service is back.
                 if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
                 echo "\nUndefined URIs: " . count($undefined_uris) . "\n";
-                */
+                // */
                 require_library('connectors/DWCADiagnoseAPI');
                 $func = new DWCADiagnoseAPI();
                 $func->check_unique_ids($resource_id);
@@ -492,8 +492,12 @@ class Functions
     }
     public static function get_eol_defined_uris($download_options = false, $directionOpposite = false)
     {
-        // /* Use this temporarily until EOL V3 hosts known_uris
+        /* Use this temporarily until EOL V3 hosts known_uris
         $ret = self::get_eol_defined_uris_v1($download_options, $directionOpposite);
+        return $ret;
+        */
+        // /* Seems the initial EOL V3 interface is now back online.
+        $ret = self::get_eol_defined_uris_v2($download_options, $directionOpposite);
         return $ret;
         // */
         
@@ -607,6 +611,7 @@ class Functions
                 // print_r($arr[1]);
                 if(preg_match("/page=(.*?)&/ims", $arr[1], $arr)) {
                     $pages = $arr[1];
+                    // echo "\nTotal pages: [$pages]\n"; //debug only
                 }
             }
         }
