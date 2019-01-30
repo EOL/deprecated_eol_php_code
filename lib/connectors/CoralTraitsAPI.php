@@ -17,14 +17,82 @@ class CoralTraitsAPI
             'expire_seconds'     => 60*60*24, //expires in 1 day
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0; //debug only
-        $this->source_csv_path = DOC_ROOT."../other_files/natdb_harvest/";
+        $this->partner_source_csv = "https://ndownloader.figshare.com/files/3678603";
+        $this->download_version = "ctdb_1.1.1";
         $this->spreadsheet_for_mapping = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MAD_tool_NatDB/MADmap.xlsx"; //from Jen (DATA-1754)
-        /* Reminder 'unit' to use in spreadsheet. Will need to edit Jen's spreadsheet version in Jira, if u want to download it again.
-        seed_mass -- mg/seed
-        wood_density -- g cm^3
-        Host.no -- #
-        */
     }
+    private function load_zip_contents()
+    {
+        $options = $this->download_options;
+        $options['file_extension'] = 'zip';
+        $this->TEMP_FILE_PATH = create_temp_dir() . "/";
+        if($local_zip_file = Functions::save_remote_file_to_local($this->partner_source_csv, $options)) {
+            $output = shell_exec("unzip -o $local_zip_file -d $this->TEMP_FILE_PATH");
+            if(file_exists($this->TEMP_FILE_PATH . "/".$this->download_version."/".$this->download_version."_data.csv")) {
+                $this->text_path["data"] = $this->TEMP_FILE_PATH . "/$this->download_version/".$this->download_version."_data.csv";
+                $this->text_path["resources"] = $this->TEMP_FILE_PATH . "/$this->download_version/".$this->download_version."_resources.csv";
+                print_r($this->text_path);
+                echo "\nlocal_zip_file: [$local_zip_file]\n";
+                unlink($local_zip_file);
+                return TRUE;
+            }
+            else return FALSE;
+        }
+        else {
+            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+            return FALSE;
+        }
+    }
+    
+    function start()
+    {
+        self::load_zip_contents();
+        
+        self::process_csv('data');
+        
+        //remove temp folder and file
+        recursive_rmdir($this->TEMP_FILE_PATH); // remove temp dir
+        echo ("\n temporary directory removed: [$this->TEMP_FILE_PATH]\n");
+        exit("\n-stop muna\n");
+    }
+    private function process_csv($type)
+    {
+        $i = 0;
+        $file = Functions::file_open($this->text_path[$type], "r");
+        while(!feof($file)) {
+            $row = fgetcsv($file);
+            if(!$row) break;
+            $row = self::clean_html($row); // print_r($row);
+            $i++; if(($i % 300000) == 0) echo "\n $i ";
+            if($i == 1) {
+                $fields = $row;
+                $fields = self::fill_up_blank_fieldnames($fields);
+                $count = count($fields);
+                print_r($fields);
+            }
+            else { //main records
+                $values = $row;
+                if($count != count($values)) { //row validation - correct no. of columns
+                    // print_r($values); print_r($rec);
+                    echo("\nWrong CSV format for this row.\n"); exit;
+                    // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
+                    continue;
+                }
+                $k = 0;
+                $rec = array();
+                foreach($fields as $field) {
+                    $rec[$field] = $values[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec); //important step
+                print_r($rec); return; exit;
+                // self::process_record($rec, $csv, $purpose);
+            } //main records
+            // if($i > 5) break;
+        } //main loop
+        fclose($file);
+    }
+    //*******************************************************************************************************************
     private function initialize_mapping()
     {
         /* un-comment in real operation
@@ -37,7 +105,7 @@ class CoralTraitsAPI
         self::initialize_spreadsheet_mapping();
         // print_r($this->valid_set['map__.falster.2015_mm_']); exit("\n222\n");
     }
-    function start()
+    function startx()
     {
         /* $this->occurrence_properties = self::get_occurrence_properties(); --- You can now put arbitrary columns in the occurrences file */
         require_library('connectors/TraitGeneric');
@@ -279,43 +347,6 @@ class CoralTraitsAPI
             $this->taxon_ids[$taxon->taxonID] = '';
         }
         return $taxon_id;
-    }
-    private function process_extension($csv, $purpose)
-    {
-        $i = 0;
-        $file = Functions::file_open($csv['file'], "r");
-        while(!feof($file)) {
-            $row = fgetcsv($file);
-            if(!$row) break;
-            $row = self::clean_html($row); // print_r($row);
-            $i++; if(($i % 300000) == 0) echo "\n $i ";
-            if($i == 1) {
-                $fields = $row;
-                $fields = self::fill_up_blank_fieldnames($fields);
-                $count = count($fields);
-                // print_r($fields);
-            }
-            else { //main records
-                $values = $row;
-                if($count != count($values)) { //row validation - correct no. of columns
-                    // print_r($values); print_r($rec);
-                    echo("\nWrong CSV format for this row.\n"); exit;
-                    // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
-                    continue;
-                }
-                $k = 0;
-                $rec = array();
-                foreach($fields as $field) {
-                    $rec[$field] = $values[$k];
-                    $k++;
-                }
-                $rec = array_map('trim', $rec); //important step
-                // print_r($rec); //exit;
-                self::process_record($rec, $csv, $purpose);
-            } //main records
-            // if($i > 5) break;
-        } //main loop
-        fclose($file);
     }
     private function process_record($rec, $csv, $purpose)
     {
