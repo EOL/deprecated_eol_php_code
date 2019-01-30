@@ -197,7 +197,7 @@ class MADtoolNatDBAPI
                             if($metadata == $m['info']['md'] && $dataset == $m['info']['ds']) {
                                 $rek = array();
                                 $rek["taxon_id"] = $taxon_id;
-                                $rek["catnum"] = ''; //can be blank coz occurrenceID is already generated.
+                                $rek["catnum"] = ''; //can be blank coz there'll be no occurrence for child measurements anyway.
                                 $rek['occur']['occurrenceID'] = ''; //child measurements don't have occurrenceID
                                 $rek['parentMeasurementID'] = $measurementID;
                                 $mType_var = $m['mType'];
