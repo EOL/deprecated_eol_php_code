@@ -161,16 +161,17 @@ class CoralTraitsAPI
         $rek['SampleSize'] = $rec['replicates'];
         $rek['measurementRemarks'] = $rec['notes'];
 
+        /* http://rs.tdwg.org/dwc/terms/measurementMethod will be concatenated as "methodology_name (value_type)" */
+        $rek['measurementMethod'] = "$rec[methodology_name] ($rec[value_type])";
+        $rek['statisticalMethod'] = self::get_smethod($rec['value_type']);
+        
+
 
         // $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
         // $rek['referenceID'] = ;
         $ret_MoT_true = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
         $occurrenceID = $ret_MoT_true['occurrenceID'];
         $measurementID = $ret_MoT_true['measurementID'];
-        
-        
-        
-        
         
     }
     private function create_taxon($rec)
@@ -244,6 +245,27 @@ class CoralTraitsAPI
             debug("\n\n Connector terminated. Remote files are not ready.\n\n");
             return FALSE;
         }
+    }
+    private function get_smethod($value_type)
+    {   /*value_type will get used again: http://eol.org/schema/terms/statisticalMethod
+        mapping:
+        raw_value: http://www.ebi.ac.uk/efo/EFO_0001444
+        median: http://semanticscience.org/resource/SIO_001110
+        mean: http://semanticscience.org/resource/SIO_001109
+        ANYTHING ELSE: discard
+        [value_type] => Array( --- all values for value_type
+                    [expert_opinion] => 
+                    [group_opinion] => 
+                    [raw_value] => 
+                    [] => 
+                    [mean] => 
+                    [median] => 
+                    [maximum] => 
+                    [model_derived] => 
+                )*/
+        if($value_type == 'raw_value') return "http://www.ebi.ac.uk/efo/EFO_0001444";
+        elseif($value_type == 'median') return "http://semanticscience.org/resource/SIO_001110";
+        elseif($value_type == 'mean') return "http://semanticscience.org/resource/SIO_001109";
     }
     private function clean_html($arr)
     {
