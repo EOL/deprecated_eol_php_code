@@ -23,28 +23,40 @@ class CoralTraitsAPI
     }
     function start()
     {
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::load_zip_contents();
-        self::initialize_spreadsheet_mapping('trait_name');
-        // self::initialize_spreadsheet_mapping('value');
-        // self::initialize_spreadsheet_mapping('unit');
-        exit;
-        // self::process_csv('data');
-        self::process_csv('resources');
+        $this->meta['trait'] = self::initialize_spreadsheet_mapping('trait_name');
+        $this->meta['value'] = self::initialize_spreadsheet_mapping('value');
+        $this->meta['unit'] = self::initialize_spreadsheet_mapping('unit');
+        self::process_csv('data');
+        // self::process_csv('resources');
         
         //remove temp folder and file
         recursive_rmdir($this->TEMP_FILE_PATH); // remove temp dir
         echo ("\n temporary directory removed: [$this->TEMP_FILE_PATH]\n");
-        exit("\n-stop muna\n");
+        
+        $this->archive_builder->finalize(true);
+        print_r($this->debug);
+        // Functions::start_print_debug($this->debug, $this->resource_id);
+        // exit("\n-stop muna\n");
     }
     private function process_csv($type)
     {
         $i = 0;
+        /* works ok if you don't need to format/clean the entire row.
         $file = Functions::file_open($this->text_path[$type], "r");
-        while(!feof($file)) {
-            $row = fgetcsv($file);
-            if(!$row) break;
+        while(!feof($file)) { $row = fgetcsv($file);
+        }
+        fclose($file);
+        */
+        foreach(new FileIterator($this->text_path[$type]) as $line_number => $line) {
+            if(!$line) continue;
+            $line = str_replace('\flume\"""', 'flume"', $line); //clean entire row. fix for 'data' csv
+            $row = str_getcsv($line);
+            if(!$row) continue; //continue; or break; --- should work fine
             $row = self::clean_html($row); // print_r($row);
-            $i++; if(($i % 300000) == 0) echo "\n $i ";
+            $i++; if(($i % 10000) == 0) echo "\n $i ";
             if($i == 1) {
                 $fields = $row;
                 $fields = self::fill_up_blank_fieldnames($fields);
@@ -54,9 +66,9 @@ class CoralTraitsAPI
             else { //main records
                 $values = $row;
                 if($count != count($values)) { //row validation - correct no. of columns
-                    // print_r($values); print_r($rec);
+                    echo "\n--------------\n"; print_r($values);
                     echo("\nWrong CSV format for this row.\n"); exit;
-                    // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
+                    @$this->debug['wrong csv'][$type]++;
                     continue;
                 }
                 $k = 0;
@@ -66,12 +78,40 @@ class CoralTraitsAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); return; exit;
-                // self::process_record($rec, $csv, $purpose);
+                // print_r($rec); //return; exit;
+                if($type == "data")          self::process_data_record($rec);
+                elseif($type == "resources") self::process_resources_record($rec);
+                
             } //main records
             // if($i > 5) break;
         } //main loop
-        fclose($file);
+        // fclose($file);
+    }
+    private function process_data_record($rec)
+    {
+        $taxon_id = self::create_taxon($rec);
+        
+    }
+    private function create_taxon($rec)
+    {   /*[specie_id] => 968
+          [specie_name] => Micromussa amakusensis
+        */
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $rec['specie_id'];
+        $taxon->scientificName  = $rec['specie_name'];
+        $taxon->kingdom = 'Animalia';
+        $taxon->phylum = 'Cnidaria';
+        $taxon->class = 'Anthozoa';
+        $taxon->order = 'Scleractinia';
+        // $taxon->taxonRank             = '';
+        // $taxon->furtherInformationURL = '';
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+    }
+    private function process_resources_record($rec)
+    {
     }
     private function initialize_spreadsheet_mapping($sheet)
     {
@@ -79,7 +119,6 @@ class CoralTraitsAPI
         $sheets['value'] = 2;
         $sheets['unit'] = 3;
         $sheet_no = $sheets[$sheet];
-        
         $final = array();
         $options = $this->download_options;
         $options['file_extension'] = 'xlsx';
@@ -92,19 +131,16 @@ class CoralTraitsAPI
         // print_r($map); exit;
         print_r($fields); //exit;
         // foreach($fields as $field) echo "\n$field: ".count($map[$field]); //debug only
-        /* get valid_set - the magic 4 fields */
         $i = -1;
         foreach($map[$fields[0]] as $var) {
             $i++;
             $rec = array();
             foreach($fields as $fld) $rec[$fld] = $map[$fld][$i];
-            // print_r($rec); exit;
             $final[$rec[$fields[0]]] = $rec;
-            // print_r($final); exit;
         }
         unlink($local_xls);
-        print_r($final); exit;
-        
+        // print_r($final); exit;
+        return $final;
     }
     private function load_zip_contents()
     {
@@ -128,6 +164,15 @@ class CoralTraitsAPI
             return FALSE;
         }
     }
+    private function clean_html($arr)
+    {
+        $delimeter = "elicha173";
+        $html = implode($delimeter, $arr);
+        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
+        $html = str_ireplace("> |", ">", $html);
+        $arr = explode($delimeter, $html);
+        return $arr;
+    }
     //****************************************************************************************************************************************************************************
     //****************************************************************************************************************************************************************************
     //****************************************************************************************************************************************************************************
@@ -145,27 +190,6 @@ class CoralTraitsAPI
     }
     function startx()
     {
-        /* $this->occurrence_properties = self::get_occurrence_properties(); --- You can now put arbitrary columns in the occurrences file */
-        require_library('connectors/TraitGeneric');
-        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        self::initialize_mapping();
-
-        // /* un-comment in real operation
-        $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical'); //only categorical.csv have 'record type' = taxa
-        self::process_extension($csv, "taxa"); //purpose = taxa
-        // */
-        /* not needed anymore
-        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
-        self::process_extension($csv, "child measurement"); //purpose = child measurement
-        print_r($this->childm); //exit("\n-end childm-\n");
-        */
-        // /*
-        $csv = array('file' => $this->source_csv_path."categorical.csv", 'type' => 'categorical');
-        self::process_extension($csv, 'mof occurrence child');
-        $csv = array('file' => $this->source_csv_path."numeric.csv", 'type' => 'numeric'); //only numeric.cs have 'record type' = 'child measurement'
-        self::process_extension($csv, 'mof occurrence child');
-        // */
-        
         self::main_write_archive();
         $this->archive_builder->finalize(true);
         
@@ -362,198 +386,6 @@ class CoralTraitsAPI
         }
         return $retx;
     }
-    private function create_taxon($species)
-    {
-        /*[Tsuga canadensis] => Array(
-                [ancestry] => Array(
-                        [Family] => Pinaceae
-                        [Genus] => Tsuga
-                        [Phylum] => Gymnosperms
-                    )
-            )*/
-        $taxon_id = str_replace(" ", "_", strtolower($species));
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $taxon_id;
-        $taxon->scientificName  = $species;
-        if($val = @$this->main[$species]['ancestry']['Family']) $taxon->family = $val;
-        if($val = @$this->main[$species]['ancestry']['Genus']) $taxon->genus = $val;
-        if($val = @$this->main[$species]['ancestry']['Phylum']) $taxon->phylum = $val;
-        // $taxon->taxonRank             = '';
-        // $taxon->furtherInformationURL = '';
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
-        return $taxon_id;
-    }
-    private function process_record($rec, $csv, $purpose)
-    {
-        $species = $rec['species'];
-        $species = trim(str_replace("_", " ", ucfirst($species)));
-        //remove _sp
-        if(substr($species, -3) == "_sp") $species = substr($species, 0, strlen($species)-3);
-        $rec['species'] = trim($species);
-        
-        /*Array(
-            [blank_1] => 1
-            [species] => abudefduf vaigiensis
-            [metadata] => id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf
-            *[variable] => IUCN_Red_List_Category
-            *[value] => np
-            *[units] => NA
-            *[dataset] => .albouy.2015
-        )
-        If the columns variable, value, dataset, and unit match the mapping, generate a record using the fields on the right of the mapping. 
-        Where the mapping has nothing in the value field, any value from the source file will do, 
-        and should be copied into the measurementValue in the created record. 
-        This is mostly for numeric records.
-        */
-        
-        /* generating index value $tmp for $this->valid_set */
-        if(isset($this->numeric_fields[$rec['variable']])) $value = "";
-        else                                               $value = $rec['value'];
-        $tmp = $rec['variable']."_".$value."_".$rec['dataset']."_".self::blank_if_NA($rec['units'])."_";
-        $tmp = strtolower($tmp);
-        // echo "\n[$tmp]"; exit;
-        
-        if($mapped_record = @$this->valid_set[$tmp]) {
-            if(stripos($rec['species'], "unknown") !== false) return; //string is found
-            
-            /* good debug
-            if($rec['variable'] == "growingCondition") {
-                print_r($rec); print_r($mapped_record); exit("\n-end muna-\n");
-                @$this->debug[$rec['variable']][$rec['value']][$rec['dataset']] = $rec['units'];
-            }
-            */
-            // if($rec['species'] != 'acer_pensylvanicum') return; //debug only
-            // if($rec['species'] != 'Acer pensylvanicum') return; //debug only
-            // if($rec['species'] != 'Acer saccharum') return; //debug only
-            // if($rec['species'] != 'Acer campestre') return; //debug only - with seed_mass & wood_density
-            // if($rec['species'] != 'Abbreviata caucasica') return; //debug only - with Host.no
-            // if($rec['species'] != 'Anguilla anguilla') return; //debug only
-            
-            // if(in_array($rec['species'], array('Acer pensylvanicum', 'Acer saccharum', 'Acer campestre', 'Abbreviata caucasica', 'Anguilla anguilla'))) {}
-            // else return;
-            
-            /*
-            "acer_pensylvanicum" -- has MOF, occurrence, child measurement - best for testing
-            "abies_sachalinensis" -- with occurrence
-            "Catharus fuscescens" -- has MOF, occurrence, good for testing
-            "Tsuga canadensis" -- has taxa
-            "ctenomys_minutus" -- has special char in metadata "Cherem/Maur?cio"
-            */
-            
-            if($purpose == "taxa") {
-                if($mapped_record['record type'] == 'taxa') self::assign_ancestry($rec, $mapped_record);
-                return;
-            }
-            elseif($purpose == "mof occurrence child") {
-                // /* actual record assignment
-                $record_type = $mapped_record['record type'];
-                if($record_type == 'taxa') return;
-
-                $mType = $mapped_record['measurementType'];
-                // $mOfTaxon = ($record_type == "MeasurementOfTaxon=true") ? "true" : "";
-                $mValue   = ($mapped_record['measurementValue'] != "")                             ? $mapped_record['measurementValue']                             : $rec['value'];
-                $mUnit    = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementUnit'] : $rec['units'];
-                if(in_array($mUnit, array('NA', '#'))) $mUnit = '';
-                $mRemarks = ($mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] != "") ? $mapped_record['http://rs.tdwg.org/dwc/terms/measurementRemarks'] : $rec['value'];
-                if($mValue == $mRemarks) $mRemarks = "";
-                $mRemarks = self::mRemarks_map($mRemarks, $rec['dataset'], $mType);
-                
-                @$this->main[$rec['species']][$record_type][$mType][$mValue][$tmp]++;
-                @$this->main[$rec['species']][$record_type][$mType][$mValue]['r'] = array('md' => $rec['metadata'], 'mr' => $mRemarks, 'mu' => $mUnit, 
-                                                                                          'ds' => $rec['dataset'], 'ty' => substr($csv['type'],0,1));
-                // if(isset($this->numeric_fields[$rec['variable']])) {} --> might be an overkill to use $this->numeric_fields
-                // */
-                return;
-            }
-            /* obsolete
-            elseif($purpose == "child measurement") {
-                if($mapped_record['record type'] == 'child measurement') self::assign_child_measurement($rec, $mapped_record);
-            }
-            */
-            
-            /*  ------------------------------------------------------- all these below here are only debug purposes only -------------------------------------------------------
-            // if($mapped_record['record type'] == 'child measurement') {
-                if($rec['species'] == 'acer_pensylvanicum') {
-                    @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']][$rec['value']]++;
-                    // print_r($rec); print_r($mapped_record); 
-                }
-                else return;
-            // }
-            // else return;
-            */
-            
-            // print_r($rec); print_r($mapped_record); exit;
-            /*
-            if($rec['species'] == 'Catharus fuscescens' || $rec['species'] == 'catharus_fuscescens') {
-                // print_r($rec); print_r($mapped_record); 
-                @$this->debug['test_taxon'][$mapped_record['record type']]++;
-                if($mapped_record['record type'] == 'occurrence') {
-                    print_r($rec); print_r($mapped_record); 
-                }
-                return;
-            }
-            */
-            /*
-            // if($rec['metadata'] == 'id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf')
-            // if($rec['metadata'] == 'Species.common.name:Veery' && $rec['dataset'] == ".brown.2015")
-            if($rec['species'] == 'Catharus fuscescens') //has MOF and occurrence, good for testing
-            // if($rec['species'] == 'Catharus fuscescens' && $mapped_record['variable'] == "Migration.Strategy")
-            {
-                // print_r($rec); print_r($mapped_record); 
-                @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
-                if($mapped_record['record type'] == 'MeasurementOfTaxon=true') { //MeasurementOfTaxon=true OR occurrence
-                    print_r($rec); print_r($mapped_record); 
-                }
-                // return;
-            }
-            else return;
-            */
-            /*
-            // if($mapped_record['record type'] == 'child measurement') {
-            if($rec['species'] == 'Tsuga heterophylla') {
-                @$this->debug['test_taxon'][$mapped_record['record type']][$mapped_record['variable']]++;
-                print_r($rec); print_r($mapped_record); //exit;
-                return;
-            }
-            */
-            
-            /*
-            if($mapped_record['measurementType'] == 'http://rs.tdwg.org/dwc/terms/lifeStage') {
-                print_r($rec); print_r($mapped_record); 
-                return;
-            }
-            */
-            
-            // echo "\n[$tmp]"; print_r($mapped_record); print_r($rec); exit("\n111\n");
-            /*[common_length__.albouy.2015_cm_]Array( --- $mapped_record
-                [variable] => Common_length
-                [value] => 
-                [dataset] => .albouy.2015
-                [unit] => cm
-                [-->] => -->
-                [measurementType] => http://purl.obolibrary.org/obo/CMO_0000013
-                [measurementValue] => 
-                [record type] => MeasurementOfTaxon=true
-                [http://rs.tdwg.org/dwc/terms/measurementUnit] => http://purl.obolibrary.org/obo/UO_0000015
-                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
-                [http://eol.org/schema/terms/statisticalMethod] => http://eol.org/schema/terms/average
-                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
-            )
-            Array( --- $rec
-                [blank_1] => 1
-                [species] => abudefduf vaigiensis
-                [metadata] => id:133;Super_class:osteichthyen;Order:Perciformes;Family:Pomacentridae;Genus:Abudefduf
-                [variable] => Common_length
-                [value] => 15
-                [units] => cm
-                [dataset] => .albouy.2015
-            )
-            */
-        }
-    }
     private function mRemarks_map($str, $dataset, $mType)
     {   /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=63188&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63188
         Interesting! You found a second use of some two letter codes that I'd only seen as primary measurementValue. Another fiddly one, then:
@@ -657,15 +489,6 @@ class CoralTraitsAPI
     {
         if($str == "NA") return "";
         else return $str;
-    }
-    private function clean_html($arr)
-    {
-        $delimeter = "elicha173";
-        $html = implode($delimeter, $arr);
-        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
-        $html = str_ireplace("> |", ">", $html);
-        $arr = explode($delimeter, $html);
-        return $arr;
     }
     private function get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map)
     {
