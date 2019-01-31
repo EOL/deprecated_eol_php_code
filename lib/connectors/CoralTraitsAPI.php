@@ -27,7 +27,11 @@ class CoralTraitsAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::load_zip_contents();
         $this->meta['trait_name'] = self::initialize_spreadsheet_mapping('trait_name');
+        // print_r($this->meta['trait_name']['Zooxanthellate']); exit;
+        
         $this->meta['value'] = self::initialize_spreadsheet_mapping('value');
+        // print_r($this->meta['value']['Winter']); exit;
+        
         $this->meta['standard_unit'] = self::initialize_spreadsheet_mapping('unit');
         self::process_csv('data');
         // self::process_csv('resources');
@@ -146,11 +150,6 @@ class CoralTraitsAPI
         $rek['occur']['decimalLatitude'] = $rec['latitude'];
         $rek['occur']['decimalLongitude'] = $rec['longitude'];
         
-        
-        $rek["taxon_id"] = $taxon_id;
-        $rek["catnum"] = $csv_type."_".$mValue;
-        $mOfTaxon = "true";
-
         /*
         wherever trait_class is NOT "Contextual":
         observation_id: http://rs.tdwg.org/dwc/terms/occurrenceID
@@ -161,11 +160,23 @@ class CoralTraitsAPI
         notes: http://rs.tdwg.org/dwc/terms/measurementRemarks
         */
         $rek['occur']['occurrenceID'] = $rec['observation_id'];
-        $mType = $this->meta['trait_name'][$rec['trait_name']];
-        $mValue = $this->meta['value'][$rec['value']];
-        $rek['measurementUnit'] = $this->meta['standard_unit'][$rec['standard_unit']];
+        $mType                  = @$this->meta['trait_name'][$rec['trait_name']]['http://rs.tdwg.org/dwc/terms/measurementType'];
+        // print_r($mType); exit;
+        $mValue                 = @$this->meta['value'][$rec['value']]['uri'];
+        $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
+
+        if(!@$this->meta['trait_name'][$rec['trait_name']])       $this->debug['undef trait'][$rec['trait_name']] = ''; //debug only
+        if(!@$this->meta['value'][$rec['value']])                 $this->debug['undef value'][$rec['value']] = ''; //debug only
+        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = ''; //debug only
+
         $rek['SampleSize'] = $rec['replicates'];
         $rek['measurementRemarks'] = $rec['notes'];
+
+        $rek["taxon_id"] = $rec['specie_id'];
+        if(is_array($mValue)) print_r($mValue);
+        $rek["catnum"] = "_".$mValue;
+        $mOfTaxon = "true";
+
 
         /* http://rs.tdwg.org/dwc/terms/measurementMethod will be concatenated as "methodology_name (value_type)" */
         $rek['measurementMethod'] = "$rec[methodology_name] ($rec[value_type])";
