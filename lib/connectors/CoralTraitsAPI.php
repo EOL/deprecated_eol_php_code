@@ -26,9 +26,9 @@ class CoralTraitsAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::load_zip_contents();
-        $this->meta['trait'] = self::initialize_spreadsheet_mapping('trait_name');
+        $this->meta['trait_name'] = self::initialize_spreadsheet_mapping('trait_name');
         $this->meta['value'] = self::initialize_spreadsheet_mapping('value');
-        $this->meta['unit'] = self::initialize_spreadsheet_mapping('unit');
+        $this->meta['standard_unit'] = self::initialize_spreadsheet_mapping('unit');
         self::process_csv('data');
         // self::process_csv('resources');
         
@@ -78,7 +78,7 @@ class CoralTraitsAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                // print_r($rec); //return; exit;
+                // print_r($rec); exit;
                 if($type == "data")          self::process_data_record($rec);
                 elseif($type == "resources") self::process_resources_record($rec);
                 
@@ -89,7 +89,88 @@ class CoralTraitsAPI
     }
     private function process_data_record($rec)
     {
-        $taxon_id = self::create_taxon($rec);
+        self::create_taxon($rec);
+        self::create_trait($rec);
+    }
+    private function create_trait($rec)
+    {
+        /*Array(
+            [observation_id] => 25
+            [access] => 1
+            [user_id] => 2
+            [specie_id] => 968
+            [specie_name] => Micromussa amakusensis
+            [location_id] => 1
+            [location_name] => Global estimate
+            [latitude] => 
+            [longitude] => 
+            [resource_id] => 40
+            [resource_secondary_id] => 48
+            [measurement_id] => 
+            [trait_id] => 40
+            [trait_name] => Ocean basin
+            [trait_class] => Geographical
+            [standard_id] => 10
+            [standard_unit] => cat
+            [methodology_id] => 9
+            [methodology_name] => Derived from range map
+            [value] => pacific
+            [value_type] => expert_opinion
+            [precision] => 
+            [precision_type] => 
+            [precision_upper] => 
+            [replicates] => 
+            [notes] => 
+        )
+        */
+        if($rec['trait_class'] == "Contextual") return;
+        $this->debug['value_type'][$rec['value_type']] = ''; return;
+        $rek = array();
+        
+        /*Occurrence file (you'll need to deduplicate):
+        specie_id (or whatever): http://rs.tdwg.org/dwc/terms/taxonID
+        observation_id: http://rs.tdwg.org/dwc/terms/occurrenceID
+        location_name: http://rs.tdwg.org/dwc/terms/locality
+        latitude: http://rs.tdwg.org/dwc/terms/decimalLatitude
+        longitude: http://rs.tdwg.org/dwc/terms/decimalLongitude
+        */
+        $rek['occur']['taxonID'] = $rec['specie_id'];
+        $rek['occur']['occurrenceID'] = $rec['observation_id']; //will duplicate below, but its OK.
+        $rek['occur']['locality'] = $rec['location_name'];
+        $rek['occur']['decimalLatitude'] = $rec['latitude'];
+        $rek['occur']['decimalLongitude'] = $rec['longitude'];
+        
+        
+        $rek["taxon_id"] = $taxon_id;
+        $rek["catnum"] = $csv_type."_".$mValue;
+        $mOfTaxon = "true";
+
+        /*
+        wherever trait_class is NOT "Contextual":
+        observation_id: http://rs.tdwg.org/dwc/terms/occurrenceID
+        trait_name: http://rs.tdwg.org/dwc/terms/measurementType
+        value: http://rs.tdwg.org/dwc/terms/measurementValue
+        standard_unit: http://rs.tdwg.org/dwc/terms/measurementUnit
+        replicates: http://eol.org/schema/terms/SampleSize
+        notes: http://rs.tdwg.org/dwc/terms/measurementRemarks
+        */
+        $rek['occur']['occurrenceID'] = $rec['observation_id'];
+        $mType = $this->meta['trait_name'][$rec['trait_name']];
+        $mValue = $this->meta['value'][$rec['value']];
+        $rek['measurementUnit'] = $this->meta['standard_unit'][$rec['standard_unit']];
+        $rek['SampleSize'] = $rec['replicates'];
+        $rek['measurementRemarks'] = $rec['notes'];
+
+
+        // $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
+        // $rek['referenceID'] = ;
+        $ret_MoT_true = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+        $occurrenceID = $ret_MoT_true['occurrenceID'];
+        $measurementID = $ret_MoT_true['measurementID'];
+        
+        
+        
+        
         
     }
     private function create_taxon($rec)
