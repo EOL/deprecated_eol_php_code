@@ -124,7 +124,13 @@ class CoralTraitsAPI
         )
         */
         if($rec['trait_class'] == "Contextual") return;
-        $this->debug['value_type'][$rec['value_type']] = ''; return;
+        
+        /* good debug
+        // $this->debug['value_type'][$rec['value_type']] = ''; return;
+        $this->debug['precision'][$rec['precision']] = ''; 
+        $this->debug['precision_type'][$rec['precision_type']] = ''; return;
+        */
+        
         $rek = array();
         
         /*Occurrence file (you'll need to deduplicate):
@@ -165,7 +171,7 @@ class CoralTraitsAPI
         $rek['measurementMethod'] = "$rec[methodology_name] ($rec[value_type])";
         $rek['statisticalMethod'] = self::get_smethod($rec['value_type']);
         
-
+        $rek = self::implement_precision_cols($rec, $rek);
 
         // $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
         // $rek['referenceID'] = ;
@@ -173,6 +179,32 @@ class CoralTraitsAPI
         $occurrenceID = $ret_MoT_true['occurrenceID'];
         $measurementID = $ret_MoT_true['measurementID'];
         
+    }
+    private function implement_precision_cols($rec, $rek)
+    {   /*precision, precision_type: precision_type will be the MoF column (this will generate a handful of columns) and precision will be the value for that record
+        precision_type:
+            standard_deviation: http://semanticscience.org/resource/SIO_000770
+            range: http://purl.obolibrary.org/obo/STATO_0000035
+            standard_error: http://purl.obolibrary.org/obo/OBI_0000235
+            not_given: http://semanticscience.org/resource/SIO_000769
+            95_ci: http://purl.obolibrary.org/obo/STATO_0000231
+        precision: take numeric values as is. Discard non numeric values
+        [precision_type] => Array( --- unique values
+                    [] => 
+                    [range] => 
+                    [standard_deviation] => 
+                    [standard_error] => 
+                    [95_ci] => 
+                    [not_given] => 
+                )
+        */
+        if(!is_numeric($rec['precision'])) return $rek;
+        if($rec['precision_type'] == "standard_deviation") $rek['SIO_000770'] = $rec['precision'];
+        elseif($rec['precision_type'] == "range") $rek['STATO_0000035'] = $rec['precision'];
+        elseif($rec['precision_type'] == "standard_error") $rek['OBI_0000235'] = $rec['precision'];
+        elseif($rec['precision_type'] == "not_given") $rek['SIO_000769'] = $rec['precision'];
+        elseif($rec['precision_type'] == "95_ci") $rek['STATO_0000231'] = $rec['precision'];
+        return $rek;
     }
     private function create_taxon($rec)
     {   /*[specie_id] => 968
