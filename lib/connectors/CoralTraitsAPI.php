@@ -19,7 +19,8 @@ class CoralTraitsAPI
         // $this->download_options['expire_seconds'] = 0; //debug only
         $this->partner_source_csv = "https://ndownloader.figshare.com/files/3678603";
         $this->download_version = "ctdb_1.1.1";
-        $this->spreadsheet_for_mapping = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/coraltraits_mapping.xlsx"; //from Jen (DATA-1793)
+        $this->spreadsheet_for_mapping  = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/coraltraits_mapping.xlsx"; //from Jen (DATA-1793)
+        $this->spreadsheet_for_mapping2 = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/coraltraits_mapping_Eli.xlsx";
     }
     function start()
     {
@@ -32,7 +33,14 @@ class CoralTraitsAPI
         $this->meta['value'] = self::initialize_spreadsheet_mapping('value');
         // print_r($this->meta['value']['Winter']); exit;
         
-        $this->meta['standard_unit'] = self::initialize_spreadsheet_mapping('unit');
+        $temp1 = self::initialize_spreadsheet_mapping('unit');
+        $temp2 = self::initialize_spreadsheet_mapping('unit', $this->spreadsheet_for_mapping2);
+        $this->meta['standard_unit'] = array_merge($temp1, $temp2);
+        echo "\n".count($temp1)."\n";
+        echo "\n".count($temp2)."\n";
+        echo "\ntotal: ".count($this->meta['standard_unit'])."\n";
+        // print_r($this->meta['standard_unit']); exit("\n");
+        
         self::process_csv('data');
         // self::process_csv('resources');
         
@@ -42,7 +50,7 @@ class CoralTraitsAPI
         
         $this->archive_builder->finalize(true);
         print_r($this->debug);
-        // Functions::start_print_debug($this->debug, $this->resource_id);
+        Functions::start_print_debug($this->debug, $this->resource_id);
         // exit("\n-stop muna\n");
     }
     private function process_csv($type)
@@ -166,7 +174,9 @@ class CoralTraitsAPI
         $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
 
         if(!@$this->meta['trait_name'][$rec['trait_name']])       $this->debug['undef trait'][$rec['trait_name']] = ''; //debug only
-        if(!@$this->meta['value'][$rec['value']])                 $this->debug['undef value'][$rec['value']] = ''; //debug only
+        if(!is_numeric($rec['value'])) {
+            if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['value']] = ''; //debug only
+        }
         if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = ''; //debug only
 
         $rek['SampleSize'] = $rec['replicates'];
@@ -238,8 +248,9 @@ class CoralTraitsAPI
     private function process_resources_record($rec)
     {
     }
-    private function initialize_spreadsheet_mapping($sheet)
+    private function initialize_spreadsheet_mapping($sheet, $file = false)
     {
+        if(!$file) $file = $this->spreadsheet_for_mapping;
         $sheets['trait_name'] = 1;
         $sheets['value'] = 2;
         $sheets['unit'] = 3;
@@ -247,7 +258,8 @@ class CoralTraitsAPI
         $final = array();
         $options = $this->download_options;
         $options['file_extension'] = 'xlsx';
-        $local_xls = Functions::save_remote_file_to_local($this->spreadsheet_for_mapping, $options);
+        // $options['expire_seconds'] = 0; //debug only
+        $local_xls = Functions::save_remote_file_to_local($file, $options);
         require_library('XLSParser');
         $parser = new XLSParser();
         debug("\n reading: " . $local_xls . "\n");
