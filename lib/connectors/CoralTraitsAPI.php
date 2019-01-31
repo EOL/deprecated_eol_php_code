@@ -19,35 +19,15 @@ class CoralTraitsAPI
         // $this->download_options['expire_seconds'] = 0; //debug only
         $this->partner_source_csv = "https://ndownloader.figshare.com/files/3678603";
         $this->download_version = "ctdb_1.1.1";
-        $this->spreadsheet_for_mapping = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MAD_tool_NatDB/MADmap.xlsx"; //from Jen (DATA-1754)
+        $this->spreadsheet_for_mapping = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/coraltraits_mapping.xlsx"; //from Jen (DATA-1793)
     }
-    private function load_zip_contents()
-    {
-        $options = $this->download_options;
-        $options['file_extension'] = 'zip';
-        $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($local_zip_file = Functions::save_remote_file_to_local($this->partner_source_csv, $options)) {
-            $output = shell_exec("unzip -o $local_zip_file -d $this->TEMP_FILE_PATH");
-            if(file_exists($this->TEMP_FILE_PATH . "/".$this->download_version."/".$this->download_version."_data.csv")) {
-                $this->text_path["data"] = $this->TEMP_FILE_PATH . "/$this->download_version/".$this->download_version."_data.csv";
-                $this->text_path["resources"] = $this->TEMP_FILE_PATH . "/$this->download_version/".$this->download_version."_resources.csv";
-                print_r($this->text_path);
-                echo "\nlocal_zip_file: [$local_zip_file]\n";
-                unlink($local_zip_file);
-                return TRUE;
-            }
-            else return FALSE;
-        }
-        else {
-            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
-            return FALSE;
-        }
-    }
-    
     function start()
     {
         self::load_zip_contents();
-        
+        self::initialize_spreadsheet_mapping('trait_name');
+        // self::initialize_spreadsheet_mapping('value');
+        // self::initialize_spreadsheet_mapping('unit');
+        exit;
         // self::process_csv('data');
         self::process_csv('resources');
         
@@ -93,7 +73,64 @@ class CoralTraitsAPI
         } //main loop
         fclose($file);
     }
-    //*******************************************************************************************************************
+    private function initialize_spreadsheet_mapping($sheet)
+    {
+        $sheets['trait_name'] = 1;
+        $sheets['value'] = 2;
+        $sheets['unit'] = 3;
+        $sheet_no = $sheets[$sheet];
+        
+        $final = array();
+        $options = $this->download_options;
+        $options['file_extension'] = 'xlsx';
+        $local_xls = Functions::save_remote_file_to_local($this->spreadsheet_for_mapping, $options);
+        require_library('XLSParser');
+        $parser = new XLSParser();
+        debug("\n reading: " . $local_xls . "\n");
+        $map = $parser->convert_sheet_to_array($local_xls, $sheet_no);
+        $fields = array_keys($map);
+        // print_r($map); exit;
+        print_r($fields); //exit;
+        // foreach($fields as $field) echo "\n$field: ".count($map[$field]); //debug only
+        /* get valid_set - the magic 4 fields */
+        $i = -1;
+        foreach($map[$fields[0]] as $var) {
+            $i++;
+            $rec = array();
+            foreach($fields as $fld) $rec[$fld] = $map[$fld][$i];
+            // print_r($rec); exit;
+            $final[$rec[$fields[0]]] = $rec;
+            // print_r($final); exit;
+        }
+        unlink($local_xls);
+        print_r($final); exit;
+        
+    }
+    private function load_zip_contents()
+    {
+        $options = $this->download_options;
+        $options['file_extension'] = 'zip';
+        $this->TEMP_FILE_PATH = create_temp_dir() . "/";
+        if($local_zip_file = Functions::save_remote_file_to_local($this->partner_source_csv, $options)) {
+            $output = shell_exec("unzip -o $local_zip_file -d $this->TEMP_FILE_PATH");
+            if(file_exists($this->TEMP_FILE_PATH . "/".$this->download_version."/".$this->download_version."_data.csv")) {
+                $this->text_path["data"] = $this->TEMP_FILE_PATH . "/$this->download_version/".$this->download_version."_data.csv";
+                $this->text_path["resources"] = $this->TEMP_FILE_PATH . "/$this->download_version/".$this->download_version."_resources.csv";
+                print_r($this->text_path);
+                echo "\nlocal_zip_file: [$local_zip_file]\n";
+                unlink($local_zip_file);
+                return TRUE;
+            }
+            else return FALSE;
+        }
+        else {
+            debug("\n\n Connector terminated. Remote files are not ready.\n\n");
+            return FALSE;
+        }
+    }
+    //****************************************************************************************************************************************************************************
+    //****************************************************************************************************************************************************************************
+    //****************************************************************************************************************************************************************************
     private function initialize_mapping()
     {
         /* un-comment in real operation
@@ -629,35 +666,6 @@ class CoralTraitsAPI
         $html = str_ireplace("> |", ">", $html);
         $arr = explode($delimeter, $html);
         return $arr;
-    }
-    private function initialize_spreadsheet_mapping()
-    {
-        $final = array();
-        $options = $this->download_options;
-        $options['file_extension'] = 'xlsx';
-        $local_xls = Functions::save_remote_file_to_local($this->spreadsheet_for_mapping, $options);
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        debug("\n reading: " . $local_xls . "\n");
-        $map = $parser->convert_sheet_to_array($local_xls);
-        $fields = array_keys($map);
-        // print_r($map);
-        print_r($fields); //exit;
-        // foreach($fields as $field) echo "\n$field: ".count($map[$field]); //debug only
-        /* get valid_set - the magic 4 fields */
-        $i = -1;
-        foreach($map['variable'] as $var) {
-            $i++;
-            if(in_array($var, array("Location.Code"))) continue;
-            $tmp = $var."_".$map['value'][$i]."_".$map['dataset'][$i]."_".$map['unit'][$i]."_";
-            $tmp = strtolower($tmp);
-            $valid_set[$tmp] = self::get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map);
-            //get numeric fields (e.g. Maximum_length). To be used when figuring out which are valid sets, where numeric values should be blank.
-            if(!$map['value'][$i]) $this->numeric_fields[$var] = '';
-        }
-        // print_r($valid_set); exit;
-        $this->valid_set = $valid_set;
-        unlink($local_xls);
     }
     private function get_corresponding_rek_from_mapping_spreadsheet($i, $fields, $map)
     {
