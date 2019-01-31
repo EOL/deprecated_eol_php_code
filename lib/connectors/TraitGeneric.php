@@ -46,7 +46,14 @@ class TraitGeneric
         }
         
         // start arbitrary fields here ---------------------------
+        //for MAD NatDB
         if($val = @$rec['lifeStage']) $m->lifeStage = $val;
+        //for Coraltraits
+        if($val = @$rec['SIO_000770']) $m->SIO_000770 = $val;
+        if($val = @$rec['STATO_0000035']) $m->STATO_0000035 = $val;
+        if($val = @$rec['OBI_0000235']) $m->OBI_0000235 = $val;
+        if($val = @$rec['SIO_000769']) $m->SIO_000769 = $val;
+        if($val = @$rec['STATO_0000231']) $m->STATO_0000231 = $val;
         // end ---------------------------------------------------
         
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
