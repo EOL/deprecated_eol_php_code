@@ -141,15 +141,18 @@ class CoralTraitsAPI
             [notes] => 
         )
         */
+        $rek = array(); $mType = ''; $mValue = '';
+        
         if($rec['trait_class'] == "Contextual") return;
+        else { //trait_class is NOT "Contextual"
+            
+        }
         
         /* good debug
         // $this->debug['value_type'][$rec['value_type']] = ''; return;
         $this->debug['precision'][$rec['precision']] = ''; 
         $this->debug['precision_type'][$rec['precision_type']] = ''; return;
         */
-        
-        $rek = array();
         
         /*Occurrence file (you'll need to deduplicate):
         specie_id (or whatever): http://rs.tdwg.org/dwc/terms/taxonID
@@ -174,12 +177,37 @@ class CoralTraitsAPI
         notes: http://rs.tdwg.org/dwc/terms/measurementRemarks
         */
         $rek['occur']['occurrenceID'] = $rec['observation_id'];
-        $mType                  = @$this->meta['trait_name'][$rec['trait_name']]['http://rs.tdwg.org/dwc/terms/measurementType'];
-        // print_r($mType); exit;
+        /*
+        from spreadsheet mapping for e.g. trait_name == 'Abundance GBR'. Need to assign these pre-defined values as prioritized values
+        Array(
+            [trait_name] => Abundance GBR
+            [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Present
+            [http://rs.tdwg.org/dwc/terms/measurementValue] => http://www.geonames.org/2164628
+            [http://eol.org/schema/terms/statisticalMethod] => 
+            [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+            [http://eol.org/schema/terms/bodyPart] => 
+            [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+            [http://rs.tdwg.org/dwc/terms/locality] => http://www.geonames.org/2164628
+            [http://purl.obolibrary.org/obo/GO_0007626] => 
+            [http://purl.obolibrary.org/obo/NCIT_C70589] => SPECIAL CASE
+        )*/
+        if($trait_rec = @$this->meta['trait_name'][$rec['trait_name']]) {
+            $mType                     = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+            $mValue                    = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            $rek['statisticalMethod']  = $trait_rec['http://eol.org/schema/terms/statisticalMethod'];
+            $rek['lifeStage']          = $trait_rec['http://rs.tdwg.org/dwc/terms/lifeStage'];
+            $rek['bodyPart']           = $trait_rec['http://eol.org/schema/terms/bodyPart'];
+            $rek['measurementRemarks'] = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
+            $rek['locality']           = $trait_rec['http://rs.tdwg.org/dwc/terms/locality'];
+            $rek['GO_0007626']         = $trait_rec['http://purl.obolibrary.org/obo/GO_0007626'];
+            $rek['NCIT_C70589']        = $trait_rec['http://purl.obolibrary.org/obo/NCIT_C70589'];
+        }
+        else return;
+        
         $mValue                 = @$this->meta['value'][$rec['value']]['uri'];
         $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
 
-        if(!@$this->meta['trait_name'][$rec['trait_name']])       $this->debug['undef trait'][$rec['trait_name']] = '';     //debug only - Jen might add mappings here
+        if(!@$trait_rec)       $this->debug['undef trait'][$rec['trait_name']] = '';     //debug only - Jen might add mappings here
         if(!is_numeric($rec['value'])) {
             if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['value']] = '';          //debug only - Jen might add mappings here
         }
@@ -282,8 +310,18 @@ class CoralTraitsAPI
             $rek['measurementValue'] = 'http://eol.org/schema/terms/arborescent';
             return $rek;
         }
+
+        // #6 where trait_name=Abundance GBR, measurementValue is always the same, but source value determines the content of the http://purl.obolibrary.org/obo/NCIT_C70589 element. 
+        // Rare: https://www.wikidata.org/entity/Q3503448, 
+        // common: https://www.wikidata.org/entity/Q5153621, 
+        // uncommon: http://eol.org/schema/terms/uncommon
+        if($rec['trait_name'] == 'Abundance GBR') {
+            print_r($rec); print_r($rek); 
+            print_r($this->meta['trait_name'][$rec['trait_name']]);
+            exit;
+        }
+        
         /*
-        where trait_name=Abundance GBR, measurementValue is always the same, but source value determines the content of the http://purl.obolibrary.org/obo/NCIT_C70589 element. Rare: https://www.wikidata.org/entity/Q3503448, common: https://www.wikidata.org/entity/Q5153621, uncommon: http://eol.org/schema/terms/uncommon
         where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement- the child measurement should be kept and the column record discarded
         */
         return $rek;
