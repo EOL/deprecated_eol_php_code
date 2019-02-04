@@ -232,7 +232,7 @@ class FAOSpeciesAPI
     {
         // $id = 2996; //debug only - force value
         $url = str_replace("the_id", $id, $this->local_species_page);
-        echo "\n$url\n";
+        // echo "\n$url\n";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             $html = Functions::conv_to_utf8($html);
             $html = str_replace(array("\n"), "<p>", $html);
