@@ -85,6 +85,9 @@ class FAOSpeciesAPI
             $v->taxonID         = $rec['taxon_id'];
             $v->vernacularName  = $r['comname'];
             $v->language        = $r['lang'];
+
+            if(!self::is_comname_valid($v->language)) continue;
+            
             $id = md5($r['comname'].$r['lang']);
             if(!isset($this->vernaculars[$id])) {
                 $this->archive_builder->write_object_to_file($v);
@@ -113,6 +116,9 @@ class FAOSpeciesAPI
                 $contingency = @$val[1] ? $val[1] : $val[0];
                 $language_code = @$val[0] ? $val[0] : $contingency;
                 $v->language = $language_code;
+                
+                if(!self::is_comname_valid($v->language)) continue;
+                
                 $id = md5($r['comname'].$r['lang']);
                 if(!isset($this->vernaculars[$id])) {
                     $this->archive_builder->write_object_to_file($v);
@@ -121,6 +127,13 @@ class FAOSpeciesAPI
             }
             else $this->debug['country for common names that need language code'][$country_name] = '';
         }
+    }
+    private function is_comname_valid($lang)
+    {   /*two dangling tweaks, please: First, could you remove all vernacular name records with these language codes? Looks like FAO sometimes uses country codes, 
+        and I'm not comfortable mapping these to languages.*/
+        $exclude = array("al", "ao", "at", "aw", "cl", "cn", "dk", "hk", "in", "ke", "lk", "mx", "pk", "rum");
+        if(in_array($lang, $exclude)) return false;
+        return true;
     }
     private function create_text_object($txt, $subject, $rec)
     {
