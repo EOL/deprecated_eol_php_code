@@ -232,6 +232,16 @@ class CoralTraitsAPI
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
+
+        //Special Case #5: add the other mValue
+        if($rec['value'] == 'arborescent_tables') {
+            $rek['measurementValue'] = 'http://eol.org/schema/terms/explanate';
+            //start add
+            $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
+            $occurrenceID = $ret_MoT_true['occurrenceID'];
+            $measurementID = $ret_MoT_true['measurementID'];
+        }
+        
     }
     private function run_special_cases($rec, $rek)
     {
@@ -266,9 +276,13 @@ class CoralTraitsAPI
             return $rek;
         }
         
-        
+        // #5 where value= arborescent_tables, create two records sharing all metadata, one with value= http://eol.org/schema/terms/arborescent and one with 
+        //                                                                                       value= http://eol.org/schema/terms/explanate
+        if($rec['value'] == 'arborescent_tables') {
+            $rek['measurementValue'] = 'http://eol.org/schema/terms/arborescent';
+            return $rek;
+        }
         /*
-        where value= arborescent_tables, create two records sharing all metadata, one with value= http://eol.org/schema/terms/arborescent and one with value= http://eol.org/schema/terms/explanate
         where trait_name=Abundance GBR, measurementValue is always the same, but source value determines the content of the http://purl.obolibrary.org/obo/NCIT_C70589 element. Rare: https://www.wikidata.org/entity/Q3503448, common: https://www.wikidata.org/entity/Q5153621, uncommon: http://eol.org/schema/terms/uncommon
         where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement- the child measurement should be kept and the column record discarded
         */
