@@ -191,9 +191,57 @@ class CoralTraitsAPI
 
         // $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
         if($ref_ids = self::write_references($rec)) $rek['referenceID'] = implode("; ", $ref_ids);
-        $ret_MoT_true = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+
+        $rek['measurementType']  = $mType;
+        $rek['measurementValue'] = $mValue;
+        $rek = self::run_special_cases($rec, $rek);
+
+        $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
         $occurrenceID = $ret_MoT_true['occurrenceID'];
         $measurementID = $ret_MoT_true['measurementID'];
+        
+        //Special Case #3: add the other mValue
+        if($rec['value'] == 'caespitose_corymbose') {
+            $rek['measurementValue'] = 'http://eol.org/schema/terms/caespitose';
+            //start add
+            $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
+            $occurrenceID = $ret_MoT_true['occurrenceID'];
+            $measurementID = $ret_MoT_true['measurementID'];
+        }
+    }
+    private function run_special_cases($rec, $rek)
+    {
+        //SPECIAL CASES
+        // Where trait_name = Symbiodinium sp. in propagules: if value=no, map measurementValue to http://eol.org/schema/terms/no. If value=yes, map to http://eol.org/schema/terms/symbiontInheritance
+        if($rec['trait_name'] == 'Symbiodinium sp. in propagules') {
+            if($rec['value'] == 'no') $rek['measurementValue'] = 'http://eol.org/schema/terms/no';
+            if($rec['value'] == 'yes') $rek['measurementValue'] = 'http://eol.org/schema/terms/symbiontInheritance';
+            return $rek;
+        } 
+        // Where trait_name= 'Light extinction coefficient' and units=m, map measurementType=http://eol.org/schema/terms/secchiDepth. 
+        //                                                Where units=Kd, map measurementType=https://www.wikidata.org/entity/Q902086 and the record should have no units
+        if($rec['trait_name'] == 'Light extinction coefficient') {
+            if($rec['standard_unit'] == 'm') $rek['measurementType'] = 'http://eol.org/schema/terms/secchiDepth';
+            elseif($rec['standard_unit'] == 'Kd') {
+                $rek['measurementType'] = 'https://www.wikidata.org/entity/Q902086';
+                $rek['measurementUnit'] = ''; //set to blank
+            }
+            return $rek;
+        }
+        // where value= caespitose_corymbose, create two records sharing all metadata, one with value= http://eol.org/schema/terms/corymbose and one with 
+        //                                                                                      value= http://eol.org/schema/terms/caespitose
+        if($rec['value'] == 'caespitose_corymbose') {
+            $rek['measurementValue'] = 'http://eol.org/schema/terms/corymbose';
+            return $rek;
+        }
+        
+        /*
+        where value= massive and columnar, create two records sharing all metadata, one with value= http://eol.org/schema/terms/columnar and one with value= http://purl.obolibrary.org/obo/PORO_0000389
+        where value= arborescent_tables, create two records sharing all metadata, one with value= http://eol.org/schema/terms/arborescent and one with value= http://eol.org/schema/terms/explanate
+        where trait_name=Abundance GBR, measurementValue is always the same, but source value determines the content of the http://purl.obolibrary.org/obo/NCIT_C70589 element. Rare: https://www.wikidata.org/entity/Q3503448, common: https://www.wikidata.org/entity/Q5153621, uncommon: http://eol.org/schema/terms/uncommon
+        where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement- the child measurement should be kept and the column record discarded
+        */
+        return $rek;
     }
     private function write_references($rec)
     {
