@@ -27,11 +27,8 @@ class CoralTraitsAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::load_zip_contents();
-        $this->meta['trait_name'] = self::initialize_spreadsheet_mapping('trait_name');
-        // print_r($this->meta['trait_name']['Zooxanthellate']); exit;
-        
-        $this->meta['value'] = self::initialize_spreadsheet_mapping('value');
-        // print_r($this->meta['value']['Winter']); exit;
+        $this->meta['trait_name'] = self::initialize_spreadsheet_mapping('trait_name'); // print_r($this->meta['trait_name']['Zooxanthellate']); exit;
+        $this->meta['value'] = self::initialize_spreadsheet_mapping('value');           // print_r($this->meta['value']['Winter']); exit;
         
         $temp1 = self::initialize_spreadsheet_mapping('unit');
         $temp2 = self::initialize_spreadsheet_mapping('unit', $this->spreadsheet_for_mapping2);
@@ -40,9 +37,9 @@ class CoralTraitsAPI
         echo "\n".count($temp2)."\n";
         echo "\ntotal: ".count($this->meta['standard_unit'])."\n";
         // print_r($this->meta['standard_unit']); exit("\n");
-        
-        self::process_csv('data');
-        // self::process_csv('resources');
+
+        self::process_csv('resources'); //this will initialize $this->refs
+        self::process_csv('data'); //this is the main csv file
         
         //remove temp folder and file
         recursive_rmdir($this->TEMP_FILE_PATH); // remove temp dir
@@ -58,8 +55,7 @@ class CoralTraitsAPI
         $i = 0;
         /* works ok if you don't need to format/clean the entire row.
         $file = Functions::file_open($this->text_path[$type], "r");
-        while(!feof($file)) { $row = fgetcsv($file);
-        }
+        while(!feof($file)) { $row = fgetcsv($file); }
         fclose($file);
         */
         foreach(new FileIterator($this->text_path[$type]) as $line_number => $line) {
@@ -92,7 +88,7 @@ class CoralTraitsAPI
                 $rec = array_map('trim', $rec); //important step
                 // print_r($rec); exit;
                 if($type == "data")          self::process_data_record($rec);
-                elseif($type == "resources") self::process_resources_record($rec);
+                elseif($type == "resources") self::initialize_resources_record($rec);
                 
             } //main records
             // if($i > 5) break;
@@ -245,8 +241,23 @@ class CoralTraitsAPI
             $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
-    private function process_resources_record($rec)
-    {
+    private function initialize_resources_record($rec)
+    {   /*Array(
+        [resource_id] => 543
+        [author] => Szmant, A. M.
+        [year] => 1986
+        [title] => Reproductive ecology of Caribbean reef corals
+        [doi_isbn] => 10.1007/bf00302170
+        [journal] => Coral Reefs
+        [volume_pages] => 5, 43-53
+        )*/
+        // print_r($rec); exit;
+        // Last, F. M. (Year, Month Date Published). Article title. Retrieved from URL
+        // Last, F. M. (Year Published) Book. City, State: Publisher.
+        $full_ref = "$rec[author]. ($rec[year]). $rec[title]. $rec[journal]. $rec[volume_pages].";
+        $full_ref = trim(Functions::remove_whitespace($full_ref));
+        $rec['full_ref'] = $full_ref;
+        $this->refs[$rec['resource_id']] = $rec;
     }
     private function initialize_spreadsheet_mapping($sheet, $file = false)
     {
