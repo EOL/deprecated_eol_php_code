@@ -14,7 +14,7 @@ class CoralTraitsAPI
         $this->debug = array();
         $this->for_mapping = array();
         $this->download_options = array(
-            'expire_seconds'     => 60*60*24, //expires in 1 day
+            'expire_seconds'     => 60*60*24*25, //expires in 25 days
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0; //debug only
         $this->partner_source_csv = "https://ndownloader.figshare.com/files/3678603";
@@ -173,11 +173,11 @@ class CoralTraitsAPI
         $mValue                 = @$this->meta['value'][$rec['value']]['uri'];
         $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
 
-        if(!@$this->meta['trait_name'][$rec['trait_name']])       $this->debug['undef trait'][$rec['trait_name']] = ''; //debug only
+        if(!@$this->meta['trait_name'][$rec['trait_name']])       $this->debug['undef trait'][$rec['trait_name']] = '';     //debug only - Jen might add mappings here
         if(!is_numeric($rec['value'])) {
-            if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['value']] = ''; //debug only
+            if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['value']] = '';          //debug only - Jen might add mappings here
         }
-        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = ''; //debug only
+        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
 
         $rek['SampleSize'] = $rec['replicates'];
         $rek['measurementRemarks'] = $rec['notes'];
