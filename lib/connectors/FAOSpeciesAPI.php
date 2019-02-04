@@ -83,7 +83,11 @@ class FAOSpeciesAPI
             if(!$r['comname']) continue;
             $v = new \eol_schema\VernacularName();
             $v->taxonID         = $rec['taxon_id'];
-            $v->vernacularName  = $r['comname'];
+            
+            $info = self::format_comname($r['comname']);
+            $v->vernacularName = $info['comname'];
+            $v->countryCode = $info['country_code'];
+            
             $v->language        = $r['lang'];
 
             if(!self::is_comname_valid($v->language)) continue;
@@ -109,7 +113,10 @@ class FAOSpeciesAPI
             if(!$r['comname']) continue;
             $v = new \eol_schema\VernacularName();
             $v->taxonID         = $rec['taxon_id'];
-            $v->vernacularName  = $r['comname'];
+
+            $info = self::format_comname($r['comname']);
+            $v->vernacularName = $info['comname'];
+            $v->countryCode = $info['country_code'];
             
             $country_name = $r['lang'];
             if($val = @$this->country_codes[strtoupper($country_name)]) {
@@ -127,6 +134,19 @@ class FAOSpeciesAPI
             }
             else $this->debug['country for common names that need language code'][$country_name] = '';
         }
+    }
+    private function format_comname($comname)
+    {
+        $temp = explode(" .", $comname);
+        $temp = array_map('trim', $temp);
+        $country_code = '';
+        if($country_name = @$temp[1]) {
+            if($val = @$this->country_codes[strtoupper($country_name)]) {
+                $contingency = @$val[1] ? $val[1] : $val[0];
+                $country_code = @$val[0] ? $val[0] : $contingency;
+            }
+        }
+        return array('comname' => $temp[0], 'country_code' => $country_code);
     }
     private function is_comname_valid($lang)
     {   /*two dangling tweaks, please: First, could you remove all vernacular name records with these language codes? Looks like FAO sometimes uses country codes, 
