@@ -62,6 +62,11 @@ class CoralTraitsAPI
             if(!$line) continue;
             $line = str_replace('\flume\"""', 'flume"', $line); //clean entire row. fix for 'data' csv
             $row = str_getcsv($line);
+            /* good debug
+            if(stripos($line, "Light extinction coefficient") !== false) { //string is found
+                print_r($row);
+            }
+            */
             if(!$row) continue; //continue; or break; --- should work fine
             $row = self::clean_html($row); // print_r($row);
             $i++; if(($i % 10000) == 0) echo "\n $i ";
@@ -86,6 +91,11 @@ class CoralTraitsAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
+                /* good debug
+                if(stripos($line, "Light extinction coefficient") !== false) { //string is found
+                    print_r($rec); $this->debug['monitor'] = true;
+                }
+                */
                 // print_r($rec); exit;
                 if($type == "data")          self::process_data_record($rec);
                 elseif($type == "resources") self::initialize_resources_record($rec);
@@ -194,6 +204,11 @@ class CoralTraitsAPI
 
         $rek['measurementType']  = $mType;
         $rek['measurementValue'] = $mValue;
+        /* good debug
+        if(@$this->debug['monitor']) {
+            print_r($rek); print_r($rec); exit;
+        }
+        */
         $rek = self::run_special_cases($rec, $rek);
 
         $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
@@ -217,7 +232,8 @@ class CoralTraitsAPI
             if($rec['value'] == 'no') $rek['measurementValue'] = 'http://eol.org/schema/terms/no';
             if($rec['value'] == 'yes') $rek['measurementValue'] = 'http://eol.org/schema/terms/symbiontInheritance';
             return $rek;
-        } 
+        }
+        // this Special Case is for trait_class == Contextual
         // Where trait_name= 'Light extinction coefficient' and units=m, map measurementType=http://eol.org/schema/terms/secchiDepth. 
         //                                                Where units=Kd, map measurementType=https://www.wikidata.org/entity/Q902086 and the record should have no units
         if($rec['trait_name'] == 'Light extinction coefficient') {
