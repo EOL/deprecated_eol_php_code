@@ -289,6 +289,7 @@ class CoralTraitsAPI
         // Last, F. M. (Year Published) Book. City, State: Publisher.
         $full_ref = "$rec[author]. ($rec[year]). $rec[title]. $rec[journal]. $rec[volume_pages].";
         $full_ref = trim(Functions::remove_whitespace($full_ref));
+        $full_ref = str_replace(array('...','..'), ".", $full_ref);
         $rec['full_ref'] = $full_ref;
         $this->refs[$rec['resource_id']] = $rec;
     }
@@ -374,6 +375,18 @@ class CoralTraitsAPI
         $html = str_ireplace("> |", ">", $html);
         $arr = explode($delimeter, $html);
         return $arr;
+    }
+    private function fill_up_blank_fieldnames($fields)
+    {
+        $i = 0;
+        foreach($fields as $field) {
+            if($field) $final[$field] = '';
+            else {
+                $i++;
+                $final['blank_'.$i] = '';
+            } 
+        }
+        return array_keys($final);
     }
 }
 ?>
