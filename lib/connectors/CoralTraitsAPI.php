@@ -324,9 +324,12 @@ class CoralTraitsAPI
             else $this->debug['undefined Abundance GBR'][$rec['value']] = '';
             return $rek;
         }
-        
+
+        /*
         #7 where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement
             - the child measurement should be kept and the column record discarded
+        */
+        
         return $rek;
     }
     private function write_references($rec)
