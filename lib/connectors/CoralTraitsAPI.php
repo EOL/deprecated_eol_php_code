@@ -322,11 +322,11 @@ class CoralTraitsAPI
             elseif($rec['value'] == 'common')   $rek['NCIT_C70589'] = 'https://www.wikidata.org/entity/Q5153621';
             elseif($rec['value'] == 'uncommon') $rek['NCIT_C70589'] = 'http://eol.org/schema/terms/uncommon';
             else $this->debug['undefined Abundance GBR'][$rec['value']] = '';
+            return $rek;
         }
         
-        /*
-        where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement- the child measurement should be kept and the column record discarded
-        */
+        #7 where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement
+            - the child measurement should be kept and the column record discarded
         return $rek;
     }
     private function write_references($rec)
