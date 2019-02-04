@@ -223,18 +223,27 @@ class CoralTraitsAPI
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
+
+        //Special Case #4: add the other mValue
+        if($rec['value'] == 'massive and columnar') {
+            $rek['measurementValue'] = 'http://purl.obolibrary.org/obo/PORO_0000389';
+            //start add
+            $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
+            $occurrenceID = $ret_MoT_true['occurrenceID'];
+            $measurementID = $ret_MoT_true['measurementID'];
+        }
     }
     private function run_special_cases($rec, $rek)
     {
         //SPECIAL CASES
-        // Where trait_name = Symbiodinium sp. in propagules: if value=no, map measurementValue to http://eol.org/schema/terms/no. If value=yes, map to http://eol.org/schema/terms/symbiontInheritance
+        //#1 Where trait_name = Symbiodinium sp. in propagules: if value=no, map measurementValue to http://eol.org/schema/terms/no. If value=yes, map to http://eol.org/schema/terms/symbiontInheritance
         if($rec['trait_name'] == 'Symbiodinium sp. in propagules') {
             if($rec['value'] == 'no') $rek['measurementValue'] = 'http://eol.org/schema/terms/no';
             if($rec['value'] == 'yes') $rek['measurementValue'] = 'http://eol.org/schema/terms/symbiontInheritance';
             return $rek;
         }
-        // this Special Case is for trait_class == Contextual
-        // Where trait_name= 'Light extinction coefficient' and units=m, map measurementType=http://eol.org/schema/terms/secchiDepth. 
+        // ***this Special Case is for trait_class == Contextual
+        //#2 Where trait_name= 'Light extinction coefficient' and units=m, map measurementType=http://eol.org/schema/terms/secchiDepth. 
         //                                                Where units=Kd, map measurementType=https://www.wikidata.org/entity/Q902086 and the record should have no units
         if($rec['trait_name'] == 'Light extinction coefficient') {
             if($rec['standard_unit'] == 'm') $rek['measurementType'] = 'http://eol.org/schema/terms/secchiDepth';
@@ -244,15 +253,21 @@ class CoralTraitsAPI
             }
             return $rek;
         }
-        // where value= caespitose_corymbose, create two records sharing all metadata, one with value= http://eol.org/schema/terms/corymbose and one with 
-        //                                                                                      value= http://eol.org/schema/terms/caespitose
+        //#3 where value= caespitose_corymbose, create two records sharing all metadata, one with value= http://eol.org/schema/terms/corymbose and one with 
+        //                                                                                        value= http://eol.org/schema/terms/caespitose
         if($rec['value'] == 'caespitose_corymbose') {
             $rek['measurementValue'] = 'http://eol.org/schema/terms/corymbose';
             return $rek;
         }
+        //#4 where value= massive and columnar, create two records sharing all metadata, one with value= http://eol.org/schema/terms/columnar and one with 
+        //                                                                                        value= http://purl.obolibrary.org/obo/PORO_0000389
+        if($rec['value'] == 'massive and columnar') {
+            $rek['measurementValue'] = 'http://eol.org/schema/terms/columnar';
+            return $rek;
+        }
+        
         
         /*
-        where value= massive and columnar, create two records sharing all metadata, one with value= http://eol.org/schema/terms/columnar and one with value= http://purl.obolibrary.org/obo/PORO_0000389
         where value= arborescent_tables, create two records sharing all metadata, one with value= http://eol.org/schema/terms/arborescent and one with value= http://eol.org/schema/terms/explanate
         where trait_name=Abundance GBR, measurementValue is always the same, but source value determines the content of the http://purl.obolibrary.org/obo/NCIT_C70589 element. Rare: https://www.wikidata.org/entity/Q3503448, common: https://www.wikidata.org/entity/Q5153621, uncommon: http://eol.org/schema/terms/uncommon
         where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement- the child measurement should be kept and the column record discarded
