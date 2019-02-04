@@ -137,6 +137,14 @@ class FAOSpeciesAPI
     }
     private function format_comname($comname)
     {
+        //manual 1
+        $comname = str_ireplace("(small).GERMANY", ".GERMANY", $comname);
+        $comname = str_ireplace("(name used also for other species of the genus).Mexico", ".Mexico", $comname);
+        //manual 2: remove string
+        $comname = str_ireplace("(AFS list)", "", $comname);
+        $comname = str_ireplace(".FAO Yearbook", "", $comname);
+        $comname = trim($comname);
+        
         $temp = explode(" .", $comname);
         $temp = array_map('trim', $temp);
         $country_code = '';
