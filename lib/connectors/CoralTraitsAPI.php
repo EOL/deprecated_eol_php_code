@@ -168,16 +168,6 @@ class CoralTraitsAPI
         $rek['occur']['decimalLongitude'] = $rec['longitude'];
         
         /*
-        wherever trait_class is NOT "Contextual":
-        observation_id: http://rs.tdwg.org/dwc/terms/occurrenceID
-        trait_name: http://rs.tdwg.org/dwc/terms/measurementType
-        value: http://rs.tdwg.org/dwc/terms/measurementValue
-        standard_unit: http://rs.tdwg.org/dwc/terms/measurementUnit
-        replicates: http://eol.org/schema/terms/SampleSize
-        notes: http://rs.tdwg.org/dwc/terms/measurementRemarks
-        */
-        $rek['occur']['occurrenceID'] = $rec['observation_id'];
-        /*
         from spreadsheet mapping for e.g. trait_name == 'Abundance GBR'. Need to assign these pre-defined values as prioritized values
         Array(
             [trait_name] => Abundance GBR
@@ -202,19 +192,31 @@ class CoralTraitsAPI
             $rek['GO_0007626']         = $trait_rec['http://purl.obolibrary.org/obo/GO_0007626'];
             $rek['NCIT_C70589']        = $trait_rec['http://purl.obolibrary.org/obo/NCIT_C70589'];
         }
-        else return;
-        
-        $mValue                 = @$this->meta['value'][$rec['value']]['uri'];
-        $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
+        // else return;
 
+        /*
+        wherever trait_class is NOT "Contextual":
+        observation_id: http://rs.tdwg.org/dwc/terms/occurrenceID
+        trait_name: http://rs.tdwg.org/dwc/terms/measurementType
+        value: http://rs.tdwg.org/dwc/terms/measurementValue
+        standard_unit: http://rs.tdwg.org/dwc/terms/measurementUnit
+        replicates: http://eol.org/schema/terms/SampleSize
+        notes: http://rs.tdwg.org/dwc/terms/measurementRemarks
+        */
+        $rek['occur']['occurrenceID'] = $rec['observation_id'];
+        if(!$mValue) $mValue = @$this->meta['value'][$rec['value']]['uri'];
+        $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
+        $rek['SampleSize'] = $rec['replicates'];
+        $rek['measurementRemarks'] = $rec['notes'];
+
+        /* debug only
         if(!@$trait_rec)       $this->debug['undef trait'][$rec['trait_name']] = '';     //debug only - Jen might add mappings here
         if(!is_numeric($rec['value'])) {
             if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['value']] = '';          //debug only - Jen might add mappings here
         }
         if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
-
-        $rek['SampleSize'] = $rec['replicates'];
-        $rek['measurementRemarks'] = $rec['notes'];
+        */
+        
 
         $rek["taxon_id"] = $rec['specie_id'];
         if(is_array($mValue)) print_r($mValue);
@@ -227,7 +229,6 @@ class CoralTraitsAPI
         
         $rek = self::implement_precision_cols($rec, $rek);
 
-        // $rek['statisticalMethod'] = $mapped_record['http://eol.org/schema/terms/statisticalMethod'];
         if($ref_ids = self::write_references($rec)) $rek['referenceID'] = implode("; ", $ref_ids);
 
         $rek['measurementType']  = $mType;
@@ -312,13 +313,15 @@ class CoralTraitsAPI
         }
 
         // #6 where trait_name=Abundance GBR, measurementValue is always the same, but source value determines the content of the http://purl.obolibrary.org/obo/NCIT_C70589 element. 
-        // Rare: https://www.wikidata.org/entity/Q3503448, 
+        // rare: https://www.wikidata.org/entity/Q3503448, 
         // common: https://www.wikidata.org/entity/Q5153621, 
         // uncommon: http://eol.org/schema/terms/uncommon
         if($rec['trait_name'] == 'Abundance GBR') {
-            print_r($rec); print_r($rek); 
-            print_r($this->meta['trait_name'][$rec['trait_name']]);
-            exit;
+            // print_r($rec); print_r($rek); print_r($this->meta['trait_name'][$rec['trait_name']]); exit;
+            if    ($rec['value'] == 'rare')     $rek['NCIT_C70589'] = 'https://www.wikidata.org/entity/Q3503448';
+            elseif($rec['value'] == 'common')   $rek['NCIT_C70589'] = 'https://www.wikidata.org/entity/Q5153621';
+            elseif($rec['value'] == 'uncommon') $rek['NCIT_C70589'] = 'http://eol.org/schema/terms/uncommon';
+            else $this->debug['undefined Abundance GBR'][$rec['value']] = '';
         }
         
         /*
