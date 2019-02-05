@@ -107,6 +107,7 @@ class CoralTraitsAPI
     }
     private function process_data_record($rec)
     {
+        // $this->debug['trait_class'][$rec['trait_class']] = ''; //debug only
         self::create_taxon($rec);
         self::create_trait($rec);
     }
@@ -143,9 +144,30 @@ class CoralTraitsAPI
         */
         $rek = array(); $mType = ''; $mValue = '';
         
-        if($rec['trait_class'] == "Contextual") return;
-        else { //trait_class is NOT "Contextual"
-            
+        /*[trait_class] => Array(
+            [Geographical] => 
+            [Physiological] => 
+            [Ecological] => 
+            [Conservation] => 
+            [Reproductive] => 
+            [Contextual] => 
+            [Stoichiometric] => 
+            [Morphological] => 
+            [Biomechanical] => 
+            [Phylogenetic] => 
+        )*/
+        
+
+        if($this->sought_trait_class == 'contextual') {
+            if($rec['trait_class'] == "Contextual") {
+                return;
+            }
+        }
+
+        if($this->sought_trait_class == 'non contextual') {
+            if($rec['trait_class'] != "Contextual") {
+                
+            }
         }
         
         /* good debug
@@ -276,7 +298,7 @@ class CoralTraitsAPI
     {
         //SPECIAL CASES
         //#1 Where trait_name = Symbiodinium sp. in propagules: if value=no, map measurementValue to http://eol.org/schema/terms/no. If value=yes, map to http://eol.org/schema/terms/symbiontInheritance
-        if($rec['trait_name'] == 'Symbiodinium sp. in propagules') {
+        if($rec['trait_name'] == 'Symbiodinium sp. in propagules') { //non contextual
             if($rec['value'] == 'no') $rek['measurementValue'] = 'http://eol.org/schema/terms/no';
             if($rec['value'] == 'yes') $rek['measurementValue'] = 'http://eol.org/schema/terms/symbiontInheritance';
             return $rek;
@@ -284,7 +306,7 @@ class CoralTraitsAPI
         // ***this Special Case is for trait_class == Contextual
         //#2 Where trait_name= 'Light extinction coefficient' and units=m, map measurementType=http://eol.org/schema/terms/secchiDepth. 
         //                                                Where units=Kd, map measurementType=https://www.wikidata.org/entity/Q902086 and the record should have no units
-        if($rec['trait_name'] == 'Light extinction coefficient') {
+        if($rec['trait_name'] == 'Light extinction coefficient') { //contextual
             if($rec['standard_unit'] == 'm') $rek['measurementType'] = 'http://eol.org/schema/terms/secchiDepth';
             elseif($rec['standard_unit'] == 'Kd') {
                 $rek['measurementType'] = 'https://www.wikidata.org/entity/Q902086';
@@ -294,20 +316,20 @@ class CoralTraitsAPI
         }
         //#3 where value= caespitose_corymbose, create two records sharing all metadata, one with value= http://eol.org/schema/terms/corymbose and one with 
         //                                                                                        value= http://eol.org/schema/terms/caespitose
-        if($rec['value'] == 'caespitose_corymbose') {
+        if($rec['value'] == 'caespitose_corymbose') { //non contextual
             $rek['measurementValue'] = 'http://eol.org/schema/terms/corymbose';
             return $rek;
         }
         //#4 where value= massive and columnar, create two records sharing all metadata, one with value= http://eol.org/schema/terms/columnar and one with 
         //                                                                                        value= http://purl.obolibrary.org/obo/PORO_0000389
-        if($rec['value'] == 'massive and columnar') {
+        if($rec['value'] == 'massive and columnar') { //non contextual
             $rek['measurementValue'] = 'http://eol.org/schema/terms/columnar';
             return $rek;
         }
         
         // #5 where value= arborescent_tables, create two records sharing all metadata, one with value= http://eol.org/schema/terms/arborescent and one with 
         //                                                                                       value= http://eol.org/schema/terms/explanate
-        if($rec['value'] == 'arborescent_tables') {
+        if($rec['value'] == 'arborescent_tables') { //non contextual
             $rek['measurementValue'] = 'http://eol.org/schema/terms/arborescent';
             return $rek;
         }
@@ -316,7 +338,7 @@ class CoralTraitsAPI
         // rare: https://www.wikidata.org/entity/Q3503448, 
         // common: https://www.wikidata.org/entity/Q5153621, 
         // uncommon: http://eol.org/schema/terms/uncommon
-        if($rec['trait_name'] == 'Abundance GBR') {
+        if($rec['trait_name'] == 'Abundance GBR') { //non contextual
             // print_r($rec); print_r($rek); print_r($this->meta['trait_name'][$rec['trait_name']]); exit;
             if    ($rec['value'] == 'rare')     $rek['NCIT_C70589'] = 'https://www.wikidata.org/entity/Q3503448';
             elseif($rec['value'] == 'common')   $rek['NCIT_C70589'] = 'https://www.wikidata.org/entity/Q5153621';
