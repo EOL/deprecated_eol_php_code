@@ -50,8 +50,8 @@ class CoralTraitsAPI
         self::process_csv('resources'); //this will initialize $this->refs
         
         $this->sought_trait_class = 'non contextual';   self::process_csv('data'); //this is the main csv file
-        print_r($this->OM_ids);
-        // $this->sought_trait_class = 'contextual';       self::process_csv('data'); //this is the main csv file
+        // print_r($this->OM_ids);
+        $this->sought_trait_class = 'contextual';       self::process_csv('data'); //this is the main csv file
         
         //remove temp folder and file
         recursive_rmdir($this->TEMP_FILE_PATH); // remove temp dir
@@ -127,6 +127,48 @@ class CoralTraitsAPI
         self::create_taxon($rec);
         self::create_trait($rec);
     }
+    private function process_contextual($rec, $rek)
+    {   /*wherever the trait_class=Contextual, that record will be a child measurement of all other (non-Contextual) records for the same occurrence. 
+        location_name, latitude and longitude can be ignored for the child records, as they duplicate information that will be on the occurrence record. 
+        resource_id and replicates can also be ignored on child records, as they duplicate information on the parent record. 
+        You may need to make duplicates of these records for different parents, if multiple parent records exist. 
+        
+        I think these are the only source columns you'll need to use:
+            observation_id: use to locate parent records
+            trait_name, value, standard_unit: use as above for regular records
+            value_type (only one use): http://eol.org/schema/terms/statisticalMethod
+            mapping for values of value_type:
+            raw value: http://www.ebi.ac.uk/efo/EFO_0001444
+            median: http://semanticscience.org/resource/SIO_001110
+            mean: http://semanticscience.org/resource/SIO_001109
+            ANYTHING ELSE: discard
+        */
+
+        // [159744] => Array
+        //         (
+        //             [0a862c13307ff87d696e412be8e8b62d_coraltraits] => 
+        //             [bd1968b80f100e4bc511004ba3355e45_coraltraits] => 
+        //             [75b9c1a3d82865c03d66d632c7ac4fa9_coraltraits] => 
+        //         )
+
+        $occurrence_id = $rec['observation_id'];
+        
+        if($parents = @$this->OM_ids[$occurrence_id]) {
+            $parents = array_keys($parents);
+            
+            if($occurrence_id == 159744)
+            {
+                print_r($parents);
+                exit;
+
+            }
+            
+            
+        }
+        
+        
+        
+    }
     private function create_trait($rec)
     {
         /*Array(
@@ -176,7 +218,7 @@ class CoralTraitsAPI
         //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start contextual
         if($this->sought_trait_class == 'contextual') {
             if($rec['trait_class'] == "Contextual") {
-                // self::process_contextual($rec, $rek);
+                self::process_contextual($rec, $rek);
                 return;
             }
             else return;
