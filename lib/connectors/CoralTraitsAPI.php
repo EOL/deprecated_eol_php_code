@@ -40,8 +40,8 @@ class CoralTraitsAPI
 
         self::process_csv('resources'); //this will initialize $this->refs
         
-        $this->sought_trait_class = 'non contextual'   self::process_csv('data'); //this is the main csv file
-        // $this->sought_trait_class = 'contextual'       self::process_csv('data'); //this is the main csv file
+        $this->sought_trait_class = 'non contextual';   self::process_csv('data'); //this is the main csv file
+        // $this->sought_trait_class = 'contextual';       self::process_csv('data'); //this is the main csv file
         
         //remove temp folder and file
         recursive_rmdir($this->TEMP_FILE_PATH); // remove temp dir
