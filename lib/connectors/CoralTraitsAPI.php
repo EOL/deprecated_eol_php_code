@@ -187,6 +187,10 @@ class CoralTraitsAPI
                 if(!@$rek['measurementType']) return;
                 // $rek['source'] = $this->source . $rec['specie_id'];
                 // $rek['bibliographicCitation'] = $this->bibliographicCitation;
+                
+                //manual adjustment, probably data error
+                if($rek['measurementType'] == "http://purl.obolibrary.org/obo/PATO_0002243" && !$rek['measurementValue']) return;
+                
                 $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], "child"); //for child measurement
             }
         }
