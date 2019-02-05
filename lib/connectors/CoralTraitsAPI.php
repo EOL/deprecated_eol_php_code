@@ -286,7 +286,7 @@ class CoralTraitsAPI
         if(!is_numeric($rec['value'])) {
             if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['trait_name']][$rec['value']] = '';          //debug only - Jen might add mappings here
         }
-        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['trait_name']][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
+        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
         // */
 
         $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
@@ -295,8 +295,7 @@ class CoralTraitsAPI
         
         //Special Case #3: add the other mValue
         if($rec['value'] == 'caespitose_corymbose') {
-            $rek['measurementValue'] = 'http://eol.org/schema/terms/caespitose';
-            //start add
+            $rek['measurementValue'] = 'http://eol.org/schema/terms/caespitose';        //start add
             $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
@@ -304,8 +303,7 @@ class CoralTraitsAPI
 
         //Special Case #4: add the other mValue
         if($rec['value'] == 'massive and columnar') {
-            $rek['measurementValue'] = 'http://purl.obolibrary.org/obo/PORO_0000389';
-            //start add
+            $rek['measurementValue'] = 'http://purl.obolibrary.org/obo/PORO_0000389';   //start add
             $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
@@ -313,13 +311,11 @@ class CoralTraitsAPI
 
         //Special Case #5: add the other mValue
         if($rec['value'] == 'arborescent_tables') {
-            $rek['measurementValue'] = 'http://eol.org/schema/terms/explanate';
-            //start add
+            $rek['measurementValue'] = 'http://eol.org/schema/terms/explanate';         //start add
             $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
-        
     }
     private function run_special_cases($rec, $rek)
     {
