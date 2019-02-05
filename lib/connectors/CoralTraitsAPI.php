@@ -165,26 +165,12 @@ class CoralTraitsAPI
                 $rek["taxon_id"] = $taxon_id;
                 $rek["catnum"] = ''; //can be blank coz there'll be no occurrence for child measurements anyway.
                 $rek['occur']['occurrenceID'] = ''; //child measurements don't have occurrenceID
-
-                // $mOfTaxon = "true";
-
-
                 $rek['parentMeasurementID'] = $measurementID;
-                
                 if($trait_rec = @$this->meta['trait_name'][$rec['trait_name']]) {
                     $mType                     = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementType'];
                     $mValue                    = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                     $rek['statisticalMethod']  = $trait_rec['http://eol.org/schema/terms/statisticalMethod'];
                 }
-
-                /*
-                wherever trait_class is NOT "Contextual":
-                observation_id: http://rs.tdwg.org/dwc/terms/occurrenceID
-                trait_name: http://rs.tdwg.org/dwc/terms/measurementType
-                value: http://rs.tdwg.org/dwc/terms/measurementValue
-                standard_unit: http://rs.tdwg.org/dwc/terms/measurementUnit
-                notes: http://rs.tdwg.org/dwc/terms/measurementRemarks
-                */
                 if(!$mValue) $mValue = @$this->meta['value'][$rec['value']]['uri'];
                 if(!$mValue) $mValue = $rec['value']; //meaning get from source, not URI
                 $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
@@ -193,13 +179,13 @@ class CoralTraitsAPI
                 $rek['measurementMethod'] = "$rec[methodology_name] ($rec[value_type])";
                 $rek['statisticalMethod'] = self::get_smethod($rec['value_type']);
                 $rek = self::implement_precision_cols($rec, $rek);
-                if($ref_ids = self::write_references($rec)) $rek['referenceID'] = implode("; ", $ref_ids);
+                // if($ref_ids = self::write_references($rec)) $rek['referenceID'] = implode("; ", $ref_ids);
                 $rek['measurementType']  = $mType;
                 $rek['measurementValue'] = $mValue;
                 $rek = self::run_special_cases($rec, $rek, true); //3rd param contextualYN
                 if(!@$rek['measurementType']) return;
-                $rek['source'] = $this->source . $rec['specie_id'];
-                $rek['bibliographicCitation'] = $this->bibliographicCitation;
+                // $rek['source'] = $this->source . $rec['specie_id'];
+                // $rek['bibliographicCitation'] = $this->bibliographicCitation;
                 $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], "child"); //for child measurement
             }
         }
