@@ -190,71 +190,8 @@ class CoralTraitsAPI
             }
         }
     }
-    private function create_trait($rec)
+    private function process_non_contextual($rec, $rek)
     {
-        /*Array(
-            [observation_id] => 25
-            [access] => 1
-            [user_id] => 2
-            [specie_id] => 968
-            [specie_name] => Micromussa amakusensis
-            [location_id] => 1
-            [location_name] => Global estimate
-            [latitude] => 
-            [longitude] => 
-            [resource_id] => 40
-            [resource_secondary_id] => 48
-            [measurement_id] => 
-            [trait_id] => 40
-            [trait_name] => Ocean basin
-            [trait_class] => Geographical
-            [standard_id] => 10
-            [standard_unit] => cat
-            [methodology_id] => 9
-            [methodology_name] => Derived from range map
-            [value] => pacific
-            [value_type] => expert_opinion
-            [precision] => 
-            [precision_type] => 
-            [precision_upper] => 
-            [replicates] => 
-            [notes] => 
-        )
-        */
-        $rek = array(); $mType = ''; $mValue = '';
-        
-        /*[trait_class] => Array(
-            [Geographical] => 
-            [Physiological] => 
-            [Ecological] => 
-            [Conservation] => 
-            [Reproductive] => 
-            [Contextual] => 
-            [Stoichiometric] => 
-            [Morphological] => 
-            [Biomechanical] => 
-            [Phylogenetic] => 
-        )*/
-        
-        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start contextual
-        if($this->sought_trait_class == 'contextual') {
-            if($rec['trait_class'] == "Contextual") {
-                self::process_contextual($rec, $rek);
-                return;
-            }
-            else return;
-        }
-        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end contextual
-
-        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start non contextual
-        if($this->sought_trait_class == 'non contextual') {
-            if($rec['trait_class'] != "Contextual") {
-                
-            }
-            else return;
-        }
-        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end non contextual
-        
         /* good debug
         // $this->debug['value_type'][$rec['value_type']] = ''; return;
         $this->debug['precision'][$rec['precision']] = ''; 
@@ -374,7 +311,6 @@ class CoralTraitsAPI
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
-
         //Special Case #4: add the other mValue
         if($rec['value'] == 'massive and columnar') {
             $rek['measurementValue'] = 'http://purl.obolibrary.org/obo/PORO_0000389';   //start add
@@ -382,7 +318,6 @@ class CoralTraitsAPI
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
-
         //Special Case #5: add the other mValue
         if($rec['value'] == 'arborescent_tables') {
             $rek['measurementValue'] = 'http://eol.org/schema/terms/explanate';         //start add
@@ -390,6 +325,60 @@ class CoralTraitsAPI
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
+    }
+    private function create_trait($rec)
+    {
+        /*Array(
+            [observation_id] => 25
+            [access] => 1
+            [user_id] => 2
+            [specie_id] => 968
+            [specie_name] => Micromussa amakusensis
+            [location_id] => 1
+            [location_name] => Global estimate
+            [latitude] => 
+            [longitude] => 
+            [resource_id] => 40
+            [resource_secondary_id] => 48
+            [measurement_id] => 
+            [trait_id] => 40
+            [trait_name] => Ocean basin
+            [trait_class] => Geographical
+            [standard_id] => 10
+            [standard_unit] => cat
+            [methodology_id] => 9
+            [methodology_name] => Derived from range map
+            [value] => pacific
+            [value_type] => expert_opinion
+            [precision] => 
+            [precision_type] => 
+            [precision_upper] => 
+            [replicates] => 
+            [notes] => 
+        )
+        */
+        $rek = array(); $mType = ''; $mValue = '';
+        /*[trait_class] => Array(
+            [Geographical] [Physiological] [Ecological] [Conservation] [Reproductive] [Contextual] [Stoichiometric] [Morphological] [Biomechanical] [Phylogenetic]
+        )*/
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start contextual
+        if($this->sought_trait_class == 'contextual') {
+            if($rec['trait_class'] == "Contextual") {
+                self::process_contextual($rec, $rek);
+                return;
+            }
+            else return;
+        }
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end contextual
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start non contextual
+        if($this->sought_trait_class == 'non contextual') {
+            if($rec['trait_class'] != "Contextual") {
+                self::process_non_contextual($rec, $rek);
+                return;
+            }
+            else return;
+        }
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end non contextual
     }
     private function run_special_cases($rec, $rek, $contextualYN = false)
     {
