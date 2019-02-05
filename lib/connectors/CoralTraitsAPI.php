@@ -21,6 +21,9 @@ class CoralTraitsAPI
         $this->download_version = "ctdb_1.1.1";
         $this->spreadsheet_for_mapping  = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/coraltraits_mapping.xlsx"; //from Jen (DATA-1793)
         $this->spreadsheet_for_mapping2 = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/coraltraits_mapping_Eli.xlsx";
+        
+        $this->source                = "https://coraltraits.org/species/";
+        $this->bibliographicCitation = "Madin, Joshua (2016): Coral Trait Database 1.1.1. figshare. Dataset. https://doi.org/10.6084/m9.figshare.2067414.v1";
     }
     function start()
     {
@@ -47,6 +50,7 @@ class CoralTraitsAPI
         self::process_csv('resources'); //this will initialize $this->refs
         
         $this->sought_trait_class = 'non contextual';   self::process_csv('data'); //this is the main csv file
+        print_r($this->OM_ids);
         // $this->sought_trait_class = 'contextual';       self::process_csv('data'); //this is the main csv file
         
         //remove temp folder and file
@@ -172,6 +176,9 @@ class CoralTraitsAPI
         //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start contextual
         if($this->sought_trait_class == 'contextual') {
             if($rec['trait_class'] == "Contextual") {
+                
+                
+                
                 return;
             }
         }
@@ -289,9 +296,13 @@ class CoralTraitsAPI
         if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
         // */
 
-        $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
+        $rek['source'] = $this->source . $rec['specie_id'];
+        $rek['bibliographicCitation'] = $this->bibliographicCitation;
+
+        $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon); //main add trait
         $occurrenceID = $ret_MoT_true['occurrenceID'];
         $measurementID = $ret_MoT_true['measurementID'];
+        $this->OM_ids[$occurrenceID][$measurementID] = '';
         
         //Special Case #3: add the other mValue
         if($rec['value'] == 'caespitose_corymbose') {
