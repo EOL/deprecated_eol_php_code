@@ -127,7 +127,7 @@ class CoralTraitsAPI
         self::create_taxon($rec);
         self::create_trait($rec);
     }
-    private function process_contextual($rec, $rek)
+    private function process_contextual($rec)
     {   /*wherever the trait_class=Contextual, that record will be a child measurement of all other (non-Contextual) records for the same occurrence. 
         location_name, latitude and longitude can be ignored for the child records, as they duplicate information that will be on the occurrence record. 
         resource_id and replicates can also be ignored on child records, as they duplicate information on the parent record. 
@@ -150,6 +150,7 @@ class CoralTraitsAPI
         //             [bd1968b80f100e4bc511004ba3355e45_coraltraits] => 
         //             [75b9c1a3d82865c03d66d632c7ac4fa9_coraltraits] => 
         //         )
+        $rek = array(); $mType = ''; $mValue = '';
         $occurrence_id = $rec['observation_id'];
         if($parents = @$this->OM_ids[$occurrence_id]) {
             $parents = array_keys($parents);
@@ -176,7 +177,7 @@ class CoralTraitsAPI
                 $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
                 $rek['measurementRemarks'] = $rec['notes'];
                 /* http://rs.tdwg.org/dwc/terms/measurementMethod will be concatenated as "methodology_name (value_type)" */
-                $rek['measurementMethod'] = "$rec[methodology_name] ($rec[value_type])";
+                $rek['measurementMethod'] = self::format_methodology($rec);
                 $rek['statisticalMethod'] = self::get_smethod($rec['value_type']);
                 $rek = self::implement_precision_cols($rec, $rek);
                 // if($ref_ids = self::write_references($rec)) $rek['referenceID'] = implode("; ", $ref_ids);
@@ -190,7 +191,15 @@ class CoralTraitsAPI
             }
         }
     }
-    private function process_non_contextual($rec, $rek)
+    private function format_methodology($rec)
+    {
+        $tmp = '';
+        if($val = $rec['methodology_name']) $tmp .= $val;
+        if($val = $rec['value_type'])       $tmp .= " ($val)";
+        return trim($tmp);
+        // "$rec[methodology_name] ($rec[value_type])"
+    }
+    private function process_non_contextual($rec)
     {
         /* good debug
         // $this->debug['value_type'][$rec['value_type']] = ''; return;
@@ -205,6 +214,7 @@ class CoralTraitsAPI
         latitude: http://rs.tdwg.org/dwc/terms/decimalLatitude
         longitude: http://rs.tdwg.org/dwc/terms/decimalLongitude
         */
+        $rek = array(); $mType = ''; $mValue = '';
         $rek['occur']['taxonID'] = $rec['specie_id'];
         $rek['occur']['occurrenceID'] = $rec['observation_id']; //will duplicate below, but its OK.
         $rek['occur']['locality'] = $rec['location_name'];
@@ -260,7 +270,7 @@ class CoralTraitsAPI
         $mOfTaxon = "true";
 
         /* http://rs.tdwg.org/dwc/terms/measurementMethod will be concatenated as "methodology_name (value_type)" */
-        $rek['measurementMethod'] = "$rec[methodology_name] ($rec[value_type])";
+        $rek['measurementMethod'] = self::format_methodology($rec);
         $rek['statisticalMethod'] = self::get_smethod($rec['value_type']);
         
         $rek = self::implement_precision_cols($rec, $rek);
@@ -357,14 +367,13 @@ class CoralTraitsAPI
             [notes] => 
         )
         */
-        $rek = array(); $mType = ''; $mValue = '';
         /*[trait_class] => Array(
             [Geographical] [Physiological] [Ecological] [Conservation] [Reproductive] [Contextual] [Stoichiometric] [Morphological] [Biomechanical] [Phylogenetic]
         )*/
         //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start contextual
         if($this->sought_trait_class == 'contextual') {
             if($rec['trait_class'] == "Contextual") {
-                self::process_contextual($rec, $rek);
+                self::process_contextual($rec);
                 return;
             }
             else return;
@@ -373,7 +382,7 @@ class CoralTraitsAPI
         //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start non contextual
         if($this->sought_trait_class == 'non contextual') {
             if($rec['trait_class'] != "Contextual") {
-                self::process_non_contextual($rec, $rek);
+                self::process_non_contextual($rec);
                 return;
             }
             else return;
