@@ -39,7 +39,9 @@ class CoralTraitsAPI
         // print_r($this->meta['standard_unit']); exit("\n");
 
         self::process_csv('resources'); //this will initialize $this->refs
-        self::process_csv('data'); //this is the main csv file
+        
+        $this->sought_trait_class = 'non contextual'   self::process_csv('data'); //this is the main csv file
+        // $this->sought_trait_class = 'contextual'       self::process_csv('data'); //this is the main csv file
         
         //remove temp folder and file
         recursive_rmdir($this->TEMP_FILE_PATH); // remove temp dir
@@ -157,18 +159,21 @@ class CoralTraitsAPI
             [Phylogenetic] => 
         )*/
         
-
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start contextual
         if($this->sought_trait_class == 'contextual') {
             if($rec['trait_class'] == "Contextual") {
                 return;
             }
         }
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end contextual
 
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start non contextual
         if($this->sought_trait_class == 'non contextual') {
             if($rec['trait_class'] != "Contextual") {
                 
             }
         }
+        //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end non contextual
         
         /* good debug
         // $this->debug['value_type'][$rec['value_type']] = ''; return;
