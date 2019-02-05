@@ -286,7 +286,7 @@ class CoralTraitsAPI
         if(!is_numeric($rec['value'])) {
             if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['trait_name']][$rec['value']] = '';          //debug only - Jen might add mappings here
         }
-        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['trait_name'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
+        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['trait_name']][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
         // */
 
         $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
