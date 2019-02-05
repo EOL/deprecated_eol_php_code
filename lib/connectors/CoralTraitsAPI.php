@@ -441,14 +441,12 @@ class CoralTraitsAPI
             $rek['measurementValue'] = 'http://eol.org/schema/terms/columnar';
             return $rek;
         }
-        
         // #5 where value= arborescent_tables, create two records sharing all metadata, one with value= http://eol.org/schema/terms/arborescent and one with 
         //                                                                                       value= http://eol.org/schema/terms/explanate
         if($rec['value'] == 'arborescent_tables') { //non contextual
             $rek['measurementValue'] = 'http://eol.org/schema/terms/arborescent';
             return $rek;
         }
-
         // #6 where trait_name=Abundance GBR, measurementValue is always the same, but source value determines the content of the http://purl.obolibrary.org/obo/NCIT_C70589 element. 
         // rare: https://www.wikidata.org/entity/Q3503448, 
         // common: https://www.wikidata.org/entity/Q5153621, 
@@ -461,12 +459,10 @@ class CoralTraitsAPI
             else $this->debug['undefined Abundance GBR'][$rec['value']] = '';
             return $rek;
         }
-
         /*
         #7 where statisticalmethod is provided twice- once as a column in the trait_name mapping and once as a child measurement
             - the child measurement should be kept and the column record discarded
         */
-        
         return $rek;
     }
     private function write_references($rec)
