@@ -142,32 +142,67 @@ class CoralTraitsAPI
             median: http://semanticscience.org/resource/SIO_001110
             mean: http://semanticscience.org/resource/SIO_001109
             ANYTHING ELSE: discard
+            
+            methodology_name, precision, precision_type, notes: use as above for regular records. 
         */
-
-        // [159744] => Array
-        //         (
+        // [159744] => Array(
         //             [0a862c13307ff87d696e412be8e8b62d_coraltraits] => 
         //             [bd1968b80f100e4bc511004ba3355e45_coraltraits] => 
         //             [75b9c1a3d82865c03d66d632c7ac4fa9_coraltraits] => 
         //         )
-
         $occurrence_id = $rec['observation_id'];
-        
         if($parents = @$this->OM_ids[$occurrence_id]) {
             $parents = array_keys($parents);
-            
-            if($occurrence_id == 159744)
-            {
+            /*good debug
+            if($occurrence_id == 159744) {
                 print_r($parents);
                 exit;
-
             }
-            
-            
+            */
+            $taxon_id = $rec['specie_id'];
+            foreach($parents as $measurementID) { //let us now create child measurements
+                $rek = array();
+                $rek["taxon_id"] = $taxon_id;
+                $rek["catnum"] = ''; //can be blank coz there'll be no occurrence for child measurements anyway.
+                $rek['occur']['occurrenceID'] = ''; //child measurements don't have occurrenceID
+
+                // $mOfTaxon = "true";
+
+
+                $rek['parentMeasurementID'] = $measurementID;
+                
+                if($trait_rec = @$this->meta['trait_name'][$rec['trait_name']]) {
+                    $mType                     = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+                    $mValue                    = $trait_rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                    $rek['statisticalMethod']  = $trait_rec['http://eol.org/schema/terms/statisticalMethod'];
+                }
+
+                /*
+                wherever trait_class is NOT "Contextual":
+                observation_id: http://rs.tdwg.org/dwc/terms/occurrenceID
+                trait_name: http://rs.tdwg.org/dwc/terms/measurementType
+                value: http://rs.tdwg.org/dwc/terms/measurementValue
+                standard_unit: http://rs.tdwg.org/dwc/terms/measurementUnit
+                notes: http://rs.tdwg.org/dwc/terms/measurementRemarks
+                */
+                if(!$mValue) $mValue = @$this->meta['value'][$rec['value']]['uri'];
+                if(!$mValue) $mValue = $rec['value']; //meaning get from source, not URI
+                $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
+                $rek['measurementRemarks'] = $rec['notes'];
+                /* http://rs.tdwg.org/dwc/terms/measurementMethod will be concatenated as "methodology_name (value_type)" */
+                $rek['measurementMethod'] = "$rec[methodology_name] ($rec[value_type])";
+                $rek['statisticalMethod'] = self::get_smethod($rec['value_type']);
+                $rek = self::implement_precision_cols($rec, $rek);
+                if($ref_ids = self::write_references($rec)) $rek['referenceID'] = implode("; ", $ref_ids);
+                $rek['measurementType']  = $mType;
+                $rek['measurementValue'] = $mValue;
+                $rek = self::run_special_cases($rec, $rek, true); //3rd param contextualYN
+                if(!@$rek['measurementType']) return;
+                $rek['source'] = $this->source . $rec['specie_id'];
+                $rek['bibliographicCitation'] = $this->bibliographicCitation;
+                $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], "child"); //for child measurement
+            }
         }
-        
-        
-        
     }
     private function create_trait($rec)
     {
@@ -370,24 +405,28 @@ class CoralTraitsAPI
             $measurementID = $ret_MoT_true['measurementID'];
         }
     }
-    private function run_special_cases($rec, $rek)
+    private function run_special_cases($rec, $rek, $contextualYN = false)
     {
-        //SPECIAL CASES
+        if($contextualYN) {
+            // ***this Special Case is for trait_class == Contextual
+            //#2 Where trait_name= 'Light extinction coefficient' and units=m, map measurementType=http://eol.org/schema/terms/secchiDepth. 
+            //                                                Where units=Kd, map measurementType=https://www.wikidata.org/entity/Q902086 and the record should have no units
+            if($rec['trait_name'] == 'Light extinction coefficient') { //contextual
+                if($rec['standard_unit'] == 'm') $rek['measurementType'] = 'http://eol.org/schema/terms/secchiDepth';
+                elseif($rec['standard_unit'] == 'Kd') {
+                    $rek['measurementType'] = 'https://www.wikidata.org/entity/Q902086';
+                    $rek['measurementUnit'] = ''; //set to blank
+                }
+                return $rek;
+            }
+            return $rek;
+        }
+        
+        /* ---All below here is for: non contextual--- */
         //#1 Where trait_name = Symbiodinium sp. in propagules: if value=no, map measurementValue to http://eol.org/schema/terms/no. If value=yes, map to http://eol.org/schema/terms/symbiontInheritance
         if($rec['trait_name'] == 'Symbiodinium sp. in propagules') { //non contextual
             if($rec['value'] == 'no') $rek['measurementValue'] = 'http://eol.org/schema/terms/no';
             if($rec['value'] == 'yes') $rek['measurementValue'] = 'http://eol.org/schema/terms/symbiontInheritance';
-            return $rek;
-        }
-        // ***this Special Case is for trait_class == Contextual
-        //#2 Where trait_name= 'Light extinction coefficient' and units=m, map measurementType=http://eol.org/schema/terms/secchiDepth. 
-        //                                                Where units=Kd, map measurementType=https://www.wikidata.org/entity/Q902086 and the record should have no units
-        if($rec['trait_name'] == 'Light extinction coefficient') { //contextual
-            if($rec['standard_unit'] == 'm') $rek['measurementType'] = 'http://eol.org/schema/terms/secchiDepth';
-            elseif($rec['standard_unit'] == 'Kd') {
-                $rek['measurementType'] = 'https://www.wikidata.org/entity/Q902086';
-                $rek['measurementUnit'] = ''; //set to blank
-            }
             return $rek;
         }
         //#3 where value= caespitose_corymbose, create two records sharing all metadata, one with value= http://eol.org/schema/terms/corymbose and one with 
