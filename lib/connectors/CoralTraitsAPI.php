@@ -176,11 +176,10 @@ class CoralTraitsAPI
         //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ start contextual
         if($this->sought_trait_class == 'contextual') {
             if($rec['trait_class'] == "Contextual") {
-                
-                
-                
+                // self::process_contextual($rec, $rek);
                 return;
             }
+            else return;
         }
         //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end contextual
 
@@ -189,6 +188,7 @@ class CoralTraitsAPI
             if($rec['trait_class'] != "Contextual") {
                 
             }
+            else return;
         }
         //$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ end non contextual
         
