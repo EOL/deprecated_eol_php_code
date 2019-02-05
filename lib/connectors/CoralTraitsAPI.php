@@ -28,14 +28,20 @@ class CoralTraitsAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::load_zip_contents();
         $this->meta['trait_name'] = self::initialize_spreadsheet_mapping('trait_name'); // print_r($this->meta['trait_name']['Zooxanthellate']); exit;
-        $this->meta['value'] = self::initialize_spreadsheet_mapping('value');           // print_r($this->meta['value']['Winter']); exit;
+
+        $temp1 = $this->meta['value'] = self::initialize_spreadsheet_mapping('value');           // print_r($this->meta['value']['Winter']); exit;
+        $temp2 = $this->meta['value'] = self::initialize_spreadsheet_mapping('value', $this->spreadsheet_for_mapping2);
+        $this->meta['value'] = array_merge($temp1, $temp2);
+        echo "\n".count($temp1)."\n";
+        echo "\n".count($temp2)."\n";
+        echo "\ntotal [value]: ".count($this->meta['value'])."\n";
         
         $temp1 = self::initialize_spreadsheet_mapping('unit');
         $temp2 = self::initialize_spreadsheet_mapping('unit', $this->spreadsheet_for_mapping2);
         $this->meta['standard_unit'] = array_merge($temp1, $temp2);
         echo "\n".count($temp1)."\n";
         echo "\n".count($temp2)."\n";
-        echo "\ntotal: ".count($this->meta['standard_unit'])."\n";
+        echo "\ntotal [standard_unit]: ".count($this->meta['standard_unit'])."\n";
         // print_r($this->meta['standard_unit']); exit("\n");
 
         self::process_csv('resources'); //this will initialize $this->refs
@@ -110,6 +116,10 @@ class CoralTraitsAPI
     private function process_data_record($rec)
     {
         // $this->debug['trait_class'][$rec['trait_class']] = ''; //debug only
+        
+        // if($rec['trait_name'] == 'Flow rate') {
+        //     $this->debug['trait_class'][$rec['trait_name']][$rec['value']] = ''; //debug only
+        // }
         self::create_taxon($rec);
         self::create_trait($rec);
     }
@@ -232,21 +242,13 @@ class CoralTraitsAPI
         */
         $rek['occur']['occurrenceID'] = $rec['observation_id'];
         if(!$mValue) $mValue = @$this->meta['value'][$rec['value']]['uri'];
+        if(!$mValue) $mValue = $rec['value']; //meaning get from source, not URI
         $rek['measurementUnit'] = @$this->meta['standard_unit'][$rec['standard_unit']]['uri'];
         $rek['SampleSize'] = $rec['replicates'];
         $rek['measurementRemarks'] = $rec['notes'];
 
-        /* debug only
-        if(!@$trait_rec)       $this->debug['undef trait'][$rec['trait_name']] = '';     //debug only - Jen might add mappings here
-        if(!is_numeric($rec['value'])) {
-            if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['value']] = '';          //debug only - Jen might add mappings here
-        }
-        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
-        */
-        
-
         $rek["taxon_id"] = $rec['specie_id'];
-        if(is_array($mValue)) print_r($mValue);
+        // if(is_array($mValue)) print_r($mValue);
         $rek["catnum"] = "_".$mValue;
         $mOfTaxon = "true";
 
@@ -265,7 +267,27 @@ class CoralTraitsAPI
             print_r($rek); print_r($rec); exit;
         }
         */
+        
+        /*debug only
+        if($rec['trait_name'] == "Flow rate") {
+            print_r($rec); print_r($rek);
+        }
+        */
         $rek = self::run_special_cases($rec, $rek);
+        if(!@$rek['measurementType']) return;
+        /*debug only
+        if($rec['trait_name'] == "Flow rate") {
+            // print_r($rec); print_r($rek); exit;
+        }
+        */
+
+        // /* debug only
+        if(!@$trait_rec)       $this->debug['undef trait'][$rec['trait_name']] = '';     //debug only - Jen might add mappings here
+        if(!is_numeric($rec['value'])) {
+            if(!@$this->meta['value'][$rec['value']])             $this->debug['undef value'][$rec['trait_name']][$rec['value']] = '';          //debug only - Jen might add mappings here
+        }
+        if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit'][$rec['trait_name'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
+        // */
 
         $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
         $occurrenceID = $ret_MoT_true['occurrenceID'];
