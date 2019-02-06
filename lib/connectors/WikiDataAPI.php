@@ -168,6 +168,7 @@ class WikiDataAPI
             [File:Alnus_acuminata_4.jpg] =>                         no real agent
         */
         // https://commons.wikimedia.org/wiki/File:Aa_species.jpg
+        // https://commons.wikimedia.org/wiki/File:Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg
         $arr = self::process_file("Aa_species.jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
         print_r($arr);
         exit("\n-Finished testing-\n");
@@ -525,9 +526,11 @@ class WikiDataAPI
         $id = $ancestry['id'];
         if(!isset($this->saved_ids[$id])) {
             $this->saved_ids[$id] = '';
-            if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "a"))) return;
-            fwrite($f, json_encode($ancestry)."\n");
-            fclose($f);
+            if(isset($this->TEMP_FILE_PATH)) { //bec step 5 in Jenkins -> Wikimedia Commons: [Project 05 Finalize media filenames] doesn't need this step.
+                if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "a"))) return;
+                fwrite($f, json_encode($ancestry)."\n");
+                fclose($f);
+            }
         }
     }
     
