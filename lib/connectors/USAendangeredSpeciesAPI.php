@@ -25,7 +25,7 @@ class USAendangeredSpeciesAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
 
         $groups = array('animals', 'plants');
-        $groups = array('plants');
+        // $groups = array('plants');
         foreach($groups as $group) self::process_group($group);
 
         // exit;
@@ -91,7 +91,7 @@ class USAendangeredSpeciesAPI
         $taxon->taxonID         = $rec['taxon_id'];
         $taxon->scientificName  = $rec['taxon_name'];
         // $taxon->taxonRank             = '';
-        $taxon->furtherInformationURL = $this->page['taxon'].$rec['taxon_id'];
+        // $taxon->furtherInformationURL = $this->page['taxon'].$rec['taxon_id'];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
@@ -106,7 +106,7 @@ class USAendangeredSpeciesAPI
         $mValue = self::get_URI($rek['conserv_stat']);
         // $rec['measurementRemarks'] = $string_val;
         // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
-        // $rec['source'] = $this->partner_source_url;
+        $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
         // $rec['referenceID'] = 1;
         $this->func->add_string_types($rec, $mValue, $mType, "true");
     }
