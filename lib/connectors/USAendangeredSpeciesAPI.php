@@ -17,6 +17,7 @@ class USAendangeredSpeciesAPI
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->page['animals'] = 'https://ecos.fws.gov/ecp0/reports/ad-hoc-species-report?kingdom=V&kingdom=I&status=E&status=T&status=EmE&status=EmT&status=EXPE&status=EXPN&status=SAE&status=SAT&mapstatus=3&fcrithab=on&fstatus=on&fspecrule=on&finvpop=on&fgroup=on&header=Listed+Animals';
         $this->page['plants'] = 'https://ecos.fws.gov/ecp0/reports/ad-hoc-species-report?kingdom=P&status=E&status=T&status=EmE&status=EmT&status=EXPE&status=EXPN&status=SAE&status=SAT&mapstatus=3&fcrithab=on&fstatus=on&fspecrule=on&finvpop=on&fgroup=on&ffamily=on&header=Listed+Plants';
+        $this->page['taxon']= 'https://ecos.fws.gov/ecp0/profile/speciesProfile?sId=';
     }
     function start()
     {
@@ -27,7 +28,7 @@ class USAendangeredSpeciesAPI
         $groups = array('animals');
         foreach($groups as $group) self::process_group($group);
 
-        exit;
+        // exit;
         $this->archive_builder->finalize(true);
         Functions::start_print_debug($this->debug, $this->resource_id);
     }
@@ -67,10 +68,45 @@ class USAendangeredSpeciesAPI
             [federal_listing_status] => <i class='fa fa-info-circle' title='Endangered! E = endangered. A species in danger of extinction throughout all or a significant portion of its range.'></i>  Endangered
             [special_rules] => N/A
             [where_listed] => Wherever found
+            [taxon_id] => 615
+            [taxon_name] => Zyzomys pedunculatus
+            [conserv_stat] => Endangered
         )*/
+        if($rec['common_name'] == 'No common name') $rec['common_name'] = '';
         if(preg_match("/\/species\/(.*?)\"/ims", $rec['scientific_name'], $arr)) $rec['taxon_id'] = $arr[1];
         $rec['taxon_name'] = strip_tags($rec['scientific_name']);
-        print_r($rec);
+        if(preg_match("/title=\'(.*?)\!/ims", $rec['federal_listing_status'], $arr)) $rec['conserv_stat'] = $arr[1];
+        if(@$rec['taxon_name'] && @$rec['conserv_stat']) self::write_archive($rec);
+    }
+    private function write_archive($rec)
+    {
+        self::create_taxon($rec);
+        if(@$rec['common_name']) self::create_vernaculars($rec);
+    }
+    private function create_taxon($rec)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = $rec['taxon_id'];
+        $taxon->scientificName  = $rec['taxon_name'];
+        // $taxon->taxonRank             = '';
+        $taxon->furtherInformationURL = $this->page['taxon'].$rec['taxon_id'];
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+    }
+    private function create_vernaculars($rec)
+    {
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID         = $rec['taxon_id'];
+        $v->vernacularName  = $rec['common_name'];
+        $v->language        = 'en';
+        // $v->countryCode     = '';
+        $md5 = md5($rec['taxon_id'].$rec['common_name']);
+        if(!isset($this->comnames[$md5])) {
+            $this->archive_builder->write_object_to_file($v);
+            $this->comnames[$md5] = '';
+        }
     }
     private function get_fields_from_tr($str)
     {
@@ -80,25 +116,6 @@ class USAendangeredSpeciesAPI
     }
     //********************************************************************************************************************************************************
     //********************************************************************************************************************************************************
-    private function clean_html($arr)
-    {
-        $delimeter = "elicha173";
-        $html = implode($delimeter, $arr);
-        $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
-        $html = str_ireplace("> |", ">", $html);
-        $arr = explode($delimeter, $html);
-        return $arr;
-    }
-    private function create_vernaculars($rec)
-    {
-        $this->taxa_with_trait[$rec['REF|Plant|theplant']] = ''; //to be used when creating taxon.tab
-        $v = new \eol_schema\VernacularName();
-        $v->taxonID         = $rec['REF|Plant|theplant'];
-        $v->vernacularName  = $rec['common'];
-        $v->language        = $rec['Language to Change ISO 639-3'];
-        $v->countryCode     = $rec['country'];
-        $this->archive_builder->write_object_to_file($v);
-    }
     private function create_reference($rec)
     {
         // print_r($rec); exit;
@@ -171,30 +188,6 @@ class USAendangeredSpeciesAPI
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
-        }
-    }
-    private function create_taxon($rec)
-    {
-        if(!isset($this->taxa_with_trait[$rec['DEF_id']])) return;
-        // print_r($rec); exit;
-        /*Array(
-            [DEF_id] => 1
-            [family] => Alangiaceae 
-            [genus] => Alangium
-            [scientific name] => Alangium chinense 
-            [species] => chinense
-            [subspecies] => 
-        )*/
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID         = $rec['DEF_id'];
-        $taxon->scientificName  = $rec['scientific name'];
-        $taxon->family          = $rec['family'];
-        $taxon->genus           = $rec['genus'];
-        // $taxon->taxonRank             = '';
-        // $taxon->furtherInformationURL = '';
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
     private function create_trait($rek, $group)
@@ -302,52 +295,6 @@ class USAendangeredSpeciesAPI
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
         self::use_mapping_from_jen();
         // print_r($this->uris);
-    }
-    private function use_mapping_from_jen()
-    {
-        $csv_file = Functions::save_remote_file_to_local($this->use_mapping_from_jen, $this->download_options);
-        $i = 0;
-        $file = Functions::file_open($csv_file, "r");
-        while(!feof($file)) {
-            $row = fgetcsv($file);
-            if(!$row) break;
-            $row = self::clean_html($row);
-            // print_r($row);
-            $i++; if(($i % 2000) == 0) echo "\n $i ";
-            if($i == 1) {
-                $fields = $row;
-                $fields = self::fill_up_blank_fieldnames($fields);
-                $count = count($fields);
-                print_r($fields);
-            }
-            else { //main records
-                $values = $row;
-                if($count != count($values)) { //row validation - correct no. of columns
-                    // print_r($values); print_r($rec);
-                    echo("\nWrong CSV format for this row.\n");
-                    // $this->debug['wrong csv'][$class]['identifier'][$rec['identifier']] = '';
-                    continue;
-                }
-                $k = 0;
-                $rec = array();
-                foreach($fields as $field) {
-                    $rec[$field] = $values[$k];
-                    $k++;
-                }
-                // print_r($fields); print_r($rec); exit;
-                /*Array(
-                    [Use string] => timber
-                    [URI] => http://purl.obolibrary.org/obo/EUPATH_0000001
-                    [blank_1] => 
-                    [blank_2] => 
-                    [blank_3] => 
-                    [blank_4] => 
-                )*/
-                $this->uris[$rec['Use string']] = $rec['URI'];
-            } //main records
-        } //main loop
-        fclose($file);
-        unlink($csv_file);
     }
 }
 ?>
