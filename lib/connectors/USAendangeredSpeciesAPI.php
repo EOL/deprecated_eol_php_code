@@ -25,7 +25,7 @@ class USAendangeredSpeciesAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
 
         $groups = array('animals', 'plants');
-        $groups = array('animals');
+        $groups = array('plants');
         foreach($groups as $group) self::process_group($group);
 
         // exit;
@@ -82,6 +82,8 @@ class USAendangeredSpeciesAPI
     {
         self::create_taxon($rec);
         if(@$rec['common_name']) self::create_vernaculars($rec);
+        if(@$rec['conserv_stat']) self::create_trait($rec);
+        $this->debug[$rec['conserv_stat']] = '';
     }
     private function create_taxon($rec)
     {
@@ -95,18 +97,44 @@ class USAendangeredSpeciesAPI
             $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
+    private function create_trait($rek)
+    {
+        $rec = array();
+        $rec["taxon_id"] = $rek['taxon_id'];
+        $rec["catnum"] = $rek['taxon_id'].'_'.$rek['conserv_stat'];
+        $mType = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus';
+        $mValue = self::get_URI($rek['conserv_stat']);
+        // $rec['measurementRemarks'] = $string_val;
+        // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
+        // $rec['source'] = $this->partner_source_url;
+        // $rec['referenceID'] = 1;
+        $this->func->add_string_types($rec, $mValue, $mType, "true");
+    }
+    private function get_URI($str)
+    {
+        if($str == 'Endangered') return 'http://eol.org/schema/terms/federalEndangered';
+        elseif($str == 'Threatened') return 'http://eol.org/schema/terms/federalThreatened';
+        elseif($str == 'Experimental Population, Non-Essential') return $str;
+        elseif($str == 'Similarity of Appearance to a Threatened Taxon') return $str;
+    }
     private function create_vernaculars($rec)
     {
         $v = new \eol_schema\VernacularName();
         $v->taxonID         = $rec['taxon_id'];
         $v->vernacularName  = $rec['common_name'];
-        $v->language        = 'en';
+        $v->language        = self::guess_language($rec['common_name']);
         // $v->countryCode     = '';
         $md5 = md5($rec['taxon_id'].$rec['common_name']);
         if(!isset($this->comnames[$md5])) {
             $this->archive_builder->write_object_to_file($v);
             $this->comnames[$md5] = '';
         }
+    }
+    private function guess_language($comname)
+    {
+        if(in_array($comname, array('kookoolau','Olulu','Kamanomano'))) return '';
+        if(stripos($comname, "`") !== false) return ''; //string is found
+        else                                 return 'en';
     }
     private function get_fields_from_tr($str)
     {
@@ -189,112 +217,6 @@ class USAendangeredSpeciesAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
-    }
-    private function create_trait($rek, $group)
-    {
-        if($group == "distribution.csv") {
-            $arr = explode(";", $rek['Region']);
-            $taxon_id = $rek['Plant No'];
-            $mtype = "http://eol.org/schema/terms/Present";
-        }
-        elseif($group == "use.csv") {
-            $arr = explode(";", $rek['Use']);
-            $taxon_id = $rek['Plant'];
-            $mtype = "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Use";
-        }
-        $arr = array_map('trim', $arr);
-        // print_r($arr); exit;
-        foreach($arr as $string_val) {
-            if($string_val) {
-                $string_val = Functions::conv_to_utf8($string_val);
-                $rec = array();
-                $rec["taxon_id"] = $taxon_id;
-                $rec["catnum"] = $taxon_id.'_'.$rek['id'];
-                if($string_uri = self::get_string_uri($string_val)) {
-                    $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
-                    $rec['measurementRemarks'] = $string_val;
-                    $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
-                    $rec['source'] = $this->partner_source_url;
-                    $rec['referenceID'] = 1;
-                    $this->func->add_string_types($rec, $string_uri, $mtype, "true");
-                }
-                elseif($val = @$this->addtl_mappings[strtoupper(str_replace('"', "", $string_val))]) {
-                    $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
-                    $rec['measurementRemarks'] = $string_val;
-                    self::write_addtl_mappings($val, $rec);
-                }
-                else $this->debug[$group][$string_val] = '';
-            }
-        }
-    }
-    private function write_addtl_mappings($rek, $rec)
-    {
-        // print_r($rek); exit;
-        /*Array(
-            [distribution.csv] => Central Africa
-            [measurementType] => http://eol.org/schema/terms/Present
-            [measurementValue] => http://www.geonames.org/7729886
-            [measurementRemarks] => 
-        )*/
-        if($rek['measurementType'] == "DISCARD") return;
-        $rec['measurementRemarks'] = $rek['measurementRemarks'];
-        // print_r($rec); exit;
-        /*Array(
-            [taxon_id] => 1
-            [catnum] => 1_dist_1
-            [measurementRemarks] => 
-        )*/
-        $tmp = str_replace('"', "", $rek['measurementValue']);
-        $tmp = explode(",", $tmp);
-        $tmp = array_map('trim', $tmp);
-        // print_r($tmp); exit;
-        /*Array(
-            [0] => http://www.geonames.org/7729886
-        )*/
-        foreach($tmp as $string_uri) {
-            $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
-            $rec['source'] = $this->partner_source_url;
-            $rec['referenceID'] = 1;
-            $this->func->add_string_types($rec, $string_uri, $rek['measurementType'], "true");
-        }
-    }
-    private function get_string_uri($string)
-    {
-        switch ($string) { //put here customized mapping
-            case "NR":                return false; //"DO NOT USE";
-            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
-        }
-        if($string_uri = @$this->uris[$string]) return $string_uri;
-    }
-    private function separate_strings($str, $ret, $group)
-    {
-        $arr = explode(";", $str);
-        $arr = array_map('trim', $arr);
-        foreach($arr as $item) {
-            if(!isset($this->uris[$item])) $ret[$group][$item] = '';
-                                        // $ret[$group][$item] = '';
-        }
-        return $ret;
-    }
-    private function fill_up_blank_fieldnames($fields)
-    {
-        $i = 0;
-        foreach($fields as $field) {
-            if($field) $final[$field] = '';
-            else {
-                $i++;
-                $final['blank_'.$i] = '';
-            } 
-        }
-        return array_keys($final);
-    }
-    private function initialize_mapping()
-    {
-        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
-        self::use_mapping_from_jen();
-        // print_r($this->uris);
     }
 }
 ?>
