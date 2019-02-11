@@ -2514,7 +2514,7 @@ class Functions
       $beginningPos = strpos($string, $beginning);
       $endPos = strpos($string, $end);
       if ($beginningPos === false || $endPos === false) {
-        return $string;
+        return trim($string);
       }
       $textToDelete = substr($string, $beginningPos, ($endPos + strlen($end)) - $beginningPos);
       return self::delete_all_between($beginning, $end, str_replace($textToDelete, '', $string)); // recursion to ensure all occurrences are replaced
