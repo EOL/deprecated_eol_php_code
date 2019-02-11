@@ -261,7 +261,7 @@ class WikiDataAPI
         
         unlink($this->TEMP_FILE_PATH);
         echo "\n----start debug array\n";
-        print_r($this->debug); //exit;
+        // print_r($this->debug); //exit; No need to display this since it is written to file anyway below. I think...
         echo "\n----end debug array\n";
         
         //write to file $this->debug contents
@@ -804,6 +804,14 @@ class WikiDataAPI
         $homepage = str_replace(array("\t", "\n"), "", $homepage);
         $a['homepage'] = $homepage;
         
+        if(is_array(@$a['name'])) {
+            echo "\n---start---\n";
+            echo "this var should always be string, not array, investigate:";
+            print_r($a);
+            echo "\n---end---\n";
+            return false;
+        }
+        
         if(trim(@$a['name'])) {
             $a = self::fix_agent_name($a);
             
@@ -1152,6 +1160,8 @@ class WikiDataAPI
             */
         }
         
+        if($val = @$rek['other']['author']) $rek['other']['author'] = Functions::delete_all_between('<!--', '-->', $val);
+        
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
         else {
             //start new Nov 6
@@ -1175,10 +1185,15 @@ class WikiDataAPI
             // echo "\nelix went here aaa\n";
             if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
         }
+
+        /* orig - commented now. better to just have additional artists here rather than limit to just 1 artist.
         if(!$rek['Artist']) {
-            // echo "\nelix went here bbb\n";
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
         }
+        */
+        if($val = self::get_artist_from_ImageDescription($rek['ImageDescription'])) $rek['Artist'][] = $val;
+        
+
         if(!$rek['Artist']) {
             // echo "\nelix went here ccc\n";
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; //get_media_metadata_from_json()
@@ -1403,6 +1418,22 @@ class WikiDataAPI
                 }
             }
         }
+
+        //added Feb 11, 2019
+        elseif(preg_match("/Source:(.*?)\./ims", $description, $a)) { /*Source: <a href="https://en.wikipedia.org/wiki/Walters_Art_Museum" title="en:Walters Art Museum">Walters Art Museum</a>: <a href="http://thewalters.org/" rel="nofollow"></a> <a rel="nofollow" href="http://thewalters.org/">Home page</a> <a href="http://art.thewalters.org/detail/37360" rel="nofollow"></a> <a rel="nofollow" href="http://art.thewalters.org/detail/37360">Info about artwork</a>.*/
+            if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'source');
+            else {
+                $d = strip_tags($description);
+                if(preg_match("/Source:(.*?)\./ims", $d, $a)) {
+                    if($val = strip_tags(trim($a[1]))) {
+                        $tmp = explode(":", $val);
+                        $val = trim($tmp[0]);
+                        return array('name' => $val, 'role' => 'source');
+                    }
+                }
+            }
+        }
+        
         else {
             // echo "\nelix 555\n";
             // echo "\n$description\n";
@@ -1668,7 +1699,13 @@ class WikiDataAPI
                     }
                     if(@$atemp['name']) $rek['Artist'][] = $atemp;
                     else                $rek['Artist'][] = array('name' => self::remove_space(strip_tags($val,'')), 'role' => 'creator'); // e.g. <span lang="en">Anonymous</span>
-                    
+
+                    if(!$rek['Artist']) {
+                        if($temp = self::remove_space(strip_tags($val,''))) {
+                            $rek['Artist'][] = array('name' => $temp, 'role' => 'creator');
+                        }
+                    }
+
                     if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
                 }
             }
