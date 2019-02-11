@@ -2510,6 +2510,15 @@ class Functions
         
         return $mappings;
     }
+    public static function delete_all_between($beginning, $end, $string) {
+      $beginningPos = strpos($string, $beginning);
+      $endPos = strpos($string, $end);
+      if ($beginningPos === false || $endPos === false) {
+        return $string;
+      }
+      $textToDelete = substr($string, $beginningPos, ($endPos + strlen($end)) - $beginningPos);
+      return self::delete_all_between($beginning, $end, str_replace($textToDelete, '', $string)); // recursion to ensure all occurrences are replaced
+    }
     public static function start_print_debug($this_debug, $resource_id)
     {
         $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id."_debug.txt";
