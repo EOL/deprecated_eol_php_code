@@ -100,7 +100,7 @@ class USAendangeredSpeciesAPI
     {
         $ref_ids = array();
         if($html = Functions::lookup_with_cache($this->page['taxon'].$rec['taxon_id'], $this->download_options)) {
-            if($refs = self::parse_refs($html)) {
+            if($refs = self::parse_refs($html, $rec)) {
                 // print_r($refs);
                 $ref_ids = self::create_references($refs);
             }
@@ -118,13 +118,13 @@ class USAendangeredSpeciesAPI
         }
         return array('ref_ids' => $ref_ids);
     }
-    private function parse_refs($html)
+    private function parse_refs($html, $rek)
     {
         $final = array();
         if(preg_match("/Federal Register Documents<\/div>(.*?)<\/table>/ims", $html, $arr)) {
             $html = $arr[1];
             $html = str_ireplace(' style="white-space:nowrap;"', "", $html);
-            echo("\n$html\n");
+            // echo("\n$html\n");
             if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
                 // print_r($arr[1]); exit;
                 $fields = self::get_fields_from_tr($arr[1][0]);
@@ -154,7 +154,12 @@ class USAendangeredSpeciesAPI
                             $rec['url'] = $arr[1];
                             if(substr($rec['url'],0,4) != 'http') $rec['url'] = $this->page['domain'].$rec['url'];
                         }
-                        if($rec['full_ref']) $final[] = $rec;
+                        if(@$rec['full_ref']) $final[] = $rec;
+                        else
+                        {
+                            print_r($rec); print_r($row); print_r($rek)
+                            exit("\nno full_ref\n");
+                        }
                     }
                 }
             }
