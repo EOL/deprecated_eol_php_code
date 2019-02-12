@@ -101,7 +101,7 @@ class USAendangeredSpeciesAPI
         $ref_ids = array();
         if($html = Functions::lookup_with_cache($this->page['taxon'].$rec['taxon_id'], $this->download_options)) {
             if($refs = self::parse_refs($html)) {
-                print_r($refs);
+                // print_r($refs);
                 $ref_ids = self::create_references($refs);
             }
             // exit("\n-refs end-\n");
@@ -113,7 +113,7 @@ class USAendangeredSpeciesAPI
         }
         else
         {
-            print_r($rec); print_r($ref_ids);
+            // print_r($rec); print_r($ref_ids);
             // exit("\nwith ref above this\n");
         }
         return array('ref_ids' => $ref_ids);
@@ -140,7 +140,7 @@ class USAendangeredSpeciesAPI
                             $i++;
                             $rec[$field] = trim($tds[$i]);
                         }
-                        print_r($rec);
+                        // print_r($rec);
                         /*Array(
                             [Date] => 1970-06-02 00:00:00.0
                             [Citation Page] => 35 FR 8491 8498
@@ -226,7 +226,7 @@ class USAendangeredSpeciesAPI
     }
     private function create_references($recs)
     {
-        print_r($recs); //exit;
+        // print_r($recs); //exit;
         echo "\nrecs count: ".count($recs)."\n";
         $ref_ids = array();
         foreach($recs as $rec) {
@@ -251,7 +251,7 @@ class USAendangeredSpeciesAPI
                 $this->archive_builder->write_object_to_file($r);
             }
         }
-        print_r(array_keys($ref_ids)); echo "\nref_ids above this\n";
+        // print_r(array_keys($ref_ids)); echo "\nref_ids above this\n";
         return array_keys($ref_ids);
     }
     //********************************************************************************************************************************************************
