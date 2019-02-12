@@ -58,7 +58,19 @@ class USAendangeredSpeciesAPI
                                 $i++;
                                 $rec[$field] = $tds[$i];
                             }
+                            // print_r($rec); exit;
+                            
+                            /* good debug - process one species
+                            if($rec['common_name'] == 'American alligator') {
+                                print_r($rec);
+                                if($rec) self::process_rec($rec);
+                            }
+                            */
+
+                            // /* normal operation
                             if($rec) self::process_rec($rec);
+                            // */
+                            
                             // if($limit >= 5) break; //debug only
                         }
                     }
@@ -130,7 +142,7 @@ class USAendangeredSpeciesAPI
                 $fields = self::get_fields_from_tr($arr[1][0]);
                 $rows = $arr[1];
                 array_shift($rows);
-                echo "\n".count($rows)."\n";
+                echo "\nRefs rows: ".count($rows)."\n";
                 foreach($rows as $row) {
                     // echo "\n".$row;
                     if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
@@ -140,7 +152,7 @@ class USAendangeredSpeciesAPI
                             $i++;
                             $rec[$field] = trim($tds[$i]);
                         }
-                        // print_r($rec);
+                        // echo "\n-----------"; print_r($rec); echo "\n-----------";
                         /*Array(
                             [Date] => 1970-06-02 00:00:00.0
                             [Citation Page] => 35 FR 8491 8498
@@ -148,6 +160,10 @@ class USAendangeredSpeciesAPI
                         )*/
                         if(preg_match("/\">(.*?)<\/a>/ims", $rec['Title'], $arr)) {
                             $rec['full_ref'] = $arr[1];
+                            if($val = $rec['Date']) $rec['full_ref'] .= ". ".$val.".";
+                        }
+                        elseif($val = trim(strip_tags($rec['Title']))) {
+                            $rec['full_ref'] = $val;
                             if($val = $rec['Date']) $rec['full_ref'] .= ". ".$val.".";
                         }
                         if(preg_match("/href=\"(.*?)\"/ims", $rec['Title'], $arr)) {
@@ -158,7 +174,7 @@ class USAendangeredSpeciesAPI
                         else
                         {
                             print_r($rec); print_r($row); print_r($rek);
-                            echo("\nno full_ref\n");
+                            echo("\nno full_ref\n"); //exit;
                             continue;
                         }
                     }
@@ -245,12 +261,12 @@ class USAendangeredSpeciesAPI
                     )
             */
             $r = new \eol_schema\Reference();
-            $r->identifier = md5($rec['full_ref'].$rec['url']);
+            $r->identifier = md5($rec['full_ref'].@$rec['url']);
             $r->full_reference = $rec['full_ref'];
             $r->title = $rec['Title'];
             $r->pages = $rec['Citation Page'];
             $r->created = $rec['Date'];
-            $r->uri = $rec['url'];
+            $r->uri = @$rec['url'];
             $ref_ids[$r->identifier] = '';
             if(!isset($this->reference_ids[$r->identifier])) {
                 $this->reference_ids[$r->identifier] = '';
