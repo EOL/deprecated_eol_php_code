@@ -51,6 +51,7 @@ class USAendangeredSpeciesAPI
                     foreach($rows as $row) {
                         // echo "\n".$row;
                         $limit++;
+                        if(($limit % 100) == 0) echo "\n".number_format($limit);
                         if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
                             $tds = $arr[1];
                             $rec = array(); $i = -1;
@@ -142,7 +143,7 @@ class USAendangeredSpeciesAPI
                 $fields = self::get_fields_from_tr($arr[1][0]);
                 $rows = $arr[1];
                 array_shift($rows);
-                echo "\nRefs rows: ".count($rows)."\n";
+                // echo "\nRefs rows: ".count($rows)."\n";
                 foreach($rows as $row) {
                     // echo "\n".$row;
                     if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
@@ -249,7 +250,7 @@ class USAendangeredSpeciesAPI
     private function create_references($recs)
     {
         // print_r($recs); //exit;
-        echo "\nrecs count: ".count($recs)."\n";
+        // echo "\nrecs count: ".count($recs)."\n";
         $ref_ids = array();
         foreach($recs as $rec) {
             /*[1] => Array (
