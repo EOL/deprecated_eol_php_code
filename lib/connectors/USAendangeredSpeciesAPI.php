@@ -28,7 +28,7 @@ class USAendangeredSpeciesAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
 
         $groups = array('animals', 'plants');
-        $groups = array('animals');
+        // $groups = array('animals');
         foreach($groups as $group) self::process_group($group);
 
         // exit;
@@ -59,7 +59,7 @@ class USAendangeredSpeciesAPI
                                 $rec[$field] = $tds[$i];
                             }
                             if($rec) self::process_rec($rec);
-                            if($limit >= 5) break; //debug only
+                            // if($limit >= 5) break; //debug only
                         }
                     }
                 }
