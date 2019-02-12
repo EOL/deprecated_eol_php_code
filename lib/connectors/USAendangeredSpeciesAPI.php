@@ -184,7 +184,7 @@ class USAendangeredSpeciesAPI
         // $rec['measurementRemarks'] = $string_val;
         // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
         $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
-        if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode(";", $ref_ids);
+        if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode("; ", $ref_ids);
         $this->func->add_string_types($rec, $mValue, $mType, "true");
     }
     private function get_URI($str)
