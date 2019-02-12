@@ -61,7 +61,7 @@ class USAendangeredSpeciesAPI
                             // print_r($rec); exit;
                             
                             /* good debug - process one species
-                            if($rec['common_name'] == 'American alligator') {
+                            if($rec['common_name'] == 'Nassau grouper') {
                                 print_r($rec);
                                 if($rec) self::process_rec($rec);
                             }
@@ -118,16 +118,16 @@ class USAendangeredSpeciesAPI
             }
             // exit("\n-refs end-\n");
         }
-        if(!$ref_ids)
-        {
+        /* debug only
+        if(!$ref_ids) {
             print_r($rec); print_r($ref_ids);
             exit("\nno ref above this\n");
         }
-        else
-        {
+        else {
             // print_r($rec); print_r($ref_ids);
             // exit("\nwith ref above this\n");
         }
+        */
         return array('ref_ids' => $ref_ids);
     }
     private function parse_refs($html, $rek)
