@@ -13,8 +13,11 @@ class USAendangeredSpeciesAPI
         }
         $this->debug = array();
         $this->download_options = array(
+            'resource_id'        => $this->resource_id,
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+        // $this->download_options['expire_seconds'] = 0;
+        $this->page['domain'] = 'https://ecos.fws.gov';
         $this->page['animals'] = 'https://ecos.fws.gov/ecp0/reports/ad-hoc-species-report?kingdom=V&kingdom=I&status=E&status=T&status=EmE&status=EmT&status=EXPE&status=EXPN&status=SAE&status=SAT&mapstatus=3&fcrithab=on&fstatus=on&fspecrule=on&finvpop=on&fgroup=on&header=Listed+Animals';
         $this->page['plants'] = 'https://ecos.fws.gov/ecp0/reports/ad-hoc-species-report?kingdom=P&status=E&status=T&status=EmE&status=EmT&status=EXPE&status=EXPN&status=SAE&status=SAT&mapstatus=3&fcrithab=on&fstatus=on&fspecrule=on&finvpop=on&fgroup=on&ffamily=on&header=Listed+Plants';
         $this->page['taxon']= 'https://ecos.fws.gov/ecp0/profile/speciesProfile?sId=';
@@ -25,7 +28,7 @@ class USAendangeredSpeciesAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
 
         $groups = array('animals', 'plants');
-        // $groups = array('plants');
+        $groups = array('animals');
         foreach($groups as $group) self::process_group($group);
 
         // exit;
@@ -38,13 +41,16 @@ class USAendangeredSpeciesAPI
             if(preg_match("/\"resultTable\">(.*?)<\/table>/ims", $html, $arr)) {
                 $html = $arr[1];
                 if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+                    // print_r($arr[1][0]); exit;
                     $fields = self::get_fields_from_tr($arr[1][0]);
                     $rows = $arr[1];
                     array_shift($rows);
                     echo "\n".count($rows)."\n";
                     // echo "\n".$rows[0]; echo "\n".$rows[1466];
+                    $limit = 0; //only for debug to limit
                     foreach($rows as $row) {
                         // echo "\n".$row;
+                        $limit++;
                         if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
                             $tds = $arr[1];
                             $rec = array(); $i = -1;
@@ -53,6 +59,7 @@ class USAendangeredSpeciesAPI
                                 $rec[$field] = $tds[$i];
                             }
                             if($rec) self::process_rec($rec);
+                            if($limit >= 5) break; //debug only
                         }
                     }
                 }
@@ -82,8 +89,78 @@ class USAendangeredSpeciesAPI
     {
         self::create_taxon($rec);
         if(@$rec['common_name']) self::create_vernaculars($rec);
+        
+        $info = self::create_objects($rec);
+        $rec['ref_ids'] = @$info['ref_ids'];
+        
         if(@$rec['conserv_stat']) self::create_trait($rec);
         $this->debug[$rec['conserv_stat']] = '';
+    }
+    private function create_objects($rec)
+    {
+        $ref_ids = array();
+        if($html = Functions::lookup_with_cache($this->page['taxon'].$rec['taxon_id'], $this->download_options)) {
+            if($refs = self::parse_refs($html)) {
+                print_r($refs);
+                $ref_ids = self::create_references($refs);
+            }
+            // exit("\n-refs end-\n");
+        }
+        if(!$ref_ids)
+        {
+            print_r($rec); print_r($ref_ids);
+            exit("\nno ref above this\n");
+        }
+        else
+        {
+            print_r($rec); print_r($ref_ids);
+            // exit("\nwith ref above this\n");
+        }
+        return array('ref_ids' => $ref_ids);
+    }
+    private function parse_refs($html)
+    {
+        $final = array();
+        if(preg_match("/Federal Register Documents<\/div>(.*?)<\/table>/ims", $html, $arr)) {
+            $html = $arr[1];
+            $html = str_ireplace(' style="white-space:nowrap;"', "", $html);
+            echo("\n$html\n");
+            if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+                // print_r($arr[1]); exit;
+                $fields = self::get_fields_from_tr($arr[1][0]);
+                $rows = $arr[1];
+                array_shift($rows);
+                echo "\n".count($rows)."\n";
+                foreach($rows as $row) {
+                    // echo "\n".$row;
+                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
+                        $tds = $arr[1];
+                        $rec = array(); $i = -1;
+                        foreach($fields as $field) {
+                            $i++;
+                            $rec[$field] = trim($tds[$i]);
+                        }
+                        print_r($rec);
+                        /*Array(
+                            [Date] => 1970-06-02 00:00:00.0
+                            [Citation Page] => 35 FR 8491 8498
+                            [Title] => <a target="_blank" href="/docs/federal_register/fr21.pdf">Part 17 - Conservation of Endangered Species and Other Fish or Wildlife (First List of Endangered Foreign Fish and Wildlife as Appendix A)</a>
+                        )*/
+                        if(preg_match("/\">(.*?)<\/a>/ims", $rec['Title'], $arr)) {
+                            $rec['full_ref'] = $arr[1];
+                            if($val = $rec['Date']) $rec['full_ref'] .= ". ".$val.".";
+                        }
+                        if(preg_match("/href=\"(.*?)\"/ims", $rec['Title'], $arr)) {
+                            $rec['url'] = $arr[1];
+                            if(substr($rec['url'],0,4) != 'http') $rec['url'] = $this->page['domain'].$rec['url'];
+                        }
+                        if($rec['full_ref']) $final[] = $rec;
+                    }
+                }
+            }
+        }
+        // print_r($final); exit;
+        return $final;
     }
     private function create_taxon($rec)
     {
@@ -107,7 +184,7 @@ class USAendangeredSpeciesAPI
         // $rec['measurementRemarks'] = $string_val;
         // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
         $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
-        // $rec['referenceID'] = 1;
+        if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode(";", $ref_ids);
         $this->func->add_string_types($rec, $mValue, $mType, "true");
     }
     private function get_URI($str)
@@ -138,36 +215,47 @@ class USAendangeredSpeciesAPI
     }
     private function get_fields_from_tr($str)
     {
+        //for orig main
         if(preg_match_all("/class=\"(.*?)\"/ims", $str, $arr)) {
             return $arr[1];
         }
-    }
-    //********************************************************************************************************************************************************
-    //********************************************************************************************************************************************************
-    private function create_reference($rec)
-    {
-        // print_r($rec); exit;
-        /*Array(
-            [DEF_id] => 1
-            [author] => Lovett; J.C. and Sorensen; L. and Lovett; J.
-            [year] => 2006
-            [title] => Field guide to the moist forest trees of Tanzania
-            [journal] => 
-            [volume] => 
-            [number] => 
-            [pages] => 
-        )*/
-        $r = new \eol_schema\Reference();
-        $r->identifier = $rec['DEF_id'];
-        $r->full_reference = $rec['author']." ".$rec['year'].". ".$rec['title'].".";
-        $r->authorList = $rec['author'];
-        $r->title = $rec['title'];
-        // $r->uri = '';
-        if(!isset($this->reference_ids[$r->identifier])) {
-            $this->reference_ids[$r->identifier] = '';
-            $this->archive_builder->write_object_to_file($r);
+        //for refs
+        if(preg_match_all("/<th>(.*?)<\/th>/ims", $str, $arr)) {
+            return $arr[1];
         }
     }
+    private function create_references($recs)
+    {
+        print_r($recs); //exit;
+        echo "\nrecs count: ".count($recs)."\n";
+        $ref_ids = array();
+        foreach($recs as $rec) {
+            /*[1] => Array (
+                        [Date] => 1970-04-14 00:00:00.0
+                        [Citation Page] => 35 FR 6069
+                        [Title] => <a target="_blank" href="/docs/federal_register/fr20.pdf">Notice of Proposed Rulemaking (Endangered Species Conservation); 35 FR 6069</a>
+                        [full_ref] => Notice of Proposed Rulemaking (Endangered Species Conservation); 35 FR 6069. 1970-04-14 00:00:00.0.
+                        [url] => https://ecos.fws.gov/docs/federal_register/fr20.pdf
+                    )
+            */
+            $r = new \eol_schema\Reference();
+            $r->identifier = md5($rec['full_ref'].$rec['url']);
+            $r->full_reference = $rec['full_ref'];
+            $r->title = $rec['Title'];
+            $r->pages = $rec['Citation Page'];
+            $r->created = $rec['Date'];
+            $r->uri = $rec['url'];
+            $ref_ids[$r->identifier] = '';
+            if(!isset($this->reference_ids[$r->identifier])) {
+                $this->reference_ids[$r->identifier] = '';
+                $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        print_r(array_keys($ref_ids)); echo "\nref_ids above this\n";
+        return array_keys($ref_ids);
+    }
+    //********************************************************************************************************************************************************
+    //********************************************************************************************************************************************************
     private function create_text_object($rec)
     {
         // print_r($rec); //exit;
