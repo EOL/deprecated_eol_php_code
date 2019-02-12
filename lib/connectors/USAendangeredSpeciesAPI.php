@@ -20,8 +20,20 @@ class USAendangeredSpeciesAPI
         $this->page['domain'] = 'https://ecos.fws.gov';
         $this->page['animals'] = 'https://ecos.fws.gov/ecp0/reports/ad-hoc-species-report?kingdom=V&kingdom=I&status=E&status=T&status=EmE&status=EmT&status=EXPE&status=EXPN&status=SAE&status=SAT&mapstatus=3&fcrithab=on&fstatus=on&fspecrule=on&finvpop=on&fgroup=on&header=Listed+Animals';
         $this->page['plants'] = 'https://ecos.fws.gov/ecp0/reports/ad-hoc-species-report?kingdom=P&status=E&status=T&status=EmE&status=EmT&status=EXPE&status=EXPN&status=SAE&status=SAT&mapstatus=3&fcrithab=on&fstatus=on&fspecrule=on&finvpop=on&fgroup=on&ffamily=on&header=Listed+Plants';
-        $this->page['taxon']= 'https://ecos.fws.gov/ecp0/profile/speciesProfile?sId=';
+        $this->page['taxon'] = 'https://ecos.fws.gov/ecp0/profile/speciesProfile?sId=';
+        $this->agent['name'] = 'U.S. Fish & Wildlife Service';
+        $this->agent['homepage'] = 'https://ecos.fws.gov/ecp/';
     }
+    // private function write_agent()
+    // {
+    //     $r = new \eol_schema\Agent();
+    //     $r->term_name       = $this->agent['name'];
+    //     $r->agentRole       = 'publisher';
+    //     $r->identifier      = md5("$r->term_name|$r->agentRole");
+    //     $r->term_homepage   = 'http://www.phorid.net/diptera/diptera_index.html';
+    //     $this->archive_builder->write_object_to_file($r);
+    //     $this->agent_id = array($r->identifier);
+    // }
     function start()
     {
         require_library('connectors/TraitGeneric');
@@ -208,6 +220,7 @@ class USAendangeredSpeciesAPI
         // $rec['measurementRemarks'] = $string_val;
         // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
         $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
+        $rec['contributor'] = $this->agent['name'];
         if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode("; ", $ref_ids);
         $this->func->add_string_types($rec, $mValue, $mType, "true");
     }
