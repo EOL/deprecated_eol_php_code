@@ -157,7 +157,7 @@ class USAendangeredSpeciesAPI
                         if(@$rec['full_ref']) $final[] = $rec;
                         else
                         {
-                            print_r($rec); print_r($row); print_r($rek)
+                            print_r($rec); print_r($row); print_r($rek);
                             exit("\nno full_ref\n");
                         }
                     }
