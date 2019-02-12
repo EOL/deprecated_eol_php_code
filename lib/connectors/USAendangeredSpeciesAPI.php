@@ -15,7 +15,7 @@ class USAendangeredSpeciesAPI
         $this->download_options = array(
             'resource_id'        => $this->resource_id,
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
-            'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0;
         $this->page['domain'] = 'https://ecos.fws.gov';
         $this->page['animals'] = 'https://ecos.fws.gov/ecp0/reports/ad-hoc-species-report?kingdom=V&kingdom=I&status=E&status=T&status=EmE&status=EmT&status=EXPE&status=EXPN&status=SAE&status=SAT&mapstatus=3&fcrithab=on&fstatus=on&fspecrule=on&finvpop=on&fgroup=on&header=Listed+Animals';
