@@ -158,7 +158,8 @@ class USAendangeredSpeciesAPI
                         else
                         {
                             print_r($rec); print_r($row); print_r($rek);
-                            exit("\nno full_ref\n");
+                            echo("\nno full_ref\n");
+                            continue;
                         }
                     }
                 }
