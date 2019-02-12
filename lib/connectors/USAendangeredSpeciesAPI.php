@@ -171,6 +171,7 @@ class USAendangeredSpeciesAPI
                             $rec['url'] = $arr[1];
                             if(substr($rec['url'],0,4) != 'http') $rec['url'] = $this->page['domain'].$rec['url'];
                         }
+                        $rec['Title'] = strip_tags($rec['Title']); //edits the raw data
                         if(@$rec['full_ref']) $final[] = $rec;
                         else
                         {
@@ -182,7 +183,7 @@ class USAendangeredSpeciesAPI
                 }
             }
         }
-        // print_r($final); exit;
+        // print_r($final); //print_r($rek); exit;
         return $final;
     }
     private function create_taxon($rec)
