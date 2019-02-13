@@ -5,6 +5,7 @@ class DipteraCentralAmericaAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->domain = "http://www.phorid.net/diptera/";
         $this->taxa_list_url     = $this->domain . "diptera_index.html";
         $this->phoridae_list_url = $this->domain . "lower_cyclorrhapha/phoridae/phoridae.html";
@@ -23,10 +24,198 @@ class DipteraCentralAmericaAPI
     }
     function start()
     {
-        self::write_agent();
-        self::process_diptera_main();
-        self::process_phoridae_list();
+        // self::write_agent();
+        // self::process_diptera_main();
+        // self::process_phoridae_list();
+        self::process_trait_data();
         $this->archive_builder->finalize(true);
+    }
+    
+    private function initialize_mapping()
+    {
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // print_r($this->uris);
+    }
+    private function process_trait_data()
+    {
+        self::initialize_mapping();
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        self::parse_pcat(); //Phorid Catalog (PCAT)
+        print_r($this->debug);
+        echo "\n".count(array_keys($this->debug['no mappings']))."\n";
+        exit("\n-endx-\n");
+    }
+    private function parse_pcat()
+    {
+        if($html = Functions::lookup_with_cache($this->page['trait_present'], $this->download_options)) {
+            $fields = array();
+            //get headers
+            if(preg_match("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+                if(preg_match_all("/<th>(.*?)<\/th>/ims", $arr[1], $arr2)) {
+                    $fields = array_map('strip_tags', $arr2[1]);
+                    print_r($fields);
+                }
+            }
+            if(!$fields) exit("\nCheck fields selection, will terminate.\n");
+            //parse actual trait data - present
+            if(preg_match("/<tbody class=\"scrollContent\">(.*?)<\/tbody>/ims", $html, $arr)) {
+                $str = $arr[1];
+                //manual massage:
+                $str = str_replace("<tr >", "<tr>", $str);
+                $str = str_replace("</tr>", "</tr><tr>", $str); //to complete pairs of <tr></tr>
+                self::parse_pcat_proper($str, $fields);
+            }
+        }
+    }
+    private function parse_pcat_proper($html, $fields)
+    {
+        if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+            // print_r($arr[1][0]); exit;
+            $rows = $arr[1];
+            echo "\n".count($rows)."\n";
+            $limit = 0; //only for debug to limit
+            foreach($rows as $row) {
+                $limit++;
+                if(($limit % 100) == 0) echo "\n".number_format($limit);
+                if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
+                    $tds = $arr[1];
+                    $rec = array(); $i = -1;
+                    foreach($fields as $field) {
+                        $i++;
+                        $rec[$field] = $tds[$i];
+                    }
+                    // print_r($rec); //exit;
+                    /*Array(
+                        [Genus] => Woodiphora
+                        [Species] => apicipennis
+                        [Author] => Borgmeier, 1963
+                        [Distribution] => Panama, Ecuador, Brazil
+                    )
+                    */
+                    $rec['taxon'] = $rec['Genus'].' '.$rec['Species'];
+                    $rec['rank'] = 'species';
+                    
+                    /* good debug - process one species
+                    if($rec['Distribution'] == 'Panama, Ecuador, Brazil') {
+                        print_r($rec);
+                        if($rec) self::process_trait_present_rec($rec);
+                        break;
+                    }
+                    */
+                    // /* normal operation
+                    if($rec) self::process_trait_present_rec($rec);
+                    // */
+                    // if($limit >= 5) break; //debug only
+                }
+            }
+        }
+    }
+    private function some_massaging($s)
+    {
+        $s = str_ireplace(array("etc."), "", $s);
+        $s = str_ireplace(array("&", " to ", " and "), ",", $s);
+        $s = Functions::remove_whitespace($s);
+        $s = str_ireplace("Malaysia (Sabah, Borneo)", "Malaysia , Borneo", $s);
+        $s = str_ireplace("N., S.America", "North America , South America", $s);
+        $s = str_ireplace("Central , South America", "Central America , South America", $s);
+        $s = str_ireplace("Zimbabwe, Mad., South Af", "Zimbabwe, Madagascar, South Africa", $s);
+        $s = str_ireplace("N,C, , S.America", "North America, Central America, South America", $s);
+        $s = str_ireplace("Zimbabwe, Malawi, Sth Af", "Zimbabwe, Malawi, South Africa", $s);
+        $s = str_ireplace("Brazzil", "Brazil", $s);
+        $s = str_ireplace("N.America", "North America", $s);
+        $s = str_ireplace("S.America", "South America", $s);
+        $s = str_ireplace("SouthAfrica", "South Africa", $s);
+        $s = str_ireplace("Camaroon", "Cameroon", $s);
+        $s = str_ireplace("USSR", "Soviet Union", $s);
+        $s = str_ireplace("CentralAmerica", "Central America", $s);
+        $s = str_ireplace("SEAsia", "South East Asia", $s);
+        $s = str_ireplace("SE Asia", "South East Asia", $s);
+        $s = str_ireplace("C. Rica", "Costa Rica", $s);
+        $s = str_ireplace("Afganistan", "Afghanistan", $s);
+        $s = str_ireplace("Sénégal", "Senegal", $s);
+        $s = str_ireplace("NewGuinea", "New Guinea", $s);
+        $s = str_ireplace("N.Amer", "North America", $s);
+        $s = str_ireplace("Colom.", "Colombia", $s);
+        $s = str_ireplace("Guat.", "Guatemala", $s);
+        $s = str_ireplace("Borneo (Sabah)", "Borneo", $s);
+        $s = str_ireplace("UAE", "United Arab Emirates", $s);
+        $s = str_ireplace("Iv. Coast", "Ivory Coast", $s);
+        $s = str_ireplace("N,S America", "North America , South America", $s);
+        $s = str_ireplace("Phillipines", "Philippines", $s);
+        $s = str_ireplace("Boliv.", "Bolivia", $s);
+        $s = str_ireplace("British Guiana", "British Guyana", $s);
+        $s = str_ireplace("Venezuelae", "Venezuela", $s);
+        $s = str_ireplace("South , Central America", "South America , Central America", $s);
+        $s = str_ireplace("N., S.America", "North America, South America", $s);
+        $s = str_ireplace("Tadjikistan", "Tajikistan", $s);
+        $s = str_ireplace("Ama Brazil", "Brazil", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        return $s;
+    }
+    private function some_massaging2($s)
+    {
+        if($s == "Phil")        return "Philippines";
+        if($s == "Canary Is")   return  "Canary Islands";
+        if($s == "Argen")       return  "Argentina";
+        if($s == "Britain")     return  "Great Britain";
+        if($s == "Japa")        return  "Japan";
+        if($s == "Mex")         return  "Mexico";
+        if($s == "South Americ") return  "South America";
+        if($s == "Hond.")        return  "Honduras";
+        if($s == "Pana")         return  "Panama";
+        if($s == "Cana")         return  "Canada";
+        if($s == "Mariana Island")  return  "Mariana Islands";
+        if($s == "South Af")    return  "South Africa";
+        if($s == "Caroline Is") return  "Caroline Islands";
+        if($s == "Canada USA")  return  "Canada";
+        if($s == "xxx")         return  "yyy";
+        if($s == "xxx")         return  "yyy";
+        return $s;
+    }
+    private function process_trait_present_rec($rek)
+    {
+        $rek = self::write_archive($rek);
+        $orig_Distribution = $rek['Distribution'];
+        $rek['Distribution'] = self::some_massaging($rek['Distribution']);
+        $locations = explode(",", $rek['Distribution']);
+        $locations = array_map('trim', $locations);
+        $locations = array_filter($locations); //remove null arrays
+        $locations = array_unique($locations); //make unique
+        // print_r($locations); exit;
+        
+        foreach($locations as $string_val) {
+            $string_val = self::some_massaging2($string_val);
+            $mType = 'http://eol.org/schema/terms/Present';
+            $taxon_id = $rek['taxon_id'];
+            $rec = array();
+            $rec["taxon_id"] = $taxon_id;
+            $rec["catnum"] = $taxon_id.'_'.$string_val;
+            if($string_uri = self::get_string_uri($string_val)) {
+                $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
+                $rec['measurementRemarks'] = $string_val;
+                // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
+                // $rec['source'] = $this->partner_source_url;
+                // $rec['referenceID'] = 1;
+                $this->func->add_string_types($rec, $string_uri, $mType, "true");
+            }
+            else {
+                $this->debug['no mappings'][$string_val] = '';
+                $this->debug['no mappings orig'][$orig_Distribution] = $string_val;
+            }
+        }
+    }
+    private function get_string_uri($string)
+    {
+        switch ($string) { //put here customized mapping
+            // case "NR":                return false; //"DO NOT USE";
+            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
+        }
+        if($string_uri = @$this->uris[$string]) return $string_uri;
     }
     private function process_phoridae_list()
     {
@@ -152,6 +341,16 @@ class DipteraCentralAmericaAPI
     }
     function write_archive($rec)
     {
+        /* froom PCAT table
+        Array(
+            [Genus] => Woodiphora
+            [Species] => apicipennis
+            [Author] => Borgmeier, 1963
+            [Distribution] => Panama, Ecuador, Brazil
+            [taxon] => Woodiphora apicipennis
+            [rank] => species
+        )*/
+        
         // [image] => http://www.phorid.net/diptera/calyptratae/tachinidae/tachinidae_image3.jpg
         // [taxon] => Cordyligaster sp.
         // [caption] => <em>Cordyligaster</em> sp., Costa Rica: 1.8mi W Rincon
@@ -166,7 +365,9 @@ class DipteraCentralAmericaAPI
         $rec['taxon_id'] = md5($rec['taxon']);
         $taxon->taxonID                 = $rec['taxon_id'];
         $taxon->scientificName          = $rec['taxon'];
-        $taxon->furtherInformationURL   = $rec['source_url'];
+        $taxon->taxonRank                = @$rec['rank']; //from PCAT
+        $taxon->scientificNameAuthorship = @$rec['Author']; //from PCAT
+        $taxon->furtherInformationURL   = @$rec['source_url'];
         $taxon->order = 'Diptera';
         $taxon->class = 'Insecta';
         $taxon->kingdom = 'Animalia';
@@ -174,7 +375,8 @@ class DipteraCentralAmericaAPI
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
-        self::write_image($rec);
+        if(@$rec['image']) self::write_image($rec);
+        return $rec;
     }
     private function clean_sciname($str)
     {
