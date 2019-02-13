@@ -18,19 +18,16 @@ class DipteraCentralAmericaAPI
         // $this->download_options['expire_seconds'] = 0;
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
         $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
-        
         $this->page['trait_present'] = "http://phorid.net/pcat/index.php";
-        
     }
     function start()
     {
-        // self::write_agent();
-        // self::process_diptera_main();
-        // self::process_phoridae_list();
+        self::write_agent();
+        self::process_diptera_main();
+        self::process_phoridae_list();
         self::process_trait_data();
         $this->archive_builder->finalize(true);
     }
-    
     private function initialize_mapping()
     {
         $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
@@ -44,8 +41,10 @@ class DipteraCentralAmericaAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::parse_pcat(); //Phorid Catalog (PCAT)
+        ksort($this->debug['no mappings orig']);
         print_r($this->debug);
-        echo "\n".count(array_keys($this->debug['no mappings']))."\n";
+        echo "\n".count(array_keys($this->debug['no mappings']));
+        echo "\n".count(array_keys($this->debug['no mappings orig']))."\n";
         exit("\n-endx-\n");
     }
     private function parse_pcat()
@@ -197,7 +196,7 @@ class DipteraCentralAmericaAPI
             $rec["catnum"] = $taxon_id.'_'.$string_val;
             if($string_uri = self::get_string_uri($string_val)) {
                 $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
-                $rec['measurementRemarks'] = $string_val;
+                $rec['measurementRemarks'] = $orig_Distribution;
                 // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
                 // $rec['source'] = $this->partner_source_url;
                 // $rec['referenceID'] = 1;
