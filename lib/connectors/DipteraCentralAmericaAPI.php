@@ -117,6 +117,13 @@ class DipteraCentralAmericaAPI
         $s = str_ireplace(array("etc."), "", $s);
         $s = str_ireplace(array("&", " to ", " and "), ",", $s);
         $s = Functions::remove_whitespace($s);
+        
+        $s = str_ireplace("Central,northern South America", "Central America , South America", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        
         $s = str_ireplace("Malaysia (Sabah, Borneo)", "Malaysia , Borneo", $s);
         $s = str_ireplace("N., S.America", "North America , South America", $s);
         $s = str_ireplace("Central , South America", "Central America , South America", $s);
@@ -172,8 +179,19 @@ class DipteraCentralAmericaAPI
         if($s == "South Af")    return  "South Africa";
         if($s == "Caroline Is") return  "Caroline Islands";
         if($s == "Canada USA")  return  "Canada";
-        if($s == "xxx")         return  "yyy";
-        if($s == "xxx")         return  "yyy";
+        if($s == "Amazonian South America")         return  "South America";
+        if($s == "Amazonian Brazil")         return  "Brazil";
+        if($s == "Cape Verde Is.")         return  "Cape Verde";
+        if($s == "Cape Verde Islands")         return  "Cape Verde";
+        if($s == "northern South America")         return  "South America";
+        if($s == "Northern South America")         return  "South America";
+        if($s == "Comoros Islands")         return  "Comoros";
+        if($s == "Comoros Is")         return  "Comoros";
+        if($s == "eastern Russia")         return  "Russia";
+        if($s == "Western Colombia")         return  "Colombia";
+        if($s == "Widespread Amazon Basin")         return  "Amazon Basin";
+        if($s == "tropical South America")         return  "South America";
+        if($s == "worldwide")         return  "Worldwide";
         return $s;
     }
     private function process_trait_present_rec($rek)
