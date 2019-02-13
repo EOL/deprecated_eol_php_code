@@ -17,8 +17,10 @@ class DipteraCentralAmericaAPI
         // $this->download_options['expire_seconds'] = 0;
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
         $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
+        
+        $this->page['trait_present'] = "http://phorid.net/pcat/index.php";
+        
     }
-
     function start()
     {
         self::write_agent();
@@ -187,10 +189,10 @@ class DipteraCentralAmericaAPI
     private function write_agent()
     {
         $r = new \eol_schema\Agent();
-        $r->term_name       = 'Diptera of Central America';
+        $r->term_name       = 'phorid.net: online data for phorid flies';
         $r->agentRole       = 'publisher';
         $r->identifier      = md5("$r->term_name|$r->agentRole");
-        $r->term_homepage   = 'http://www.phorid.net/diptera/diptera_index.html';
+        $r->term_homepage   = 'http://phorid.net/index.php'; //'http://www.phorid.net/diptera/diptera_index.html';
         $this->archive_builder->write_object_to_file($r);
         $this->agent_id = array($r->identifier);
     }
@@ -205,7 +207,7 @@ class DipteraCentralAmericaAPI
         $mr->format                 = Functions::get_mimetype($rec['image']);
         $mr->furtherInformationURL  = $rec['source_url'];
         $mr->accessURI              = $rec['image'];
-        $mr->Owner                  = "";
+        // $mr->Owner                  = "";
         $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description            = @$rec["caption"];
         // if(!$rec['caption'])
