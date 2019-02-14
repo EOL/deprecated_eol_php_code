@@ -112,88 +112,6 @@ class DipteraCentralAmericaAPI
             }
         }
     }
-    private function some_massaging($s)
-    {
-        $s = str_ireplace(array("etc."), "", $s);
-        $s = str_ireplace(array("&", " to ", " and "), ",", $s);
-        $s = Functions::remove_whitespace($s);
-        
-        $s = str_ireplace("Central,northern South America", "Central America , South America", $s);
-        $s = str_ireplace("xxx", "yyy", $s);
-        $s = str_ireplace("xxx", "yyy", $s);
-        $s = str_ireplace("xxx", "yyy", $s);
-        $s = str_ireplace("xxx", "yyy", $s);
-        
-        $s = str_ireplace("Malaysia (Sabah, Borneo)", "Malaysia , Borneo", $s);
-        $s = str_ireplace("N., S.America", "North America , South America", $s);
-        $s = str_ireplace("Central , South America", "Central America , South America", $s);
-        $s = str_ireplace("Zimbabwe, Mad., South Af", "Zimbabwe, Madagascar, South Africa", $s);
-        $s = str_ireplace("N,C, , S.America", "North America, Central America, South America", $s);
-        $s = str_ireplace("Zimbabwe, Malawi, Sth Af", "Zimbabwe, Malawi, South Africa", $s);
-        $s = str_ireplace("Brazzil", "Brazil", $s);
-        $s = str_ireplace("N.America", "North America", $s);
-        $s = str_ireplace("S.America", "South America", $s);
-        $s = str_ireplace("SouthAfrica", "South Africa", $s);
-        $s = str_ireplace("Camaroon", "Cameroon", $s);
-        $s = str_ireplace("USSR", "Soviet Union", $s);
-        $s = str_ireplace("CentralAmerica", "Central America", $s);
-        $s = str_ireplace("SEAsia", "South East Asia", $s);
-        $s = str_ireplace("SE Asia", "South East Asia", $s);
-        $s = str_ireplace("C. Rica", "Costa Rica", $s);
-        $s = str_ireplace("Afganistan", "Afghanistan", $s);
-        $s = str_ireplace("Sénégal", "Senegal", $s);
-        $s = str_ireplace("NewGuinea", "New Guinea", $s);
-        $s = str_ireplace("N.Amer", "North America", $s);
-        $s = str_ireplace("Colom.", "Colombia", $s);
-        $s = str_ireplace("Guat.", "Guatemala", $s);
-        $s = str_ireplace("Borneo (Sabah)", "Borneo", $s);
-        $s = str_ireplace("UAE", "United Arab Emirates", $s);
-        $s = str_ireplace("Iv. Coast", "Ivory Coast", $s);
-        $s = str_ireplace("N,S America", "North America , South America", $s);
-        $s = str_ireplace("Phillipines", "Philippines", $s);
-        $s = str_ireplace("Boliv.", "Bolivia", $s);
-        $s = str_ireplace("British Guiana", "British Guyana", $s);
-        $s = str_ireplace("Venezuelae", "Venezuela", $s);
-        $s = str_ireplace("South , Central America", "South America , Central America", $s);
-        $s = str_ireplace("N., S.America", "North America, South America", $s);
-        $s = str_ireplace("Tadjikistan", "Tajikistan", $s);
-        $s = str_ireplace("Ama Brazil", "Brazil", $s);
-        $s = str_ireplace("xxx", "yyy", $s);
-        $s = str_ireplace("xxx", "yyy", $s);
-        $s = str_ireplace("xxx", "yyy", $s);
-        return $s;
-    }
-    private function some_massaging2($s)
-    {
-        if($s == "Phil")        return "Philippines";
-        if($s == "Canary Is")   return  "Canary Islands";
-        if($s == "Argen")       return  "Argentina";
-        if($s == "Britain")     return  "Great Britain";
-        if($s == "Japa")        return  "Japan";
-        if($s == "Mex")         return  "Mexico";
-        if($s == "South Americ") return  "South America";
-        if($s == "Hond.")        return  "Honduras";
-        if($s == "Pana")         return  "Panama";
-        if($s == "Cana")         return  "Canada";
-        if($s == "Mariana Island")  return  "Mariana Islands";
-        if($s == "South Af")    return  "South Africa";
-        if($s == "Caroline Is") return  "Caroline Islands";
-        if($s == "Canada USA")  return  "Canada";
-        if($s == "Amazonian South America")         return  "South America";
-        if($s == "Amazonian Brazil")         return  "Brazil";
-        if($s == "Cape Verde Is.")         return  "Cape Verde";
-        if($s == "Cape Verde Islands")         return  "Cape Verde";
-        if($s == "northern South America")         return  "South America";
-        if($s == "Northern South America")         return  "South America";
-        if($s == "Comoros Islands")         return  "Comoros";
-        if($s == "Comoros Is")         return  "Comoros";
-        if($s == "eastern Russia")         return  "Russia";
-        if($s == "Western Colombia")         return  "Colombia";
-        if($s == "Widespread Amazon Basin")         return  "Amazon Basin";
-        if($s == "tropical South America")         return  "South America";
-        if($s == "worldwide")         return  "Worldwide";
-        return $s;
-    }
     private function process_trait_present_rec($rek)
     {
         $rek = self::write_archive($rek);
@@ -437,6 +355,86 @@ class DipteraCentralAmericaAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->obj_ids[$mr->identifier] = '';
         }
+    }
+    private function some_massaging($s)
+    {
+        $s = str_ireplace(array("etc."), "", $s);
+        $s = str_ireplace(array("&", " to ", " and "), ",", $s);
+        $s = Functions::remove_whitespace($s);
+        $s = str_ireplace("Central,northern South America", "Central America , South America", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("Malaysia (Sabah, Borneo)", "Malaysia , Borneo", $s);
+        $s = str_ireplace("N., S.America", "North America , South America", $s);
+        $s = str_ireplace("Central , South America", "Central America , South America", $s);
+        $s = str_ireplace("Zimbabwe, Mad., South Af", "Zimbabwe, Madagascar, South Africa", $s);
+        $s = str_ireplace("N,C, , S.America", "North America, Central America, South America", $s);
+        $s = str_ireplace("Zimbabwe, Malawi, Sth Af", "Zimbabwe, Malawi, South Africa", $s);
+        $s = str_ireplace("Brazzil", "Brazil", $s);
+        $s = str_ireplace("N.America", "North America", $s);
+        $s = str_ireplace("S.America", "South America", $s);
+        $s = str_ireplace("SouthAfrica", "South Africa", $s);
+        $s = str_ireplace("Camaroon", "Cameroon", $s);
+        $s = str_ireplace("USSR", "Soviet Union", $s);
+        $s = str_ireplace("CentralAmerica", "Central America", $s);
+        $s = str_ireplace("SEAsia", "South East Asia", $s);
+        $s = str_ireplace("SE Asia", "South East Asia", $s);
+        $s = str_ireplace("C. Rica", "Costa Rica", $s);
+        $s = str_ireplace("Afganistan", "Afghanistan", $s);
+        $s = str_ireplace("Sénégal", "Senegal", $s);
+        $s = str_ireplace("NewGuinea", "New Guinea", $s);
+        $s = str_ireplace("N.Amer", "North America", $s);
+        $s = str_ireplace("Colom.", "Colombia", $s);
+        $s = str_ireplace("Guat.", "Guatemala", $s);
+        $s = str_ireplace("Borneo (Sabah)", "Borneo", $s);
+        $s = str_ireplace("UAE", "United Arab Emirates", $s);
+        $s = str_ireplace("Iv. Coast", "Ivory Coast", $s);
+        $s = str_ireplace("N,S America", "North America , South America", $s);
+        $s = str_ireplace("Phillipines", "Philippines", $s);
+        $s = str_ireplace("Boliv.", "Bolivia", $s);
+        $s = str_ireplace("British Guiana", "British Guyana", $s);
+        $s = str_ireplace("Venezuelae", "Venezuela", $s);
+        $s = str_ireplace("South , Central America", "South America , Central America", $s);
+        $s = str_ireplace("N., S.America", "North America, South America", $s);
+        $s = str_ireplace("Tadjikistan", "Tajikistan", $s);
+        $s = str_ireplace("Ama Brazil", "Brazil", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        $s = str_ireplace("xxx", "yyy", $s);
+        return $s;
+    }
+    private function some_massaging2($s)
+    {
+        if($s == "Phil")        return "Philippines";
+        if($s == "Canary Is")   return  "Canary Islands";
+        if($s == "Argen")       return  "Argentina";
+        if($s == "Britain")     return  "Great Britain";
+        if($s == "Japa")        return  "Japan";
+        if($s == "Mex")         return  "Mexico";
+        if($s == "South Americ") return  "South America";
+        if($s == "Hond.")        return  "Honduras";
+        if($s == "Pana")         return  "Panama";
+        if($s == "Cana")         return  "Canada";
+        if($s == "Mariana Island")  return  "Mariana Islands";
+        if($s == "South Af")    return  "South Africa";
+        if($s == "Caroline Is") return  "Caroline Islands";
+        if($s == "Canada USA")  return  "Canada";
+        if($s == "Amazonian South America") return  "South America";
+        if($s == "Amazonian Brazil")        return  "Brazil";
+        if($s == "Cape Verde Is.")          return  "Cape Verde";
+        if($s == "Cape Verde Islands")      return  "Cape Verde";
+        if($s == "northern South America")  return  "South America";
+        if($s == "Northern South America")  return  "South America";
+        if($s == "Comoros Islands")         return  "Comoros";
+        if($s == "Comoros Is")              return  "Comoros";
+        if($s == "eastern Russia")          return  "Russia";
+        if($s == "Western Colombia")        return  "Colombia";
+        if($s == "Widespread Amazon Basin") return  "Amazon Basin";
+        if($s == "tropical South America")  return  "South America";
+        if($s == "worldwide")               return  "Worldwide";
+        return $s;
     }
     //####################################################################################
     function get_all_taxa()
