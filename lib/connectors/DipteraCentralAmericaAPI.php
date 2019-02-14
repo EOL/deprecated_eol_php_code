@@ -115,7 +115,11 @@ class DipteraCentralAmericaAPI
                     */
                     // /* normal operation
                     if($rec) {
-                        if(substr($rec['Genus'],0,1) == "+") self::process_trait_extinct_rec($rec);
+                        if(substr($rec['Genus'],0,1) == "+")
+                        {
+                            $rec['taxon'] = str_replace("+","",$rec['taxon']);
+                            self::process_trait_extinct_rec($rec);
+                        }
                         else                                 self::process_trait_present_rec($rec);
                     }
                     // */
@@ -129,7 +133,6 @@ class DipteraCentralAmericaAPI
         $rek = self::write_archive($rek);
         $mValue = 'http://eol.org/schema/terms/extinct';
         $rek['measurementRemarks'] = $rek['Distribution'];
-        $rek['taxon'] = str_replace("+","",$rek['taxon']);
         self::add_ExtinctionStatus($mValue, $rek);
     }
     private function process_trait_present_rec($rek)
