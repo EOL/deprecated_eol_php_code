@@ -45,7 +45,7 @@ class DipteraCentralAmericaAPI
         print_r($this->debug);
         echo "\n".count(array_keys($this->debug['no mappings']));
         echo "\n".count(array_keys($this->debug['no mappings orig']))."\n";
-        exit("\n-endx-\n");
+        // exit("\n-endx-\n");
     }
     private function parse_pcat()
     {
@@ -78,7 +78,7 @@ class DipteraCentralAmericaAPI
             $limit = 0; //only for debug to limit
             foreach($rows as $row) {
                 $limit++;
-                if(($limit % 100) == 0) echo "\n".number_format($limit);
+                if(($limit % 300) == 0) echo "\n".number_format($limit);
                 if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
                     $tds = $arr[1];
                     $rec = array(); $i = -1;
@@ -133,9 +133,9 @@ class DipteraCentralAmericaAPI
             if($string_uri = self::get_string_uri($string_val)) {
                 $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
                 $rec['measurementRemarks'] = $orig_Distribution;
-                // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
-                // $rec['source'] = $this->partner_source_url;
-                // $rec['referenceID'] = 1;
+                $rec['source'] = $this->page['trait_present'];
+                // $rec['referenceID'] = '';
+                // $rec['bibliographicCitation'] = '';
                 $this->func->add_string_types($rec, $string_uri, $mType, "true");
             }
             else {
@@ -143,6 +143,24 @@ class DipteraCentralAmericaAPI
                 $this->debug['no mappings orig'][$orig_Distribution] = $string_val;
             }
         }
+
+        // http://eol.org/schema/terms/extinct
+        $mValue = 'http://eol.org/schema/terms/extant';
+        self::add_ExtinctionStatus($mValue, $rek);
+    }
+    private function add_ExtinctionStatus($mValue, $rek)
+    {
+        $mType = 'http://eol.org/schema/terms/ExtinctionStatus';
+        $taxon_id = $rek['taxon_id'];
+        $rec = array();
+        $rec["taxon_id"] = $taxon_id;
+        $rec["catnum"] = $taxon_id.'_'.'ExtinctionStatus';
+        $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
+        $rec['source'] = $this->page['trait_present'];
+        // $rec['measurementRemarks'] = '';
+        // $rec['bibliographicCitation'] = '';
+        // $rec['referenceID'] = '';
+        $this->func->add_string_types($rec, $mValue, $mType, "true");
     }
     private function get_string_uri($string)
     {
