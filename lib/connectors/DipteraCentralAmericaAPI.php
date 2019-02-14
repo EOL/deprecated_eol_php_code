@@ -19,13 +19,21 @@ class DipteraCentralAmericaAPI
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
         $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
         $this->page['trait_present'] = "http://phorid.net/pcat/index.php";
+        $this->page['trait_extinct'] = "http://phorid.net/pcat/indexEx.php";
     }
     function start()
     {
         self::write_agent();
         self::process_diptera_main();
         self::process_phoridae_list();
+
+        //start trait process
+        self::initialize_mapping();
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+
         self::process_trait_data();
+        self::process_trait_extinct_data();
         $this->archive_builder->finalize(true);
     }
     private function initialize_mapping()
@@ -35,21 +43,22 @@ class DipteraCentralAmericaAPI
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
         // print_r($this->uris);
     }
+    private function process_trait_extinct_data()
+    {
+        self::parse_pcat($this->page['trait_extinct']); //Phorid Catalog (PCAT)
+    }
     private function process_trait_data()
     {
-        self::initialize_mapping();
-        require_library('connectors/TraitGeneric');
-        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        self::parse_pcat(); //Phorid Catalog (PCAT)
+        self::parse_pcat($this->page['trait_present']); //Phorid Catalog (PCAT)
         ksort($this->debug['no mappings orig']);
         print_r($this->debug);
         echo "\n".count(array_keys($this->debug['no mappings']));
         echo "\n".count(array_keys($this->debug['no mappings orig']))."\n";
         // exit("\n-endx-\n");
     }
-    private function parse_pcat()
+    private function parse_pcat($url)
     {
-        if($html = Functions::lookup_with_cache($this->page['trait_present'], $this->download_options)) {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             $fields = array();
             //get headers
             if(preg_match("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
@@ -86,7 +95,7 @@ class DipteraCentralAmericaAPI
                         $i++;
                         $rec[$field] = $tds[$i];
                     }
-                    // print_r($rec); //exit;
+                    // print_r($rec); exit;
                     /*Array(
                         [Genus] => Woodiphora
                         [Species] => apicipennis
@@ -105,12 +114,23 @@ class DipteraCentralAmericaAPI
                     }
                     */
                     // /* normal operation
-                    if($rec) self::process_trait_present_rec($rec);
+                    if($rec) {
+                        if(substr($rec['Genus'],0,1) == "+") self::process_trait_extinct_rec($rec);
+                        else                                 self::process_trait_present_rec($rec);
+                    }
                     // */
                     // if($limit >= 5) break; //debug only
                 }
             }
         }
+    }
+    private function process_trait_extinct_rec($rek)
+    {
+        $rek = self::write_archive($rek);
+        $mValue = 'http://eol.org/schema/terms/extinct';
+        $rek['measurementRemarks'] = $rek['Distribution'];
+        $rek['taxon'] = str_replace("+","",$rek['taxon']);
+        self::add_ExtinctionStatus($mValue, $rek);
     }
     private function process_trait_present_rec($rek)
     {
@@ -157,7 +177,7 @@ class DipteraCentralAmericaAPI
         $rec["catnum"] = $taxon_id.'_'.'ExtinctionStatus';
         $this->taxa_with_trait[$taxon_id] = ''; //to be used when creating taxon.tab
         $rec['source'] = $this->page['trait_present'];
-        // $rec['measurementRemarks'] = '';
+        $rec['measurementRemarks'] = @$rek['measurementRemarks'];
         // $rec['bibliographicCitation'] = '';
         // $rec['referenceID'] = '';
         $this->func->add_string_types($rec, $mValue, $mType, "true");
