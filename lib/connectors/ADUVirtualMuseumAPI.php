@@ -22,7 +22,7 @@ class ADUVirtualMuseumAPI
         [1] => bop
         [2] => echinomap
         [3] => safap
-        [4] => sabca
+        [4] => sabca - butterfly
         [5] => vimma
         [6] => odonata
         [7] => phown
@@ -34,6 +34,7 @@ class ADUVirtualMuseumAPI
         $this->download_options = array('resource_id' => 716, 'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 
                                         'expire_seconds' => 60*60*24*30*2); //2 months expire bec. it is heavy API calling.
         // $this->download_options['expire_seconds'] = 0; // DO NOT DO THIS. The query_id will change value thus the URL will change as well.
+        // $this->download_options['expire_seconds'] = false; //debug only
     }
 
     function get_all_taxa()
