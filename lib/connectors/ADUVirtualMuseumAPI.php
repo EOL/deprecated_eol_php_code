@@ -32,7 +32,7 @@ class ADUVirtualMuseumAPI
         [11] => vith
         */
         $this->download_options = array('resource_id' => 716, 'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 
-                                        'expire_seconds' => 60*60*24*30*2); //2 months expire bec. it is heavy API calling.
+                                        'expire_seconds' => 60*60*24*30*3); //3 months expire bec. it is heavy API calling.
         // $this->download_options['expire_seconds'] = 0; // DO NOT DO THIS. The query_id will change value thus the URL will change as well.
         // $this->download_options['expire_seconds'] = false; //debug only
     }
