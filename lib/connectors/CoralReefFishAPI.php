@@ -19,6 +19,7 @@ class CoralReefFishAPI
         $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "delay_in_minutes" => 1); // "expire_seconds" => 0
         if(Functions::is_production()) $this->download_options['resource_id'] = "765";
         $this->records = array();
+        $this->owner = "www.coralreeffish.com by Benjamin Victor";
     }
     function get_all_taxa()
     {
@@ -168,7 +169,7 @@ class CoralReefFishAPI
         $mr->furtherInformationURL  = $rec["source"];
         $mr->description            = $rec["description"];
         $mr->UsageTerms             = 'http://creativecommons.org/licenses/by/3.0/';
-        $mr->Owner                  = 'www.coralreeffish.com by Benjamin Victor';
+        $mr->Owner                  = $this->owner;
         /*
         $mr->title                  = '';
         $mr->creator                = '';
@@ -211,6 +212,7 @@ class CoralReefFishAPI
             $rec = array();
             $rec["taxon_id"] = $r["taxon_id"];
             $rec["source"] = $this->gobiidae_page;
+            $rec['contributor'] = $this->owner;
             // - pelvic fins
             if($info = self::format_pelvic_fin_form($record["Pelvic fins"])) {
                 $rec["catnum"] = $info["basename"];
