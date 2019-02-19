@@ -10,7 +10,7 @@ class TrekNatureAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_agent_ids = array();
-        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 900, 'download_attempts' => 1);
+        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 900, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30); //expires in a month
         // $this->download_options["expire_seconds"] = false; // "expire_seconds" -- false => won't expire; 0 => expires now
         $this->image_list_page = "http://www.treknature.com/members/fragman/photos/";
         $this->image_summary_page = "http://www.treknature.com/viewphotos.php";
@@ -131,10 +131,10 @@ class TrekNatureAPI
             $mr->UsageTerms             = 'http://creativecommons.org/licenses/by-nc-sa/3.0/';
             $mr->accessURI              = $rec["src"];
             $mr->description            = utf8_encode($rec["caption"]);
-            $mr->Owner                  = '';
-            $mr->publisher              = '';
-            $mr->CVterm                 = '';
-            $mr->title                  = '';
+            // $mr->Owner                  = '';
+            // $mr->publisher              = '';
+            // $mr->CVterm                 = '';
+            // $mr->title                  = '';
             $mr->spatial                = $rec["location"];
             
             if(!isset($this->object_ids[$mr->identifier])) {
