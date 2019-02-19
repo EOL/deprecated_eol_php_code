@@ -71,6 +71,14 @@ class DWCADiagnoseAPI
                 print_r($rec);
                 return false;
             }
+            
+            /*good debug
+            if(!isset($rec[$field_index_key])) {
+                print_r($rec);
+                echo "\nfield_index_key = $field_index_key\n";
+            }
+            */
+            
             if(!isset($temp_ids[$rec[$field_index_key]])) $temp_ids[$rec[$field_index_key]] = '';
             else {
                 if($val = $rec[$field_index_key]) {

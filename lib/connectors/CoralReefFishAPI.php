@@ -5,6 +5,7 @@ class CoralReefFishAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -51,7 +52,7 @@ class CoralReefFishAPI
                 if($taxon == "Tigrigobius multifasciatus, panamensis, rubrigenis") $taxon = "Tigrigobius multifasciatus";
                 if($taxon == "the Elacatinus cleaner/sponge gobies (neon gobies)") $taxon = "Elacatinus";
                 if(in_array($taxon, array("Gobiidae1", "Gobiidae2", "Gobiidae3", "Gobiidae4", "Gobiidae5"))) $taxon = "Gobiidae";
-                echo "\n taxon:[$taxon]";
+                // echo "\n taxon:[$taxon]";
                 $rec["sciname"] = $taxon;
                 $rec["taxon_id"] = str_replace(" ", "_", $taxon);
                 self::create_instances_from_taxon_object($rec);
@@ -195,6 +196,9 @@ class CoralReefFishAPI
     }
     private function process_gobiidae_structured_data()
     {
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
         $records = self::parse_gobiidae_structured_data();
         foreach($records as $sciname => $record) {
             // start taxon entry
@@ -211,34 +215,71 @@ class CoralReefFishAPI
             if($info = self::format_pelvic_fin_form($record["Pelvic fins"])) {
                 $rec["catnum"] = $info["basename"];
                 $pelvic_fin_form = $info["uri"];
+                /* old, replaced by TraitGeneric
+                add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype)
                 self::add_string_types("true", $rec, "Pelvic fins", $pelvic_fin_form, "http://eol.org/schema/terms/PelvicFinForm");
                 self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
+                */
+                //---------------
+                // $rec['occur']['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                $rec['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                $this->func->add_string_types($rec, $pelvic_fin_form, "http://eol.org/schema/terms/PelvicFinForm", "true");
+                //---------------
             }
             // - anal-fin elements
             if($val = $record["anal-fin elements"]) {
                 $arr = explode("-", $val);
                 if(count($arr) == 1) {
                     $rec["catnum"] = "AnalFinElements";
+                    /* old, replaced by TraitGeneric
                     self::add_string_types("true", $rec, "anal-fin elements", $val, "http://eol.org/schema/terms/NumberOfAnalFinElements");
                     self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
+                    */
+                    //---------------
+                    // $rec['occur']['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                    $rec['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                    $this->func->add_string_types($rec, $val, "http://eol.org/schema/terms/NumberOfAnalFinElements", "true");
+                    //---------------
                 }
                 else {
                     $rec["catnum"] = "AnalFinElements_min";
                     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001113";
+                    /* old, replaced by TraitGeneric
                     self::add_string_types("true", $rec, "anal-fin elements", $arr[0], "http://eol.org/schema/terms/NumberOfAnalFinElements");
                     self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
+                    */
+                    //---------------
+                    // $rec['occur']['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                    $rec['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                    $this->func->add_string_types($rec, $arr[0], "http://eol.org/schema/terms/NumberOfAnalFinElements", "true");
+                    //---------------
+                    
                     $rec["catnum"] = "AnalFinElements_max";
                     $rec["statistical_method"] = "http://semanticscience.org/resource/SIO_001114";
+                    /* old, replaced by TraitGeneric
                     self::add_string_types("true", $rec, "anal-fin elements", $arr[1], "http://eol.org/schema/terms/NumberOfAnalFinElements");
                     self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
+                    */
+                    //---------------
+                    // $rec['occur']['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                    $rec['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                    $this->func->add_string_types($rec, $arr[1], "http://eol.org/schema/terms/NumberOfAnalFinElements", "true");
+                    //---------------
                 }
             }
             // - 1st dorsal spines
             if($val = $record["1st dorsal spines"]) {
                 $rec["statistical_method"] = "";
                 $rec["catnum"] = "NumberOfSpinesFirstDorsalFin";
+                /* old, replaced by TraitGeneric
                 self::add_string_types("true", $rec, "1st dorsal spines", $val, "http://eol.org/schema/terms/NumberOfSpinesFirstDorsalFin");
                 self::add_string_types("false", $rec, "life stage", "http://purl.obolibrary.org/obo/PATO_0001185", "http://rs.tdwg.org/dwc/terms/lifeStage");
+                */
+                //---------------
+                // $rec['occur']['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                $rec['lifeStage'] = "http://purl.obolibrary.org/obo/PATO_0001185";
+                $this->func->add_string_types($rec, $val, "http://eol.org/schema/terms/NumberOfSpinesFirstDorsalFin", "true");
+                //---------------
             }
         }
     }
@@ -278,7 +319,7 @@ class CoralReefFishAPI
                             }
                             $i = 0;
                             $values = array();
-                            echo "\n [$sciname] ";
+                            // echo "\n [$sciname] ";
                             foreach($arr2[1] as $temp) {
                                 if(preg_match("/>(.*?)<\/td>/ims", $temp . "</td>", $arr3)) $values[$fields[$i]] = self::clean_str($arr3[1]);
                                 $i++;
@@ -505,6 +546,7 @@ class CoralReefFishAPI
         foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
     }
+    /* used TraitGeneric instead, as of Feb 18, 2019.
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype)
     {
         $taxon_id = $rec["taxon_id"];
@@ -533,5 +575,6 @@ class CoralReefFishAPI
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
     }
+    */
 }
 ?>
