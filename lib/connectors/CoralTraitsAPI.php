@@ -16,7 +16,7 @@ class CoralTraitsAPI
         $this->download_options = array(
             'expire_seconds'     => 60*60*24*25, //expires in 25 days
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
-        // $this->download_options['expire_seconds'] = 0; //debug only
+        $this->download_options['expire_seconds'] = 0; //debug only
         $this->partner_source_csv = "https://ndownloader.figshare.com/files/3678603";
         $this->download_version = "ctdb_1.1.1";
         $this->spreadsheet_for_mapping  = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/coraltraits_mapping.xlsx"; //from Jen (DATA-1793)
