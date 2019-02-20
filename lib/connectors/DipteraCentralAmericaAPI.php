@@ -385,7 +385,7 @@ class DipteraCentralAmericaAPI
         $mr->format                 = Functions::get_mimetype($rec['image']);
         $mr->furtherInformationURL  = $rec['source_url'];
         $mr->accessURI              = $rec['image'];
-        // $mr->Owner                  = "";
+        $mr->Owner                  = "Diptera of Central America";
         $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description            = @$rec["caption"];
         // if(!$rec['caption'])
