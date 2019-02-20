@@ -46,6 +46,7 @@ class USAendangeredSpeciesAPI
         // exit;
         $this->archive_builder->finalize(true);
         Functions::start_print_debug($this->debug, $this->resource_id);
+        print_r($this->debug['Lead Region']);
     }
     private function process_group($group)
     {
@@ -74,10 +75,11 @@ class USAendangeredSpeciesAPI
                             // print_r($rec); exit;
                             
                             /* good debug - process one species
-                            if($rec['common_name'] == 'Nassau grouper') {
+                            if($rec['common_name'] == 'Cumberland bean (pearlymussel)') {
                                 print_r($rec);
                                 if($rec) self::process_rec($rec);
                             }
+                            else continue;
                             */
 
                             // /* normal operation
@@ -108,7 +110,7 @@ class USAendangeredSpeciesAPI
         if(preg_match("/\/species\/(.*?)\"/ims", $rec['scientific_name'], $arr)) $rec['taxon_id'] = $arr[1];
         $rec['taxon_name'] = strip_tags($rec['scientific_name']);
         if(preg_match("/title=\'(.*?)\!/ims", $rec['federal_listing_status'], $arr)) $rec['conserv_stat'] = $arr[1];
-        if(@$rec['taxon_name'] && @$rec['conserv_stat']) self::write_archive($rec);
+        if(@$rec['taxon_name'] && in_array(@$rec['conserv_stat'], array('Endangered','Threatened'))) self::write_archive($rec);
     }
     private function write_archive($rec)
     {
@@ -117,6 +119,7 @@ class USAendangeredSpeciesAPI
         
         $info = self::create_objects($rec);
         $rec['ref_ids'] = @$info['ref_ids'];
+        $rec['locality'] = @$info['locality'];
         
         if(@$rec['conserv_stat']) self::create_trait($rec);
         $this->debug[$rec['conserv_stat']] = '';
@@ -124,12 +127,16 @@ class USAendangeredSpeciesAPI
     private function create_objects($rec)
     {
         $ref_ids = array();
+        $locality = "";
         if($html = Functions::lookup_with_cache($this->page['taxon'].$rec['taxon_id'], $this->download_options)) {
             if($refs = self::parse_refs($html, $rec)) {
                 // print_r($refs);
                 $ref_ids = self::create_references($refs);
             }
             // exit("\n-refs end-\n");
+            if($locality = self::parse_locality($html)) {
+                
+            }
         }
         /* debug only
         if(!$ref_ids) {
@@ -141,8 +148,53 @@ class USAendangeredSpeciesAPI
             // exit("\nwith ref above this\n");
         }
         */
-        return array('ref_ids' => $ref_ids);
+        return array('ref_ids' => $ref_ids, 'locality' => $locality);
     }
+    private function parse_locality($html)
+    {
+        $final = array();
+        if(preg_match("/Current Listing Status Summary<\/div>(.*?)<\/table>/ims", $html, $arr)) {
+            $html = $arr[1];
+            $html = str_ireplace(' style="white-space:nowrap;"', "", $html);    //with ";"
+            $html = str_ireplace(' style="white-space:nowrap"', '', $html);     //without ";"
+            // echo("\n$html\n");
+            if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
+                // print_r($arr[1]); exit;
+                $fields = self::get_fields_from_tr($arr[1][0]);
+                $rows = $arr[1];
+                array_shift($rows);
+                // echo "\nRefs rows: ".count($rows)."\n";
+                foreach($rows as $row) {
+                    // echo "\n".$row;
+                    if(preg_match_all("/<td>(.*?)<\/td>/ims", $row, $arr)) {
+                        $tds = $arr[1];
+                        $rec = array(); $i = -1;
+                        foreach($fields as $field) {
+                            $i++;
+                            $rec[$field] = trim($tds[$i]);
+                        }
+                        // echo "\n-----------"; print_r($rec); echo "\n-----------"; //exit;
+                        /*Array(
+                            [Status] => <script>displayListingStatus("Endangered")</script>
+                            [Date Listed] => 1976-06-14
+                            [Lead Region] => <a href="http://www.fws.gov/southeast/" target="regionWindow">Southeast Region (Region 4)</a>
+                            [Where Listed] => Wherever found; Except where listed as Experimental Populations
+                        )*/
+                        if((stripos($rec['Status'], "Endangered") !== false) || (stripos($rec['Status'], "Threatened") !== false)) { //string is found
+                            $lead_region_uri = '';
+                            if(preg_match("/href=\"(.*?)\"/ims", $rec['Lead Region'], $arr)) $lead_region_uri = $arr[1];
+                            $lead_region = strip_tags($rec['Lead Region']);
+                            $this->debug['Lead Region'][$lead_region] = $lead_region_uri;
+                            if($lead_region_uri) return $lead_region_uri;
+                            if($lead_region) return $lead_region;
+                        }
+                    }
+                }
+            }
+        }
+        // exit;
+    }
+    
     private function parse_refs($html, $rek)
     {
         $final = array();
@@ -216,20 +268,25 @@ class USAendangeredSpeciesAPI
         $rec["taxon_id"] = $rek['taxon_id'];
         $rec["catnum"] = $rek['taxon_id'].'_'.$rek['conserv_stat'];
         $mType = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus';
-        $mValue = self::get_URI($rek['conserv_stat']);
-        // $rec['measurementRemarks'] = $string_val;
-        // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
-        $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
-        $rec['contributor'] = $this->agent['name'];
-        if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode("; ", $ref_ids);
-        $this->func->add_string_types($rec, $mValue, $mType, "true");
+        if($mValue = self::get_URI($rek['conserv_stat'])) {
+            // $rec['measurementRemarks'] = $string_val;
+            // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
+            $rec['occur']['locality'] = $rek['locality'];
+            $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
+            $rec['contributor'] = $this->agent['name'];
+            if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode("; ", $ref_ids);
+            $this->func->add_string_types($rec, $mValue, $mType, "true");
+        }
     }
     private function get_URI($str)
     {
         if($str == 'Endangered') return 'http://eol.org/schema/terms/federalEndangered';
         elseif($str == 'Threatened') return 'http://eol.org/schema/terms/federalThreatened';
-        elseif($str == 'Experimental Population, Non-Essential') return $str;
-        elseif($str == 'Similarity of Appearance to a Threatened Taxon') return $str;
+        else return false;
+        /* it won't go here anyway
+        elseif($str == 'Experimental Population, Non-Essential') return false;
+        elseif($str == 'Similarity of Appearance to a Threatened Taxon') return false;
+        */
     }
     private function create_vernaculars($rec)
     {
