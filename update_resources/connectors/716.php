@@ -7,6 +7,7 @@ estimated execution time for 12 databases: 59 hours if records_per_page = 50.
 
 716	Friday 2018-08-03 04:15:27 AM	{"agent.tab":932,"media_resource.tab":19245,"taxon.tab":689,"vernacular_name.tab":676}  eol-archive
 716	Monday 2019-02-18 05:36:33 AM	{"agent.tab":915,"media_resource.tab":18896,"taxon.tab":683,"vernacular_name.tab":673}  MacMini
+716	Tuesday 2019-02-19 08:03:23 AM	{"agent.tab":1011,"media_resource.tab":20970,"taxon.tab":687,"vernacular_name.tab":676} eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ADUVirtualMuseumAPI');
