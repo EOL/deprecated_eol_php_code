@@ -120,14 +120,15 @@ class USAendangeredSpeciesAPI
         $info = self::create_objects($rec);
         $rec['ref_ids'] = @$info['ref_ids'];
         $rec['locality'] = @$info['locality'];
-        
+        $rec['institutionCode'] = @$info['institutionCode'];
+
         if(@$rec['conserv_stat']) self::create_trait($rec);
         $this->debug[$rec['conserv_stat']] = '';
     }
     private function create_objects($rec)
     {
         $ref_ids = array();
-        $locality = "";
+        $locality = ""; $institutionCode = "";
         if($html = Functions::lookup_with_cache($this->page['taxon'].$rec['taxon_id'], $this->download_options)) {
             if($refs = self::parse_refs($html, $rec)) {
                 // print_r($refs);
@@ -135,7 +136,10 @@ class USAendangeredSpeciesAPI
             }
             // exit("\n-refs end-\n");
             if($locality = self::parse_locality($html)) {
-                
+                if(in_array($locality, array("Foreign (Headquarters)","http://www.nmfs.noaa.gov/"))) {
+                    $institutionCode = $locality; //move to institutionCode
+                    $locality = ""; //set to blank
+                }
             }
         }
         /* debug only
@@ -148,7 +152,7 @@ class USAendangeredSpeciesAPI
             // exit("\nwith ref above this\n");
         }
         */
-        return array('ref_ids' => $ref_ids, 'locality' => $locality);
+        return array('ref_ids' => $ref_ids, 'locality' => $locality, 'institutionCode' => $institutionCode);
     }
     private function parse_locality($html)
     {
@@ -272,6 +276,7 @@ class USAendangeredSpeciesAPI
             // $rec['measurementRemarks'] = $string_val;
             // $rec['bibliographicCitation'] = $this->partner_bibliographicCitation;
             $rec['occur']['locality'] = $rek['locality'];
+            $rec['occur']['institutionCode'] = $rek['institutionCode'];
             $rec['source'] = $this->page['taxon'].$rek['taxon_id'];
             $rec['contributor'] = $this->agent['name'];
             if($ref_ids = @$rek['ref_ids']) $rec['referenceID'] = implode("; ", $ref_ids);
