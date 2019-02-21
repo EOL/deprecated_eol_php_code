@@ -1927,6 +1927,20 @@ class Functions
         elseif ($extension === "oga")        $mimetype = "audio/ogg";
         elseif ($extension === "ogx")        $mimetype = "application/ogg";
         return $mimetype;
+        
+        // Total by format:
+        // image/png: 25375
+        // image/jpeg: 1113819
+        // image/svg+xml: 5132
+        // image/tiff: 15016
+        // audio/ogg: 1364
+        // video/webm: 2220
+        // video/ogg: 3947
+        // image/gif: 1575
+        // audio/mpeg: 1001
+        // audio/x-wav: 61
+        // video/mp4: 1
+        
     }
     public static function get_datatype_given_mimetype($mimetype)
     {
@@ -2491,8 +2505,8 @@ class Functions
         echo "\n".count($mappings)." - URIs were added from Turbellarian (185). \n";
         
         //add mappings specific to this resource: GISD 751
-        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt";
-        $uri_values = $func->add_additional_mappings(true, $url, 60*60*24);
+        $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt"; /* Included other mappings from other resources */
+        $uri_values = $func->add_additional_mappings(true, $url, 0); //orig value not 0 but 60*60*24
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
         
