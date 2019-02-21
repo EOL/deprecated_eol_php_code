@@ -188,6 +188,7 @@ class DipteraCentralAmericaAPI
     private function get_string_uri($string)
     {
         switch ($string) { //put here customized mapping
+            case "BZ":    return "http://www.geonames.org/3469034";
             // case "NR":                return false; //"DO NOT USE";
             // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
         }
