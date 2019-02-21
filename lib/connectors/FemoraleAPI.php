@@ -7,16 +7,18 @@ class FemoraleAPI
 {
     function __construct($folder = null)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->occurrence_ids = array();
         $this->measurement_ids = array();
         $this->object_ids = array();
-        $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        $this->download_options = array('resource_id' => $this->resource_id, 'download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
         // $this->download_options['expire_seconds'] = false;
-        $this->url_path = "http://localhost/~eolit/cp/Femorale/";
-        $this->url_path = "https://dl.dropboxusercontent.com/u/7597512/Femorale/";
+        $this->url_path = "http://localhost/~eolit/cp_new/Femorale/";
+        // $this->url_path = "https://dl.dropboxusercontent.com/u/7597512/Femorale/"; //obsolete
+        $this->url_path = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Femorale/";
         $this->images_path = "http://www.femorale.com/shellphotos/detmore.asp?&localidade=&url=";
         $this->spreadsheets = array();
         $this->spreadsheets[] = "Encyclopedia_Of_Life_Other.xls";        // 365 KB
@@ -68,6 +70,8 @@ class FemoraleAPI
                     self::create_instances_from_taxon_object($rec);
                     self::prepare_images($rec);
                     self::prepare_data($rec);
+                    
+                    // if($i >= 3) break; //debug only
                 }
                 unlink($path);
             }
