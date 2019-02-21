@@ -2506,7 +2506,7 @@ class Functions
         
         //add mappings specific to this resource: GISD 751
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt"; /* Included other mappings from other resources */
-        $uri_values = $func->add_additional_mappings(true, $url, 0); //orig value not 0 but 60*60*24
+        $uri_values = $func->add_additional_mappings(true, $url, 60*60*24); //orig value not 0 but 60*60*24
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
         
