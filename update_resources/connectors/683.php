@@ -7,6 +7,7 @@ Connector scrapes the partner's website
 below starts resource with trait data:
 683	Thursday 2019-02-14 11:02:24 AM	{"agent.tab":1,"measurement_or_fact_specific.tab":8970,"media_resource.tab":200,"occurrence_specific.tab":8970,"taxon.tab":4585} eol-archive
 683	Wednesday 2019-02-20 01:25:28 AM{"agent.tab":1,"measurement_or_fact_specific.tab":8970,"media_resource.tab":200,"occurrence_specific.tab":8970,"taxon.tab":4585}
+683	Thursday 2019-02-21 03:24:47 AM	{"agent.tab":1,"measurement_or_fact_specific.tab":9028,"media_resource.tab":200,"occurrence_specific.tab":9028,"taxon.tab":4585} with additional mappings from Jen
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DipteraCentralAmericaAPI');
