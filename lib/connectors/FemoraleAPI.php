@@ -27,7 +27,6 @@ class FemoraleAPI
         $this->spreadsheets[] = "Encyclopedia_Of_Life_Gastropoda.xls";   // 4.6 MB
         // $this->spreadsheets[] = "Encyclopedia_Of_Life_Bivalvia_small.xls";
     }
-
     function get_all_taxa()
     {
         require_library('connectors/TraitGeneric');
@@ -36,20 +35,17 @@ class FemoraleAPI
         require_library('XLSParser');
         $docs = count($this->spreadsheets);
         $doc_count = 0;
-        foreach($this->spreadsheets as $doc)
-        {
+        foreach($this->spreadsheets as $doc) {
             $doc_count++;
             echo "\n processing [$doc]...\n";
-            if($path = Functions::save_remote_file_to_local($this->url_path . $doc, array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2)))
-            {
+            if($path = Functions::save_remote_file_to_local($this->url_path . $doc, array("cache" => 1, "timeout" => 3600, "file_extension" => "xls", 'download_attempts' => 2, 'delay_in_minutes' => 2))) {
                 $parser = new XLSParser();
                 $arr = $parser->convert_sheet_to_array($path);
                 $fields = array_keys($arr);
                 $i = -1;
                 $rows = count($arr["Species"]);
                 echo "\n total $path: $rows \n";
-                foreach($arr["Species"] as $Species)
-                {
+                foreach($arr["Species"] as $Species) {
                     $i++;
                     $rec = array();
                     foreach($fields as $field) $rec[$field] = $arr[$field][$i];
@@ -83,7 +79,6 @@ class FemoraleAPI
         }
         $this->archive_builder->finalize(TRUE);
     }
-    
     private function prepare_data($rec)
     {
         $rec["object_id"] = "size";
@@ -93,14 +88,11 @@ class FemoraleAPI
         // $rec["object_id"] = "locality";
         // self::add_string_types($rec, "locality", $rec["Locality"], "http://rs.tdwg.org/dwc/terms/locality", "false");
     }
-
     private function prepare_images($rec)
     {
-        if($mediaURLs = self::get_image_urls($rec))
-        {
+        if($mediaURLs = self::get_image_urls($rec)) {
             // print "\n images: " . count($mediaURLs) . "\n"; //good debug
-            foreach($mediaURLs as $mediaURL)
-            {
+            foreach($mediaURLs as $mediaURL) {
                 /* not used for now
                 $desc = "";
                 if($val = $rec["Locality"]) $desc .= "Locality: " . $val . "<br>";
@@ -117,33 +109,26 @@ class FemoraleAPI
                 $mr->UsageTerms     = "http://creativecommons.org/licenses/by-nc/3.0/";
                 $mr->accessURI      = $mediaURL;
                 $mr->furtherInformationURL = str_replace(" ", "%20", $rec["Expr1"]);
-                if(!isset($this->object_ids[$mr->identifier]))
-                {
+                if(!isset($this->object_ids[$mr->identifier])) {
                     $this->archive_builder->write_object_to_file($mr);
                     $this->object_ids[$mr->identifier] = '';
                 }
             }
         }
     }
-    
     private function get_image_urls($rec)
     {
         $mediaURLs = array();
         $url = $this->images_path . "&species=" . $rec["Species"] . "&navi=";
-        if($html = Functions::lookup_with_cache($url . "1", $this->download_options))
-        {
+        if($html = Functions::lookup_with_cache($url . "1", $this->download_options)) {
             $navi = 1;
             if(preg_match("/>1 of (.*?)<\/font/ims", $html, $arr)) $navi = trim($arr[1]);
-            for($i=1; $i<=$navi; $i++)
-            {
-                if($i == 1)
-                {
+            for($i=1; $i<=$navi; $i++) {
+                if($i == 1) {
                     if(preg_match_all("/src=\"(.*?)\"/ims", $html, $arr)) $mediaURLs = array_merge($mediaURLs, $arr[1]);
                 }
-                else
-                {
-                    if($html = Functions::lookup_with_cache($url . $i, $this->download_options))
-                    {
+                else {
+                    if($html = Functions::lookup_with_cache($url . $i, $this->download_options)) {
                         if(preg_match_all("/src=\"(.*?)\"/ims", $html, $arr)) $mediaURLs = array_merge($mediaURLs, $arr[1]);
                     }
                 }
@@ -151,7 +136,6 @@ class FemoraleAPI
         }
         return $mediaURLs;
     }
-
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -159,34 +143,28 @@ class FemoraleAPI
         $taxon->scientificName  = $rec["sciname"];
         $taxon->taxonRank       = $rec["rank"];
         $taxon->family          = ucfirst(strtolower($rec["Family"]));
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
-        {
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
-
     private function clean_taxon_name($rec)
     {
         $strings = array(" sp ", " sp.");
         $found = false;
-        foreach($strings as $string)
-        {
+        foreach($strings as $string) {
             if(is_numeric(stripos($rec["Species"], $string))) $found = true;
         }
-        if($found)
-        {
+        if($found) {
             $rec["sciname"] = Functions::canonical_form($rec["Species"]);
             $rec["rank"] = "genus";
         }
-        else
-        {
+        else {
             $rec["sciname"] = $rec["Species"];
             $rec["rank"] = "species";
         }
         return $rec;
     }
-    
     private function add_string_types($rek, $label, $mValue, $measurementType, $measurementOfTaxon)
     {
         $taxon_id = $rek["taxon_id"];
@@ -206,7 +184,6 @@ class FemoraleAPI
         $rec['statisticalMethod']   = "http://www.ebi.ac.uk/efo/EFO_0001444";
         $this->func->add_string_types($rec, $mValue, $measurementType, $measurementOfTaxon);
     }
-
     private function add_occurrence($taxon_id, $object_id)
     {
         $occurrence_id = $taxon_id . '_' . $object_id;
@@ -218,6 +195,5 @@ class FemoraleAPI
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
     }
-
 }
 ?>
