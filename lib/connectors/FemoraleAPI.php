@@ -30,6 +30,9 @@ class FemoraleAPI
 
     function get_all_taxa()
     {
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
         require_library('XLSParser');
         $docs = count($this->spreadsheets);
         $doc_count = 0;
@@ -184,31 +187,24 @@ class FemoraleAPI
         return $rec;
     }
     
-    private function add_string_types($rec, $label, $value, $measurementType, $measurementOfTaxon)
+    private function add_string_types($rek, $label, $mValue, $measurementType, $measurementOfTaxon)
     {
-        $taxon_id = $rec["taxon_id"];
-        $object_id = $rec["object_id"];
-        $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $object_id);
-        $m->occurrenceID        = $occurrence->occurrenceID;
-        $m->measurementOfTaxon  = $measurementOfTaxon;
-        if($label == "size")
-        {
-            $m->source              = str_replace(" ", "%20", $rec["Expr1"]);
-            $m->source              = str_replace(",", "%2C", $m->source);
-            $m->source              = str_replace("(", "%28", $m->source);
-            $m->source              = str_replace(")", "%29", $m->source);
-            $m->measurementUnit     = "http://purl.obolibrary.org/obo/UO_0000016"; //mm - millimeter
-            $m->measurementRemarks  = "maximum shell dimension";
+        $taxon_id = $rek["taxon_id"];
+        $object_id = $rek["object_id"];
+        
+        $rec = array();
+        $rec["taxon_id"] = $taxon_id;
+        $rec["catnum"] = $taxon_id.'_'.$object_id;
+        if($label == "size") {
+            $rec['source']              = str_replace(" ", "%20", $rek["Expr1"]);
+            $rec['source']              = str_replace(",", "%2C", $rec['source']);
+            $rec['source']              = str_replace("(", "%28", $rec['source']);
+            $rec['source']              = str_replace(")", "%29", $rec['source']);
+            $rec['measurementUnit']     = "http://purl.obolibrary.org/obo/UO_0000016"; //mm - millimeter
+            $rec['measurementRemarks']  = "maximum shell dimension";
         }
-        $m->measurementType     = $measurementType;
-        $m->measurementValue    = $value;
-        $m->statisticalMethod   = "http://www.ebi.ac.uk/efo/EFO_0001444";
-        if(!isset($this->measurement_ids[$m->occurrenceID]))
-        {
-            $this->archive_builder->write_object_to_file($m);
-            $this->measurement_ids[$m->occurrenceID] = '';
-        }
+        $rec['statisticalMethod']   = "http://www.ebi.ac.uk/efo/EFO_0001444";
+        $this->func->add_string_types($rec, $mValue, $measurementType, $measurementOfTaxon);
     }
 
     private function add_occurrence($taxon_id, $object_id)
