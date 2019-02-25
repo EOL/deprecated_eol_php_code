@@ -27,7 +27,7 @@ exit("\n-end utility-\n");
 */
 
 $func->convert_archive(); //main operation
-Functions::finalize_dwca_resource($resource_id, false);
+Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

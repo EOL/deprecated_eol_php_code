@@ -13,7 +13,7 @@ $timestart = time_elapsed();
 $resource_id = 'fao_species';
 $func = new FAOSpeciesAPI($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

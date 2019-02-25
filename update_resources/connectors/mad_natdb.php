@@ -144,7 +144,7 @@ exit("\n");
 $resource_id = "natdb";
 $func = new MADtoolNatDBAPI($resource_id);
 $func->start(); //main operation
-Functions::finalize_dwca_resource($resource_id, false);
+Functions::finalize_dwca_resource($resource_id, false, true);
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
