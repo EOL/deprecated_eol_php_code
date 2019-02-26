@@ -1975,6 +1975,7 @@ class WikiDataAPI
     }
     private function invalid_artist_name_value($rek)
     {
+        if(!isset($rek['Artist'][0]['name'])) return false;
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
         // elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url - DON'T USE THIS, WILL REMAIN COMMENTED, at this point we can accept URL values as it will be resolved later
         return false;
