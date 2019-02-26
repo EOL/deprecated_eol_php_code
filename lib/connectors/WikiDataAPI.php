@@ -132,47 +132,109 @@ class WikiDataAPI
         }
         return true;
     }
-    function test()
+    function test($filename = false)
     {
-        /*
-        $a['name'] = "#if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location";
-        $a = self::clean_agent_rec($a); print_r($a); //exit("\n");
-        $a['name'] = "Author assumed|[[User:McLeod|McLeod]]";
-        $a = self::clean_agent_rec($a); print_r($a); //exit("\n");
-        // $a['role'] = "photographer";
-        // $a['name'] = 'Eli E. Agbayani';
-        $a['name'] = "User:Charly Morlock/crédito";
-        $a['name'] = "User:Raymond/author";
-        $a['name'] = "user:JoJan";
-        $a = self::clean_agent_rec($a); print_r($a); exit("\n");
-        */
         /* [file in question] => -----                              Nov 25, 2018
-            [File:Salix_sericea_NRCS-2.jpg] => 
-            [File:Przewalski_26-9-2004-2.jpg] => 
-            [File:Haworthia_arachnoidea_-_cobweb_aloe.jpg] => 
-            [File:Narcissus assoanus distrib.jpg] => 
-            [File:Narcissus serotinus distrib.jpg] => 
-            [File:Frazer%C2%B4s_dolphin_group.jpg] => 
-            [File:Ctenopharyngodon_idella_01_Pengo.jpg] => 
-            [File:Aix sponsa dis1.PNG] => 
-            [File:Aix_sponsa_dis1.PNG] => 
-            [File:Aix_sponsa_dis.PNG] => 
-            [File:Mitrula_paludosa_02.jpg] => 
-            [File:Verbreitungskarte des Kranichs.png] => 
-            [File:Rhacophoridae_diversity2.jpg] => 
-            [File:Broussonetia_papyrifera-fruits.jpg] => 
-            [File:Narcissus jonquilla distrib.jpg] => 
             [File:Virgin%27s_bower_(Clematis_terniflora).jpg] => 
             [File:Narcissus rupicola distrib.jpg] => 
             [File:Rosa_glauca_inflorescence_(32).jpg] =>            no real agent
             [File:Alnus_acuminata_4.jpg] =>                         no real agent
         */
-        // https://commons.wikimedia.org/wiki/File:Aa_species.jpg
-        // https://commons.wikimedia.org/wiki/File:Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg
-        $arr = self::process_file("Aa_species.jpg"); //File:Przewalski 26-9-2004-2.jpg //Virgin's bower (Clematis terniflora).jpg
+        // $filename = "Aa_species.jpg"; //force assignment Aa_species.jpg
+        $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
-        exit("\n-Finished testing-\n");
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
+    }
+    private function test_agent_value($a, $final)
+    {
+        $fields = array('name', 'role', 'homepage');
+        $print_error = false;
+        echo "\n";
+        foreach($fields as $fld) {
+            if(@$a[$fld] == $final[$fld]) echo "\nOK $fld";
+            else {
+                echo "\nerror $fld"; $print_error = true;
+            }
+        }
+        if($print_error) {
+            echo "\n"; print_r($a); print_r($final);
+        }
+    }
+    function run_test()
+    {
+        echo "\nRun tests...";
+        $a = array(); $a['name'] = "#if:94187100@N00|[http://flickr.com/photos/94187100@N00 Hernán García Crespo]|#if:|[2 Hernán García Crespo]|Hernán García Crespo #if:|from location";
+        $a = self::clean_agent_rec($a); // print_r($a); 
+        self::test_agent_value($a, array('name' => "Hernán García Crespo", 'role' => "creator", 'homepage' => "http://flickr.com/photos/94187100@N00"));
+
+        $a = array(); $a['name'] = "Author assumed|[[User:McLeod|McLeod]]";
+        $a = self::clean_agent_rec($a); //print_r($a); exit;
+        self::test_agent_value($a, array('name' => "McLeod", 'role' => "", 'homepage' => ""));
+        
+        $a = array(); $a['name'] = "User:Charly Morlock/crédito";
+        $a = self::clean_agent_rec($a); //print_r($a); exit;
+        self::test_agent_value($a, array('name' => "Charly Morlock", 'role' => "", 'homepage' => ""));
+
+        $a = array(); $a['name'] = "User:Raymond/author";
+        $a = self::clean_agent_rec($a); //print_r($a); exit;
+        self::test_agent_value($a, array('name' => "Raymond", 'role' => "", 'homepage' => ""));
+
+        $a = array(); $a['name'] = "user:JoJan";
+        $a = self::clean_agent_rec($a); //print_r($a); exit("\n");
+        self::test_agent_value($a, array('name' => "JoJan", 'role' => "", 'homepage' => ""));
+
+        $a = array(); $a['role'] = "photographer";
+        $a['name'] = 'Eli E. Agbayani';
+        self::test_agent_value($a, array('name' => "Eli E. Agbayani", 'role' => "photographer", 'homepage' => ""));
+
+        // self::test_agent_value($a, array('name' => "xxx", 'role' => "yyy", 'homepage' => "zzz"));
+        // self::test_agent_value($a, array('name' => "xxx", 'role' => "yyy", 'homepage' => "zzz"));
+        
+        $arr[] = array('filename' => 'Aa_species.jpg',              'name' => "Eric in SF",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Abies_grandis_needles.jpg',   'name' => "Sten Porse",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg',   'name' => "Walters Art Museum", 'condition' => 'eq');
+        $arr[] = array('filename' => 'Salix_sericea_NRCS-2.jpg',        'name' => "Nonenmac",              'condition' => 'eq');
+        $arr[] = array('filename' => 'Caligula_by_A_Yakovlev_1911.jpg', 'name' => "Alexander Yakovlev",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Megalophaedusa_martensi_02.jpg',  'name' => "Takahashi",             'condition' => 'eq', 'index' => 1);
+        $arr[] = array('filename' => 'Elgaria_multicarinata_08416.JPG', 'name' => "Walter Siegmund ©2006 Walter Siegmund", 'condition' => 'eq', 'index' => 1);
+        $arr[] = array('filename' => 'Alexander_yakovlev,_autoritratto,_1917.JPG', 'name' => "Sailko", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Sailko');
+        $arr[] = array('filename' => 'Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
+        echo "\n\nNext...".count($arr);
+        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
+        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
+        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
+        $i = 0;
+        foreach($arr as $a) { $i++;
+            if(!@$a['index']) $a['index'] = 0;
+            $arr = self::process_file($a['filename']);
+            $param = array('condition' => $a['condition']);
+            if(isset($a['name']))     $param['name']     = $arr['Artist'][$a['index']]['name'];
+            if(isset($a['role']))     $param['role']     = $arr['Artist'][$a['index']]['role'];
+            if(isset($a['homepage'])) $param['homepage'] = $arr['Artist'][$a['index']]['homepage'];
+            echo "\n$i. ".(self::validate_test($param, $a) ? 'OK' : "error: $a[filename]");
+        }
+    }
+    private function validate_test($param, $a)
+    {
+        if($param['condition'] == 'eq') {
+            if(isset($param['name'])) {
+                if($param['name'] == $a['name']) {}
+                else return false;
+            }
+            if(isset($param['role'])) {
+                if($param['role'] == $a['role']) {}
+                else return false;
+                /*debug
+                if($param['role'] == "creatorx") {}
+                else return false;
+                */
+            }
+            if(isset($param['homepage'])) {
+                if($param['homepage'] == $a['homepage']) {}
+                else return false;
+            }
+        }
+        return true;
     }
     function generate_resource($task = false, $range_from = false, $range_to = false, $actual_task = false)
     {
@@ -826,7 +888,14 @@ class WikiDataAPI
             }
             // ----------------------------------------------------------------------------------------------- */
             
-            if($a = array_map('trim', $a)) return $a;
+            if($a = array_map('trim', $a)) {
+                /* fix homepage format e.g. "http://flickr.com/photos/94187100@N00 Hernán García Crespo" */
+                if($homepage = @$a['homepage']) {
+                    $tmp = explode(" ", $homepage);
+                    $a['homepage'] = $tmp[0];
+                }
+                return $a;
+            }
             else {
                 echo "\n--------investigate agent----start--------\n";
                 print_r($a);
@@ -867,7 +936,7 @@ class WikiDataAPI
             $r = new \eol_schema\Agent();
             $r->term_name       = $a['name'];
             $r->agentRole       = ($val = @$a['role']) ? (string) $val : $role;
-
+            $r->agentRole = trim(str_replace("|", "", $r->agentRole));
             /* to capture erroneous artist entries
             if(strlen($r->agentRole) == 1)
             {
@@ -1085,6 +1154,7 @@ class WikiDataAPI
     private function get_media_metadata_from_json($filename, $title)
     {
         $json = file_get_contents($filename);
+        $json = Functions::delete_all_between("<nowiki>", "<\/nowiki>", $json); //to fix this: https://commons.wikimedia.org/wiki/File:Abies_grandis_needles.jpg DATA-1798
         $json = self::clean_html($json);
         $dump_arr = json_decode($json, true);
         $rek = array();
@@ -1131,6 +1201,13 @@ class WikiDataAPI
         |source=https://www.flickr.com/photos/internetarchivebookimages/16095238834/
         |permission={{User:Fæ/Flickr API}}
         */
+        
+        $wiki = str_ireplace(array("author=|", "author= |", "Author = |"), "", $wiki);
+        $wiki = str_ireplace(array("photographer=|", "photographer= |", "photographer = |"), "", $wiki);
+        $wiki = str_ireplace(array("artist=|", "artist= |", "artist = |"), "", $wiki);
+        $wiki = str_ireplace(array("date=|", "date= |", "date = |"), "", $wiki);
+        $wiki = str_ireplace(array("author = |", "author= |", "author = |"), "", $wiki);
+        
         if(preg_match("/\|date\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['date'] = trim($a[1]);
         else {
             $temp = Functions::remove_whitespace($wiki);
@@ -1192,7 +1269,9 @@ class WikiDataAPI
         }
         */
         if($val = self::get_artist_from_ImageDescription($rek['ImageDescription'])) $rek['Artist'][] = $val;
-        
+        if($LicenseShortName = @$rek['LicenseShortName']) {
+            if($val = self::get_artist_from_LicenseShortName($LicenseShortName)) $rek['Artist'][] = $val;
+        }
 
         if(!$rek['Artist']) {
             // echo "\nelix went here ccc\n";
@@ -1299,12 +1378,11 @@ class WikiDataAPI
         //================================================================ END
         $rek['eol_type'] = self::check_if_dump_image_is_map($dump_arr['revision']['text']);
         $rek['fromx'] = 'dump';
-        /* good debug for Artist dump
-        if($rek['pageid'] == "12338225") {
+        /* good debug for Artist using dump
+        if($rek['pageid'] == "pageid") {
             echo "\n=================investigate dump data===========start\n";
             print_r($dump_arr); print_r($rek);
             echo "\n=================investigate dump data===========end\n";
-            exit("\nwait..investigate here...\n");
         }
         */
         return $rek;
@@ -1313,7 +1391,7 @@ class WikiDataAPI
     {
         /* e.g. orig wiki value = {{Creator:Marten de Vos}} */
         if(substr($other_author,0,2) == "{{") {
-            $name = str_replace(array("{", "}"), "", $other_author);
+            $name = str_ireplace(array("{", "}", "Creator:"), "", $other_author);
             return array('name' => $name, 'role' => 'creator');
         }
         /* e.g. $other_author orig value, which is a wiki:
@@ -1357,8 +1435,18 @@ class WikiDataAPI
         }
         return false;
     }
+    private function get_artist_from_LicenseShortName($str) //e.g. [LicenseShortName] => PD-self|author=I, [[User:Takahashi|Takahashi]]
+    {
+        if(preg_match("/author\=I\, \[\[User\:(.*?)\|/ims", $str, $a)) {
+            $final['name'] = $a[1];
+            $final['homepage'] = "https://commons.wikimedia.org/wiki/User:".$final['name'];
+            $final['role'] = 'creator';
+            return $final;
+        }
+    }
     private function get_artist_from_ImageDescription($description)
     {
+        $description = str_ireplace(array("Source: my own file.", "Author: This file is lacking author information."), "", $description);
         // <td lang="en">Author</td> 
         // <td><a href="https://commons.wikimedia.org/wiki/User:Sardaka" title="User:Sardaka">Sardaka</a></td> 
         if(preg_match("/>Author<\/td>(.*?)<\/td>/ims", $description, $a)) { // echo "\nelix 111\n";
@@ -1405,7 +1493,14 @@ class WikiDataAPI
             else { //e.g. Photographer: <a href="https://commons.wikimedia.org/wiki/User:Biopics" title="User:Biopics">Hans Hillewaert</a>.
                 $d = strip_tags($description);
                 if(preg_match("/Photographer:(.*?)\./ims", $d, $a)) {
-                    if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'photographer');
+                    $tmp = strip_tags(trim($a[1]));
+                    
+                    // /* case where $a[1] is equal to:
+                    // Walter Siegmund ©2006 Walter Siegmund Licensing I, the copyright holder of this work, hereby publish it under the following licenses: : Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1 
+                    if(preg_match("/xxx(.*?)Licensing/ims", "xxx".$tmp, $a)) $tmp = $a[1];
+                    // */
+                    
+                    if($val = strip_tags(trim($tmp))) return array('name' => $val, 'role' => 'photographer');
                 }
             }
         }
@@ -1418,6 +1513,18 @@ class WikiDataAPI
                 }
             }
         }
+
+        //added Feb 25, 2019
+        elseif(preg_match("/Artist:(.*?)\./ims", $description, $a)) { /*Artist: <a href="https://en.wikipedia.org/wiki/Alexandre_Jacovleff" title="en:Alexandre Jacovleff">Alexandre Jacovleff</a> (1887–1938) <a href="https://commons.wikimedia.org/wiki/Creator:Alexander_Yakovlev" title="Link back to Creator infobox template"></a> <a href="https://www.wikidata.org/wiki/Q593879" title="wikidata:Q593879"></a>. <a href="https://commons.wikimedia.org/wiki/File:Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg" ></a>.*/
+            if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'creator');
+            else {
+                $d = strip_tags($description);
+                if(preg_match("/Artist:(.*?)\./ims", $d, $a)) {
+                    if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'creator');
+                }
+            }
+        }
+
 
         //added Feb 11, 2019
         elseif(preg_match("/Source:(.*?)\./ims", $description, $a)) { /*Source: <a href="https://en.wikipedia.org/wiki/Walters_Art_Museum" title="en:Walters Art Museum">Walters Art Museum</a>: <a href="http://thewalters.org/" rel="nofollow"></a> <a rel="nofollow" href="http://thewalters.org/">Home page</a> <a href="http://art.thewalters.org/detail/37360" rel="nofollow"></a> <a rel="nofollow" href="http://art.thewalters.org/detail/37360">Info about artwork</a>.*/
@@ -1643,10 +1750,10 @@ class WikiDataAPI
             if($rek['title'] = self::get_title_from_ImageDescription($rek['ImageDescription'])) {}
             else $rek['title'] = self::format_wiki_substr($arr['title']);
             
-            /* 12338225
-            if($rek['pageid'] == "12338225") { //good debug api
+            /*
+            if($rek['pageid'] == "pageid") { //good debug using API
                 echo "\n=======investigate api data =========== start\n";
-                print_r($arr); //exit("\nelix\n");
+                print_r($arr);
                 echo "\n=======investigate api data =========== end\n";
             }
             */
