@@ -20,6 +20,7 @@ class DWCADiagnoseAPI
         echo "\nProcessing file ($url)\n";
         $i = 0;
         foreach(new FileIterator($url) as $line_number => $temp) {
+            if(!$temp) continue;
             $temp = explode("\t", $temp);
             $i++;
             if(($i % 300000) == 0) echo "\n count:[$i] ";
@@ -36,7 +37,24 @@ class DWCADiagnoseAPI
                 }
                 $rec = array_map('trim', $rec);
                 // print_r($rec); //exit;
-                if(@$rec['subtype'] == 'map') print_r($rec);
+                /* === START CUSTOMIZE INVESTIGATION HERE === WikiData 71 resource */
+                if($resource_id == 71) {                
+                    /* if(@$rec['subtype'] == 'map') print_r($rec); */
+                    /* DATA-1798 */
+                    // bde4c3bca35906a58461b1d90b3b85a8
+                    // c4d6b9da646769e24198e78137b442c7
+                    // 120de4b80b62a1e1980baa2dc959f635
+                    if(stripos($rec['agentID'], "5d709ff984be102bbe3c9ea43edbc6f1") !== false) { //string is found
+                        print_r($rec);
+                    }
+                }
+                /* === END CUSTOMIZE INVESTIGATION HERE === */
+
+                /* === START CUSTOMIZE INVESTIGATION HERE === */
+                /* === END CUSTOMIZE INVESTIGATION HERE === */
+
+                /* === START CUSTOMIZE INVESTIGATION HERE === */
+                /* === END CUSTOMIZE INVESTIGATION HERE === */
             }
         }
     }
