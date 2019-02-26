@@ -100,7 +100,8 @@ $resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
 if($params['task'] == 'debug') { /* if you want to debug or test something: php update_resources/connectors/wikidata.php _ debug */
-    $func->test(); exit("\n-End Debug-\n");
+    $filename = @$params['range_from'];
+    $func->test($filename); exit("\n-End Debug-\n");
 }
 
 if($params['task'] == 'test') { /*to run tests: php update_resources/connectors/wikidata.php _ test */
