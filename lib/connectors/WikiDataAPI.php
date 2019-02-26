@@ -1251,12 +1251,12 @@ class WikiDataAPI
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
         $rek['date'] = @$rek['other']['date'];
         //================================================================ Artist
+        $rek['Artist'] = array();
         //start new Nov 6, 2018 e.g. https://commons.wikimedia.org/wiki/File:Clone_war_of_sea_anemones_3.jpg
         if($other_author = trim(@$rek['other']['author'])) {
             // exit("\nother_author: [$other_author]\n");
             if($val = self::make_other_author_an_agent($other_author)) $rek['Artist'][] = $val;
         }
-        if(!@$rek['Artist']) $rek['Artist'] = $other_author; //before this new block, this row alone is the first option: $rek['Artist'] = $other_author;
         //end new
 
         if(!$rek['Artist']) { //became the 1st option. Before was just the 2nd option
@@ -1280,6 +1280,7 @@ class WikiDataAPI
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
         // /* ================================ new Oct 7, 2017 -- comment it first...
+        if(!$rek['Artist']) $rek['Artist'] = "";
         if(is_array($rek['Artist'])) {
             // echo "\nartist is ARRAY()"; print_r($rek['Artist']); //debug only
         }
