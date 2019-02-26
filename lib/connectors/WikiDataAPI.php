@@ -200,6 +200,7 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Alexander_yakovlev,_autoritratto,_1917.JPG', 'name' => "Sailko", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Sailko');
         $arr[] = array('filename' => 'Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
         $arr[] = array('filename' => 'España_y_Portugal.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator');
+        $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney January 17, 2004", 'condition' => 'eq', 'role' => 'creator');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -1230,6 +1231,11 @@ class WikiDataAPI
             elseif(preg_match("/\|artist \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
             elseif(preg_match("/\| artist \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
             elseif(preg_match("/\|artist\=(.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+
+            elseif(preg_match("/Photo by (.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+            elseif(preg_match("/ Photo by (.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
+
+
             // else exit("\n$temp\nelix\n");
             /*
             |Author		= [http://www.flickr.com/people/46788399@N00 Gilles Gonthier]
@@ -1269,7 +1275,10 @@ class WikiDataAPI
             $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']); //get_media_metadata_from_json()
         }
         */
-        if($val = self::get_artist_from_ImageDescription($rek['ImageDescription'])) $rek['Artist'][] = $val;
+        if($val = self::get_artist_from_ImageDescription($rek['ImageDescription'], $rek['Artist'])) {
+            if(isset($val[0])) $rek['Artist'] = array_merge($rek['Artist'], $val);
+            else               $rek['Artist'][] = $val;
+        }
         if($LicenseShortName = @$rek['LicenseShortName']) {
             if($val = self::get_artist_from_LicenseShortName($LicenseShortName)) $rek['Artist'][] = $val;
         }
@@ -1446,7 +1455,7 @@ class WikiDataAPI
             return $final;
         }
     }
-    private function get_artist_from_ImageDescription($description)
+    private function get_artist_from_ImageDescription($description, $rek_Artist = array())
     {
         $description = str_ireplace(array("Source: my own file.", "Author: This file is lacking author information."), "", $description);
         // <td lang="en">Author</td> 
@@ -1547,7 +1556,7 @@ class WikiDataAPI
             // echo "\nelix 555\n";
             // echo "\n$description\n";
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
-            if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a)) { // echo "\nelix 444\n";
+            if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a) && !$rek_Artist) { // 2nd condition means that there is already $rek['Artist'], not priority to get from "User:"
                 $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'creator');
                 // print_r($final); exit("\n$description\n");
                 return $final;
@@ -1819,7 +1828,10 @@ class WikiDataAPI
                 }
             }
             if(!@$rek['Artist']) {
-                $rek['Artist'] = self::get_artist_from_ImageDescription($rek['ImageDescription']);
+                if($val = self::get_artist_from_ImageDescription($rek['ImageDescription'])) {
+                    if(isset($val[0])) $rek['Artist'] = array_merge(array(), $val);
+                    else               $rek['Artist'][] = $val;
+                }
                 // echo "\n ice 111\n";
                 if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
             }
