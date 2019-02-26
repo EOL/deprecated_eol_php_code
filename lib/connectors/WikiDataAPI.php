@@ -199,6 +199,7 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Elgaria_multicarinata_08416.JPG', 'name' => "Walter Siegmund ©2006 Walter Siegmund", 'condition' => 'eq', 'index' => 1);
         $arr[] = array('filename' => 'Alexander_yakovlev,_autoritratto,_1917.JPG', 'name' => "Sailko", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Sailko');
         $arr[] = array('filename' => 'Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
+        $arr[] = array('filename' => 'España_y_Portugal.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -1505,7 +1506,7 @@ class WikiDataAPI
             }
         }
         elseif(preg_match("/Author:(.*?)\./ims", $description, $a)) { /*Author: Kurt Stüber <a rel="nofollow" href="http://www.kurtstueber.de/">[1]</a>.*/
-            if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'creator');
+            if($val = trim(strip_tags($a[1]))) return array('name' => $val, 'role' => 'creator');
             else {
                 $d = strip_tags($description);
                 if(preg_match("/Author:(.*?)\./ims", $d, $a)) {
