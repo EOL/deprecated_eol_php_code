@@ -202,6 +202,7 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
         $arr[] = array('filename' => 'España_y_Portugal.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney January 17, 2004", 'condition' => 'eq', 'role' => 'creator');
+        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg', 'name' => "Walters Art Museum", 'condition' => 'eq', 'role' => 'source');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
