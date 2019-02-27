@@ -88,6 +88,8 @@ class WikiDataAPI
         $this->exact_map_categories = array('Distribution maps', 'Distributional maps', 'Biogeographical maps', 'NASA World Wind');
         $this->substrs_map_categories_right = array(' distribution map', ' distributional map', ' biogeographical map', ' range map');
         $this->substrs_map_categories_left  = array('Distribution maps ', 'Distributional maps ', 'Biogeographical maps ', 'SVG maps ', 'Maps of ', 'Maps from ', 'Maps by ');
+        
+        $this->excluded_pageids = array('75038714');
     }
 
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
@@ -213,6 +215,7 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Felipe Neira", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/11923391@N00/');
         $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Flickr user_id ipecuador", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/ipecuador/233502258/in/dateposted/');
         $arr[] = array('filename' => 'Blue_Shepherd_ja_leijona.jpg',              'name' => "Korkeasaaren kirja, a book published in 1951, photos thus in the public domain.",    'condition' => 'eq', 'role' => 'source');
+        $arr[] = array('filename' => 'Inclusion_bodies.jpg', 'name' => "{{NCI Visuals Online|2252}}",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/National_Cancer_Institute');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -1175,6 +1178,8 @@ class WikiDataAPI
         $dump_arr = json_decode($json, true);
         $rek = array();
         $rek['pageid'] = $dump_arr['id'];
+        if(in_array($rek['pageid'], $this->excluded_pageids)) return false;
+        
         /* debug mode
         if($rek['pageid'] == "9163872") { //9163872 10584787 36373984
             print_r($dump_arr); exit("\n-stop-\n");
@@ -1877,6 +1882,9 @@ class WikiDataAPI
             if(!isset($arr['pageid'])) return array();
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
 
+            if(in_array($rek['pageid'], $this->excluded_pageids)) return false;
+            
+
             $rek['ImageDescription'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
             $rek['ImageDescription'] = self::adjust_image_desc($rek['ImageDescription']);
 
@@ -2099,7 +2107,7 @@ class WikiDataAPI
         if(!isset($rek['Artist'][0]['name'])) return false;
         if($rek['Artist'][0]['name'] == "Unknown") return true;
         if(stripos($rek['Artist'][0]['name'], "Unknown author") !== false) return true;
-        if(stripos($rek['Artist'][0]['name'], "Unknown photographer") !== false) return true;
+        // if(stripos($rek['Artist'][0]['name'], "Unknown photographer") !== false) return true; --- not needed yet
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
         // elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url - DON'T USE THIS, WILL REMAIN COMMENTED, at this point we can accept URL values as it will be resolved later
         return false;
