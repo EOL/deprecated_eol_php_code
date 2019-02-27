@@ -1482,12 +1482,12 @@ class WikiDataAPI
                 $final = array('name' => $other_source, 'role' => 'source');
                 if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) {
                     $final['homepage'] = $a[1];
-                    // $user_id = "64684201@N00";
+                    // $user_id = "64684201@N00"; or 'conifer'. Latter will give you "Flickr user_id conifer".
                     $user_id = Functions::get_Flickr_user_id_from_url($final['homepage']); //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
                     // echo("\n[$user_id]\n");
                     $options = $this->download_options;  $options['expire_seconds'] = false;
-                    if(stripos($user_id, "@N") !== false) $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options); //string is found
-                    return $final;
+                    $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
+                    if($final['name']) return $final;
                 }
             }
         }
@@ -1607,8 +1607,9 @@ class WikiDataAPI
                             // $user_id = "64684201@N00";
                             $user_id = Functions::get_Flickr_user_id_from_url($final['homepage']); //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
                             $options = $this->download_options;  $options['expire_seconds'] = false;
-                            if(stripos($user_id, "@N") !== false) $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options); //string is found
-                            return $final;
+                            // if(stripos($user_id, "@N") !== false)
+                            $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
+                            if($final['name']) return $final;
                         }
                     }
                 }
