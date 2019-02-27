@@ -191,7 +191,7 @@ class WikiDataAPI
         // self::test_agent_value($a, array('name' => "xxx", 'role' => "yyy", 'homepage' => "zzz"));
         // self::test_agent_value($a, array('name' => "xxx", 'role' => "yyy", 'homepage' => "zzz"));
         
-        $arr[] = array('filename' => 'Aa_species.jpg',              'name' => "Eric in SF",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Aa_species.jpg',              'name' => "Eric in SF",    'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Abies_grandis_needles.jpg',   'name' => "Sten Porse",    'condition' => 'eq');
         $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg',   'name' => "Walters Art Museum", 'condition' => 'eq');
         $arr[] = array('filename' => 'Salix_sericea_NRCS-2.jpg',        'name' => "Nonenmac",              'condition' => 'eq');
@@ -203,6 +203,7 @@ class WikiDataAPI
         $arr[] = array('filename' => 'España_y_Portugal.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney January 17, 2004", 'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg', 'name' => "Walters Art Museum", 'condition' => 'eq', 'role' => 'source');
+        $arr[] = array('filename' => '1PRT.png', 'name' => "Jmol, Jmol Development Team", 'condition' => 'eq', 'role' => 'source', 'index' => 1);
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
