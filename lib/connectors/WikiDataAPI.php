@@ -210,6 +210,9 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Cillas;España_y_Portugal.jpg: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
         $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Se ha trabajado con datos propios sobre la imagen existente en Commons: España_y_Portugal.jpg", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
         $arr[] = array('filename' => 'Japanese_Kolonok.jpg', 'name' => "Conifer",    'condition' => 'eq', 'role' => 'creator', 'homepage' => 'http://www.flickr.com/photos/conifer/');
+        $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Felipe Neira", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/11923391@N00/');
+        $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Flickr user_id ipecuador", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/ipecuador/233502258/in/dateposted/');
+        $arr[] = array('filename' => 'Blue_Shepherd_ja_leijona.jpg',              'name' => "Korkeasaaren kirja, a book published in 1951, photos thus in the public domain.",    'condition' => 'eq', 'role' => 'source');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -1484,11 +1487,12 @@ class WikiDataAPI
                 if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) {
                     $final['homepage'] = $a[1];
                     // $user_id = "64684201@N00"; or 'conifer'. Latter will give you "Flickr user_id conifer".
-                    $user_id = Functions::get_Flickr_user_id_from_url($final['homepage']); //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
-                    // echo("\n[$user_id]\n");
-                    $options = $this->download_options;  $options['expire_seconds'] = false;
-                    $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
-                    if($final['name']) return $final;
+                    if($user_id = Functions::get_Flickr_user_id_from_url($final['homepage'])) { //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
+                        // echo("\n[$user_id]\n"); exit;
+                        $options = $this->download_options;  $options['expire_seconds'] = false;
+                        $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
+                        if($final['name']) return $final;
+                    }
                 }
             }
         }
@@ -1606,11 +1610,12 @@ class WikiDataAPI
                         if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) {
                             $final['homepage'] = $a[1];
                             // $user_id = "64684201@N00";
-                            $user_id = Functions::get_Flickr_user_id_from_url($final['homepage']); //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
-                            $options = $this->download_options;  $options['expire_seconds'] = false;
-                            // if(stripos($user_id, "@N") !== false)
-                            $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
-                            if($final['name']) return $final;
+                            if($user_id = Functions::get_Flickr_user_id_from_url($final['homepage'])) {//e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
+                                $options = $this->download_options;  $options['expire_seconds'] = false;
+                                // if(stripos($user_id, "@N") !== false)
+                                $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
+                                if($final['name']) return $final;
+                            }
                         }
                     }
                 }
@@ -1946,7 +1951,7 @@ class WikiDataAPI
                     if(stripos($credit_value, "http://wellcomeimages.org") !== false) $rek['Artist'][] = array('name' => 'Wellcome Images', 'homepage' => 'http://wellcomeimages.org', 'role' => 'source');
                     elseif(stripos($credit_value, "by the British Library") !== false) $rek['Artist'][] = array('name' => 'The British Library', 'homepage' => 'https://www.bl.uk/', 'role' => 'source');
                     elseif(stripos($credit_value, "Iconographia Zoologica") !== false) $rek['Artist'][] = array('name' => 'Iconographia Zoologica', 'homepage' => 'https://commons.wikimedia.org/wiki/Category:Iconographia_Zoologica', 'role' => 'source');
-                    else $rek['Artist'][] = array('name' => strip_tags($val));
+                    else $rek['Artist'][] = array('name' => strip_tags($val) , 'role' => 'source');
                 }
                 if(self::invalid_artist_name_value($rek)) $rek['Artist'] = array();
             }
@@ -2078,6 +2083,8 @@ class WikiDataAPI
     private function invalid_artist_name_value($rek)
     {
         if(!isset($rek['Artist'][0]['name'])) return false;
+        if($rek['Artist'][0]['name'] == "Unknown") return true;
+        if(stripos($rek['Artist'][0]['name'], "Unknown author") !== false) return true;
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
         // elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url - DON'T USE THIS, WILL REMAIN COMMENTED, at this point we can accept URL values as it will be resolved later
         return false;
