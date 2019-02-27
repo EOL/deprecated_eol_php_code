@@ -46,7 +46,7 @@ class WikiDataAPI
         $this->object_ids = array();
         $this->debug = array();
         $this->download_options = array('expire_seconds' => 60*60*24*25*1, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false; //just temporary, will comment this line
+        $this->download_options['expire_seconds'] = false; //just temporary, comment in normal operation
         if(!Functions::is_production()) $this->download_options['expire_seconds'] = false;
 
         if(Functions::is_production()) {
@@ -1249,7 +1249,7 @@ class WikiDataAPI
         
         if($val = @$rek['other']['author']) $rek['other']['author'] = Functions::delete_all_between('<!--', '-->', $val);
         
-        if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = $a[1];
+        if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = trim($a[1]);
         else {
             //start new Nov 6
             $temp = Functions::remove_whitespace($wiki);
@@ -1291,6 +1291,14 @@ class WikiDataAPI
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; //get_media_metadata_from_json()
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
+        
+        //start new Feb 26, 2019 e.g. https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
+        if($other_source = trim(@$rek['other']['source'])) {
+            // exit("\nother_source: [$other_source]\n");
+            if($val = self::make_other_source_an_agent($other_source)) $rek['Artist'][] = $val;
+        }
+        //end new
+        
         // /* ================================ new Oct 7, 2017 -- comment it first...
         if(!$rek['Artist']) $rek['Artist'] = "";
         if(is_array($rek['Artist'])) {
@@ -1404,23 +1412,85 @@ class WikiDataAPI
     private function make_other_author_an_agent($other_author)
     {
         /* e.g. orig wiki value = {{Creator:Marten de Vos}} */
+        /* there is a better way to proceed here ---> convert wiki to html then parse, see below
         if(substr($other_author,0,2) == "{{") {
             $name = str_ireplace(array("{", "}", "Creator:"), "", $other_author);
             return array('name' => $name, 'role' => 'creator');
         }
-        /* e.g. $other_author orig value, which is a wiki:
-        [https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
-        e.g. html value is:
-        <a rel="nofollow" href="https://sites.google.com/site/thebrockeninglory/">Brocken Inaglory</a>|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
         */
-        $html = self::convert_wiki_2_html($other_author);
-        $final = array();
-        if(preg_match("/>(.*?)<\/a>/ims", $html, $a)) $final['name'] = $a[1];
-        else                                          $final['name'] = str_replace(array("[","]"), "", $other_author); /* orig wiki value = [Jenny (JennyHuang)] */
-        if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
-        if(@$final['name']) {
-            $final['role'] = 'creator';
+        // $other_author = "{{Creator:Marten de Vos}}"; //force assign
+        if(preg_match("/\{\{Creator\:(.*?)\}\}/ims", $other_author, $a)) {
+            $creator_name = $a[1];
+            $final = array('name' => $creator_name, 'role' => 'creator');
+            $html = self::convert_wiki_2_html($other_author);
+            if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+            // print_r($final);
             return $final;
+        }
+        
+        
+        if(substr($other_author,0,5) == "[http") {
+            /* e.g. $other_author orig value, which is a wiki:
+            [https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
+            e.g. html value is:
+            <a rel="nofollow" href="https://sites.google.com/site/thebrockeninglory/">Brocken Inaglory</a>|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
+            */
+            $html = self::convert_wiki_2_html($other_author);
+            $final = array();
+            if(preg_match("/>(.*?)<\/a>/ims", $html, $a)) $final['name'] = $a[1];
+            else                                          $final['name'] = str_replace(array("[","]"), "", $other_author); /* orig wiki value = [Jenny (JennyHuang)] */
+            if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+            if(@$final['name']) {
+                $final['role'] = 'creator'; //creator xxx
+                return $final;
+            }
+        }
+        else { //other cases; may still sub-divide this to different cases when needed
+            /* e.g. orig wiki https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
+            Cillas;[[:File:España_y_Portugal.jpg|España_y_Portugal.jpg]]: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
+            converted to html:
+            Cillas;<a href="https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg" title="File:España y Portugal.jpg">España_y_Portugal.jpg</a>: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
+            */
+            $html = self::convert_wiki_2_html($other_author);
+            $final = array();
+            if($val = strip_tags($html)) $final['name'] = strip_tags($html);
+            if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+            if(@$final['name']) {
+                $final['role'] = 'creator'; //creator yyy
+                return $final;
+            }
+            
+        }
+        
+        
+    }
+    private function make_other_source_an_agent($other_source)
+    {   /* e.g. $other_source "Se ha trabajado con datos propios sobre la imagen existente en Commons: [[:File:España_y_Portugal.jpg|España_y_Portugal.jpg]]" */
+        if($other_source == "{{own}}") return;
+        
+        if(stripos($other_source, "Flickr") !== false) { //string is found
+            //Flickr routine 1
+            if($html = trim(self::convert_wiki_2_html($other_source))) {
+                // exit("\n[$html]\n");
+                $final = array('name' => $other_source, 'role' => 'source');
+                if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) {
+                    $final['homepage'] = $a[1];
+                    // $user_id = "64684201@N00";
+                    $user_id = Functions::get_Flickr_user_id_from_url($final['homepage']); //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
+                    echo("\n[$user_id]\n");
+                    $options = $this->download_options;  $options['expire_seconds'] = false;
+                    if(stripos($user_id, "@N") !== false) $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options); //string is found
+                    return $final;
+                }
+            }
+        }
+        else {
+            if($html = trim(self::convert_wiki_2_html($other_source))) {
+                // exit("\n[$html]\n");
+                $final = array('name' => strip_tags($html), 'role' => 'source');
+                if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+                return $final;
+            }
         }
     }
     private function second_option_for_artist_info($arr)
@@ -1519,11 +1589,32 @@ class WikiDataAPI
             }
         }
         elseif(preg_match("/Author:(.*?)\./ims", $description, $a)) { /*Author: Kurt Stüber <a rel="nofollow" href="http://www.kurtstueber.de/">[1]</a>.*/
-            if($val = trim(strip_tags($a[1]))) return array('name' => $val, 'role' => 'creator');
+            if($val = trim(strip_tags($a[1]))) {
+                $other_source = $a[1]; //main assignment
+                if(stripos($other_source, "Flickr") !== false) { //string is found
+                    //Flickr routine 2
+                    if($html = trim(self::convert_wiki_2_html($other_source))) {
+                        $final = array('name' => $other_source, 'role' => 'creator');
+                        if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) {
+                            $final['homepage'] = $a[1];
+                            // $user_id = "64684201@N00";
+                            $user_id = Functions::get_Flickr_user_id_from_url($final['homepage']); //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
+                            $options = $this->download_options;  $options['expire_seconds'] = false;
+                            if(stripos($user_id, "@N") !== false) $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options); //string is found
+                            return $final;
+                        }
+                    }
+                }
+                else {
+                    if(!$rek_Artist) return array('name' => $val, 'role' => 'creator 1'); //creator 1 --- suppressed 2nd-class agents
+                }
+            }
             else {
                 $d = strip_tags($description);
                 if(preg_match("/Author:(.*?)\./ims", $d, $a)) {
-                    if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'creator');
+                    if($val = strip_tags(trim($a[1])))  {
+                        if(!$rek_Artist) return array('name' => $val, 'role' => 'creator 2'); //creator 2 --- suppressed 2nd-class agents
+                    }
                 }
             }
         }
