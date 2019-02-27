@@ -52,7 +52,7 @@ tar xvzf 71.tar.gz -C 71/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false
 
 /*
 $str = "abcd|e|||";
