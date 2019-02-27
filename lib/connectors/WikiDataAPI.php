@@ -747,7 +747,8 @@ class WikiDataAPI
                 $media['UsageTerms']             = $formatted_license; //$com['LicenseUrl']; //license
                 $media['furtherInformationURL']  = $com['source_url'];
                 $media['accessURI']              = $com['media_url'];
-                
+
+                /* obsolete. we're now adding the agent with role 'source' before writing to DwCA
                 // print_r($com);
                 //new start https://eol-jira.bibalex.org/browse/DATA-1784 - if there is 'source' make it an agent with role='source'.
                 if($source_wiki = @$com['other']['source']) {
@@ -759,6 +760,7 @@ class WikiDataAPI
                 }
                 //new end
                 // print_r($com);
+                */
                 
                 $role = Functions::get_role_given_datatype($media['type']);
                 if($agent_ids = self::gen_agent_ids($com['Artist'], strtolower($role))) $media['agentID'] = implode("; ", $agent_ids);
