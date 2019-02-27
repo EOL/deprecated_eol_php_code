@@ -2524,6 +2524,12 @@ class Functions
         
         return $mappings;
     }
+    public static function get_Flickr_user_id_from_url($url) //e.g. $url "http://flickr.com/photos/64684201@N00/291506502/"
+    {
+        if(preg_match("/flickr\.com\/photos\/(.*?)\\//ims", $url, $a)) {
+            if($val = trim($a[1])) return $val;
+        }
+    }
     public static function delete_all_between($beginning, $end, $string) {
       $beginningPos = strpos($string, $beginning);
       $endPos = strpos($string, $end);
