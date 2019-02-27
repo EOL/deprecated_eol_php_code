@@ -213,9 +213,13 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Se ha trabajado con datos propios sobre la imagen existente en Commons: España_y_Portugal.jpg", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
         $arr[] = array('filename' => 'Japanese_Kolonok.jpg', 'name' => "Conifer",    'condition' => 'eq', 'role' => 'creator', 'homepage' => 'http://www.flickr.com/photos/conifer/');
         $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Felipe Neira", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/11923391@N00/');
-        $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Flickr user_id ipecuador", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/ipecuador/233502258/in/dateposted/');
+        $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Flickr user ID ipecuador", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/ipecuador/233502258/in/dateposted/');
         $arr[] = array('filename' => 'Blue_Shepherd_ja_leijona.jpg',              'name' => "Korkeasaaren kirja, a book published in 1951, photos thus in the public domain.",    'condition' => 'eq', 'role' => 'source');
         $arr[] = array('filename' => 'Inclusion_bodies.jpg', 'name' => "{{NCI Visuals Online|2252}}",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/National_Cancer_Institute');
+        $arr[] = array('filename' => 'Feh-painting.jpg', 'name' => "Brehms Tierleben, Small Edition 1927",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/Brehms_Tierleben');
+        $arr[] = array('filename' => 'Alitta_virens_pharynx_(dorsal).jpg', 'name' => "Flickr user ID a_semenov", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.flickr.com/photos/a_semenov/3459795279/sizes/o/in/photostream/');
+        $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "marya", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'http://flickr.com/photos/35237093637@N01');
+        $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "Flickr image ID 1718209", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://flickr.com/photos/35237093637@N01/1718209');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -1468,7 +1472,9 @@ class WikiDataAPI
                 return $final;
             }
         }
-        elseif($other_author == "{{unknown photographer}}") {}
+        // elseif($other_author == "{{unknown photographer}}") {}
+        // elseif($other_author == "{{author|unknown}}") {}
+        elseif(in_array($other_author, array('{{unknown photographer}}', '{{author|unknown}}'))) {}
         else { //other cases; may still sub-divide this to different cases when needed
             /* e.g. orig wiki https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
             Cillas;[[:File:España_y_Portugal.jpg|España_y_Portugal.jpg]]: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
@@ -1499,12 +1505,21 @@ class WikiDataAPI
                 $final = array('name' => $other_source, 'role' => 'source');
                 if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) {
                     $final['homepage'] = $a[1];
-                    // $user_id = "64684201@N00"; or 'conifer'. Latter will give you "Flickr user_id conifer".
+                    // $user_id = "64684201@N00"; or 'conifer'. Latter will give you "Flickr user ID conifer".
                     if($user_id = Functions::get_Flickr_user_id_from_url($final['homepage'])) { //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
                         // echo("\n[$user_id]\n"); exit;
                         $options = $this->download_options;  $options['expire_seconds'] = false;
                         $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
                         if($final['name']) return $final;
+                    }
+                    elseif(preg_match("/\[http\:\/\/flickr\.com\/photos\/(.*?)image description page/ims", $other_source, $a)) {
+                        /* orig wiki is e.g. "[http://www.flickr.com/ Flickr.com] - [http://flickr.com/photos/22437367@N00/1102771 image description page]" */
+                        $part = trim($a[1]);
+                        $tmp = explode("/", $part);
+                        if($flickr_image_id = trim(@$tmp[1])) {
+                            return array('name' => "Flickr image ID $flickr_image_id", 'role' => 'source', 'homepage' => "http://flickr.com/photos/".$part);
+                        }
+                        
                     }
                 }
             }
@@ -2089,9 +2104,9 @@ class WikiDataAPI
             $arr = json_decode($json, true);
             if($val = @$arr['person']['realname']['_content']) return "$val ($user_id)";
             elseif($val = @$arr['person']['username']['_content']) return "$val ($user_id)";
-            else return "Flickr user_id $user_id";
+            else return "Flickr user ID $user_id";
         }
-        else return "Flickr user_id $user_id";
+        else return "Flickr user ID $user_id";
     }
     private function process_li_separated_artists($arr)
     {
