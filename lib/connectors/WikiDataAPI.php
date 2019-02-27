@@ -1474,7 +1474,7 @@ class WikiDataAPI
         }
         // elseif($other_author == "{{unknown photographer}}") {}
         // elseif($other_author == "{{author|unknown}}") {}
-        elseif(in_array($other_author, array('{{unknown photographer}}', '{{author|unknown}}'))) {}
+        elseif(in_array($other_author, array('{{unknown photographer}}', '{{author|unknown}}', '{{unknown|Author}}'))) {}
         else { //other cases; may still sub-divide this to different cases when needed
             /* e.g. orig wiki https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
             Cillas;[[:File:España_y_Portugal.jpg|España_y_Portugal.jpg]]: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
