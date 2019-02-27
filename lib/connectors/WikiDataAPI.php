@@ -204,6 +204,11 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney January 17, 2004", 'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg', 'name' => "Walters Art Museum", 'condition' => 'eq', 'role' => 'source');
         $arr[] = array('filename' => '1PRT.png', 'name' => "Jmol, Jmol Development Team", 'condition' => 'eq', 'role' => 'source', 'index' => 1);
+        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Flickr user NatureAtYourBackyard . Photo uploaded to commons by user ltshears", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'http://flickr.com/photos/64684201@N00/');
+        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Johnny Wee. (Thanks for a million views.) (64684201@N00)", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://flickr.com/photos/64684201@N00/291506502/');
+        $arr[] = array('filename' => 'Whales_are_Paraphyletic.png', 'name' => "Ian Alexander", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Chiswick_Chap');
+        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Cillas;España_y_Portugal.jpg: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
+        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Se ha trabajado con datos propios sobre la imagen existente en Commons: España_y_Portugal.jpg", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -1477,7 +1482,7 @@ class WikiDataAPI
                     $final['homepage'] = $a[1];
                     // $user_id = "64684201@N00";
                     $user_id = Functions::get_Flickr_user_id_from_url($final['homepage']); //e.g. param "http://flickr.com/photos/64684201@N00/291506502/"
-                    echo("\n[$user_id]\n");
+                    // echo("\n[$user_id]\n");
                     $options = $this->download_options;  $options['expire_seconds'] = false;
                     if(stripos($user_id, "@N") !== false) $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options); //string is found
                     return $final;
