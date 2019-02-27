@@ -1279,9 +1279,16 @@ class WikiDataAPI
         }
         //end new
 
+        //start new Feb 26, 2019 e.g. https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
+        if($other_source = trim(@$rek['other']['source'])) {
+            // exit("\nother_source: [$other_source]\n");
+            if($val = self::make_other_source_an_agent($other_source)) $rek['Artist'][] = $val;
+        }
+        //end new
+
         if(!$rek['Artist']) { //became the 1st option. Before was just the 2nd option
             // echo "\nelix went here aaa\n";
-            if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val;
+            if($val = self::second_option_for_artist_info($dump_arr)) $rek['Artist'][] = $val; //here you'll get like "JarektBot" OR "YaCBot"
         }
 
         /* orig - commented now. better to just have additional artists here rather than limit to just 1 artist.
@@ -1302,14 +1309,14 @@ class WikiDataAPI
             if($val = self::get_artist_from_special_source($wiki, '')) $rek['Artist'][] = $val; //get_media_metadata_from_json()
         }
         // parse this value = "[http://www.panoramio.com/user/6099584?with_photo_id=56065015 Greg N]"
-        
+        /*MOVED UP
         //start new Feb 26, 2019 e.g. https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
         if($other_source = trim(@$rek['other']['source'])) {
             // exit("\nother_source: [$other_source]\n");
             if($val = self::make_other_source_an_agent($other_source)) $rek['Artist'][] = $val;
         }
         //end new
-        
+        */
         // /* ================================ new Oct 7, 2017 -- comment it first...
         if(!$rek['Artist']) $rek['Artist'] = "";
         if(is_array($rek['Artist'])) {
@@ -1456,6 +1463,7 @@ class WikiDataAPI
                 return $final;
             }
         }
+        elseif($other_author == "{{unknown photographer}}") {}
         else { //other cases; may still sub-divide this to different cases when needed
             /* e.g. orig wiki https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
             Cillas;[[:File:España_y_Portugal.jpg|España_y_Portugal.jpg]]: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
@@ -1499,7 +1507,13 @@ class WikiDataAPI
         else {
             if($html = trim(self::convert_wiki_2_html($other_source))) {
                 // exit("\n[$html]\n");
-                $final = array('name' => strip_tags($html), 'role' => 'source');
+                
+                $tmp = trim(strip_tags($html));
+                if(strlen($tmp) > 300) {
+                    if(strlen($other_source) < strlen($tmp)) $tmp = $other_source; //use wiki text, which is shorter.
+                }
+                
+                $final = array('name' => $tmp, 'role' => 'source');
                 if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
                 return $final;
             }
@@ -1521,7 +1535,7 @@ class WikiDataAPI
         if($val = @$arr['revision']['contributor']['username']) {
             $a['name'] = $val;
             $a['homepage'] = "https://commons.wikimedia.org/wiki/User:$val";
-            $a['role'] = "source";
+            $a['role'] = "editor";
             return $a;
         }
         elseif($val = @$arr['revision']['text']) {
@@ -1620,14 +1634,14 @@ class WikiDataAPI
                     }
                 }
                 else {
-                    if(!$rek_Artist) return array('name' => $val, 'role' => 'creator 1'); //creator 1 --- suppressed 2nd-class agents
+                    if(!$rek_Artist) return array('name' => $val, 'role' => 'creator'); //creator 1 --- suppressed 2nd-class agents
                 }
             }
             else {
                 $d = strip_tags($description);
                 if(preg_match("/Author:(.*?)\./ims", $d, $a)) {
                     if($val = strip_tags(trim($a[1])))  {
-                        if(!$rek_Artist) return array('name' => $val, 'role' => 'creator 2'); //creator 2 --- suppressed 2nd-class agents
+                        if(!$rek_Artist) return array('name' => $val, 'role' => 'creator'); //creator 2 --- suppressed 2nd-class agents
                     }
                 }
             }
@@ -2085,6 +2099,7 @@ class WikiDataAPI
         if(!isset($rek['Artist'][0]['name'])) return false;
         if($rek['Artist'][0]['name'] == "Unknown") return true;
         if(stripos($rek['Artist'][0]['name'], "Unknown author") !== false) return true;
+        if(stripos($rek['Artist'][0]['name'], "Unknown photographer") !== false) return true;
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
         // elseif(self::url_is_valid($rek['Artist'][0]['name']))  return true; //name should not be a url - DON'T USE THIS, WILL REMAIN COMMENTED, at this point we can accept URL values as it will be resolved later
         return false;
