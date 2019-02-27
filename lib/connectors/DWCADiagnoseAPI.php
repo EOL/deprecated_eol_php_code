@@ -48,9 +48,8 @@ class DWCADiagnoseAPI
                     */
 
                     /* DATA-1798 */
-                    // bde4c3bca35906a58461b1d90b3b85a8     c4d6b9da646769e24198e78137b442c7    120de4b80b62a1e1980baa2dc959f635
                     // /*
-                    if(stripos($rec['agentID'], "59c4f8b73fed40a1e5030a98d2cf2840") !== false) { //string is found
+                    if(stripos($rec['agentID'], "67c0dfecb59b013950f6f712da39eb00") !== false) { //string is found
                         print_r($rec);
                     }
                     // */
