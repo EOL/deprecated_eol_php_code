@@ -1427,6 +1427,7 @@ class WikiDataAPI
     }
     private function make_other_author_an_agent($other_author)
     {
+        if($other_author == "[[user:]]") return;
         /* e.g. orig wiki value = {{Creator:Marten de Vos}} */
         /* there is a better way to proceed here ---> convert wiki to html then parse, see below
         if(substr($other_author,0,2) == "{{") {
@@ -1661,6 +1662,7 @@ class WikiDataAPI
         }
         elseif(preg_match("/Author:(.*?)\./ims", $description, $a)) { /*Author: Kurt Stüber <a rel="nofollow" href="http://www.kurtstueber.de/">[1]</a>.*/
             if($val = trim(strip_tags($a[1]))) {
+                if($val == "[[user:]]") return array();
                 $other_source = $a[1]; //main assignment
                 if(stripos($other_source, "Flickr") !== false) { //string is found
                     //Flickr routine 2
