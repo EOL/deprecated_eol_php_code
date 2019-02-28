@@ -2335,7 +2335,6 @@ class WikiDataAPI
             }
         */
     }
-    
     private function get_other_info($rek)
     {
         $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -2487,8 +2486,6 @@ class WikiDataAPI
                 $html = str_ireplace($substr, '</th></tr>', $html);
             }
         }
-        
-        
         /* remove form elements e.g. <input type="checkbox" role="button" id="toctogglecheckbox" /> */
         if(preg_match("/<input type=(.*?)>/ims", $html, $arr)) {
             $substr = '<input type='.$arr[1].'>';
@@ -2618,7 +2615,6 @@ class WikiDataAPI
                 $substr = '<table id="Vorlage_Exzellent'.$arr[1].'xxx';
                 $html = str_ireplace($substr, '', $html."xxx");
             }
-
             if(preg_match("/<div id=\"normdaten\" class=\"catlinks(.*?)xxx/ims", $html."xxx", $arr)) {
                 $substr = '<div id="normdaten" class="catlinks'.$arr[1].'xxx';
                 $html = str_ireplace($substr, '', $html."xxx");
@@ -2647,7 +2643,6 @@ class WikiDataAPI
             //     $html = str_ireplace($substr, '', $html."xxx");
             // }
         }
-
         return $html;
     }
     private function second_try_sect_after_biblio($biblio_section, $html)
@@ -2716,46 +2711,38 @@ class WikiDataAPI
         */
         return $tmp;
     }
-    
     private function get_taxon_name($arr)
     {
         $claims = @$arr->claims;
         if($val = @$claims->P225[0]->mainsnak->datavalue->value) return (string) $val;
-        elseif(in_array(@$arr->id, array("Q4589415")))   //special case for a ko & en article
-        {
+        elseif(in_array(@$arr->id, array("Q4589415"))) { //special case for a ko & en article
             if($val = @$arr->labels->en->value) return (string) $val;
         }
-        
         /* this introduced new probs, thus commented
         elseif($val = @$arr->labels->en->value) return (string) $val;
-        else
-        {
+        else {
             // print_r($arr);
             // exit("\nno taxon name, pls investigate...\n");
         }
         */
         return false;
     }
-
     private function get_authorship($claims)
     {
         if($id = @$claims->P225[0]->qualifiers->P405[0]->datavalue->value->id) return self::lookup_value($id);
         return false;
     }
-
     private function get_authorship_date($claims)
     {
         if($date = @$claims->P225[0]->qualifiers->P574[0]->datavalue->value->time) return (string) $date;
         return false;
     }
-
     private function get_taxon_rank($claims)
     {
         if($id = (string) @$claims->P105[0]->mainsnak->datavalue->value->id) return self::lookup_value($id);
         return false;
     }
 
-///
     private function get_vernacular_names($claims, $rek)
     {
         $names = array();
@@ -2807,10 +2794,8 @@ class WikiDataAPI
                 }
             }
             if(@$rek['organization']) $reks[] = $rek;
-            // /* debug only
-            if($org = @$rek['organization']) {
-                $this->debug['org'][$org] = $rek;
-            } 
+            // /* debug only - works OK
+            if($org = @$rek['organization']) $this->debug['org'][$org] = $rek;
             // */
         }
         $final['info'] = $reks;
@@ -2831,11 +2816,9 @@ class WikiDataAPI
                 $v->source = implode(";", $official);
             }
             else $v->source = "https://www.wikidata.org/wiki/$taxon_id";
-
             $this->archive_builder->write_object_to_file($v);
         }
     }
-///
     private function get_commons_gallery($claims) //https://commons.wikimedia.org/wiki/Gorilla%20gorilla
     {
         if($val = (string) @$claims->P935[0]->mainsnak->datavalue->value) return "https://commons.wikimedia.org/wiki/" . str_replace(" ", "_", $val);
@@ -2873,8 +2856,7 @@ class WikiDataAPI
             $parent['id'] = $id;
             $parent['name'] = self::lookup_value($id);
             //start get rank
-            if($obj = self::get_object($id))
-            {
+            if($obj = self::get_object($id)) {
                 $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
                 $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
                 $parent['parent'] = self::get_taxon_parent(@$obj->entities->$id->claims);
@@ -2883,7 +2865,6 @@ class WikiDataAPI
         }
         return false;
     }
-    
     private function replace_id_if_redirected($id)
     {
         $this->redirects['Q13862468'] = "Q10794768";
@@ -2907,7 +2888,6 @@ class WikiDataAPI
         if($val = @$this->redirects[$id]) return $val;
         return $id;
     }
-    
     private function lookup_value($id)
     {
         if($obj = self::get_object($id)) {
@@ -2915,15 +2895,13 @@ class WikiDataAPI
             if($id == "Q27661141") {
                 print_r($obj); exit;
             }
-            if(!isset($obj->entities->$id->labels->en->value)) //e.g. Q5614965 
-            {
+            if(!isset($obj->entities->$id->labels->en->value)) { //e.g. Q5614965 
                 print_r($obj->entities); exit("\npls investigate 01\n");
             }
             */
             if($val = (string) @$obj->entities->$id->labels->en->value) return $val;
         }
     }
-    
     private function get_object($id)
     {
         $url = "https://www.wikidata.org/wiki/Special:EntityData/" . $id . ".json";
@@ -2935,20 +2913,17 @@ class WikiDataAPI
         }
         return false;
     }
-
     private function get_taxon_sitelinks($sitelinks)
     {
         if($obj = @$sitelinks) return $obj;
         return false;
     }
-    
     private function get_taxon_sitelinks_by_lang($sitelinks)
     {
         $str = $this->language_code."wiki";
         if($obj = @$sitelinks->$str) return $obj;
         return false;
     }
-
     function create_all_taxon_dump() // utility to create an all-taxon dump
     {
         $raw_dump       = $this->path['raw_dump'];       //RAW fresh dump. NOT TO USE READILY - very big with all categories not just TAXA.
@@ -2968,13 +2943,11 @@ class WikiDataAPI
         echo "\ntaxa  wikis: [$e]\n";
         echo "\nnon-taxa  wikis: [$i]\n";
     }
-
     private function bot_inspired($html)
     {
         if(stripos($html, "Robot icon.svg") !== false && stripos($html, "Lsjbot") !== false) return true; //string is found
         return false;
     }
-
     private function save_filenames_2file($files)
     {
         //save to text file
