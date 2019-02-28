@@ -3007,11 +3007,9 @@ class WikiDataAPI
             if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
             $filename = $main_path . "$cache1/$cache2/$md5.json";
             if(!file_exists($filename)) {
-                if(($i % 100000) == 0) echo "\n " . number_format($i) . " initializing file: $filename"; //just a row count indicator
                 if($FILE = Functions::file_open($filename, 'w')) fclose($FILE);
             }
-            if(($i % 100000) == 0) echo("\n".number_format($i).". initializing file"); //just a row count indicator
-            $i++; 
+            $i++; if(($i % 100000) == 0) echo("\n" . number_format($i) . ". initializing file: $filename"); //just a row count indicator
             // if($i >= 100) break; //debug
         }
     }
@@ -3030,19 +3028,26 @@ class WikiDataAPI
                 $title = str_replace("File:", "", $title);
                 $title = str_replace(" ", "_", $title);
                 if($filename = self::taxon_media($title)) {
-                    $i++;
-                    if(filesize($filename) == 0) {
-                        // echo "\n found taxon wikimedia \n"; //just for debug
+                    $i++; if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
+                    $month_num = date('m'); //if month is February value is 02
+                    if(in_array($month_num, array('03','06','09','12'))) { //scheduled quarterly to refresh all cached information from XML.
                         $json = json_encode($t);
                         if($FILE = Functions::file_open($filename, 'w')) { // normal
                             fwrite($FILE, $json);
                             fclose($FILE);
                         }
-                        if(($i % 100000) == 0) echo("\n".number_format($i).". sample [$filename] saved content"); //just a row count indicator
-                        // exit("\nmeaning, this was not saved the last time this utility was ran...\n");
                     }
-                    // else echo("\nalready saved: [$filename]"); //just for debug...
-                    if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
+                    else { //if not quarterly schedule, it will not overwrite cache
+                        if(filesize($filename) == 0) {
+                            $json = json_encode($t);
+                            if($FILE = Functions::file_open($filename, 'w')) { // normal
+                                fwrite($FILE, $json);
+                                fclose($FILE);
+                            }
+                            // exit("\nmeaning, this was not saved the last time this utility was ran...\n");
+                        }
+                        // else echo("\nalready saved: [$filename]"); //just for debug...
+                    }
                 }
                 // else echo " negative"; //meaning this media file is not encountered in the taxa wikidata process. //just for debug...
                 /* just tests
