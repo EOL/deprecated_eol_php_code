@@ -91,7 +91,6 @@ class WikiDataAPI
         
         $this->excluded_pageids = array('75038714');
     }
-
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
     {
         //initialize:
@@ -395,7 +394,6 @@ class WikiDataAPI
             fclose($f);
         }
     }
-    
     private function add_parent_entries()
     {
         echo "\n\nStart add parent entries...\n\n";
@@ -421,7 +419,6 @@ class WikiDataAPI
             }
         }
     }
-    
     private function create_parent_taxon($rec)
     {
         if(!@$rec['taxon_name']) return;
@@ -442,7 +439,6 @@ class WikiDataAPI
         [parent_id] => Q130942
         */
     }
-
     private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
     {
         $exit_now = false; //only used during debug
@@ -450,9 +446,7 @@ class WikiDataAPI
         $i = 0; $j = 0;
         $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
-            $k++; 
-            if(($k % 1000) == 0) echo " ".number_format($k)." ";
-            
+            $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
@@ -603,7 +597,6 @@ class WikiDataAPI
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
     }
-
     private function save_ancestry_to_temp($ancestry)
     {
         $id = $ancestry['id'];
@@ -616,7 +609,6 @@ class WikiDataAPI
             }
         }
     }
-    
     private function create_archive($rec)
     {
         if($this->what == "wikimedia") {
@@ -697,7 +689,6 @@ class WikiDataAPI
         */
         return true;
     }
-    
     private function create_commons_objects($commons, $t)
     {
         foreach($commons as $com) {
@@ -899,7 +890,6 @@ class WikiDataAPI
         
         if(trim(@$a['name'])) {
             $a = self::fix_agent_name($a);
-            
             // /* start debug mode... normally comment this. Uncomment only during investigation -------------
             $keys = array_keys($a);
             foreach($keys as $key) {
@@ -910,7 +900,6 @@ class WikiDataAPI
                 }
             }
             // ----------------------------------------------------------------------------------------------- */
-            
             if($a = array_map('trim', $a)) {
                 /* fix homepage format e.g. "http://flickr.com/photos/94187100@N00 Hernán García Crespo" */
                 if($homepage = @$a['homepage']) {
@@ -928,8 +917,7 @@ class WikiDataAPI
         return false;
     }
     private function gen_agent_ids($artists, $role)
-    {   
-        /* $artists must not be:
+    {   /* $artists must not be:
         Array (
             [name] => Wikigraphists
             [homepage] => https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab
@@ -942,8 +930,7 @@ class WikiDataAPI
                 [homepage] => https://en.wikipedia.org/wiki/Wikipedia:Graphics_Lab
                 [role] => creator
             )
-        )
-        */
+        )*/
         if(isset($artists['name'])) {
             $temp = $artists;
             $artists = array();
@@ -967,7 +954,6 @@ class WikiDataAPI
                 exit("\nagent role is just 1 char\n");
             }
             */
-
             $r->term_homepage   = self::format_homepage(@$a['homepage']);
             $r->identifier      = md5("$r->term_name|$r->agentRole");
             $agent_ids[] = $r->identifier;
@@ -1008,7 +994,6 @@ class WikiDataAPI
                     $rek = self::process_file($file);
                     if($rek == "continue") continue;
                     if(!$rek) continue;
-                    
                     /* debug only -- use when u want to generate DwCA with just one media       //use this when developing*** wikimedia only
                     $rek = self::process_file("Tanzanie_Lionne.jpg");    //??? wrong license
                     // $rek = self::process_file("Frazer´s_dolphin_group.jpg");    //no artist
@@ -1023,9 +1008,7 @@ class WikiDataAPI
                     $final[] = $rek;
                     break; //debug
                     */
-                    
                     // print_r($rek); //exit;
-                    
                     if($rek['pageid']) {
                         $final[] = $rek;
                         $limit++;
@@ -1038,7 +1021,6 @@ class WikiDataAPI
         // print_r($final);exit;
         return $final;
     }
-    
     private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
     {
         $rek = array();
@@ -1097,7 +1079,6 @@ class WikiDataAPI
         Message: Language should use standardized ISO 639 language codes
         Line Value:  Burma creeper, Chinese honeysuckle, Rangoon creeper (English) 
         */
-        
         return $rek;
     }
     private function url_is_valid($url)
@@ -1113,7 +1094,6 @@ class WikiDataAPI
         if(strlen($lang) <= 3) return true;
         else                   return false;
     }
-
     private function format_artist($str)
     {
         if(is_array($str)) return $str;
@@ -1142,10 +1122,8 @@ class WikiDataAPI
         if(substr($str,0,6) == "<span " && substr_count($str, '</span>') == 1) {
             return array(array('name' => strip_tags($str)));
         }
-        
         return $str;
     }
-    
     private function has_cache_data($file)
     {
         if($filename = self::taxon_media($file)) {
@@ -1153,7 +1131,6 @@ class WikiDataAPI
         }
         return false;
     }
-    
     private function wiki_protected($wiki)
     {
         if(stripos($wiki, "{{Mprotected}}") !== false) return true; //string is found
@@ -1257,7 +1234,6 @@ class WikiDataAPI
 
             elseif(preg_match("/Photo by (.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
             elseif(preg_match("/ Photo by (.*?)\\\n/ims", $temp, $a)) $rek['other']['author'] = trim($a[1]);
-
 
             // else exit("\n$temp\nelix\n");
             /*
@@ -1455,7 +1431,6 @@ class WikiDataAPI
             return $final;
         }
         
-        
         if(substr($other_author,0,5) == "[http") {
             /* e.g. $other_author orig value, which is a wiki:
             [https://sites.google.com/site/thebrockeninglory/ Brocken Inaglory]|Cc-by-sa-3.0,2.5,2.0,1.0|GFDL|migration=redundant}}
@@ -1489,15 +1464,11 @@ class WikiDataAPI
                 $final['role'] = 'creator'; //creator yyy
                 return $final;
             }
-            
         }
-        
-        
     }
     private function make_other_source_an_agent($other_source)
     {   /* e.g. $other_source "Se ha trabajado con datos propios sobre la imagen existente en Commons: [[:File:España_y_Portugal.jpg|España_y_Portugal.jpg]]" */
         if($other_source == "{{own}}") return;
-        
         if(stripos($other_source, "Flickr") !== false) { //string is found
             //Flickr routine 1
             if($html = trim(self::convert_wiki_2_html($other_source))) {
@@ -1519,7 +1490,6 @@ class WikiDataAPI
                         if($flickr_image_id = trim(@$tmp[1])) {
                             return array('name' => "Flickr image ID $flickr_image_id", 'role' => 'source', 'homepage' => "http://flickr.com/photos/".$part);
                         }
-                        
                     }
                 }
             }
@@ -1527,12 +1497,10 @@ class WikiDataAPI
         else {
             if($html = trim(self::convert_wiki_2_html($other_source))) {
                 // exit("\n[$html]\n");
-                
                 $tmp = trim(strip_tags($html));
                 if(strlen($tmp) > 300) {
                     if(strlen($other_source) < strlen($tmp)) $tmp = $other_source; //use wiki text, which is shorter.
                 }
-                
                 $final = array('name' => $tmp, 'role' => 'source');
                 if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
                 return $final;
@@ -1677,7 +1645,6 @@ class WikiDataAPI
                 }
             }
         }
-
 
         //added Feb 11, 2019
         elseif(preg_match("/Source:(.*?)\./ims", $description, $a)) { /*Source: <a href="https://en.wikipedia.org/wiki/Walters_Art_Museum" title="en:Walters Art Museum">Walters Art Museum</a>: <a href="http://thewalters.org/" rel="nofollow"></a> <a rel="nofollow" href="http://thewalters.org/">Home page</a> <a href="http://art.thewalters.org/detail/37360" rel="nofollow"></a> <a rel="nofollow" href="http://art.thewalters.org/detail/37360">Info about artwork</a>.*/
@@ -1850,7 +1817,6 @@ class WikiDataAPI
         return $html;
         // return Functions::remove_whitespace($html);
     }
-    
     /*
     private function last_chance_for_description($str)
     {
@@ -1898,7 +1864,6 @@ class WikiDataAPI
             $rek['pageid'] = self::format_wiki_substr($arr['pageid']);
 
             if(in_array($rek['pageid'], $this->excluded_pageids)) return false;
-            
 
             $rek['ImageDescription'] = self::format_wiki_substr(@$arr['imageinfo'][0]['extmetadata']['ImageDescription']['value']);
             $rek['ImageDescription'] = self::adjust_image_desc($rek['ImageDescription']);
@@ -2011,7 +1976,6 @@ class WikiDataAPI
             elseif($val = @$arr['imageinfo'][0]['extmetadata']['DateTimeOriginal']['value']) $rek['date'] = self::format_wiki_substr($val);
             $rek['eol_type'] = self::check_if_api_image_is_map(@$arr['imageinfo'][0]['extmetadata']['Categories']['value']);
             $rek['fromx'] = 'api'; //object metadata from API;
-            
             /* debug only
             if(!$rek['Artist']) {
                 print_r($arr);
@@ -2228,7 +2192,6 @@ class WikiDataAPI
         if(preg_match("/Title:(.*?)<br>/ims", $desc, $arr)) return trim($arr[1]);
         return false;
     }
-    
     private function wiki2html($str)
     {
         if(preg_match_all("/\[(.*?)\]/ims", $str, $a)) {
@@ -2248,7 +2211,6 @@ class WikiDataAPI
         }
         return $str;
     }
-    
     private function get_media_url($file)
     {   // $file = "DKoehl_Irrawaddi_Dolphin_jumping.jpg";
         // $file = "Lycopodiella_cernua_estróbilos.jpg";
@@ -2259,7 +2221,6 @@ class WikiDataAPI
         $char2 = substr($md5,1,1);
         return "https://upload.wikimedia.org/wikipedia/commons/$char1/$char1$char2/" . str_replace(" ", "_", $file);
     }
-    
     private function format_wiki_substr($substr) //https://en.wikipedia.org/wiki/Control_character
     {   
         $substr = Functions::import_decode($substr);
@@ -2316,7 +2277,6 @@ class WikiDataAPI
             $this->archive_builder->write_object_to_file($mr);
         }
         // */
-        
         /*  $mr = new \eol_schema\MediaResource();
             $mr->taxonID                = $media['taxonID'];
             $mr->identifier             = $media['identifier'];
