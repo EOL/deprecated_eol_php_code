@@ -219,6 +219,9 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Alitta_virens_pharynx_(dorsal).jpg', 'name' => "Flickr user ID a_semenov", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.flickr.com/photos/a_semenov/3459795279/sizes/o/in/photostream/');
         $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "marya", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'http://flickr.com/photos/35237093637@N01');
         $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "Flickr image ID 1718209", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://flickr.com/photos/35237093637@N01/1718209');
+        $arr[] = array('filename' => 'Age-Spatial-and-Temporal-Variations-in-Hospital-Admissions-with-Malaria-in-Kilifi-County-Kenya-A-25-pmed.1002047.s013.ogv', 'name' => "S1 Video from journal (PLOS Medicine). DOI (10.1371/journal.pmed.1002047).", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4924798/bin/pmed.1002047.s013.mp4');
+        $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Denise King", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://vimeo.com/136560584');
+        $arr[] = array('filename' => 'Tordalke01.jpg', 'name' => "T.Müller",    'condition' => 'eq', 'role' => 'creator');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -227,11 +230,14 @@ class WikiDataAPI
         foreach($arr as $a) { $i++;
             if(!@$a['index']) $a['index'] = 0;
             $arr = self::process_file($a['filename']);
-            $param = array('condition' => $a['condition']);
-            if(isset($a['name']))     $param['name']     = $arr['Artist'][$a['index']]['name'];
-            if(isset($a['role']))     $param['role']     = $arr['Artist'][$a['index']]['role'];
-            if(isset($a['homepage'])) $param['homepage'] = $arr['Artist'][$a['index']]['homepage'];
-            echo "\n$i. ".(self::validate_test($param, $a) ? 'OK' : "error: $a[filename]");
+            if(!isset($arr['Artist'])) echo "\n$i filename not found!";
+            else { //start test proper
+                $param = array('condition' => $a['condition']);
+                if(isset($a['name']))     $param['name']     = $arr['Artist'][$a['index']]['name'];
+                if(isset($a['role']))     $param['role']     = $arr['Artist'][$a['index']]['role'];
+                if(isset($a['homepage'])) $param['homepage'] = $arr['Artist'][$a['index']]['homepage'];
+                echo "\n$i. ".(self::validate_test($param, $a) ? 'OK' : "error: $a[filename]");
+            }
         }
     }
     private function validate_test($param, $a)
@@ -1243,6 +1249,13 @@ class WikiDataAPI
             */
         }
         
+        /* special case for: https://commons.wikimedia.org/wiki/File:Age-Spatial-and-Temporal-Variations-in-Hospital-Admissions-with-Malaria-in-Kilifi-County-Kenya-A-25-pmed.1002047.s013.ogv
+        | doi = 10.1371/journal.pmed.1002047
+        | journal = PLOS Medicine
+        */
+        if(preg_match("/ doi \= (.*?)\\\n/ims", $wiki, $a)) $rek['other']['doi'] = trim($a[1]);
+        if(preg_match("/ journal \= (.*?)\\\n/ims", $wiki, $a)) $rek['other']['journal'] = trim($a[1]);
+        
         if($val = @$rek['other']['author']) $rek['other']['author'] = Functions::delete_all_between('<!--', '-->', $val);
         
         if(preg_match("/\|source\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['source'] = trim($a[1]);
@@ -1267,7 +1280,7 @@ class WikiDataAPI
         //start new Feb 26, 2019 e.g. https://commons.wikimedia.org/wiki/File:Narcissus_assoanus_distrib.jpg
         if($other_source = trim(@$rek['other']['source'])) {
             // exit("\nother_source: [$other_source]\n");
-            if($val = self::make_other_source_an_agent($other_source)) $rek['Artist'][] = $val;
+            if($val = self::make_other_source_an_agent($other_source, $rek['other'])) $rek['Artist'][] = $val;
         }
         //end new
 
@@ -1459,6 +1472,9 @@ class WikiDataAPI
             $html = self::convert_wiki_2_html($other_author);
             $final = array();
             if($val = strip_tags($html)) $final['name'] = strip_tags($html);
+            //----------------------
+            $final['name'] = self::format_name_special_cases($final['name']);
+            //----------------------
             if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
             if(@$final['name']) {
                 $final['role'] = 'creator'; //creator yyy
@@ -1466,9 +1482,21 @@ class WikiDataAPI
             }
         }
     }
-    private function make_other_source_an_agent($other_source)
+    private function format_name_special_cases($name)
+    {
+        /* e.g. value "T.Müller}}" */
+        if(stripos($name, "{") !== false) { //string is found
+            if(stripos($name, "}") === false) return str_replace("{","",$name); //string is not found
+        }
+        if(stripos($name, "}") !== false) { //string is found
+            if(stripos($name, "{") === false) return str_replace("}","",$name); //string is not found
+        }
+        return $name;
+    }
+    private function make_other_source_an_agent($other_source, $rek_other = array())
     {   /* e.g. $other_source "Se ha trabajado con datos propios sobre la imagen existente en Commons: [[:File:España_y_Portugal.jpg|España_y_Portugal.jpg]]" */
         if($other_source == "{{own}}") return;
+        if($other_source == "{{Own}}") return;
         if(stripos($other_source, "Flickr") !== false) { //string is found
             //Flickr routine 1
             if($html = trim(self::convert_wiki_2_html($other_source))) {
@@ -1496,16 +1524,45 @@ class WikiDataAPI
         }
         else {
             if($html = trim(self::convert_wiki_2_html($other_source))) {
-                // exit("\n[$html]\n");
                 $tmp = trim(strip_tags($html));
                 if(strlen($tmp) > 300) {
                     if(strlen($other_source) < strlen($tmp)) $tmp = $other_source; //use wiki text, which is shorter.
                 }
+                //--------------
+                $tmp = self::special_cases_4source_strings($tmp, $rek_other);
+                //--------------
                 $final = array('name' => $tmp, 'role' => 'source');
                 if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
                 return $final;
             }
         }
+    }
+    private function special_cases_4source_strings($name, $rek_other)
+    {
+        /* $name value is e.g. "S1 Video from {{Cite journal" */
+        if(substr($name, -14) == "{{Cite journal") { //special case for: https://commons.wikimedia.org/wiki/File:Age-Spatial-and-Temporal-Variations-in-Hospital-Admissions-with-Malaria-in-Kilifi-County-Kenya-A-25-pmed.1002047.s013.ogv
+            $final = str_ireplace("{{Cite journal", "", $name);
+            if($val = @$rek_other['journal']) $final .= "journal ($val). ";
+            if($val = @$rek_other['doi']) $final .= "DOI ($val). ";
+            $final = trim($final);
+            // exit("\n[$final]\n");
+            return $final;
+        }
+        
+        /* e.g. "https://vimeo.com/136560584" --- $name value is a URL form Vimeo */
+        if(substr($name,0,18) == "https://vimeo.com/" && is_numeric(substr($name, -3))) {
+            // exit("\n111\n");
+            $options = $this->download_options;
+            $options['expire_seconds'] = false; //should always be false
+            if($html = Functions::lookup_with_cache($name, $options)) {
+                //e.g. "Person","name":"Denise King"
+                if(preg_match("/\"Person\"\,\"name\"\:\"(.*?)\"/ims", $html, $a)) {
+                    if($final = trim($a[1])) return $final;
+                }
+            }
+        }
+        
+        return $name;
     }
     private function second_option_for_artist_info($arr)
     {   /*(
