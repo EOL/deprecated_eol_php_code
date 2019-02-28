@@ -3008,14 +3008,13 @@ class WikiDataAPI
             $filename = $main_path . "$cache1/$cache2/$md5.json";
             if(!file_exists($filename)) {
                 if(($i % 100000) == 0) echo "\n " . number_format($i) . " initializing file: $filename"; //just a row count indicator
-                if($FILE = Functions::file_open($filename, 'w'))  fclose($FILE);
+                if($FILE = Functions::file_open($filename, 'w')) fclose($FILE);
             }
             if(($i % 100000) == 0) echo("\n".number_format($i).". initializing file"); //just a row count indicator
             $i++; 
             // if($i >= 100) break; //debug
         }
     }
-
     function fill_in_temp_files_with_wikimedia_dump_data()
     {
         $path = $this->path['commons'];
@@ -3046,18 +3045,14 @@ class WikiDataAPI
                     if(($i % 100000) == 0) echo("\n".number_format($i).". saving content"); //just a row count indicator
                 }
                 // else echo " negative"; //meaning this media file is not encountered in the taxa wikidata process. //just for debug...
-                
                 /* just tests
-                if(substr($title,0,5) == "File:")
-                {
+                if(substr($title,0,5) == "File:") {
                     print_r($t); 
                     $json = json_encode($t);
                     $arr = json_decode($json, true);
-                    print_r($arr);
-                    exit("\n---\n");
+                    print_r($arr); exit("\n---\n");
                 }
-                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg")
-                {
+                if($title == "File:Abhandlungen aus dem Gebiete der Zoologie und vergleichenden Anatomie (1841) (16095238834).jpg") {
                     print_r($t); exit("\n111\n");
                 }
                 */
