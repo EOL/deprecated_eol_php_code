@@ -3023,7 +3023,8 @@ class WikiDataAPI
         $i = 0;
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page") {
-                $page_xml = $reader->readOuterXML(); /* Eli todo: use instead: if($page_xml = $reader->readOuterXML()) {} else {continue;} */
+                if($page_xml = $reader->readOuterXML()) {}
+                else continue;
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
                 $title = $t->title;
                 // $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
@@ -3127,7 +3128,8 @@ class WikiDataAPI
         $i = 0;
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page") {
-                $page_xml = $reader->readOuterXML();
+                if($page_xml = $reader->readOuterXML()) {}
+                else continue;
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
                 $page_id = $t->id;
                 if($page_id == "47821") {
