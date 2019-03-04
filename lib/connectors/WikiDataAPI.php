@@ -202,11 +202,11 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Alexander_yakovlev,_autoritratto,_1917.JPG', 'name' => "Sailko", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Sailko');
         $arr[] = array('filename' => 'Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
         $arr[] = array('filename' => 'España_y_Portugal.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator');
-        $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney January 17, 2004", 'condition' => 'eq', 'role' => 'creator');
+        $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney", 'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg', 'name' => "Walters Art Museum", 'condition' => 'eq', 'role' => 'source');
         $arr[] = array('filename' => '1PRT.png', 'name' => "Jmol, Jmol Development Team", 'condition' => 'eq', 'role' => 'source', 'index' => 1);
-        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Flickr user NatureAtYourBackyard . Photo uploaded to commons by user ltshears", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'http://flickr.com/photos/64684201@N00/');
-        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Johnny Wee. (Thanks for a million views.) (64684201@N00)", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://flickr.com/photos/64684201@N00/291506502/');
+        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Flickr user NatureAtYourBackyard . Photo uploaded to commons by user ltshears", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/');
+        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Johnny Wee. (Thanks for a million views.) (64684201@N00)", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/291506502/');
         $arr[] = array('filename' => 'Whales_are_Paraphyletic.png', 'name' => "Ian Alexander", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Chiswick_Chap');
         $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Cillas;España_y_Portugal.jpg: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
         $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Se ha trabajado con datos propios sobre la imagen existente en Commons: España_y_Portugal.jpg", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
@@ -217,8 +217,8 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Inclusion_bodies.jpg', 'name' => "{{NCI Visuals Online|2252}}",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/National_Cancer_Institute');
         $arr[] = array('filename' => 'Feh-painting.jpg', 'name' => "Brehms Tierleben, Small Edition 1927",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/Brehms_Tierleben');
         $arr[] = array('filename' => 'Alitta_virens_pharynx_(dorsal).jpg', 'name' => "Flickr user ID a_semenov", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.flickr.com/photos/a_semenov/3459795279/sizes/o/in/photostream/');
-        $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "marya", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'http://flickr.com/photos/35237093637@N01');
-        $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "Flickr image ID 1718209", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://flickr.com/photos/35237093637@N01/1718209');
+        $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "marya", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/35237093637@N01');
+        $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "Flickr image ID 1718209", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://flickr.com/photos/35237093637@N01/1718209');
         $arr[] = array('filename' => 'Age-Spatial-and-Temporal-Variations-in-Hospital-Admissions-with-Malaria-in-Kilifi-County-Kenya-A-25-pmed.1002047.s013.ogv', 'name' => "S1 Video from journal (PLOS Medicine). DOI (10.1371/journal.pmed.1002047).", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4924798/bin/pmed.1002047.s013.mp4');
         $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Denise King", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://vimeo.com/136560584');
         $arr[] = array('filename' => 'Tordalke01.jpg', 'name' => "T.Müller",    'condition' => 'eq', 'role' => 'creator');
@@ -1266,6 +1266,10 @@ class WikiDataAPI
             elseif(preg_match("/\| source \=(.*?)\\\n/ims", $temp, $a)) $rek['other']['source'] = trim($a[1]);
             //end new Nov 6
         }
+        if(stripos(@$rek['other']['source'], "own work;") !== false) {  //new Mar 3, 2019
+            // exit("\n".$rek['other']['source']."\n");
+            $rek['other']['source'] = "";
+        }
         if(preg_match("/\|permission\=(.*?)\\\n/ims", $wiki, $a)) $rek['other']['permission'] = $a[1];
         $rek['date'] = @$rek['other']['date'];
         //================================================================ Artist
@@ -1512,12 +1516,14 @@ class WikiDataAPI
                         $final['name'] = self::get_Flickr_user_realname_using_userID($user_id, $options);
                         if($final['name']) return $final;
                     }
-                    elseif(preg_match("/\[http\:\/\/flickr\.com\/photos\/(.*?)image description page/ims", $other_source, $a)) {
-                        /* orig wiki is e.g. "[http://www.flickr.com/ Flickr.com] - [http://flickr.com/photos/22437367@N00/1102771 image description page]" */
+                    elseif(preg_match("/flickr\.com\/photos\/(.*?)image description page/ims", $other_source, $a)) {
+                        /* orig wiki is e.g. "[http://www.flickr.com/ Flickr.com] - [http://flickr.com/photos/22437367@N00/1102771 image description page]" 
+                            OR e.g.          "[https://www.flickr.com/ Flickr.com] - [https://www.flickr.com/photos/35237093637@N01/1718209 image description page]"
+                        */
                         $part = trim($a[1]);
                         $tmp = explode("/", $part);
                         if($flickr_image_id = trim(@$tmp[1])) {
-                            return array('name' => "Flickr image ID $flickr_image_id", 'role' => 'source', 'homepage' => "http://flickr.com/photos/".$part);
+                            return array('name' => "Flickr image ID $flickr_image_id", 'role' => 'source', 'homepage' => "https://flickr.com/photos/".$part);
                         }
                     }
                 }
@@ -1707,22 +1713,20 @@ class WikiDataAPI
 
         //added Feb 11, 2019
         elseif(preg_match("/Source:(.*?)\./ims", $description, $a)) { /*Source: <a href="https://en.wikipedia.org/wiki/Walters_Art_Museum" title="en:Walters Art Museum">Walters Art Museum</a>: <a href="http://thewalters.org/" rel="nofollow"></a> <a rel="nofollow" href="http://thewalters.org/">Home page</a> <a href="http://art.thewalters.org/detail/37360" rel="nofollow"></a> <a rel="nofollow" href="http://art.thewalters.org/detail/37360">Info about artwork</a>.*/
-            if($val = strip_tags(trim($a[1]))) return array('name' => $val, 'role' => 'source');
+            $stripped = strip_tags(trim($a[1]));
+            if($val = self::is_valid_agent_name($stripped)) return array('name' => $val, 'role' => 'source');
             else {
                 $d = strip_tags($description);
                 if(preg_match("/Source:(.*?)\./ims", $d, $a)) {
                     if($val = strip_tags(trim($a[1]))) {
                         $tmp = explode(":", $val);
-                        $val = trim($tmp[0]);
-                        return array('name' => $val, 'role' => 'source');
+                        if($val = self::is_valid_agent_name(trim($tmp[0]))) return array('name' => $val, 'role' => 'source');
                     }
                 }
             }
         }
         
         else {
-            // echo "\nelix 555\n";
-            // echo "\n$description\n";
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a) && !$rek_Artist) { // 2nd condition means that there is already $rek['Artist'], not priority to get from "User:"
                 $final[] = array('name' => $a[1], 'homepage' => "https://commons.wikimedia.org/wiki/User:".$a[1], 'role' => 'creator');
@@ -1743,6 +1747,12 @@ class WikiDataAPI
             }
         }
         return false;
+    }
+    private function is_valid_agent_name($possible_name)
+    {
+        if(!$possible_name) return false;
+        if(stripos($possible_name, "own work") !== false) return false; //string is found
+        else return $possible_name;
     }
     private function remove_portions_of_wiki($wiki)
     {
@@ -3013,7 +3023,7 @@ class WikiDataAPI
         $i = 0;
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "page") {
-                $page_xml = $reader->readOuterXML();
+                $page_xml = $reader->readOuterXML(); /* Eli todo: use instead: if($page_xml = $reader->readOuterXML()) {} else {continue;} */
                 $t = simplexml_load_string($page_xml, null, LIBXML_NOCDATA);
                 $title = $t->title;
                 // $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
