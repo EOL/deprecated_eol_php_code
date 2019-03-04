@@ -220,7 +220,8 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "marya", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/35237093637@N01');
         $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "Flickr image ID 1718209", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://flickr.com/photos/35237093637@N01/1718209');
         $arr[] = array('filename' => 'Age-Spatial-and-Temporal-Variations-in-Hospital-Admissions-with-Malaria-in-Kilifi-County-Kenya-A-25-pmed.1002047.s013.ogv', 'name' => "S1 Video from journal (PLOS Medicine). DOI (10.1371/journal.pmed.1002047).", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4924798/bin/pmed.1002047.s013.mp4');
-        $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Denise King", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://vimeo.com/136560584');
+        $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Denise King", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://vimeo.com/growthanddk');
+        $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Vimeo video 136560584", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://vimeo.com/136560584');
         $arr[] = array('filename' => 'Tordalke01.jpg', 'name' => "T.Müller",    'condition' => 'eq', 'role' => 'creator');
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
@@ -1277,7 +1278,7 @@ class WikiDataAPI
         //start new Nov 6, 2018 e.g. https://commons.wikimedia.org/wiki/File:Clone_war_of_sea_anemones_3.jpg
         if($other_author = trim(@$rek['other']['author'])) {
             // exit("\nother_author: [$other_author]\n");
-            if($val = self::make_other_author_an_agent($other_author)) $rek['Artist'][] = $val;
+            if($val = self::make_other_author_an_agent($other_author, @$rek['other']['source'])) $rek['Artist'][] = $val;
         }
         //end new
 
@@ -1429,7 +1430,7 @@ class WikiDataAPI
         */
         return $rek;
     }
-    private function make_other_author_an_agent($other_author)
+    private function make_other_author_an_agent($other_author, $other_source)
     {
         if($other_author == "[[user:]]") return;
         /* e.g. orig wiki value = {{Creator:Marten de Vos}} */
@@ -1481,11 +1482,34 @@ class WikiDataAPI
             $final['name'] = self::format_name_special_cases($final['name']);
             //----------------------
             if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+            
+            //start here ---------- you can add here other ways to customize 'name' 'homepage' etc. for different sources e.g. Vimeo Flickr etc.
+            if($val = self::get_vimeo_user_homepage($other_source)) $final['homepage'] = $val; //new Mar 4, 2019
+            //end here ----------
+            
             if(@$final['name']) {
                 $final['role'] = 'creator'; //creator yyy
                 return $final;
             }
         }
+    }
+    private function get_vimeo_user_homepage($url) //e.g. media file = Sea_spider_(Pantopoda_or_pycnogonids).webm
+    {
+        if(substr($url,0,18) == "https://vimeo.com/" && is_numeric(substr($url, -3))) {
+            $options = $this->download_options;
+            $options['expire_seconds'] = false; //should always be false
+            if($html = Functions::lookup_with_cache($url, $options)) {
+                //e.g. "Person","name":"Denise King"
+                if(preg_match("/\"Person\"\,\"name\"\:\"(.*?)\"/ims", $html, $a)) {
+                    if($name = trim($a[1])) {
+                        if(preg_match("/\"".$name."\"\,\"url\"\:\"(.*?)\"/ims", $html, $a)) {
+                            if($val = $a[1]) return $val; //will return "https://vimeo.com/growthanddk"
+                        }
+                    }
+                }
+            }
+        }
+        else return false;
     }
     private function format_name_special_cases($name)
     {
@@ -1536,10 +1560,13 @@ class WikiDataAPI
                     if(strlen($other_source) < strlen($tmp)) $tmp = $other_source; //use wiki text, which is shorter.
                 }
                 //--------------
-                $tmp = self::special_cases_4source_strings($tmp, $rek_other);
+                $final = self::special_cases_4source_strings($tmp, $rek_other);
+                // print_r($final); exit;
                 //--------------
-                $final = array('name' => $tmp, 'role' => 'source');
-                if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+                $final['role'] = 'source';
+                if(!@$final['homepage']) {
+                    if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
+                }
                 return $final;
             }
         }
@@ -1551,25 +1578,18 @@ class WikiDataAPI
             $final = str_ireplace("{{Cite journal", "", $name);
             if($val = @$rek_other['journal']) $final .= "journal ($val). ";
             if($val = @$rek_other['doi']) $final .= "DOI ($val). ";
-            $final = trim($final);
-            // exit("\n[$final]\n");
-            return $final;
+            $ret['name'] = trim($final);
+            return $ret;
         }
-        
+        //-------------------------------------------------------------------------------------------------------
         /* e.g. "https://vimeo.com/136560584" --- $name value is a URL form Vimeo */
         if(substr($name,0,18) == "https://vimeo.com/" && is_numeric(substr($name, -3))) {
-            // exit("\n111\n");
-            $options = $this->download_options;
-            $options['expire_seconds'] = false; //should always be false
-            if($html = Functions::lookup_with_cache($name, $options)) {
-                //e.g. "Person","name":"Denise King"
-                if(preg_match("/\"Person\"\,\"name\"\:\"(.*?)\"/ims", $html, $a)) {
-                    if($final = trim($a[1])) return $final;
-                }
-            }
+            if(preg_match("/vimeo\.com\/(.*?)xxx/ims", $name."xxx", $a)) $final['name'] = "Vimeo video ".$a[1];
+            $final['homepage'] = $name;
+            return $final;
         }
-        
-        return $name;
+        //-------------------------------------------------------------------------------------------------------
+        return array('name' => $name);
     }
     private function second_option_for_artist_info($arr)
     {   /*(
