@@ -21,6 +21,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Tuesday 2019-01-08 09:43:26 PM	 {"agent.tab":272517,"media_resource.tab":1237531,"taxon.tab":123849,"vernacular_name.tab":327898}
 71	Thursday 2019-01-17 07:48:12 PM	 {"agent.tab":272517,"media_resource.tab":1237531,"taxon.tab":123849,"vernacular_name.tab":327898}
 71	Saturday 2019-02-09 03:19:59 PM	 {"agent.tab":278157,"media_resource.tab":1300397,"taxon.tab":128099,"vernacular_name.tab":330621}
+71	Sunday 2019-03-03 03:50:57 PM	 {"agent.tab":189430,"media_resource.tab":1298998,"taxon.tab":128348,"vernacular_name.tab":330901} decrease but looks OK still
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -34,6 +35,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Tuesday 2019-01-08 09:55:37 PM	{"agent.tab":272517,"media_resource.tab":1237531,"taxon.tab":123849}
 71_new	Thursday 2019-01-17 08:00:07 PM	{"agent.tab":272517,"media_resource.tab":1237531,"taxon.tab":123849}
 71_new	Saturday 2019-02-09 03:32:49 PM	{"agent.tab":278157,"media_resource.tab":1300397,"taxon.tab":128099}
+71_new	Sunday 2019-03-03 04:04:22 PM	{"agent.tab":189430,"media_resource.tab":1298998,"taxon.tab":128348} decrease but looks OK still
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
