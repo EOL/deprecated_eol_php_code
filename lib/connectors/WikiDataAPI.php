@@ -46,7 +46,7 @@ class WikiDataAPI
         $this->object_ids = array();
         $this->debug = array();
         $this->download_options = array('expire_seconds' => 60*60*24*25*1, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false; //just temporary, comment in normal operation
+        // $this->download_options['expire_seconds'] = false; //just temporary, comment in normal operation
         if(!Functions::is_production()) $this->download_options['expire_seconds'] = false;
 
         if(Functions::is_production()) {
@@ -1055,7 +1055,7 @@ class WikiDataAPI
         
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
         $rek['media_url']   = self::get_media_url($file);
-        $rek['Artist']      = self::format_artist($rek['Artist']);
+        if($val = @$rek['Artist']) $rek['Artist'] = self::format_artist($val);
         $rek['ImageDescription'] = Functions::remove_this_last_char_from_str($rek['ImageDescription'], "|");
         
         //will capture in report source of various invalid data (to check afterwards) but will not stop process.
@@ -1477,9 +1477,9 @@ class WikiDataAPI
             */
             $html = self::convert_wiki_2_html($other_author);
             $final = array();
-            if($val = strip_tags($html)) $final['name'] = strip_tags($html);
+            if($val = strip_tags($html)) $final['name'] = $val;
             //----------------------
-            $final['name'] = self::format_name_special_cases($final['name']);
+            $final['name'] = self::format_name_special_cases(@$final['name']);
             //----------------------
             if(preg_match("/href=\"(.*?)\"/ims", $html, $a)) $final['homepage'] = $a[1];
             
@@ -2055,7 +2055,7 @@ class WikiDataAPI
                 if($val = self::get_artist_from_special_source($rek['ImageDescription'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
             
-            if($rek['Artist']) $rek['Artist'] = self::flickr_lookup_if_needed($rek['Artist']);
+            if($val = @$rek['Artist']) $rek['Artist'] = self::flickr_lookup_if_needed($val);
             
             //end artist ========================
             
