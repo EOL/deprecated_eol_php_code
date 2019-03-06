@@ -66,6 +66,7 @@ class DWH_NCBI_API
         foreach(new FileIterator($this->extension_path.$meta['file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++; if(($i % 100000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            $row = Functions::conv_to_utf8($row);
             if(!$row) continue;
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
@@ -118,6 +119,7 @@ class DWH_NCBI_API
             $i++;
             if(($i % 300000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            $row = Functions::conv_to_utf8($row);
             if(!$row) continue;
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
@@ -184,6 +186,7 @@ class DWH_NCBI_API
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++; if(($i % 300000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            $row = Functions::conv_to_utf8($row);
             if(!$row) continue;
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
@@ -340,6 +343,7 @@ class DWH_NCBI_API
         if(!$file) exit("\nFile not found!\n");
         while (($row = fgets($file)) !== false) {
             $i++;
+            $row = Functions::conv_to_utf8($row);
             $row = explode("\t|", $row);
             array_pop($row);
             $row = array_map('trim', $row);
@@ -396,6 +400,7 @@ class DWH_NCBI_API
         $this->ctr = 1; $old_id = "elix";
         while (($row = fgets($file)) !== false) {
             $i++;
+            $row = Functions::conv_to_utf8($row);
             $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
             if(($i % 300000) == 0) echo "\n count:[$i] ";
             $row = array_map('trim', $row);
@@ -519,6 +524,7 @@ class DWH_NCBI_API
         $this->ctr = 1; $this->old_id = "elix";
         while (($row = fgets($file)) !== false) {
             $i++;
+            $row = Functions::conv_to_utf8($row);
             $row = explode("\t|", $row); array_pop($row); $row = array_map('trim', $row);
             if(($i % 300000) == 0) echo "\n count:[$i] ";
             $row = array_map('trim', $row);
@@ -696,6 +702,7 @@ class DWH_NCBI_API
         if(!$file) exit("\nFile not found!\n");
         while (($row = fgets($file)) !== false) {
             $i++;
+            $row = Functions::conv_to_utf8($row);
             $row = explode("\t|", $row);
             array_pop($row);
             $row = array_map('trim', $row);
