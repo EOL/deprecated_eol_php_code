@@ -80,10 +80,10 @@ class DWH_NCBI_API
                 [taxonID] => 2
             )*/
             if(isset($tax_ids[$rec['taxonID']])) {
-                if($common_name = @$rec['vernacularName']) {
+                if($common_name = trim(@$rec['vernacularName'])) {
                     $v = new \eol_schema\VernacularName();
                     $v->taxonID = $rec["taxonID"];
-                    $v->vernacularName = trim($common_name);
+                    $v->vernacularName = $common_name;
                     $v->language = $rec['language'];
                     $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
                     if(!isset($this->vernacular_ids[$vernacular_id])) {
@@ -617,11 +617,12 @@ class DWH_NCBI_API
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
         }
+        /* temporarily removed comnames
         if(in_array($rec['name_class'], array("common name", "genbank common name"))) {
-            if($common_name = @$rec['name_txt']) {
+            if($common_name = trim(@$rec['name_txt'])) {
                 $v = new \eol_schema\VernacularName();
                 $v->taxonID = $rec["tax_id"];
-                $v->vernacularName = trim($common_name);
+                $v->vernacularName = $common_name;
                 $v->language = "en";
                 $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
                 if(!isset($this->vernacular_ids[$vernacular_id])) {
@@ -630,6 +631,7 @@ class DWH_NCBI_API
                 }
             }
         }
+        */
     }
     private function format_tax_id($rec)
     {   /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
