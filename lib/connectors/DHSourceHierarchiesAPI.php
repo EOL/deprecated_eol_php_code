@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector: [dwh.php] */
 class DHSourceHierarchiesAPI
 {
-    function __construct($folder)
+    function __construct($folder = "") //sometimes blank bec. e.g. used in ---> private function get_meta_info()
     {
         $this->mysqli =& $GLOBALS['db_connection'];
         $this->resource_id = $folder;

@@ -36,8 +36,7 @@ function main()
 function process_dwca($resource_id)
 {
     $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
-    $options['row_type'] = "http://eol.org/schema/media/Document";
-    $options['fields']   = array("http://ns.adobe.com/xap/1.0/rights/Owner");
+    $options['row_types'][] = "http://eol.org/schema/media/Document";
     $options['Jira']     = "DATA-1779"; // if license is 'public domain', make 'Owner' field blank.
     $func->convert_archive_customize_tab($options);
     Functions::finalize_dwca_resource($resource_id, false, true); //2nd param false means not a big file, 3rd param true means delete working folder in CONTENT_RESOURCE_LOCAL_PATH

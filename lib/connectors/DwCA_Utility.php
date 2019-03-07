@@ -252,7 +252,7 @@ class DwCA_Utility
         }
         return true;
     }
-    private function customize_tab($records, $jira)
+    private function customize_tab($records, $jira, $rowtype = "")
     {
         //------------------------------------------------------------customization start
         if($jira == "DATA-1779") {}
@@ -278,8 +278,7 @@ class DwCA_Utility
                 [http://purl.org/dc/terms/rights] => <B>None</b> - This image is in the public domain and thus free of any copyright restrictions. As a matter of courtesy we request that the content provider be credited and notified in any public or private usage of this image.
                 [http://ns.adobe.com/xap/1.0/rights/Owner] => Public Health Image Library
                 [http://eol.org/schema/agent/agentID] => 33b5e131211fb3858b3ddf9a6e1c605a
-            )
-            */
+            )*/
             if($jira == "DATA-1779") { //if license is 'public domain', make 'Owner' field blank.
                 $license = (string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"];
                 if(in_array($license, $this->public_domains)) {
@@ -288,29 +287,50 @@ class DwCA_Utility
                     // print_r($records[$i]); exit;
                 }
             }
+            if($jira == "DATA-1799") { //remove taxon entry when taxonID is missing
+                                       //remove media entry when taxonID is missing
+                $taxonID = (string) trim($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
+                if(!$taxonID) {
+                    /* a diff. case when you want to delete the entire record altogether
+                    $records[$i] = NULL;
+                    */
+                    if($rowtype == "http://rs.tdwg.org/dwc/terms/Taxon") {
+                        $this->taxonID_to_use = md5(json_encode($rec))."_eolx";
+                        $records[$i]['http://rs.tdwg.org/dwc/terms/taxonID'] = $this->taxonID_to_use;
+                    }
+                    elseif($rowtype == "http://eol.org/schema/media/Document") {
+                        $records[$i]['http://rs.tdwg.org/dwc/terms/taxonID'] = $this->taxonID_to_use;
+                    }
+                }
+            }
+            
         }
         $records = array_filter($records); //remove null arrays
         $records = array_values($records); //reindex key
         echo "\n end taxa count: ".count($records);
         return $records;
     }
-    function convert_archive_customize_tab($options) //first client is DATA-1779. This will customize a DwCA extension.
+    function convert_archive_customize_tab($options) //first clients are DATA-1779, DATA-1799. This will customize DwCA extension(s).
     {
         echo "\ndoing this: convert_archive_customize_tab()\n";
         $info = self::start(); $temp_dir = $info['temp_dir']; $harvester = $info['harvester']; $tables = $info['tables']; $index = $info['index'];
-        $records = $harvester->process_row_type($options['row_type']);
-        if(self::can_customize($records[0], $options['fields'])) {
-            echo "\n1 of 2\n";  $records = self::customize_tab($records, $options['Jira']);
-            echo "\n2 of 2\n";
-            foreach($index as $row_type) {
-                if(@$this->extensions[$row_type]) { //process only defined row_types
-                    if($row_type == strtolower($options['row_type'])) self::process_fields($records, $this->extensions[$row_type]);
-                    else                                              self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
-                }
-            }
-            $this->archive_builder->finalize(TRUE);
+        
+        foreach($options['row_types'] as $rowtype) { //process here those extensions that need customization
+            $records = $harvester->process_row_type($rowtype);
+            $records = self::customize_tab($records, $options['Jira'], $rowtype);
+            self::process_fields($records, $this->extensions[strtolower($rowtype)]);
         }
-        else echo "\nCannot customize ".$options['row_type']."\n";
+
+        $options['row_types'] = array_map('strtolower', $options['row_types']); //important step so to have similar lower-case strings
+        /* print_r($index); print_r($options['row_types']); exit; */ //check if strings have same case, before to proceed with comparing.
+
+        foreach($index as $row_type) { //process remaining row_types
+            if(@$this->extensions[$row_type]) { //process only defined row_types
+                if(!in_array($row_type, $options['row_types'])) self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+            }
+        }
+        $this->archive_builder->finalize(TRUE);
+        
         recursive_rmdir($temp_dir); echo ("\n temporary directory removed: " . $temp_dir); // remove temp dir
         if($this->debug) print_r($this->debug);
     }
