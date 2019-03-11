@@ -175,14 +175,36 @@ class DWH_CoL_API_20Feb2019
     }
     private function main_tram_803()
     {
-        $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
+        // $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
+        
+        /* 1. Remove branches from the PruneBytaxonID list based on their taxonID: */
+        /*
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
-        $params['range']         = 'pruneBytaxonID!A1:C50'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'pruneBytaxonID!A1:C50';
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('taxonID');
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['taxonID'];
+        */
         // print_r($removed_branches); echo "\nremoved_branches total: ".count($removed_branches)."\n"; exit;
+        
+        /* 2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
+        //1st step: get the list of [identifier]s. --------------------------------------------------------
+        $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
+        $params['range']         = 'pruneForCOL!A1:A505';
+        $params['first_row_is_headerYN'] = true;
+        $params['sought_fields'] = array('identifier');
+        $parts = self::get_removed_branches_from_spreadsheet($params);
+        $removed_branches = $parts['identifier'];
+        print_r($removed_branches); 
+        echo "\nremoved_branches total: ".count($removed_branches)."\n"; 
+        // exit;
+
+        //2nd step: get the corresponding taxonID of this list of [identifier]s. --------------------------------------------------------
+        $taxonIDs = self::get_taxonID_from_identifer_values($removed_branches);
+        
+        
+        
         
         /* if to add more brances to be removed:
         $removed_branches = array();
@@ -457,27 +479,20 @@ class DWH_CoL_API_20Feb2019
     }
     private function get_removed_branches_from_spreadsheet($params = false)
     {
-        $final = array(); $final2 = array();
-        if(!$params) {
-            $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
-            $params['range']         = 'Sheet1!A2:B6264';
-        }
-        $rows = Functions::get_google_sheet_using_GoogleClientAPI($params);
-        print_r($rows);
-        
+        $final = array();
+        $rows = Functions::get_google_sheet_using_GoogleClientAPI($params); //print_r($rows);
         if(@$params['first_row_is_headerYN']) $fields = $rows[0];
         else                                  exit("\nNo headers in spreadsheet.\n");
         $i = -1;
         foreach($rows as $items) {
-            $i++;
-            if($i == 0) continue;
+            $i++; if($i == 0) continue;
             $rec = array();
             $k = 0;
             foreach($items as $item) {
                 $rec[$fields[$k]] = $item;
                 $k++;
             }
-            print_r($rec); //exit;
+            // print_r($rec); //exit;
             /* e.g. $rec
             Array(
                 [taxonID] => 6922677
@@ -486,24 +501,12 @@ class DWH_CoL_API_20Feb2019
             )
             */
             foreach($rec as $key => $val) {
-                if(in_array($key, $params['sought_fields'])) $final[$key][$val] = '';
+                if(in_array($key, $params['sought_fields'])) {
+                    if($key && $val) $final[$key][$val] = '';
+                }
             }
         }
         return $final;
-        
-        /* orig
-        //start massage array
-        foreach($rows as $item) {
-            if($val = $item[0]) $final[$val] = '';
-            $canonical = trim(Functions::canonical_form($item[1]));
-            if(stripos($canonical, " ") !== false) continue; //string is found
-            else {
-                if($canonical) $final2[$canonical] = '';
-            }
-        }
-        // print_r($final2); exit;
-        return array('removed_brances' => $final, 'one_word_names' => $final2);
-        */
         /* if google spreadsheet suddenly becomes offline, use this: Array() */
     }
     private function more_ids_to_remove()
@@ -519,6 +522,39 @@ class DWH_CoL_API_20Feb2019
         $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
         // if($GLOBALS['ENV_DEBUG']) print_r($meta); //good debug
         return $meta;
+    }
+    private function get_taxonID_from_identifer_values($identifiers)
+    {
+        echo "\nGenerating taxID_info...";
+        $final = array(); $i = 0; $this->debug['elix'] = 0;
+        $meta = self::get_meta_info();
+        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nelix2\n");
+            /*Array(
+                [taxonID] => 316502
+                [identifier] => 
+                ...
+            )*/
+            // if(isset(@$identifiers[$rec['identifier']])) $final[$rec['taxonID']] = ''; //orig
+            if(isset($identifiers[$rec['identifier']])) {
+                $identifiers[$rec['identifier']] = $rec['taxonID'];
+                $this->debug['elix']++;
+            }
+            
+        }
+        print_r($identifiers); print_r($this->debug['elix']); exit("\nxxx\n"); //good debug - check if all identifiers were paired with a taxonID.
+        return $final;
+        
     }
     // ----------------------------------------------------------------- end TRAM-803 -----------------------------------------------------------------
     /*
