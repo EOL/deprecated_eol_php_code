@@ -29,11 +29,8 @@ class DWH_CoL_API_20Feb2019
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-    private function main_CoLProtists()
+    private function get_CLP_roots()
     {
-        $taxID_info = self::get_taxID_nodes_info();
-        prunebytaxonid
-        
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
         $params['range']         = 'extractForCLP!A1:B10';
         $params['first_row_is_headerYN'] = true;
@@ -55,6 +52,16 @@ class DWH_CoL_API_20Feb2019
             }
         }
         
+    }
+    private function main_CoLProtists()
+    {
+        $taxID_info = self::get_taxID_nodes_info();
+        
+        $removed_branches = self::pruneBytaxonID();
+        echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
+
+        $include = self::get_CLP_roots();
+        print_r($include);
         // $include[42984770] = "Ciliophora";
         // $include[42990646] = "Oomycota";
         // $include[42981251] = "Polycystina";
@@ -202,10 +209,8 @@ class DWH_CoL_API_20Feb2019
     {
         $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
         /* #1. Remove branches from the PruneBytaxonID list based on their taxonID: */
-        // /*
         $removed_branches = self::pruneBytaxonID();
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
-        // */
         
         /* #2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
         //1st step: get the list of [identifier]s. --------------------------------------------------------
