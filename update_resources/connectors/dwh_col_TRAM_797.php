@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* Catalogue of Life Extracts for Dynamic Hierarchy - https://eol-jira.bibalex.org/browse/TRAM-797
+/* Catalogue of Life Extracts for Dynamic Hierarchy - TRAM-797
 estimated execution time: 
 
 eol-archive using the old col.tar.gz
