@@ -31,23 +31,38 @@ class DWH_CoL_API_20Feb2019
     }
     private function main_CoLProtists()
     {
+        $taxID_info = self::get_taxID_nodes_info();
+        prunebytaxonid
+        
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
         $params['range']         = 'extractForCLP!A1:B10';
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('identifier');
         $parts = self::get_removed_branches_from_spreadsheet($params);
-        $removed_branches = $parts['identifier'];
-        echo "\nremoved_branches CLP total: ".count($removed_branches)."\n";
+        $identifiers2inc = $parts['identifier'];
+        echo "\nidentifiers2inc CLP total: ".count($identifiers2inc)."\n";
 
-        $taxID_info = self::get_taxID_nodes_info();
-        $include[42984770] = "Ciliophora";
-        $include[42990646] = "Oomycota";
-        $include[42981251] = "Polycystina";
-        $include[42985937] = "Eccrinida";
-        $include[42985691] = "Microsporidia";
-        $include[42983291] = "Mycetozoa";
-        $include[42993626] = "Chaetocerotaceae";
-        $include[42993677] = "Naviculaceae";
+        // get the corresponding taxonID of this list of [identifier]s. --------------------------------------------------------
+        $identifiers_taxonIDs = self::get_taxonID_from_identifer_values($identifiers2inc);
+        print_r($identifiers_taxonIDs); exit;
+        /* sample $identifiers_taxonIDs
+        get sample...
+        */
+        $include = array();
+        foreach($identifiers_taxonIDs as $identifier => $taxonIDs) {
+            if($taxonIDs) { //needed this validation since there is one case where the identifier doesn't have a taxonID.
+                foreach($taxonIDs as $taxonID) $include[$taxonID] = '';
+            }
+        }
+        
+        // $include[42984770] = "Ciliophora";
+        // $include[42990646] = "Oomycota";
+        // $include[42981251] = "Polycystina";
+        // $include[42985937] = "Eccrinida";
+        // $include[42985691] = "Microsporidia";
+        // $include[42983291] = "Mycetozoa";
+        // $include[42993626] = "Chaetocerotaceae";
+        // $include[42993677] = "Naviculaceae";
         $this->include = $include;
         
         $meta = self::get_meta_info();
@@ -173,17 +188,22 @@ class DWH_CoL_API_20Feb2019
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
     }
-    private function main_tram_803()
+    private function pruneBytaxonID()
     {
-        $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
-        /* #1. Remove branches from the PruneBytaxonID list based on their taxonID: */
-        // /*
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
         $params['range']         = 'pruneBytaxonID!A1:C50';
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('taxonID');
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['taxonID']; // print_r($removed_branches);
+        return $removed_branches;
+    }
+    private function main_tram_803()
+    {
+        $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
+        /* #1. Remove branches from the PruneBytaxonID list based on their taxonID: */
+        // /*
+        $removed_branches = self::pruneBytaxonID();
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
         // */
         
@@ -282,32 +302,7 @@ class DWH_CoL_API_20Feb2019
             $rec = array_map('trim', $rec);
             if(isset($identifiers_taxonIDs[$rec['identifier']])) continue;
             
-            /*Array(
-                [taxonID] => 10145857
-                [furtherInformationURL] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/ce9e04c173abb9b9bc76357e069c4026
-                [scientificNameID] => Cil-CILI00024223
-                [acceptedNameUsageID] => 
-                [parentNameUsageID] => 42998474
-                [scientificName] => Amphileptus hirsutus Dumas, 1930
-                [nameAccordingTo] => 
-                [kingdom] => Chromista
-                [phylum] => Ciliophora
-                [class] => Gymnostomatea
-                [order] => Pleurostomatida
-                [family] => Amphileptidae
-                [genus] => Amphileptus
-                [subgenus] => 
-                [specificEpithet] => hirsutus
-                [infraspecificEpithet] => 
-                [taxonRank] => species
-                [scientificNameAuthorship] => Dumas, 1930
-                [taxonomicStatus] => accepted name
-                [taxonRemarks] => 
-                [modified] => 
-                [datasetID] => 113
-                [datasetName] => CilCat in Species 2000 & ITIS Catalogue of Life: 28th March 2018
-                [referenceID] => 
-            )*/
+            /*Array()*/
             
             if(isset($filtered_ids[$rec['taxonID']])) continue;
             if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
@@ -317,8 +312,40 @@ class DWH_CoL_API_20Feb2019
             if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
             if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
             
-            print_r($rec); exit("\nexit muna\n");
-            
+            // print_r($rec); exit("\nexit muna\n");
+            /*Array(
+                [taxonID] => 316502
+                [identifier] => 
+                [datasetID] => 26
+                [datasetName] => ScaleNet in Species 2000 & ITIS Catalogue of Life: 20th February 2019
+                [acceptedNameUsageID] => 316423
+                [parentNameUsageID] => 
+                [taxonomicStatus] => synonym
+                [taxonRank] => species
+                [verbatimTaxonRank] => 
+                [scientificName] => Canceraspis brasiliensis Hempel, 1934
+                [kingdom] => Animalia
+                [phylum] => 
+                [class] => 
+                [order] => 
+                [superfamily] => 
+                [family] => 
+                [genericName] => Canceraspis
+                [genus] => Limacoccus
+                [subgenus] => 
+                [specificEpithet] => brasiliensis
+                [infraspecificEpithet] => 
+                [scientificNameAuthorship] => Hempel, 1934
+                [source] => 
+                [namePublishedIn] => 
+                [nameAccordingTo] => 
+                [modified] => 
+                [description] => 
+                [taxonConceptID] => 
+                [scientificNameID] => Coc-100-7
+                [references] => http://www.catalogueoflife.org/col/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
+                [isExtinct] => 
+            )*/
             
             // if($rec['taxonomicStatus'] == "accepted name") {
                 /* Remove branches */
