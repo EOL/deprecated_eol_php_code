@@ -77,15 +77,27 @@ class DWH_CoL_API_20Feb2019
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
 
         $include = self::get_CLP_roots();
-        print_r($include); exit("\nsample include\n");
-        // $include[42984770] = "Ciliophora";
-        // $include[42990646] = "Oomycota";
-        // $include[42981251] = "Polycystina";
-        // $include[42985937] = "Eccrinida";
-        // $include[42985691] = "Microsporidia";
-        // $include[42983291] = "Mycetozoa";
-        // $include[42993626] = "Chaetocerotaceae";
-        // $include[42993677] = "Naviculaceae";
+        // print_r($include); exit("\nsample include\n");
+        /* old
+        $include[42984770] = "Ciliophora";
+        $include[42990646] = "Oomycota";
+        $include[42981251] = "Polycystina";
+        $include[42985937] = "Eccrinida";
+        $include[42985691] = "Microsporidia";
+        $include[42983291] = "Mycetozoa";
+        $include[42993626] = "Chaetocerotaceae";
+        $include[42993677] = "Naviculaceae";
+        new values:
+        Array(
+            [54116272] => 
+            [54120102] => 
+            [54113942] => 
+            [54116909] => 
+            [54116745] => 
+            [54114995] => 
+            [54122305] => 
+            [54122356] => 
+        )*/
         $this->include = $include;
         
         $meta = self::get_meta_info();
@@ -488,7 +500,7 @@ class DWH_CoL_API_20Feb2019
         $taxon->scientificName          = $rec['scientificName'];
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
-        $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
+        // $taxon->furtherInformationURL   = $rec['furtherInformationURL']; //removed from 'Feb 20, 2019' dump
         
         if($this->run == "Col Protists") { //Col Protists will be a separate resource file with 8 independent root taxa. 
             if(isset($this->include[$rec['taxonID']])) $taxon->parentNameUsageID = '';
