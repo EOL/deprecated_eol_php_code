@@ -145,21 +145,13 @@ class DWH_CoL_API_20Feb2019
     function start_tram_803()
     {
         /* test
-        $parts = self::get_removed_branches_from_spreadsheet();
-        $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names'];
-        print_r($removed_branches);
-        print_r($one_word_names);
-        exit("\n-end tests-\n");
-        */
-        // /* test
         // 10145857 Amphileptus hirsutus Dumas, 1930
         // 10147309 Aspidisca binucleata Kahl
         $taxID_info = self::get_taxID_nodes_info();
         $ancestry = self::get_ancestry_of_taxID(10145857, $taxID_info); print_r($ancestry);
         $ancestry = self::get_ancestry_of_taxID(10147309, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
-        // */
+        */
         /*
         $taxID_info = self::get_taxID_nodes_info();
         $parts = self::get_removed_branches_from_spreadsheet();
@@ -183,12 +175,15 @@ class DWH_CoL_API_20Feb2019
     }
     private function main_tram_803()
     {
-        $taxID_info = self::get_taxID_nodes_info();
-        $parts = self::get_removed_branches_from_spreadsheet();
-        $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names'];
+        $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
+        $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
+        $params['range']         = 'pruneBytaxonID!A1:C50'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['first_row_is_headerYN'] = true;
+        $params['sought_fields'] = array('taxonID');
+        $parts = self::get_removed_branches_from_spreadsheet($params);
+        $removed_branches = $parts['taxonID'];
+        // print_r($removed_branches); echo "\nremoved_branches total: ".count($removed_branches)."\n"; exit;
         
-        echo "\nremoved_branches total: ".count($removed_branches)."\n";
         /* if to add more brances to be removed:
         $removed_branches = array();
         foreach($this->prune_further as $id) $removed_branches[$id] = '';
@@ -201,7 +196,7 @@ class DWH_CoL_API_20Feb2019
         echo "\nStart main process...main CoL DH...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
-            if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -214,6 +209,7 @@ class DWH_CoL_API_20Feb2019
             //start filter
             
             // eli added start ----------------------------------------------------------------------------
+            /*
             $ranks2check = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
             $vcont = true;
             foreach($ranks2check as $rank2check) {
@@ -222,14 +218,10 @@ class DWH_CoL_API_20Feb2019
                     $filtered_ids[$rec['taxonID']] = '';
                     $removed_branches[$rec['taxonID']] = '';
                     $vcont = false;
-                    /* debug
-                    if($rec['taxonID'] == 42987761) {
-                        print_r($rec); exit("\n stopped 100 \n");
-                    }
-                    */
                 }
             }
             if(!$vcont) continue; //next taxon
+            */
             // eli added end ----------------------------------------------------------------------------
             
             // if($rec['taxonomicStatus'] == "accepted name") {
@@ -335,9 +327,42 @@ class DWH_CoL_API_20Feb2019
                 $k++;
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nelix\n");
+            print_r($rec); exit("\nelix\n");
+            /*Array(
+                [taxonID] => 316502
+                [identifier] => 
+                [datasetID] => 26
+                [datasetName] => ScaleNet in Species 2000 & ITIS Catalogue of Life: 20th February 2019
+                [acceptedNameUsageID] => 316423
+                [parentNameUsageID] => 
+                [taxonomicStatus] => synonym
+                [taxonRank] => species
+                [verbatimTaxonRank] => 
+                [scientificName] => Canceraspis brasiliensis Hempel, 1934
+                [kingdom] => Animalia
+                [phylum] => 
+                [class] => 
+                [order] => 
+                [superfamily] => 
+                [family] => 
+                [genericName] => Canceraspis
+                [genus] => Limacoccus
+                [subgenus] => 
+                [specificEpithet] => brasiliensis
+                [infraspecificEpithet] => 
+                [scientificNameAuthorship] => Hempel, 1934
+                [source] => 
+                [namePublishedIn] => 
+                [nameAccordingTo] => 
+                [modified] => 
+                [description] => 
+                [taxonConceptID] => 
+                [scientificNameID] => Coc-100-7
+                [references] => http://www.catalogueoflife.org/col/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
+                [isExtinct] => 
+            )*/
             
-            // if($rec['taxonomicStatus'] == "accepted name") 
+            // if($rec['taxonomicStatus'] == "accepted name")
             $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
             
             // $temp[$rec['taxonomicStatus']] = ''; //debug
@@ -435,9 +460,38 @@ class DWH_CoL_API_20Feb2019
         $final = array(); $final2 = array();
         if(!$params) {
             $params['spreadsheetID'] = '1c44ymPowJA2V3NdDNBiqNjvQ2PdCJ4Zgsa34KJmkbVA';
-            $params['range']         = 'Sheet1!A2:B6264'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+            $params['range']         = 'Sheet1!A2:B6264';
         }
         $rows = Functions::get_google_sheet_using_GoogleClientAPI($params);
+        print_r($rows);
+        
+        if(@$params['first_row_is_headerYN']) $fields = $rows[0];
+        else                                  exit("\nNo headers in spreadsheet.\n");
+        $i = -1;
+        foreach($rows as $items) {
+            $i++;
+            if($i == 0) continue;
+            $rec = array();
+            $k = 0;
+            foreach($items as $item) {
+                $rec[$fields[$k]] = $item;
+                $k++;
+            }
+            print_r($rec); //exit;
+            /* e.g. $rec
+            Array(
+                [taxonID] => 6922677
+                [identifier] => 66cd79222c1eb0f16349f503173c63ba
+                [scientificName] => Amphichaeta americana Chen, 1944
+            )
+            */
+            foreach($rec as $key => $val) {
+                if(in_array($key, $params['sought_fields'])) $final[$key][$val] = '';
+            }
+        }
+        return $final;
+        
+        /* orig
         //start massage array
         foreach($rows as $item) {
             if($val = $item[0]) $final[$val] = '';
@@ -449,6 +503,7 @@ class DWH_CoL_API_20Feb2019
         }
         // print_r($final2); exit;
         return array('removed_brances' => $final, 'one_word_names' => $final2);
+        */
         /* if google spreadsheet suddenly becomes offline, use this: Array() */
     }
     private function more_ids_to_remove()
