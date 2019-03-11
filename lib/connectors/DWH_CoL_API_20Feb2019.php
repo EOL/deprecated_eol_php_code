@@ -31,16 +31,13 @@ class DWH_CoL_API_20Feb2019
     }
     private function main_CoLProtists()
     {
-        exit;
-        $params['spreadsheetID'] = 'xxx';
-        $params['range']         = 'Sheet1!A2:B167'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-
-        // extractForCLP
-
+        $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
+        $params['range']         = 'extractForCLP!A1:B10';
+        $params['first_row_is_headerYN'] = true;
+        $params['sought_fields'] = array('identifier');
         $parts = self::get_removed_branches_from_spreadsheet($params);
-        $removed_branches = $parts['removed_brances'];
-
-        echo "\nremoved_branches total: ".count($removed_branches)."\n";
+        $removed_branches = $parts['identifier'];
+        echo "\nremoved_branches CLP total: ".count($removed_branches)."\n";
 
         $taxID_info = self::get_taxID_nodes_info();
         $include[42984770] = "Ciliophora";
@@ -178,8 +175,7 @@ class DWH_CoL_API_20Feb2019
     }
     private function main_tram_803()
     {
-        // $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
-        
+        $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
         /* #1. Remove branches from the PruneBytaxonID list based on their taxonID: */
         // /*
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
@@ -187,11 +183,9 @@ class DWH_CoL_API_20Feb2019
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('taxonID');
         $parts = self::get_removed_branches_from_spreadsheet($params);
-        $removed_branches = $parts['taxonID'];
-        // print_r($removed_branches);
+        $removed_branches = $parts['taxonID']; // print_r($removed_branches);
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
         // */
-        
         
         /* #2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
         //1st step: get the list of [identifier]s. --------------------------------------------------------
@@ -200,8 +194,7 @@ class DWH_CoL_API_20Feb2019
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('identifier');
         $parts = self::get_removed_branches_from_spreadsheet($params);
-        $identifiers = $parts['identifier'];
-        // print_r($identifiers); 
+        $identifiers = $parts['identifier']; // print_r($identifiers);
         echo "\nidentifiers total: ".count($identifiers)."\n";  //exit;
 
         //2nd step: get the corresponding taxonID of this list of [identifier]s. --------------------------------------------------------
@@ -221,7 +214,7 @@ class DWH_CoL_API_20Feb2019
             }
         }
         print_r($removed_branches);
-        echo "\nremoved_branches total B: ".count($removed_branches)."\n"; exit("\n222\n");
+        echo "\nremoved_branches total B: ".count($removed_branches)."\n"; //exit("\n222\n");
         // end #2 -----------------------------------------------------------------------------------------------------------------------------------------------
         
         
@@ -241,7 +234,7 @@ class DWH_CoL_API_20Feb2019
             }
             $rec = array_map('trim', $rec);
             //start filter
-            
+            if(isset($identifiers_taxonIDs[$rec['identifier']])) continue;
             // eli added start ----------------------------------------------------------------------------
             /* working in TRAM_797
             $ranks2check = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
@@ -287,6 +280,8 @@ class DWH_CoL_API_20Feb2019
                 $k++;
             }
             $rec = array_map('trim', $rec);
+            if(isset($identifiers_taxonIDs[$rec['identifier']])) continue;
+            
             /*Array(
                 [taxonID] => 10145857
                 [furtherInformationURL] => http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/ce9e04c173abb9b9bc76357e069c4026
@@ -359,7 +354,7 @@ class DWH_CoL_API_20Feb2019
                 $k++;
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nelix\n");
+            // print_r($rec); exit("\nelix\n");
             /*Array(
                 [taxonID] => 316502
                 [identifier] => 
@@ -399,7 +394,7 @@ class DWH_CoL_API_20Feb2019
             
             // $temp[$rec['taxonomicStatus']] = ''; //debug
             /* debug
-            if($rec['taxonID'] == "42987761") {
+            if($rec['taxonID'] == "xxx") {
                 print_r($rec); exit;
             }
             */
