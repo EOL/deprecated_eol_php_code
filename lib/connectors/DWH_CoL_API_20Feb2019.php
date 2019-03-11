@@ -216,7 +216,9 @@ class DWH_CoL_API_20Feb2019
             )
         */
         foreach($identifiers_taxonIDs as $identifier => $taxonIDs) {
-            foreach($taxonIDs as $taxonID) $removed_branches[$taxonID] = '';
+            if($taxonIDs) { //needed this validation since there is one case where the identifier doesn't have a taxonID.
+                foreach($taxonIDs as $taxonID) $removed_branches[$taxonID] = '';
+            }
         }
         print_r($removed_branches);
         echo "\nremoved_branches total B: ".count($removed_branches)."\n"; exit("\n222\n");
@@ -241,7 +243,7 @@ class DWH_CoL_API_20Feb2019
             //start filter
             
             // eli added start ----------------------------------------------------------------------------
-            /*
+            /* working in TRAM_797
             $ranks2check = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
             $vcont = true;
             foreach($ranks2check as $rank2check) {
