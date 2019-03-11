@@ -180,7 +180,7 @@ class DWH_CoL_API_20Feb2019
     {
         // $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
         
-        /* 1. Remove branches from the PruneBytaxonID list based on their taxonID: */
+        /* #1. Remove branches from the PruneBytaxonID list based on their taxonID: */
         // /*
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
         $params['range']         = 'pruneBytaxonID!A1:C50';
@@ -193,7 +193,7 @@ class DWH_CoL_API_20Feb2019
         // */
         
         
-        /* 2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
+        /* #2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
         //1st step: get the list of [identifier]s. --------------------------------------------------------
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
         $params['range']         = 'pruneForCOL!A1:A505';
@@ -222,7 +222,7 @@ class DWH_CoL_API_20Feb2019
         }
         print_r($removed_branches);
         echo "\nremoved_branches total B: ".count($removed_branches)."\n"; exit("\n222\n");
-        
+        // end #2 -----------------------------------------------------------------------------------------------------------------------------------------------
         
         
         $meta = self::get_meta_info();
@@ -322,16 +322,14 @@ class DWH_CoL_API_20Feb2019
             if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
             if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
             
+            print_r($rec); exit("\nexit muna\n");
+            
+            
             // if($rec['taxonomicStatus'] == "accepted name") {
                 /* Remove branches */
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = '';
-                    /* debug
-                    if($rec['taxonID'] == 42987761) {
-                        print_r($rec); exit("\n stopped 300 \n");
-                    }
-                    */
+                    // $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['taxonID']] = ''; //good debug
                     continue;
                 }
             // }
