@@ -33,7 +33,7 @@ else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 //############################################################ end main CoL DH
 //############################################################ start CoL Protists
 /* start copied from dwh_col_TRAM_797 */
-$resource_id = "Catalogue_of_Life_Protists_DH"; //orig
+$resource_id = "Catalogue_of_Life_Protists_DH_20Feb2019"; //orig
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->start_ColProtists();
 $func = null;

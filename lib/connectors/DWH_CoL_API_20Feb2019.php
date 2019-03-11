@@ -31,11 +31,14 @@ class DWH_CoL_API_20Feb2019
     }
     private function main_CoLProtists()
     {
-        $params['spreadsheetID'] = '19FFBXYIisaiHJ02aSYRjy8K66D7iOcfS2EHrqwkf_Bs';
+        exit;
+        $params['spreadsheetID'] = 'xxx';
         $params['range']         = 'Sheet1!A2:B167'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+
+        // extractForCLP
+
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names']; //this is null anyway
 
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
 
@@ -178,15 +181,17 @@ class DWH_CoL_API_20Feb2019
         // $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
         
         /* 1. Remove branches from the PruneBytaxonID list based on their taxonID: */
-        /*
+        // /*
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
         $params['range']         = 'pruneBytaxonID!A1:C50';
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('taxonID');
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['taxonID'];
-        */
-        // print_r($removed_branches); echo "\nremoved_branches total: ".count($removed_branches)."\n"; exit;
+        // print_r($removed_branches);
+        echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
+        // */
+        
         
         /* 2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
         //1st step: get the list of [identifier]s. --------------------------------------------------------
@@ -195,23 +200,28 @@ class DWH_CoL_API_20Feb2019
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('identifier');
         $parts = self::get_removed_branches_from_spreadsheet($params);
-        $removed_branches = $parts['identifier'];
-        print_r($removed_branches); 
-        echo "\nremoved_branches total: ".count($removed_branches)."\n"; 
-        // exit;
+        $identifiers = $parts['identifier'];
+        // print_r($identifiers); 
+        echo "\nidentifiers total: ".count($identifiers)."\n";  //exit;
 
         //2nd step: get the corresponding taxonID of this list of [identifier]s. --------------------------------------------------------
-        $taxonIDs = self::get_taxonID_from_identifer_values($removed_branches);
-        
-        
-        
-        
-        /* if to add more brances to be removed:
-        $removed_branches = array();
-        foreach($this->prune_further as $id) $removed_branches[$id] = '';
-        $add = self::more_ids_to_remove();
-        foreach($add as $id) $removed_branches[$id] = '';
+        $identifiers_taxonIDs = self::get_taxonID_from_identifer_values($identifiers);
+        /* sample $identifiers_taxonIDs
+        [80c3f23a7edaef0c690f5fa89206db80] => Array(
+                [0] => 54305335
+                [1] => 54305340
+            )
+        [1fb14375baf8c0e97b78da7cf24933ca] => Array(
+                [0] => 54328762
+            )
         */
+        foreach($identifiers_taxonIDs as $identifier => $taxonIDs) {
+            foreach($taxonIDs as $taxonID) $removed_branches[$taxonID] = '';
+        }
+        print_r($removed_branches);
+        echo "\nremoved_branches total B: ".count($removed_branches)."\n"; exit("\n222\n");
+        
+        
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
@@ -529,7 +539,7 @@ class DWH_CoL_API_20Feb2019
         $final = array(); $i = 0; $this->debug['elix'] = 0;
         $meta = self::get_meta_info();
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
-            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
+            $i++; if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -545,16 +555,19 @@ class DWH_CoL_API_20Feb2019
                 [identifier] => 
                 ...
             )*/
-            // if(isset(@$identifiers[$rec['identifier']])) $final[$rec['taxonID']] = ''; //orig
+            
+            /* debug
+            if(in_array($rec['taxonID'], array('54116638','54126383'))) print_r($rec);
+            */
+            
             if(isset($identifiers[$rec['identifier']])) {
-                $identifiers[$rec['identifier']] = $rec['taxonID'];
-                $this->debug['elix']++;
+                $identifiers[$rec['identifier']][] = $rec['taxonID'];
+                // $this->debug['elix']++;
             }
             
         }
-        print_r($identifiers); print_r($this->debug['elix']); exit("\nxxx\n"); //good debug - check if all identifiers were paired with a taxonID.
-        return $final;
-        
+        // print_r($identifiers); print_r($this->debug['elix']); exit("\n".count($identifiers)."\nyyy\n"); //good debug - check if all identifiers were paired with a taxonID.
+        return $identifiers;
     }
     // ----------------------------------------------------------------- end TRAM-803 -----------------------------------------------------------------
     /*
