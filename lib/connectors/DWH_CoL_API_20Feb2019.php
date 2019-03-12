@@ -280,7 +280,7 @@ class DWH_CoL_API_20Feb2019
                 foreach($taxonIDs as $taxonID) $removed_branches[$taxonID] = '';
             }
         }
-        print_r($removed_branches);
+        // print_r($removed_branches);
         echo "\nremoved_branches total B: ".count($removed_branches)."\n"; //exit("\n222\n");
         // end #2 -----------------------------------------------------------------------------------------------------------------------------------------------
         
