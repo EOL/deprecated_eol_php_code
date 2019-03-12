@@ -493,6 +493,10 @@ class DWH_CoL_API_20Feb2019
         
         if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec);
         
+        /* From Katja: If that's not easy to do, we can also change the resource files to use "unclassified" instead of "unplaced" for container taxa. 
+        I can do this for the resources under my control (trunk & ONY). You would have to do it for COL, CLP, ictv & WOR. */
+        $rec['scientificName'] = str_ireplace("Unplaced", "unclassified", $rec['scientificName']);
+        
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxonID'];
         $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
