@@ -115,7 +115,7 @@ class DWH_CoL_API_20Feb2019
         echo "\nStart main process...Col Protists...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
-            if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -176,7 +176,7 @@ class DWH_CoL_API_20Feb2019
         $i = 0; echo "\nStart main process 2...CoL Protists...\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
-            if(($i % 500000) == 0) echo "\n count:[$i] ";
+            if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -333,7 +333,7 @@ class DWH_CoL_API_20Feb2019
 
         echo "\nStart main process 2...main CoL DH...\n"; $i = 0;
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
-            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
+            $i++; if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -401,9 +401,15 @@ class DWH_CoL_API_20Feb2019
             
             //start new - replace [taxonID] with [identifier]
             $pass = array();
-            if(in_array($rec['taxonomicStatus'], array("",""))) {
+            if(in_array($rec['taxonomicStatus'], array("accepted name","provisionally accepted name"))) {
                 if($val = $taxID_info[$rec['taxonID']]['i'])            $pass['taxonID'] = $val;
+                else {
+                    print_r($rec); exit("\nInvestigate: no identifier for taxonID\n");
+                }
                 if($val = $taxID_info[$rec['parentNameUsageID']]['i'])  $pass['parentNameUsageID'] = $val;
+                else {
+                    print_r($rec); exit("\nInvestigate: no identifier for parentNameUsageID\n");
+                }
             }
             //end new
             
@@ -423,7 +429,7 @@ class DWH_CoL_API_20Feb2019
         $final = array(); $i = 0;
         $meta = self::get_meta_info();
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
-            $i++; if(($i % 500000) == 0) echo "\n count:[$i] ";
+            $i++; if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $tmp = explode("\t", $row);
