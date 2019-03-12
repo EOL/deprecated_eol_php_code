@@ -71,13 +71,14 @@ class DWH_CoL_API_20Feb2019
             [0d43b10e96b44a32def3545bdccf7c0a] => Array
                     [0] => 54122356
         */
-        $include = array();
+        $include = array(); $include_identifier = array();
         foreach($identifiers_taxonIDs as $identifier => $taxonIDs) {
             if($taxonIDs) { //needed this validation since there might be a case where the identifier doesn't have a taxonID.
                 foreach($taxonIDs as $taxonID) $include[$taxonID] = '';
             }
+            $include_identifier[$identifier] = '';
         }
-        return $include;
+        return array('include' => $include, 'include_identifier' => $include_identifier);
     }
     private function main_CoLProtists()
     {
@@ -86,7 +87,9 @@ class DWH_CoL_API_20Feb2019
         $removed_branches = self::pruneBytaxonID();
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
 
-        $include = self::get_CLP_roots();
+        $ret = self::get_CLP_roots();
+        $include                  = $ret['include'];
+        $this->include_identifier = $ret['include_identifier'];
         // print_r($include); exit("\nsample include\n");
         /* old
         $include[42984770] = "Ciliophora";
@@ -198,6 +201,7 @@ class DWH_CoL_API_20Feb2019
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     continue;
                 }
+                $rec = self::replace_taxonID_with_identifier($rec); //new - replace [taxonID] with [identifier]
                 self::write_taxon_DH($rec);
             }
         }
@@ -399,22 +403,23 @@ class DWH_CoL_API_20Feb2019
                 }
             // }
             
-            //start new - replace [taxonID] with [identifier]
-            $pass = array();
-            if(in_array($rec['taxonomicStatus'], array("accepted name","provisionally accepted name"))) {
-                if($val = $taxID_info[$rec['taxonID']]['i'])            $pass['taxonID'] = $val;
-                else {
-                    print_r($rec); exit("\nInvestigate: no identifier for taxonID\n");
-                }
-                if($val = $taxID_info[$rec['parentNameUsageID']]['i'])  $pass['parentNameUsageID'] = $val;
-                else {
-                    print_r($rec); exit("\nInvestigate: no identifier for parentNameUsageID\n");
-                }
-            }
-            //end new
-            
+            $rec = self::replace_taxonID_with_identifier($rec); //new - replace [taxonID] with [identifier]
             self::write_taxon_DH($rec);
         } //end loop
+    }
+    private function replace_taxonID_with_identifier($rec)
+    {
+        if(in_array($rec['taxonomicStatus'], array("accepted name","provisionally accepted name"))) {
+            if($val = $taxID_info[$rec['taxonID']]['i'])            $rec['taxonID'] = $val;
+            else {
+                print_r($rec); exit("\nInvestigate: no [identifier] for [taxonID]\n");
+            }
+            if($val = $taxID_info[$rec['parentNameUsageID']]['i'])  $rec['parentNameUsageID'] = $val;
+            else {
+                print_r($rec); exit("\nInvestigate: no [identifier] for [parentNameUsageID]\n");
+            }
+        }
+        return $rec;
     }
     private function replace_NotAssigned_name($rec)
     {   /*42981143 -- Not assigned -- order
@@ -532,7 +537,7 @@ class DWH_CoL_API_20Feb2019
         // $taxon->furtherInformationURL   = $rec['furtherInformationURL']; //removed from 'Feb 20, 2019' dump
         
         if($this->run == "Col Protists") { //Col Protists will be a separate resource file with 8 independent root taxa. 
-            if(isset($this->include[$rec['taxonID']])) $taxon->parentNameUsageID = '';
+            if(isset($this->include_identifier[$rec['taxonID']])) $taxon->parentNameUsageID = '';
         }
         
         $this->debug['acceptedNameUsageID'][$rec['acceptedNameUsageID']] = '';
