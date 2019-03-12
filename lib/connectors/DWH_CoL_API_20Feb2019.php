@@ -418,6 +418,15 @@ class DWH_CoL_API_20Feb2019
             else {
                 print_r($rec); exit("\nInvestigate: no [identifier] for [parentNameUsageID]\n");
             }
+            if($val = $taxID_info[$rec['acceptedNameUsageID']]['i'])  $rec['acceptedNameUsageID'] = $val;
+            else {
+                print_r($rec); exit("\nInvestigate: no [identifier] for [acceptedNameUsageID]\n");
+            }
+        }
+        else {
+            if($val = $taxID_info[$rec['taxonID']]['i'])             $rec['taxonID'] = $val;
+            if($val = $taxID_info[$rec['parentNameUsageID']]['i'])   $rec['parentNameUsageID'] = $val;
+            if($val = $taxID_info[$rec['acceptedNameUsageID']]['i']) $rec['acceptedNameUsageID'] = $val;
         }
         return $rec;
     }
