@@ -201,7 +201,7 @@ class DWH_CoL_API_20Feb2019
                 if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                     continue;
                 }
-                $rec = self::replace_taxonID_with_identifier($rec); //new - replace [taxonID] with [identifier]
+                $rec = self::replace_taxonID_with_identifier($rec, $taxID_info); //new - replace [taxonID] with [identifier]
                 self::write_taxon_DH($rec);
             }
         }
@@ -403,11 +403,11 @@ class DWH_CoL_API_20Feb2019
                 }
             // }
             
-            $rec = self::replace_taxonID_with_identifier($rec); //new - replace [taxonID] with [identifier]
+            $rec = self::replace_taxonID_with_identifier($rec, $taxID_info); //new - replace [taxonID] with [identifier]
             self::write_taxon_DH($rec);
         } //end loop
     }
-    private function replace_taxonID_with_identifier($rec)
+    private function replace_taxonID_with_identifier($rec, $taxID_info)
     {
         if(in_array($rec['taxonomicStatus'], array("accepted name","provisionally accepted name"))) {
             if($val = $taxID_info[$rec['taxonID']]['i'])            $rec['taxonID'] = $val;
