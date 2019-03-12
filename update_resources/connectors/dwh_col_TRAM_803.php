@@ -10,6 +10,15 @@ ini_set('memory_limit','15096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
+
+/* utility - check unique ids
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$resource_id = "Catalogue_of_Life_DH_20Feb2019";            $func->check_unique_ids($resource_id);
+$resource_id = "Catalogue_of_Life_Protists_DH_20Feb2019";   $func->check_unique_ids($resource_id);
+exit("\n-end utility\n");
+*/
+
 //############################################################ start main CoL DH
 // /*
 $resource_id = "Catalogue_of_Life_DH_20Feb2019";
