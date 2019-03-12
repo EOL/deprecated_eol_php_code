@@ -23,7 +23,7 @@ class DWCADiagnoseAPI
             if(!$temp) continue;
             $temp = explode("\t", $temp);
             $i++;
-            if(($i % 300000) == 0) echo "\n count:[$i] ";
+            if(($i % 300000) == 0) echo "\n count:[".number_format($i)."] ";
             if($i == 1) {
                 $fields = $temp;
             }
@@ -284,7 +284,7 @@ class DWCADiagnoseAPI
         foreach(new FileIterator($url) as $line_number => $temp) {
             $temp = explode("\t", $temp);
             $i++;
-            if(($i % 300000) == 0) echo "\n count:[$i] ";
+            if(($i % 300000) == 0) echo "\n count:[".number_format($i)."] ";
             if($i == 1) {
                 $fields = $temp;
                 //-------------------------------------new
