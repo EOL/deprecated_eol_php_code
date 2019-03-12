@@ -418,15 +418,21 @@ class DWH_CoL_API_20Feb2019
             else {
                 print_r($rec); exit("\nInvestigate: no [identifier] for [parentNameUsageID]\n");
             }
-            if($val = $taxID_info[$rec['acceptedNameUsageID']]['i'])  $rec['acceptedNameUsageID'] = $val;
-            else {
-                print_r($rec); exit("\nInvestigate: no [identifier] for [acceptedNameUsageID]\n");
+            if($accepted_id = @$rec['acceptedNameUsageID']) {
+                if($val = $taxID_info[$accepted_id]['i'])  $rec['acceptedNameUsageID'] = $val;
+                else {
+                    print_r($rec); exit("\nInvestigate: no [identifier] for [acceptedNameUsageID]\n");
+                }
             }
         }
         else {
-            if($val = $taxID_info[$rec['taxonID']]['i'])             $rec['taxonID'] = $val;
-            if($val = $taxID_info[$rec['parentNameUsageID']]['i'])   $rec['parentNameUsageID'] = $val;
-            if($val = $taxID_info[$rec['acceptedNameUsageID']]['i']) $rec['acceptedNameUsageID'] = $val;
+            if($val = $taxID_info[$rec['taxonID']]['i'])    $rec['taxonID'] = $val;
+            if($parent_id = @$rec['parentNameUsageID']) {
+                if($val = $taxID_info[$parent_id]['i'])     $rec['parentNameUsageID'] = $val;
+            }
+            if($accepted_id = @$rec['acceptedNameUsageID']) {
+                if($val = $taxID_info[$accepted_id]['i'])   $rec['acceptedNameUsageID'] = $val;
+            }
         }
         return $rec;
     }
@@ -494,6 +500,11 @@ class DWH_CoL_API_20Feb2019
             // $temp[$rec['taxonomicStatus']] = ''; //debug
             /* debug
             if($rec['taxonID'] == "xxx") {
+                print_r($rec); exit;
+            }
+            */
+            /* debug
+            if($rec['scientificName'] == "Not assigned") {
                 print_r($rec); exit;
             }
             */
