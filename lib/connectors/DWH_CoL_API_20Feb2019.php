@@ -18,6 +18,16 @@ class DWH_CoL_API_20Feb2019
         $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
         $this->run = '';
+        
+        /* taxonomicStatus values as of Feb 20, 2019 dump: Array(
+            [synonym] => 
+            [accepted name] => 
+            [ambiguous synonym] => 
+            [misapplied name] => 
+            [provisionally accepted name] => 
+            [] => 
+        )
+        */
     }
     // ----------------------------------------------------------------- start TRAM-803 -----------------------------------------------------------------
     function start_CoLProtists()
@@ -388,6 +398,15 @@ class DWH_CoL_API_20Feb2019
                     continue;
                 }
             // }
+            
+            //start new - replace [taxonID] with [identifier]
+            $pass = array();
+            if(in_array($rec['taxonomicStatus'], array("",""))) {
+                if($val = $taxID_info[$rec['taxonID']]['i'])            $pass['taxonID'] = $val;
+                if($val = $taxID_info[$rec['parentNameUsageID']]['i'])  $pass['parentNameUsageID'] = $val;
+            }
+            //end new
+            
             self::write_taxon_DH($rec);
         } //end loop
     }
@@ -450,7 +469,7 @@ class DWH_CoL_API_20Feb2019
             )*/
             
             // if($rec['taxonomicStatus'] == "accepted name")
-            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank']);
+            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
             
             // $temp[$rec['taxonomicStatus']] = ''; //debug
             /* debug
