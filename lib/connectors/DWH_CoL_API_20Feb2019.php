@@ -461,8 +461,8 @@ class DWH_CoL_API_20Feb2019
                 $k++;
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nelix\n");
-            /*Array(
+            // print_r($rec); exit("\nelix\n");
+            /*Array( possible record
                 [taxonID] => 316502
                 [identifier] => 
                 [datasetID] => 26
@@ -495,10 +495,9 @@ class DWH_CoL_API_20Feb2019
                 [references] => http://www.catalogueoflife.org/col/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
                 [isExtinct] => 
             )*/
-            
             if(isset($rec['identifier'])) $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
             else $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
-            /*Array(
+            /*Array( another possible record
                 [taxonID] => fc0886d15759a01525b1469534189bb5
                 [acceptedNameUsageID] => 
                 [parentNameUsageID] => d2a21892b23f5453d7655b082869cfca
@@ -506,7 +505,6 @@ class DWH_CoL_API_20Feb2019
                 [taxonRank] => species
                 [taxonomicStatus] => accepted name
             )*/
-            
             
             // $temp[$rec['taxonomicStatus']] = ''; //debug
             /* debug
@@ -697,10 +695,10 @@ class DWH_CoL_API_20Feb2019
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly created DwCA
         // print_r($meta); exit;
         $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
-        print_r($taxID_info); exit;
-        $what = $meta['what']; $i = 0;
-        $WRITE = fopen($this->sh[$what]['source'].$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+        // print_r($this->taxID_info); exit("\n222\n");
+        $i = 0;
+        $WRITE = fopen($extension_path.$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt
+        foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) {
                 fwrite($WRITE, $row."\n");
@@ -715,7 +713,40 @@ class DWH_CoL_API_20Feb2019
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit; //use to test if field - value is OK
+            // print_r($rec); exit;
+            /*Array(
+                [taxonID] => fc0886d15759a01525b1469534189bb5
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => d2a21892b23f5453d7655b082869cfca
+                [scientificName] => Bryometopus alekperovi Foissner, 1998
+                [taxonRank] => species
+                [taxonomicStatus] => accepted name
+            )*/
+            $taxonID = $rec['taxonID'];
+            if($taxonID == '8fd3cb6a84d4e49e3bfbe3313c76df07') {
+                print_r($rec);
+                $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $this->taxID_info); print_r($ancestry);
+                /*
+                Array(
+                    [0] => 8fd3cb6a84d4e49e3bfbe3313c76df07
+                    [1] => 54117935
+                    [2] => 54117933
+                    [3] => 54117932
+                    [4] => 3e82dc989115d4eba3f60aa727ed27ad
+                )
+                42998538 42987356 Diaxonella genus
+                42987356 42987354 Family not assigned family
+                42987354 42987353 Order not assigned order
+                42987353 42984770 Class not assigned class
+                42984770 Ciliophora phylum
+                */
+                foreach($ancestry as $taxonID)
+                {
+                    echo "\n".$this->taxID_info[$taxonID]['n'];
+                }
+                exit("\nstop muna\n");
+                
+            }
         }
     }
     //=========================================================================== end adjusting taxon.tab with those 'not assigned' entries ====================================
