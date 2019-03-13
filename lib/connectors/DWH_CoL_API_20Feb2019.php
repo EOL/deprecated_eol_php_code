@@ -12,13 +12,11 @@ class DWH_CoL_API_20Feb2019
         $this->taxon_ids = array();
         $this->debug = array();
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
-
         //start TRAM-803 -----------------------------------------------------------
         $this->prune_further = array();
         $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
         $this->run = '';
-        
         /* taxonomicStatus values as of Feb 20, 2019 dump: Array(
             [synonym] => 
             [accepted name] => 
@@ -36,9 +34,7 @@ class DWH_CoL_API_20Feb2019
         $this->run = "Col Protists";
         self::main_CoLProtists();
         $this->archive_builder->finalize(TRUE);
-        if($this->debug) {
-            Functions::start_print_debug($this->debug, $this->resource_id);
-        }
+        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function get_CLP_roots()
     {
@@ -51,27 +47,17 @@ class DWH_CoL_API_20Feb2019
         echo "\nidentifiers2inc CLP total: ".count($identifiers2inc)."\n";
 
         // get the corresponding taxonID of this list of [identifier]s. --------------------------------------------------------
-        $identifiers_taxonIDs = self::get_taxonID_from_identifer_values($identifiers2inc);
-        // print_r($identifiers_taxonIDs); exit;
+        $identifiers_taxonIDs = self::get_taxonID_from_identifer_values($identifiers2inc); // print_r($identifiers_taxonIDs); exit;
         /* sample $identifiers_taxonIDs
         Array(
-            [3e82dc989115d4eba3f60aa727ed27ad] => Array
-                    [0] => 54116272
-            [15f4032e6086cbaf85add7bb0f7f2dd0] => Array
-                    [0] => 54120102
-            [7e9a2136364786573525abe99b4e6c8a] => Array
-                    [0] => 54113942
-            [b65c21e94995363e3587c88d0f1058d4] => Array
-                    [0] => 54116909
-            [993a87f1c3b2dd7c0db26028c5d38aea] => Array
-                    [0] => 54116745
-            [45355e80b0240c3ec5d2cb22d299cecc] => Array
-                    [0] => 54114995
-            [6725287d6288335b83ad2aec848a2931] => Array
-                    [0] => 54122305
-            [0d43b10e96b44a32def3545bdccf7c0a] => Array
-                    [0] => 54122356
-        */
+            [3e82dc989115d4eba3f60aa727ed27ad] => Array[0] => 54116272
+            [15f4032e6086cbaf85add7bb0f7f2dd0] => Array[0] => 54120102
+            [7e9a2136364786573525abe99b4e6c8a] => Array[0] => 54113942
+            [b65c21e94995363e3587c88d0f1058d4] => Array[0] => 54116909
+            [993a87f1c3b2dd7c0db26028c5d38aea] => Array[0] => 54116745
+            [45355e80b0240c3ec5d2cb22d299cecc] => Array[0] => 54114995
+            [6725287d6288335b83ad2aec848a2931] => Array[0] => 54122305
+            [0d43b10e96b44a32def3545bdccf7c0a] => Array[0] => 54122356 */
         $include = array(); $include_identifier = array();
         foreach($identifiers_taxonIDs as $identifier => $taxonIDs) {
             if($taxonIDs) { //needed this validation since there might be a case where the identifier doesn't have a taxonID.
@@ -84,14 +70,12 @@ class DWH_CoL_API_20Feb2019
     private function main_CoLProtists()
     {
         $taxID_info = self::get_taxID_nodes_info();
-        
         $removed_branches = self::pruneBytaxonID();
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
 
         $ret = self::get_CLP_roots();
-        $include                  = $ret['include'];
+        $include                  = $ret['include']; // print_r($include); exit("\nsample include\n");
         $this->include_identifier = $ret['include_identifier'];
-        // print_r($include); exit("\nsample include\n");
         /* old
         $include[42984770] = "Ciliophora";
         $include[42990646] = "Oomycota";
