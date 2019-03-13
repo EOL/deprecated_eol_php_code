@@ -723,7 +723,8 @@ class DWH_CoL_API_20Feb2019
                 [taxonomicStatus] => accepted name
             )*/
             $taxonID = $rec['taxonID'];
-            // if($taxonID == '181b15bc1f7c588f7ebf64474f86d76f') { // 8fd3cb6a84d4e49e3bfbe3313c76df07 - Diaxonella      
+            /* the if() below this line is a good debug; uncomment to debug per taxon */
+            // if($taxonID == '181b15bc1f7c588f7ebf64474f86d76f') { // 8fd3cb6a84d4e49e3bfbe3313c76df07 - Diaxonella
                                                                     // 3e82dc989115d4eba3f60aa727ed27ad - Ciliophora
                                                                     // 4693ed96493faf8f58e7ece01d0e1afb		54116747	Ordosporidae	family	 --- good test case
                                                                     // 181b15bc1f7c588f7ebf64474f86d76f		unc-000151	Windalia	genus
