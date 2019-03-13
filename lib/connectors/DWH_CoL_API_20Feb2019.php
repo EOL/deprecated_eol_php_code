@@ -443,12 +443,14 @@ class DWH_CoL_API_20Feb2019
         if($rank = $rec['taxonRank']) $sciname = ucfirst(strtolower($rank))." not assigned";
         return $sciname;
     }
-    private function get_taxID_nodes_info()
+    private function get_taxID_nodes_info($meta = false, $extension_path = false)
     {
+        if(!$meta) $meta = self::get_meta_info();
+        if(!$extension_path) $extension_path = $this->extension_path;
+        // print_r($meta); exit;
         echo "\nGenerating taxID_info...";
         $final = array(); $i = 0;
-        $meta = self::get_meta_info();
-        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+        foreach(new FileIterator($extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++; if(($i % 500000) == 0) echo "\n count:[".number_format($i)."] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
@@ -459,7 +461,7 @@ class DWH_CoL_API_20Feb2019
                 $k++;
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nelix\n");
+            print_r($rec); exit("\nelix\n");
             /*Array(
                 [taxonID] => 316502
                 [identifier] => 
@@ -494,8 +496,17 @@ class DWH_CoL_API_20Feb2019
                 [isExtinct] => 
             )*/
             
-            // if($rec['taxonomicStatus'] == "accepted name")
-            $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
+            if(isset($rec['identifier'])) $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
+            else $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
+            /*Array(
+                [taxonID] => fc0886d15759a01525b1469534189bb5
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => d2a21892b23f5453d7655b082869cfca
+                [scientificName] => Bryometopus alekperovi Foissner, 1998
+                [taxonRank] => species
+                [taxonomicStatus] => accepted name
+            )*/
+            
             
             // $temp[$rec['taxonomicStatus']] = ''; //debug
             /* debug
@@ -637,7 +648,7 @@ class DWH_CoL_API_20Feb2019
     }
     private function get_meta_info($row_type = false, $extension_path = false)
     {
-        if(!$extension_path) $extension_path = $this->extension_path //default extension_path to use
+        if(!$extension_path) $extension_path = $this->extension_path; //default extension_path to use
         require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
         $meta = $func->analyze_eol_meta_xml($extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
         // if($GLOBALS['ENV_DEBUG']) print_r($meta); //good debug
@@ -680,7 +691,33 @@ class DWH_CoL_API_20Feb2019
         return $identifiers;
     }
     //=========================================================================== start adjusting taxon.tab with those 'not assigned' entries ==================================
-    
+    public function fix_CLP_taxa_with_not_assigned_entries_V2()
+    {
+        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_20Feb2019/";
+        $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly created DwCA
+        // print_r($meta); exit;
+        $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
+        print_r($taxID_info); exit;
+        $what = $meta['what']; $i = 0;
+        $WRITE = fopen($this->sh[$what]['source'].$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) {
+                fwrite($WRITE, $row."\n");
+                continue;
+            }
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            print_r($rec); exit; //use to test if field - value is OK
+        }
+    }
     //=========================================================================== end adjusting taxon.tab with those 'not assigned' entries ====================================
     // ----------------------------------------------------------------- end TRAM-803 -----------------------------------------------------------------
     /*
