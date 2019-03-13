@@ -28,6 +28,7 @@ class DWH_CoL_API_20Feb2019
             [] => 
         )
         */
+        $this->unclassified_id_increments = 0;
     }
     // ----------------------------------------------------------------- start TRAM-803 -----------------------------------------------------------------
     function start_CoLProtists()
@@ -723,11 +724,12 @@ class DWH_CoL_API_20Feb2019
                 [taxonomicStatus] => accepted name
             )*/
             $taxonID = $rec['taxonID'];
-            if($taxonID == '8fd3cb6a84d4e49e3bfbe3313c76df07') {
+            if($taxonID == '8fd3cb6a84d4e49e3bfbe3313c76df07') { // 8fd3cb6a84d4e49e3bfbe3313c76df07 - Diaxonella      3e82dc989115d4eba3f60aa727ed27ad - Ciliophora
+                                                                 // 4693ed96493faf8f58e7ece01d0e1afb		54116747	Ordosporidae	family	 --- good test case
+                                                                 
                 print_r($rec);
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $this->taxID_info); print_r($ancestry);
-                /*
-                Array(
+                /*Array(
                     [0] => 8fd3cb6a84d4e49e3bfbe3313c76df07
                     [1] => 54117935
                     [2] => 54117933
@@ -740,15 +742,77 @@ class DWH_CoL_API_20Feb2019
                 42987353 42984770 Class not assigned class
                 42984770 Ciliophora phylum
                 */
-                foreach($ancestry as $taxonID)
-                {
-                    echo "\n".$this->taxID_info[$taxonID]['n'];
-                }
-                exit("\nstop muna\n");
+                foreach($ancestry as $taxonID) echo "\n".$this->taxID_info[$taxonID]['n'];
+                // exit("\nstop muna\n");
+                echo "\n------------------------\n";
                 
+                if(self::name_is_not_assigned($rec['scientificName'])) continue; //ignore e.g. "Order not assigned" or "Family not assigned"
+                elseif(self::is_immediate_ancestor_Not_Assigned($rec['parentNameUsageID'])) {
+                    $ret = self::get_valid_parent_from_ancestry($ancestry, $taxonID);
+                    echo "\nold row: $row\n";
+                    $rec['parentNameUsageID'] = $ret['valid_parent'];
+                    $new_row = implode("\t", $rec);
+                    echo "\nnew row: $new_row\n";
+                    fwrite($WRITE, $new_row."\n");
+                    if($val = $ret['unclassified_new_taxon']) {
+                        $unclassified_row = implode("\t", $val);
+                        echo "\nunclassified_row: $unclassified_row\n";
+                    }
+                }
+                else fwrite($WRITE, $row."\n"); //regular row
+                exit("\nexit muna\n");
             }
         }
     }
+    private function get_valid_parent_from_ancestry($ancestry, $taxonID)
+    {
+        array_shift($ancestry); //remove first element of array, bec first element of $ancestry is the taxon in question.
+        foreach($ancestry as $taxon_id) {
+            $sci = $this->taxID_info[$taxon_id]['n'];
+            if(stripos($sci, "not assigned") !== false) {} //string is found
+            else { //found the valid parent.
+                $valid_parent_sciname = $sci;
+                /* 1. create the 'unclassified' new taxon
+                   2. make the 'unclassified' taxon as parent of taxon in question
+                   3. make the valid parent as the parent of the 'unclassified' taxon
+                */
+                $this->unclassified_id_increments++;
+                $unclassified_new_taxon = Array(
+                    'taxonID' => 'unc-'.$this->unclassified_id_increments,
+                    'acceptedNameUsageID' => '',
+                    'parentNameUsageID' => $taxon_id,
+                    'scientificName' => 'unclassified '.$sci,
+                    'taxonRank' => 'no rank',
+                    'taxonomicStatus' => ''
+                );
+                return array('valid_parent' => $unclassified_new_taxon['taxonID'], 'unclassified_new_taxon' => $unclassified_new_taxon);
+            }
+        }
+        exit("\nInvestigate no valid parent for taxon_id = [$taxonID]\n");
+    }
+    private function is_immediate_ancestor_Not_Assigned($parent_id)
+    {
+        if(!$parent_id) return false;
+        $sci = $this->taxID_info[$parent_id]['n'];
+        if(stripos($sci, "not assigned") !== false) return true; //string is found
+        return false;
+    }
+    private function name_is_not_assigned($str)
+    {
+        if(stripos($str, "not assigned") !== false) return true;
+        return false;
+    }
+    /*
+    private function is_immediate_ancestor_Not_Assigned($ancestry)
+    {
+        array_shift($ancestry); //remove first element of array, bec first element of $ancestry is the taxon in question.
+        foreach($ancestry as $taxon_id) {
+            $sci = $this->taxID_info[$taxon_id]['n'];
+            if(stripos($sci, "not assigned") !== false) return true; //string is found
+        }
+        return false;
+    }
+    */
     //=========================================================================== end adjusting taxon.tab with those 'not assigned' entries ====================================
     // ----------------------------------------------------------------- end TRAM-803 -----------------------------------------------------------------
     /*
