@@ -694,9 +694,7 @@ class DWH_CoL_API_20Feb2019
     {
         $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_20Feb2019/";
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly created DwCA
-        // print_r($meta); exit;
         $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
-        // print_r($this->taxID_info); exit("\n222\n");
         $i = 0;
         $WRITE = fopen($extension_path.$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt
         foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
@@ -729,7 +727,6 @@ class DWH_CoL_API_20Feb2019
                                                                     // 3e82dc989115d4eba3f60aa727ed27ad - Ciliophora
                                                                     // 4693ed96493faf8f58e7ece01d0e1afb		54116747	Ordosporidae	family	 --- good test case
                                                                     // 181b15bc1f7c588f7ebf64474f86d76f		unc-000151	Windalia	genus
-                                                                 
                 $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $this->taxID_info); //print_r($ancestry);
                 /*Array(
                     [0] => 8fd3cb6a84d4e49e3bfbe3313c76df07
@@ -745,23 +742,17 @@ class DWH_CoL_API_20Feb2019
                 42984770 Ciliophora phylum
                 */
                 // foreach($ancestry as $taxonID) echo "\n".$this->taxID_info[$taxonID]['n']; //good debug
-                // exit("\nstop muna\n");
                 // echo "\n------------------------\n";
-                
                 if(self::name_is_not_assigned($rec['scientificName'])) continue; //ignore e.g. "Order not assigned" or "Family not assigned"
                 elseif(self::is_immediate_ancestor_Not_Assigned($rec['parentNameUsageID'])) {
                     $ret = self::get_valid_parent_from_ancestry($ancestry, $taxonID);
-                    // echo "\nold row: $row\n";
                     $rec['parentNameUsageID'] = $ret['valid_parent'];
-                    
-                    self::write_taxon_DH($rec);
-                    $new_row = implode("\t", $rec);
-                    // echo "\nnew row: $new_row\n";
+                    self::write_taxon_DH($rec);                         // echo "\nold row: $row\n";
+                    $new_row = implode("\t", $rec);                     // echo "\nnew row: $new_row\n";
                     fwrite($WRITE, $new_row."\n");
                     if($val = $ret['unclassified_new_taxon']) {
                         self::write_taxon_DH($val);
-                        $unclassified_row = implode("\t", $val);
-                        // echo "\nunclassified_row: $unclassified_row\n";
+                        $unclassified_row = implode("\t", $val);        // echo "\nunclassified_row: $unclassified_row\n";
                         fwrite($WRITE, $unclassified_row."\n");
                     }
                 }
