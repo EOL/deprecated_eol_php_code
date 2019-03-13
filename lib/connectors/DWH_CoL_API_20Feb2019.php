@@ -635,10 +635,11 @@ class DWH_CoL_API_20Feb2019
         $c = array_merge($a, $b);
         return array_unique($c);
     }
-    private function get_meta_info($row_type = false)
+    private function get_meta_info($row_type = false, $extension_path = false)
     {
+        if(!$extension_path) $extension_path = $this->extension_path //default extension_path to use
         require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
-        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
+        $meta = $func->analyze_eol_meta_xml($extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
         // if($GLOBALS['ENV_DEBUG']) print_r($meta); //good debug
         return $meta;
     }
@@ -678,6 +679,9 @@ class DWH_CoL_API_20Feb2019
         // print_r($identifiers); print_r($this->debug['elix']); exit("\n".count($identifiers)."\nyyy\n"); //good debug - check if all identifiers were paired with a taxonID.
         return $identifiers;
     }
+    //=========================================================================== start adjusting taxon.tab with those 'not assigned' entries ==================================
+    
+    //=========================================================================== end adjusting taxon.tab with those 'not assigned' entries ====================================
     // ----------------------------------------------------------------- end TRAM-803 -----------------------------------------------------------------
     /*
     private function get_tax_ids_from_taxon_tab_working()
