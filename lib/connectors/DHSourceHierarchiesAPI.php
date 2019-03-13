@@ -206,6 +206,7 @@ php update_resources/connectors/dwh.php _ COL
 
         /* this is now obsolete. Based on the new scheme from a newer ticket TRAM-803: 
         https://eol-jira.bibalex.org/browse/TRAM-803?focusedCommentId=63324&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63324
+        The new process is added in DWH_CoL_API_20Feb2019.php - under function fix_CLP_taxa_with_not_assigned_entries_V2().
         if($special_task == "CLP_adjustment") {
             self::fix_CLP_taxa_with_not_assigned_entries($meta);
             exit("\n-end fix [$what]-\n");
