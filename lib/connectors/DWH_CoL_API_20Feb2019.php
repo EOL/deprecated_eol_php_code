@@ -692,7 +692,7 @@ class DWH_CoL_API_20Feb2019
     //=========================================================================== start adjusting taxon.tab with those 'not assigned' entries ==================================
     public function fix_CLP_taxa_with_not_assigned_entries_V2()
     {
-        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_20Feb2019/";
+        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step1/";
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly created DwCA
         $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
         $i = 0;
