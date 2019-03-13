@@ -64,7 +64,16 @@ else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 $resource_id = "Catalogue_of_Life_Protists_DH_fixed";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->fix_CLP_taxa_with_not_assigned_entries_V2();
-// Functions::finalize_dwca_resource($resource_id, true);
+Functions::finalize_dwca_resource($resource_id, true);
+
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$func->check_unique_ids($resource_id);
+
+$undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+if($undefined) echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";
+else           echo "\nOK: All parents in taxon.tab have entries.\n";
+
 //############################################################ end CoL Protists
 
 

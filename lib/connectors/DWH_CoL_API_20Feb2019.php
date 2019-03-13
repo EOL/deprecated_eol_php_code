@@ -714,6 +714,7 @@ class DWH_CoL_API_20Feb2019
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
+            $orig_rec = $rec;
             // print_r($rec); exit;
             /*Array(
                 [taxonID] => fc0886d15759a01525b1469534189bb5
@@ -724,11 +725,12 @@ class DWH_CoL_API_20Feb2019
                 [taxonomicStatus] => accepted name
             )*/
             $taxonID = $rec['taxonID'];
-            if($taxonID == '8fd3cb6a84d4e49e3bfbe3313c76df07') { // 8fd3cb6a84d4e49e3bfbe3313c76df07 - Diaxonella      3e82dc989115d4eba3f60aa727ed27ad - Ciliophora
+            // if($taxonID == '181b15bc1f7c588f7ebf64474f86d76f') { // 8fd3cb6a84d4e49e3bfbe3313c76df07 - Diaxonella      3e82dc989115d4eba3f60aa727ed27ad - Ciliophora
                                                                  // 4693ed96493faf8f58e7ece01d0e1afb		54116747	Ordosporidae	family	 --- good test case
+                                                                 // 181b15bc1f7c588f7ebf64474f86d76f		unc-000151	Windalia	genus
                                                                  
-                print_r($rec);
-                $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $this->taxID_info); print_r($ancestry);
+                // print_r($rec);
+                $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $this->taxID_info); //print_r($ancestry);
                 /*Array(
                     [0] => 8fd3cb6a84d4e49e3bfbe3313c76df07
                     [1] => 54117935
@@ -742,27 +744,38 @@ class DWH_CoL_API_20Feb2019
                 42987353 42984770 Class not assigned class
                 42984770 Ciliophora phylum
                 */
-                foreach($ancestry as $taxonID) echo "\n".$this->taxID_info[$taxonID]['n'];
+                // foreach($ancestry as $taxonID) echo "\n".$this->taxID_info[$taxonID]['n']; //good debug
                 // exit("\nstop muna\n");
-                echo "\n------------------------\n";
+                // echo "\n------------------------\n";
                 
                 if(self::name_is_not_assigned($rec['scientificName'])) continue; //ignore e.g. "Order not assigned" or "Family not assigned"
                 elseif(self::is_immediate_ancestor_Not_Assigned($rec['parentNameUsageID'])) {
                     $ret = self::get_valid_parent_from_ancestry($ancestry, $taxonID);
-                    echo "\nold row: $row\n";
+                    // echo "\nold row: $row\n";
                     $rec['parentNameUsageID'] = $ret['valid_parent'];
+                    
+                    self::write_taxon_DH($rec);
                     $new_row = implode("\t", $rec);
-                    echo "\nnew row: $new_row\n";
+                    // echo "\nnew row: $new_row\n";
                     fwrite($WRITE, $new_row."\n");
                     if($val = $ret['unclassified_new_taxon']) {
+                        self::write_taxon_DH($val);
                         $unclassified_row = implode("\t", $val);
-                        echo "\nunclassified_row: $unclassified_row\n";
+                        // echo "\nunclassified_row: $unclassified_row\n";
+                        fwrite($WRITE, $unclassified_row."\n");
                     }
                 }
-                else fwrite($WRITE, $row."\n"); //regular row
-                exit("\nexit muna\n");
-            }
+                else {
+                    fwrite($WRITE, $row."\n"); //regular row
+                    self::write_taxon_DH($orig_rec);
+                }
+                // exit("\nexit muna\n");
+            // }
         }
+        fclose($WRITE);
+        $txtfile_o = $extension_path.$meta['taxon_file'];        $old = self::get_total_rows($txtfile_o); echo "\nOld taxon.tab: [$old]\n";
+        $txtfile_n = $extension_path.$meta['taxon_file'].".txt"; $new = self::get_total_rows($txtfile_n); echo "\nNew taxon.tab.txt: [$new]\n";
+        $this->archive_builder->finalize(TRUE);
     }
     private function get_valid_parent_from_ancestry($ancestry, $taxonID)
     {
@@ -778,7 +791,7 @@ class DWH_CoL_API_20Feb2019
                 */
                 $this->unclassified_id_increments++;
                 $unclassified_new_taxon = Array(
-                    'taxonID' => 'unc-'.$this->unclassified_id_increments,
+                    'taxonID' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_id_increments, 6),
                     'acceptedNameUsageID' => '',
                     'parentNameUsageID' => $taxon_id,
                     'scientificName' => 'unclassified '.$sci,
@@ -802,17 +815,13 @@ class DWH_CoL_API_20Feb2019
         if(stripos($str, "not assigned") !== false) return true;
         return false;
     }
-    /*
-    private function is_immediate_ancestor_Not_Assigned($ancestry)
+    private function get_total_rows($file)
     {
-        array_shift($ancestry); //remove first element of array, bec first element of $ancestry is the taxon in question.
-        foreach($ancestry as $taxon_id) {
-            $sci = $this->taxID_info[$taxon_id]['n'];
-            if(stripos($sci, "not assigned") !== false) return true; //string is found
-        }
-        return false;
+        /* source: https://stackoverflow.com/questions/3137094/how-to-count-lines-in-a-document */
+        $total = shell_exec("wc -l < ".escapeshellarg($file));
+        $total = trim($total);
+        return $total;
     }
-    */
     //=========================================================================== end adjusting taxon.tab with those 'not assigned' entries ====================================
     // ----------------------------------------------------------------- end TRAM-803 -----------------------------------------------------------------
     /*
