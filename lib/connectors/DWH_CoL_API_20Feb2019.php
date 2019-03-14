@@ -678,7 +678,6 @@ class DWH_CoL_API_20Feb2019
     {
         if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/"; //for COL
         if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step2/"; //for CLP
-        
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
         
         /*step 1: get the remove_keep IDs */
@@ -693,9 +692,7 @@ class DWH_CoL_API_20Feb2019
         $i = 0;
         foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
-            if($meta['ignoreHeaderLines'] && $i == 1) {
-                continue;
-            }
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
             $tmp = explode("\t", $row);
@@ -715,7 +712,6 @@ class DWH_CoL_API_20Feb2019
                 [taxonRank] => species
                 [taxonomicStatus] => synonym
             )*/
-
             //----------------------------------------------------------------------------------------------------------------------------start process
             /* if taxonID is a remove_id then ignore rec */
             $taxonID = $rec['taxonID'];
