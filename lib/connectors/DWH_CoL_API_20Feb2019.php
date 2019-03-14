@@ -574,6 +574,17 @@ class DWH_CoL_API_20Feb2019
         $taxon->datasetID           = $rec['datasetID'];
         $taxon->datasetName         = $rec['datasetName'];
         */
+        /* for DUPLICATE TAXA process...
+        Find duplicate taxa where taxonRank:species      AND the following fields all have the same value: parentNameUsageID, genus, specificEpithet.
+        Find duplicate taxa where taxonRank:infraspecies AND the following fields all have the same value: parentNameUsageID, genus, specificEpithet, infraspecificEpithet.
+        */
+        if($val = @$rec['genus'])                       $taxon->genus = $val;
+        if($val = @$rec['specificEpithet'])             $taxon->specificEpithet = $val;
+        if($val = @$rec['infraspecificEpithet'])        $taxon->infraspecificEpithet = $val;
+        if($val = @$rec['scientificNameAuthorship'])    $taxon->scientificNameAuthorship = $val;
+        if($val = @$rec['verbatimTaxonRank'])           $taxon->verbatimTaxonRank = $val;
+        if($val = @$rec['subgenus'])                    $taxon->subgenus = $val;
+        if($val = @$rec['isExtinct'])                   $taxon->taxonRemarks = "isExtinct:$val";
 
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
