@@ -777,7 +777,7 @@ class DWH_CoL_API_20Feb2019
         //step 1: format array records to see which are duplicate taxa
         $i = 0;
         foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -788,32 +788,88 @@ class DWH_CoL_API_20Feb2019
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            /*Array(
+                [taxonID] => fc0886d15759a01525b1469534189bb5
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => d2a21892b23f5453d7655b082869cfca
+                [scientificName] => Bryometopus alekperovi Foissner, 1998
+                [genus] => Bryometopus
+                [specificEpithet] => alekperovi
+                [taxonRank] => species
+                [scientificNameAuthorship] => Foissner, 1998
+                [taxonomicStatus] => accepted name
+                [infraspecificEpithet] => 
+                [verbatimTaxonRank] => 
+                [subgenus] => 
+            )*/
             /*SPECIES
             Find duplicate taxa where taxonRank:species AND the following fields all have the same value: parentNameUsageID, genus, specificEpithet.
             INFRASPECIES
             Find duplicate taxa where taxonRank:infraspecies AND the following fields all have the same value: parentNameUsageID, genus, specificEpithet, infraspecificEpithet.
             */
+            
+            if(!in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) continue;
+            
             if($rec['taxonRank'] == 'species') {
-                $a = array('sn' => $rec['scientificName'], 't' => $rec['taxonID'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet']);
+                $a = array('sn' => $rec['scientificName'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet']);
                 $json = json_encode($a);
                 $species[$json][] = $rec['taxonID'];
             }
             elseif($rec['taxonRank'] == 'infraspecies') {
-                $a = array('sn' => $rec['scientificName'], 't' => $rec['taxonID'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet'], 'i' => $rec['infraspecificEpithet']);
+                $a = array('sn' => $rec['scientificName'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet'], 'i' => $rec['infraspecificEpithet']);
                 $json = json_encode($a);
                 $infraspecies[$json][] = $rec['taxonID'];
             }
         }
+        // print_r($species); print_r($infraspecies); exit;
         
-        //step 2: remove from array those without duplicate taxa
+        //step 2: create pairs of taxonIDs of duplicate taxa
         foreach($species as $json => $taxonIDs) {
-            if(count($taxonIDs) == 1) unset($species[$json]);
+            if(count($taxonIDs) > 1) $dup_species[] = $taxonIDs;
         }
+        $species = '';
         foreach($infraspecies as $json => $taxonIDs) {
-            if(count($taxonIDs) == 1) unset($infraspecies[$json]);
+            if(count($taxonIDs) > 1) $dup_infraspecies[] = $taxonIDs;
+        }
+        $infraspecies = '';
+        
+        print_r($dup_species);
+        print_r($dup_infraspecies);
+        echo "\ndup_species: ".count($dup_species)."\n";
+        echo "\ndup_infraspecies: ".count($dup_infraspecies)."\n";
+        
+        exit;
+        
+        // step 3: get all taxonIDs
+        foreach($dup_species as $dup) {
+            foreach($dup as $taxonID) $all_taxonIDs[] = $taxonID;
+        }
+        foreach($dup_infraspecies as $dup) {
+            foreach($dup as $taxonID) $all_taxonIDs[] = $taxonID;
         }
         
+        // step 4: create a taxonIDinfo - list for all taxonIDs in step 3.
+        
+        
+        // $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
+        /*
+        accepted name | provisionally accepted name
+        scientificNameAuthorship IS NOT empty | scientificNameAuthorship IS empty
+        scientificNameAuthorship WITH 4-digit number | scientificNameAuthorship WITHOUT 4-digit number
+        authority date (4-digit number in scientificNameAuthorship) is smaller | authority date is larger
+        scientificNameAuthorship WITH parentheses | scientificNameAuthorship WITHOUT parentheses
+        subgenus IS empty | subgenus IS NOT empty
+        isExtinct IS TRUE | isExtinct IS FALSE
+                
+        if($val = @$rec['genus'])                       $taxon->genus = $val;
+        if($val = @$rec['specificEpithet'])             $taxon->specificEpithet = $val;
+        if($val = @$rec['infraspecificEpithet'])        $taxon->infraspecificEpithet = $val;
+        if($val = @$rec['scientificNameAuthorship'])    $taxon->scientificNameAuthorship = $val;
+        if($val = @$rec['verbatimTaxonRank'])           $taxon->verbatimTaxonRank = $val;
+        if($val = @$rec['subgenus'])                    $taxon->subgenus = $val;
+        if($val = @$rec['isExtinct'])                   $taxon->taxonRemarks = "isExtinct:$val";
+        */
         
     }
     //=========================================================================== start DUPLICATE TAXA letter B ==================================
