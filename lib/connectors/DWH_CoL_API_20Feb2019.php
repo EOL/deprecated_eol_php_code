@@ -687,7 +687,7 @@ class DWH_CoL_API_20Feb2019
     //=========================================================================== start DUPLICATE TAXA ==================================
     public function duplicate_process($what)
     {
-        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/"; //for COL
+        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/";          //for COL
         if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step2/"; //for CLP
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
         
