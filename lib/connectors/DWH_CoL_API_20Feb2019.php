@@ -723,7 +723,7 @@ class DWH_CoL_API_20Feb2019
                 print_r($rec);
                 $new_parent_id = $remove_keep_ids[$parent_id];
                 $rec['parentNameUsageID'] = $new_parent_id;
-                print_r($rec); exit("\nold and new if parent_id is a remove_id\n");
+                // print_r($rec); exit("\nold and new if parent_id is a remove_id\n");
             }
             //----------------------------------------------------------------------------------------------------------------------------
             self::write_taxon_DH($rec);
