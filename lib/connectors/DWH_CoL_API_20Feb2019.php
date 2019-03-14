@@ -825,6 +825,7 @@ class DWH_CoL_API_20Feb2019
         // print_r($species); print_r($infraspecies); exit;
         
         //step 2: create pairs of taxonIDs of duplicate taxa
+        $dup_species = array(); $dup_infraspecies = array(); //initialize
         foreach($species as $json => $taxonIDs) {
             if(count($taxonIDs) > 1) $dup_species[] = $taxonIDs;
         }
@@ -834,12 +835,15 @@ class DWH_CoL_API_20Feb2019
         }
         $infraspecies = '';
         
+        /* sample of duplicate species:
+        0df0b41d1fb8756e6272e62be944c812		dde980c765191db8e8178f59a091da99	Genysa decorsei (Simon, 1902)	Genysa	decorsei	species	(Simon, 1902)	provisionally accepted name			
+        1ab1fbb89c355b4198bdef93869b809c		dde980c765191db8e8178f59a091da99	Genysa decorsei (Simon, 1902)	Genysa	decorsei	species	(Simon, 1902)	accepted name			
+        */
+        
         print_r($dup_species);
         print_r($dup_infraspecies);
         echo "\ndup_species: ".count($dup_species)."\n";
         echo "\ndup_infraspecies: ".count($dup_infraspecies)."\n";
-        
-        exit;
         
         // step 3: get all taxonIDs
         foreach($dup_species as $dup) {
@@ -848,29 +852,49 @@ class DWH_CoL_API_20Feb2019
         foreach($dup_infraspecies as $dup) {
             foreach($dup as $taxonID) $all_taxonIDs[] = $taxonID;
         }
+        echo "\nall_taxonIDs: ".count($all_taxonIDs)."\n"; //exit;
         
         // step 4: create a taxonIDinfo - list for all taxonIDs in step 3.
+        $taxonID_info = self::taxonIDinfo($meta, $extension_path.$meta['taxon_file'], $all_taxonIDs);
+        print_r($taxonID_info);
         
-        
-        // $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
-        /*
-        accepted name | provisionally accepted name
-        scientificNameAuthorship IS NOT empty | scientificNameAuthorship IS empty
-        scientificNameAuthorship WITH 4-digit number | scientificNameAuthorship WITHOUT 4-digit number
-        authority date (4-digit number in scientificNameAuthorship) is smaller | authority date is larger
-        scientificNameAuthorship WITH parentheses | scientificNameAuthorship WITHOUT parentheses
-        subgenus IS empty | subgenus IS NOT empty
-        isExtinct IS TRUE | isExtinct IS FALSE
-                
-        if($val = @$rec['genus'])                       $taxon->genus = $val;
-        if($val = @$rec['specificEpithet'])             $taxon->specificEpithet = $val;
-        if($val = @$rec['infraspecificEpithet'])        $taxon->infraspecificEpithet = $val;
-        if($val = @$rec['scientificNameAuthorship'])    $taxon->scientificNameAuthorship = $val;
-        if($val = @$rec['verbatimTaxonRank'])           $taxon->verbatimTaxonRank = $val;
-        if($val = @$rec['subgenus'])                    $taxon->subgenus = $val;
-        if($val = @$rec['isExtinct'])                   $taxon->taxonRemarks = "isExtinct:$val";
-        */
-        
+    }
+    private function taxonIDinfo($meta, $file, $all_taxonIDs)
+    {
+        $i = 0;
+        foreach(new FileIterator($file) as $line => $row) {
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            if(isset($all_taxonIDs[$rec['taxonID']])) {
+                // print_r($rec); exit("\nxxx\n");
+                $final[$rec['taxonID']] = array("s" => $rec['taxonomicStatus'], 'sna' => $rec['scientificNameAuthorship'], 'vr' => $rec['verbatimTaxonRank'], 
+                                               'sg' => $rec['subgenus'], 'isE' => $rec['taxonRemarks']);
+            }
+            /*Array(
+                [taxonID] => fc0886d15759a01525b1469534189bb5
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => d2a21892b23f5453d7655b082869cfca
+                [scientificName] => Bryometopus alekperovi Foissner, 1998
+                [genus] => Bryometopus
+                [specificEpithet] => alekperovi
+                [taxonRank] => species
+                [scientificNameAuthorship] => Foissner, 1998
+                [taxonomicStatus] => accepted name
+                [infraspecificEpithet] => 
+                [verbatimTaxonRank] => 
+                [subgenus] => 
+            )*/
+        }
+        return $final;
     }
     //=========================================================================== start DUPLICATE TAXA letter B ==================================
     
