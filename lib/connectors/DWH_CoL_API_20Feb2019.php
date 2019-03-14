@@ -674,11 +674,12 @@ class DWH_CoL_API_20Feb2019
         return $identifiers;
     }
     //=========================================================================== start DUPLICATE TAXA ==================================
-    public function duplicate_process()
+    public function duplicate_process($what)
     {
-        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/";
+        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/"; //for COL
+        if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step2/"; //for CLP
+        
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
-        // $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
         
         /*step 1: get the remove_keep IDs */
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
@@ -687,14 +688,6 @@ class DWH_CoL_API_20Feb2019
         $params['sought_fields'] = array('Keep identifier', 'Remove identifier');
         $remove_keep_ids = self::get_remove_keep_ids_from_spreadsheet($params); //print_r($remove_keep_ids);
         echo "\nremove_keep_ids total: ".count($remove_keep_ids)."\n";
-        
-        // /*step 2: get descendants of 'remove' IDs */
-        // foreach($remove_keep_ids as $remove_id => $keep_id) {
-        //     $ancestry = self::get_ancestry_of_taxID($remove_id, $this->taxID_info);
-        //     print_r($ancestry);
-        //     // exit;
-        // }
-        // exit("\nstop muna2\n");
         
         //start main process
         $i = 0;
@@ -737,7 +730,9 @@ class DWH_CoL_API_20Feb2019
                 print_r($rec); exit("\nold and new if parent_id is a remove_id\n");
             }
             //----------------------------------------------------------------------------------------------------------------------------
+            self::write_taxon_DH($rec);
         }
+        $this->archive_builder->finalize(TRUE);
     }
     private function get_remove_keep_ids_from_spreadsheet($params = false)
     {
@@ -773,7 +768,7 @@ class DWH_CoL_API_20Feb2019
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly temporary created DwCA
         $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
         $i = 0;
-        $WRITE = fopen($extension_path.$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt
+        $WRITE = fopen($extension_path.$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt --- writing to taxon.tab.txt is actually not needed anymore since you're creating the DwC anyway.
         foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) {
