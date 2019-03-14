@@ -720,7 +720,7 @@ class DWH_CoL_API_20Feb2019
             /* if parentNameUsageID is a remove_id then replace the parentNameUsageID with the respective keep_id; */
             $parent_id = $rec['parentNameUsageID'];
             if(isset($remove_keep_ids[$parent_id])) {
-                print_r($rec);
+                // print_r($rec);
                 $new_parent_id = $remove_keep_ids[$parent_id];
                 $rec['parentNameUsageID'] = $new_parent_id;
                 // print_r($rec); exit("\nold and new if parent_id is a remove_id\n");
