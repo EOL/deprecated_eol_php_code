@@ -676,6 +676,11 @@ class DWH_CoL_API_20Feb2019
     //=========================================================================== start DUPLICATE TAXA ==================================
     public function duplicate_process()
     {
+        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/";
+        $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
+        // $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
+        
+        /*step 1: get the remove_keep IDs */
         $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
         $params['range']         = 'mergeForCOL!A1:D470';
         $params['first_row_is_headerYN'] = true;
@@ -683,6 +688,56 @@ class DWH_CoL_API_20Feb2019
         $remove_keep_ids = self::get_remove_keep_ids_from_spreadsheet($params); //print_r($remove_keep_ids);
         echo "\nremove_keep_ids total: ".count($remove_keep_ids)."\n";
         
+        // /*step 2: get descendants of 'remove' IDs */
+        // foreach($remove_keep_ids as $remove_id => $keep_id) {
+        //     $ancestry = self::get_ancestry_of_taxID($remove_id, $this->taxID_info);
+        //     print_r($ancestry);
+        //     // exit;
+        // }
+        // exit("\nstop muna2\n");
+        
+        //start main process
+        $i = 0;
+        foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) {
+                continue;
+            }
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $orig_rec = $rec;
+            // print_r($rec); exit;
+            /*Array(
+                [taxonID] => 316502
+                [acceptedNameUsageID] => 6a3ba2fef8659ce9708106356d875285
+                [parentNameUsageID] => 
+                [scientificName] => Canceraspis brasiliensis Hempel, 1934
+                [taxonRank] => species
+                [taxonomicStatus] => synonym
+            )*/
+
+            //----------------------------------------------------------------------------------------------------------------------------start process
+            /* if taxonID is a remove_id then ignore rec */
+            $taxonID = $rec['taxonID'];
+            if(isset($remove_keep_ids[$taxonID])) continue;
+            //----------------------------------------------------------------------------------------------------------------------------
+            /* if parentNameUsageID is a remove_id then replace the parentNameUsageID with the respective keep_id; */
+            $parent_id = $rec['parentNameUsageID'];
+            if(isset($remove_keep_ids[$parent_id])) {
+                print_r($rec);
+                $new_parent_id = $remove_keep_ids[$parent_id];
+                $rec['parentNameUsageID'] = $new_parent_id;
+                print_r($rec); exit("\nold and new if parent_id is a remove_id\n");
+            }
+            //----------------------------------------------------------------------------------------------------------------------------
+        }
     }
     private function get_remove_keep_ids_from_spreadsheet($params = false)
     {
@@ -715,7 +770,7 @@ class DWH_CoL_API_20Feb2019
     public function fix_CLP_taxa_with_not_assigned_entries_V2()
     {
         $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step1/";
-        $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly created DwCA
+        $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly temporary created DwCA
         $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
         $i = 0;
         $WRITE = fopen($extension_path.$meta['taxon_file'].".txt", "w"); //e.g. new taxon.tab will be taxon.tab.txt
