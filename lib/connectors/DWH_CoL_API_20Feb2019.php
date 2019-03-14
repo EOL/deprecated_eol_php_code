@@ -673,6 +673,44 @@ class DWH_CoL_API_20Feb2019
         // print_r($identifiers); print_r($this->debug['elix']); exit("\n".count($identifiers)."\nyyy\n"); //good debug - check if all identifiers were paired with a taxonID.
         return $identifiers;
     }
+    //=========================================================================== start DUPLICATE TAXA ==================================
+    public function duplicate_process()
+    {
+        $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
+        $params['range']         = 'mergeForCOL!A1:D470';
+        $params['first_row_is_headerYN'] = true;
+        $params['sought_fields'] = array('Keep identifier', 'Remove identifier');
+        $remove_keep_ids = self::get_remove_keep_ids_from_spreadsheet($params); //print_r($remove_keep_ids);
+        echo "\nremove_keep_ids total: ".count($remove_keep_ids)."\n";
+        
+    }
+    private function get_remove_keep_ids_from_spreadsheet($params = false)
+    {
+        $final = array();
+        $rows = Functions::get_google_sheet_using_GoogleClientAPI($params); //print_r($rows);
+        if(@$params['first_row_is_headerYN']) $fields = $rows[0];
+        else                                  exit("\nNo headers in spreadsheet.\n");
+        $i = -1;
+        foreach($rows as $items) {
+            $i++; if($i == 0) continue;
+            $rec = array();
+            $k = 0;
+            foreach($items as $item) {
+                $rec[$fields[$k]] = $item;
+                $k++;
+            }
+            // print_r($rec); //exit;
+            /*[464] => Array(
+                        [Keep identifier] => 503a1ade20288fdd120c41da2f442c0d
+                        [Keep scientificName] => Xestobium
+                        [Remove identifier] => af662112a1bbc3e97d9162e72cc1ed50
+                        [Remove scientificName] => Xestobium
+                    )*/
+            $final[$rec['Remove identifier']] = $rec['Keep identifier']; //use as best orientation which is left and which is on the right.
+        }
+        return $final;
+    }
+    //=========================================================================== end DUPLICATE TAXA ====================================
     //=========================================================================== start adjusting taxon.tab with those 'not assigned' entries ==================================
     public function fix_CLP_taxa_with_not_assigned_entries_V2()
     {
