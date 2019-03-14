@@ -54,19 +54,28 @@ Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
 // */
 //############################################################ end CoL Protists
-//############################################################ start "DUPLICATE TAXA" --- maybe the final step
+//############################################################ start "DUPLICATE TAXA" A. Merge duplicate genera
 $resource_id = "Catalogue_of_Life_Protists_DH_step3";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
-$func->duplicate_process('CLP');
+$func->duplicate_process_A('CLP');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
 
 $resource_id = "Catalogue_of_Life_DH_step2";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
-$func->duplicate_process('COL');
+$func->duplicate_process_A('COL');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
-//############################################################ end "DUPLICATE TAXA"
+//############################################################ end "DUPLICATE TAXA" A. Merge duplicate genera
+
+//############################################################ start "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
+$resource_id = "Catalogue_of_Life_Protists_DH_step4";
+$func = new DWH_CoL_API_20Feb2019($resource_id);
+$func->duplicate_process_B('CLP');
+Functions::finalize_dwca_resource($resource_id, true);
+
+//############################################################ end "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

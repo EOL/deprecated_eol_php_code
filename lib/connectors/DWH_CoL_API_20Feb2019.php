@@ -684,8 +684,8 @@ class DWH_CoL_API_20Feb2019
         // print_r($identifiers); print_r($this->debug['elix']); exit("\n".count($identifiers)."\nyyy\n"); //good debug - check if all identifiers were paired with a taxonID.
         return $identifiers;
     }
-    //=========================================================================== start DUPLICATE TAXA ==================================
-    public function duplicate_process($what)
+    //=========================================================================== start DUPLICATE TAXA letter A ==================================
+    public function duplicate_process_A($what)
     {
         if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/";          //for COL
         if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step2/"; //for CLP
@@ -743,11 +743,10 @@ class DWH_CoL_API_20Feb2019
     }
     private function get_remove_keep_ids_from_spreadsheet($params = false)
     {
-        $final = array();
         $rows = Functions::get_google_sheet_using_GoogleClientAPI($params); //print_r($rows);
         if(@$params['first_row_is_headerYN']) $fields = $rows[0];
         else                                  exit("\nNo headers in spreadsheet.\n");
-        $i = -1;
+        $final = array(); $i = -1;
         foreach($rows as $items) {
             $i++; if($i == 0) continue;
             $rec = array();
@@ -767,7 +766,59 @@ class DWH_CoL_API_20Feb2019
         }
         return $final;
     }
-    //=========================================================================== end DUPLICATE TAXA ====================================
+    //=========================================================================== end DUPLICATE TAXA letter A ====================================
+    
+    //=========================================================================== start DUPLICATE TAXA letter B ==================================
+    public function duplicate_process_B($what)
+    {
+        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step2/";          //for COL
+        if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step3/"; //for CLP
+        $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
+        //step 1: format array records to see which are duplicate taxa
+        $i = 0;
+        foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            print_r($rec); exit;
+            /*SPECIES
+            Find duplicate taxa where taxonRank:species AND the following fields all have the same value: parentNameUsageID, genus, specificEpithet.
+            INFRASPECIES
+            Find duplicate taxa where taxonRank:infraspecies AND the following fields all have the same value: parentNameUsageID, genus, specificEpithet, infraspecificEpithet.
+            */
+            if($rec['taxonRank'] == 'species') {
+                $a = array('sn' => $rec['scientificName'], 't' => $rec['taxonID'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet']);
+                $json = json_encode($a);
+                $species[$json][] = $rec['taxonID'];
+            }
+            elseif($rec['taxonRank'] == 'infraspecies') {
+                $a = array('sn' => $rec['scientificName'], 't' => $rec['taxonID'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet'], 'i' => $rec['infraspecificEpithet']);
+                $json = json_encode($a);
+                $infraspecies[$json][] = $rec['taxonID'];
+            }
+        }
+        
+        //step 2: remove from array those without duplicate taxa
+        foreach($species as $json => $taxonIDs) {
+            if(count($taxonIDs) == 1) unset($species[$json]);
+        }
+        foreach($infraspecies as $json => $taxonIDs) {
+            if(count($taxonIDs) == 1) unset($infraspecies[$json]);
+        }
+        
+        
+    }
+    //=========================================================================== start DUPLICATE TAXA letter B ==================================
+    
+    
     //=========================================================================== start adjusting taxon.tab with those 'not assigned' entries ==================================
     public function fix_CLP_taxa_with_not_assigned_entries_V2()
     {
