@@ -18,13 +18,17 @@ class DWH_CoL_API_20Feb2019
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
         $this->run = '';
         /* taxonomicStatus values as of Feb 20, 2019 dump: Array(
-            [synonym] => 
             [accepted name] => 
-            [ambiguous synonym] => 
-            [misapplied name] => 
             [provisionally accepted name] => 
             [] => 
+            [synonym] => 
+            [ambiguous synonym] => 
+            [misapplied name] => 
         )
+        From Katja:
+        Since we are only using COL taxa with statuses "accepted name" or "provisionally accepted name" or blank for the DH, 
+        we should actually removed taxa with status "synonym," "ambiguous synonym" or "misapplied name" before we do anything else with this data set. 
+        Sorry I didn't think to make this more explicit in the workflow above. I don't think it will do harm if you remove these taxa now. 
         */
         $this->unclassified_id_increments = 0;
     }
@@ -114,6 +118,8 @@ class DWH_CoL_API_20Feb2019
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit;
+            if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) continue;
+            
             /* good debug
             if(isset($include[$rec['taxonID']])) print_r($rec);
             */
@@ -285,6 +291,8 @@ class DWH_CoL_API_20Feb2019
                 $k++;
             }
             $rec = array_map('trim', $rec);
+            if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) continue;
+            
             //start filter
             if(isset($identifiers_taxonIDs[$rec['identifier']])) continue;
             // eli added start ----------------------------------------------------------------------------
