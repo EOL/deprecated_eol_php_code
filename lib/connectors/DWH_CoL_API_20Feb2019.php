@@ -847,10 +847,10 @@ class DWH_CoL_API_20Feb2019
         
         // step 3: get all taxonIDs
         foreach($dup_species as $dup) {
-            foreach($dup as $taxonID) $all_taxonIDs[] = $taxonID;
+            foreach($dup as $taxonID) $all_taxonIDs[$taxonID] = '';
         }
         foreach($dup_infraspecies as $dup) {
-            foreach($dup as $taxonID) $all_taxonIDs[] = $taxonID;
+            foreach($dup as $taxonID) $all_taxonIDs[$taxonID] = '';
         }
         echo "\nall_taxonIDs: ".count($all_taxonIDs)."\n"; //exit;
         
