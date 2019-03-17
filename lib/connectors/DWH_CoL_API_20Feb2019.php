@@ -854,7 +854,7 @@ class DWH_CoL_API_20Feb2019
         echo "\ndup_species: ".count($dup_species)."\n";
         echo "\ndup_infraspecies: ".count($dup_infraspecies)."\n";
         
-        // step 3: get all taxonIDs
+        // step 3: get all taxonIDs, to be used in step 4.
         foreach($dup_species as $dup) {
             foreach($dup as $taxonID) $all_taxonIDs[$taxonID] = '';
         }
@@ -864,11 +864,70 @@ class DWH_CoL_API_20Feb2019
         echo "\nall_taxonIDs: ".count($all_taxonIDs)."\n"; //exit;
         
         // step 4: create a taxonIDinfo - list for all taxonIDs in step 3.
-        $taxonID_info = self::taxonIDinfo($meta, $extension_path.$meta['taxon_file'], $all_taxonIDs);
+        $this->taxonID_info = self::taxonIDinfo($meta, $extension_path.$meta['taxon_file'], $all_taxonIDs);
         // print_r($taxonID_info);
+        
+        // step 5: prefer_reject process
+        $taxonIDs_2be_removed1 = self::prefer_reject($dup_species)
+        $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies)
         
         exit("\nexitx\n");
         
+        // step 6: remove rejected duplicates from step 5
+        
+    }
+    private function prefer_reject($records)
+    {
+        foreach($records as $pair) { //$pair can be more than 2 taxonIDs
+            $taxonIDs_removed = select_1_from_list_of_taxonIDs($pair);
+        }
+        exit("\n111\n");
+    }
+    private function select_1_from_list_of_taxonIDs($pair)
+    {
+        $orig_pair = $pair;
+        if($what == 'species') {
+                                  $pair = self::filter1_status($pair);
+            if(count($pairs) > 1) $pair = self::filter2_authorship($pair);
+            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+
+            // if(count($pairs) > 1) $pair = self::filter3_authorship($pair);
+            // elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            
+            /*Prefer | Reject
+            1. accepted name | provisionally accepted name
+            2. scientificNameAuthorship IS NOT empty | scientificNameAuthorship IS empty
+            3. scientificNameAuthorship WITH 4-digit number | scientificNameAuthorship WITHOUT 4-digit number
+            4. authority date (4-digit number in scientificNameAuthorship) is smaller | authority date is larger
+            5. scientificNameAuthorship WITH parentheses | scientificNameAuthorship WITHOUT parentheses
+            6. subgenus IS empty | subgenus IS NOT empty
+            7. isExtinct IS TRUE | isExtinct IS FALSE
+            */
+        }
+    }
+    private function filter1_status($pair, $i = -1;)
+    {
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if(!$info['sna']) unset($pairs[$i]);
+            }
+        }
+        return $pair;
+    }
+    private function filter1_status($pair, $i = -1;)
+    {
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if($info['s'] == 'provisionally accepted name') unset($pairs[$i]);
+            }
+        }
+        return $pair;
     }
     private function taxonIDinfo($meta, $file, $all_taxonIDs)
     {

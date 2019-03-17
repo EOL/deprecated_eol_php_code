@@ -52,7 +52,7 @@ run_diagnostics($resource_id);
 */
 //############################################################ end CoL Protists
 //############################################################ start "DUPLICATE TAXA" A. Merge duplicate genera
-// /*
+/*
 $resource_id = "Catalogue_of_Life_Protists_DH_step3";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_A('CLP');
@@ -64,8 +64,8 @@ $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_A('COL');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
-// */
-exit("\nstop here 01...\n");
+*/
+// exit("\nstop here 01...\n");
 
 //############################################################ end "DUPLICATE TAXA" A. Merge duplicate genera
 
