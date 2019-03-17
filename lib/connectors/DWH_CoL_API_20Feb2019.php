@@ -891,8 +891,8 @@ class DWH_CoL_API_20Feb2019
             if(count($pairs) > 1) $pair = self::filter2_authorship($pair);
             elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
 
-            // if(count($pairs) > 1) $pair = self::filter3_authorship($pair);
-            // elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            if(count($pairs) > 1) $pair = self::filter3_authorship($pair);
+            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
             
             /*Prefer | Reject
             1. accepted name | provisionally accepted name
@@ -905,7 +905,25 @@ class DWH_CoL_API_20Feb2019
             */
         }
     }
-    private function filter1_status($pair, $i = -1;)
+    private function filter3_authorship($pair, $i = -1;)
+    {
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                $with_4_digit_no = false;
+                if(preg_match_all('!\d+!', $info['sna'], $arr)) {
+                    foreach($arr[0] as $numeric) {
+                        if(strlen($numeric) == 4) $with_4_digit_no = true;
+                    }
+                }
+                if(!$with_4_digit_no) unset($pairs[$i]);
+            }
+        }
+        return $pair;
+    }
+    private function filter2_authorship($pair, $i = -1;)
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
