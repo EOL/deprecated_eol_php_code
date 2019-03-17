@@ -592,7 +592,8 @@ class DWH_CoL_API_20Feb2019
         if($val = @$rec['scientificNameAuthorship'])    $taxon->scientificNameAuthorship = $val;
         if($val = @$rec['verbatimTaxonRank'])           $taxon->verbatimTaxonRank = $val;
         if($val = @$rec['subgenus'])                    $taxon->subgenus = $val;
-        if($val = @$rec['isExtinct'])                   $taxon->taxonRemarks = "isExtinct:$val";
+        if($val = @$rec['taxonRemarks'])                $taxon->taxonRemarks = $val;            //for taxonRemarks but for a later stage
+        if($val = @$rec['isExtinct'])                   $taxon->taxonRemarks = "isExtinct:$val";//for taxonRemarks but for an earlier stage
 
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
@@ -864,7 +865,9 @@ class DWH_CoL_API_20Feb2019
         
         // step 4: create a taxonIDinfo - list for all taxonIDs in step 3.
         $taxonID_info = self::taxonIDinfo($meta, $extension_path.$meta['taxon_file'], $all_taxonIDs);
-        print_r($taxonID_info);
+        // print_r($taxonID_info);
+        
+        exit("\nexitx\n");
         
     }
     private function taxonIDinfo($meta, $file, $all_taxonIDs)
