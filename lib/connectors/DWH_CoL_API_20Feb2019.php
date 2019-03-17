@@ -868,8 +868,8 @@ class DWH_CoL_API_20Feb2019
         // print_r($taxonID_info);
         
         // step 5: prefer_reject process
-        $taxonIDs_2be_removed1 = self::prefer_reject($dup_species)
-        $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies)
+        $taxonIDs_2be_removed1 = self::prefer_reject($dup_species);
+        // $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies);
         
         exit("\nexitx\n");
         
@@ -921,6 +921,7 @@ class DWH_CoL_API_20Feb2019
                 if(!$with_4_digit_no) unset($pairs[$i]);
             }
         }
+        $pair = array_values($pair); //reindex key
         return $pair;
     }
     private function filter2_authorship($pair, $i = -1;)
@@ -933,6 +934,7 @@ class DWH_CoL_API_20Feb2019
                 if(!$info['sna']) unset($pairs[$i]);
             }
         }
+        $pair = array_values($pair); //reindex key
         return $pair;
     }
     private function filter1_status($pair, $i = -1;)
@@ -945,6 +947,7 @@ class DWH_CoL_API_20Feb2019
                 if($info['s'] == 'provisionally accepted name') unset($pairs[$i]);
             }
         }
+        $pair = array_values($pair); //reindex key
         return $pair;
     }
     private function taxonIDinfo($meta, $file, $all_taxonIDs)
