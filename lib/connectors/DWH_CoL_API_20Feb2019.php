@@ -1038,8 +1038,8 @@ class DWH_CoL_API_20Feb2019
         if(count(@$ids_with_4digit_no) == 2) {
             foreach($ids_with_4digit_no as $taxonID => $numeric) $arr[] = array('id' => $taxonID, 'numeric' => $numeric);
             $to_remove = false;
-            if($arr[0]['numeric'] > $arr[1]['numeric']) $to_remove = $arr[0]['id'];
-            if($arr[1]['numeric'] > $arr[0]['numeric']) $to_remove = $arr[1]['id'];
+            if(@$arr[0]['numeric'] > @$arr[1]['numeric']) $to_remove = $arr[0]['id'];
+            if(@$arr[1]['numeric'] > @$arr[0]['numeric']) $to_remove = $arr[1]['id'];
             if($to_remove) {
                 $i = -1;
                 foreach($pair as $taxonID) { $i++;
