@@ -868,22 +868,22 @@ class DWH_CoL_API_20Feb2019
         // print_r($taxonID_info);
         
         // step 5: prefer_reject process
-        $taxonIDs_2be_removed1 = self::prefer_reject($dup_species);
-        // $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies);
+        $taxonIDs_2be_removed1 = self::prefer_reject($dup_species, 'species');
+        $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies, 'infraspecies');
         
         exit("\nexitx\n");
         
         // step 6: remove rejected duplicates from step 5
         
     }
-    private function prefer_reject($records)
+    private function prefer_reject($records, $what)
     {
         foreach($records as $pair) { //$pair can be more than 2 taxonIDs
-            $taxonIDs_removed = select_1_from_list_of_taxonIDs($pair);
+            $taxonIDs_removed = self::select_1_from_list_of_taxonIDs($pair, $what);
         }
         exit("\n111\n");
     }
-    private function select_1_from_list_of_taxonIDs($pair)
+    private function select_1_from_list_of_taxonIDs($pair, $what)
     {
         $orig_pair = $pair;
         if($what == 'species') {
