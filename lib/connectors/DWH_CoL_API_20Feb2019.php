@@ -870,24 +870,42 @@ class DWH_CoL_API_20Feb2019
         // step 5: prefer_reject process
         $taxonIDs_2be_removed1 = self::prefer_reject($dup_species, 'species');
         $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies, 'infraspecies');
+        $ids_2be_removed = array_merge($taxonIDs_2be_removed1, $taxonIDs_2be_removed2);
         
-        exit("\nexitx\n");
-        
-        // step 6: remove rejected duplicates from step 5
-        
+        // step 6: remove rejected duplicates from step 5 and write to DwCA
+        $i = 0;
+        foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            if(!in_array($rec['taxonID'], $ids_2be_removed)) self::write_taxon_DH($rec);
+        }
+        // exit("\nexit yy\n");
     }
     private function prefer_reject($records, $what)
     {
+        $final = array();
         foreach($records as $pair) { //$pair can be more than 2 taxonIDs
             $taxonIDs_removed = self::select_1_from_list_of_taxonIDs($pair, $what);
+            if($taxonIDs_removed) $final = array_merge($final, $taxonIDs_removed);
         }
-        exit("\n111\n");
+        return $final;
+        // exit("\n111\n");
     }
     private function select_1_from_list_of_taxonIDs($pair, $what)
     {
         $orig_pair = $pair;
         if($what == 'species') {
-                                  $pair = self::filter1_status($pair);          //equal to "provisionally accepted name"
+                                 $pair = self::filter1_status($pair);          //equal to "provisionally accepted name"
             if(count($pair) > 1) $pair = self::filter2_authorship($pair);      //without authorship
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
 
@@ -935,7 +953,7 @@ class DWH_CoL_API_20Feb2019
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
-                if(stripos($isE, "isExtinct:false") !== false) unset($pairs[$i]); //string is found
+                if(stripos($isE, "isExtinct:false") !== false) unset($pair[$i]); //string is found
             }
         }
         $pair = array_values($pair); //reindex key
@@ -949,7 +967,7 @@ class DWH_CoL_API_20Feb2019
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
-                if($info['sg']) unset($pairs[$i]);
+                if($info['sg']) unset($pair[$i]);
             }
         }
         $pair = array_values($pair); //reindex key
@@ -964,7 +982,7 @@ class DWH_CoL_API_20Feb2019
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
                 if((stripos($info['sna'], "(") !== false) && stripos($info['sna'], ")") !== false) {} // "(" and ")" are found
-                else unset($pairs[$i]);
+                else unset($pair[$i]);
             }
         }
         $pair = array_values($pair); //reindex key
@@ -984,7 +1002,7 @@ class DWH_CoL_API_20Feb2019
                         if(strlen($numeric) == 4) $with_4_digit_no = true;
                     }
                 }
-                if(!$with_4_digit_no) unset($pairs[$i]);
+                if(!$with_4_digit_no) unset($pair[$i]);
             }
         }
         $pair = array_values($pair); //reindex key
@@ -998,7 +1016,7 @@ class DWH_CoL_API_20Feb2019
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
-                if(!$info['sna']) unset($pairs[$i]);
+                if(!$info['sna']) unset($pair[$i]);
             }
         }
         $pair = array_values($pair); //reindex key
@@ -1012,7 +1030,7 @@ class DWH_CoL_API_20Feb2019
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
-                if($info['s'] == 'provisionally accepted name') unset($pairs[$i]);
+                if($info['s'] == 'provisionally accepted name') unset($pair[$i]);
             }
         }
         $pair = array_values($pair); //reindex key
