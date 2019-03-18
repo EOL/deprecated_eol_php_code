@@ -887,11 +887,20 @@ class DWH_CoL_API_20Feb2019
     {
         $orig_pair = $pair;
         if($what == 'species') {
-                                  $pair = self::filter1_status($pair);
-            if(count($pairs) > 1) $pair = self::filter2_authorship($pair);
+                                  $pair = self::filter1_status($pair);          //equal to "provisionally accepted name"
+            if(count($pairs) > 1) $pair = self::filter2_authorship($pair);      //without authorship
             elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
 
-            if(count($pairs) > 1) $pair = self::filter3_authorship($pair);
+            if(count($pairs) > 1) $pair = self::filter3_authorship($pair);      //without 4-digit no.
+            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            
+            if(count($pairs) > 1) $pair = self::filter5_authorship($pair);      //without parentheses
+            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+
+            if(count($pairs) > 1) $pair = self::filter6_subgenus($pair);        //subgenus IS NOT empty
+            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            
+            if(count($pairs) > 1) $pair = self::filter7_isExtinct($pair);       //isExtinct IS FALSE
             elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
             
             /*Prefer | Reject
@@ -905,7 +914,50 @@ class DWH_CoL_API_20Feb2019
             */
         }
     }
-    private function filter3_authorship($pair, $i = -1;)
+    private function filter7_isExtinct($pair, $i = -1;) //isExtinct IS FALSE
+    {
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if(stripos($isE, "isExtinct:false") !== false) unset($pairs[$i]); //string is found
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair) exit("\nInvestigate filter6\n");
+        return $pair;
+    }
+    private function filter6_subgenus($pair, $i = -1;) //subgenus IS NOT empty
+    {
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if($info['sg']) unset($pairs[$i]);
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair) exit("\nInvestigate filter6\n");
+        return $pair;
+    }
+    private function filter5_authorship($pair, $i = -1;) //WITHOUT parentheses
+    {
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if((stripos($info['sna'], "(") !== false) && stripos($info['sna'], ")") !== false) {} // "(" and ")" are found
+                else unset($pairs[$i]);
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair) exit("\nInvestigate filter5\n");
+        return $pair;
+    }
+    private function filter3_authorship($pair, $i = -1;) //without 4-digit no.
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -922,9 +974,10 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
+        if(!$pair) exit("\nInvestigate filter3\n");
         return $pair;
     }
-    private function filter2_authorship($pair, $i = -1;)
+    private function filter2_authorship($pair, $i = -1;) //without authorship
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -935,9 +988,10 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
+        if(!$pair) exit("\nInvestigate filter2\n");
         return $pair;
     }
-    private function filter1_status($pair, $i = -1;)
+    private function filter1_status($pair, $i = -1;) //equal to "provisionally accepted name"
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -948,6 +1002,7 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
+        if(!$pair) exit("\nInvestigate filter1\n");
         return $pair;
     }
     private function taxonIDinfo($meta, $file, $all_taxonIDs)
