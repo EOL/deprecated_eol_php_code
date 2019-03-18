@@ -914,7 +914,7 @@ class DWH_CoL_API_20Feb2019
             */
         }
     }
-    private function filter7_isExtinct($pair, $i = -1;) //isExtinct IS FALSE
+    private function filter7_isExtinct($pair, $i = -1) //isExtinct IS FALSE
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -928,7 +928,7 @@ class DWH_CoL_API_20Feb2019
         if(!$pair) exit("\nInvestigate filter6\n");
         return $pair;
     }
-    private function filter6_subgenus($pair, $i = -1;) //subgenus IS NOT empty
+    private function filter6_subgenus($pair, $i = -1) //subgenus IS NOT empty
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -942,7 +942,7 @@ class DWH_CoL_API_20Feb2019
         if(!$pair) exit("\nInvestigate filter6\n");
         return $pair;
     }
-    private function filter5_authorship($pair, $i = -1;) //WITHOUT parentheses
+    private function filter5_authorship($pair, $i = -1) //WITHOUT parentheses
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -957,7 +957,7 @@ class DWH_CoL_API_20Feb2019
         if(!$pair) exit("\nInvestigate filter5\n");
         return $pair;
     }
-    private function filter3_authorship($pair, $i = -1;) //without 4-digit no.
+    private function filter3_authorship($pair, $i = -1) //without 4-digit no.
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -977,7 +977,7 @@ class DWH_CoL_API_20Feb2019
         if(!$pair) exit("\nInvestigate filter3\n");
         return $pair;
     }
-    private function filter2_authorship($pair, $i = -1;) //without authorship
+    private function filter2_authorship($pair, $i = -1) //without authorship
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
@@ -991,7 +991,7 @@ class DWH_CoL_API_20Feb2019
         if(!$pair) exit("\nInvestigate filter2\n");
         return $pair;
     }
-    private function filter1_status($pair, $i = -1;) //equal to "provisionally accepted name"
+    private function filter1_status($pair, $i = -1) //equal to "provisionally accepted name"
     {
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
