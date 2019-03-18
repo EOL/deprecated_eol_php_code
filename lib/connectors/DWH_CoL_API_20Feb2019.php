@@ -853,6 +853,10 @@ class DWH_CoL_API_20Feb2019
         print_r($dup_infraspecies);
         echo "\ndup_species: ".count($dup_species)."\n";
         echo "\ndup_infraspecies: ".count($dup_infraspecies)."\n";
+        if(!$dup_species && !$dup_infraspecies) {
+            echo "\nNo duplicate species for [$what].\n\n";
+            return;
+        }
         
         // step 3: get all taxonIDs, to be used in step 4.
         foreach($dup_species as $dup) {
@@ -913,8 +917,8 @@ class DWH_CoL_API_20Feb2019
             if(count($pair) > 1) $pair = self::filter3_authorship($pair);      //without 4-digit no.
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
 
-            // if(count($pair) > 1) $pair = self::filter4_authorship($pair);      //authority date is larger
-            // elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            if(count($pair) > 1) $pair = self::filter4_authorship($pair);      //authority date is larger
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
             if(count($pair) > 1) $pair = self::filter5_authorship($pair);      //without parentheses
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
@@ -1025,20 +1029,28 @@ class DWH_CoL_API_20Feb2019
                         if(strlen($numeric) == 4) $ids_with_4digit_no[$taxonID] = $numeric;
                     }
                 }
-                // if(!$with_4_digit_no) unset($pair[$i]);
             }
         }
         
-        if(count(@$ids_with_4digit_no) > 1) {
-            foreach($ids_with_4digit_no as $taxonID => $numeric) {
-                
+        if(count(@$ids_with_4digit_no) == 2) {
+            foreach($ids_with_4digit_no as $taxonID => $numeric) $arr[] = array($taxonID, $numeric);
+            $to_remove = false;
+            if($arr[0][1] > $arr[1][1]) $to_remove = $arr[0][0];
+            if($arr[1][1] > $arr[0][1]) $to_remove = $arr[1][0];
+            if($to_remove) {
+                $i = -1;
+                foreach($pair as $taxonID) { $i++;
+                    if($taxonID == $to_remove) {
+                        unset($pair[$i]);
+                        $pair = array_values($pair); //reindex key
+                        return $pair;
+                    }
+                }
             }
         }
-        
-        
-        $pair = array_values($pair); //reindex key
-        if(!$pair) return $orig_pair; //exit("\nInvestigate filter3\n");
-        return $pair;
+        elseif(count(@$ids_with_4digit_no) < 2) return $orig_pair;
+        elseif(count(@$ids_with_4digit_no) > 2) exit("\nNeed to script this up...\n");
+        return $orig_pair;
     }
     private function filter3_authorship($pair, $i = -1) //without 4-digit no.
     {
