@@ -905,7 +905,7 @@ class DWH_CoL_API_20Feb2019
     private function select_1_from_list_of_taxonIDs($pair, $what)
     {
         $orig_pair = $pair;
-        if($what == 'species') {
+        if($what == 'species' || $what == 'infraspecies') { //for both cases actully, we can live without this filter actually.
                                  $pair = self::filter1_status($pair);          //equal to "provisionally accepted name"
             if(count($pair) > 1) $pair = self::filter2_authorship($pair);      //without authorship
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
@@ -915,6 +915,19 @@ class DWH_CoL_API_20Feb2019
             
             if(count($pair) > 1) $pair = self::filter5_authorship($pair);      //without parentheses
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+
+            if($what == 'infraspecies') {
+                5.1. verbatimTaxonRank IS NOT empty | verbatimTaxonRank IS empty
+                5.2. verbatimTaxonRank IS subsp. | verbatimTaxonRank IS var. OR f.
+                5.3. verbatimTaxonRank IS var. | verbatimTaxonRank IS f.
+
+                if(count($pair) > 1) $pair = self::filter5_1_verbatimRank($pair);   //verbatimTaxonRank IS empty
+                elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+                if(count($pair) > 1) $pair = self::filter5_2_verbatimRank($pair);   //verbatimTaxonRank IS var. OR f.
+                elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+                if(count($pair) > 1) $pair = self::filter5_3_verbatimRank($pair);   //verbatimTaxonRank IS f.
+                elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            }
 
             if(count($pair) > 1) $pair = self::filter6_subgenus($pair);        //subgenus IS NOT empty
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
@@ -954,7 +967,7 @@ class DWH_CoL_API_20Feb2019
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
-                if(stripos($isE, "isExtinct:false") !== false) unset($pair[$i]); //string is found
+                if(stripos($info['isE'], "isExtinct:false") !== false) unset($pair[$i]); //string is found
             }
         }
         $pair = array_values($pair); //reindex key
@@ -995,6 +1008,7 @@ class DWH_CoL_API_20Feb2019
     }
     private function filter3_authorship($pair, $i = -1) //without 4-digit no.
     {
+        $orig_pair = $pair;
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
@@ -1010,11 +1024,12 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
-        if(!$pair) exit("\nInvestigate filter3\n");
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter3\n");
         return $pair;
     }
     private function filter2_authorship($pair, $i = -1) //without authorship
     {
+        $orig_pair = $pair;
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
@@ -1024,11 +1039,12 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
-        if(!$pair) exit("\nInvestigate filter2\n");
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter2\n");
         return $pair;
     }
     private function filter1_status($pair, $i = -1) //equal to "provisionally accepted name"
     {
+        $orig_pair = $pair;
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
@@ -1038,7 +1054,52 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
-        if(!$pair) exit("\nInvestigate filter1\n");
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter1\n"); ...add the $orig_pair process for all filter process... except for filter7
+        return $pair;
+    }
+    private function filter5_1_verbatimRank($pair, $i = -1) //verbatimTaxonRank IS empty
+    {
+        $orig_pair = $pair;
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if(!$info['vr']) unset($pair[$i]);
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter2\n");
+        return $pair;
+    }
+    private function filter5_2_verbatimRank($pair, $i = -1) //verbatimTaxonRank IS var. OR f.
+    {
+        $orig_pair = $pair;
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if(in_array($info['vr'], array("var.", "f."))) unset($pair[$i]);
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter2\n");
+        return $pair;
+    }
+    private function filter5_3_verbatimRank($pair, $i = -1) //verbatimTaxonRank IS f.
+    {
+        $orig_pair = $pair;
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if(in_array($info['vr'], array("f."))) unset($pair[$i]);
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter2\n");
         return $pair;
     }
     private function taxonIDinfo($meta, $file, $all_taxonIDs)
