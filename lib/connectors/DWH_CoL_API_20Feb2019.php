@@ -888,20 +888,20 @@ class DWH_CoL_API_20Feb2019
         $orig_pair = $pair;
         if($what == 'species') {
                                   $pair = self::filter1_status($pair);          //equal to "provisionally accepted name"
-            if(count($pairs) > 1) $pair = self::filter2_authorship($pair);      //without authorship
-            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            if(count($pair) > 1) $pair = self::filter2_authorship($pair);      //without authorship
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
 
-            if(count($pairs) > 1) $pair = self::filter3_authorship($pair);      //without 4-digit no.
-            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            if(count($pair) > 1) $pair = self::filter3_authorship($pair);      //without 4-digit no.
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
-            if(count($pairs) > 1) $pair = self::filter5_authorship($pair);      //without parentheses
-            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            if(count($pair) > 1) $pair = self::filter5_authorship($pair);      //without parentheses
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
 
-            if(count($pairs) > 1) $pair = self::filter6_subgenus($pair);        //subgenus IS NOT empty
-            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            if(count($pair) > 1) $pair = self::filter6_subgenus($pair);        //subgenus IS NOT empty
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
-            if(count($pairs) > 1) $pair = self::filter7_isExtinct($pair);       //isExtinct IS FALSE
-            elseif(count($pairs) == 1) return array_diff($orig_pair, $pair);
+            if(count($pair) > 1) $pair = self::filter7_isExtinct($pair);       //isExtinct IS FALSE
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
             /*Prefer | Reject
             1. accepted name | provisionally accepted name
@@ -909,6 +909,20 @@ class DWH_CoL_API_20Feb2019
             3. scientificNameAuthorship WITH 4-digit number | scientificNameAuthorship WITHOUT 4-digit number
             4. authority date (4-digit number in scientificNameAuthorship) is smaller | authority date is larger
             5. scientificNameAuthorship WITH parentheses | scientificNameAuthorship WITHOUT parentheses
+            6. subgenus IS empty | subgenus IS NOT empty
+            7. isExtinct IS TRUE | isExtinct IS FALSE
+            */
+        }
+        if($what == 'infraspecies') {
+            /*Prefer | Reject
+            1. accepted name | provisionally accepted name
+            2. scientificNameAuthorship IS NOT empty | scientificNameAuthorship IS empty
+            3. scientificNameAuthorship WITH 4-digit number | scientificNameAuthorship WITHOUT 4-digit number
+            4. authority date (4-digit number in scientificNameAuthorship) is smaller | authority date is larger
+            5. scientificNameAuthorship WITH parentheses | scientificNameAuthorship WITHOUT parentheses
+            5.1. verbatimTaxonRank IS NOT empty | verbatimTaxonRank IS empty
+            5.2. verbatimTaxonRank IS subsp. | verbatimTaxonRank IS var. OR f.
+            5.3. verbatimTaxonRank IS var. | verbatimTaxonRank IS f.
             6. subgenus IS empty | subgenus IS NOT empty
             7. isExtinct IS TRUE | isExtinct IS FALSE
             */
