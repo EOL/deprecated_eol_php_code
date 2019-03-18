@@ -890,6 +890,7 @@ class DWH_CoL_API_20Feb2019
             if(!in_array($rec['taxonID'], $ids_2be_removed)) self::write_taxon_DH($rec);
         }
         // exit("\nexit yy\n");
+        $this->archive_builder->finalize(TRUE);
     }
     private function prefer_reject($records, $what)
     {
