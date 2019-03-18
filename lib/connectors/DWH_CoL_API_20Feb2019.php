@@ -1025,18 +1025,21 @@ class DWH_CoL_API_20Feb2019
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
                 if(preg_match_all('!\d+!', $info['sna'], $arr)) {
-                    foreach($arr[0] as $numeric) {
-                        if(strlen($numeric) == 4) $ids_with_4digit_no[$taxonID] = $numeric;
+                    $xxx = $arr[0];
+                    foreach($xxx as $numeric) {
+                        if($numeric) {
+                            if(strlen($numeric) == 4) $ids_with_4digit_no[$taxonID] = $numeric;
+                        }
                     }
                 }
             }
         }
         
         if(count(@$ids_with_4digit_no) == 2) {
-            foreach($ids_with_4digit_no as $taxonID => $numeric) $arr[] = array($taxonID, $numeric);
+            foreach($ids_with_4digit_no as $taxonID => $numeric) $arr[] = array('id' => $taxonID, 'numeric' => $numeric);
             $to_remove = false;
-            if($arr[0][1] > $arr[1][1]) $to_remove = $arr[0][0];
-            if($arr[1][1] > $arr[0][1]) $to_remove = $arr[1][0];
+            if($arr[0]['numeric'] > $arr[1]['numeric']) $to_remove = $arr[0]['id'];
+            if($arr[1]['numeric'] > $arr[0]['numeric']) $to_remove = $arr[1]['id'];
             if($to_remove) {
                 $i = -1;
                 foreach($pair as $taxonID) { $i++;

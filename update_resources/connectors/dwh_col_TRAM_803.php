@@ -20,7 +20,7 @@ exit("\n-end utility\n");
 
 //############################################################ start main CoL DH
 /*
-$resource_id = "Catalogue_of_Life_DH_20Feb2019"; //to be used in final step
+$resource_id = "Catalogue_of_Life_DH_20Feb2019"; //to be used in final step, just manually rename it to "Catalogue_of_Life_DH_20Feb2019"
 $resource_id = "Catalogue_of_Life_DH_step1";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->start_tram_803();
@@ -32,7 +32,7 @@ run_diagnostics($resource_id);
 //############################################################ end main CoL DH
 //############################################################ start CoL Protists
 /*
-$resource_id = "Catalogue_of_Life_Protists_DH_20Feb2019"; //to be used in final step
+$resource_id = "Catalogue_of_Life_Protists_DH_20Feb2019"; //to be used in final step, just manually rename it to "Catalogue_of_Life_Protists_DH_20Feb2019"
 $resource_id = "Catalogue_of_Life_Protists_DH_step1";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->start_ColProtists();
@@ -78,11 +78,26 @@ Functions::finalize_dwca_resource($resource_id, true);
 */
 
 
+// $str = "eli 111 boy 1234";
+// if(preg_match_all('!\d+!', $str, $arr)) {
+//     $xxx = $arr[0];
+//     print_r($xxx);
+//     foreach($xxx as $numeric) {
+//         if($numeric) {
+//             if(strlen($numeric) == 4) $ids_with_4digit_no[] = $numeric;
+//         }
+//     }
+// }
+// print_r($ids_with_4digit_no); exit("\n");
+
+
+// /*
 $resource_id = "Catalogue_of_Life_DH_step3";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_B('COL');
 Functions::finalize_dwca_resource($resource_id, true);
-
+run_diagnostics($resource_id);
+// */
 //############################################################ end "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
 
 $elapsed_time_sec = time_elapsed() - $timestart;
