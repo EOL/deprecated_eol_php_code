@@ -958,11 +958,13 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
-        if(!$pair) exit("\nInvestigate filter6\n");
+        if(!$pair) exit("\nInvestigate filter7\n");
+        if(count($pair) > 1) exit("\npick one...\n");
         return $pair;
     }
     private function filter6_subgenus($pair, $i = -1) //subgenus IS NOT empty
     {
+        $orig_pair = $pair;
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
@@ -972,11 +974,12 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
-        if(!$pair) exit("\nInvestigate filter6\n");
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter6\n");
         return $pair;
     }
     private function filter5_authorship($pair, $i = -1) //WITHOUT parentheses
     {
+        $orig_pair = $pair;
         foreach($pair as $taxonID) { $i++;
             if($info = $this->taxonID_info[$taxonID]) {
                 /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
@@ -987,7 +990,7 @@ class DWH_CoL_API_20Feb2019
             }
         }
         $pair = array_values($pair); //reindex key
-        if(!$pair) exit("\nInvestigate filter5\n");
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter5\n");
         return $pair;
     }
     private function filter3_authorship($pair, $i = -1) //without 4-digit no.
