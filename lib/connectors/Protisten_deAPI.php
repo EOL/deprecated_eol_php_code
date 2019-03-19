@@ -63,10 +63,42 @@ class Protisten_deAPI
         $this->filenames = array();
         $this->filenames[] = $html_filename;
         
-        $next_pages = self::get_all_next_pages($this->page['image_page_url'].$html_filename);
-        print_r($next_pages);
-        // exit("\nstop1\n");
+        $rec['next_pages'] = self::get_all_next_pages($this->page['image_page_url'].$html_filename);
+        $rec['media_info'] = self::get_media_info($rec);
+        print_r($rec);
         return $rec;
+    }
+    private function get_media_info($rec)
+    {
+        print_r($rec); //exit;
+        if($pages = @$rec['next_pages']) {
+            foreach($pages as $html_filename) {
+                $media_info = self::parse_media($this->page['image_page_url'].$html_filename);
+            }
+        }
+        exit;
+    }
+    private function parse_media($url)
+    {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            $html = utf8_encode($html);
+            $html = Functions::conv_to_utf8($html);
+            $html = self::clean_str($html);
+            if(preg_match("/MARK 14\:(.*?)<\/td>/ims", $html, $arr)) {
+                $tmp = str_replace("&nbsp;", " ", strip_tags($arr[1]));
+                if(preg_match("/\-\-\>(.*?)xxx/ims", $tmp."xxx", $arr)) $tmp = $arr[1];
+                $tmp = Functions::remove_whitespace(trim($tmp));
+                $m['desc'] = $tmp;
+            }
+            print_r($m);
+            echo "\nµ m. \n";
+        }
+        exit;
+    }
+    private function clean_str($str)
+    {
+        $str = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011", "", ""), " ", trim($str));
+        return trim($str);
     }
     private function get_all_next_pages($url)
     {
