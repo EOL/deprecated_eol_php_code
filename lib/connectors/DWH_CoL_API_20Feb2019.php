@@ -931,14 +931,13 @@ class DWH_CoL_API_20Feb2019
         a9c49d341fe692157910e89f7a473aed doesn't have children. So it has to be rejected.
         */
 
-        /*
+        /* added this in spreadsheet mergeForCOL
         Array(
             [0] => 133d4377d83891a5c5d6f2488b02d2a0
             [1] => a1349bf1ddbc62bb2a93f7cccff3a053     - undefined parent
         )
         4271f4dc9ddece87eb2f65bc7dcc0fdc		a1349bf1ddbc62bb2a93f7cccff3a053	Leptomithrax tuberculatus mortenseni Bennett, 1964	Leptomithrax	tuberculatus	infraspecies	Bennett, 1964	accepted name	
-        133d4377d83891a5c5d6f2488b02d2a0		9916bb869074011f8294fd30f7fbe4f0	Leptomithrax tuberculatus Whitelegge, 1900	Leptomithrax	tuberculatus	species	Whitelegge, 1900	
-            accepted name	isExtinct:true	
+        133d4377d83891a5c5d6f2488b02d2a0		9916bb869074011f8294fd30f7fbe4f0	Leptomithrax tuberculatus Whitelegge, 1900	Leptomithrax	tuberculatus	species	Whitelegge, 1900	accepted name	isExtinct:true	
         a1349bf1ddbc62bb2a93f7cccff3a053		9916bb869074011f8294fd30f7fbe4f0	Leptomithrax tuberculatus Whitelegge, 1900	Leptomithrax	tuberculatus	species	Whitelegge, 1900	accepted name	isExtinct:false	
         */
 
