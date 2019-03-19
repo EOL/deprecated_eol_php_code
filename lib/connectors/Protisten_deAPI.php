@@ -22,6 +22,7 @@ class Protisten_deAPI
         
         $this->page['main'] = 'http://www.protisten.de/gallery_ALL/Galerie001.html';
         $this->page['pre_url'] = 'http://www.protisten.de/gallery_ALL/Galerie';
+        $this->page['image_page_url'] = 'http://www.protisten.de/gallery_ALL/';
     }
     function start()
     {
@@ -38,11 +39,68 @@ class Protisten_deAPI
         if($html = Functions::lookup_with_cache($this->page['pre_url'].$filename, $this->download_options)) {
             if(preg_match("/<table border=\'0\'(.*?)<\/table>/ims", $html, $arr)) {
                 if(preg_match_all("/<td align=\'center\'(.*?)<\/td>/ims", $arr[1], $arr2)) {
-                    print_r($arr2[1]);
+                    $rows = $arr2[1];
+                    foreach($rows as $row) {
+                        /*[0] =>  width='130' bgcolor='#A5A59B'><a href='2_Acanthoceras-spec.html'>2 images<br><img  width='100' height='100'  border='0'  
+                        src='thumbs/Acanthoceras_040-125_P6020240-251_ODB.jpg'><br><i>Acanthoceras</i> spec.</a>
+                        */
+                        $rec = array();
+                        if(preg_match("/href=\'(.*?)\'/ims", $row, $arr)) $rec['image_page'] = $arr[1];
+                        if(preg_match("/\.jpg\'>(.*?)<\/a>/ims", $row, $arr)) $rec['taxon'] = strip_tags($arr[1]);
+                        if($rec['image_page'] && $rec['taxon']) {
+                            $rec = self::parse_image_page($rec);
+                        }
+                    }
                 }
-                
             }
         }
+    }
+    private function parse_image_page($rec)
+    {
+        $html_filename = $rec['image_page'];
+        echo "\n".$html_filename." -- \n";
+
+        $this->filenames = array();
+        $this->filenames[] = $html_filename;
+        
+        $next_pages = self::get_all_next_pages($this->page['image_page_url'].$html_filename);
+        print_r($next_pages);
+        // exit("\nstop1\n");
+        return $rec;
+    }
+    private function get_all_next_pages($url)
+    {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            // echo "\naaa\n";
+            $html = str_replace('href="yyy.html"', "", $html);
+            /*MARK 6: a href="yyy.html" (Nachfolger) -->
+            	   <a href="3_Acanthoceras-spec.html"
+            */
+            if(preg_match("/MARK 6\:(.*?)target/ims", $html, $arr)) {
+                // echo "\nbbb\n";
+                $tmp = $arr[1];
+                // echo "\n".$tmp."\n";
+                if(preg_match("/href=\"(.*?)\"/ims", $tmp, $arr2)) {
+                    // echo "\nccc\n";
+                    if($html_filename = $arr2[1]) {
+                        // echo "\nddd [$html_filename]\n";
+                        if(!in_array($html_filename, $this->filenames)) {
+                            // echo "\nnot in array [$html_filename]\n";
+                            $this->filenames[] = $html_filename;
+                            self::get_all_next_pages($this->page['image_page_url'].$html_filename);
+                        }
+                        else
+                        {
+                            // echo "\nalready in array [$html_filename]\n";
+                            return $this->filenames;
+                        }
+                    }
+                    else return $this->filenames;
+                }
+            }
+            else return $this->filenames;
+        }
+        return $this->filenames;
     }
     private function get_total_batches()
     {
