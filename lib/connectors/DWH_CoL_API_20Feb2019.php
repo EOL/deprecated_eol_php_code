@@ -1110,7 +1110,7 @@ class DWH_CoL_API_20Feb2019
         }
         
         if(count(@$ids_with_4digit_no) == 2) {
-            print_r($ids_with_4digit_no);
+            // print_r($ids_with_4digit_no);
             $arr_tmp = array();
             foreach($ids_with_4digit_no as $taxonID => $numeric) $arr_tmp[] = array('id' => $taxonID, 'numeric' => $numeric);
             $to_remove = false;
