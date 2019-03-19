@@ -780,25 +780,17 @@ class DWH_CoL_API_20Feb2019
     //=========================================================================== end DUPLICATE TAXA letter A ====================================
     
     //=========================================================================== start DUPLICATE TAXA letter B ==================================
-    // b5dd6a31ea9b6edbd27b3585d7ae7355     e4598baeb2479608f76a723b22e896c3    Ilyodrilus frantzi Brinkhurst, 1965 Ilyodrilus  frantzi species Brinkhurst, 1965    accepted name   isExtinct:false         
-    // a9c49d341fe692157910e89f7a473aed     e4598baeb2479608f76a723b22e896c3    Ilyodrilus frantzi Brinkhurst, 1965 Ilyodrilus  frantzi species Brinkhurst, 1965    accepted name   isExtinct:false         
-    // 
-    // 
-    // 7025758  e7a60592843882a76921c8870ee1606a        Aulodrilus stephensoni Mehra, 1966  Aulodrilus  stephensoni species Mehra, 1966 synonym             
-    // e7a60592843882a76921c8870ee1606a     dc7b494bd405ab89b7eb73120341d2ae    Aulodrilus pigueti Kowalewski, 1914 Aulodrilus  pigueti species Kowalewski, 1914    accepted name   isExtinct:false         
-    // 
-    // 52559494 67875bc28884f7ed580017f7ef299bae        Aulodrilus kashi Mehra, 1922    Aulodrilus  kashi   species Mehra, 1922 synonym             
-    // 52559495 67875bc28884f7ed580017f7ef299bae        Aulodrilus prothecatus Chen, 1940   Aulodrilus  prothecatus species Chen, 1940  synonym             
-    // 52559496 67875bc28884f7ed580017f7ef299bae        Aulodrilus remex Stephenson, 1921   Aulodrilus  remex   species Stephenson, 1921    synonym             
-    // 52559497 67875bc28884f7ed580017f7ef299bae        Aulodrilus stephensoni Mehra, 1922  Aulodrilus  stephensoni species Mehra, 1922 synonym             
-    // 52559498 67875bc28884f7ed580017f7ef299bae        Aulodrilus tchadensis Lauzanne, 1968    Aulodrilus  tchadensis  species Lauzanne, 1968  synonym             
-    // 67875bc28884f7ed580017f7ef299bae     dc7b494bd405ab89b7eb73120341d2ae    Aulodrilus pigueti Kowalewski, 1914 Aulodrilus  pigueti species Kowalewski, 1914    accepted name   isExtinct:false         
-    
     public function duplicate_process_B($what)
     {
         if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step2/";          //for COL
         if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step3/"; //for CLP
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
+        
+        /* no longer needed
+        //initial step: build up the $this->taxID_info to be used by get_ancestry
+        $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
+        */
+        
         //step 1: format array records to see which are duplicate taxa
         $i = 0;
         foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
@@ -865,8 +857,12 @@ class DWH_CoL_API_20Feb2019
         1ab1fbb89c355b4198bdef93869b809c		dde980c765191db8e8178f59a091da99	Genysa decorsei (Simon, 1902)	Genysa	decorsei	species	(Simon, 1902)	accepted name			
         */
         
-        print_r($dup_species);
-        print_r($dup_infraspecies);
+        /* debug only - force assign
+        $dup_species = array();
+        $dup_species[] = array("b5dd6a31ea9b6edbd27b3585d7ae7355", "a9c49d341fe692157910e89f7a473aed");
+        */
+        
+        // print_r($dup_species); print_r($dup_infraspecies);
         echo "\ndup_species: ".count($dup_species)."\n";
         echo "\ndup_infraspecies: ".count($dup_infraspecies)."\n";
         if(!$dup_species && !$dup_infraspecies) {
@@ -924,19 +920,38 @@ class DWH_CoL_API_20Feb2019
     }
     private function select_1_from_list_of_taxonIDs($pair, $what)
     {
+        /* e.g. of duplicate taxa:
+        b5dd6a31ea9b6edbd27b3585d7ae7355     e4598baeb2479608f76a723b22e896c3    Ilyodrilus frantzi Brinkhurst, 1965 Ilyodrilus  frantzi species Brinkhurst, 1965    accepted name   isExtinct:false         
+        a9c49d341fe692157910e89f7a473aed     e4598baeb2479608f76a723b22e896c3    Ilyodrilus frantzi Brinkhurst, 1965 Ilyodrilus  frantzi species Brinkhurst, 1965    accepted name   isExtinct:false         
+
+        ca6ee60b36219c555b9b2527f0a9d991     b5dd6a31ea9b6edbd27b3585d7ae7355    Ilyodrilus frantzi frantzi Brinkhurst and Cook, 1966    Ilyodrilus  frantzi infraspecies    Brinkhurst and Cook, 1966   accepted name   isExtinct:false frantzi     
+        cc97c34bd718943a9e965873f0ac2cdf     b5dd6a31ea9b6edbd27b3585d7ae7355    Ilyodrilus frantzi capillatus Brinkhurst and Cook, 1966 Ilyodrilus  frantzi infraspecies    Brinkhurst and Cook, 1966   accepted name   isExtinct:false capillatus      
+
+        *** but get_ancestry seems not needed. What is needed is get_children instead (todo). Reject those without children e.g. between b5dd6a31ea9b6edbd27b3585d7ae7355 and a9c49d341fe692157910e89f7a473aed.
+        a9c49d341fe692157910e89f7a473aed doesn't have children. So it has to be rejected.
+        */
+
         $orig_pair = $pair;
         if($what == 'species' || $what == 'infraspecies') { //for both cases actully, we can live without this filter actually.
                                  $pair = self::filter1_status($pair);          //equal to "provisionally accepted name"
-            if(count($pair) > 1) $pair = self::filter2_authorship($pair);      //without authorship
+                                 echo "\nresult filter1:\n"; print_r($pair);
+            if(count($pair) > 1) {$pair = self::filter2_authorship($pair);      //without authorship
+                                 //echo "\nresult filter2:\n"; print_r($pair);
+                                 }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
 
-            if(count($pair) > 1) $pair = self::filter3_authorship($pair);      //without 4-digit no.
+            if(count($pair) > 1) {$pair = self::filter3_authorship($pair);      //without 4-digit no.
+                                 //echo "\nresult filter3:\n"; print_r($pair);
+                                 }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
 
-            if(count($pair) > 1) $pair = self::filter4_authorship($pair);      //authority date is larger
+            if(count($pair) > 1) {$pair = self::filter4_authorship($pair);      //authority date is larger
+                                 //echo "\nresult filter4:\n"; print_r($pair);
+                                 }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
-            
-            if(count($pair) > 1) $pair = self::filter5_authorship($pair);      //without parentheses
+            if(count($pair) > 1) {$pair = self::filter5_authorship($pair);      //without parentheses
+                                 //echo "\nresult filter5:\n"; print_r($pair);
+                                 }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
 
             if($what == 'infraspecies') {
@@ -952,10 +967,19 @@ class DWH_CoL_API_20Feb2019
                 elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             }
 
-            if(count($pair) > 1) $pair = self::filter6_subgenus($pair);        //subgenus IS NOT empty
+            if(count($pair) > 1) {$pair = self::filter6_subgenus($pair);        //subgenus IS NOT empty
+                                 // echo "\nresult filter6:\n"; print_r($pair);
+                                 }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
-            if(count($pair) > 1) $pair = self::filter7_isExtinct($pair);       //isExtinct IS FALSE
+            if(count($pair) > 1) {$pair = self::filter7_isExtinct($pair);       //isExtinct IS FALSE
+                                 // echo "\nresult filter7:\n"; print_r($pair);
+                                 }
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            
+            if(count($pair) > 1) {$pair = self::filter8_NoAncestry($pair);       //NoAncestry
+                                 // echo "\nresult filter8:\n"; print_r($pair);
+                                 }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
             /*Prefer | Reject
@@ -966,10 +990,7 @@ class DWH_CoL_API_20Feb2019
             5. scientificNameAuthorship WITH parentheses | scientificNameAuthorship WITHOUT parentheses
             6. subgenus IS empty | subgenus IS NOT empty
             7. isExtinct IS TRUE | isExtinct IS FALSE
-            */
-        }
-        if($what == 'infraspecies') {
-            /*Prefer | Reject
+
             1. accepted name | provisionally accepted name
             2. scientificNameAuthorship IS NOT empty | scientificNameAuthorship IS empty
             3. scientificNameAuthorship WITH 4-digit number | scientificNameAuthorship WITHOUT 4-digit number
@@ -982,6 +1003,30 @@ class DWH_CoL_API_20Feb2019
             7. isExtinct IS TRUE | isExtinct IS FALSE
             */
         }
+    }
+    private function filter8_NoAncestry($pair)
+    {
+        if(count($pair) > 1)    unset($pair[1]); //pick one
+        $pair = array_values($pair); //reindex key
+        return $pair;
+        /* working but get_ancestry() is not the solution but get_children() is. ToDo get_children(), reject those without children vs those with children.
+        $orig_pair = $pair;
+        $i = -1;
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                [02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )
+                $ancestry = self::get_ancestry_of_taxID($taxonID, $this->taxID_info); print_r($ancestry);
+                if(!$ancestry) unset($pair[$i]);
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair)              $pair = $orig_pair;
+        if(count($pair) > 1)    unset($pair[1]); //pick one
+        $pair = array_values($pair); //reindex key
+        return $pair;
+        */
     }
     private function filter7_isExtinct($pair, $i = -1) //isExtinct IS FALSE
     {
@@ -996,8 +1041,10 @@ class DWH_CoL_API_20Feb2019
         }
         $pair = array_values($pair); //reindex key
         if(!$pair)              $pair = $orig_pair;
+        /* commented since this is no longer the last filter. There is now filter8_NoAncestry()
         if(count($pair) > 1)    unset($pair[1]); //pick one
         $pair = array_values($pair); //reindex key
+        */
         return $pair;
     }
     private function filter6_subgenus($pair, $i = -1) //subgenus IS NOT empty
@@ -1052,10 +1099,13 @@ class DWH_CoL_API_20Feb2019
         }
         
         if(count(@$ids_with_4digit_no) == 2) {
-            foreach($ids_with_4digit_no as $taxonID => $numeric) $arr[] = array('id' => $taxonID, 'numeric' => $numeric);
+            print_r($ids_with_4digit_no);
+            $arr_tmp = array();
+            foreach($ids_with_4digit_no as $taxonID => $numeric) $arr_tmp[] = array('id' => $taxonID, 'numeric' => $numeric);
             $to_remove = false;
-            if(@$arr[0]['numeric'] > @$arr[1]['numeric']) $to_remove = $arr[0]['id'];
-            if(@$arr[1]['numeric'] > @$arr[0]['numeric']) $to_remove = $arr[1]['id'];
+            // print_r($arr_tmp);
+            if(@$arr_tmp[0]['numeric'] > @$arr_tmp[1]['numeric']) $to_remove = $arr_tmp[0]['id'];
+            if(@$arr_tmp[1]['numeric'] > @$arr_tmp[0]['numeric']) $to_remove = $arr_tmp[1]['id'];
             if($to_remove) {
                 $i = -1;
                 foreach($pair as $taxonID) { $i++;
