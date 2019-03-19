@@ -71,34 +71,24 @@ class Protisten_deAPI
     private function get_all_next_pages($url)
     {
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            // echo "\naaa\n";
             $html = str_replace('href="yyy.html"', "", $html);
             /*MARK 6: a href="yyy.html" (Nachfolger) -->
             	   <a href="3_Acanthoceras-spec.html"
             */
             if(preg_match("/MARK 6\:(.*?)target/ims", $html, $arr)) {
-                // echo "\nbbb\n";
                 $tmp = $arr[1];
-                // echo "\n".$tmp."\n";
                 if(preg_match("/href=\"(.*?)\"/ims", $tmp, $arr2)) {
-                    // echo "\nccc\n";
                     if($html_filename = $arr2[1]) {
-                        // echo "\nddd [$html_filename]\n";
                         if(!in_array($html_filename, $this->filenames)) {
-                            // echo "\nnot in array [$html_filename]\n";
                             $this->filenames[] = $html_filename;
                             self::get_all_next_pages($this->page['image_page_url'].$html_filename);
                         }
-                        else
-                        {
-                            // echo "\nalready in array [$html_filename]\n";
-                            return $this->filenames;
-                        }
+                        // else return $this->filenames;
                     }
-                    else return $this->filenames;
+                    // else return $this->filenames;
                 }
             }
-            else return $this->filenames;
+            // else return $this->filenames;
         }
         return $this->filenames;
     }
