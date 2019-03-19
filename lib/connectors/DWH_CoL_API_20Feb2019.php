@@ -340,6 +340,8 @@ class DWH_CoL_API_20Feb2019
                 $k++;
             }
             $rec = array_map('trim', $rec);
+            if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) continue;
+            
             if(isset($identifiers_taxonIDs[$rec['identifier']])) continue;
             
             /*Array()*/
@@ -778,6 +780,20 @@ class DWH_CoL_API_20Feb2019
     //=========================================================================== end DUPLICATE TAXA letter A ====================================
     
     //=========================================================================== start DUPLICATE TAXA letter B ==================================
+    // b5dd6a31ea9b6edbd27b3585d7ae7355     e4598baeb2479608f76a723b22e896c3    Ilyodrilus frantzi Brinkhurst, 1965 Ilyodrilus  frantzi species Brinkhurst, 1965    accepted name   isExtinct:false         
+    // a9c49d341fe692157910e89f7a473aed     e4598baeb2479608f76a723b22e896c3    Ilyodrilus frantzi Brinkhurst, 1965 Ilyodrilus  frantzi species Brinkhurst, 1965    accepted name   isExtinct:false         
+    // 
+    // 
+    // 7025758  e7a60592843882a76921c8870ee1606a        Aulodrilus stephensoni Mehra, 1966  Aulodrilus  stephensoni species Mehra, 1966 synonym             
+    // e7a60592843882a76921c8870ee1606a     dc7b494bd405ab89b7eb73120341d2ae    Aulodrilus pigueti Kowalewski, 1914 Aulodrilus  pigueti species Kowalewski, 1914    accepted name   isExtinct:false         
+    // 
+    // 52559494 67875bc28884f7ed580017f7ef299bae        Aulodrilus kashi Mehra, 1922    Aulodrilus  kashi   species Mehra, 1922 synonym             
+    // 52559495 67875bc28884f7ed580017f7ef299bae        Aulodrilus prothecatus Chen, 1940   Aulodrilus  prothecatus species Chen, 1940  synonym             
+    // 52559496 67875bc28884f7ed580017f7ef299bae        Aulodrilus remex Stephenson, 1921   Aulodrilus  remex   species Stephenson, 1921    synonym             
+    // 52559497 67875bc28884f7ed580017f7ef299bae        Aulodrilus stephensoni Mehra, 1922  Aulodrilus  stephensoni species Mehra, 1922 synonym             
+    // 52559498 67875bc28884f7ed580017f7ef299bae        Aulodrilus tchadensis Lauzanne, 1968    Aulodrilus  tchadensis  species Lauzanne, 1968  synonym             
+    // 67875bc28884f7ed580017f7ef299bae     dc7b494bd405ab89b7eb73120341d2ae    Aulodrilus pigueti Kowalewski, 1914 Aulodrilus  pigueti species Kowalewski, 1914    accepted name   isExtinct:false         
+    
     public function duplicate_process_B($what)
     {
         if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step2/";          //for COL
