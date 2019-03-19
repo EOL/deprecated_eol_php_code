@@ -931,10 +931,21 @@ class DWH_CoL_API_20Feb2019
         a9c49d341fe692157910e89f7a473aed doesn't have children. So it has to be rejected.
         */
 
+        /*
+        Array(
+            [0] => 133d4377d83891a5c5d6f2488b02d2a0
+            [1] => a1349bf1ddbc62bb2a93f7cccff3a053     - undefined parent
+        )
+        4271f4dc9ddece87eb2f65bc7dcc0fdc		a1349bf1ddbc62bb2a93f7cccff3a053	Leptomithrax tuberculatus mortenseni Bennett, 1964	Leptomithrax	tuberculatus	infraspecies	Bennett, 1964	accepted name	
+        133d4377d83891a5c5d6f2488b02d2a0		9916bb869074011f8294fd30f7fbe4f0	Leptomithrax tuberculatus Whitelegge, 1900	Leptomithrax	tuberculatus	species	Whitelegge, 1900	
+            accepted name	isExtinct:true	
+        a1349bf1ddbc62bb2a93f7cccff3a053		9916bb869074011f8294fd30f7fbe4f0	Leptomithrax tuberculatus Whitelegge, 1900	Leptomithrax	tuberculatus	species	Whitelegge, 1900	accepted name	isExtinct:false	
+        */
+
         $orig_pair = $pair;
         if($what == 'species' || $what == 'infraspecies') { //for both cases actully, we can live without this filter actually.
                                  $pair = self::filter1_status($pair);          //equal to "provisionally accepted name"
-                                 echo "\nresult filter1:\n"; print_r($pair);
+                                 // echo "\nresult filter1:\n"; print_r($pair);
             if(count($pair) > 1) {$pair = self::filter2_authorship($pair);      //without authorship
                                  //echo "\nresult filter2:\n"; print_r($pair);
                                  }
@@ -1166,6 +1177,21 @@ class DWH_CoL_API_20Feb2019
                     [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
                 )*/
                 if($info['s'] == 'provisionally accepted name') unset($pair[$i]);
+            }
+        }
+        $pair = array_values($pair); //reindex key
+        if(!$pair) return $orig_pair; //exit("\nInvestigate filter1\n"); ...add the $orig_pair process for all filter process... except for filter7
+        
+        if($pair != $orig_pair) return $pair;
+        
+        $orig_pair = $pair;
+        $i = -1;
+        foreach($pair as $taxonID) { $i++;
+            if($info = $this->taxonID_info[$taxonID]) {
+                /*[02dcf48d2ba98f149bbf56a1f91f2da7] => Array(  e.g. rec for $this->taxonID_info
+                    [s] => accepted name | [sna] => (Loden, 1977) | [vr] => [sg] => [isE] => 
+                )*/
+                if($info['s'] == '') unset($pair[$i]);
             }
         }
         $pair = array_values($pair); //reindex key

@@ -57,7 +57,7 @@ $resource_id = "Catalogue_of_Life_Protists_DH_step3";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_A('CLP');
 Functions::finalize_dwca_resource($resource_id, true);
-run_diagnostics($resource_id);
+run_diagnostics($resource_id); exit;
 
 $resource_id = "Catalogue_of_Life_DH_step2";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
@@ -77,27 +77,11 @@ $func->duplicate_process_B('CLP');
 Functions::finalize_dwca_resource($resource_id, true);
 */
 
-
-// $str = "eli 111 boy 1234";
-// if(preg_match_all('!\d+!', $str, $arr)) {
-//     $xxx = $arr[0];
-//     print_r($xxx);
-//     foreach($xxx as $numeric) {
-//         if($numeric) {
-//             if(strlen($numeric) == 4) $ids_with_4digit_no[] = $numeric;
-//         }
-//     }
-// }
-// print_r($ids_with_4digit_no); exit("\n");
-
-
-// /*
 $resource_id = "Catalogue_of_Life_DH_step3";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_B('COL');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
-// */
 //############################################################ end "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -110,7 +94,7 @@ Function run_diagnostics($resource_id) // utility - takes time for this resource
 {
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
-    // $func->check_unique_ids($resource_id);
+    // $func->check_unique_ids($resource_id); //takes time
 
     $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
     if($undefined) echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";
