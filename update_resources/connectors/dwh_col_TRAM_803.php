@@ -27,7 +27,6 @@ $func->start_tram_803();
 $func = null;
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
-// exit("\n-End for now-\n");
 */
 //############################################################ end main CoL DH
 //############################################################ start CoL Protists
@@ -57,7 +56,7 @@ $resource_id = "Catalogue_of_Life_Protists_DH_step3";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_A('CLP');
 Functions::finalize_dwca_resource($resource_id, true);
-run_diagnostics($resource_id); exit;
+run_diagnostics($resource_id);
 
 $resource_id = "Catalogue_of_Life_DH_step2";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
@@ -65,8 +64,6 @@ $func->duplicate_process_A('COL');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
 */
-// exit("\nstop here 01...\n");
-
 //############################################################ end "DUPLICATE TAXA" A. Merge duplicate genera
 
 //############################################################ start "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
