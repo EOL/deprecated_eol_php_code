@@ -65,7 +65,7 @@ class Protisten_deAPI
         
         $rec['next_pages'] = self::get_all_next_pages($this->page['image_page_url'].$html_filename);
         $rec['media_info'] = self::get_media_info($rec);
-        print_r($rec);
+        // print_r($rec);
         return $rec;
     }
     private function get_media_info($rec)
@@ -104,7 +104,7 @@ class Protisten_deAPI
                 $tmp = Functions::remove_whitespace(trim($tmp));
                 $m['sciname'] = $tmp;
             }
-            print_r($m);
+            // print_r($m);
         }
         return $m;
     }
