@@ -878,6 +878,9 @@ class DWH_CoL_API_20Feb2019
         /* sample of duplicate species:
         0df0b41d1fb8756e6272e62be944c812		dde980c765191db8e8178f59a091da99	Genysa decorsei (Simon, 1902)	Genysa	decorsei	species	(Simon, 1902)	provisionally accepted name			
         1ab1fbb89c355b4198bdef93869b809c		dde980c765191db8e8178f59a091da99	Genysa decorsei (Simon, 1902)	Genysa	decorsei	species	(Simon, 1902)	accepted name			
+        
+        9477843dc89db0092e017377fb83408d		5364ae605ed1a16f7454bd796b77eb9b	Allonais chelata (Marcus, 1944)	Allonais	chelata	species	(Marcus, 1944)	accepted name	isExtinct:false			
+        6ccd2cb5a2a7526b64a35d4ee53e1c14		5364ae605ed1a16f7454bd796b77eb9b	Allonais chelata (Marcus, 1944)	Allonais	chelata	species	(Marcus, 1944)	accepted name	isExtinct:false			
         */
         
         /* debug only - force assign
@@ -1013,6 +1016,12 @@ class DWH_CoL_API_20Feb2019
             if(count($pair) > 1) {$pair = self::filter8_NoAncestry($pair);       //NoAncestry
                                  // echo "\nresult filter8:\n"; print_r($pair);
                                  }
+            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            
+            if(count($pair) > 1) { //should not go here...
+                print_r($pair);
+                exit("\nstill pair has 2 records\n");
+            }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
             /*Prefer | Reject

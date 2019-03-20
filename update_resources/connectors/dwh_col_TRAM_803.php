@@ -42,25 +42,22 @@ $func = false;
 */
 //############################################################ end CoL Protists
 //############################################################ start CLP & COL fix "NOT ASSIGNED TAXA"
-// /*
+/*
 $resource_id = "Catalogue_of_Life_Protists_DH_step2";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->fix_CLP_taxa_with_not_assigned_entries_V2('CLP');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
-// exit("\n-exit muna-\n");
-// */
 
 $resource_id = "Catalogue_of_Life_DH_step2";            //recently added. Forgot to implement 'not assigned' fix for COL.
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->fix_CLP_taxa_with_not_assigned_entries_V2('COL');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
-exit("\n-exit muna-\n");
-
+*/
 //############################################################ end CLP & COL
 //############################################################ start "DUPLICATE TAXA" A. Merge duplicate genera
-// /*
+/*
 $resource_id = "Catalogue_of_Life_Protists_DH_step3";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_A('CLP');
@@ -72,22 +69,24 @@ $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_A('COL');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
-// */
+*/
 //############################################################ end "DUPLICATE TAXA" A. Merge duplicate genera
 
 //############################################################ start "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
-/* doesn't seem to have records for this one:
+// /* doesn't seem to have records for this one:
 $resource_id = "Catalogue_of_Life_Protists_DH_step4";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_B('CLP');
 Functions::finalize_dwca_resource($resource_id, true);
-*/
+// */
 
+/*
 $resource_id = "Catalogue_of_Life_DH_step4";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_B('COL');
 Functions::finalize_dwca_resource($resource_id, true);
 run_diagnostics($resource_id);
+*/
 //############################################################ end "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
 
 $elapsed_time_sec = time_elapsed() - $timestart;
