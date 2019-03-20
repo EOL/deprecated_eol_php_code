@@ -70,18 +70,19 @@ class Protisten_deAPI
     }
     private function get_media_info($rec)
     {
-        print_r($rec); //exit;
+        // print_r($rec); //exit;
         if($pages = @$rec['next_pages']) {
             foreach($pages as $html_filename) {
-                $media_info = self::parse_media($this->page['image_page_url'].$html_filename);
+                $media_info[] = self::parse_media($this->page['image_page_url'].$html_filename);
             }
         }
-        exit;
+        return $media_info;
+        // exit;
     }
     private function parse_media($url)
     {
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            $html = utf8_encode($html);
+            $html = utf8_encode($html); //needed for this resource. May not be needed for other resources.
             $html = Functions::conv_to_utf8($html);
             $html = self::clean_str($html);
             if(preg_match("/MARK 14\:(.*?)<\/td>/ims", $html, $arr)) {
@@ -90,10 +91,22 @@ class Protisten_deAPI
                 $tmp = Functions::remove_whitespace(trim($tmp));
                 $m['desc'] = $tmp;
             }
+            if(preg_match("/MARK 12\:(.*?)<\/td>/ims", $html, $arr)) {
+                if(preg_match("/<img src=\"(.*?)\"/ims", $arr[1], $arr2)) $m['image'] = $arr2[1];
+                /*
+                e.g. value is:                     "pics/Acanthoceras_040-125_P6020240-251-totale_ODB.jpg"
+                http://www.protisten.de/gallery_ALL/pics/Acanthoceras_040-125_P6020240-251-totale_ODB.jpg
+                */
+            }
+            if(preg_match("/MARK 13\:(.*?)<\/td>/ims", $html, $arr)) {
+                $tmp = str_replace("&nbsp;", " ", strip_tags($arr[1]));
+                if(preg_match("/\-\-\>(.*?)xxx/ims", $tmp."xxx", $arr)) $tmp = $arr[1];
+                $tmp = Functions::remove_whitespace(trim($tmp));
+                $m['sciname'] = $tmp;
+            }
             print_r($m);
-            echo "\nµ m. \n";
         }
-        exit;
+        return $m;
     }
     private function clean_str($str)
     {
