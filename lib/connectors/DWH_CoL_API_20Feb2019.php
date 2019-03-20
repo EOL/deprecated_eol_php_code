@@ -563,7 +563,16 @@ class DWH_CoL_API_20Feb2019
         
         /* From Katja: If that's not easy to do, we can also change the resource files to use "unclassified" instead of "unplaced" for container taxa. 
         I can do this for the resources under my control (trunk & ONY). You would have to do it for COL, CLP, ictv & WOR. */
+        /* this was later abondoned by one below this:
         $rec['scientificName'] = str_ireplace("Unplaced", "unclassified", $rec['scientificName']);
+        */
+        
+        /* From Katja: The original version of this is:
+        13663148 b41f2b15ccd7f64e1f5c329eae60e987 5 CCW in Species 2000 & ITIS Catalogue of Life: 20th February 2019 54217965 accepted name species Erioptera (Unplaced) amamiensis Alexander, 1956
+        Instead of changing (Unplaced) to (unclassified) here, we should simply remove the pseudo subgenus string and use the simple binomial, 
+        i.e., in this case, the scientificName should be "Erioptera amamiensis Alexander, 1956." To fix this you should be able to do a simple search and replace for (Unplaced) in the scientificName field.
+        */
+        $rec['scientificName'] = Functions::remove_whitespace(str_ireplace("(Unplaced)", "", $rec['scientificName']));
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxonID'];
