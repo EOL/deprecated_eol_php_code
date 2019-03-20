@@ -31,6 +31,20 @@ class DWH_CoL_API_20Feb2019
         Sorry I didn't think to make this more explicit in the workflow above. I don't think it will do harm if you remove these taxa now. 
         */
         $this->unclassified_id_increments = 0;
+        
+        $this->unclassified_taxa['Microsporea']      = 'unc-000001';
+        $this->unclassified_taxa['Paleo_radiozoa']   = 'unc-000002';
+        $this->unclassified_taxa['Microsporidia']    = 'unc-000003';
+        $this->unclassified_taxa['Saprolegniales']   = 'unc-000004';
+        $this->unclassified_taxa['Myxomycetes']      = 'unc-000005';
+        $this->unclassified_taxa['Secuicollactacea'] = 'unc-000006';
+        $this->unclassified_taxa['Ciliophora']       = 'unc-000007';
+        $this->unclassified_taxa['Oomycota']         = 'unc-000008';
+        $this->unclassified_taxa['Rozellopsidales']  = 'unc-000009';
+        $this->unclassified_taxa['Peronosporea']     = 'unc-000010';
+        $this->unclassified_taxa['Olpidiopsidales']  = 'unc-000011';
+        $this->unclassified_taxa['Peronosporales']   = 'unc-000012';
+        $this->unclassified_taxa['Leptomitales']     = 'unc-000013';
     }
     // ----------------------------------------------------------------- start TRAM-803 -----------------------------------------------------------------
     function start_CoLProtists()
@@ -1283,9 +1297,10 @@ class DWH_CoL_API_20Feb2019
     
     
     //=========================================================================== start adjusting taxon.tab with those 'not assigned' entries ==================================
-    public function fix_CLP_taxa_with_not_assigned_entries_V2()
+    public function fix_CLP_taxa_with_not_assigned_entries_V2($what)
     {
-        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step1/";
+        if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step1/";
+        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/";
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly temporary created DwCA
         $this->taxID_info = self::get_taxID_nodes_info($meta, $extension_path); echo "\ntaxID_info (".$meta['taxon_file'].") total rows: ".count($this->taxID_info)."\n";
         $i = 0;
@@ -1339,7 +1354,7 @@ class DWH_CoL_API_20Feb2019
                 // echo "\n------------------------\n";
                 if(self::name_is_not_assigned($rec['scientificName'])) continue; //ignore e.g. "Order not assigned" or "Family not assigned"
                 elseif(self::is_immediate_ancestor_Not_Assigned($rec['parentNameUsageID'])) {
-                    $ret = self::get_valid_parent_from_ancestry($ancestry, $taxonID);
+                    $ret = self::get_valid_parent_from_ancestry($ancestry, $taxonID, $what);
                     $rec['parentNameUsageID'] = $ret['valid_parent'];
                     self::write_taxon_DH($rec);                         // echo "\nold row: $row\n";
                     $new_row = implode("\t", $rec);                     // echo "\nnew row: $new_row\n";
@@ -1362,7 +1377,7 @@ class DWH_CoL_API_20Feb2019
         $txtfile_n = $extension_path.$meta['taxon_file'].".txt"; $new = self::get_total_rows($txtfile_n); echo "\nNew taxon.tab.txt: [$new]\n";
         $this->archive_builder->finalize(TRUE);
     }
-    private function get_valid_parent_from_ancestry($ancestry, $taxonID)
+    private function get_valid_parent_from_ancestry($ancestry, $taxonID, $what)
     {
         array_shift($ancestry); //remove first element of array, bec first element of $ancestry is the taxon in question.
         foreach($ancestry as $taxon_id) {
@@ -1374,15 +1389,19 @@ class DWH_CoL_API_20Feb2019
                    2. make the 'unclassified' taxon as parent of taxon in question
                    3. make the valid parent as the parent of the 'unclassified' taxon
                 */
-                $this->unclassified_id_increments++;
-                $unclassified_new_taxon = Array(
-                    'taxonID' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_id_increments, 6),
-                    'acceptedNameUsageID' => '',
-                    'parentNameUsageID' => $taxon_id,
-                    'scientificName' => 'unclassified '.$sci,
-                    'taxonRank' => 'no rank',
-                    'taxonomicStatus' => ''
-                );
+                if(!isset($this->unclassified[$sci])) {
+                    $this->unclassified_id_increments++;
+                    $unclassified_new_taxon = Array(
+                        'taxonID' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_id_increments, 6),
+                        'acceptedNameUsageID' => '',
+                        'parentNameUsageID' => $taxon_id,
+                        'scientificName' => 'unclassified '.$sci,
+                        'taxonRank' => 'no rank',
+                        'taxonomicStatus' => ''
+                    );
+                    $this->unclassified[$sci] = $unclassified_new_taxon;
+                }
+                else $unclassified_new_taxon = $this->unclassified[$sci];
                 return array('valid_parent' => $unclassified_new_taxon['taxonID'], 'unclassified_new_taxon' => $unclassified_new_taxon);
             }
         }
