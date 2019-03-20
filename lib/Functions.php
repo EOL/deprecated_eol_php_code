@@ -2018,8 +2018,11 @@ class Functions
     }
     public static function conv_to_utf8($string)
     {
-        $encoding = mb_detect_encoding($string);
-        $new = iconv($encoding, 'UTF-8//IGNORE', $string);
+        $encoding = mb_detect_encoding($string); //Eli orig
+        /* another option
+        $encoding = mb_detect_encoding($string, mb_detect_order(), false);
+        */
+        $new = iconv($encoding, "UTF-8//IGNORE", $string);
         /*
         if($encoding) {
             echo "\n has encoding [$encoding]"; echo "\n old value: [$string]"; echo "\n new value: [$new]";
