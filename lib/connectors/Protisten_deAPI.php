@@ -29,7 +29,7 @@ class Protisten_deAPI
         $batches = self::get_total_batches();
         foreach($batches as $filename) {
             $recs = self::process_one_batch($filename);
-            break; //debug
+            // break; //debug
         }
         exit;
         // $this->archive_builder->finalize(true);
