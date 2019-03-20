@@ -712,7 +712,7 @@ class DWH_CoL_API_20Feb2019
     //=========================================================================== start DUPLICATE TAXA letter A ==================================
     public function duplicate_process_A($what)
     {
-        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step1/";          //for COL
+        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step2/";          //for COL
         if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step2/"; //for CLP
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
         
@@ -796,7 +796,7 @@ class DWH_CoL_API_20Feb2019
     //=========================================================================== start DUPLICATE TAXA letter B ==================================
     public function duplicate_process_B($what)
     {
-        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step2/";          //for COL
+        if($what == 'COL') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_DH_step3/";          //for COL
         if($what == 'CLP') $extension_path = CONTENT_RESOURCE_LOCAL_PATH."Catalogue_of_Life_Protists_DH_step3/"; //for CLP
         $meta = self::get_meta_info(false, $extension_path); //meta here is now the newly (temporary) created DwCA
         
@@ -1392,7 +1392,7 @@ class DWH_CoL_API_20Feb2019
                 if(!isset($this->unclassified[$sci])) {
                     $this->unclassified_id_increments++;
                     $unclassified_new_taxon = Array(
-                        'taxonID' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_id_increments, 6),
+                        'taxonID' => 'unc-'.$what.Functions::format_number_with_leading_zeros($this->unclassified_id_increments, 3),
                         'acceptedNameUsageID' => '',
                         'parentNameUsageID' => $taxon_id,
                         'scientificName' => 'unclassified '.$sci,
