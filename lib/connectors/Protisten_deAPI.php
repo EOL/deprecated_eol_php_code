@@ -48,7 +48,7 @@ class Protisten_deAPI
                         $rec = array();
                         if(preg_match("/href=\'(.*?)\'/ims", $row, $arr)) $rec['image_page'] = $arr[1];
                         if(preg_match("/\.jpg\'>(.*?)<\/a>/ims", $row, $arr)) $rec['taxon'] = strip_tags($arr[1]);
-                        if($rec['image_page'] && $rec['taxon']) {
+                        if(@$rec['image_page'] && @$rec['taxon']) {
                             self::parse_image_page($rec);
                         }
                     }
