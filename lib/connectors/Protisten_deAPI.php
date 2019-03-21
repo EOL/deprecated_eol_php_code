@@ -14,7 +14,8 @@ class Protisten_deAPI
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->resource_reference_ids = array();
         $this->do_ids = array();
-        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'download_wait_time' => 1000000, 'timeout' => 1200, 'download_attempts' => 1, 'delay_in_minutes' => 2, 
+        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'download_wait_time' => 500000, 'timeout' => 1200, 
+        // 'download_attempts' => 1, 'delay_in_minutes' => 2, 
                                         'expire_seconds' => 60*60*24*25);
         // $this->download_options['expire_seconds'] = false;
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
