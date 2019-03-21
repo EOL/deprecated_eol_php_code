@@ -29,10 +29,9 @@ class Protisten_deAPI
         self::write_agent();
         $batches = self::get_total_batches();
         foreach($batches as $filename) {
-            $recs = self::process_one_batch($filename);
-            break; //debug
+            self::process_one_batch($filename);
+            // break; //debug - process only 1 batch.
         }
-        // exit;
         $this->archive_builder->finalize(true);
     }
     private function process_one_batch($filename)
@@ -49,7 +48,7 @@ class Protisten_deAPI
                         if(preg_match("/href=\'(.*?)\'/ims", $row, $arr)) $rec['image_page'] = $arr[1];
                         if(preg_match("/\.jpg\'>(.*?)<\/a>/ims", $row, $arr)) $rec['taxon'] = strip_tags($arr[1]);
                         if($rec['image_page'] && $rec['taxon']) {
-                            $rec = self::parse_image_page($rec);
+                            self::parse_image_page($rec);
                         }
                     }
                 }
@@ -59,7 +58,7 @@ class Protisten_deAPI
     private function parse_image_page($rec)
     {
         $html_filename = $rec['image_page'];
-        echo "\n".$html_filename." -- \n";
+        echo "\n".$html_filename." -- ";
 
         $this->filenames = array();
         $this->filenames[] = $html_filename;
@@ -67,18 +66,15 @@ class Protisten_deAPI
         $rec['next_pages'] = self::get_all_next_pages($this->page['image_page_url'].$html_filename);
         $rec['media_info'] = self::get_media_info($rec);
         if($rec['media_info']) self::write_archive($rec);
-        // return $rec; no need to return 
     }
     private function get_media_info($rec)
     {
-        // print_r($rec); //exit;
         if($pages = @$rec['next_pages']) {
             foreach($pages as $html_filename) {
                 $media_info[] = self::parse_media($this->page['image_page_url'].$html_filename);
             }
         }
         return $media_info;
-        // exit;
     }
     private function parse_media($url)
     {
@@ -158,7 +154,6 @@ class Protisten_deAPI
         */
         $i = -1;
         foreach($rec['media_info'] as $r) { $i++;
-            // print_r($r); exit;
             $taxon = new \eol_schema\Taxon();
             // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
             // $taxon->family                  = (string) @$rec['family'];
@@ -190,7 +185,6 @@ class Protisten_deAPI
     }
     private function write_image($rec)
     {
-        // print_r($rec); exit;
         $mr = new \eol_schema\MediaResource();
         $mr->agentID                = implode("; ", $this->agent_id);
         $mr->taxonID                = $rec["taxon_id"];
