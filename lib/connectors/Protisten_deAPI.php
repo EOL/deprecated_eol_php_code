@@ -69,9 +69,10 @@ class Protisten_deAPI
     }
     private function get_media_info($rec)
     {
+        $media_info = array();
         if($pages = @$rec['next_pages']) {
             foreach($pages as $html_filename) {
-                $media_info[] = self::parse_media($this->page['image_page_url'].$html_filename);
+                if($val = self::parse_media($this->page['image_page_url'].$html_filename)) $media_info[] = $val;
             }
         }
         return $media_info;
