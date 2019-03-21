@@ -26,14 +26,14 @@ class Protisten_deAPI
     }
     function start()
     {
-        // self::write_agent();
+        self::write_agent();
         $batches = self::get_total_batches();
         foreach($batches as $filename) {
             $recs = self::process_one_batch($filename);
             break; //debug
         }
-        exit;
-        // $this->archive_builder->finalize(true);
+        // exit;
+        $this->archive_builder->finalize(true);
     }
     private function process_one_batch($filename)
     {
@@ -164,7 +164,7 @@ class Protisten_deAPI
             // $taxon->family                  = (string) @$rec['family'];
             // $taxon->taxonRank               = (string) $rec['rank'];
             $r['taxon_id'] = md5($r['sciname']);
-            $r['source_url'] = @$rec['next_pages'][$i];
+            $r['source_url'] = $this->page['image_page_url'].@$rec['next_pages'][$i];
             $taxon->taxonID                 = $r['taxon_id'];
             $taxon->scientificName          = $r['sciname'];
             // $taxon->taxonRank                = @$rec['rank']; //from PCAT
@@ -180,16 +180,17 @@ class Protisten_deAPI
     private function write_agent()
     {
         $r = new \eol_schema\Agent();
-        $r->term_name       = 'phorid.net: online data for phorid flies';
-        $r->agentRole       = 'publisher';
+        $r->term_name       = 'Wolfgang Bettighofer';
+        $r->agentRole       = 'creator';
         $r->identifier      = md5("$r->term_name|$r->agentRole");
-        $r->term_homepage   = 'http://phorid.net/index.php'; //'http://www.phorid.net/diptera/diptera_index.html';
+        $r->term_homepage   = 'http://www.protisten.de/english/index.html';
+        $r->term_mbox       = 'Wolfgang.Bettighofer@gmx.de';
         $this->archive_builder->write_object_to_file($r);
         $this->agent_id = array($r->identifier);
     }
     private function write_image($rec)
     {
-        print_r($rec); exit;
+        // print_r($rec); exit;
         $mr = new \eol_schema\MediaResource();
         $mr->agentID                = implode("; ", $this->agent_id);
         $mr->taxonID                = $rec["taxon_id"];
@@ -198,10 +199,10 @@ class Protisten_deAPI
         $mr->language               = 'en';
         $mr->format                 = Functions::get_mimetype($rec['image']);
         $mr->furtherInformationURL  = $rec['source_url'];
-        $mr->accessURI              = $rec['image'];
-        $mr->Owner                  = "Diptera of Central America";
-        $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $mr->description            = @$rec["caption"];
+        $mr->accessURI              = $this->page['image_page_url'].$rec['image'];
+        $mr->Owner                  = "Wolfgang Bettighofer";
+        $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc/3.0/";
+        $mr->description            = @$rec["desc"];
         if(!isset($this->obj_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->obj_ids[$mr->identifier] = '';
