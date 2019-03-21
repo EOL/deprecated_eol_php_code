@@ -79,6 +79,7 @@ class Protisten_deAPI
     }
     private function parse_media($url)
     {
+        $m = array();
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             $html = utf8_encode($html); //needed for this resource. May not be needed for other resources.
             $html = Functions::conv_to_utf8($html);
@@ -104,7 +105,8 @@ class Protisten_deAPI
             }
             // print_r($m);
         }
-        return $m;
+        if(@$m['sciname'] && @$m['image']) return $m;
+        else return array();
     }
     private function clean_str($str)
     {
