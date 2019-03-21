@@ -26,10 +26,11 @@ class Protisten_deAPI
     }
     function start()
     {
+        // self::write_agent();
         $batches = self::get_total_batches();
         foreach($batches as $filename) {
             $recs = self::process_one_batch($filename);
-            // break; //debug
+            break; //debug
         }
         exit;
         // $this->archive_builder->finalize(true);
@@ -65,8 +66,8 @@ class Protisten_deAPI
         
         $rec['next_pages'] = self::get_all_next_pages($this->page['image_page_url'].$html_filename);
         $rec['media_info'] = self::get_media_info($rec);
-        // print_r($rec);
-        return $rec;
+        if($rec['media_info']) self::write_archive($rec);
+        // return $rec; no need to return 
     }
     private function get_media_info($rec)
     {
@@ -146,25 +147,35 @@ class Protisten_deAPI
             }
         }
     }
-    function write_archive($rec)
+    private function write_archive($rec)
     {
-        $taxon = new \eol_schema\Taxon();
-        // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
-        // $taxon->family                  = (string) @$rec['family'];
-        // $taxon->taxonRank               = (string) $rec['rank'];
-        $rec['taxon'] = self::clean_sciname($rec['taxon']);
-        $rec['taxon_id'] = md5($rec['taxon']);
-        $taxon->taxonID                 = $rec['taxon_id'];
-        $taxon->scientificName          = $rec['taxon'];
-        $taxon->taxonRank                = @$rec['rank']; //from PCAT
-        $taxon->scientificNameAuthorship = @$rec['Author']; //from PCAT
-        $taxon->furtherInformationURL   = @$rec['source_url'];
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
+        /* [media_info] => Array(
+            [0] => Array(
+                    [desc] => Scale bar indicates 50 µm. The specimen was gathered in the wetlands of national park Unteres Odertal (100 km north east of Berlin). The image was built up using several photomicrographic frames with manual stacking technique. Images were taken using Zeiss Universal with Olympus C7070 CCD camera. Image under Creative Commons License V 3.0 (CC BY-NC-SA). Der Messbalken markiert eine Länge von 50 µm. Die Probe wurde in den Feuchtgebieten des Nationalpark Unteres Odertal (100 km nordöstlich von Berlin) gesammelt. Mikrotechnik: Zeiss Universal, Kamera: Olympus C7070. Creative Commons License V 3.0 (CC BY-NC-SA). For permission to use of (high-resolution) images please contact postmaster@protisten.de.
+                    [image] => pics/Acanthoceras_040-125_P6020240-251-totale_ODB.jpg
+                    [sciname] => Acanthoceras spec.
+                )
+        */
+        $i = -1;
+        foreach($rec['media_info'] as $r) { $i++;
+            // print_r($r); exit;
+            $taxon = new \eol_schema\Taxon();
+            // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
+            // $taxon->family                  = (string) @$rec['family'];
+            // $taxon->taxonRank               = (string) $rec['rank'];
+            $r['taxon_id'] = md5($r['sciname']);
+            $r['source_url'] = @$rec['next_pages'][$i];
+            $taxon->taxonID                 = $r['taxon_id'];
+            $taxon->scientificName          = $r['sciname'];
+            // $taxon->taxonRank                = @$rec['rank']; //from PCAT
+            // $taxon->scientificNameAuthorship = @$rec['Author']; //from PCAT
+            $taxon->furtherInformationURL   = $r['source_url'];
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->archive_builder->write_object_to_file($taxon);
+                $this->taxon_ids[$taxon->taxonID] = '';
+            }
+            if(@$r['image']) self::write_image($r);
         }
-        if(@$rec['image']) self::write_image($rec);
-        return $rec;
     }
     private function write_agent()
     {
@@ -178,6 +189,7 @@ class Protisten_deAPI
     }
     private function write_image($rec)
     {
+        print_r($rec); exit;
         $mr = new \eol_schema\MediaResource();
         $mr->agentID                = implode("; ", $this->agent_id);
         $mr->taxonID                = $rec["taxon_id"];
