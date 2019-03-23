@@ -40,31 +40,12 @@ class DWH_ITIS_API
         // */
         
         $temp_dir = $info['temp_dir'];
-        print_r($info); exit;
-        $locations = array("distribution.csv", "use.csv", "description.csv");
-        echo "\nProcessing CSV archive...\n";
+        // print_r($info); exit;
+        $tables = array("taxonomic_units");
+        echo "\nProcessing...\n";
         
-        foreach($tables['http://eol.org/schema/reference/reference'] as $tbl) {
-            echo "\n -- Processing [$tbl->location]...\n";
-            self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'reference');
-        }
-        
-        foreach($tables['http://rs.gbif.org/terms/1.0/vernacularname'] as $tbl) {
-            echo "\n -- Processing [$tbl->location]...\n";
-            self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'comnames');
-        }
-
-        foreach($tables['http://eol.org/schema/media/document'] as $tbl) {
-            if(in_array($tbl->location, $locations)) {
-                echo "\n -- Processing [$tbl->location]...\n";
-                if($tbl->location == "description.csv") self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'text_object');
-                else                                    self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'traitbank');
-            }
-        }
-
-        foreach($tables['http://rs.tdwg.org/dwc/terms/taxon'] as $tbl) {
-            echo "\n -- Processing [$tbl->location]...\n";
-            self::process_extension($tbl->file_uri, $tbl, $tbl->location, 'taxon');
+        foreach($tables as $tbl) {
+            self::process_file($info['archive_path'].$tbl);
         }
         
         $this->archive_builder->finalize(true);
@@ -74,17 +55,48 @@ class DWH_ITIS_API
         echo ("\n temporary directory removed: " . $temp_dir);
 
         //massage debug for printing
-        $countries = array(); $territories = array();
-        if($use_csv = @$this->debug['use.csv']) {
-            if($countries = array_keys($use_csv)) asort($countries);
-        }
-        if($distribution_csv = @$this->debug['distribution.csv']) {
-            if($territories = array_keys($distribution_csv)) asort($territories);
-        }
-        $this->debug = array();
-        foreach($countries as $c) $this->debug['use.csv'][$c] = '';
-        foreach($territories as $c) $this->debug['distribution.csv'][$c] = '';
         Functions::start_print_debug($this->debug, $this->resource_id);
+    }
+    private function process_file($file)
+    {
+        $i = 0;
+        /* works ok if you don't need to format/clean the entire row.
+        $file = Functions::file_open($this->text_path[$type], "r");
+        while(!feof($file)) { $row = fgetcsv($file); }
+        fclose($file);
+        */
+        foreach(new FileIterator($file) as $line_number => $line) {
+            if(!$line) continue;
+            $row = explode("|", $line);
+            // print_r($row); exit;
+            if(!$row) continue; //continue; or break; --- should work fine
+            $i++; if(($i % 10000) == 0) echo "\n $i ";
+            if($i == 1) {
+                $fields = self::fill_up_blank_fieldnames($row);
+                $count = count($fields);
+                // print_r($fields);
+            }
+            else { //main records
+                $values = $row;
+                $k = 0;
+                $rec = array();
+                foreach($fields as $field) {
+                    $rec[$field] = $values[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec); //important step
+                print_r($rec); exit;
+            }
+        }
+    }
+    private function fill_up_blank_fieldnames($cols)
+    {
+        $i = 0;
+        foreach($cols as $col) {
+            $i++;
+            $final['col_'.$i] = '';
+        }
+        return array_keys($final);
     }
     private function prepare_archive_for_access()
     {
@@ -326,18 +338,6 @@ class DWH_ITIS_API
                                         // $ret[$group][$item] = '';
         }
         return $ret;
-    }
-    private function fill_up_blank_fieldnames($fields)
-    {
-        $i = 0;
-        foreach($fields as $field) {
-            if($field) $final[$field] = '';
-            else {
-                $i++;
-                $final['blank_'.$i] = '';
-            } 
-        }
-        return array_keys($final);
     }
     private function initialize_mapping()
     {
