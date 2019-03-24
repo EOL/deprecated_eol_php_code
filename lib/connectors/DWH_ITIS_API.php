@@ -58,6 +58,8 @@ class DWH_ITIS_API
         
         //step 3 create series of info_files
         self::process_file($info['archive_path'].'kingdoms', 'kingdoms');
+        self::process_file($info['archive_path'].'taxon_unit_types', 'taxon_unit_types');
+        self::process_file($info['archive_path'].'taxon_authors_lkp', 'taxon_authors_lkp');
         
         //step 4: create taxon archive with filter 
         self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca');
@@ -112,7 +114,9 @@ class DWH_ITIS_API
                 // taxon_unit_types    1    kingdom_id
                 // taxon_unit_types    2    rank_id
                 // taxon_unit_types    3    rank_name
-                if($what == 'kingdoms') $this->info_kingdom[$rec['col_1']] = $rec['col_2'];
+                if($what == 'taxon_authors_lkp') $this->info_author[$rec['col_1']] = $rec['col_2'];
+                // taxon_authors_lkp    1    taxon_author_id
+                // taxon_authors_lkp    2    taxon_author
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
@@ -125,7 +129,7 @@ class DWH_ITIS_API
                     $rec['scientificName'] = $rec['col_26'];
                     $rec['scientificNameAuthorship'] = $this->info_author[$rec['col_19']];
                     $rec['kingdom'] = $this->info_kingdom[$rec['col_21']];
-                    $rec['taxonRank'] = $this->info_rank[$rec['col_22']];
+                    $rec['taxonRank'] = $this->info_rank[$rec['col_21']][$rec['col_22']];
                 }
                 
                 
