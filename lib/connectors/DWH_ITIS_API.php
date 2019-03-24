@@ -50,7 +50,7 @@ class DWH_ITIS_API
         //step 1: get unnamed_taxon_ind == Y and all its children
         $what = 'unnamed_taxon_ind';
         $unnamed_taxon_ind_Y = self::process_file($info['archive_path'].'taxonomic_units', $what);
-        // print_r($unnamed_taxon_ind_Y); exit;
+        print_r($unnamed_taxon_ind_Y); //exit;
         //step 2: get all children of $unnamed_taxon_ind_Y
         $children_of_unnamed = self::get_children_of_unnamed($unnamed_taxon_ind_Y);
         print_r($children_of_unnamed); exit;
@@ -104,7 +104,7 @@ class DWH_ITIS_API
         }
         // print_r($this->debug); exit;
         // print_r($this->child_of);
-        // print_r($this->child_of['4323']); exit("\nstop\n");
+        // print_r($this->child_of['4324']); exit("\nstop\n");
         if($what == 'unnamed_taxon_ind') return array_keys($final);
     }
     private function get_children_of_unnamed($taxon_ids1)
