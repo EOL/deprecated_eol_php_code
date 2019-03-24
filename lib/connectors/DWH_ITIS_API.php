@@ -53,12 +53,18 @@ class DWH_ITIS_API
         print_r($unnamed_taxon_ind_Y); //exit;
         //step 2: get all children of $unnamed_taxon_ind_Y
         $children_of_unnamed = self::get_children_of_unnamed($unnamed_taxon_ind_Y);
-        print_r($children_of_unnamed); exit;
+        $remove_ids = array_merge($unnamed_taxon_ind_Y, $children_of_unnamed);
+        // print_r($remove_ids); exit;
         
-        exit;
-        foreach($tables as $tbl) {
-            self::process_file($info['archive_path'].$tbl);
-        }
+        //step 3 create series of info_files
+        self::process_file($info['archive_path'].'kingdoms', 'kingdoms');
+        
+        //step 4: create taxon archive with filter 
+        self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca');
+        
+        // foreach($tables as $tbl) {
+        //     self::process_file($info['archive_path'].$tbl);
+        // }
         
         $this->archive_builder->finalize(true);
         exit;
@@ -100,6 +106,29 @@ class DWH_ITIS_API
                     if($rec['col_10'] == "Y") $final[$taxon_id] = ''; //print_r($rec);
                     $this->child_of[$parent_id][] = $taxon_id;
                 }
+                
+                if($what == 'kingdoms') $this->info_kingdom[$rec['col_1']] = $rec['col_2'];
+                if($what == 'taxon_unit_types') $this->info_rank[$rec['col_1']][$rec['col_2']] = $rec['col_3'];
+                // taxon_unit_types    1    kingdom_id
+                // taxon_unit_types    2    rank_id
+                // taxon_unit_types    3    rank_name
+                if($what == 'kingdoms') $this->info_kingdom[$rec['col_1']] = $rec['col_2'];
+
+                if($what == 'write_taxon_dwca') {
+                    $rec['taxonID'] = $rec['col_1'];
+                    $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['col_1'].'#null';
+                    $rec['taxonRemarks'] = $rec['col_12'];
+                    $rec['parentNameUsageID'] = $rec['col_18'];
+                    @$this->debug['taxonomicStatus'][$rec['col_25']] = '';
+
+                    $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
+                    $rec['scientificName'] = $rec['col_26'];
+                    $rec['scientificNameAuthorship'] = $this->info_author[$rec['col_19']];
+                    $rec['kingdom'] = $this->info_kingdom[$rec['col_21']];
+                    $rec['taxonRank'] = $this->info_rank[$rec['col_22']];
+                }
+                
+                
             }
         }
         // print_r($this->debug); exit;
