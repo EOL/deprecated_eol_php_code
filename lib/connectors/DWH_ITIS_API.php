@@ -31,11 +31,14 @@ class DWH_ITIS_API
     {
         /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
+        print_r(info); exit;
         */
         // /* debug - force assign
-        $info = Array(
-            'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
-            'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
+        $info = Array( //dir_44057
+            // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
+            // 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
+            'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
+            'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
         // */
         
@@ -44,12 +47,21 @@ class DWH_ITIS_API
         $tables = array("taxonomic_units");
         echo "\nProcessing...\n";
         
+        //step 1: get unnamed_taxon_ind == Y and all its children
+        $what = 'unnamed_taxon_ind';
+        $unnamed_taxon_ind_Y = self::process_file($info['archive_path'].'taxonomic_units', $what);
+        // print_r($unnamed_taxon_ind_Y); exit;
+        //step 2: get all children of $unnamed_taxon_ind_Y
+        $children_of_unnamed = self::get_children_of_unnamed($unnamed_taxon_ind_Y);
+        print_r($children_of_unnamed); exit;
+        
+        exit;
         foreach($tables as $tbl) {
             self::process_file($info['archive_path'].$tbl);
         }
         
         $this->archive_builder->finalize(true);
-        
+        exit;
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
@@ -57,20 +69,15 @@ class DWH_ITIS_API
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
     }
-    private function process_file($file)
+    private function process_file($file, $what)
     {
         $i = 0;
-        /* works ok if you don't need to format/clean the entire row.
-        $file = Functions::file_open($this->text_path[$type], "r");
-        while(!feof($file)) { $row = fgetcsv($file); }
-        fclose($file);
-        */
         foreach(new FileIterator($file) as $line_number => $line) {
             if(!$line) continue;
             $row = explode("|", $line);
             // print_r($row); exit;
             if(!$row) continue; //continue; or break; --- should work fine
-            $i++; if(($i % 10000) == 0) echo "\n $i ";
+            $i++; if(($i % 100000) == 0) echo "\n $i ";
             if($i == 1) {
                 $fields = self::fill_up_blank_fieldnames($row);
                 $count = count($fields);
@@ -78,16 +85,55 @@ class DWH_ITIS_API
             }
             else { //main records
                 $values = $row;
-                $k = 0;
-                $rec = array();
+                $k = 0; $rec = array();
                 foreach($fields as $field) {
                     $rec[$field] = $values[$k];
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); exit;
+                // print_r($rec); exit;
+                
+                if($what == 'unnamed_taxon_ind') {
+                    $taxon_id = $rec['col_1'];
+                    $parent_id = $rec['col_18'];
+                    @$this->debug['col10'][$rec['col_10']]++;
+                    if($rec['col_10'] == "Y") $final[$taxon_id] = ''; //print_r($rec);
+                    $this->child_of[$parent_id][] = $taxon_id;
+                }
             }
         }
+        // print_r($this->debug); exit;
+        // print_r($this->child_of);
+        // print_r($this->child_of['4323']); exit("\nstop\n");
+        if($what == 'unnamed_taxon_ind') return array_keys($final);
+    }
+    private function get_children_of_unnamed($taxon_ids1)
+    {
+        $final = array();
+        foreach($taxon_ids1 as $id1) {
+            if($taxon_ids2 = @$this->child_of[$id1]) {
+                $final = array_merge($final, $taxon_ids2);
+                foreach($taxon_ids2 as $id2) {
+                    if($taxon_ids3 = @$this->child_of[$id2]) {
+                        $final = array_merge($final, $taxon_ids3);
+                        foreach($taxon_ids3 as $id3) {
+                            if($taxon_ids4 = @$this->child_of[$id3]) {
+                                $final = array_merge($final, $taxon_ids4);
+
+                                foreach($taxon_ids4 as $id4) {
+                                    if($taxon_ids5 = @$this->child_of[$id4]) {
+                                        $final = array_merge($final, $taxon_ids5);
+                                    }
+                                }
+
+
+                            }
+                        }
+                    }
+                }
+            }       
+        }
+        return $final;
     }
     private function fill_up_blank_fieldnames($cols)
     {
@@ -416,6 +462,15 @@ class DWH_ITIS_API
         $this->addtl_mappings = $final;
         // print_r($final); exit;
     }
+    
+    
+    ===============
+        works ok if you don't need to format/clean the entire row.
+        $file = Functions::file_open($this->text_path[$type], "r");
+        while(!feof($file)) { $row = fgetcsv($file); }
+        fclose($file);
+        
+    
     */
 }
 ?>
