@@ -223,6 +223,9 @@ class WikiDataAPI
         $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Denise King", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://vimeo.com/growthanddk');
         $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Vimeo video 136560584", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://vimeo.com/136560584');
         $arr[] = array('filename' => 'Tordalke01.jpg', 'name' => "T.Müller",    'condition' => 'eq', 'role' => 'creator');
+        $arr[] = array('filename' => 'Llaca.jpg', 'name' => "Yamil Hussein E.", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/w/index.php?title=User:Yamilhussein&action=edit&redlink=1');
+        $arr[] = array('filename' => 'Llaca.jpg', 'name' => "http://www.jacobita.cl/", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.jacobita.cl/');
+
         echo "\n\nNext...".count($arr);
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
