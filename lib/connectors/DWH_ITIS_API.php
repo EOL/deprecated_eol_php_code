@@ -68,11 +68,12 @@ class DWH_ITIS_API
         //     self::process_file($info['archive_path'].$tbl);
         // }
         
+        print_r($this->debug);
         $this->archive_builder->finalize(true);
         exit;
         // remove temp dir
-        recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: " . $temp_dir);
+        // recursive_rmdir($temp_dir);
+        // echo ("\n temporary directory removed: " . $temp_dir);
 
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
@@ -120,6 +121,9 @@ class DWH_ITIS_API
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
+                    $rec['acceptedNameUsageID'] = $rec['col_'];
+                    // synonym_links    2    tsn_accepted    taxa    http://rs.tdwg.org/dwc/terms/acceptedNameUsageID
+                    
                     $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['col_1'].'#null';
                     $rec['taxonRemarks'] = $rec['col_12'];
                     $rec['parentNameUsageID'] = $rec['col_18'];
@@ -127,9 +131,10 @@ class DWH_ITIS_API
 
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
                     $rec['scientificName'] = $rec['col_26'];
-                    $rec['scientificNameAuthorship'] = $this->info_author[$rec['col_19']];
-                    $rec['kingdom'] = $this->info_kingdom[$rec['col_21']];
-                    $rec['taxonRank'] = $this->info_rank[$rec['col_21']][$rec['col_22']];
+                    $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
+                    $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
+                    $rec['taxonRank'] = @$this->info_rank[$rec['col_21']][$rec['col_22']];
+                    write
                 }
                 
                 
@@ -140,6 +145,58 @@ class DWH_ITIS_API
         // print_r($this->child_of['4324']); exit("\nstop\n");
         if($what == 'unnamed_taxon_ind') return array_keys($final);
     }
+    private function write_taxon_DH($rec)
+    {   //from NCBI ticket: a general rule
+        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, 
+        if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. */
+        if($rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = '';
+        
+        // if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec);
+        // $rec['scientificName'] = Functions::remove_whitespace(str_ireplace("(Unplaced)", "", $rec['scientificName']));
+        
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID                 = $rec['taxonID'];
+        $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
+        $taxon->taxonRank               = $rec['taxonRank'];
+        $taxon->scientificName          = $rec['scientificName'];
+        $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
+        $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
+        $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
+        
+        // $this->debug['acceptedNameUsageID'][$rec['acceptedNameUsageID']] = '';
+        
+        /* optional, I guess
+        $taxon->scientificNameID    = $rec['scientificNameID'];
+        $taxon->nameAccordingTo     = $rec['nameAccordingTo'];
+        $taxon->kingdom             = $rec['kingdom'];
+        $taxon->phylum              = $rec['phylum'];
+        $taxon->class               = $rec['class'];
+        $taxon->order               = $rec['order'];
+        $taxon->family              = $rec['family'];
+        $taxon->genus               = $rec['genus'];
+        $taxon->subgenus            = $rec['subgenus'];
+        $taxon->specificEpithet     = $rec['specificEpithet'];
+        $taxon->infraspecificEpithet        = $rec['infraspecificEpithet'];
+        $taxon->scientificNameAuthorship    = $rec['scientificNameAuthorship'];
+        $taxon->taxonRemarks        = $rec['taxonRemarks'];
+        $taxon->modified            = $rec['modified'];
+        $taxon->datasetID           = $rec['datasetID'];
+        $taxon->datasetName         = $rec['datasetName'];
+        */
+        if($val = @$rec['genus'])                       $taxon->genus = $val;
+        if($val = @$rec['specificEpithet'])             $taxon->specificEpithet = $val;
+        if($val = @$rec['infraspecificEpithet'])        $taxon->infraspecificEpithet = $val;
+        if($val = @$rec['scientificNameAuthorship'])    $taxon->scientificNameAuthorship = $val;
+        if($val = @$rec['verbatimTaxonRank'])           $taxon->verbatimTaxonRank = $val;
+        if($val = @$rec['subgenus'])                    $taxon->subgenus = $val;
+        if($val = @$rec['taxonRemarks'])                $taxon->taxonRemarks = $val;
+
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
+    }
+    
     private function get_children_of_unnamed($taxon_ids1)
     {
         $final = array();
