@@ -29,8 +29,8 @@ class DWH_ITIS_API
     }
     function convert_archive()
     {
-        self::build_language_info();
-        exit;
+        $this->info_vernacular = self::build_language_info();
+        // print_r($this->info_vernacular);
         
         /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
@@ -63,6 +63,7 @@ class DWH_ITIS_API
         self::process_file($info['archive_path'].'kingdoms', 'kingdoms');
         self::process_file($info['archive_path'].'taxon_unit_types', 'taxon_unit_types');
         self::process_file($info['archive_path'].'taxon_authors_lkp', 'taxon_authors_lkp');
+        self::process_file($info['archive_path'].'longnames', 'longnames');
         
         //step 4: create taxon archive with filter 
         self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca');
@@ -120,6 +121,11 @@ class DWH_ITIS_API
                 if($what == 'taxon_authors_lkp') $this->info_author[$rec['col_1']] = $rec['col_2'];
                 // taxon_authors_lkp    1    taxon_author_id
                 // taxon_authors_lkp    2    taxon_author
+                if($what == 'longnames') $this->info_longnames[$rec['col_1']] = $rec['col_2'];
+                // longnames    1   tsn
+                // longnames    2   completename
+                
+                
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
@@ -131,7 +137,10 @@ class DWH_ITIS_API
                     $rec['parentNameUsageID'] = $rec['col_18'];
                     @$this->debug['taxonomicStatus'][$rec['col_25']] = '';
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
+
                     $rec['scientificName'] = $rec['col_26'];
+                    $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
+                    
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
                     $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
                     $rec['taxonRank'] = @$this->info_rank[$rec['col_21']][$rec['col_22']];
@@ -207,7 +216,7 @@ class DWH_ITIS_API
         $v->taxonID         = $rec['taxon_id'];
         $v->vernacularName  = $rec['vernacularName'];
         $v->language        = $rec['language'];
-        $md5 = md5($rec['taxon_id'].$rec['common_name']);
+        $md5 = md5($rec['taxon_id'].$rec['vernacularName']);
         if(!isset($this->comnames[$md5])) {
             $this->archive_builder->write_object_to_file($v);
             $this->comnames[$md5] = '';
