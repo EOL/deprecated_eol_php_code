@@ -39,10 +39,10 @@ class DWH_ITIS_API
         */
         // /* debug - force assign
         $info = Array( //dir_44057
-            // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
-            // 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
-            'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
-            'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
+            'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
+            'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
+            // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
+            // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
         // */
         
@@ -75,7 +75,6 @@ class DWH_ITIS_API
         
         print_r($this->debug);
         $this->archive_builder->finalize(true);
-        exit;
         // remove temp dir
         // recursive_rmdir($temp_dir);
         // echo ("\n temporary directory removed: " . $temp_dir);
