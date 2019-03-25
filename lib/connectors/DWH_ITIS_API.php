@@ -57,7 +57,7 @@ class DWH_ITIS_API
         //step 2: get all children of $unnamed_taxon_ind_Y
         $children_of_unnamed = self::get_children_of_unnamed($unnamed_taxon_ind_Y);
         $remove_ids = array_merge($unnamed_taxon_ind_Y, $children_of_unnamed);
-        // print_r($remove_ids); exit;
+        print_r($remove_ids); //exit;
         
         //step 3 create series of info_files
         self::process_file($info['archive_path'].'kingdoms', 'kingdoms');
@@ -213,10 +213,10 @@ class DWH_ITIS_API
     private function create_vernaculars($rec)
     {
         $v = new \eol_schema\VernacularName();
-        $v->taxonID         = $rec['taxon_id'];
+        $v->taxonID         = $rec['taxonID'];
         $v->vernacularName  = $rec['vernacularName'];
         $v->language        = $rec['language'];
-        $md5 = md5($rec['taxon_id'].$rec['vernacularName']);
+        $md5 = md5($rec['taxonID'].$rec['vernacularName']);
         if(!isset($this->comnames[$md5])) {
             $this->archive_builder->write_object_to_file($v);
             $this->comnames[$md5] = '';
