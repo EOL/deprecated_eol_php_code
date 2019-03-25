@@ -27,7 +27,7 @@ class DWH_ITIS_API
         $this->partner_source_url = "https://figshare.com/articles/SQL_of_Africa_Tree_Database/1526125";
         */
     }
-    function convert_archive()
+    function start()
     {
         /* create Bacteria taxon entry */
         $rec = array();
@@ -47,19 +47,21 @@ class DWH_ITIS_API
         // $this->info_vernacular = array();
         // print_r($this->info_vernacular);
         
-        /* un-comment in real operation
+        // /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
-        print_r(info); exit;
-        */
+        print_r($info); //exit;
+        // */
         
-        // /* debug - force assign, used only during development...
+        /* debug - force assign, used only during development...
         $info = Array( //dir_44057
+            // from MacMini
             'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
             'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
+            // from MacBook
             // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
             // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
-        // */
+        */
         
         $temp_dir = $info['temp_dir']; // print_r($info); exit;
         $tables = array("taxonomic_units");
@@ -83,10 +85,10 @@ class DWH_ITIS_API
         self::process_file($info['archive_path'].'synonym_links', 'synonym_links');
         
         //step 4: create taxon archive with filter 
-        self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca');
+        self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca', $remove_ids);
         
         //step 5: create vernacular archive
-        self::process_file($info['archive_path'].'vernaculars', 'vernaculars');
+        self::process_file($info['archive_path'].'vernaculars', 'vernaculars', $remove_ids);
         
         print_r($this->debug);
         $this->archive_builder->finalize(true);
@@ -100,7 +102,7 @@ class DWH_ITIS_API
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
     }
-    private function process_file($file, $what)
+    private function process_file($file, $what, $remove_ids = array())
     {
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
@@ -151,16 +153,25 @@ class DWH_ITIS_API
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
                     $rec['acceptedNameUsageID'] = @$this->info_synonym[$rec['col_1']];
+                    $rec['parentNameUsageID'] = $rec['col_18'];
                     
+                    
+                    if(in_array($rec['taxonID'], $remove_ids)) continue;
+                    if(in_array($rec['parentNameUsageID'], $remove_ids)) { //may not pass this line
+                        print_r($rec);
+                        continue;
+                    }
+                    if(in_array($rec['acceptedNameUsageID'], $remove_ids)) { //may not pass this line
+                        print_r($rec);
+                        continue;
+                    }
+
                     $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['col_1'].'#null';
                     $rec['taxonRemarks'] = $rec['col_12'];
-                    $rec['parentNameUsageID'] = $rec['col_18'];
                     @$this->debug['taxonomicStatus'][$rec['col_25']] = '';
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
-
                     $rec['scientificName'] = $rec['col_26'];
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
-                    
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
                     $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
                     $rec['taxonRank'] = @$this->info_rank[$rec['col_21']][$rec['col_22']];
@@ -169,6 +180,7 @@ class DWH_ITIS_API
                 
                 if($what == 'vernaculars') {
                     $rec['taxonID'] = $rec['col_1'];
+                    if(in_array($rec['taxonID'], $remove_ids)) continue;
                     $rec['vernacularName'] = $rec['col_2'];
                     $rec['language'] = @$this->info_vernacular[$rec['col_3']];
                     if($rec['col_3'] != 'unspecified') self::create_vernaculars($rec);
