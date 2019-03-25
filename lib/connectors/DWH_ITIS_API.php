@@ -39,7 +39,6 @@ class DWH_ITIS_API
         $rec['acceptedNameUsageID'] = '';
         $rec['parentNameUsageID'] = '';
         $rec['taxonRank'] = 'kingdom';
-        $rec['scientificName'] = '';
         self::write_taxon_DH($rec);
         
         /* build language info list */
