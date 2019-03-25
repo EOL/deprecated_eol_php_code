@@ -42,17 +42,25 @@ class DWCADiagnoseAPI
                     /* if(@$rec['subtype'] == 'map') print_r($rec); */
 
                     /*
-                    if(stripos($rec['accessURI'], "Aa_species.jpg") !== false) { //string is found
+                    if(stripos($rec['accessURI'], "/Ladybird.jpg") !== false) { //string is found
                         print_r($rec);
                     }
                     */
 
                     /* DATA-1798 */
-                    // /*
+                    /*
                     if(stripos($rec['agentID'], "67c0dfecb59b013950f6f712da39eb00") !== false) { //string is found
                         print_r($rec);
                     }
+                    */
+                    
+                    // /* investigate agent.tab
+                    if(stripos($rec['identifier'], "ed3ef7203b7002c3022fbfe0ac9ed0d9") !== false) { //string is found
+                        print_r($rec);
+                    }
                     // */
+                    
+                    
                     
                 }
                 /* === END CUSTOMIZE INVESTIGATION HERE === */

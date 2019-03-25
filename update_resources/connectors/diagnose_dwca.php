@@ -35,7 +35,10 @@ exit("\n\n");
 
 // /*
 $func = new DWCADiagnoseAPI();
-$resource_id = "71_big"; $tab_file = "media_resource.tab";
+$resource_id = "71_big"; 
+$tab_file = "media_resource.tab";
+$tab_file = "agent.tab";
+
 $func->investigate_extension($resource_id, $tab_file);
 exit("\n-end-\n");
 // */
