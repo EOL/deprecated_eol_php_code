@@ -29,16 +29,19 @@ class DWH_ITIS_API
     }
     function convert_archive()
     {
+        self::build_language_info();
+        exit;
+        
         /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
         print_r(info); exit;
         */
         // /* debug - force assign
         $info = Array( //dir_44057
-            // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
-            // 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
-            'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
-            'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
+            'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
+            'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
+            // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
+            // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
         // */
         
@@ -64,9 +67,8 @@ class DWH_ITIS_API
         //step 4: create taxon archive with filter 
         self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca');
         
-        // foreach($tables as $tbl) {
-        //     self::process_file($info['archive_path'].$tbl);
-        // }
+        //step 5: create vernacular archive
+        self::process_file($info['archive_path'].'vernaculars', 'vernaculars');
         
         print_r($this->debug);
         $this->archive_builder->finalize(true);
@@ -121,22 +123,27 @@ class DWH_ITIS_API
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
-                    $rec['acceptedNameUsageID'] = $rec['col_'];
+                    $rec['acceptedNameUsageID'] = $rec['col_2'];
                     // synonym_links    2    tsn_accepted    taxa    http://rs.tdwg.org/dwc/terms/acceptedNameUsageID
                     
                     $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['col_1'].'#null';
                     $rec['taxonRemarks'] = $rec['col_12'];
                     $rec['parentNameUsageID'] = $rec['col_18'];
                     @$this->debug['taxonomicStatus'][$rec['col_25']] = '';
-
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
                     $rec['scientificName'] = $rec['col_26'];
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
                     $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
                     $rec['taxonRank'] = @$this->info_rank[$rec['col_21']][$rec['col_22']];
-                    write
+                    self::write_taxon_DH($rec);
                 }
                 
+                if($what == 'vernaculars') {
+                    $rec['taxonID'] = $rec['col_1'];
+                    $rec['vernacularName'] = $rec['col_2'];
+                    $rec['language'] = @$this->info_vernacular[$rec['col_3']];
+                    if($rec['col_3'] != 'unspecified') self::create_vernaculars($rec);
+                }
                 
             }
         }
@@ -162,10 +169,9 @@ class DWH_ITIS_API
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
+        if($val = @$rec['taxonRemarks'])                $taxon->taxonRemarks = $val;
         
-        // $this->debug['acceptedNameUsageID'][$rec['acceptedNameUsageID']] = '';
-        
-        /* optional, I guess
+        /* from another resource template
         $taxon->scientificNameID    = $rec['scientificNameID'];
         $taxon->nameAccordingTo     = $rec['nameAccordingTo'];
         $taxon->kingdom             = $rec['kingdom'];
@@ -182,21 +188,31 @@ class DWH_ITIS_API
         $taxon->modified            = $rec['modified'];
         $taxon->datasetID           = $rec['datasetID'];
         $taxon->datasetName         = $rec['datasetName'];
-        */
         if($val = @$rec['genus'])                       $taxon->genus = $val;
         if($val = @$rec['specificEpithet'])             $taxon->specificEpithet = $val;
         if($val = @$rec['infraspecificEpithet'])        $taxon->infraspecificEpithet = $val;
         if($val = @$rec['scientificNameAuthorship'])    $taxon->scientificNameAuthorship = $val;
         if($val = @$rec['verbatimTaxonRank'])           $taxon->verbatimTaxonRank = $val;
         if($val = @$rec['subgenus'])                    $taxon->subgenus = $val;
-        if($val = @$rec['taxonRemarks'])                $taxon->taxonRemarks = $val;
+        */
 
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
     }
-    
+    private function create_vernaculars($rec)
+    {
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID         = $rec['taxon_id'];
+        $v->vernacularName  = $rec['vernacularName'];
+        $v->language        = $rec['language'];
+        $md5 = md5($rec['taxon_id'].$rec['common_name']);
+        if(!isset($this->comnames[$md5])) {
+            $this->archive_builder->write_object_to_file($v);
+            $this->comnames[$md5] = '';
+        }
+    }
     private function get_children_of_unnamed($taxon_ids1)
     {
         $final = array();
@@ -209,19 +225,16 @@ class DWH_ITIS_API
                         foreach($taxon_ids3 as $id3) {
                             if($taxon_ids4 = @$this->child_of[$id3]) {
                                 $final = array_merge($final, $taxon_ids4);
-
                                 foreach($taxon_ids4 as $id4) {
                                     if($taxon_ids5 = @$this->child_of[$id4]) {
                                         $final = array_merge($final, $taxon_ids5);
                                     }
                                 }
-
-
                             }
                         }
                     }
                 }
-            }       
+            }
         }
         return $final;
     }
@@ -240,6 +253,20 @@ class DWH_ITIS_API
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "ReadmeMySql.txt", array('timeout' => 172800, 'expire_seconds' => false)); //won't expire anymore
         return $paths;
+    }
+    private function build_language_info($params = false)
+    {
+        $final = array(); $final2 = array();
+        if(!$params) {
+            $params['spreadsheetID'] = '14iS0uHtF_jN1cEa06nWenb4_vl7o5it1W1e6rusBpNs';
+            $params['range']         = 'language values!A2:B30';
+        }
+        $rows = Functions::get_google_sheet_using_GoogleClientAPI($params);
+        //start massage array
+        foreach($rows as $item) {
+            if($val = $item[0]) $final[$val] = $item[1];
+        }
+        return $final; /* if google spreadsheet suddenly becomes offline, use this: Array() */
     }
     /*
     function get_unmapped_strings()
