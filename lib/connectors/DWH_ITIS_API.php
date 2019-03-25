@@ -30,6 +30,7 @@ class DWH_ITIS_API
     function convert_archive()
     {
         $this->info_vernacular = self::build_language_info();
+        // $this->info_vernacular = array();
         // print_r($this->info_vernacular);
         
         /* un-comment in real operation
@@ -38,10 +39,10 @@ class DWH_ITIS_API
         */
         // /* debug - force assign
         $info = Array( //dir_44057
-            'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
-            'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
-            // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
-            // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
+            // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
+            // 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
+            'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
+            'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
         // */
         
@@ -64,6 +65,7 @@ class DWH_ITIS_API
         self::process_file($info['archive_path'].'taxon_unit_types', 'taxon_unit_types');
         self::process_file($info['archive_path'].'taxon_authors_lkp', 'taxon_authors_lkp');
         self::process_file($info['archive_path'].'longnames', 'longnames');
+        self::process_file($info['archive_path'].'synonym_links', 'synonym_links');
         
         //step 4: create taxon archive with filter 
         self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca');
@@ -125,12 +127,14 @@ class DWH_ITIS_API
                 // longnames    1   tsn
                 // longnames    2   completename
                 
+                if($what == 'synonym_links') $this->info_synonym[$rec['col_1']] = $rec['col_2'];
+                // synonym_links    1    tsn
+                // synonym_links    2    tsn_accepted    taxa    http://rs.tdwg.org/dwc/terms/acceptedNameUsageID
                 
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
-                    $rec['acceptedNameUsageID'] = $rec['col_2'];
-                    // synonym_links    2    tsn_accepted    taxa    http://rs.tdwg.org/dwc/terms/acceptedNameUsageID
+                    $rec['acceptedNameUsageID'] = @$this->info_synonym[$rec['col_1']];
                     
                     $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['col_1'].'#null';
                     $rec['taxonRemarks'] = $rec['col_12'];
