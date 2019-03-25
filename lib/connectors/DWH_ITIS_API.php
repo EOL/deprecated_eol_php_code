@@ -93,11 +93,11 @@ class DWH_ITIS_API
         print_r($this->debug);
         $this->archive_builder->finalize(true);
         
-        /* uncomment in real operation
-        remove temp dir
+        // /* uncomment in real operation
+        // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
 
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
