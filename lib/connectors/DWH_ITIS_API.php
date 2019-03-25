@@ -29,6 +29,20 @@ class DWH_ITIS_API
     }
     function convert_archive()
     {
+        /* create Bacteria taxon entry */
+        $rec = array();
+        $rec['taxonID'] = 50;
+        $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['taxonID'].'#null';
+        $rec['taxonomicStatus'] = 'valid';
+        $rec['scientificName'] = 'Bacteria';
+        $rec['scientificNameAuthorship'] = 'Cavalier-Smith, 2002';
+        $rec['acceptedNameUsageID'] = '';
+        $rec['parentNameUsageID'] = '';
+        $rec['taxonRank'] = 'kingdom';
+        $rec['scientificName'] = '';
+        self::write_taxon_DH($rec);
+        
+        /* build language info list */
         $this->info_vernacular = self::build_language_info();
         // $this->info_vernacular = array();
         // print_r($this->info_vernacular);
@@ -37,7 +51,8 @@ class DWH_ITIS_API
         if(!($info = self::prepare_archive_for_access())) return;
         print_r(info); exit;
         */
-        // /* debug - force assign
+        
+        // /* debug - force assign, used only during development...
         $info = Array( //dir_44057
             'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
             'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
@@ -46,8 +61,7 @@ class DWH_ITIS_API
         );
         // */
         
-        $temp_dir = $info['temp_dir'];
-        // print_r($info); exit;
+        $temp_dir = $info['temp_dir']; // print_r($info); exit;
         $tables = array("taxonomic_units");
         echo "\nProcessing...\n";
         
@@ -55,6 +69,7 @@ class DWH_ITIS_API
         $what = 'unnamed_taxon_ind';
         $unnamed_taxon_ind_Y = self::process_file($info['archive_path'].'taxonomic_units', $what);
         print_r($unnamed_taxon_ind_Y); //exit;
+
         //step 2: get all children of $unnamed_taxon_ind_Y
         $children_of_unnamed = self::get_children_of_unnamed($unnamed_taxon_ind_Y);
         $remove_ids = array_merge($unnamed_taxon_ind_Y, $children_of_unnamed);
@@ -75,9 +90,12 @@ class DWH_ITIS_API
         
         print_r($this->debug);
         $this->archive_builder->finalize(true);
-        // remove temp dir
-        // recursive_rmdir($temp_dir);
-        // echo ("\n temporary directory removed: " . $temp_dir);
+        
+        /* uncomment in real operation
+        remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        */
 
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
@@ -92,9 +110,8 @@ class DWH_ITIS_API
             if(!$row) continue; //continue; or break; --- should work fine
             $i++; if(($i % 100000) == 0) echo "\n $i ";
             if($i == 1) {
-                $fields = self::fill_up_blank_fieldnames($row);
+                $fields = self::fill_up_blank_fieldnames($row); // print_r($fields);
                 $count = count($fields);
-                // print_r($fields);
             }
             else { //main records
                 $values = $row;
@@ -115,6 +132,8 @@ class DWH_ITIS_API
                 }
                 
                 if($what == 'kingdoms') $this->info_kingdom[$rec['col_1']] = $rec['col_2'];
+                // kingdoms 1   kingdom_id      
+                // kingdoms 2   kingdom_name    taxa    http://rs.tdwg.org/dwc/terms/kingdom
                 if($what == 'taxon_unit_types') $this->info_rank[$rec['col_1']][$rec['col_2']] = $rec['col_3'];
                 // taxon_unit_types    1    kingdom_id
                 // taxon_unit_types    2    rank_id
@@ -125,11 +144,9 @@ class DWH_ITIS_API
                 if($what == 'longnames') $this->info_longnames[$rec['col_1']] = $rec['col_2'];
                 // longnames    1   tsn
                 // longnames    2   completename
-                
                 if($what == 'synonym_links') $this->info_synonym[$rec['col_1']] = $rec['col_2'];
                 // synonym_links    1    tsn
                 // synonym_links    2    tsn_accepted    taxa    http://rs.tdwg.org/dwc/terms/acceptedNameUsageID
-                
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
