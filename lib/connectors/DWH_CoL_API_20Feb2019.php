@@ -31,7 +31,7 @@ class DWH_CoL_API_20Feb2019
         Sorry I didn't think to make this more explicit in the workflow above. I don't think it will do harm if you remove these taxa now. 
         */
         $this->unclassified_id_increments = 0;
-        
+        /* not used ever...
         $this->unclassified_taxa['Microsporea']      = 'unc-000001';
         $this->unclassified_taxa['Paleo_radiozoa']   = 'unc-000002';
         $this->unclassified_taxa['Microsporidia']    = 'unc-000003';
@@ -45,6 +45,7 @@ class DWH_CoL_API_20Feb2019
         $this->unclassified_taxa['Olpidiopsidales']  = 'unc-000011';
         $this->unclassified_taxa['Peronosporales']   = 'unc-000012';
         $this->unclassified_taxa['Leptomitales']     = 'unc-000013';
+        */
     }
     // ----------------------------------------------------------------- start TRAM-803 -----------------------------------------------------------------
     function start_CoLProtists()
@@ -570,7 +571,8 @@ class DWH_CoL_API_20Feb2019
         /* From Katja: The original version of this is:
         13663148 b41f2b15ccd7f64e1f5c329eae60e987 5 CCW in Species 2000 & ITIS Catalogue of Life: 20th February 2019 54217965 accepted name species Erioptera (Unplaced) amamiensis Alexander, 1956
         Instead of changing (Unplaced) to (unclassified) here, we should simply remove the pseudo subgenus string and use the simple binomial, 
-        i.e., in this case, the scientificName should be "Erioptera amamiensis Alexander, 1956." To fix this you should be able to do a simple search and replace for (Unplaced) in the scientificName field.
+        i.e., in this case, the scientificName should be "Erioptera amamiensis Alexander, 1956." 
+        To fix this you should be able to do a simple search and replace for (Unplaced) in the scientificName field.
         */
         $rec['scientificName'] = Functions::remove_whitespace(str_ireplace("(Unplaced)", "", $rec['scientificName']));
         
