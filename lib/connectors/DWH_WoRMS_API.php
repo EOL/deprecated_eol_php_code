@@ -405,7 +405,9 @@ class DWH_WoRMS_API
         $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
         $taxon->taxonRank               = $rec['taxonRank'];
         
+        /* seize to use per Katja: https://eol-jira.bibalex.org/browse/TRAM-805?focusedCommentId=63337&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63337
         $rec['scientificName'] = self::format_incertae_sedis($rec['scientificName']);
+        */
         
         $taxon->scientificName          = $rec['scientificName'];
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
