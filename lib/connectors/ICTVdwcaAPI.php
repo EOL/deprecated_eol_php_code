@@ -23,8 +23,9 @@ class ICTVdwcaAPI
     function get_all_taxa($data_dump_url = false)
     {
         $this->data_dump_url = self::get_dump_url();
-        echo("\n[$this->data_dump_url]\n");
+        echo("\n[$this->data_dump_url]\n"); //exit("\nstop muna\n");
         // $this->data_dump_url = "http://localhost/cp/ICTV/ICTV Master Species List 2016 v1.3.xlsx"; //debug
+        // $this->data_dump_url = "http://localhost/cp/ICTV/ICTV Master Species List 2017 v1.0.xlsx"; //debug
 
         $records = self::parse_xls();
         // print_r($records);
@@ -89,12 +90,12 @@ class ICTVdwcaAPI
             
             if($order = @$rec['Order'])
             {
-                if($order == "Unassigned") $order = "unplaced Viruses";
+                if($order == "Unassigned") $order = "unclassified Viruses"; //"unplaced Viruses";
                 if(!isset($records[$order]))    $records["ICTV:$order"] = array("sciname" => $order, "rank" => "Order", "parent_id" => "ICTV:Viruses");
                 if($order == "unplaced Viruses") 
                 {
-                    $records[$key]['Order'] = "unplaced Viruses";
-                    $rec['Order']           = "unplaced Viruses";
+                    $records[$key]['Order'] = "unclassified Viruses"; //"unplaced Viruses";
+                    $rec['Order']           = "unclassified Viruses"; //"unplaced Viruses";
                 }
             }
             if($family = @$rec['Family'])

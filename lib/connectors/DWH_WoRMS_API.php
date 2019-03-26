@@ -48,8 +48,14 @@ class DWH_WoRMS_API
             echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         else { //local development only
-            $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_26984/',
+            $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_28209/',
                           'tables' => Array('taxa' => "taxon.txt"));
+
+            /* run to fill-in $info above:
+            if(!($info = self::start())) return; //uncomment in real operation
+            print_r($info); exit;
+            */
+
             $this->extension_path = $info['temp_dir'];
             self::main_WoRMS();
             $this->archive_builder->finalize(TRUE);
