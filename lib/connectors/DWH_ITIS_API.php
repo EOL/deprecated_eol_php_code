@@ -76,6 +76,19 @@ class DWH_ITIS_API
     }
     function start()
     {
+        // $rec['taxonID'] = 1080652;
+        // if($sciname = @$this->scinames[$rec['taxonID']]) {
+        //     if(Functions::is_utf8($sciname)) echo "\nutf8 OK [$sciname]\n";
+        //     else {
+        //         $sciname = utf8_encode($sciname);
+        //         if(Functions::is_utf8($sciname)) echo "\nutf8 OK 2nd try [$sciname]\n";
+        //         else {
+        //             echo "\nno success on 2nd try\n";
+        //         }
+        //     }
+        // }
+        // exit;
+        
         /* just test
         $rec['scientificName'] = self::lookup_taxon_api('1080652', 'ax21:combinedName'); print_r($rec); //exit;
         if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed: $rec[scientificName] OK";
@@ -101,12 +114,12 @@ class DWH_ITIS_API
         /* build language info list */
         $this->info_vernacular = self::build_language_info(); // print_r($this->info_vernacular);
         
-        /* un-comment in real operation
+        // /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
         print_r($info); //exit;
-        */
+        // */
         
-        // /* debug - force assign, used only during development...
+        /* debug - force assign, used only during development...
         $info = Array( //dir_44057
             // from MacMini
             // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
@@ -115,7 +128,7 @@ class DWH_ITIS_API
             'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
             'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
-        // */
+        */
         
         $temp_dir = $info['temp_dir']; // print_r($info); exit;
         echo "\nProcessing...\n";
@@ -160,6 +173,9 @@ class DWH_ITIS_API
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
             if(!$line) continue;
+            if(Functions::is_utf8($line)) {}
+            else $line = utf8_encode($line);
+            
             $row = explode("|", $line);
             // print_r($row); exit;
             if(!$row) continue; //continue; or break; --- should work fine
@@ -226,6 +242,15 @@ class DWH_ITIS_API
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
                     
                     if($sciname = @$this->scinames[$rec['taxonID']]) {
+                        // $sciname = utf8_encode($sciname);
+                        
+                        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."eli.txt";
+                        $WRITE = fopen($extension_path, "a");
+                        fwrite($WRITE, $sciname."\n");
+                        fclose($WRITE);
+                        
+                        
+                        $sciname = Functions::conv_to_utf8($sciname);
                         $rec['scientificName'] = $sciname;
                         $rec['canonicalName'] = Functions::canonical_form($sciname);
                     }
