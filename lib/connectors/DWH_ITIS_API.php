@@ -21,6 +21,10 @@ class DWH_ITIS_API
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->api['itis_taxon'] = 'https://www.itis.gov/ITISWebService/services/ITISService/getFullRecordFromTSN?tsn=';
 
+        /* found a better solution. Use the utf8_encode() in process_file()
+                if(Functions::is_utf8($line)) {}
+                else $line = utf8_encode($line);
+        
         $this->scinames[624736] = "Pediculus mjöbergi";
         $this->scinames[635210] = "Ovophis monticola zayüensis";
         $this->scinames[676344] = "Trypeta schäfferi";
@@ -53,15 +57,27 @@ class DWH_ITIS_API
         $this->scinames[1079899] = "Cucumaria jägeri";
         $this->scinames[1080645] = "Parathyonacta bonifaznuñoi";
         $this->scinames[1080652] = "Allopatides dendroïdes";
+        */
     }
     private function lookup_taxon_api($tsn, $xml_field) //2nd param e.g. "ax21:combinedName"
     {
+        exit("\nDoes not go here anymore...\n");
         $options = $this->download_options;
         $options['expire_seconds'] = false; //should always be false since we're just looking up for the sciname.
         if($xmlstr = Functions::lookup_with_cache($this->api['itis_taxon'].$tsn, $options)) {
             $xmlstr = str_replace(":", "_", $xmlstr);
             if($xml = simplexml_load_string($xmlstr)) {
-                if($val = $xml->ns_return->ax21_scientificName->ax21_combinedName) return $val;
+                if($val = $xml->ns_return->ax21_scientificName->ax21_combinedName) {
+                    if(Functions::is_utf8($val)) {
+                        echo "\nutf8 OK already [$val]\n";
+                        return $val;
+                    }
+                    else {
+                        $val = utf8_encode($val);
+                        echo "\nconverted using utf8_encode() [$val]\n";
+                        return $val;
+                    }
+                }
             }
             /* another option, also works OK
             $start = "<".$xml_field.">";
@@ -241,36 +257,39 @@ class DWH_ITIS_API
                     $rec['scientificName'] = $rec['col_26'];
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
                     
+                    /* not used, only tests during dev.
                     if($sciname = @$this->scinames[$rec['taxonID']]) {
-                        // $sciname = utf8_encode($sciname);
-                        
-                        $extension_path = CONTENT_RESOURCE_LOCAL_PATH."eli.txt";
-                        $WRITE = fopen($extension_path, "a");
-                        fwrite($WRITE, $sciname."\n");
-                        fclose($WRITE);
-                        
-                        
+                        // $extension_path = CONTENT_RESOURCE_LOCAL_PATH."eli.txt";
+                        // $WRITE = fopen($extension_path, "a");
+                        // fwrite($WRITE, $sciname."\n");
+                        // fclose($WRITE);
                         $sciname = Functions::conv_to_utf8($sciname);
                         $rec['scientificName'] = $sciname;
                         $rec['canonicalName'] = Functions::canonical_form($sciname);
                     }
                     else {
-                        if(Functions::is_utf8($rec['scientificName'])) {} //echo "\n$rec[scientificName] OK";
+                    }
+                    */
+                    
+                    if(Functions::is_utf8($rec['scientificName'])) {} //echo "\n$rec[scientificName] OK";
+                    else {
+                        /* not used, only tests during dev.
+                        $rec['scientificName'] = self::lookup_taxon_api($rec['taxonID'], 'ax21:combinedName');
+                        $rec['scientificName'] = Functions::conv_to_utf8($rec['scientificName']);
+                        if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed: $rec[scientificName] $rec[taxonID] OK";
                         else {
-                            $rec['scientificName'] = self::lookup_taxon_api($rec['taxonID'], 'ax21:combinedName');
+                            echo "\nstill not fixed will try: conv_to_utf8()\n";
                             $rec['scientificName'] = Functions::conv_to_utf8($rec['scientificName']);
-                            if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed: $rec[scientificName] $rec[taxonID] OK";
+                            if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed 2nd try: $rec[scientificName] $rec[taxonID] OK";
                             else {
-                                echo "\nstill not fixed will try: conv_to_utf8()\n";
-                                $rec['scientificName'] = Functions::conv_to_utf8($rec['scientificName']);
-                                if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed 2nd try: $rec[scientificName] $rec[taxonID] OK";
-                                else {
-                                    echo "\nstill not fixed on 2nd try: $rec[scientificName] $rec[taxonID]\n";
-                                    exit("\n\n");
-                                }
+                                echo "\nstill not fixed on 2nd try: $rec[scientificName] $rec[taxonID]\n";
+                                exit("\n\n");
                             }
                         }
+                        */
                     }
+                    
+                    
                     
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
                     $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
