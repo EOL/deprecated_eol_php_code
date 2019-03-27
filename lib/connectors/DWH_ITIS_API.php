@@ -21,8 +21,23 @@ class DWH_ITIS_API
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->api['itis_taxon'] = 'https://www.itis.gov/ITISWebService/services/ITISService/getFullRecordFromTSN?tsn=';
     }
+    private function lookup_taxon_api($tsn, $xml_field) //2nd param e.g. "ax21:combinedName"
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //should always be false since we're just looking up for the sciname.
+        if($xmlxstr = Functions::lookup_with_cache($this->api['itis_taxon'].$tsn, $options)) {
+            $start = "<".$xml_field.">";
+            $end = "<\/".$xml_field.">";
+            if(preg_match("/".$start."(.*?)".$end."/ims", $xmlxstr, $arr)) {
+                return $arr[1];
+            }
+        }
+        exit("\nNo API respond for tsn = $tsn\n");
+    }
     function start()
     {
+        // $rec['scientificName'] = self::lookup_taxon_api('1080652', 'ax21:combinedName'); print_r($rec); exit;
+        
         /* create Bacteria taxon entry */
         $rec = array();
         $rec['taxonID'] = 50;
@@ -167,11 +182,12 @@ class DWH_ITIS_API
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
                     $rec['scientificName'] = $rec['col_26'];
                     
-                    // /*good debug
-                    if(Functions::is_utf8($rec['scientificName'])) echo "\n$rec[scientificName] OK";
-                    else                                           echo "\n$rec[scientificName] not utf8";
-                    if($rec['taxonID'] == 1080652) exit("\n\n");
-                    // */
+                    if(Functions::is_utf8($rec['scientificName'])) {} //echo "\n$rec[scientificName] OK";
+                    else {
+                        // echo "\n$rec[scientificName] not utf8";
+                        $rec['scientificName'] = self::lookup_taxon_api($rec['taxonID'], 'ax21:combinedName');
+                    }
+                    // if($rec['taxonID'] == 1080652) exit("\n\n"); //debug
                     
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
