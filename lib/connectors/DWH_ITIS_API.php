@@ -20,23 +20,70 @@ class DWH_ITIS_API
             'expire_seconds'     => false, //expires false since we're not going to run periodically. And data dump uses specific date e.g. 25-Feb-2019
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->api['itis_taxon'] = 'https://www.itis.gov/ITISWebService/services/ITISService/getFullRecordFromTSN?tsn=';
+
+        $this->scinames[624736] = "Pediculus mjöbergi";
+        $this->scinames[635210] = "Ovophis monticola zayüensis";
+        $this->scinames[676344] = "Trypeta schäfferi";
+        $this->scinames[676345] = "Acrotaeniostola hönei";
+        $this->scinames[676346] = "Euribia hönei";
+        $this->scinames[676347] = "Acanthiophilus köhleri";
+        $this->scinames[676348] = "Carpophthoromyia fülleborni";
+        $this->scinames[772787] = "Phascolosoma schüttei";
+        $this->scinames[777393] = "Cenophengus peñai";
+        $this->scinames[945027] = "Gorilla mayêma";
+        $this->scinames[946750] = "Dysopes rüpelii";
+        $this->scinames[950907] = "Aloe schönlandi";
+        $this->scinames[951347] = "Eliomys quercinus räticus";
+        $this->scinames[970799] = "Leimacomys büttneri";
+        $this->scinames[970956] = "Spalax mezöségiensis";
+        $this->scinames[972589] = "Cannomys minor lönnbergi";
+        $this->scinames[976777] = "Eudriloides wölkei";
+        $this->scinames[977969] = "Microchaetus ljungströmi";
+        $this->scinames[978449] = "Parascolex sjöstedti";
+        $this->scinames[979793] = "Allolobophora möbii";
+        $this->scinames[988410] = "Anodonta variabilis rhomboïdalis";
+        $this->scinames[988457] = "Pseudanodonta nordenskiöldi maelarensis";
+        $this->scinames[991686] = "Diplopteraster nordernskjöldi";
+        $this->scinames[993045] = "Asteracanthion mülleri";
+        $this->scinames[1015016] = "Rhagovelia nariñensis";
+        $this->scinames[1018944] = "Rhagovelia nariñensis";
+        $this->scinames[1044313] = "Bipalium böhmigi";
+        $this->scinames[1046574] = "Geoplana büttneri";
+        $this->scinames[1055263] = "Xénoptère bellangerii";
+        $this->scinames[1079899] = "Cucumaria jägeri";
+        $this->scinames[1080645] = "Parathyonacta bonifaznuñoi";
+        $this->scinames[1080652] = "Allopatides dendroïdes";
     }
     private function lookup_taxon_api($tsn, $xml_field) //2nd param e.g. "ax21:combinedName"
     {
         $options = $this->download_options;
         $options['expire_seconds'] = false; //should always be false since we're just looking up for the sciname.
-        if($xmlxstr = Functions::lookup_with_cache($this->api['itis_taxon'].$tsn, $options)) {
+        if($xmlstr = Functions::lookup_with_cache($this->api['itis_taxon'].$tsn, $options)) {
+            $xmlstr = str_replace(":", "_", $xmlstr);
+            if($xml = simplexml_load_string($xmlstr)) {
+                if($val = $xml->ns_return->ax21_scientificName->ax21_combinedName) return $val;
+            }
+            /* another option, also works OK
             $start = "<".$xml_field.">";
             $end = "<\/".$xml_field.">";
             if(preg_match("/".$start."(.*?)".$end."/ims", $xmlxstr, $arr)) {
+                // return Functions::conv_to_utf8($arr[1]);
                 return $arr[1];
             }
+            */
         }
         exit("\nNo API respond for tsn = $tsn\n");
     }
     function start()
     {
-        // $rec['scientificName'] = self::lookup_taxon_api('1080652', 'ax21:combinedName'); print_r($rec); exit;
+        /*
+        $rec['scientificName'] = self::lookup_taxon_api('1080652', 'ax21:combinedName'); print_r($rec); //exit;
+        if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed: $rec[scientificName] OK";
+        else {
+            echo "\nstill not fixed will try: \n";
+        }
+        exit("\n-end-\n"); //debug
+        */
         
         /* create Bacteria taxon entry */
         $rec = array();
@@ -178,14 +225,33 @@ class DWH_ITIS_API
                     @$this->debug['taxonomicStatus'][$rec['col_25']] = '';
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
                     $rec['scientificName'] = $rec['col_26'];
-                    
-                    if(Functions::is_utf8($rec['scientificName'])) {} //echo "\n$rec[scientificName] OK";
-                    else $rec['scientificName'] = self::lookup_taxon_api($rec['taxonID'], 'ax21:combinedName');
-                    // if($rec['taxonID'] == 1080652) exit("\n\n"); //debug
-                    
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
+                    
+                    if($sciname = @$this->scinames[$rec['taxonID']]) {
+                        $rec['scientificName'] = $sciname;
+                        $rec['canonicalName'] = Functions::canonical_form($sciname);
+                    }
+                    else {
+                        if(Functions::is_utf8($rec['scientificName'])) {} //echo "\n$rec[scientificName] OK";
+                        else {
+                            $rec['scientificName'] = self::lookup_taxon_api($rec['taxonID'], 'ax21:combinedName');
+                            $rec['scientificName'] = Functions::conv_to_utf8($rec['scientificName']);
+                            if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed: $rec[scientificName] $rec[taxonID] OK";
+                            else {
+                                echo "\nstill not fixed will try: conv_to_utf8()\n";
+                                $rec['scientificName'] = Functions::conv_to_utf8($rec['scientificName']);
+                                if(Functions::is_utf8($rec['scientificName'])) echo "\nthis is now fixed 2nd try: $rec[scientificName] $rec[taxonID] OK";
+                                else {
+                                    echo "\nstill not fixed on 2nd try: $rec[scientificName] $rec[taxonID]\n";
+                                    exit("\n\n");
+                                }
+                            }
+                        }
+                    }
+                    
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
                     $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
+                    if($val = $rec['kingdom']) $this->debug['kingdom values'][$val] = '';
                     $rec['taxonRank'] = @$this->info_rank[$rec['col_21']][$rec['col_22']];
                     self::write_taxon_DH($rec);
                 }
@@ -246,7 +312,6 @@ class DWH_ITIS_API
         if($val = @$rec['genus'])                       $taxon->genus = $val;
         if($val = @$rec['specificEpithet'])             $taxon->specificEpithet = $val;
         if($val = @$rec['infraspecificEpithet'])        $taxon->infraspecificEpithet = $val;
-        if($val = @$rec['scientificNameAuthorship'])    $taxon->scientificNameAuthorship = $val;
         if($val = @$rec['verbatimTaxonRank'])           $taxon->verbatimTaxonRank = $val;
         if($val = @$rec['subgenus'])                    $taxon->subgenus = $val;
         */
