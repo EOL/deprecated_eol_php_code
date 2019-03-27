@@ -137,12 +137,12 @@ class DWH_ITIS_API
         
         /* debug - force assign, used only during development...
         $info = Array( //dir_44057
-            // from MacMini
-            // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
-            // 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
-            // from MacBook
-            'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
-            'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
+            // from MacMini ---------------------------------
+            'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
+            'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
+            // from MacBook ---------------------------------
+            // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
+            // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
         */
         
