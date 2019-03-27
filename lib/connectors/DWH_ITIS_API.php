@@ -19,13 +19,7 @@ class DWH_ITIS_API
         $this->download_options = array( //Note: Database download files are currently from the 25-Feb-2019 data load.
             'expire_seconds'     => false, //expires false since we're not going to run periodically. And data dump uses specific date e.g. 25-Feb-2019
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
-            
-        /* 'Use' mapping from Jen: https://opendata.eol.org/dataset/africa-tree-database/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf
-        $this->use_mapping_from_jen = "https://opendata.eol.org/dataset/e31baa95-af6c-4539-a1d8-00f7364fadcd/resource/5bce8f9a-933e-4f23-bb4d-e7260f0ba1cf/download/use-mapping.csv";
-        $this->addtl_mapping_from_jen = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AfricaTreeDB/AfricaTreeLocalities.txt"; //based from Eli's un-mapped string report.
-        $this->partner_bibliographicCitation = "Carrie Seltzer, William Wysocki, Melissa Palacios, Anna Eickhoff, Hannah Pilla, Jordan Aungst, Aaron Mercer, Jamie Quicho, Neil Voss, Man Xu, Henry J. Ndangalasi, Jon C. Lovett, Norbert J. Cordeiro. Posted October 21, 2015. The Africa Tree Database. Accessed at https://figshare.com/articles/SQL_of_Africa_Tree_Database/1526125, January 16, 2019.";
-        $this->partner_source_url = "https://figshare.com/articles/SQL_of_Africa_Tree_Database/1526125";
-        */
+        $this->api['itis_taxon'] = 'https://www.itis.gov/ITISWebService/services/ITISService/getFullRecordFromTSN?tsn=';
     }
     function start()
     {
@@ -154,16 +148,8 @@ class DWH_ITIS_API
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
-                    
-                    // /*good debug
-                    if(Functions::is_utf8($rec['scientificName'])) echo "\n$rec[scientificName] OK";
-                    else                                           echo "\n$rec[scientificName] not utf8";
-                    if($rec['taxonID'] == 1080652) exit("\n\n");
-                    // */
-                    
                     $rec['acceptedNameUsageID'] = @$this->info_synonym[$rec['col_1']];
                     $rec['parentNameUsageID'] = $rec['col_18'];
-                    
                     
                     if(in_array($rec['taxonID'], $remove_ids)) continue;
                     if(in_array($rec['parentNameUsageID'], $remove_ids)) { //may not pass this line
@@ -180,6 +166,13 @@ class DWH_ITIS_API
                     @$this->debug['taxonomicStatus'][$rec['col_25']] = '';
                     $rec['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
                     $rec['scientificName'] = $rec['col_26'];
+                    
+                    // /*good debug
+                    if(Functions::is_utf8($rec['scientificName'])) echo "\n$rec[scientificName] OK";
+                    else                                           echo "\n$rec[scientificName] not utf8";
+                    if($rec['taxonID'] == 1080652) exit("\n\n");
+                    // */
+                    
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
                     $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
