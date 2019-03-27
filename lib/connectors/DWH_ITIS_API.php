@@ -180,10 +180,7 @@ class DWH_ITIS_API
                     $rec['scientificName'] = $rec['col_26'];
                     
                     if(Functions::is_utf8($rec['scientificName'])) {} //echo "\n$rec[scientificName] OK";
-                    else {
-                        // echo "\n$rec[scientificName] not utf8";
-                        $rec['scientificName'] = self::lookup_taxon_api($rec['taxonID'], 'ax21:combinedName');
-                    }
+                    else $rec['scientificName'] = self::lookup_taxon_api($rec['taxonID'], 'ax21:combinedName');
                     // if($rec['taxonID'] == 1080652) exit("\n\n"); //debug
                     
                     $rec['canonicalName'] = @$this->info_longnames[$rec['col_1']];
