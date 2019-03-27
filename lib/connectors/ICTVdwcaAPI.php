@@ -92,7 +92,7 @@ class ICTVdwcaAPI
             {
                 if($order == "Unassigned") $order = "unclassified Viruses"; //"unplaced Viruses";
                 if(!isset($records[$order]))    $records["ICTV:$order"] = array("sciname" => $order, "rank" => "Order", "parent_id" => "ICTV:Viruses");
-                if($order == "unplaced Viruses") 
+                if(($order == "unplaced Viruses") || ($order == "unclassified Viruses"))
                 {
                     $records[$key]['Order'] = "unclassified Viruses"; //"unplaced Viruses";
                     $rec['Order']           = "unclassified Viruses"; //"unplaced Viruses";
