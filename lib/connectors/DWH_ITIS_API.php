@@ -39,6 +39,9 @@ class DWH_ITIS_API
         $rec['acceptedNameUsageID'] = '';
         $rec['parentNameUsageID'] = '';
         $rec['taxonRank'] = 'kingdom';
+        $rec['canonicalName'] = 'Bacteria';
+        $rec['kingdom'] = '';
+        $rec['taxonRemarks'] = '';
         self::write_taxon_DH($rec);
         
         /* build language info list */
@@ -46,12 +49,12 @@ class DWH_ITIS_API
         // $this->info_vernacular = array();
         // print_r($this->info_vernacular);
         
-        // /* un-comment in real operation
+        /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
         print_r($info); //exit;
-        // */
+        */
         
-        /* debug - force assign, used only during development...
+        // /* debug - force assign, used only during development...
         $info = Array( //dir_44057
             // from MacMini
             'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
@@ -60,7 +63,7 @@ class DWH_ITIS_API
             // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
             // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
-        */
+        // */
         
         $temp_dir = $info['temp_dir']; // print_r($info); exit;
         $tables = array("taxonomic_units");
@@ -77,11 +80,11 @@ class DWH_ITIS_API
         print_r($remove_ids); //exit;
         
         //step 3 create series of info_files
-        self::process_file($info['archive_path'].'kingdoms', 'kingdoms');
-        self::process_file($info['archive_path'].'taxon_unit_types', 'taxon_unit_types');
-        self::process_file($info['archive_path'].'taxon_authors_lkp', 'taxon_authors_lkp');
-        self::process_file($info['archive_path'].'longnames', 'longnames');
-        self::process_file($info['archive_path'].'synonym_links', 'synonym_links');
+        self::process_file($info['archive_path'].'kingdoms', 'kingdoms');                   // print_r($this->info_kingdom); exit("\ncheck info_kingdom\n");
+        self::process_file($info['archive_path'].'taxon_unit_types', 'taxon_unit_types');   // print_r($this->info_rank); exit("\ncheck info_rank\n");
+        self::process_file($info['archive_path'].'taxon_authors_lkp', 'taxon_authors_lkp'); // print_r($this->info_author); exit("\ncheck info_author\n");
+        self::process_file($info['archive_path'].'longnames', 'longnames');                 // print_r($this->info_longnames); exit("\ncheck info_longnames\n");
+        self::process_file($info['archive_path'].'synonym_links', 'synonym_links');         // print_r($this->info_synonym); exit("\ncheck info_synonym\n");
         
         //step 4: create taxon archive with filter 
         self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca', $remove_ids);
@@ -135,7 +138,7 @@ class DWH_ITIS_API
                 if($what == 'kingdoms') $this->info_kingdom[$rec['col_1']] = $rec['col_2'];
                 // kingdoms 1   kingdom_id      
                 // kingdoms 2   kingdom_name    taxa    http://rs.tdwg.org/dwc/terms/kingdom
-                if($what == 'taxon_unit_types') $this->info_rank[$rec['col_1']][$rec['col_2']] = $rec['col_3'];
+                if($what == 'taxon_unit_types') $this->info_rank[$rec['col_1']][$rec['col_2']] = strtolower($rec['col_3']);
                 // taxon_unit_types    1    kingdom_id
                 // taxon_unit_types    2    rank_id
                 // taxon_unit_types    3    rank_name
@@ -151,6 +154,13 @@ class DWH_ITIS_API
 
                 if($what == 'write_taxon_dwca') {
                     $rec['taxonID'] = $rec['col_1'];
+                    
+                    // /*good debug
+                    if(Functions::is_utf8($rec['scientificName'])) echo "\n$rec[scientificName] OK";
+                    else                                           echo "\n$rec[scientificName] not utf8";
+                    if($rec['taxonID'] == 1080652) exit("\n\n");
+                    // */
+                    
                     $rec['acceptedNameUsageID'] = @$this->info_synonym[$rec['col_1']];
                     $rec['parentNameUsageID'] = $rec['col_18'];
                     
@@ -202,19 +212,22 @@ class DWH_ITIS_API
         // $rec['scientificName'] = Functions::remove_whitespace(str_ireplace("(Unplaced)", "", $rec['scientificName']));
         
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                 = $rec['taxonID'];
-        $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
-        $taxon->taxonRank               = $rec['taxonRank'];
-        $taxon->scientificName          = $rec['scientificName'];
-        $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
-        $taxon->acceptedNameUsageID     = $rec['acceptedNameUsageID'];
-        $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
-        if($val = @$rec['taxonRemarks'])                $taxon->taxonRemarks = $val;
+        $taxon->taxonID                     = $rec['taxonID'];
+        $taxon->scientificName              = $rec['scientificName'];
+        $taxon->scientificNameAuthorship    = $rec['scientificNameAuthorship'];     //from look-ups
+        $taxon->canonicalName               = $rec['canonicalName'];                //from look-ups
+        $taxon->parentNameUsageID           = $rec['parentNameUsageID'];
+        $taxon->taxonRank                   = $rec['taxonRank'];                    //from look-ups
+        $taxon->kingdom                     = $rec['kingdom'];                      //from look-ups
+        $taxon->taxonomicStatus             = $rec['taxonomicStatus'];
+        $taxon->acceptedNameUsageID         = $rec['acceptedNameUsageID'];
+        $taxon->furtherInformationURL       = $rec['furtherInformationURL'];
+        $taxon->taxonRemarks                = $rec['taxonRemarks'];
+        
         
         /* from another resource template
         $taxon->scientificNameID    = $rec['scientificNameID'];
         $taxon->nameAccordingTo     = $rec['nameAccordingTo'];
-        $taxon->kingdom             = $rec['kingdom'];
         $taxon->phylum              = $rec['phylum'];
         $taxon->class               = $rec['class'];
         $taxon->order               = $rec['order'];
@@ -223,7 +236,6 @@ class DWH_ITIS_API
         $taxon->subgenus            = $rec['subgenus'];
         $taxon->specificEpithet     = $rec['specificEpithet'];
         $taxon->infraspecificEpithet        = $rec['infraspecificEpithet'];
-        $taxon->scientificNameAuthorship    = $rec['scientificNameAuthorship'];
         $taxon->taxonRemarks        = $rec['taxonRemarks'];
         $taxon->modified            = $rec['modified'];
         $taxon->datasetID           = $rec['datasetID'];
