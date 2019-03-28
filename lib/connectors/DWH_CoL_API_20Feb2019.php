@@ -579,6 +579,9 @@ class DWH_CoL_API_20Feb2019
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['taxonID'];
         $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
+        
+        if($val = @$this->ids2retain[$rec['parentNameUsageID']]) $taxon->parentNameUsageID = $val;
+        
         $taxon->taxonRank               = $rec['taxonRank'];
         $taxon->scientificName          = $rec['scientificName'];
         $taxon->taxonomicStatus         = $rec['taxonomicStatus'];
@@ -934,6 +937,8 @@ class DWH_CoL_API_20Feb2019
         $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies, 'infraspecies');
         $ids_2be_removed = array_merge($taxonIDs_2be_removed1, $taxonIDs_2be_removed2);
         
+        print_r($this->ids2retain); //exit;
+        
         // step 6: remove rejected duplicates from step 5 and write to DwCA
         $i = 0;
         foreach(new FileIterator($extension_path.$meta['taxon_file']) as $line => $row) {
@@ -958,7 +963,11 @@ class DWH_CoL_API_20Feb2019
     {
         $final = array();
         foreach($records as $pair) { //$pair can be more than 2 taxonIDs
-            $taxonIDs_removed = self::select_1_from_list_of_taxonIDs($pair, $what);
+            $ret = self::select_1_from_list_of_taxonIDs($pair, $what);
+            $taxonIDs_removed = array_diff($ret[0], $ret[1]);
+            //start build id-to-retain vs id(s)-to-remove
+            foreach($taxonIDs_removed as $id) $this->ids2retain[$id] = $ret[1][0];
+            //end
             if($taxonIDs_removed) $final = array_merge($final, $taxonIDs_removed);
         }
         return $final;
@@ -994,21 +1003,21 @@ class DWH_CoL_API_20Feb2019
             if(count($pair) > 1) {$pair = self::filter2_authorship($pair);      //without authorship
                                  //echo "\nresult filter2:\n"; print_r($pair);
                                  }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
 
             if(count($pair) > 1) {$pair = self::filter3_authorship($pair);      //without 4-digit no.
                                  //echo "\nresult filter3:\n"; print_r($pair);
                                  }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
 
             if(count($pair) > 1) {$pair = self::filter4_authorship($pair);      //authority date is larger
                                  //echo "\nresult filter4:\n"; print_r($pair);
                                  }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
             if(count($pair) > 1) {$pair = self::filter5_authorship($pair);      //without parentheses
                                  //echo "\nresult filter5:\n"; print_r($pair);
                                  }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
 
             if($what == 'infraspecies') {
                 /*  5.1. verbatimTaxonRank IS NOT empty | verbatimTaxonRank IS empty
@@ -1016,33 +1025,33 @@ class DWH_CoL_API_20Feb2019
                     5.3. verbatimTaxonRank IS var. | verbatimTaxonRank IS f.
                 */
                 if(count($pair) > 1) $pair = self::filter5_1_verbatimRank($pair);   //verbatimTaxonRank IS empty
-                elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+                elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
                 if(count($pair) > 1) $pair = self::filter5_2_verbatimRank($pair);   //verbatimTaxonRank IS var. OR f.
-                elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+                elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
                 if(count($pair) > 1) $pair = self::filter5_3_verbatimRank($pair);   //verbatimTaxonRank IS f.
-                elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+                elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
             }
 
             if(count($pair) > 1) {$pair = self::filter6_subgenus($pair);        //subgenus IS NOT empty
                                  // echo "\nresult filter6:\n"; print_r($pair);
                                  }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
             
             if(count($pair) > 1) {$pair = self::filter7_isExtinct($pair);       //isExtinct IS FALSE
                                  // echo "\nresult filter7:\n"; print_r($pair);
                                  }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
             
             if(count($pair) > 1) {$pair = self::filter8_NoAncestry($pair);       //NoAncestry
                                  // echo "\nresult filter8:\n"; print_r($pair);
                                  }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
             
             if(count($pair) > 1) { //should not go here...
                 print_r($pair);
                 exit("\nstill pair has > 1 records\n");
             }
-            elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
+            elseif(count($pair) == 1) return array($orig_pair, $pair); //array_diff($orig_pair, $pair);
             
             /*Prefer | Reject
             1. accepted name | provisionally accepted name
