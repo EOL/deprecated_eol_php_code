@@ -830,7 +830,22 @@ class DWH_CoL_API_20Feb2019
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            // print_r($rec); exit;
+            // print_r($rec); //exit;
+            
+            /* debug only
+            $canonical = Functions::canonical_form($rec['scientificName']);
+            if($canonical == 'Phenacoccus hordei') print_r($rec);
+            */
+            /* debug only
+            if(in_array($rec['taxonID'], array('4330862cc98698ec604377523f42e16d', 'edcac7cc9c02ea1c7eda0daecadd5201'))) print_r($rec);
+            */
+            
+            // if($rec['scientificName'] == 'Phenac') print_r($rec);
+            // if($rec['scientificName'] == 'Phenac') print_r($rec);
+            // echo "\n".Functions::canonical_form('Phenacoc')."\n";
+            // echo "\n".Functions::canonical_form('Phenacoc')."\n";
+            // exit;
+            
             /*Array(
                 [taxonID] => fc0886d15759a01525b1469534189bb5
                 [acceptedNameUsageID] => 
@@ -854,12 +869,15 @@ class DWH_CoL_API_20Feb2019
             if(!in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) continue;
             
             if($rec['taxonRank'] == 'species') {
-                $a = array('sn' => $rec['scientificName'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet']);
+                // $a = array('sn' => $rec['scientificName'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet']); ver 1
+                $a = array('p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet']);
+                
                 $json = json_encode($a);
                 $species[$json][] = $rec['taxonID'];
             }
             elseif($rec['taxonRank'] == 'infraspecies') {
-                $a = array('sn' => $rec['scientificName'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet'], 'i' => $rec['infraspecificEpithet']);
+                // $a = array('sn' => $rec['scientificName'], 'p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet'], 'i' => $rec['infraspecificEpithet']); ver 1
+                $a = array('p' => $rec['parentNameUsageID'], 'g' => $rec['genus'], 's' => $rec['specificEpithet'], 'i' => $rec['infraspecificEpithet']);
                 $json = json_encode($a);
                 $infraspecies[$json][] = $rec['taxonID'];
             }
@@ -1022,7 +1040,7 @@ class DWH_CoL_API_20Feb2019
             
             if(count($pair) > 1) { //should not go here...
                 print_r($pair);
-                exit("\nstill pair has 2 records\n");
+                exit("\nstill pair has > 1 records\n");
             }
             elseif(count($pair) == 1) return array_diff($orig_pair, $pair);
             
@@ -1050,9 +1068,14 @@ class DWH_CoL_API_20Feb2019
     }
     private function filter8_NoAncestry($pair)
     {
-        if(count($pair) > 1)    unset($pair[1]); //pick one
+        /* working but only for $pair with count == 2
+        if(count($pair) > 1) unset($pair[1]); //pick one
         $pair = array_values($pair); //reindex key
         return $pair;
+        */
+        
+        foreach($pair as $taxon_id) return array($taxon_id); //just pick one
+        
         /* working but get_ancestry() is not the solution but get_children() is. ToDo get_children(), reject those without children vs those with children.
         $orig_pair = $pair;
         $i = -1;
@@ -1156,14 +1179,31 @@ class DWH_CoL_API_20Feb2019
                     if($taxonID == $to_remove) {
                         unset($pair[$i]);
                         $pair = array_values($pair); //reindex key
+                        // print_r($pair); exit("\nfollow this format\n");
                         return $pair;
                     }
                 }
             }
         }
         elseif(count(@$ids_with_4digit_no) < 2) return $orig_pair;
-        elseif(count(@$ids_with_4digit_no) > 2) exit("\nNeed to script this up...\n");
+        elseif(count(@$ids_with_4digit_no) > 2) { //this can also be used for above => if(count(@$ids_with_4digit_no) == 2)
+            // print_r($ids_with_4digit_no);
+            // exit("\nNeed to script this up...\n");
+            $pair = self::get_least_from_multiple_dates($ids_with_4digit_no);
+            return $pair;
+        }
         return $orig_pair;
+    }
+    private function get_least_from_multiple_dates($a)
+    {
+        // $a = Array(
+        //     '46463756d3068caa095f0cfdd7d5898f' => 1953,
+        //     '224534e3c7a97f445510d28db81dd34a' => 1973,
+        //     '88a861a82332663835794693906560bd' => 1880);
+        // print_r($a);
+        asort($a); //print_r($a);
+        foreach($a as $taxon_id => $numeric) break; //get the first taxon_id
+        return array($taxon_id);
     }
     private function filter3_authorship($pair, $i = -1) //without 4-digit no.
     {
