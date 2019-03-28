@@ -318,7 +318,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
     {
         // print_r($test);
         echo "\n==============================\n";
-        echo "\nPrinting duplicates [$postfix]: ".count($test)."\n";
+        echo "\nPrinting duplicates [$what $postfix]: ".count($test)."\n";
         echo "\n==============================\n";
         $path = $this->sh[$what]['source']."../zFailures/$what".$postfix;
         $FILE = Functions::file_open($path, 'w');
@@ -1064,10 +1064,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            // print_r($rec); //exit; //use to test if field - value is OK
+            // print_r($rec); exit; //use to test if field - value is OK
             // if($rec['taxonID'] == "Sphingonaepiopsis-Genus-Group") exit;
             
-            // $this->debug[$rec['taxonomicStatus']] = ''; //for debug only
+            // $this->debug[$rec['taxonomicStatus']] = ''; continue; //for debug only
             
             //=======================================================================================
             if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
@@ -1131,6 +1131,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
                 fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
             }
         }
+        // print_r($this->debug); exit; //debug only
         fclose($fn_tax); fclose($fn_tax_part);
         fclose($fn_syn); fclose($fn_syn_part);
         $total_rows = self::get_total_rows($this->sh[$what]['destin']."taxonomy_part_".$ctr.".txt"); echo "\ntaxonomy_part_".$ctr.".txt -> $total_rows\n";
@@ -1242,6 +1243,8 @@ php update_resources/connectors/dwh_v2.php _ VSP
             if(!$rec['taxonomicStatus']) return true;
             elseif(in_array($rec['taxonomicStatus'], array("accepted name", "provisionally accepted name"))) return true;
         }
+        elseif($what == "COC") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
+        elseif($what == "VSP") { if(in_array($rec['taxonomicStatus'], array("accepted"))) return true; }
         // print_r($rec);
         // $this->debug[$rec['taxonID']] = ''; //for debug only
         exit("\nUndefined resource here [$what]\n");
