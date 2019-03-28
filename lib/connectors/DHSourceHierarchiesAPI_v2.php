@@ -35,21 +35,21 @@ class DHSourceHierarchiesAPI_v2
 
 
 /*paste these in terminal
-php update_resources/connectors/dwh.php _ EET
-php update_resources/connectors/dwh.php _ ASW
-php update_resources/connectors/dwh.php _ ictv
-php update_resources/connectors/dwh.php _ CLP
-php update_resources/connectors/dwh.php _ trunk
-php update_resources/connectors/dwh.php _ ERE
-php update_resources/connectors/dwh.php _ IOC
-php update_resources/connectors/dwh.php _ BOM
-php update_resources/connectors/dwh.php _ NCBI
-php update_resources/connectors/dwh.php _ ONY
-php update_resources/connectors/dwh.php _ ODO
-php update_resources/connectors/dwh.php _ WOR
-php update_resources/connectors/dwh.php _ COL
-php update_resources/connectors/dwh.php _ COC
-php update_resources/connectors/dwh.php _ VSP
+php update_resources/connectors/dwh_v2.php _ EET
+php update_resources/connectors/dwh_v2.php _ ASW
+php update_resources/connectors/dwh_v2.php _ ictv
+php update_resources/connectors/dwh_v2.php _ CLP
+php update_resources/connectors/dwh_v2.php _ trunk
+php update_resources/connectors/dwh_v2.php _ ERE
+php update_resources/connectors/dwh_v2.php _ IOC
+php update_resources/connectors/dwh_v2.php _ BOM
+php update_resources/connectors/dwh_v2.php _ NCBI
+php update_resources/connectors/dwh_v2.php _ ONY
+php update_resources/connectors/dwh_v2.php _ ODO
+php update_resources/connectors/dwh_v2.php _ WOR
+php update_resources/connectors/dwh_v2.php _ COL
+php update_resources/connectors/dwh_v2.php _ COC
+php update_resources/connectors/dwh_v2.php _ VSP
 
 */
         //for testing
@@ -206,7 +206,7 @@ php update_resources/connectors/dwh.php _ VSP
         $meta = self::analyze_meta_xml($meta_xml_path);
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
-        // print_r($meta); //exit;
+        print_r($meta); //exit;
         return $meta;
     }
     public function start($what, $special_task = false)
@@ -1047,7 +1047,11 @@ php update_resources/connectors/dwh.php _ VSP
         fwrite($fn_syn_part, implode("\t", array("name")) ."\n");
         
         $file = $this->sh[$what]['source'].$meta['taxon_file'];
+        
+        /* obsolete in 2nd Smasher run
         if(in_array($what, array("COL", "CLP"))) $file .= ".txt"; //these 2 resources are fixed by fix_CLP_taxa_with_not_assigned_entries()
+        */
+        
         foreach(new FileIterator($file) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
