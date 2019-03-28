@@ -10,6 +10,18 @@ ini_set('memory_limit','15096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
+/*
+$a = Array(
+    '46463756d3068caa095f0cfdd7d5898f' => 1953,
+    '224534e3c7a97f445510d28db81dd34a' => 1973,
+    '88a861a82332663835794693906560bd' => 1880);
+print_r($a);
+asort($a); print_r($a);
+
+foreach($a as $taxon_id => $numeric) break; //get the first taxon_id
+exit("\n[$taxon_id]\n");
+*/
+
 /* utility - check unique ids
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
@@ -78,6 +90,7 @@ $resource_id = "Catalogue_of_Life_Protists_DH_step4";
 $func = new DWH_CoL_API_20Feb2019($resource_id);
 $func->duplicate_process_B('CLP');
 Functions::finalize_dwca_resource($resource_id, true);
+run_diagnostics($resource_id);
 // */
 
 /*
