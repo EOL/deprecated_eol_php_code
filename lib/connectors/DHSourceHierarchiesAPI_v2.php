@@ -50,7 +50,6 @@ php update_resources/connectors/dwh_v2.php _ WOR
 php update_resources/connectors/dwh_v2.php _ COL
 php update_resources/connectors/dwh_v2.php _ COC
 php update_resources/connectors/dwh_v2.php _ VSP
-
 */
         //for testing
         $this->sh['xxx']['source']          = $this->main_path."/xxx/";
