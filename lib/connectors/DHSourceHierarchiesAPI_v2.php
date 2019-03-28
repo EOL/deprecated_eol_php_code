@@ -244,28 +244,8 @@ php update_resources/connectors/dwh_v2.php _ VSP
         }
         if($this->debug) print_r($this->debug);
         exit("\n-end write all names [$what]-\n"); //works OK
-        
-        // Then start caching... No longer used. OBSOLETE
-        // self::run_TSV_file_with_gnparser_new("COL_ALL_NAMES_2_gnparsed.txt", $what); exit("\nCaching TSV for [$what] done!\n");
         // */
 
-        /* this is one-time run for every dataset - all 13 datasets ============================================================= OBSOLETE ever since utility_write_all_names()
-        self::run_file_with_gnparser_new($meta);    exit("\nCaching for [$what] done!\n"); //is used for blank slate, meaning new cache path or new gnparser version.
-        self::run_file_with_gnparser_new_v2($meta); exit("\nCaching for [$what] done!\n"); //is used to get names left behind from above. Only processes names, where cache doesn't exist yet
-        ========================================================================================================================= */
-        
-        $with_authorship = false;
-        if($this->sh[$what]['run_gnparse'] == false) {}
-        else { //normal
-            if(self::need_2run_gnparser_YN($meta)) {
-                $with_authorship = true;
-                /* wise move before. That is when using the old gnparser version. The new doesn't have a \n line separator between json records.
-                self::run_file_with_gnparser($meta);
-                self::save_2local_gnparsed_file($what);
-                */
-            }
-        }
-        
         /* 5. Duplicate taxa --- utility generating duplicates report for Katja ==========================================================================================
         // WOR has a bunch of species and subspecific taxa that have the same canonical form but different authors. These are mostly foraminiferans and a few diatoms. 
         // I'm not sure what to do about these. Clearly, they can't all be accepted names, but WOR still has them as such. I don't quite remember how we handled these 
@@ -274,14 +254,6 @@ php update_resources/connectors/dwh_v2.php _ VSP
         // self::check_for_duplicate_canonicals($meta, $with_authorship); exit("\n-end checking for duplicates [$what]-\n");
         self::check_for_duplicate_canonicals_new($meta, "taxonomy"); exit("\n-end checking for duplicates (new) [$what]-\n");
         ================================================================================================================================================================= */
-        //initialize this report file
-        $path = $this->sh[$what]['source']."../zFailures/$what".".txt"; if(file_exists($path)) unlink($path);
-        
-        self::process_taxon_file($meta, $with_authorship);
-        self::parent_id_check($what);
-        self::show_totals($what);
-        if($this->sh[$what]['run_gnparse'] != $with_authorship) echo "\nInvestigate the need to run gnparser [$what]\n";
-        else                                                    echo "\n-OK-\n";
     }
     private function get_problematic_names() //sheet found here: https://eol-jira.bibalex.org/browse/TRAM-800
     {
@@ -359,29 +331,6 @@ php update_resources/connectors/dwh_v2.php _ VSP
         }
         return true;
     }
-    private function need_2run_gnparser_YN($meta)
-    {
-        $what = $meta['what']; $i = 0;
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++;
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            if(!$row) continue;
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                if(!$field) continue;
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            // echo "\n".count($tmp)."\n"; print_r($tmp);
-            // print_r($rec); exit; //use to test if field - value is OK ==================================================================
-            if($val = self::gnsparse_canonical($rec['scientificName'], "cache")) {
-                if($val != $rec['scientificName']) return true;
-            }
-            if($i >= 15) break;
-        }
-        return false;
-    }
     private function clean_rank($rank)
     {
         $rank = strtolower($rank);
@@ -429,209 +378,6 @@ php update_resources/connectors/dwh_v2.php _ VSP
         }
         return $undefined_accepted_ids;
     }
-    /*
-    private function run_file_with_gnparser_new($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
-    {
-        $xname = "name_only1";
-        $m = 3620095/10; //for CoL
-        $what = $meta['what']; $i = 0;
-        echo "\nRunning gnparser...\n";
-        $WRITE = fopen($this->sh[$what]['source'].$xname.".txt", "w"); //will overwrite existing
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++;
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            if(!$row) continue;
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                if(!$field) continue;
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            // print_r($rec); //exit; //use to test if field - value is OK
-            
-            // A good way to pinpoint the row count - works OK
-            // if($rec['scientificName'] == "Euchilofulvius carinatus (Poppius, 1913)") exit("\n---[$i]---\n");
-            // else continue;
-            
-            
-            // breakdown when caching:
-            // $cont = false;
-            // // if($i >=  1    && $i < $m)   $cont = true;
-            // // if($i >=  $m   && $i < $m*2) $cont = true;
-            // // if($i >=  $m*2 && $i < $m*3) $cont = true;
-            // // if($i >=  $m*3 && $i < $m*4) $cont = true;
-            // if(!$cont) continue;
-            
-            
-            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
-            if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
-            if(($i % 1000) == 0) {
-                echo "\nmain count:[".number_format($i)."]\n";
-                fclose($WRITE);
-                $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source'].$xname.".txt --output ".$this->sh[$what]['source'].$xname."_gnparsed.txt";
-                $out = shell_exec($cmd); echo "\n$out\n";
-                self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
-                $WRITE = fopen($this->sh[$what]['source'].$xname.".txt", "w"); //will overwrite existing
-            }
-        }
-        //last batch
-        fclose($WRITE);
-        $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source'].$xname.".txt --output ".$this->sh[$what]['source'].$xname."_gnparsed.txt";
-        $out = shell_exec($cmd); echo "\n$out\n";
-        self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
-    }
-    */
-    /*
-    private function run_file_with_gnparser_new_v2($meta) //
-    {
-        $xname = "name_onlyx2";
-        $what = $meta['what']; $i = 0; $saved = 0;
-        echo "\nRunning gnparser...\n";
-        $WRITE = fopen($this->sh[$what]['source'].$xname.".txt", "w"); //will overwrite existing
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++;
-            if(($i % 5000) == 0) echo "\n --->:[".number_format($i)."]"; //stopped at 1,645,000 for COL
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            if(!$row) continue;
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                if(!$field) continue;
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            // print_r($rec); //exit; //use to test if field - value is OK
-            // breakdown when caching:
-            // $cont = false;
-            // if($i >=  931834 && $i < 4000000) $cont = true;
-            // if(!$cont) continue;
-            //
-            if(!self::is_record_valid($what, $rec)) continue; //main criteria filter
-            if($val = @$rec['scientificName']) {
-                if(!self::cache_exists($val)) {
-                    fwrite($WRITE, $val."\n");
-                    $saved++;
-                }
-            }
-            if($saved == 1000) {
-                echo "\nmain countx:[".number_format($i)."]\n";
-                fclose($WRITE);
-                $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source'].$xname.".txt --output ".$this->sh[$what]['source'].$xname."_gnparsed.txt";
-                $out = shell_exec($cmd); echo "\n$out\n";
-                self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
-                $WRITE = fopen($this->sh[$what]['source'].$xname.".txt", "w"); //will overwrite existing
-                $saved = 0;
-            }
-        }
-        //last batch
-        fclose($WRITE);
-        if($saved) {
-            $cmd = "gnparser file -f json-compact --input ".$this->sh[$what]['source'].$xname.".txt --output ".$this->sh[$what]['source'].$xname."_gnparsed.txt";
-            $out = shell_exec($cmd); echo "\n$out\n";
-            self::save_2local_gnparsed_file_new($what, $xname."_gnparsed.txt");
-        }
-    }
-    */
-    /*
-    private function run_file_with_gnparser($meta) //creates name_only.txt and converts it to name_only_gnparsed.txt using gnparser. gnparser converts entire file
-    {
-        $what = $meta['what']; $i = 0;
-        if(file_exists($this->sh[$what]['source'].'name_only_gnparsed_DONE.txt')) {
-            echo "\nAll names for [$what] has already been cached.\n";
-            return;
-        }
-        echo "\nRunning gnparser...\n";
-        $WRITE = fopen($this->sh[$what]['source']."name_only.txt", "w"); //will overwrite existing
-        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++;
-            if($meta['ignoreHeaderLines'] && $i == 1) continue;
-            if(!$row) continue;
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta['fields'] as $field) {
-                $rec[$field] = $tmp[$k];
-                $k++;
-            }
-            // echo "\n".count($tmp)."\n"; print_r($tmp);
-            // print_r($rec); //exit; //use to test if field - value is OK
-            if($val = @$rec['scientificName']) fwrite($WRITE, $val."\n");
-        }
-        fclose($WRITE);
-        // Works OK during older version of gnparser. The later version doesn't have a line separator (\n) between json record.
-        // //convert entire file (names) to gnparser version
-        // $cmd = "gnparser file --input ".$this->sh[$what]['source']."name_only.txt --output ".$this->sh[$what]['source']."name_only_gnparsed.txt";
-        // $out = shell_exec($cmd);
-        // echo "\n$out\n";
-    }
-    */
-    /*
-    private function save_2local_gnparsed_file_new($what, $filename = false) //for latest gnparser
-    {
-        $big_json = file_get_contents($this->sh[$what]['source'].$filename);
-        $arrs = json_decode($big_json, true);
-        $i = 0;
-        foreach($arrs as $arr) {
-            $i++; if($i == 1) continue;
-            $json = json_encode($arr);
-            // echo "\n$json\n"; continue;
-            //copied below -------------------------------------- start
-            $name = $arr['verbatim'];
-            if(($i % 500) == 0) echo "\n".number_format($i)." $name - ";
-            //now check if json already cached. Ignore if it does and save/cache it if it doesn't
-            $options['cache_path'] = $this->smasher_download_options['cache_path'];
-            $md5 = md5($name);
-            $cache1 = substr($md5, 0, 2);
-            $cache2 = substr($md5, 2, 2);
-            if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
-            if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
-            $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
-            if(!file_exists($cache_path) || filesize($cache_path) == 0) {
-                if(($i % 500) == 0) echo " - saving...";
-                if($FILE = Functions::file_open($cache_path, 'w')) {
-                    fwrite($FILE, $json);
-                    fclose($FILE);
-                }
-            }
-            else if(($i % 500) == 0) echo " - already saved/cached";
-            //copied below -------------------------------------- end
-        }
-    }
-    private function save_2local_gnparsed_file($what, $filename = false)
-    {
-        if(file_exists($this->sh[$what]['source'].'name_only_gnparsed_DONE.txt')) {
-            echo "\nAll names for [$what] has already been cached.\n";
-            return;
-        }
-        $i = 0;
-        if(!$filename) $filename = "name_only_gnparsed.txt";
-        foreach(new FileIterator($this->sh[$what]['source'].$filename) as $line => $json) {
-            $i++; if($i == 1) continue;
-            // echo "\n$json\n";
-            $arr = json_decode($json, true);
-            // print_r($arr); exit;
-            $name = $arr['verbatim'];
-            if(($i % 1000) == 0) echo "\n".number_format($i)." $name - ";
-            //now check if json already cached. Ignore if it does and save/cache it if it doesn't
-            $options['cache_path'] = $this->smasher_download_options['cache_path'];
-            $md5 = md5($name);
-            $cache1 = substr($md5, 0, 2);
-            $cache2 = substr($md5, 2, 2);
-            if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
-            if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
-            $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
-            if(!file_exists($cache_path) || filesize($cache_path) == 0) {
-                if(($i % 1000) == 0) echo " - saving...";
-                if($FILE = Functions::file_open($cache_path, 'w')) {
-                    fwrite($FILE, $json);
-                    fclose($FILE);
-                }
-            }
-            else if(($i % 1000) == 0) echo " - already saved/cached";
-        }
-        if(file_exists($this->sh[$what]['source'].'name_only_gnparsed.txt')) Functions::file_rename($this->sh[$what]['source'].'name_only_gnparsed.txt', $this->sh[$what]['source'].'name_only_gnparsed_DONE.txt');
-    }
-    */
     private function get_json_from_cache($name, $options = array()) //json generated by gnparser
     {
         // download_wait_time
@@ -679,44 +425,6 @@ php update_resources/connectors/dwh_v2.php _ VSP
         if($obj = json_decode($json)) {
             if($ret = @$obj->namesJson[0]->canonical_name->value) return $ret;
         }
-    }
-    private function gnsparse_canonical($sciname, $method, $download_options = array())
-    {
-        if(!$download_options) $download_options = $this->smasher_download_options;
-
-        $sciname = self::fix_sciname($sciname); //just to make-the-same approach as utility_write_all_names()
-        
-        /*
-        if($sciname == "all") return "all";
-        elseif($sciname == "root") return "root";
-        elseif($sciname == "not Bacteria Haeckel 1894") return "not Bacteria";
-        // elseif($sciname == "unplaced extinct Onychophora") return "unplaced extinct Onychophora";
-        // elseif($sciname == "[Cellvibrio] gilvus") return "[Cellvibrio] gilvus";
-        // elseif($sciname == "unplaced Cryptophyceae") return "unplaced Cryptophyceae";
-        //force
-        if($sciname == "Ichthyoidei- Eichwald, 1831") $sciname = "Ichthyoidei Eichwald, 1831";
-        elseif($sciname == "Raniadae- Smith, 1831") $sciname = "Raniadae Smith, 1831";
-        elseif($sciname == "prokaryote") $sciname = "Prokaryote";
-        elseif($sciname == "prokaryotes") $sciname = "Prokaryotes";
-        elseif($sciname == "Amblyomma (Cernyomma) hirtum. Camicas et al., 1998") $sciname = "Amblyomma (Cernyomma) hirtum Camicas et al., 1998";
-        elseif($sciname == "Cryptops (Cryptops) vector Chamberlin 1939") $sciname = "Cryptops (Cryptops) vector";
-        */
-        if($method == "api") {
-            if($canonical = self::get_canonical_via_api($sciname, $this->smasher_download_options)) return $canonical;
-        }
-        elseif($method == "cache") {
-            $json = self::get_json_from_cache($sciname, $download_options);
-            if($obj = json_decode($json)) {
-                if($ret = @$obj->canonical_name->value) return $ret;
-                elseif($ret = @$obj->canonicalName->value) return $ret;
-                else { //the gnparser code was updated due to bug. So some names has be be re-run using cmdline OR API with expire_seconds = 0
-
-                    self::write_gnparser_failures($this->what, $obj->verbatim);
-                    return $obj->verbatim; //un-successfull
-                }
-            }
-        }
-        echo("\nInvestigate cannot get canonical name [$sciname][$method]\n");
     }
     private function write_gnparser_failures($what, $name, $postfix = "")
     {
@@ -1374,33 +1082,6 @@ php update_resources/connectors/dwh_v2.php _ VSP
         elseif($ext == "tax") fwrite($fn, $t['name'] . "\t" . $t['taxon_id'] . "\t" . $t['parent_id'] . "\t" . $t['rank'] . "\n");
         if(in_array($ext, array("tax_part", "syn_part"))) fwrite($fn, $t['name'] . "\n");
     }
-    /*
-    private function run_TSV_file_with_gnparser_new($file, $what)
-    {
-        $i = 0;
-        foreach(new FileIterator($this->sh[$what]['source'].$file) as $line => $row) {
-            $i++;
-            if(!$row) continue;
-            $arr = explode("\t", $row);
-            // if(($i % 10000) == 0) echo "\n".number_format($i);
-            echo " -".number_format($i)."- ";
-            // Array(
-            //     [0] => 77f24f37-c0ee-5d53-b21b-56a9c1c2e25b
-            //     [1] => Caulanthus crassicaulis var. glaber M.E. Jones   -   verbatim
-            //     [2] => Caulanthus crassicaulis glaber                   -   canonicalName->value
-            //     [3] => Caulanthus crassicaulis var. glaber              -   canonicalName->valueRanked
-            //     [4] => M. E. Jones
-            //     [5] => 
-            //     [6] => 1
-            // )
-            $verbatim = $arr[1];
-            if(!self::cache_exists($verbatim)) {
-                echo "\n$verbatim -> no rec";
-                self::gnsparse_canonical($verbatim, 'cache');
-            }
-        }
-    }
-    */
     private function cache_exists($name, $options = array())
     {
         if(!isset($options['cache_path'])) $options['cache_path'] = $this->smasher_download_options['cache_path'];
