@@ -26,7 +26,7 @@ exit("\n");
 */
 
 // /* //main operation ------------------------------------------------------------
-$resource_id = "2018_12_19";
+$resource_id = "2019_03_28";
 $func = new DHSourceHierarchiesAPI_v2($resource_id);
 $func->start($cmdline_params['what']);
 
@@ -35,7 +35,11 @@ $func->start($cmdline_params['what']);
 // $func->clean_up_destination_folder();    //to do before uploading hierarchies to eol-smasher server
 
 // $func->test($cmdline_params['what']);                    //for testing only
+
+/* this is now obsolete in TRAM-805: Dynamic Hierarchy Version 1.1.
 // $func->start($cmdline_params['what'], "CLP_adjustment"); //from CLP #3 from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
+*/
+
 // $func->compare_results();                                //a utility to compare results. During initial stages
 // -------------------------------------------------------------------------------- */
 
