@@ -1694,8 +1694,9 @@ php update_resources/connectors/dwh_v2.php _ VSP
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
-        $params['spreadsheetID'] = '1fK4QzdExFRY16Du8nSAY2sJf8NeykkFB8fD0DyKu2nM';
-        $params['range']         = 'Sheet1!A2:C2000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['spreadsheetID'] = '1fK4QzdExFRY16Du8nSAY2sJf8NeykkFB8fD0DyKu2nM'; //same spreadsheet in ver 1.0 and ver 1.1
+        $params['range']         = 'Sheet1!A2:C2000'; //used in ver 1.0
+        $params['range']         = 'Sheet1!A2:C4000'; //used in ver 1.1
         $arr = $func->access_google_sheet($params);
         //start massage array
         foreach($arr as $item) $final[$item[0]][$item[1]] = '';

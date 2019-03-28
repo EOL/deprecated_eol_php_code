@@ -2,6 +2,9 @@
 namespace php_active_record;
 /* For the 2nd smasher run.
 https://eol-jira.bibalex.org/browse/TRAM-805: Dynamic Hierarchy Version 1.1.
+
+Note: separation files in zip format is provided by Katja, both for ver 1.0 and ver 1.1.
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 /* e.g. php dws.php _ gbif */
