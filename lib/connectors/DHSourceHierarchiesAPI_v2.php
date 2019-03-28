@@ -48,11 +48,24 @@ php update_resources/connectors/dwh.php _ ONY
 php update_resources/connectors/dwh.php _ ODO
 php update_resources/connectors/dwh.php _ WOR
 php update_resources/connectors/dwh.php _ COL
+php update_resources/connectors/dwh.php _ COC
+php update_resources/connectors/dwh.php _ VSP
+
 */
         //for testing
         $this->sh['xxx']['source']          = $this->main_path."/xxx/";
         $this->sh['xxx']['has_syn']         = false;
         $this->sh['xxx']['run_gnparse']     = true;
+
+        // /* 2 new from March 2019 run ---------------------------------------------------------------------------------------------------
+
+        $this->sh['COC']['source']          = $this->main_path."/eolcoccinelloideapatch/";
+        $this->sh['COC']['has_syn']         = false;
+        $this->sh['COC']['run_gnparse']     = true;
+
+        $this->sh['VSP']['source']          = $this->main_path."/eolvespoideapatch/";
+        $this->sh['VSP']['has_syn']         = false;
+        $this->sh['VSP']['run_gnparse']     = true;
 
         // /* new list ---------------------------------------------------------------------------------------------------
         $this->sh['EET']['source']          = $this->main_path."/eolearthwormpatch/";
