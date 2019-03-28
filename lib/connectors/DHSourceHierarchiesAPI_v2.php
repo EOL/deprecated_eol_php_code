@@ -80,11 +80,11 @@ php update_resources/connectors/dwh.php _ VSP
         $this->sh['ictv']['has_syn']        = false;
         $this->sh['ictv']['run_gnparse']    = false;
 
-        $this->sh['CLP']['source']          = $this->main_path."/Catalogue_of_Life_Protists_DH/";
+        $this->sh['CLP']['source']          = $this->main_path."/Catalogue_of_Life_Protists_DH_20Feb2019/";
         $this->sh['CLP']['has_syn']         = false;
         $this->sh['CLP']['run_gnparse']     = true;
 
-        $this->sh['trunk']['source']        = $this->main_path."/dynamichierarchytrunk2018-11-21/";
+        $this->sh['trunk']['source']        = $this->main_path."/dhtrunk25mar201920190326022449/";
         $this->sh['trunk']['has_syn']       = false;
         $this->sh['trunk']['run_gnparse']   = false;
 
@@ -96,7 +96,7 @@ php update_resources/connectors/dwh.php _ VSP
         $this->sh['IOC']['has_syn']         = false;
         $this->sh['IOC']['run_gnparse']     = true;
 
-        $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH/";
+        $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH_20Feb2019/";
         $this->sh['COL']['has_syn']         = false; //false based from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
         $this->sh['COL']['run_gnparse']     = true;
 
