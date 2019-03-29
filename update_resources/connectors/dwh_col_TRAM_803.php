@@ -2,6 +2,15 @@
 namespace php_active_record;
 /* Reharvest & revise COL & CLP for Dynamic Hierarchy - TRAM-803
 estimated execution time: 
+
+eol-archive:
+Catalogue_of_Life_Protists_DH_20Feb2019	Thursday 2019-03-28 11:08:24 PM	{"taxon.tab":20223}
+Catalogue_of_Life_DH_20Feb2019	        Thursday 2019-03-28 11:38:17 PM	{"taxon.tab":2134024}
+
+MacMini
+Catalogue_of_Life_Protists_DH_20Feb2019	Thursday 2019-03-28 11:49:56 PM	{"taxon.tab":20223}
+Catalogue_of_Life_DH_20Feb2019	        Friday 2019-03-29 12:37:39 AM	{"taxon.tab":2134024}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_CoL_API_20Feb2019');
