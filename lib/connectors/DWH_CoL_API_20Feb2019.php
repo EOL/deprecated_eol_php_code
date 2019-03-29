@@ -14,7 +14,11 @@ class DWH_CoL_API_20Feb2019
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-803 -----------------------------------------------------------
         $this->prune_further = array();
-        $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";
+        
+        /* these paths are manually created, since dumps are using explicit dates */
+        if(Functions::is_production()) $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/COL_2019-02-20-archive-complete/";
+        else                           $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";
+        
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
         $this->run = '';
         /* taxonomicStatus values as of Feb 20, 2019 dump: Array(
