@@ -30,6 +30,7 @@ class Protisten_deAPI
         self::write_agent();
         $batches = self::get_total_batches();
         foreach($batches as $filename) {
+            echo "\nprocess batch [$filename]\n";
             self::process_one_batch($filename);
             // break; //debug - process only 1 batch.
         }
@@ -59,7 +60,7 @@ class Protisten_deAPI
     private function parse_image_page($rec)
     {
         $html_filename = $rec['image_page'];
-        echo "\n".$html_filename." -- ";
+        // echo "\n".$html_filename." -- ";
 
         $this->filenames = array();
         $this->filenames[] = $html_filename;
