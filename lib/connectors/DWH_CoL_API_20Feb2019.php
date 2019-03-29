@@ -943,7 +943,7 @@ class DWH_CoL_API_20Feb2019
         $taxonIDs_2be_removed2 = self::prefer_reject($dup_infraspecies, 'infraspecies');
         $ids_2be_removed = array_merge($taxonIDs_2be_removed1, $taxonIDs_2be_removed2);
         
-        print_r($this->ids2retain); //exit;
+        // print_r($this->ids2retain); //exit;
         
         // step 6: remove rejected duplicates from step 5 and write to DwCA
         $i = 0;
