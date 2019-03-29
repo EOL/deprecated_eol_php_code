@@ -580,7 +580,9 @@ class DWH_CoL_API_20Feb2019
         $taxon->taxonID                 = $rec['taxonID'];
         $taxon->parentNameUsageID       = $rec['parentNameUsageID'];
         
+        // /* if one of those removed IDs from de-duplication is a parent_id then the respective retain-id will be the new parent. VERY IMPORTANT
         if($val = @$this->ids2retain[$rec['parentNameUsageID']]) $taxon->parentNameUsageID = $val;
+        // */
         
         $taxon->taxonRank               = $rec['taxonRank'];
         $taxon->scientificName          = $rec['scientificName'];
