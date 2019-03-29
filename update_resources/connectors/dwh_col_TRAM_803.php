@@ -21,9 +21,9 @@ $timestart = time_elapsed();
 
 /*
 $a = Array(
-    '46463756d3068caa095f0cfdd7d5898f' => 1953,
-    '224534e3c7a97f445510d28db81dd34a' => 1973,
-    '88a861a82332663835794693906560bd' => 1880);
+    '46463756d3068caa095f0cfdd7d5898f' => 1953,     -> should be removed
+    '224534e3c7a97f445510d28db81dd34a' => 1973,     -> should be removed
+    '88a861a82332663835794693906560bd' => 1880);    -> taxon_id should remain
 print_r($a);
 asort($a); print_r($a);
 
