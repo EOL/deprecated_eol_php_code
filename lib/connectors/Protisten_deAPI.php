@@ -101,6 +101,7 @@ class Protisten_deAPI
             if(preg_match("/MARK 13\:(.*?)<\/td>/ims", $html, $arr)) {
                 $tmp = str_replace("&nbsp;", " ", strip_tags($arr[1]));
                 if(preg_match("/\-\-\>(.*?)xxx/ims", $tmp."xxx", $arr)) $tmp = $arr[1];
+                $tmp = str_ireplace(' spec.', '', $tmp);
                 $tmp = Functions::remove_whitespace(trim($tmp));
                 $m['sciname'] = $tmp;
             }
@@ -199,7 +200,7 @@ class Protisten_deAPI
         $mr->furtherInformationURL  = $rec['source_url'];
         $mr->accessURI              = $this->page['image_page_url'].$rec['image'];
         $mr->Owner                  = "Wolfgang Bettighofer";
-        $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc/3.0/";
+        $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
         $mr->description            = @$rec["desc"];
         if(!isset($this->obj_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
