@@ -1045,8 +1045,12 @@ php update_resources/connectors/dwh_v2.php _ VSP
                 if($val = @$this->problematic_names[$rec['uid']]) $canon = $val;
                 else {
                     if(!$canon) {
-                        self::write_gnparser_failures($what, $rec['name'], "_failures");
                         $canon = $withAuthor[$i-2]; //if failure, will get the original string as the canonical.
+                        if(substr($canon,0,13) == 'unclassified ') {}
+                        elseif(stripos($canon, "incertae sedis") !== false) {} //string is found
+                        else { //the only time to write failures
+                            self::write_gnparser_failures($what, $rec['name'], "_failures");
+                        }
                     }
                 }
                 // echo "\n[$canon] - [".$rec['name']."]\n"; //good debug

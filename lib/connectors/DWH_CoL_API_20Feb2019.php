@@ -841,10 +841,10 @@ class DWH_CoL_API_20Feb2019
             }
             // print_r($rec); //exit;
             
-            /* debug only
+            // /* debug only
             $canonical = Functions::canonical_form($rec['scientificName']);
-            if($canonical == 'Phenacoccus hordei') print_r($rec);
-            */
+            if($canonical == 'Stelis anthracina') print_r($rec);
+            // */
             /* debug only
             if(in_array($rec['taxonID'], array('4330862cc98698ec604377523f42e16d', 'edcac7cc9c02ea1c7eda0daecadd5201'))) print_r($rec);
             */
