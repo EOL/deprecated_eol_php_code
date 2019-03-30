@@ -17,8 +17,17 @@ class AmphibiawebDataAPI
         $this->download_options = array('resource_id' => '959', 'expire_seconds' => false, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1); 
     }
 
+    private function initialize_mapping()
+    {
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // print_r($this->uris); exit;
+    }
     function get_all_taxa()
     {
+        self::initialize_mapping();
+        
         //TODO: [next] button is not processed
         ini_set("auto_detect_line_endings", true);
         $filename = Functions::save_remote_file_to_local($this->strings_to_search, array('cache' => 1, 'resource_id' => '959')); //resource_id here is just to have the cache stored in that folder
@@ -100,13 +109,11 @@ class AmphibiawebDataAPI
             $taxon->family          = $rec['family'];
             
             if($path = $rec['source']) $taxon->furtherInformationURL = "http://amphibiaweb.org" . $path;
-            else
-            {
+            else {
                 print_r($rec); exit("\nno source\n");
             }
             
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
             }
@@ -115,11 +122,21 @@ class AmphibiawebDataAPI
             $rec['source'] = $taxon->furtherInformationURL;
             $rec['taxon_id'] = $taxon->taxonID;
             $rec['catnum'] = $taxon->taxonID . "_" . $type . "_" . $region;
-            if($type == "present")      self::add_string_types($rec, $region, "http://eol.org/schema/terms/Present");
-            elseif($type == "endemic")  self::add_string_types($rec, $region, "http://eol.org/terms/endemic");
+            
+            //some manual adjustments so it maps
+            $region = str_ireplace('the ', 'The ', $region);
+            $region = str_ireplace(' the', ' The', $region);
+            $region = str_ireplace(' of', ' Of', $region);
+            $region = str_ireplace(' and ', ' And ', $region);
+
+            if($val = @$this->uris[$region]) $region_uri = $val;
+            else exit("\nNo mapping for [$region]\n");
+
+            $rec['measurementRemarks'] = $region;
+            if($type == "present")      self::add_string_types($rec, $region_uri, "http://eol.org/schema/terms/Present");
+            elseif($type == "endemic")  self::add_string_types($rec, $region_uri, "http://eol.org/terms/endemic");
         }
     }
-
     private function add_string_types($rec, $value, $mtype)
     {
         $taxon_id = $rec['taxon_id'];
@@ -133,13 +150,16 @@ class AmphibiawebDataAPI
         $m->source              = $rec['source'];
         $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. Available: http://amphibiaweb.org/.";
         // $m->measurementMethod   = '';
-        // $m->measurementRemarks  = '';
+        $m->measurementRemarks  = $rec['measurementRemarks'];
         // $m->contributor         = '';
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
-        $this->archive_builder->write_object_to_file($m);
+        
+        if(!isset($this->measurement_ids[$m->measurementID])) {
+            $this->archive_builder->write_object_to_file($m);
+            $this->measurement_ids[$m->measurementID] = '';
+        }
     }
-
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $catnum; //can be just this, no need to add taxon_id
