@@ -92,8 +92,7 @@ class WikiDataAPI
         $this->excluded_pageids = array('75038714');
     }
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
-    {
-        //initialize:
+    {   //initialize:
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
         if(!($f = Functions::file_open($txtfile, "w"))) return;
         fclose($f);
@@ -267,8 +266,7 @@ class WikiDataAPI
         return true;
     }
     function generate_resource($task = false, $range_from = false, $range_to = false, $actual_task = false)
-    {
-        /* VERY IMPORTANT - everytime we get a fresh new wikidata dump. The raw dump has all categories not just taxa.
+    {   /* VERY IMPORTANT - everytime we get a fresh new wikidata dump. The raw dump has all categories not just taxa.
         This utility will create an all-taxon dump, which our connector will use.
         self::create_all_taxon_dump(); //a utility that generates an all-taxon dump, generates overnight 
         exit; 
@@ -298,7 +296,7 @@ class WikiDataAPI
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
 
-        if( 
+        if(
             ($this->what == "wikimedia") || (
                                                 $this->what == "wikipedia" && in_array($this->language_code, array("en", "es", "fr", "de", "it", "zh", "pt"))
                                             )
@@ -374,9 +372,9 @@ class WikiDataAPI
         return array(true, true); //all that reaches this point will return true true
     }
     private function initialize_files()
-    {
-        // $this->TEMP_FILE_PATH = temp_filepath(); //orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
-        
+    {   /* orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
+        $this->TEMP_FILE_PATH = temp_filepath(); 
+        */
         //creates a temp file
         $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$this->language_code."_".date("Y-m-d_H_s").".tmp";
         
@@ -527,7 +525,7 @@ class WikiDataAPI
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
                              
-                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek);
+                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek); //this is where vernaculars are added
 
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
@@ -740,8 +738,7 @@ class WikiDataAPI
                 $media['taxonID']                = $t->taxonID;
                 $media['format']                 = Functions::get_mimetype($com['media_url']);
                 $media['subtype'] = @$com['eol_type'];
-                // if($com['media_url'] == "https://upload.wikimedia.org/wikipedia/commons/0/07/Opilion_stalking_lavender_sunset_September.jpeg")
-                // {
+                // if($com['media_url'] == "https://upload.wikimedia.org/wikipedia/commons/0/07/Opilion_stalking_lavender_sunset_September.jpeg") {
                 //     print_r($com); exit;
                 // }
                 
@@ -824,7 +821,7 @@ class WikiDataAPI
         }
     }
     private function prepare_html_as_source_agent($html)
-    {    /* 
+    {   /* 
         $source_wiki e.g. value:
         {{derived from|Whales are Paraphyletic.png|display=50}}
     
@@ -857,7 +854,7 @@ class WikiDataAPI
         return $media;
     }
     private function fix_agent_name($a)
-    {   
+    {
         $name = trim(@$a['name']);
         $name = strip_tags($name);
         $name = str_replace(array("\t", "\n"), "", $name);
@@ -1149,8 +1146,7 @@ class WikiDataAPI
         return false;
     }
     private function un_tabular_the_description($desc) //new Nov 5, 2018
-    {
-        // exit("\n$desc\n");
+    {   // exit("\n$desc\n");
         $desc = str_replace("Summary <table", "<table", $desc);
         $desc = str_replace("DescriptionAPI</td>", "Description</td>", $desc);
         $desc = str_replace("</td> <td", ":</td> <td", $desc);
@@ -1513,8 +1509,7 @@ class WikiDataAPI
         else return false;
     }
     private function format_name_special_cases($name)
-    {
-        /* e.g. value "T.Müller}}" */
+    {   /* e.g. value "T.Müller}}" */
         if(stripos($name, "{") !== false) { //string is found
             if(stripos($name, "}") === false) return str_replace("{","",$name); //string is not found
         }
@@ -1573,8 +1568,7 @@ class WikiDataAPI
         }
     }
     private function special_cases_4source_strings($name, $rek_other)
-    {
-        /* $name value is e.g. "S1 Video from {{Cite journal" */
+    {   /* $name value is e.g. "S1 Video from {{Cite journal" */
         if(substr($name, -14) == "{{Cite journal") { //special case for: https://commons.wikimedia.org/wiki/File:Age-Spatial-and-Temporal-Variations-in-Hospital-Admissions-with-Malaria-in-Kilifi-County-Kenya-A-25-pmed.1002047.s013.ogv
             $final = str_ireplace("{{Cite journal", "", $name);
             if($val = @$rek_other['journal']) $final .= "journal ($val). ";
@@ -1746,7 +1740,6 @@ class WikiDataAPI
                 }
             }
         }
-        
         else {
             // wiki/User:Bewareofdog" title="en:User:Bewareofdog"
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $description, $a) && !$rek_Artist) { // 2nd condition means that there is already $rek['Artist'], not priority to get from "User:"
@@ -2302,9 +2295,7 @@ class WikiDataAPI
         return $str;
     }
     private function get_media_url($file)
-    {   // $file = "DKoehl_Irrawaddi_Dolphin_jumping.jpg";
-        // $file = "Lycopodiella_cernua_estróbilos.jpg";
-        // $file = "Lycopodiella_cernua_estr%C3%B3bilos.jpg";
+    {   // $file = "DKoehl_Irrawaddi_Dolphin_jumping.jpg";  // $file = "Lycopodiella_cernua_estróbilos.jpg";    // $file = "Lycopodiella_cernua_estr%C3%B3bilos.jpg";
         $file = urldecode($file);
         $md5 = md5($file);
         $char1 = substr($md5,0,1);
@@ -2792,7 +2783,6 @@ class WikiDataAPI
         if($id = (string) @$claims->P105[0]->mainsnak->datavalue->value->id) return self::lookup_value($id);
         return false;
     }
-
     private function get_vernacular_names($claims, $rek)
     {
         $names = array();
@@ -2947,8 +2937,7 @@ class WikiDataAPI
             }
             if(!isset($obj->entities->$id->labels->en->value)) { //e.g. Q5614965 
                 print_r($obj->entities); exit("\npls investigate 01\n");
-            }
-            */
+            }*/
             if($val = (string) @$obj->entities->$id->labels->en->value) return $val;
         }
     }
@@ -2999,8 +2988,7 @@ class WikiDataAPI
         return false;
     }
     private function save_filenames_2file($files)
-    {
-        //save to text file
+    {   //save to text file
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
         $WRITE_pageid = fopen($txtfile, "a");
         fwrite($WRITE_pageid, implode("\n", $files) . "\n");
@@ -3009,8 +2997,7 @@ class WikiDataAPI
     
     // ============================ start temp file generation ================================================================================================
     function create_temp_files_based_on_wikimedia_filenames()
-    {
-        /*
+    {   /*
         $files = array();
         $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg";
         $files[] = "Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16531419109).jpg";
@@ -3109,7 +3096,6 @@ class WikiDataAPI
         </page>
         */
     }
-
     private function taxon_media($title)
     {
         $main_path = $this->path['wikimedia_cache'];
@@ -3121,7 +3107,6 @@ class WikiDataAPI
         if(file_exists($filename)) return $filename;
         else return false;
     }
-
     function fill_in_temp_files_with_wikimedia_metadata() //just during testing...
     {
         $title = "File:Two Gambel's Quail (Callipepla gambelii) - Paradise Valley, Arizona, ca 2004.png";
@@ -3130,7 +3115,6 @@ class WikiDataAPI
         if(self::taxon_media($title)) echo "\n yes";
         else echo "\n no";
     }
-    
     function process_wikimedia_txt_dump() //initial verification of the wikimedia dump file
     {
         $path = $this->path['commons'];
@@ -3139,8 +3123,7 @@ class WikiDataAPI
         foreach(new FileIterator($path) as $line_number => $row) {
             $i++;
             // $arr = json_decode($row);
-            echo "\n" . $row;
-            // print_r($row); 
+            echo "\n" . $row; // print_r($row); 
             if($i >= 90000) exit("\n-end-\n");
         }
         */
@@ -3170,7 +3153,6 @@ class WikiDataAPI
         }
     }
     // ============================ end temp file generation ==================================================================================================
-
     private function format_license($license, $LicenseShortName="")
     {
         $license          = self::clean_html($license);
@@ -3376,8 +3358,7 @@ class WikiDataAPI
             }
 
             /* WILL REMAIN INVALID: as of Nov 9
-            [blank_license] => Array
-                (
+            [blank_license] => Array(
                     [MLW3‬] => 
                     [dvdm-h6|migration=relicense] => 
                     [BMC] => 
@@ -3504,16 +3485,13 @@ class WikiDataAPI
         if(in_array($license, $valid)) return true;
         else                           return false;
     }
-
-
-
     // private function checkaddslashes($str){
     //     if(strpos(str_replace("\'",""," $str"),"'")!=false)
     //         return addslashes($str);
     //     else
     //         return $str;
     // }
-    
+
     /* works but expensive
     if($html = Functions::lookup_with_cache("https://commons.wikimedia.org/wiki/File:".str_replace(" ", "_", $file), $options)) {
         //<a href="https://upload.wikimedia.org/wikipedia/commons/6/67/Western_Gorilla_area.png">
@@ -3595,6 +3573,5 @@ class WikiDataAPI
         return false; // use API instead
     }
     */
-
 }
 ?>
