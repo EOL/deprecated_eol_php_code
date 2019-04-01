@@ -16,6 +16,7 @@ class InvasiveSpeciesCompendiumAPI
         $this->occurrence_ids = array();
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
+        $this->download_options['expire_seconds'] = false;
         $this->debug = array();
         
         $this->taxa_list['ISC'] = "http://localhost/cp_new/Invasive%20Species%20Compendium/ExportedRecords.csv";
@@ -449,16 +450,23 @@ class InvasiveSpeciesCompendiumAPI
     }
     private function get_value_uri($string, $type)
     {
+        switch ($string) { //others were added in https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt
+            case "brackish":                      return "http://purl.obolibrary.org/obo/ENVO_00000570";
+            case "marine_freshwater_brackish":    return "http://purl.obolibrary.org/obo/ENVO_00002030"; //based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
+            case "terrestrial_freshwater_marine": return false; //skip based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
+        }
+
+        /* from DATA-1806:
+        For the CABI Invasive Species Compendium: I missed the homonym pair of Georgia and Georgia. Happily, the correct values are still tagged in measurementRemarks, 
+        though it's still a bit messy. Where measurementRemarks CONTAINS "Georgia (Republic of)." please leave the measurementValue as it is. 
+        Where measurementRemarks CONTAINS "Georgia. " but not "(Republic of)", please assign measurementValue= https://www.geonames.org/4197000
+        */
+        if(stripos($string, "Georgia.") !== false) return 'https://www.geonames.org/4197000'; //string is found
+
+
         if($val = @$this->uri_values[$string]) return $val;
         else {
-            switch ($string) { //others were added in https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt
-                case "brackish":                      return "http://purl.obolibrary.org/obo/ENVO_00000570";
-                case "marine_freshwater_brackish":    return "http://purl.obolibrary.org/obo/ENVO_00002030"; //based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
-                case "terrestrial_freshwater_marine": return false; //skip based here: https://eol-jira.bibalex.org/browse/TRAM-794?focusedCommentId=62690&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62690
-            }
-
             $this->debug['un-mapped string'][$type][$string] = '';
-            
             if($type == 'habitat')      return false;
             elseif($type == 'location') return $string;
         }
