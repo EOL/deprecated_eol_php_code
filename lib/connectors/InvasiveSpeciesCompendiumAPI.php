@@ -459,10 +459,9 @@ class InvasiveSpeciesCompendiumAPI
         /* from DATA-1806:
         For the CABI Invasive Species Compendium: I missed the homonym pair of Georgia and Georgia. Happily, the correct values are still tagged in measurementRemarks, 
         though it's still a bit messy. Where measurementRemarks CONTAINS "Georgia (Republic of)." please leave the measurementValue as it is. 
-        Where measurementRemarks CONTAINS "Georgia. " but not "(Republic of)", please assign measurementValue= https://www.geonames.org/4197000
-        */
-        if(stripos($string, "Georgia.") !== false) return 'https://www.geonames.org/4197000'; //string is found
-
+        Where measurementRemarks CONTAINS "Georgia. " but not "(Republic of)", please assign measurementValue= https://www.geonames.org/4197000 */
+        if($string == "Georgia") return 'https://www.geonames.org/4197000';
+        
 
         if($val = @$this->uri_values[$string]) return $val;
         else {
