@@ -46,7 +46,7 @@ class WikiDataAPI
         $this->object_ids = array();
         $this->debug = array();
         $this->download_options = array('expire_seconds' => 60*60*24*25*1, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false; //just temporary, comment in normal operation
+        // $this->download_options['expire_seconds'] = false; //just temporary, comment in normal operation
         if(!Functions::is_production()) $this->download_options['expire_seconds'] = false;
 
         if(Functions::is_production()) {
