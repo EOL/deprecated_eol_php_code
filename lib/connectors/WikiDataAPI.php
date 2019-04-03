@@ -3019,6 +3019,10 @@ class WikiDataAPI
             $v = new \eol_schema\VernacularName();
             $v->taxonID         = $taxon_id;
             $v->vernacularName  = Functions::import_decode($rec['comname']);
+            
+            //manual
+            if($rec['lang'] == "be-tarask") $rec['lang'] = 'be';
+            
             $v->language        = $rec['lang'];
 
             if($val = @$rec['isPreferredName']) $v->isPreferredName = $val;
