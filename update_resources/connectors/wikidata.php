@@ -59,6 +59,16 @@ $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false
 
 /*
+$orig = array(1,2,3,4,8,9);
+$labels = array(5,6,7,2,4);
+// $diff = array_intersect($labels, $orig);
+$diff = array_intersect($orig, $labels);
+$diff = array_values($diff); //reindex key
+print_r($diff);
+exit("\n-end-\n");
+*/
+
+/*
 $str = "abcd|e|||";
 echo "\n[$str]\n";
 $str = Functions::remove_this_last_char_from_str($str, "|");
