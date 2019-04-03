@@ -1027,12 +1027,18 @@ php update_resources/connectors/dwh_v2.php _ VSP
                     // print_r($rec); 
                     // exit("\nstopx\n");
                 }
-                // print_r($rec); exit("\nstopx\n");
+                // print_r($rec); exit("\nstopx [$pre]\n");
                 /*Array( --- taxonomy
                     [name] => Erebidae
                     [uid] => Erebidae
                     [parent_uid] => 
                     [rank] => family
+                )
+                Array( --- taxonomy
+                    [name] => Bryometopus alekperovi Foissner, 1998
+                    [uid] => fc0886d15759a01525b1469534189bb5
+                    [parent_uid] => d2a21892b23f5453d7655b082869cfca
+                    [rank] => species
                 )
                 Array( --- synonym
                     [name] => Zanolidae McDunnough 1938
