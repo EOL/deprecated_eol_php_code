@@ -501,13 +501,14 @@ class WikiDataAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
-                /* force taxon in Wikipedia. when developing. wikipedia only ***
+                /* force taxon in wikipedia & wikimedia. when developing. ***
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
-                $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
-                $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
+                // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
+                // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
                 // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear
+                // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //angiosperms DATA-1803
                 */
                 
                 /* print_r($arr->claims->P935); exit; */
@@ -525,7 +526,7 @@ class WikiDataAPI
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
                              $rek['parent'] = self::get_taxon_parent($arr->claims);
                              
-                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek); //this is where vernaculars are added
+                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
 
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
@@ -1036,7 +1037,7 @@ class WikiDataAPI
         // if(false) { //this is when debugging... force use api instead of json.
             debug("\nused cache data");
             $rek = self::get_media_metadata_from_json($filename, $file);
-            if($rek == "protected") return "continue";
+            if($rek == "protected") return false; //"continue";
             if(!$rek) {
                 // echo "\njust used api data instead";
                 /*
@@ -2783,7 +2784,178 @@ class WikiDataAPI
         if($id = (string) @$claims->P105[0]->mainsnak->datavalue->value->id) return self::lookup_value($id);
         return false;
     }
-    private function get_vernacular_names($claims, $rek)
+    //----------------------------------------------------------------------------------------------start process of sitelinks as comnames
+    /* these were never used. Used 'labels' instead of 'sitelinks'.
+    private function remove_non_essential_indeces($indeces)
+    {   // echo "\n".count($indeces)."\n";
+        $indeces = array_diff($indeces, array('commonswiki','simplewiki','specieswiki')); //subtract from list
+        // echo "\n".count($indeces)."\n"; // print_r($indeces);
+        $final = array();
+        foreach($indeces as $index) {
+            if(stripos($index, "wikiquote") !== false) {}  //string is found
+            elseif(stripos($index, "wikinews") !== false) {}  //string is found
+            else $final[] = $index;
+        }
+        // echo "\n".count($final)."\n"; print_r($final);
+        return $final;
+    }
+    private function get_comnames_from_sitelinks($sitelinks, $taxon_id)
+    {
+        $sitelinks = (array) $sitelinks;
+        $indeces = array_keys($sitelinks); // print_r($indeces);
+        $indeces = self::remove_non_essential_indeces($indeces);
+        // print_r($sitelinks);
+        $final = array();
+        foreach($indeces as $index) {
+            $rec = $sitelinks[$index];
+            if($url = $rec->url) { //e.g. https://sr.wikipedia.org/wiki/Bakalar
+                if(preg_match("/\:\/\/(.*?)\./ims", $url, $arr)) $rec->lang_code = $arr[1];
+            }
+            elseif($site = $rec->site) { //e.g. [site] => ukwiki
+                if(preg_match("/xxx(.*?)wiki/ims", "xxx".$site, $arr)) $rec->lang_code = $arr[1];
+            }
+            else exit("\nCannot compute language code [$taxon_id]\n");
+            $final[] = $rec;
+            print_r($rec);
+        }
+        return $final;
+    }
+    */
+    //----------------------------------------------------------------------------------------------end process of sitelinks as comnames
+    //----------------------------------------------------------------------------------------------start process of 'labels' as comnames
+    private function get_comnames_from_labels($labels, $sciname)
+    {   /* sample $labels
+        [ia] => stdClass Object(
+                [language] => ia
+                [value] => Gadus morhua
+        [de-ch] => stdClass Object(
+                [language] => de-ch
+                [value] => Kabeljau
+        */
+        // print_r($labels); exit("\nraw labels list\n");
+        //step 1: remove those resembling a scientific name
+        $final = array();
+        $scinames = explode(" ", $sciname); // print_r($scinames); exit("\n[".$scinames[0]."] [".$scinames[1]."]\n");
+        foreach($labels as $lang => $label) {
+            $is_sciname = false;
+            foreach($scinames as $sci) {
+                if(stripos($label->value, $sci) !== false) $is_sciname = true;  //string is found
+            }
+            if(!$is_sciname) {
+                if($val = $label->value) {
+                    $final[$label->language][] = array('comname' => $val, 'lang' => $label->language);
+                }
+            }
+        }
+        return $final;
+    }
+    private function reformat_orig_comnames($orig_comnames)
+    {
+        $final = array();
+        foreach($orig_comnames as $rec) {
+            if($val = $rec['comname']) {
+                $final[$rec['lang']][] = array('comname' => $val, 'lang' => $rec['lang'], 'refs' => $rec['refs']);
+            }
+        }
+        return $final;
+    }
+    private function get_matched_rec_and_other_recs($comname, $recs)
+    {
+        // echo "\nsearched: [$comname]\n"; //print_r($recs); exit("\nstopx\n");
+        $final = array();
+        foreach($recs as $rec) {
+            if($comname == $rec['comname']) {
+                $rec['isPreferredName'] = true;
+                $final[] = $rec;
+            }
+            else $final[] = $rec;
+        }
+        return $final;
+    }
+    //----------------------------------------------------------------------------------------------start process of 'labels' as comnames
+    private function get_vernacular_names($claims, $rek, $arr) //main vernaculars routine
+    {   /* the original process: until DATA-1803 was requested.
+        $orig_comnames   = self::get_comnames_from_taxon_common_name($claims, $rek); //orig using P1843
+        return $orig_comnames;
+        */
+    
+        /* debug only. A good way to get all indeces
+        $a = (array) $arr; print_r(array_keys($a)); exit;
+        */
+        $taxon_id = $rek['taxon_id'];
+        $sciname = $rek['taxon'];
+
+        /* was never used. Used 'labels' instead of 'sitelinks'.
+        $sitelinks = $arr->sitelinks;
+        $sitelink_comnames = self::get_comnames_from_sitelinks($sitelinks, $taxon_id); exit;
+        */
+        
+        $labels = $arr->labels;
+        $labels_comnames = self::get_comnames_from_labels($labels, $sciname); //print_r($labels_comnames); exit;
+        $orig_comnames   = self::get_comnames_from_taxon_common_name($claims, $rek); //orig using P1843
+        $orig_comnames   = self::reformat_orig_comnames($orig_comnames); //print_r($orig_comnames); exit;
+        
+        /* Start of the strenous specs:
+        So we'd like to try this; for a given language and taxon:
+        *-Collect the "common name" elements and the sitelink element
+        *-discard any sitelink element that is similar to the scientific name ("matches the first word" would be a good test, I think)
+        1-if there are no common name elements, keep the sitelink element (In this case you could keep the sitelink url as Source), and mark as isPreferredName
+        2-if there is no sitelink element, keep all common name elements
+        3-if there are both, compare the string of the sitelink with the common name strings
+        4-if the sitelink matches none of the common names, discard the sitelink and keep all common names
+        5-if the sitelink matches one of the common names, flag that common name as isPreferredName, discard the sitelink, and keep the other common names, unflagged
+        6-if the sitelink matches more than one common name, keep one of them at random, flag that common name as isPreferredName, discard the sitelink, and keep the other, non-matching common names, unflagged
+        */
+        $all = array();
+        $labels_langs = array_keys($labels_comnames); // print_r($labels_langs);
+        $orig_langs   = array_keys($orig_comnames); // print_r($orig_langs);
+        $total_langs = array_merge($labels_langs, $orig_langs);
+        $total_langs = array_unique($total_langs); //make unique
+        $total_langs = array_values($total_langs); //reindex key
+        // print_r($total_langs); exit;
+        
+        foreach($total_langs as $lang) {
+            // 1-if there are no common name elements, keep the sitelink element (In this case you could keep the sitelink url as Source), and mark as isPreferredName
+            if(!@$orig_comnames[$lang] && @$labels_comnames[$lang]) {
+                $labels_comnames[$lang][0]['isPreferredName'] = true; // print_r($labels_comnames[$lang]);
+                $all = array_merge($all, $labels_comnames[$lang]);
+            }
+
+            // 2-if there is no sitelink element, keep all common name elements
+            if(@$orig_comnames[$lang] && !@$labels_comnames[$lang]) $all = array_merge($all, $orig_comnames[$lang]);
+
+            // 3-if there are both, compare the string of the sitelink with the common name strings
+            if(@$orig_comnames[$lang] && @$labels_comnames[$lang]) {
+                //count how many sitelink matches or intersect
+                $raw_orig = array(); $raw_labels = array(); //important to initialize
+                foreach($orig_comnames[$lang] as $tmp)   $raw_orig[$tmp['comname']] = '';
+                foreach($labels_comnames[$lang] as $tmp) $raw_labels[$tmp['comname']] = '';
+                $raw_orig = array_keys($raw_orig);
+                $raw_labels = array_keys($raw_labels);
+                // echo "\n-------------------\n";
+                $matches = array_intersect($raw_labels, $raw_orig);
+                $matches = array_values($matches); //reindex key
+                // print_r($matches);
+                
+                // 4-if the sitelink matches none of the common names, discard the sitelink and keep all common names
+                if(!$matches) $all = array_merge($all, $orig_comnames[$lang]);
+                // 5-if the sitelink matches one of the common names, flag that common name as isPreferredName, discard the sitelink, and keep the other common names, unflagged
+                elseif(count($matches) == 1) {
+                    $recs = self::get_matched_rec_and_other_recs($matches[0], $orig_comnames[$lang]);
+                    $all = array_merge($all, $recs);
+                }
+                // 6-if the sitelink matches more than one common name, keep one of them at random, flag that common name as isPreferredName, discard the sitelink, and keep the other, non-matching common names, unflagged
+                elseif(count($matches) > 1) {
+                    print_r($matches); exit("\ndebug only\n");
+                    $recs = self::get_matched_rec_and_other_recs($matches[0], $orig_comnames[$lang]);
+                    $all = array_merge($all, $recs);
+                }
+            }
+        }
+        // print_r($all); exit("\nstop muna ".count($all)."\n");
+        return $all;
+    }
+    private function get_comnames_from_taxon_common_name($claims, $rek) //orig using P1843
     {
         $names = array();
         if($recs = @$claims->P1843) {
@@ -2848,6 +3020,8 @@ class WikiDataAPI
             $v->taxonID         = $taxon_id;
             $v->vernacularName  = Functions::import_decode($rec['comname']);
             $v->language        = $rec['lang'];
+
+            if($val = @$rec['isPreferredName']) $v->isPreferredName = $val;
 
             $official = array();
             if($refs = @$rec['refs']['info']) {
