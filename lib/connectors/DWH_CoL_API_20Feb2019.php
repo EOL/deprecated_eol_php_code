@@ -95,6 +95,9 @@ class DWH_CoL_API_20Feb2019
         $taxID_info = self::get_taxID_nodes_info();
         $removed_branches = self::pruneBytaxonID();
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
+        
+        $removed_branches = self::process_pruneForCOL_CLP('CLP', $removed_branches); // print_r($removed_branches);
+        echo "\nremoved_branches total B: ".count($removed_branches)."\n"; //exit("\n222\n");
 
         $ret = self::get_CLP_roots();
         $include                  = $ret['include']; // print_r($include); exit("\nsample include\n");
@@ -265,32 +268,7 @@ class DWH_CoL_API_20Feb2019
         echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
         
         /* #2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
-        //1st step: get the list of [identifier]s. --------------------------------------------------------
-        $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
-        $params['range']         = 'pruneForCOL!A1:A505';
-        $params['first_row_is_headerYN'] = true;
-        $params['sought_fields'] = array('identifier');
-        $parts = self::get_removed_branches_from_spreadsheet($params);
-        $identifiers = $parts['identifier']; // print_r($identifiers);
-        echo "\nidentifiers total: ".count($identifiers)."\n";  //exit;
-
-        //2nd step: get the corresponding taxonID of this list of [identifier]s. --------------------------------------------------------
-        $identifiers_taxonIDs = self::get_taxonID_from_identifer_values($identifiers);
-        /* sample $identifiers_taxonIDs
-        [80c3f23a7edaef0c690f5fa89206db80] => Array(
-                [0] => 54305335
-                [1] => 54305340
-            )
-        [1fb14375baf8c0e97b78da7cf24933ca] => Array(
-                [0] => 54328762
-            )
-        */
-        foreach($identifiers_taxonIDs as $identifier => $taxonIDs) {
-            if($taxonIDs) { //needed this validation since there is one case where the identifier doesn't have a taxonID.
-                foreach($taxonIDs as $taxonID) $removed_branches[$taxonID] = '';
-            }
-        }
-        // print_r($removed_branches);
+        $removed_branches = self::process_pruneForCOL_CLP('COL', $removed_branches); // print_r($removed_branches);
         echo "\nremoved_branches total B: ".count($removed_branches)."\n"; //exit("\n222\n");
         // end #2 -----------------------------------------------------------------------------------------------------------------------------------------------
         
@@ -1502,6 +1480,41 @@ class DWH_CoL_API_20Feb2019
         return $total;
     }
     //=========================================================================== end adjusting taxon.tab with those 'not assigned' entries ====================================
+
+    private function process_pruneForCOL_CLP($what, $removed_branches)
+    {
+        //1st step: get the list of [identifier]s. --------------------------------------------------------
+        $params['spreadsheetID'] = '1wWLmuEGyNZ2a91rZKNxLvxKRM_EYV6WBbKxq6XXoqvI';
+
+        if($what == "COL") $params['range'] = 'pruneForCOL!A1:A600';
+        if($what == "CLP") $params['range'] = 'pruneForCLP!A1:A5';
+
+        $params['first_row_is_headerYN'] = true;
+        $params['sought_fields'] = array('identifier');
+        $parts = self::get_removed_branches_from_spreadsheet($params);
+        $identifiers = $parts['identifier']; // print_r($identifiers);
+        echo "\nidentifiers total: ".count($identifiers)."\n";  //exit;
+
+        //2nd step: get the corresponding taxonID of this list of [identifier]s. --------------------------------------------------------
+        $identifiers_taxonIDs = self::get_taxonID_from_identifer_values($identifiers);
+        /* sample $identifiers_taxonIDs
+        [80c3f23a7edaef0c690f5fa89206db80] => Array(
+                [0] => 54305335
+                [1] => 54305340
+            )
+        [1fb14375baf8c0e97b78da7cf24933ca] => Array(
+                [0] => 54328762
+            )
+        */
+        foreach($identifiers_taxonIDs as $identifier => $taxonIDs) {
+            if($taxonIDs) { //needed this validation since there is one case where the identifier doesn't have a taxonID.
+                foreach($taxonIDs as $taxonID) $removed_branches[$taxonID] = '';
+            }
+        }
+        return $removed_branches;
+    }
+
+
     // ----------------------------------------------------------------- end TRAM-803 -----------------------------------------------------------------
     /*
     private function get_tax_ids_from_taxon_tab_working()
