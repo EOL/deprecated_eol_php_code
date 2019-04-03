@@ -94,10 +94,10 @@ class DWH_CoL_API_20Feb2019
     {
         $taxID_info = self::get_taxID_nodes_info();
         $removed_branches = self::pruneBytaxonID();
-        echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
+        echo "\nremoved_branches total A CLP: ".count($removed_branches)."\n"; //exit("\n111\n");
         
         $removed_branches = self::process_pruneForCOL_CLP('CLP', $removed_branches); // print_r($removed_branches);
-        echo "\nremoved_branches total B: ".count($removed_branches)."\n"; //exit("\n222\n");
+        echo "\nremoved_branches total B CLP: ".count($removed_branches)."\n"; //exit("\n222\n");
 
         $ret = self::get_CLP_roots();
         $include                  = $ret['include']; // print_r($include); exit("\nsample include\n");
@@ -265,11 +265,11 @@ class DWH_CoL_API_20Feb2019
         $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
         /* #1. Remove branches from the PruneBytaxonID list based on their taxonID: */
         $removed_branches = self::pruneBytaxonID();
-        echo "\nremoved_branches total A: ".count($removed_branches)."\n"; //exit("\n111\n");
+        echo "\nremoved_branches total A COL: ".count($removed_branches)."\n"; //exit("\n111\n");
         
         /* #2. Create the COL taxon set by pruning the branches from the pruneForCOL list: */
         $removed_branches = self::process_pruneForCOL_CLP('COL', $removed_branches); // print_r($removed_branches);
-        echo "\nremoved_branches total B: ".count($removed_branches)."\n"; //exit("\n222\n");
+        echo "\nremoved_branches total B COL: ".count($removed_branches)."\n"; //exit("\n222\n");
         // end #2 -----------------------------------------------------------------------------------------------------------------------------------------------
         
         
