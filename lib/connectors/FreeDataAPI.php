@@ -302,14 +302,14 @@ class FreeDataAPI
                 while(true) {
                     $api = $this->service['usgs-nas']['occurrences'];
                     $api .= "?offset=$offset&genus=$genus&species=$species";
-                    echo "\n[$api]";
+                    // echo "\n[$api]";
                     if($json = Functions::lookup_with_cache($api, $options)) {
                         if(stripos($json, "The requested service is temporarily unavailable") !== false) { //string is found
                             echo "\nAPI service is down 01\n"; //needed this to prevent from continuing if API service is down anyway
                             return;
                         }
                         $recs = json_decode($json);
-                        if(($i % 200) == 0) echo "\n$i. total: ".count($recs->results);
+                        if(($i % 200) == 0) echo "\n$i. total: ".count($recs->results)."\n[$api]";
                         if($val = $recs->results) self::process_usgs_occurrence($val, $group);
                         // break; //debug
                         $offset += 100;
