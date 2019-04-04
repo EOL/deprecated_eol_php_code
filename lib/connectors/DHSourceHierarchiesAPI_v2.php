@@ -1267,7 +1267,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
             $folder = str_replace("zDestination/", "", $folder);
             // echo "\n".$this->sh[$h]['destin'];
             // echo "\n".$this->main_path;
-            $str .= "$h = Taxonomy.getTaxonomy('t/tax_2018_12".$folder."', '".$h."')\n";
+            
+            // $str .= "$h = Taxonomy.getTaxonomy('t/tax_2018_12".$folder."', '".$h."')\n";    //ver 1.0
+            $str .= "$h = Taxonomy.getTaxonomy('t/tax_2019_04".$folder."', '".$h."')\n";       //ver 1.1
+            
         }
         echo "\n$str\n";
         return $final;
@@ -1290,8 +1293,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
             $uids = self::get_uids_from_taxonomy_tsv($what);
             echo "\n $what uids: ".count($uids)."\n";
             // print_r($uids); exit;
-            foreach($syn_ids_from_spreadsheet[$what] as $id) {
-                if(!isset($uids[$id])) $undefined_ids[$what][$id] = '';
+            if($loop = @$syn_ids_from_spreadsheet[$what]) { //bec. not all hierarchies have entry in synonym spreadsheet
+                foreach($loop as $id) {
+                    if(!isset($uids[$id])) $undefined_ids[$what][$id] = '';
+                }
             }
         }
         print_r($undefined_ids);
@@ -1404,6 +1409,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         foreach($hierarchies as $what) {
             $meta = self::get_meta($what);
             $file = $this->sh[$what]['source'].$meta['taxon_file']; $i = 0;
+            echo "\naccessing [$file]]\n";
             foreach(new FileIterator($file) as $line => $row) {
                 $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
                 if($meta['ignoreHeaderLines'] && $i == 1) continue;
