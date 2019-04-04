@@ -31,11 +31,15 @@ exit("\n");
 // /* //main operation ------------------------------------------------------------
 $resource_id = "2019_03_28";
 $func = new DHSourceHierarchiesAPI_v2($resource_id);
-$func->start($cmdline_params['what']); //main to generate the respective taxonomy.tsv (and synonym.tsv if available).
+// $func->start($cmdline_params['what']); //main to generate the respective taxonomy.tsv (and synonym.tsv if available).
 
-// $func->syn_integrity_check();            //to check record integrity of synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
-// $func->generate_python_file();           //to generate script entry to build_dwh.py
-// $func->clean_up_destination_folder();    //to do before uploading hierarchies to eol-smasher server
+// $func->syn_integrity_check(); exit("\n-end syn_integrity_check-\n"); //to check record integrity of synoyms spreadsheet: 1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng
+/* but this check is driven by taxonID and NOT by the sciname. It is the sciname that is important.
+So generally we don't need this syn_integrity_check(). We can just add to phython file all those we know that are synonyms.
+*/
+
+// $func->generate_python_file(); exit("\n-end generate_python_file-\n");           //to generate script entry to build_dwh.py
+// $func->clean_up_destination_folder(); exit("\n-end cleanup-\n");    //to do before uploading hierarchies to eol-smasher server
 
 // $func->test($cmdline_params['what']);                    //for testing only
 
@@ -46,11 +50,13 @@ $func->start($cmdline_params['what']); //main to generate the respective taxonom
 // $func->compare_results();                                //a utility to compare results. During initial stages
 // -------------------------------------------------------------------------------- */
 
-/* =========== generate DwCA --- OK
-// $func->save_all_ids_from_all_hierarchies_2MySQL(); exit("\n-end txt 2MySQL-\n"); //one-time only. DONE.
-$func->generate_dwca($resource_id);
-Functions::finalize_dwca_resource($resource_id, false, false);
-=========== */
+// /* =========== generate DwCA --- OK
+// $func->save_all_ids_from_all_hierarchies_2MySQL(); exit("\n-end txt 2MySQL-\n"); //one-time only. NOT YET DONE FOR Ver 1.1.
+// this will then be appended to MySQL table ids_scinames in DWH database.
+
+// $func->generate_dwca($resource_id);
+// Functions::finalize_dwca_resource($resource_id, false, false);
+// =========== */
 
 /* utility ========================== a good utility after generating DwCA --- OK
 require_library('connectors/DWCADiagnoseAPI');
