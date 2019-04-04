@@ -25,7 +25,7 @@ class DHSourceHierarchiesAPI_v2
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/dynamic_working_hierarchy-master/"; //still during Anne's time. I never used it. Just for testing in the earlier days.
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/2018_06/"; //old - initial runs
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/2018_12/"; //new - TRAM-800 - 1st Smasher run
-            $this->main_path = "/Volumes/AKiTiO4/d_w_h/2019_03/"; //new - TRAM-805 - 2nd Smasher run
+            $this->main_path = "/Volumes/AKiTiO4/d_w_h/2019_04/"; //new - TRAM-805 - 2nd Smasher run
         }
         /* Functions::lookup_with_cache($this->gnparser.urlencode($rec['scientificName']), $this->smasher_download_options); */
         
