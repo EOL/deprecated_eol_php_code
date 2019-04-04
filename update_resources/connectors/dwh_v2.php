@@ -29,7 +29,7 @@ exit("\n");
 */
 
 // /* //main operation ------------------------------------------------------------
-$resource_id = "2019_03_28";
+$resource_id = "2019_04_04";
 $func = new DHSourceHierarchiesAPI_v2($resource_id);
 // $func->start($cmdline_params['what']); //main to generate the respective taxonomy.tsv (and synonym.tsv if available).
 
@@ -38,8 +38,8 @@ $func = new DHSourceHierarchiesAPI_v2($resource_id);
 So generally we don't need this syn_integrity_check(). We can just add to phython file all those we know that are synonyms.
 */
 
-// $func->generate_python_file(); exit("\n-end generate_python_file-\n");           //to generate script entry to build_dwh.py
-// $func->clean_up_destination_folder(); exit("\n-end cleanup-\n");    //to do before uploading hierarchies to eol-smasher server
+// $func->generate_python_file();           exit("\n-end generate_python_file-\n"); //to generate script entry to build_dwh.py
+// $func->clean_up_destination_folder();    exit("\n-end cleanup-\n");              //to do before uploading hierarchies to eol-smasher server
 
 // $func->test($cmdline_params['what']);                    //for testing only
 
@@ -50,12 +50,51 @@ So generally we don't need this syn_integrity_check(). We can just add to phytho
 // $func->compare_results();                                //a utility to compare results. During initial stages
 // -------------------------------------------------------------------------------- */
 
-// /* =========== generate DwCA --- OK
-// $func->save_all_ids_from_all_hierarchies_2MySQL(); exit("\n-end txt 2MySQL-\n"); //one-time only. NOT YET DONE FOR Ver 1.1.
-// this will then be appended to MySQL table ids_scinames in DWH database.
+/*
+start smasher terminal steps:
 
-// $func->generate_dwca($resource_id);
-// Functions::finalize_dwca_resource($resource_id, false, false);
+step1: from macmini
+scp Archive1.zip smasher:~/temp/.
+scp separationFiles.zip smasher:~/temp/.
+
+step2:
+in smasher
+from eagbayani/temp folder
+cp Archive1.zip /home/annethessen/reference-taxonomy/t/tax_2019_04/
+cp synonyms.tsv /home/annethessen/reference-taxonomy/tax/separation/
+cp taxonomy.tsv /home/annethessen/reference-taxonomy/tax/separation/
+
+
+step:
+cp /tax_2019_04/build_dwh.py /home/annethessen/reference-taxonomy/
+
+step:
+To execute python file that builds dwh on the server type this into command line:
+bin/jython build_dwh.py
+
+step: zip the /test/ folder
+zip -r test_2019_04_04.zip test
+
+step:
+scp smasher:~/temp/test_2019_04_04.zip ~/Desktop/
+*/
+
+
+/* This is needed before generating the DwCA. text file will then be appended to MySQL table ids_scinames in DWH database.
+$func->save_all_ids_from_all_hierarchies_2MySQL(); exit("\n-end txt 2MySQL-\n"); //one-time only. NOT YET DONE FOR Ver 1.1.
+*/
+/*
+$ mysql -u root -p --local-infile DWH;
+copy table structure only:
+mysql> CREATE TABLE ids_scinames LIKE ids_scinames_v1;
+to load from txt file:
+mysql> load data local infile '/Users/eliagbayani/Desktop/eee/eli_tar_gz/eli/write2mysql.txt' into table ids_scinames;
+mysql> load data local infile 'write2mysql.txt' into table ids_scinames;
+*/
+
+// /* =========== generate DwCA --- OK
+$func->generate_dwca($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, false);
 // =========== */
 
 /* utility ========================== a good utility after generating DwCA --- OK
