@@ -15,7 +15,7 @@ class FreshDataInatSupplementAPI
         $this->print_header = true;
 
         $this->download_options = array('expire_seconds' => 60*60*24*60, 'download_wait_time' => 2000000, 'timeout' => 600, 'download_attempts' => 1); //'delay_in_minutes' => 1
-        //'expire_seconds' => false -> doesn't expire | true -> expires now
+        // $this->download_options['expire_seconds'] = false; //debug only. comment in real operation
         
         if(!Functions::is_production()) $this->download_options['cache_path'] = '/Volumes/Thunderbolt4/eol_cache_bison/';
         else {} //no cache_path in production
@@ -93,9 +93,11 @@ class FreshDataInatSupplementAPI
     
     private function remove_old_records_from_source()
     {
-        echo "\nRemoving old records...";
+        echo "\nRemoving old records...\n";
         $WRITE = Functions::file_open($this->temporary_file, "w");
         $resource = $this->destination[$this->folder];
+        // echo "\nwrite to file: [$this->temporary_file]\n";
+        // echo "\nresource: [$resource]\n";
         $i = 0;
         foreach(new FileIterator($resource) as $line => $row) {
             $i++;
@@ -154,7 +156,8 @@ class FreshDataInatSupplementAPI
         $first_loop['updated_since'] = true;
         
         $download_options = $this->download_options;
-        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = true;//orig is true; //cache expired deliberately for daily harvest
+        if($this->destination_txt_file != "observations.txt") $download_options['expire_seconds'] = 60*60*24;//orig is true; //cache expired deliberately for daily harvest
+        /* On Apr 4, 2019 changed expiration to 24 hours */
         
         while($date <= date('Y-m-d')) //loops until date today
         {
