@@ -77,6 +77,17 @@ zip -r test_2019_04_04.zip test
 
 step:
 scp smasher:~/temp/test_2019_04_04.zip ~/Desktop/
+
+step: copy to eol-archive for Katja
+
+scp taxon_with_higherClassification.tab.zip archive:~/temp/.
+scp 2019_04_04.tar.gz archive:~/temp/.
+scp results_2019_04_04.zip archive:~/temp/.
+
+Hi Katja, here are the reports. First crack at the DH ver. 1.1:
+Here is the raw Smasher output: https://editors.eol.org/other_files/DWH/1.1/results_2019_04_04.zip
+Here is the DwCA based on Smasher output: https://editors.eol.org/other_files/DWH/1.1/2019_04_04.tar.gz
+Here is the taxon.tab file with higherClassification based on DwCA: https://editors.eol.org/other_files/DWH/1.1/taxon_with_higherClassification.tab.zip
 */
 
 
@@ -92,10 +103,13 @@ mysql> load data local infile '/Users/eliagbayani/Desktop/eee/eli_tar_gz/eli/wri
 mysql> load data local infile 'write2mysql.txt' into table ids_scinames;
 */
 
-// /* =========== generate DwCA --- OK
+/* =========== generate DwCA --- OK
 $func->generate_dwca($resource_id);
 Functions::finalize_dwca_resource($resource_id, false, false);
-// =========== */
+=========== */
+
+
+
 
 /* utility ========================== a good utility after generating DwCA --- OK
 require_library('connectors/DWCADiagnoseAPI');
