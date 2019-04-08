@@ -2181,27 +2181,38 @@ class EOLv2MetadataAPI
         https://upload.wikimedia.org/wikipedia/commons/3/35/Naturalis_Biodiversity_Center_-_ZMA.MOLL.342985_-_Phalium_bandatum_exaratum_(Reeve,_1848)_-_Cassidae_-_Mollusc_shell.jpeg
         */
         // echo "\n1[$source_url]";
-        $source_url = str_replace("'", "\'", $source_url); //echo "\n2[$source_url]";
-        for ($i = 1; $i <= 15; $i++) {
-            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
-            if($page_id) $sql .= " and i.page_id = $page_id ";
-            $result = $this->mysqli->query($sql);
-            while($result && $row=$result->fetch_assoc()) {
-                echo "\nfound in dbase $i\n";
-                return $row;
-            }
+        
+        if(stripos($source_url, 'https:') !== false) {
+            $files[] = $source_url;
+            $files[] = str_ireplace("https", "http", $source_url);
         }
-
-        echo "\nstart 2nd try:\n";
-        $source_url = urldecode($source_url);              //echo "\n3[$source_url]";
-        $source_url = str_replace("'", "\'", $source_url); //echo "\n4[$source_url]";
-        for ($i = 1; $i <= 15; $i++) {
-            $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
-            if($page_id) $sql .= " and i.page_id = $page_id ";
-            $result = $this->mysqli->query($sql);
-            while($result && $row=$result->fetch_assoc()) {
-                echo "\nfound in dbase* $i\n";
-                return $row;
+        else {
+            $files[] = $source_url;
+            $files[] = str_ireplace("http", "https", $source_url);
+        }
+        foreach($files as $source_url) {
+            $orig = $source_url;
+            $source_url = str_replace("'", "\'", $source_url); //echo "\n2[$source_url]";
+            for ($i = 1; $i <= 15; $i++) {
+                $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
+                if($page_id) $sql .= " and i.page_id = $page_id ";
+                $result = $this->mysqli->query($sql);
+                while($result && $row=$result->fetch_assoc()) {
+                    echo "\nfound in dbase $i\n";
+                    return $row;
+                }
+            }
+            echo "\nstart 2nd try:\n";
+            $source_url = urldecode($orig);              //echo "\n3[$source_url]";
+            $source_url = str_replace("'", "\'", $source_url); //echo "\n4[$source_url]";
+            for ($i = 1; $i <= 15; $i++) {
+                $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
+                if($page_id) $sql .= " and i.page_id = $page_id ";
+                $result = $this->mysqli->query($sql);
+                while($result && $row=$result->fetch_assoc()) {
+                    echo "\nfound in dbase* $i\n";
+                    return $row;
+                }
             }
         }
         
