@@ -473,14 +473,13 @@ class EOLv2MetadataAPI
     }
     public function start_image_sizes_PART2()
     {
-        $source = CONTENT_RESOURCE_LOCAL_PATH."image_crops.txt";        
+        $source = CONTENT_RESOURCE_LOCAL_PATH."image_crops.txt";
         $destination = CONTENT_RESOURCE_LOCAL_PATH."image_crops_withEOL_pk.txt";
         $FILE = Functions::file_open($destination, "w");
-        
         $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++;
-            if(($i % 1000) == 0) echo number_format($i)." ";
+            if(($i % 1000) == 0) echo "\n".number_format($i);
             if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line);
             if($i == 1) {
@@ -493,32 +492,24 @@ class EOLv2MetadataAPI
             else {
                 $k = -1; $rec = array();
                 foreach($fields as $fld) {
-                    
-                    if($k == -1) {
-                        if($ret = self::search_v2_images($rec['taxon_concept_id'], $rec['obj_url'])) {
-                            if($val = $ret['eol_pk']) $rec['eol_pk'] = $val;
-                            @$search['found1']++;
-                        }
-                        elseif($ret = self::search_v2_images(false, $rec['obj_url'])) {
-                            if($val = $ret['eol_pk']) $rec['eol_pk'] = $val;
-                            @$search['found2']++;
-                        }
-                        else @$search['not found']++;
-                    }
+                    if($k == -1) $rec[$fld] = ''; //do nothing, the first field (eol_pk) will be filled below
                     else $rec[$fld] = $row[$k];
                     $k++;
                 }
             }
-            print_r($rec); exit("\nstopx\n");
-            
-            $ancestry = $func->get_ancestry_via_DH($rec['taxon_concept_id'], $landmark_only);
-            $ancestry = array_merge(array($rec['taxon_concept_id']), $ancestry);
-            // print_r($ancestry);
-            foreach($ancestry as $page_id) {
-                $write = array();
+            // print_r($rec); exit("\nstopx\n");
+
+            if($ret = self::search_v2_images(false, $rec['obj_url'])) {
+                if($val = $ret['eol_pk']) $rec['eol_pk'] = $val;
+                @$search['found1']++;
             }
-            fwrite($FILE, implode("\t", $rec)."\n");
+            // elseif($ret = self::search_v2_images(false, $rec['obj_url'])) {
+            //     if($val = $ret['eol_pk']) $rec['eol_pk'] = $val;
+            //     @$search['found2']++;
+            // }
+            else @$search['not found']++;
             
+            fwrite($FILE, implode("\t", $rec)."\n");
             fwrite($FILE, "\n"); //separator
             // if($i >= 10) break; //debug
         }
@@ -2176,11 +2167,14 @@ class EOLv2MetadataAPI
         // $page_id = 29911; $source_url = "http://upload.wikimedia.org/wikipedia/commons/f/ff/Rosa_'Ferdinand_Pichard'.jpg')";
         $page_id = 1148643; $source_url = "http://upload.wikimedia.org/wikipedia/commons/7/78/Carpinus_betulus_'Fastigiata'_JPG1.jpg";
         
+        
+        $page_id = false; $source_url = "http://upload.wikimedia.org/wikipedia/commons/b/bf/Shanghai_Ocean_Aquarium_-_Chitala_blanci_2.jpg";
         $rec = self::search_v2_images($page_id, $source_url);
         print_r($rec);
     }
     private function search_v2_images($page_id, $source_url)
     {
+        $orig_source_url = $source_url;
         /*
         e.g. page_id = 6061725
         this is what is in dbase:
@@ -2188,7 +2182,6 @@ class EOLv2MetadataAPI
         */
         // echo "\n1[$source_url]";
         $source_url = str_replace("'", "\'", $source_url); //echo "\n2[$source_url]";
-        
         for ($i = 1; $i <= 15; $i++) {
             $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
             if($page_id) $sql .= " and i.page_id = $page_id ";
@@ -2198,8 +2191,8 @@ class EOLv2MetadataAPI
                 return $row;
             }
         }
+
         echo "\nstart 2nd try:\n";
-        
         $source_url = urldecode($source_url);              //echo "\n3[$source_url]";
         $source_url = str_replace("'", "\'", $source_url); //echo "\n4[$source_url]";
         
@@ -2212,6 +2205,9 @@ class EOLv2MetadataAPI
                 return $row;
             }
         }
+        
+        
+        
         
         /*
         // print_r(pathinfo($source_url));
@@ -2237,7 +2233,7 @@ class EOLv2MetadataAPI
             if($ret = self::search_v2_images($page_id, $source_url)) return $ret;
         }
         */
-        echo "\nnot found in any dbase!\n";
+        echo "\nnot found in any dbase! [$page_id] [$source_url]\n";
     }
 
     // load data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_1.csv' into table DATA_1781.v3_images TERMINATED BY ',';
