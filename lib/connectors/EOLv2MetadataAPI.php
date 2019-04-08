@@ -2174,7 +2174,6 @@ class EOLv2MetadataAPI
     }
     private function search_v2_images($page_id, $source_url)
     {
-        $orig_source_url = $source_url;
         /*
         e.g. page_id = 6061725
         this is what is in dbase:
@@ -2195,7 +2194,6 @@ class EOLv2MetadataAPI
         echo "\nstart 2nd try:\n";
         $source_url = urldecode($source_url);              //echo "\n3[$source_url]";
         $source_url = str_replace("'", "\'", $source_url); //echo "\n4[$source_url]";
-        
         for ($i = 1; $i <= 15; $i++) {
             $sql = "SELECT i.* from DATA_1781.v3_images_".$i." i where i.source_url = '".$source_url."'";
             if($page_id) $sql .= " and i.page_id = $page_id ";
@@ -2205,8 +2203,6 @@ class EOLv2MetadataAPI
                 return $row;
             }
         }
-        
-        
         
         
         /*
@@ -2224,7 +2220,6 @@ class EOLv2MetadataAPI
             }
         }
         */
-
         /*
         if(stripos($source_url, '\/') !== false) { //string is found
             echo "\n[$source_url]\n";
@@ -2238,7 +2233,6 @@ class EOLv2MetadataAPI
 
     // load data local infile '/Volumes/AKiTiO4/01\ EOL\ Projects\ ++/JIRA/DATA-1781/images_for_sorting/images_for_sorting_1.csv' into table DATA_1781.v3_images TERMINATED BY ',';
     //==========================================================================================
-    
     public function start_resource_metadata()
     {
         $sql = "SELECT r.id as resource_id, r.title as resource_name, r.collection_id, r.description, r.accesspoint_url as orig_data_source_url
