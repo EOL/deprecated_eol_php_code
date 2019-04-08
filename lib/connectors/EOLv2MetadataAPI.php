@@ -471,6 +471,61 @@ class EOLv2MetadataAPI
         fclose($FILE);
         
     }
+    public function start_image_sizes_PART2()
+    {
+        $source = CONTENT_RESOURCE_LOCAL_PATH."image_crops.txt";        
+        $destination = CONTENT_RESOURCE_LOCAL_PATH."image_crops_withEOL_pk.txt";
+        $FILE = Functions::file_open($destination, "w");
+        
+        $i = 0;
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++;
+            if(($i % 1000) == 0) echo number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                array_unshift($fields, "eol_pk");
+                fwrite($FILE, implode("\t", $fields)."\n");
+                // print_r($fields); exit;
+                continue;
+            }
+            else {
+                $k = -1; $rec = array();
+                foreach($fields as $fld) {
+                    
+                    if($k == -1) {
+                        if($ret = self::search_v2_images($rec['taxon_concept_id'], $rec['obj_url'])) {
+                            if($val = $ret['eol_pk']) $rec['eol_pk'] = $val;
+                            @$search['found1']++;
+                        }
+                        elseif($ret = self::search_v2_images(false, $rec['obj_url'])) {
+                            if($val = $ret['eol_pk']) $rec['eol_pk'] = $val;
+                            @$search['found2']++;
+                        }
+                        else @$search['not found']++;
+                    }
+                    else $rec[$fld] = $row[$k];
+                    $k++;
+                }
+            }
+            print_r($rec); exit("\nstopx\n");
+            
+            $ancestry = $func->get_ancestry_via_DH($rec['taxon_concept_id'], $landmark_only);
+            $ancestry = array_merge(array($rec['taxon_concept_id']), $ancestry);
+            // print_r($ancestry);
+            foreach($ancestry as $page_id) {
+                $write = array();
+            }
+            fwrite($FILE, implode("\t", $rec)."\n");
+            
+            fwrite($FILE, "\n"); //separator
+            // if($i >= 10) break; //debug
+        }
+        fclose($FILE);
+        print_r($search);
+    }
+
     private function get_crop_dimensions($rec)
     {
         $arr = array("height" => $rec['height'], 'width' => $rec['width'], 'crop_x'      => ($rec['crop_x_pct']/100) * $rec['width'], 

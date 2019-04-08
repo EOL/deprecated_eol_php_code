@@ -79,7 +79,7 @@ $func->start_user_comments('Collection'); echo "\n end start_user_comments() \n"
 // /* https://eol-jira.bibalex.org/browse/DATA-1740
 $func = new EOLv2MetadataAPI("");
 // $func->start_image_sizes(); echo "\n end start_image_sizes() \n"; return; DONE ALREADY last Oct 27, 2018
-$func->start_image_sizes_PART2(); echo "\n end start_image_sizes_PART2() \n"; return; //this adds the eol_pk from the report of Oct 27, 2018.
+$func->start_image_sizes_PART2(); echo "\n end start_image_sizes_PART2() \n"; return; //DATA-1805: this adds the eol_pk from the report of Oct 27, 2018.
 // */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1741
