@@ -76,10 +76,11 @@ $func->start_user_comments('TaxonConcept');
 $func->start_user_comments('Collection'); echo "\n end start_user_comments() \n"; //return;
 */
 
-/* https://eol-jira.bibalex.org/browse/DATA-1740
+// /* https://eol-jira.bibalex.org/browse/DATA-1740
 $func = new EOLv2MetadataAPI("");
-$func->start_image_sizes(); echo "\n end start_image_sizes() \n"; //return;
-*/
+// $func->start_image_sizes(); echo "\n end start_image_sizes() \n"; return; DONE ALREADY last Oct 27, 2018
+$func->start_image_sizes_PART2(); echo "\n end start_image_sizes_PART2() \n"; return; //this adds the eol_pk from the report of Oct 27, 2018.
+// */
 
 /* https://eol-jira.bibalex.org/browse/DATA-1741
 $func = new EOLv2MetadataAPI();
@@ -99,10 +100,10 @@ $func->taxonomic_propagation('image_ratings'); echo "\n end taxonomic_propagatio
 // $func->utility_compare_eol_pk();
 */
 
-// /* DATA-1788: re-locating selected images in v2 by old identifiers
+/* DATA-1788: re-locating selected images in v2 by old identifiers
 $func = new EOLv2MetadataAPI();
 $func->DATA_1788(); echo "\n end DATA_1788() \n"; return;
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
