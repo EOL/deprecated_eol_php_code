@@ -478,6 +478,7 @@ class EOLv2MetadataAPI
         $FILE = Functions::file_open($destination, "w");
         $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
+            if(!$line) continue; //or break;
             $i++;
             if(($i % 1000) == 0) echo "\n".number_format($i);
             if($i == 1) $line = strtolower($line);
@@ -509,8 +510,8 @@ class EOLv2MetadataAPI
             // }
             else @$search['not found']++;
             
+            // print_r($rec);
             fwrite($FILE, implode("\t", $rec)."\n");
-            fwrite($FILE, "\n"); //separator
             // if($i >= 10) break; //debug
         }
         fclose($FILE);
