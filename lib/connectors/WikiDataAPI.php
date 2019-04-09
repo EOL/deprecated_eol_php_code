@@ -2624,6 +2624,7 @@ class WikiDataAPI
         if($this->language_code == "pl") return '<span class="mw-headline" id="Bibliografia">Bibliografia</span>';
         if($this->language_code == "sv") return '<span class="mw-headline" id="Referenser">Referenser</span>';          //may have other options
         if($this->language_code == "vi") return '<span class="mw-headline" id="Chú_thích">Chú thích</span>';            //may have other options
+                                                 //<span class="mw-headline" id="Tham_khảo">Tham khảo</span>
     }
     private function get_section_name_after_bibliographic_section($html, $biblio_section = false)
     {
