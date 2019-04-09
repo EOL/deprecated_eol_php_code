@@ -306,9 +306,9 @@ class WikiDataAPI
                                                 $this->what == "wikipedia" && in_array($this->language_code, array("en", "es", "fr", "de", "it", "zh", "pt", "nl"))
                                             )
           ) { //orig
-        // if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it
             //start new block ---------------------------------------
-            if($actual_task) {
+            // if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it
+            if($actual_task) { //un-comment in real operation
                 self::parse_wiki_data_json($task, $range_from, $range_to);
                 //log this task finished
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
@@ -317,7 +317,7 @@ class WikiDataAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                // if(true) { //use this when developing*** wikimedia only --- for 'en' and now 'es' -> those with multiple jobs
+                // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
                 if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force") { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
@@ -525,6 +525,7 @@ class WikiDataAPI
                      if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
                          // /* normal operation ==========================
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
+                             // print_r($rek['sitelinks']); exit; good debug
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
@@ -537,7 +538,7 @@ class WikiDataAPI
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
                              
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
-                             if($this->what == "wikipedia") $rek = self::get_other_info($rek, $arr); //uncomment in normal operation
+                             if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
@@ -576,6 +577,7 @@ class WikiDataAPI
                                  
                              }
                          }
+                         // else echo "\nNo sitelinks\n"; //debug only
                          // print_r($rek); //exit("\nstop muna\n");
                          // if($i >= 20) break;   //debug
                          // ===============================*/ //end normal operation
@@ -783,9 +785,9 @@ class WikiDataAPI
                 if(!@$media['agentID']) {
                     echo "\n-------start investigate--------Undefined index: agentID---\n";
                     print_r($com);
+                    echo "\n-------end investigate--------Undefined index: agentID---\n";
                     // print_r($media);
                     $this->debug['file in question'][pathinfo($media['furtherInformationURL'], PATHINFO_BASENAME)] = '';
-                    // exit("\nUndefined index: agentID --------------------\n");
                 }
 
                 $media = self::last_quality_check($media); //removes /n and /t inside values. May revisit this as it may not be the sol'n for 2 rows with wrong no. of columns.
@@ -2382,13 +2384,8 @@ class WikiDataAPI
             }
         */
     }
-    private function get_other_info($rek, $arr)
+    private function get_other_info($rek)
     {
-        /* stat WIP Apr 9
-        $sitelinks = $arr->sitelinks;
-        print_r($sitelinks); exit("\nstopx\n");
-        */
-        
         $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
         if($title = $rek['sitelinks']->title) {
             // $title = "Dicorynia"; //debug
@@ -3133,6 +3130,7 @@ class WikiDataAPI
     {
         $url = "https://www.wikidata.org/wiki/Special:EntityData/" . $id . ".json";
         $options = $this->download_options;
+        if(@$options['resource_id']) unset($options['resource_id']);
         $options['expire_seconds'] = false; //can always be false, bec. valued by ID normally don't change
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
