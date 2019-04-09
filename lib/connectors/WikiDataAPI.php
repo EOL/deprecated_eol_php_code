@@ -64,8 +64,8 @@ class WikiDataAPI
             $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
         }
         
-        if($this->what == "wikipedia") {
-            $lang_1st_batch = array('wikipedia-en','wikipedia-es','wikipedia-it','wikipedia-de','wikipedia-fr','wikipedia-zh','wikipedia-ru','wikipedia-pt','wikipedia-ja','wikipedia-ko','wikipedia-nl');
+        if($this->what == "wikipedia") { //80 - wikipedia-en | 957 - wikipedia-de
+            $lang_1st_batch = array('80','wikipedia-es','wikipedia-it','957','wikipedia-fr','wikipedia-zh','wikipedia-ru','wikipedia-pt','wikipedia-ja','wikipedia-ko','wikipedia-nl');
             if(!in_array($this->resource_id, $lang_1st_batch)) $this->download_options['resource_id'] = $this->resource_id;
         }
         
@@ -537,7 +537,7 @@ class WikiDataAPI
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
                              
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
-                             if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
+                             if($this->what == "wikipedia") $rek = self::get_other_info($rek, $arr); //uncomment in normal operation
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
@@ -2382,8 +2382,13 @@ class WikiDataAPI
             }
         */
     }
-    private function get_other_info($rek)
+    private function get_other_info($rek, $arr)
     {
+        /* stat WIP Apr 9
+        $sitelinks = $arr->sitelinks;
+        print_r($sitelinks); exit("\nstopx\n");
+        */
+        
         $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
         if($title = $rek['sitelinks']->title) {
             // $title = "Dicorynia"; //debug
