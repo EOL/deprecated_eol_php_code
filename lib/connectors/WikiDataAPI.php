@@ -2619,6 +2619,11 @@ class WikiDataAPI
         if($this->language_code == "pt") return '<span class="mw-headline" id="Bibliografias">Bibliografias</span>';
         if($this->language_code == "zh") return '<span class="mw-headline" id="參考資料">參考資料</span>';
         if($this->language_code == "ja") return '<span class="mw-headline" id="脚注">脚注</span>';
+
+        if($this->language_code == "nl") return '<span class="mw-headline" id="Literatuur">Literatuur</span>';
+        if($this->language_code == "pl") return '<span class="mw-headline" id="Bibliografia">Bibliografia</span>';
+        if($this->language_code == "sv") return '<span class="mw-headline" id="Referenser">Referenser</span>';          //may have other options
+        if($this->language_code == "vi") return '<span class="mw-headline" id="Chú_thích">Chú thích</span>';            //may have other options
     }
     private function get_section_name_after_bibliographic_section($html, $biblio_section = false)
     {
