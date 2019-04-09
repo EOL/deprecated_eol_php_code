@@ -35,11 +35,12 @@ drwxr-xr-x 2 root root           10 Nov  6  2017 wikipedia
 /* For testing one image to write to DwCA for Wikimedia. Follow the 3 asterisk ***. Un-comment these block of codes. Worked OK. Works also now for Wikipedia */
 class WikiDataAPI
 {
-    function __construct($folder, $lang, $what = "wikipedia")
+    function __construct($folder, $lang, $what = "wikipedia", $langs_with_multiple_connectors = array())
     {
         $this->what = $what;
         $this->resource_id = $folder;
         $this->language_code = $lang;
+        $this->langs_with_multiple_connectors = $langs_with_multiple_connectors;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -303,7 +304,7 @@ class WikiDataAPI
 
         if(
             ($this->what == "wikimedia") || (
-                                                $this->what == "wikipedia" && in_array($this->language_code, array("en", "es", "fr", "de", "it", "zh", "pt", "nl"))
+                                                $this->what == "wikipedia" && in_array($this->language_code, $this->langs_with_multiple_connectors)
                                             )
           ) { //orig
             //start new block ---------------------------------------
