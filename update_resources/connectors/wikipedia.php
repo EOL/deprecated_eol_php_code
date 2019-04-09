@@ -136,11 +136,11 @@ wikipedia-ja.tar.gz Japanese
 wikipedia-ko.tar.gz Korean
 
 To do:
-wikipedia-pl.tar.gz Polish
-wikipedia-uk.tar.gz Ukrainian
 wikipedia-nl.tar.gz Dutch
-wikipedia-vi.tar.gz Vietnamese
+wikipedia-pl.tar.gz Polish
 wikipedia-sv.tar.gz Swedish
+wikipedia-vi.tar.gz Vietnamese
+wikipedia-uk.tar.gz Ukrainian
 wikipedia-cu.tar.gz Indo-European 	Church Slavic, Church Slavonic, Old Church Slavonic, Old Slavonic, Old Bulgarian
 
 To do: DATA-1800
