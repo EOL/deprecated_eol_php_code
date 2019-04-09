@@ -64,6 +64,11 @@ class WikiDataAPI
             $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_wiki_regions/";
         }
         
+        if($this->what == "wikipedia") {
+            $lang_1st_batch = array('wikipedia-en','wikipedia-es','wikipedia-it','wikipedia-de','wikipedia-fr','wikipedia-zh','wikipedia-ru','wikipedia-pt','wikipedia-ja','wikipedia-ko','wikipedia-nl');
+            if(!in_array($this->resource_id, $lang_1st_batch)) $this->download_options['resource_id'] = $this->resource_id;
+        }
+        
         // $this->property['taxon name'] = "P225";
         // $this->property['taxon rank'] = "P105";
 
@@ -298,7 +303,7 @@ class WikiDataAPI
 
         if(
             ($this->what == "wikimedia") || (
-                                                $this->what == "wikipedia" && in_array($this->language_code, array("en", "es", "fr", "de", "it", "zh", "pt"))
+                                                $this->what == "wikipedia" && in_array($this->language_code, array("en", "es", "fr", "de", "it", "zh", "pt", "nl"))
                                             )
           ) { //orig
         // if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it

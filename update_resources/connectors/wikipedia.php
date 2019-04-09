@@ -143,6 +143,11 @@ wikipedia-vi.tar.gz Vietnamese
 wikipedia-sv.tar.gz Swedish
 wikipedia-cu.tar.gz Indo-European 	Church Slavic, Church Slavonic, Old Church Slavonic, Old Slavonic, Old Bulgarian
 
+To do: DATA-1800
+nl, 
+pl, sv, vi, (and war, ceb)
+
+
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}
 80	            Tuesday 2018-04-24 09:48:55 AM	{"media_resource.tab":672059,"taxon.tab":356038}
