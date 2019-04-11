@@ -106,7 +106,20 @@ class Protisten_deAPI
                 $tmp = Functions::remove_whitespace(trim($tmp));
                 $m['sciname'] = $tmp;
             }
-            // print_r($m);
+            if(preg_match("/MARK 10\:(.*?)<\/td>/ims", $html, $arr)) {
+                $tmp = str_replace("&nbsp;", " ", strip_tags($arr[1]));
+                if(preg_match("/\-\-\>(.*?)xxx/ims", $tmp."xxx", $arr)) $tmp = Functions::remove_whitespace($arr[1]);
+                // echo "\n[".$tmp."]\n";
+                $arr = explode(":",$tmp);
+                $arr = array_map('trim', $arr);
+                // print_r($arr);
+                $m['ancestry'] = $arr;
+                $id = array_pop($arr);
+                $id = strtolower(str_replace(" ", "_", $id));
+                $m['parent_id'] = $id;
+                // echo "\n$parent\n"; exit;
+            }
+            // print_r($m); exit;
         }
         if(@$m['sciname'] && @$m['image']) return $m;
         else return array();
@@ -151,6 +164,7 @@ class Protisten_deAPI
     }
     private function write_archive($rec)
     {
+        // print_r($rec); exit;
         /* [media_info] => Array(
             [0] => Array(
                     [desc] => Scale bar indicates 50 µm. The specimen was gathered in the wetlands of national park Unteres Odertal (100 km north east of Berlin). The image was built up using several photomicrographic frames with manual stacking technique. Images were taken using Zeiss Universal with Olympus C7070 CCD camera. Image under Creative Commons License V 3.0 (CC BY-NC-SA). Der Messbalken markiert eine Länge von 50 µm. Die Probe wurde in den Feuchtgebieten des Nationalpark Unteres Odertal (100 km nordöstlich von Berlin) gesammelt. Mikrotechnik: Zeiss Universal, Kamera: Olympus C7070. Creative Commons License V 3.0 (CC BY-NC-SA). For permission to use of (high-resolution) images please contact postmaster@protisten.de.
@@ -168,6 +182,7 @@ class Protisten_deAPI
             $r['source_url'] = $this->page['image_page_url'].@$rec['next_pages'][$i];
             $taxon->taxonID                 = $r['taxon_id'];
             $taxon->scientificName          = $r['sciname'];
+            $taxon->parentNameUsageID = $r['parent_id'];
             // $taxon->taxonRank                = @$rec['rank']; //from PCAT
             // $taxon->scientificNameAuthorship = @$rec['Author']; //from PCAT
             $taxon->furtherInformationURL   = $r['source_url'];
@@ -175,8 +190,14 @@ class Protisten_deAPI
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
+            if($val = @$r['ancestry']) self::create_taxa($val);
             if(@$r['image']) self::write_image($r);
         }
+    }
+    private function create_taxa($ancestry)
+    {
+        foreach($ancestry as $sci) echo "\n$sci";
+        exit;
     }
     private function write_agent()
     {
