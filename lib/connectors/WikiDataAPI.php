@@ -513,8 +513,9 @@ class WikiDataAPI
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
-                // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear
+                // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear - Ursus maritimus
                 // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //angiosperms DATA-1803
+                // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
                 */
                 
                 /* print_r($arr->claims->P935); exit; */
@@ -2340,6 +2341,15 @@ class WikiDataAPI
             if($i == $total_cols) $row .= "\n";
             else                  $row .= "\t";
         }
+        
+        /* good debug to write to HTML for testing
+        $file = DOC_ROOT."test.html";
+        echo "\nfile: [$file]\n";
+        $f = Functions::file_open($file, "w");
+        fwrite($f, $media['description']);
+        fclose($f); exit;
+        */
+        
         if(!isset($this->object_ids[$media['identifier']])) {
             $this->object_ids[$media['identifier']] = '';
             if(!($f = Functions::file_open($this->media_extension, "a"))) return;
@@ -2407,7 +2417,7 @@ class WikiDataAPI
                 $rek['other']['title'] = $title;
 
                 $desc = $func->get_comprehensive_desc($html);
-                $desc = self::remove_edit_sections($desc); //new https://eol-jira.bibalex.org/browse/DATA-1785
+                $desc = self::remove_edit_sections($desc, $url); //new https://eol-jira.bibalex.org/browse/DATA-1785
                 $rek['other']['comprehensive_desc'] = self::additional_desc_format($desc);
                 
                 // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
@@ -2422,6 +2432,74 @@ class WikiDataAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == "vi") {
+            /*
+            <table class="infobox taxobox" 
+            </tr></tbody></table>
+            */
+            if(preg_match("/<table class=\"infobox taxobox\"(.*?)<\/tr><\/tbody><\/table>/ims", $html, $arr)) {
+                $substr = '<table class="infobox taxobox"'.$arr[1].'</tr></tbody></table>';
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        if($this->language_code == "pl") {
+            /*
+            <table class="infobox">
+            </td></tr></tbody></table>
+            */
+            if(preg_match("/<table class=\"infobox\">(.*?)<\/td><\/tr><\/tbody><\/table>/ims", $html, $arr)) {
+                $substr = '<table class="infobox">'.$arr[1].'</td></tr></tbody></table>';
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        if($this->language_code == "nl") {
+            /*
+            <table class="toccolours vatop infobox"
+            option 1: <a href="/wiki/Portaal:Zoogdieren" title="Portaal:Zoogdieren">Zoogdieren</a>
+            option 1: <a href="/wiki/Portaal:Biologie" title="Portaal:Biologie">Biologie</a>
+            option 1: <div class="noprint thumb tright"
+            option 2: <div class="thumb tright">
+            option 3: <div class="thumb tleft">
+            */
+            $html = self::code_the_steps('<table class="toccolours vatop infobox"', '<a href="/wiki/Portaal:Zoogdieren" title="Portaal:Zoogdieren">Zoogdieren</a>', $html);
+            $html = self::code_the_steps('<table class="toccolours vatop infobox"', '<a href="/wiki/Portaal:Biologie" title="Portaal:Biologie">Biologie</a>', $html);
+
+            if(preg_match("/<table class=\"toccolours vatop infobox\"(.*?)<div class=\"noprint thumb tright\"/ims", $html, $arr)) {
+                $substr = '<table class="toccolours vatop infobox"'.$arr[1];
+                $html = str_ireplace($substr, '', $html);
+            }
+            elseif(preg_match("/<table class=\"toccolours vatop infobox\"(.*?)<div class=\"thumb tright\">/ims", $html, $arr)) {
+                $substr = '<table class="toccolours vatop infobox"'.$arr[1];
+                $html = str_ireplace($substr, '', $html);
+            }
+            elseif(preg_match("/<table class=\"toccolours vatop infobox\"(.*?)<div class=\"thumb tleft\">/ims", $html, $arr)) {
+                $substr = '<table class="toccolours vatop infobox"'.$arr[1];
+                $html = str_ireplace($substr, '', $html);
+            }
+
+            /* remove erroneous video play e.g. Gadus morhua
+            <div id="mwe_player_0"
+            </div>
+            */
+            if(preg_match("/<div id=\"mwe_player_0\"(.*?)<\/div>/ims", $html, $arr)) {
+                $substr = '<div id="mwe_player_0"'.$arr[1].'</div>';
+                $html = str_ireplace($substr, '', $html);
+            }
+            /* remove weird auto inclusion */
+            $tmp = '<img alt="" src="//upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Klippfiskproduksjon.jpg/260px-Klippfiskproduksjon.jpg" width="260" height="195" class="thumbimage" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Klippfiskproduksjon.jpg/390px-Klippfiskproduksjon.jpg 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Klippfiskproduksjon.jpg/520px-Klippfiskproduksjon.jpg 2x" data-file-width="1024" data-file-height="768" />';
+            $html = str_ireplace($tmp, "", $html);
+        }
+        if($this->language_code == "sv") {
+            /* remove erroneous video play e.g. Polar bear
+            <div id="mwe_player_0"
+            </div>
+            */
+            if(preg_match("/<div id=\"mwe_player_0\"(.*?)<\/div>/ims", $html, $arr)) {
+                $substr = '<div id="mwe_player_0"'.$arr[1].'</div>';
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        
         //used in ru - Russian
         if($this->language_code == "ru") {
             $option = array();
@@ -2451,7 +2529,7 @@ class WikiDataAPI
             $substr = '<table class="infobox_v2"'.$arr[1].'</table>';
             $html = str_ireplace($substr, '', $html);
         }
-        elseif(preg_match("/<table class=\"infobox\"(.*?)<\/table>/ims", $html, $arr)) { //for es, 
+        elseif(preg_match("/<table class=\"infobox\"(.*?)<\/table>/ims", $html, $arr)) { //for es & sv (Swedish)
             $substr = '<table class="infobox"'.$arr[1].'</table>';
             $html = str_ireplace($substr, '', $html);
         }
@@ -2537,13 +2615,27 @@ class WikiDataAPI
             }
         }
         /* remove form elements e.g. <input type="checkbox" role="button" id="toctogglecheckbox" /> */
-        if(preg_match("/<input type=(.*?)>/ims", $html, $arr)) {
-            $substr = '<input type='.$arr[1].'>';
+        if(preg_match_all("/<input type=(.*?)>/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                $substr = '<input type='.$str.'>';
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        
+        /* additional sections to remove */ // e.g. Panthera leo 'nl'
+        $html = self::code_the_steps('<div id="tpl_Woordenboek"', '</div>', $html);
+        $html = self::code_the_steps('<div class="interProject wiktionary"', '</div>', $html);
+        return $html;
+    }
+    private function code_the_steps($left, $right, $html)
+    {
+        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            $substr = $left.$arr[1].$right;
             $html = str_ireplace($substr, '', $html);
         }
         return $html;
     }
-    private function remove_edit_sections($html) //remove 'edit' sections and others
+    private function remove_edit_sections($html, $url) //remove 'edit' sections and others
     {   /* e.g. es
         <h2>
             <span id="Bibliograf.C3.ADa"></span><span class="mw-headline" id="Bibliografía">Bibliografía</span>
@@ -2585,8 +2677,47 @@ class WikiDataAPI
             }
         }
         /* remove everything after the end of the Bibliografía section. */
-        $html = self::remove_everything_after_bibliographic_section($html);
+        $first10langs = array("en", "es", "it", "de", "fr", "zh", "ru", "pt", "ja", "ko");
+        if(in_array($this->language_code, $first10langs)) $html = self::remove_everything_after_bibliographic_section($html);
+        else                                              $html = self::remove_categories_section($html, $url); //seems can also be used for the first 10 languages :-)
         $html = self::remove_ctex_verion_spans($html);
+        return $html;
+    }
+    private function remove_categories_section($html, $url)
+    {   /* should end here:
+        <noscript><img src="//nl.wikipedia.org/wiki/Special:CentralAutoLogin            ---> orig when doing view source html
+        <noscript><img src="https://nl.wikipedia.org/wiki/Special:CentralAutoLogin      ---> actual value of $html (IMPORTANT REMINDER)
+        */
+        $limit = '<noscript><img src="https://'.$this->language_code.'.wikipedia.org/wiki/Special:CentralAutoLogin';
+        if(stripos($html, $limit) !== false) { //string is found
+            if(preg_match("/xxx(.*?)".preg_quote($limit,'/')."/ims", "xxx".$html, $arr)) {
+                $final = $arr[1];
+                /* stats count - debug only
+                echo "\n start div: ".substr_count($final, '<div')."\n";
+                echo "\n end div: ".substr_count($final, '</div')."\n"; exit;
+                */
+                $html = $final; //since there are additional steps below
+            }
+        }
+        else {
+            // echo "\n--- $html ---\n";
+            exit("\n-----\nNot found, investigate [$this->language_code]\n[$url]\n-----\n");
+        }
+        
+        /* additional sections to remove e.g. lang 'nl' for Mus musculus */
+        $html = self::code_the_steps('<table class="navigatiesjabloon"', '</tbody></table>', $html);
+        $html = self::code_the_steps('<div id="normdaten"', '</div>', $html);
+        
+        /* sv Mus musculus
+        <table class="navbox"
+        </table></td></tr></tbody></table>
+        */
+        if(preg_match_all("/<table class=\"navbox\"(.*?)<\/table><\/td><\/tr><\/tbody><\/table>/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                $substr = '<table class="navbox"'.$str.'</table></td></tr></tbody></table>';
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
         return $html;
     }
     private function remove_ctex_verion_spans($html)
@@ -2619,12 +2750,12 @@ class WikiDataAPI
         if($this->language_code == "pt") return '<span class="mw-headline" id="Bibliografias">Bibliografias</span>';
         if($this->language_code == "zh") return '<span class="mw-headline" id="參考資料">參考資料</span>';
         if($this->language_code == "ja") return '<span class="mw-headline" id="脚注">脚注</span>';
-
+        /* not used
         if($this->language_code == "nl") return '<span class="mw-headline" id="Literatuur">Literatuur</span>';
         if($this->language_code == "pl") return '<span class="mw-headline" id="Bibliografia">Bibliografia</span>';
         if($this->language_code == "sv") return '<span class="mw-headline" id="Referenser">Referenser</span>';          //may have other options
         if($this->language_code == "vi") return '<span class="mw-headline" id="Chú_thích">Chú thích</span>';            //may have other options
-                                                 //<span class="mw-headline" id="Tham_khảo">Tham khảo</span>
+        */
     }
     private function get_section_name_after_bibliographic_section($html, $biblio_section = false)
     {
