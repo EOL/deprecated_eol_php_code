@@ -114,15 +114,19 @@ class Protisten_deAPI
                 $arr = array_map('trim', $arr);
                 // print_r($arr);
                 $m['ancestry'] = $arr;
-                $id = array_pop($arr);
-                $id = strtolower(str_replace(" ", "_", $id));
-                $m['parent_id'] = $id;
+                
+                $tmp = array_pop($arr); //last element
+                $m['parent_id'] = self::format_id($arr[count($arr)-1])."-".self::format_id($tmp); //combination of last 2 immediate parents
                 // echo "\n$parent\n"; exit;
             }
             // print_r($m); exit;
         }
         if(@$m['sciname'] && @$m['image']) return $m;
         else return array();
+    }
+    private function format_id($id)
+    {
+        return strtolower(str_replace(" ", "_", $id));
     }
     private function clean_str($str)
     {
@@ -175,28 +179,43 @@ class Protisten_deAPI
         $i = -1;
         foreach($rec['media_info'] as $r) { $i++;
             $taxon = new \eol_schema\Taxon();
-            // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
-            // $taxon->family                  = (string) @$rec['family'];
-            // $taxon->taxonRank               = (string) $rec['rank'];
             $r['taxon_id'] = md5($r['sciname']);
             $r['source_url'] = $this->page['image_page_url'].@$rec['next_pages'][$i];
             $taxon->taxonID                 = $r['taxon_id'];
             $taxon->scientificName          = $r['sciname'];
-            $taxon->parentNameUsageID = $r['parent_id'];
-            // $taxon->taxonRank                = @$rec['rank']; //from PCAT
-            // $taxon->scientificNameAuthorship = @$rec['Author']; //from PCAT
+            $taxon->parentNameUsageID       = $r['parent_id'];
             $taxon->furtherInformationURL   = $r['source_url'];
+            // $taxon->taxonRank                = '';
+            $taxon->higherClassification    = implode("|", $r['ancestry']);
+            echo "\n$taxon->higherClassification\n";
+            // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
-            if($val = @$r['ancestry']) self::create_taxa_for_ancestry($val);
+            if($val = @$r['ancestry']) self::create_taxa_for_ancestry($val, $taxon->parentNameUsageID);
             if(@$r['image']) self::write_image($r);
         }
     }
-    private function create_taxa_for_ancestry($ancestry)
+    private function create_taxa_for_ancestry($ancestry, $parent_id)
     {
-        foreach($ancestry as $sci) echo "\n$sci";
+        echo "\n$parent_id\n";
+        print_r($ancestry);
+        $i = -1;
+        foreach($ancestry as $sci) {
+            $i++;
+            if($i == 0) $taxon_id = self::format_id($sci);
+            else        $taxon_id = self::format_id($ancestry[$i-1])."-".self::format_id($sci);
+            echo "\n$taxon_id";
+            // $taxon = new \eol_schema\Taxon();
+            // $taxon->taxonID                 = ;
+            // $taxon->scientificName          = ;
+            // $taxon->parentNameUsageID       = ;
+            // if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            //     $this->archive_builder->write_object_to_file($taxon);
+            //     $this->taxon_ids[$taxon->taxonID] = '';
+            // }
+        }
         exit;
     }
     private function write_agent()
