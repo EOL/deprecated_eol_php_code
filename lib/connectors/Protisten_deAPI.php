@@ -190,11 +190,11 @@ class Protisten_deAPI
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
-            if($val = @$r['ancestry']) self::create_taxa($val);
+            if($val = @$r['ancestry']) self::create_taxa_for_ancestry($val);
             if(@$r['image']) self::write_image($r);
         }
     }
-    private function create_taxa($ancestry)
+    private function create_taxa_for_ancestry($ancestry)
     {
         foreach($ancestry as $sci) echo "\n$sci";
         exit;
