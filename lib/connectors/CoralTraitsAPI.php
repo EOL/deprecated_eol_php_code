@@ -14,7 +14,7 @@ class CoralTraitsAPI
         $this->debug = array();
         $this->for_mapping = array();
         $this->download_options = array(
-            'expire_seconds'     => false, //expires set to false since update is as-needed. Partner will inform us when they have a new release (DATA-1793)
+            'expire_seconds'     => false, //expires set to false since update is as-needed basis. Partner will inform us when they have a new release (DATA-1793)
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0; //debug only
         $this->partner_source_csv = "https://ndownloader.figshare.com/files/3678603";
