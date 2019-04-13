@@ -32,7 +32,7 @@ class Protisten_deAPI
         foreach($batches as $filename) {
             echo "\nprocess batch [$filename]\n";
             self::process_one_batch($filename);
-            // break; //debug - process only 1 batch.
+            break; //debug - process only 1 batch.
         }
         $this->archive_builder->finalize(true);
     }
@@ -201,22 +201,38 @@ class Protisten_deAPI
     {
         echo "\n$parent_id\n";
         print_r($ancestry);
-        $i = -1;
+        //store taxon_id and parent_id
+        $i = -1; $store = array();
         foreach($ancestry as $sci) {
             $i++;
             if($i == 0) $taxon_id = self::format_id($sci);
             else        $taxon_id = self::format_id($ancestry[$i-1])."-".self::format_id($sci);
-            echo "\n$taxon_id";
-            // $taxon = new \eol_schema\Taxon();
-            // $taxon->taxonID                 = ;
-            // $taxon->scientificName          = ;
-            // $taxon->parentNameUsageID       = ;
-            // if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            //     $this->archive_builder->write_object_to_file($taxon);
-            //     $this->taxon_ids[$taxon->taxonID] = '';
-            // }
+            $store[] = $taxon_id;
         }
-        exit;
+        print_r($store);
+        //write to dwc
+        $i = -1;
+        foreach($ancestry as $sci) {
+            $i++;
+            $taxon = new \eol_schema\Taxon();
+            $taxon->taxonID                 = $store[$i];
+            $taxon->scientificName          = $sci;
+            $taxon->parentNameUsageID       = @$store[$i-1];
+            $taxon->higherClassification    = self::get_higherClassification($ancestry, $i);
+            if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                $this->archive_builder->write_object_to_file($taxon);
+                $this->taxon_ids[$taxon->taxonID] = '';
+            }
+        }
+    }
+    private function get_higherClassification($ancestry, $i)
+    {
+        $j = -1; $final = array();
+        foreach($ancestry as $sci) {
+            $j++;
+            if($j < $i) $final[] = $sci;
+        }
+        return implode("|", $final);
     }
     private function write_agent()
     {
