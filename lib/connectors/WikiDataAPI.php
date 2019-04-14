@@ -2988,11 +2988,18 @@ class WikiDataAPI
             }
             if(!$is_sciname) {
                 if($val = $label->value) {
-                    $final[$label->language][] = array('comname' => $val, 'lang' => $label->language);
+                    $language = self::comname_manual_adjustment($label->language);
+                    $final[$language][] = array('comname' => $val, 'lang' => $language);
                 }
             }
         }
         return $final;
+    }
+    private function comname_manual_adjustment($lang)
+    {
+        if($lang == 'es-419') return 'es';
+        if($lang == 'simple') return 'en';
+        return $lang;
     }
     private function reformat_orig_comnames($orig_comnames)
     {
