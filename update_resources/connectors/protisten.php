@@ -18,7 +18,7 @@ Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true 
 /* utility */
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
-$func->check_unique_ids($resource_id); //takes time
+// $func->check_unique_ids($resource_id); //takes time
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
 if($undefined) echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";
 else           echo "\nOK: All parents in taxon.tab have entries.\n";
