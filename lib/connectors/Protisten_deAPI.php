@@ -187,7 +187,7 @@ class Protisten_deAPI
             $taxon->furtherInformationURL   = $r['source_url'];
             // $taxon->taxonRank                = '';
             $taxon->higherClassification    = implode("|", $r['ancestry']);
-            echo "\n$taxon->higherClassification\n";
+            // echo "\n$taxon->higherClassification\n";
             // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->archive_builder->write_object_to_file($taxon);
@@ -199,8 +199,8 @@ class Protisten_deAPI
     }
     private function create_taxa_for_ancestry($ancestry, $parent_id)
     {
-        echo "\n$parent_id\n";
-        print_r($ancestry);
+        // echo "\n$parent_id\n";
+        // print_r($ancestry);
         //store taxon_id and parent_id
         $i = -1; $store = array();
         foreach($ancestry as $sci) {
@@ -209,7 +209,7 @@ class Protisten_deAPI
             else        $taxon_id = self::format_id($ancestry[$i-1])."-".self::format_id($sci);
             $store[] = $taxon_id;
         }
-        print_r($store);
+        // print_r($store);
         //write to dwc
         $i = -1;
         foreach($ancestry as $sci) {
