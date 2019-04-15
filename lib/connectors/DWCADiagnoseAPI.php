@@ -77,17 +77,22 @@ class DWCADiagnoseAPI
     function check_unique_ids($resource_id, $file_extension = ".tab")
     {
         echo "\n----------Checking unique IDs [$resource_id]...----------\n";
-        $harvester = new ContentArchiveReader(NULL, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/");
-        $tables = $harvester->tables;
-        $tables = array_keys($tables);
-        // $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
-        $tables = array_diff($tables, array("http://rs.gbif.org/terms/1.0/vernacularname")); //exclude vernacular name
-        $tables = array_diff($tables, array("http://eol.org/schema/association")); //exclude association name
-        print_r($tables);
-        foreach($tables as $table) {
-            $records = $harvester->process_row_type($table);
-            self::process_fields($records, pathinfo($table, PATHINFO_BASENAME));
-            $records = null;
+        if(!file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id)) {
+            echo "\nDir does not exist: [".CONTENT_RESOURCE_LOCAL_PATH . $resource_id."]\n";
+        }
+        else {
+            $harvester = new ContentArchiveReader(NULL, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/");
+            $tables = $harvester->tables;
+            $tables = array_keys($tables);
+            // $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
+            $tables = array_diff($tables, array("http://rs.gbif.org/terms/1.0/vernacularname")); //exclude vernacular name
+            $tables = array_diff($tables, array("http://eol.org/schema/association")); //exclude association name
+            print_r($tables);
+            foreach($tables as $table) {
+                $records = $harvester->process_row_type($table);
+                self::process_fields($records, pathinfo($table, PATHINFO_BASENAME));
+                $records = null;
+            }
         }
         echo "\n----------end Checking unique IDs----------\n";
     }
