@@ -32,7 +32,7 @@ class Protisten_deAPI
         foreach($batches as $filename) {
             echo "\nprocess batch [$filename]\n";
             self::process_one_batch($filename);
-            break; //debug - process only 1 batch.
+            // break; //debug - process only 1 batch.
         }
         $this->archive_builder->finalize(true);
     }
