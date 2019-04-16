@@ -203,11 +203,15 @@ class WikipediaRegionalAPI
     
     function get_comprehensive_desc($html)
     {
-        // if(preg_match("/<div id=\"mw-content-text\" lang=\"de\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) //orig works OK, but 'de' is hard-coded
-        if(preg_match("/<div id=\"mw-content-text\" lang=\"$this->language_code\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr))
-        {
-            return self::format_wiki_substr($arr[1]);
+        $lang = $this->language_code;
+        if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+        else {
+            if($lang == 'no') {
+                $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
+                if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+            }
         }
+        exit("\nInvestigate WikipediaRegionalAPI [$lang]...\n");
     }
     
     function get_domain_name($url)
