@@ -2867,7 +2867,7 @@ class WikiDataAPI
     private function additional_desc_format($desc)
     {   //new: https://eol-jira.bibalex.org/browse/DATA-1800?focusedCommentId=63385&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63385
         $classes2remain = self::get_class_names_from_UL_tags($desc);
-        print_r($classes2remain);
+        // print_r($classes2remain);
         
         // remove class and style attributes in tags
         // e.g. class="infobox biota" 
