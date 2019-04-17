@@ -83,7 +83,9 @@ if    ($language == 'en') $resource_id = 80;
 elseif($language == 'de') $resource_id = 957;
 else $resource_id = "wikipedia-".$language;
 
-$langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh", "nl", "pl", "sv", "vi");
+$langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
