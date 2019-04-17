@@ -48,7 +48,7 @@ class WikiDataAPI
         $this->debug = array();
         $this->download_options = array('expire_seconds' => 60*60*24*25*2, 'download_wait_time' => 3000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //just temporary, comment in normal operation
-        if(!Functions::is_production()) $this->download_options['expire_seconds'] = false;
+        if(!Functions::is_production()) $this->download_options['expire_seconds'] = 60*60*24*5; //during development
 
         if(Functions::is_production()) {
             $this->path['raw_dump']         = "/extra/dumps/wikidata/latest-all.json";
@@ -514,7 +514,7 @@ class WikiDataAPI
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
                 // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear - Ursus maritimus
-                // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //angiosperms DATA-1803
+                // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //Angiosperms DATA-1803
                 // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
                 */
                 
@@ -2432,25 +2432,33 @@ class WikiDataAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
-        if($this->language_code == "vi") {
-            /*
-            <table class="infobox taxobox" 
-            </tr></tbody></table>
-            */
-            if(preg_match("/<table class=\"infobox taxobox\"(.*?)<\/tr><\/tbody><\/table>/ims", $html, $arr)) {
-                $substr = '<table class="infobox taxobox"'.$arr[1].'</tr></tbody></table>';
+        if($this->language_code == "uk") {
+            $orig = $html;
+            $left = '<table class="toccolours"'; $right = '<div class';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                $substr = $left.$arr[1]; //.$right; //no right term here
                 $html = str_ireplace($substr, '', $html);
+                
+                if(stripos($html, "Special:CentralAutoLogin") !== false) {} //string is found
+                else { //try ending with '<p>'. Means using '<div class' erased most of the article already
+                    $html = $orig;
+                    $left = '<table class="toccolours"'; $right = '<p>';
+                    if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                        $substr = $left.$arr[1]; //.$right; //no right term here
+                        $html = str_ireplace($substr, '', $html);
+                    }
+                }
             }
+
+        }
+        if($this->language_code == "no") {
+            $html = self::code_the_steps('<table class="taksoboks"', '</tr></tbody></table>', $html);
+        }
+        if($this->language_code == "vi") {
+            $html = self::code_the_steps('<table class="infobox taxobox"', '</tr></tbody></table>', $html);
         }
         if($this->language_code == "pl") {
-            /*
-            <table class="infobox">
-            </td></tr></tbody></table>
-            */
-            if(preg_match("/<table class=\"infobox\">(.*?)<\/td><\/tr><\/tbody><\/table>/ims", $html, $arr)) {
-                $substr = '<table class="infobox">'.$arr[1].'</td></tr></tbody></table>';
-                $html = str_ireplace($substr, '', $html);
-            }
+            $html = self::code_the_steps('<table class="infobox">', '</td></tr></tbody></table>', $html);
         }
         if($this->language_code == "nl") {
             /*
@@ -2477,29 +2485,11 @@ class WikiDataAPI
                 $html = str_ireplace($substr, '', $html);
             }
 
-            /* remove erroneous video play e.g. Gadus morhua
-            <div id="mwe_player_0"
-            </div>
-            */
-            if(preg_match("/<div id=\"mwe_player_0\"(.*?)<\/div>/ims", $html, $arr)) {
-                $substr = '<div id="mwe_player_0"'.$arr[1].'</div>';
-                $html = str_ireplace($substr, '', $html);
-            }
             /* remove weird auto inclusion */
             $tmp = '<img alt="" src="//upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Klippfiskproduksjon.jpg/260px-Klippfiskproduksjon.jpg" width="260" height="195" class="thumbimage" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Klippfiskproduksjon.jpg/390px-Klippfiskproduksjon.jpg 1.5x, //upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Klippfiskproduksjon.jpg/520px-Klippfiskproduksjon.jpg 2x" data-file-width="1024" data-file-height="768" />';
             $html = str_ireplace($tmp, "", $html);
         }
-        if($this->language_code == "sv") {
-            /* remove erroneous video play e.g. Polar bear
-            <div id="mwe_player_0"
-            </div>
-            */
-            if(preg_match("/<div id=\"mwe_player_0\"(.*?)<\/div>/ims", $html, $arr)) {
-                $substr = '<div id="mwe_player_0"'.$arr[1].'</div>';
-                $html = str_ireplace($substr, '', $html);
-            }
-        }
-        
+
         //used in ru - Russian
         if($this->language_code == "ru") {
             $option = array();
@@ -2625,13 +2615,29 @@ class WikiDataAPI
         /* additional sections to remove */ // e.g. Panthera leo 'nl'
         $html = self::code_the_steps('<div id="tpl_Woordenboek"', '</div>', $html);
         $html = self::code_the_steps('<div class="interProject wiktionary"', '</div>', $html);
+        
+        /* 'sv' 'de' Polar bear | nl Gadus morhua  -->> remove erroneous video play */
+        for($i = 0; $i <= 10; $i++) {
+            $html = self::code_the_steps('<div id="mwe_player_'.$i.'"', '</div>', $html, true);
+        }
+        
         return $html;
     }
-    private function code_the_steps($left, $right, $html)
+    private function code_the_steps($left, $right, $html, $multiple = false)
     {
-        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
-            $substr = $left.$arr[1].$right;
-            $html = str_ireplace($substr, '', $html);
+        if($multiple) {
+            if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                foreach($arr[1] as $str) {
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, '', $html);
+                }
+            }
+        }
+        else {
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                $substr = $left.$arr[1].$right;
+                $html = str_ireplace($substr, '', $html);
+            }
         }
         return $html;
     }
@@ -2708,16 +2714,23 @@ class WikiDataAPI
         $html = self::code_the_steps('<table class="navigatiesjabloon"', '</tbody></table>', $html);
         $html = self::code_the_steps('<div id="normdaten"', '</div>', $html);
         
-        /* sv Mus musculus
-        <table class="navbox"
-        </table></td></tr></tbody></table>
-        */
-        if(preg_match_all("/<table class=\"navbox\"(.*?)<\/table><\/td><\/tr><\/tbody><\/table>/ims", $html, $arr)) {
-            foreach($arr[1] as $str) {
-                $substr = '<table class="navbox"'.$str.'</table></td></tr></tbody></table>';
-                $html = str_ireplace($substr, '', $html);
-            }
+        /* sv Mus musculus */
+        $html = self::code_the_steps('<table class="navbox"', '</table></td></tr></tbody></table>', $html, true);
+        
+        /* for 'no' */
+        $html = self::code_the_steps('<table class="navbox hlist"', '</table></td></tr></tbody></table>', $html);
+
+        /* for 'ca' */
+        $html = self::code_the_steps('<div role="navigation" class="navbox"', '</tbody></table></div>', $html, true);
+        $html = self::code_the_steps('<div style="right:10px; display:none;" class="topicon">', '</div>', $html);
+        
+        /* for uk */
+        $html = self::code_the_steps('<table cellspacing="0" class="navbox"', '</table></td></tr></tbody></table>', $html);
+        if($this->language_code == "uk") {
+            $html = self::code_the_steps('<table align="center" border="0" cellpadding="0" cellspacing="4" class="metadata">', '</table>', $html);
+            $html = self::code_the_steps('<div id="catlinks" class="catlinks"', '</div></div>', $html);
         }
+        
         return $html;
     }
     private function remove_ctex_verion_spans($html)
@@ -2839,13 +2852,32 @@ class WikiDataAPI
             if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
         }
     }
+    private function get_class_names_from_UL_tags($html)
+    {   // e.g. from DATA-1800 "gallery mw-gallery-traditional", "gallery mw-gallery-packed"
+        $final = array();
+        if(preg_match_all("/<ul(.*?)>/ims", $html, $arr)) {
+            $tmp = array_unique($arr[1]);
+            $tmp = array_values($tmp); //reindex
+            foreach($tmp as $str) {
+                if(preg_match("/class=\"(.*?)\"/ims", $str, $arr)) $final[$arr[1]] = '';
+            }
+        }
+        return array_keys($final);
+    }
     private function additional_desc_format($desc)
-    {
+    {   //new: https://eol-jira.bibalex.org/browse/DATA-1800?focusedCommentId=63385&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63385
+        $classes2remain = self::get_class_names_from_UL_tags($desc);
+        print_r($classes2remain);
+        
         // remove class and style attributes in tags
         // e.g. class="infobox biota" 
         // e.g. style="text-align: left; width: 200px; font-size: 100%"
         if(preg_match_all("/class=\"(.*?)\"/ims", $desc, $arr)) {
-            foreach($arr[1] as $item) $desc = str_replace('class="'.$item.'"', "", $desc);
+            $tmp = array_unique($arr[1]);
+            $tmp = array_values($tmp); //reindex
+            foreach($tmp as $item) {
+                if(!in_array($item, $classes2remain)) $desc = str_replace('class="'.$item.'"', "", $desc);
+            }
         }
         if(preg_match_all("/style=\"(.*?)\"/ims", $desc, $arr)) {
             foreach($arr[1] as $item) $desc = str_replace('style="'.$item.'"', "", $desc);
