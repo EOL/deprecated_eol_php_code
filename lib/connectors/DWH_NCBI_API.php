@@ -10,9 +10,10 @@ NCBI_Taxonomy_Harvest_DH	Wednesday 2018-11-07 11:15:14 PM{"reference.tab":23590,
 
 class DWH_NCBI_API
 {
-    function __construct($folder)
+    function __construct($folder, $with_comnames = false)
     {
         $this->resource_id = $folder;
+        $this->with_comnames = $with_comnames;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -231,6 +232,11 @@ class DWH_NCBI_API
         $taxon->furtherInformationURL   = $rec['furtherInformationURL'];
         $taxon->referenceID             = $rec['referenceID'];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            
+            // /* IMPORTANT integrity check: https://eol-jira.bibalex.org/browse/TRAM-795?focusedCommentId=63387&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63387
+            if($taxon->taxonID == $taxon->parentNameUsageID) $taxon->parentNameUsageID = '';
+            // */
+            
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
@@ -613,25 +619,33 @@ class DWH_NCBI_API
             $taxon->furtherInformationURL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=".$rec['tax_id'];
             if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
+                
+                // /* IMPORTANT integrity check: https://eol-jira.bibalex.org/browse/TRAM-795?focusedCommentId=63387&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63387
+                if($taxon->taxonID == $taxon->parentNameUsageID) $taxon->parentNameUsageID = '';
+                // */
+                
                 $this->archive_builder->write_object_to_file($taxon);
                 $this->taxon_ids[$taxon->taxonID] = '';
             }
         }
-        /* temporarily removed comnames
-        if(in_array($rec['name_class'], array("common name", "genbank common name"))) {
-            if($common_name = trim(@$rec['name_txt'])) {
-                $v = new \eol_schema\VernacularName();
-                $v->taxonID = $rec["tax_id"];
-                $v->vernacularName = $common_name;
-                $v->language = "en";
-                $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
-                if(!isset($this->vernacular_ids[$vernacular_id])) {
-                    $this->vernacular_ids[$vernacular_id] = '';
-                    $this->archive_builder->write_object_to_file($v);
+
+        if($this->with_comnames) {
+            // /* temporarily removed comnames
+            if(in_array($rec['name_class'], array("common name", "genbank common name"))) {
+                if($common_name = trim(@$rec['name_txt'])) {
+                    $v = new \eol_schema\VernacularName();
+                    $v->taxonID = $rec["tax_id"];
+                    $v->vernacularName = $common_name;
+                    $v->language = "en";
+                    $vernacular_id = md5("$v->taxonID|$v->vernacularName|$v->language");
+                    if(!isset($this->vernacular_ids[$vernacular_id])) {
+                        $this->vernacular_ids[$vernacular_id] = '';
+                        $this->archive_builder->write_object_to_file($v);
+                    }
                 }
             }
+            // */
         }
-        */
     }
     private function format_tax_id($rec)
     {   /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
