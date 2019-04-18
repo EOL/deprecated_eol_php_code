@@ -195,7 +195,9 @@ class WikipediaRegionalAPI
                 if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
             }
         }
+        /* for future investigation. Initial finding is that the article is not worthy to publish
         exit("\nInvestigate WikipediaRegionalAPI [$lang]...\n");
+        */
     }
     function get_domain_name($url)
     {
@@ -345,6 +347,9 @@ class WikipediaRegionalAPI
     */
     private function create_archive($rec)
     {
+        if($rec['comprehensive_desc'] || $rec['brief_desc']) {}
+        else return; //if there are no objects, don't create the taxon as well. New Apr 17, 2019
+        
         $t = new \eol_schema\Taxon();
         $t->taxonID                 = md5($rec['permalink']);
         $t->scientificName          = $rec['sciname'];
