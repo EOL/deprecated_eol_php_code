@@ -2400,11 +2400,11 @@ class WikiDataAPI
     }
     private function get_other_info($rek)
     {
-        $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
+        $func_region = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
         if($title = $rek['sitelinks']->title) {
             // $title = "Dicorynia"; //debug
             $url = "https://" . $this->language_code . ".wikipedia.org/wiki/" . str_replace(" ", "_", $title);
-            $domain_name = $func->get_domain_name($url);
+            $domain_name = $func_region->get_domain_name($url);
 
             $options = $this->download_options;
             // if($rek['taxon_id'] == "Q5113") $options['expire_seconds'] = true; //debug only force
@@ -2416,19 +2416,19 @@ class WikiDataAPI
                 }
                 $rek['other'] = array();
                 $html = self::remove_infobox($html); //new DATA-1785
-                $html = $func->prepare_wiki_for_parsing($html, $domain_name);
+                $html = $func_region->prepare_wiki_for_parsing($html, $domain_name);
                 $rek['other']['title'] = $title;
 
-                $desc = $func->get_comprehensive_desc($html);
+                $desc = $func_region->get_comprehensive_desc($html);
                 $desc = self::remove_edit_sections($desc, $url); //new https://eol-jira.bibalex.org/browse/DATA-1785
                 $rek['other']['comprehensive_desc'] = self::additional_desc_format($desc);
                 
                 // $rek['other']['comprehensive_desc'] = "the quick brown fox jumps over the lazy dog...";  //debug
                 $rek['other']['brief_summary'] = self::create_brief_summary($rek['other']['comprehensive_desc']);
-                $rek['other']['permalink']        = $func->get_permalink($html);
-                $rek['other']['last_modified']    = $func->get_last_modified($html);
-                $rek['other']['phrase']           = $func->get_wikipedia_phrase($html);
-                $rek['other']['citation']         = $func->get_citation($rek['other']['title'], $rek['other']['permalink'], $rek['other']['last_modified'], $rek['other']['phrase']);
+                $rek['other']['permalink']        = $func_region->get_permalink($html);
+                $rek['other']['last_modified']    = $func_region->get_last_modified($html);
+                $rek['other']['phrase']           = $func_region->get_wikipedia_phrase($html);
+                $rek['other']['citation']         = $func_region->get_citation($rek['other']['title'], $rek['other']['permalink'], $rek['other']['last_modified'], $rek['other']['phrase']);
             }
         }
         return $rek;

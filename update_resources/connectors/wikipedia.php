@@ -246,7 +246,7 @@ wikipedia-zh	Tuesday 2018-11-20 07:47:50 AM	{"media_resource.tab":175752,"taxon.
 wikipedia-zh	Tuesday 2018-11-20 03:08:15 PM	{"media_resource.tab":175752,"taxon.tab":103141}
 wikipedia-zh	Friday 2018-12-21 11:58:59 PM	{"media_resource.tab":175948,"taxon.tab":103260} -- looking good :-)
 wikipedia-zh	Monday 2019-02-18 01:36:00 PM	{"media_resource.tab":176247,"taxon.tab":103406} -- consistent OK. Started the 6-connectors run.
-
+--------------------------------------------- START OF NEW BATCH ---------------------------------------------
 wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118}
 
 wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
