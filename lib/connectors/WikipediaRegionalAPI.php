@@ -55,6 +55,7 @@ class WikipediaRegionalAPI
     }
     private function get_taxa_with_taxobox()
     {
+        exit("\nThis is no longer being used. Replaced by wikipedia.php for sometime now1.\n");
         $eilimit = 500; //orig 500 debug
         $continue = false;
         $i = 0;
@@ -92,6 +93,7 @@ class WikipediaRegionalAPI
     }
     private function process_pages_with_taxobox($recs)
     {
+        exit("\nThis is no longer being used. Replaced by wikipedia.php for sometime now2.\n");
         $title = array();
         foreach($recs as $rec) {
             if($val = $rec->title) $titles[] = $val;
@@ -110,6 +112,7 @@ class WikipediaRegionalAPI
     }
     private function process_language_specific_pages($recs, $url)
     {
+        exit("\nThis is no longer being used. Replaced by wikipedia.php for sometime now3.\n");
         if(!@$recs->query) {
             echo "\n Number of records:"; print_r($recs);
             $options = $this->download_options;
@@ -297,7 +300,7 @@ class WikipediaRegionalAPI
             return $final;
         }
     }
-    function translate_source_target_lang($source_text, $source_lang, $target_lang)
+    function translate_source_target_lang($source_text, $source_lang, $target_lang) /* Still being used by wikipedia.php connector -> WikiDataAPI.php library */
     {
         // based from: https://ctrlq.org/code/19909-google-translate-api
         $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" . $source_lang . "&tl=" . $target_lang . "&dt=t&q=" . $source_text;

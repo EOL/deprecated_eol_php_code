@@ -5,6 +5,9 @@ namespace php_active_record;
 media_resource.tab  54605       55242   55280
 taxon.tab           27300       27618   27637
 */
+
+exit("\nThis is no longer being used. Replaced by wikipedia.php for sometime now.\n");
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikipediaRegionalAPI');
 $timestart = time_elapsed();
