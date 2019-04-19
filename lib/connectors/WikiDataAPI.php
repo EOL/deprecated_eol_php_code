@@ -355,7 +355,8 @@ class WikiDataAPI
         }
         //end =============================================================
         
-        unlink($this->TEMP_FILE_PATH);
+        if(unlink($this->TEMP_FILE_PATH)) echo "\nFile deleted OK [$this->TEMP_FILE_PATH]\n";
+        else                              echo "\nERROR: Failed to delete [$this->TEMP_FILE_PATH]\n";
         echo "\n----start debug array\n";
         // print_r($this->debug); //exit; No need to display this since it is written to file anyway below. I think...
         echo "\n----end debug array\n";
@@ -516,6 +517,8 @@ class WikiDataAPI
                 // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear - Ursus maritimus
                 // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //Angiosperms DATA-1803
                 // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
+                // $arr = self::get_object('Q729'); $arr = $arr->entities->Q729; //Animalia
+                // $arr = self::get_object('Q756'); $arr = $arr->entities->Q756; //Plantae
                 */
                 
                 /* print_r($arr->claims->P935); exit; */
@@ -2342,7 +2345,7 @@ class WikiDataAPI
             else                  $row .= "\t";
         }
         
-        /* good debug to write to HTML for testing
+        /* good debug to write to HTML for testing ***
         $file = DOC_ROOT."test.html";
         echo "\nfile: [$file]\n";
         $f = Functions::file_open($file, "w");
@@ -2408,7 +2411,7 @@ class WikiDataAPI
 
             if($html = Functions::lookup_with_cache($url, $options)) { //preferabley monthly expires
                 if(self::bot_inspired($html)) {
-                    echo("\nbot inspired: [$url]\n");
+                    // echo("\nbot inspired: [$url]\n");
                     return $rek;
                 }
                 $rek['other'] = array();
@@ -2430,9 +2433,41 @@ class WikiDataAPI
         }
         return $rek;
     }
+    private function code_the_steps_v2($left, $right, $right2, $html)
+    {
+        $orig = $html;
+        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            $substr = $left.$arr[1]; //.$right; //no right term here
+            $html = str_ireplace($substr, '', $html);
+            
+            if(stripos($html, "Special:CentralAutoLogin") !== false) {} //string is found
+            else { //try ending with '<p>'. Means using '<div class' erased most of the article already
+                if($right2) {
+                    $html = $orig;
+                    $left = '<table class="toccolours"';
+                    if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right2, '/')."/ims", $html, $arr)) {
+                        $substr = $left.$arr[1]; //.$right; //no right term here
+                        $html = str_ireplace($substr, '', $html);
+                    }
+                }
+            }
+        }
+        return $html;
+    }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == "tr") {
+            $left = '<table class="infobox biota"';
+            $right = '<p><b>';
+            $right2 = '<div class="thumb';
+            $html = self::code_the_steps_v2($left, $right, $right2, $html);
+        }
         if($this->language_code == "uk") {
+            $left = '<table class="toccolours"';
+            $right = '<div class';
+            $right2 = '<p>';
+            $html = self::code_the_steps_v2($left, $right, $right2, $html);
+            /* orig
             $orig = $html;
             $left = '<table class="toccolours"'; $right = '<div class';
             if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
@@ -2449,7 +2484,7 @@ class WikiDataAPI
                     }
                 }
             }
-
+            */
         }
         if($this->language_code == "no") {
             $html = self::code_the_steps('<table class="taksoboks"', '</tr></tbody></table>', $html);
@@ -2620,6 +2655,27 @@ class WikiDataAPI
         for($i = 0; $i <= 10; $i++) {
             $html = self::code_the_steps('<div id="mwe_player_'.$i.'"', '</div>', $html, true);
         }
+
+        /* cs Panthera leo */
+        $left = '<div class="navbox noprint"';
+        $right = '<div class';
+        $right = '<div class="catlinks"';
+        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            // exit("\n".count($arr[1])."\n");
+            foreach($arr[1] as $str) {
+                $substr = $left.$str; //.$right; //no right term here
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        
+
+        /* uk Animalia - these are the boxes after biblio */
+        $html = self::code_the_steps('<table cellspacing="0" class="navbox"', '</td></tr></tbody></table></td></tr></tbody></table>', $html);
+        
+        /* ro Polar bear - remove a warning message on top of the article */
+        $html = self::code_the_steps('<table class="metadata plainlinks ambox ambox ambox-content ambox-content"', '</table>', $html);
+        $html = self::code_the_steps('<table class="metadata plainlinks ambox ambox ambox-style ambox-style"', '</table>', $html);
+        
         
         return $html;
     }
@@ -2731,6 +2787,10 @@ class WikiDataAPI
             $html = self::code_the_steps('<div id="catlinks" class="catlinks"', '</div></div>', $html);
         }
         
+        /* for cs */
+        $html = self::code_the_steps('<div id="portallinks" class="catlinks"', '</div>', $html, true);
+        $html = self::code_the_steps('<div class="catlinks"', '</div>', $html, true);
+        
         return $html;
     }
     private function remove_ctex_verion_spans($html)
@@ -2774,7 +2834,7 @@ class WikiDataAPI
     {
         if(!$biblio_section) $biblio_section = self::bibliographic_section_per_language();
         if(preg_match_all("/<h2>(.*?)<\/h2>/ims", $html, $arr)) {
-            if($GLOBALS['ENV_DEBUG']) print_r($arr[1]);
+            // if($GLOBALS['ENV_DEBUG']) print_r($arr[1]);
             $i = -1;
             foreach($arr[1] as $tmp) {
                 $i++;

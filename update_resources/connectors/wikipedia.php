@@ -84,8 +84,11 @@ elseif($language == 'de') $resource_id = 957;
 else $resource_id = "wikipedia-".$language;
 
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
+/* Not yet with multiple connectors
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish
+*/
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
@@ -243,6 +246,14 @@ wikipedia-zh	Tuesday 2018-11-20 07:47:50 AM	{"media_resource.tab":175752,"taxon.
 wikipedia-zh	Tuesday 2018-11-20 03:08:15 PM	{"media_resource.tab":175752,"taxon.tab":103141}
 wikipedia-zh	Friday 2018-12-21 11:58:59 PM	{"media_resource.tab":175948,"taxon.tab":103260} -- looking good :-)
 wikipedia-zh	Monday 2019-02-18 01:36:00 PM	{"media_resource.tab":176247,"taxon.tab":103406} -- consistent OK. Started the 6-connectors run.
+
+wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118}
+
+wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
+
+wikipedia-pl	Thursday 2019-04-18 07:30:05 PM	{"media_resource.tab":92390,"taxon.tab":56112}
+
+
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
