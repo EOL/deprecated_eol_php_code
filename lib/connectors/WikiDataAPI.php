@@ -68,6 +68,7 @@ class WikiDataAPI
         if($this->what == "wikipedia") { //80 - wikipedia-en | 957 - wikipedia-de
             $lang_1st_batch = array('80','wikipedia-es','wikipedia-it','957','wikipedia-fr','wikipedia-zh','wikipedia-ru','wikipedia-pt','wikipedia-ja','wikipedia-ko','wikipedia-nl');
             if(!in_array($this->resource_id, $lang_1st_batch)) $this->download_options['resource_id'] = $this->resource_id;
+            if($this->language_code == "sv") $this->download_options['expire_seconds'] = 60*60*24*30*6; //6 months expiration
         }
         
         // $this->property['taxon name'] = "P225";
