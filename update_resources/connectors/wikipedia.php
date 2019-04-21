@@ -92,7 +92,7 @@ $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
 /* Not yet with multiple connectors
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
 
@@ -195,6 +195,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	            Tuesday 2018-11-20 12:22:44 PM	{"media_resource.tab":737413,"taxon.tab":388855} -- back to normal
 80	            Friday 2018-12-14 08:58:32 PM	{"media_resource.tab":738993,"taxon.tab":389728} -- looking good :-)
 80	            Wednesday 2019-02-13 12:06:37 AM{"media_resource.tab":744523,"taxon.tab":392598} -- Consistent OK
+80	            Sunday 2019-04-21 10:47:23 AM	{"media_resource.tab":747078,"taxon.tab":393995} -- consistent increase even after -> only taxon with object is included in DwCA
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
