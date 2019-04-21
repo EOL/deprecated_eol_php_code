@@ -83,6 +83,11 @@ if    ($language == 'en') $resource_id = 80;
 elseif($language == 'de') $resource_id = 957;
 else $resource_id = "wikipedia-".$language;
 
+/* test only
+delete_temp_files_and_others($language);
+exit("\nend test\n");
+*/
+
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
 /* Not yet with multiple connectors
@@ -99,6 +104,7 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
             Functions::finalize_dwca_resource($resource_id, true, true); //2nd param true means big file; 3rd param true means will delete working folder
+            delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else echo "\nCannot finalize dwca yet.\n";
     }
@@ -127,6 +133,28 @@ echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
+
+function delete_temp_files_and_others($language)
+{   /*
+    -rw-r--r-- 1 root      root       91798932 Apr 18 19:30 wikipedia-pl.tar.gz
+    -rw-r--r-- 1 root      root             15 Apr 18 19:29 wikipedia_generation_status_pl_2019_04.txt
+    -rw-r--r-- 1 root      root       47597921 Apr 18 18:28 wikipedia_pl_2019-04-18_09_22.tmp
+    -rw-r--r-- 1 root      root              0 Apr 18 17:42 wikipedia_pl_2019-04-18_17_17.tmp
+    -rw-r--r-- 1 root      root              0 Apr 18 15:26 wikipedia_pl_2019-04-18_15_31.tmp
+    -rw-r--r-- 1 root      root              0 Apr 18 15:13 wikipedia_pl_2019-04-18_15_06.tmp
+    -rw-r--r-- 1 root      root              0 Apr 18 14:59 wikipedia_pl_2019-04-18_14_11.tmp
+    -rw-r--r-- 1 root      root              0 Apr 18 14:56 wikipedia_pl_2019-04-18_14_07.tmp
+    */
+    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_generation_status_".$language."_*.txt";
+    $paths[] = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_".$language."_*.tmp";
+    foreach($paths as $path) {
+        foreach(glob($path) as $filename) {
+            echo "\n[$filename] [".filesize($filename)."] - ";
+            if(unlink($filename)) echo "deleted OK\n";
+            else                  echo "deletion failed\n";
+        }
+    }
+}
 
 /* http://opendata.eol.org/dataset/wikipedia_5k
 Data and Resources
