@@ -356,8 +356,7 @@ class WikiDataAPI
         }
         //end =============================================================
         
-        if(unlink($this->TEMP_FILE_PATH)) echo "\nFile deleted OK [$this->TEMP_FILE_PATH]\n";
-        else                              echo "\nERROR: Failed to delete [$this->TEMP_FILE_PATH]\n";
+        self::delete_TEMP_FILE_PATH();
         echo "\n----start debug array\n";
         // print_r($this->debug); //exit; No need to display this since it is written to file anyway below. I think...
         echo "\n----end debug array\n";
@@ -378,6 +377,11 @@ class WikiDataAPI
         
         // if(($this->what == "wikimedia") || ($this->what == "wikipedia" && $this->language_code == "en")) return array(true, true);
         return array(true, true); //all that reaches this point will return true true
+    }
+    private function delete_TEMP_FILE_PATH()
+    {
+        if(unlink($this->TEMP_FILE_PATH)) echo "\nFile deleted OK [$this->TEMP_FILE_PATH]\n";
+        else                              echo "\nERROR: Failed to delete [$this->TEMP_FILE_PATH]\n";
     }
     private function initialize_files()
     {   /* orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
