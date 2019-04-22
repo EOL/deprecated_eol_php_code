@@ -17,7 +17,8 @@ class DWH_ITIS_API
         $this->for_mapping = array();
         
         $this->download_options = array( //Note: Database download files are currently from the 25-Feb-2019 data load.
-            'expire_seconds'     => false, //expires false since we're not going to run periodically. And data dump uses specific date e.g. 25-Feb-2019
+            'expire_seconds'     => 60*60*24*10, //10 days for now since we're going to use latest March 31, 2019 dump
+            //expires false since we're not going to run periodically. And data dump uses specific date e.g. 25-Feb-2019
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->api['itis_taxon'] = 'https://www.itis.gov/ITISWebService/services/ITISService/getFullRecordFromTSN?tsn=';
 
@@ -326,10 +327,16 @@ class DWH_ITIS_API
         $taxon->taxonID                     = $rec['taxonID'];
         $taxon->scientificName              = $rec['scientificName'];
         $taxon->scientificNameAuthorship    = $rec['scientificNameAuthorship'];     //from look-ups
+        
+        //new - sciname now has authorship TRAM-806
+        $taxon->scientificName              = trim($rec['scientificName']." ".$rec['scientificNameAuthorship']);
+        
         $taxon->canonicalName               = $rec['canonicalName'];                //from look-ups
         $taxon->parentNameUsageID           = $rec['parentNameUsageID'];
         $taxon->taxonRank                   = $rec['taxonRank'];                    //from look-ups
+        /* asked to be removed TRAM-806
         $taxon->kingdom                     = $rec['kingdom'];                      //from look-ups
+        */
         $taxon->taxonomicStatus             = $rec['taxonomicStatus'];
         $taxon->acceptedNameUsageID         = $rec['acceptedNameUsageID'];
         $taxon->furtherInformationURL       = $rec['furtherInformationURL'];
@@ -413,7 +420,10 @@ class DWH_ITIS_API
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "ReadmeMySql.txt", array('timeout' => 172800, 'expire_seconds' => false)); //won't expire anymore
+        echo "\nDownload, then extract DwCA...\n";
+        $options = $this->download_options;
+        $options['timeout'] = 172800;
+        $paths = $func->extract_archive_file($this->dwca_file, "ReadmeMySql.txt", $options); //need to expire everytime a new dump is used.
         return $paths;
     }
     private function build_language_info($params = false)
