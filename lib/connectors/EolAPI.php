@@ -12,10 +12,12 @@ class EolAPI
     function __construct($folder = null, $query = null)
     {
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
+        // /* for historical EOL v2
         $this->download_options = array(
             'resource_id'        => 'eol_api',  //resource_id here is just a folder name in cache
             'expire_seconds'     => false,      //always false since EOL V2 won't change anymore
             'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
+        // */
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
@@ -511,6 +513,7 @@ class EolAPI
                 //==================
                 
                 if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
+                // $taxon_concept_id = 46559686; //force - debug only
                 self::api_using_tc_id($taxon_concept_id);
                 // if($i >= 5) break; //debug
             }
@@ -523,7 +526,7 @@ class EolAPI
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
             $objects = $arr['dataObjects'];
-            echo " - " . count($objects);
+            echo "\nobjects count = " . count($objects)."\n";
             return; //debug
             foreach($objects as $o) {
                 echo "\n" . $o['dataObjectVersionID'];
