@@ -125,7 +125,7 @@ class EolAPI
         //---------------------------------------------------------------------------------------------------------------------------------------------
         // /*
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
-        else                           $path = "/Volumes/AKiTiO4/z backup/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
+        else                           $path = "/Volumes/Thunderbolt4/z backup of AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
         self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
         // */
         //---------------------------------------------------------------------------------------------------------------------------------------------
@@ -498,9 +498,8 @@ class EolAPI
             }
             $i++;
 
-            // if(stripos($sciname, " ") !== false) //only species-level taxa
-            if(true) //all taxa
-            {
+            if(stripos($sciname, " ") !== false) { //only species-level taxa - if required this way
+            // if(true) { //all taxa - orig
                 //==================
                 /*
                 $m = 75000;
@@ -513,13 +512,12 @@ class EolAPI
                 
                 if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
                 self::api_using_tc_id($taxon_concept_id);
-                
+                // if($i >= 5) break; //debug
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
         if($listOnly) return $list;
     }
-    
     private function api_using_tc_id($taxon_concept_id)
     {
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
