@@ -12,7 +12,7 @@ class Eol_v3_API
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
-            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
+            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
@@ -35,13 +35,13 @@ class Eol_v3_API
     }
     function start()
     {
-        /* normal operation
+        // /* normal operation
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/Thunderbolt4/z backup of AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
         self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
-        */
+        // */
         
-        // /* tests
+        /* tests
         $scinames = array();                                        //make use of manual taxon list
         // $scinames["baby Isaiah"] = 919224; //919224;
         // $scinames["baby Isaiah"] = 37663;
@@ -49,7 +49,7 @@ class Eol_v3_API
         // $scinames["Gadus morhua"] = 46564415; //206692;
         // $scinames["Gadus morhua"] = 206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
-        // */
+        */
     }
     private function process_all_eol_taxa($path, $listOnly = false)
     {
@@ -97,6 +97,7 @@ class Eol_v3_API
             $objects = @$arr['dataObjects'];
             // echo "\nobjects count = " . count($objects)."\n";
             return; //debug
+            /* not needed for now
             foreach($objects as $o) {
                 echo "\n" . $o['dataObjectVersionID'];
                 if($o['dataType'] == "http://purl.org/dc/dcmitype/Text" && strlen($o['description']) >= 199) //cache if desc is long since in tsv descs are substring of 200 chars only
@@ -106,6 +107,7 @@ class Eol_v3_API
                     // print_r($objects);
                 }
             }
+            */
         }
     }
     private function compute_totals($arr, $taxon_concept_id)
@@ -139,9 +141,8 @@ class Eol_v3_API
         $totals['unique_languages_of_vernaculars'] = self::get_unique_languages_of_vernaculars($arr['taxonConcept']['vernacularNames']);
         // */
         $totals['traits'] = self::get_trait_totals($taxon_concept_id);
-        if($GLOBALS['ENV_DEBUG']) print_r($totals); //exit;
+        if($GLOBALS['ENV_DEBUG']) print_r($totals);
         // print_r($totals);
-        exit;
     }
     private function get_trait_totals($tc_id)
     {
