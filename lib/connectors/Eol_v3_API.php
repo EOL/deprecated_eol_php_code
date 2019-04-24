@@ -17,6 +17,7 @@ class Eol_v3_API
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
         $this->main_path = $this->download_options['cache_path'].$this->download_options['resource_id']."/";
+        if(!is_dir($this->main_path)) mkdir($this->main_path);
         
         $this->api['Pages'] = "http://eol.org/api/pages/1.0.json?batch=false&images_per_page=75&images_page=1&videos_per_page=75&videos_page=1&sounds_per_page=75&sounds_page=1&maps_per_page=75&maps_page=1&texts_per_page=75&texts_page=1&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&taxonomy=true&vetted=0&cache_ttl=&language=en&id=";
         $this->api['Pages2'][0] = 'https://eol.org/api/pages/1.0/';
@@ -34,20 +35,21 @@ class Eol_v3_API
     }
     function start()
     {
-        // /* normal operation
+        /* normal operation
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/Thunderbolt4/z backup of AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
         self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
-        // */
+        */
         
-        /* tests
+        // /* tests
         $scinames = array();                                        //make use of manual taxon list
         // $scinames["baby Isaiah"] = 919224; //919224;
-        $scinames["baby Isaiah"] = 37663;
-        // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
+        // $scinames["baby Isaiah"] = 37663;
+        $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
         // $scinames["Gadus morhua"] = 46564415; //206692;
+        // $scinames["Gadus morhua"] = 206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
-        */
+        // */
     }
     private function process_all_eol_taxa($path, $listOnly = false)
     {
@@ -136,28 +138,61 @@ class Eol_v3_API
         }
         $totals['unique_languages_of_vernaculars'] = self::get_unique_languages_of_vernaculars($arr['taxonConcept']['vernacularNames']);
         // */
-        // $ret = self::get_trait_totals($taxon_concept_id);
+        $totals['traits'] = self::get_trait_totals($taxon_concept_id);
         if($GLOBALS['ENV_DEBUG']) print_r($totals); //exit;
         // print_r($totals);
+        exit;
     }
     private function get_trait_totals($tc_id)
     {
         $arr = self::retrieve_trait_totals($tc_id);
+        return $arr;
     }
     private function retrieve_trait_totals($tc_id)
     {
         $filename = self::generate_path_filename($tc_id);
-        if(file_exists($filename)) {}
+        if(file_exists($filename)) {
+            if($GLOBALS['ENV_DEBUG']) echo "\nCache already exists.\n";
+            $arr = self::retrieve_json($filename);
+            return $arr;
+        }
         else {
-            self::run_cypher_query($tc_id);
+            if($GLOBALS['ENV_DEBUG']) echo "\nRun cypher query...\n";
+            self::run_cypher_query($tc_id, $filename);
+            $arr = self::retrieve_json($filename);
+            return $arr;
         }
     }
-    private function run_cypher_query($tc_id)
+    private function retrieve_json($filename)
     {
-        $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term)
-        WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(pred.name) LIMIT 5";
-        // file_open
-        
+        $json = file_get_contents($filename);
+        return json_decode($json, true);
+    }
+    private function run_cypher_query($tc_id, $filename)
+    {
+        $saved = array();
+        /* total traits */
+        $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term) WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(pred.name) LIMIT 5";
+        $saved['total traits'] = self::run_query($qry);
+        /* total measurementTypes */
+        $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term) WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(DISTINCT pred.name) LIMIT 5";
+        $saved['total mtypes'] = self::run_query($qry);
+        // print_r($saved); exit;
+        $WRITE = Functions::file_open($filename, "w");
+        fwrite($WRITE, json_encode($saved)); fclose($WRITE);
+        if($GLOBALS['ENV_DEBUG']) echo "\nSaved OK\n";
+    }
+    private function run_query($qry)
+    {
+        $WRITE = Functions::file_open(DOC_ROOT."/temp/cypher.in", "w");
+        fwrite($WRITE, $qry); fclose($WRITE);
+        $destination = DOC_ROOT.'temp/cypher.out.json';
+        $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`cat '.DOC_ROOT.'temp/cypher.in`"';
+        $cmd .= ' 2>/dev/null'; //this will throw away the output
+        $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
+        $json = file_get_contents($destination);
+        $obj = json_decode($json);
+        return @$obj->data[0][0];
     }
     private function generate_path_filename($tc_id)
     {
@@ -165,7 +200,10 @@ class Eol_v3_API
         $md5 = md5($tc_id);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
+        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
         $filename = $main_path . "$cache1/$cache2/$tc_id.json";
+        return $filename;
     }
     private function get_unique_languages_of_vernaculars($comnames)
     {
