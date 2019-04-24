@@ -269,7 +269,7 @@ class Eol_v3_API
                     foreach($objects as $o) {
                         // print_r($o); exit;
                         if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') {
-                            $subjects[$o['subject'][0]] = '';
+                            $subjects[@$o['subject'][0]] = '';
                             $languages[@$o['language']] = '';
                         }
                     }
