@@ -244,6 +244,7 @@ wikipedia-ko	Friday 2018-11-16 01:45:28 AM	{"media_resource.tab":28204,"taxon.ta
 wikipedia-ko	Monday 2018-11-19 10:28:56 AM	{"media_resource.tab":28204,"taxon.tab":19078}
 wikipedia-ko	Wednesday 2018-12-19 01:40:27 AM{"media_resource.tab":28249,"taxon.tab":19117} -- looking good :-)
 wikipedia-ko	Sunday 2019-02-17 08:14:59 AM	{"media_resource.tab":28498,"taxon.tab":19246} -- Consistent OK
+wikipedia-ko	Wednesday 2019-04-24 08:10:41 AM{"media_resource.tab":29273,"taxon.tab":19794} -- consistent increase even after -> only taxon with object is included in DwCA
 
 wikipedia-ja	Friday 2017-11-10 08:35:41 AM	{"media_resource.tab":26208,"taxon.tab":20431}
 wikipedia-ja	Saturday 2017-12-02 10:53:40 PM	{"media_resource.tab":26264,"taxon.tab":20475}
@@ -253,6 +254,7 @@ wikipedia-ja	Saturday 2018-11-17 08:39:01 AM	{"media_resource.tab":27790,"taxon.
 wikipedia-ja	Monday 2018-11-19 10:43:18 AM	{"media_resource.tab":27787,"taxon.tab":21652}
 wikipedia-ja	Wednesday 2018-12-19 01:33:58 AM{"media_resource.tab":27841,"taxon.tab":21694} -- looking good :-)
 wikipedia-ja	Sunday 2019-02-17 07:03:28 AM	{"media_resource.tab":27966,"taxon.tab":21789} -- Consistent OK
+wikipedia-ja	Wednesday 2019-04-24 07:39:22 AM{"media_resource.tab":28101,"taxon.tab":21901} -- consistent increase even after -> only taxon with object is included in DwCA
 
 wikipedia-ru	Sunday 2017-11-12 12:03:09 PM	{"media_resource.tab":77531,"taxon.tab":47336}
 wikipedia-ru	Saturday 2017-12-02 11:31:53 PM	{"media_resource.tab":77649,"taxon.tab":47398}
