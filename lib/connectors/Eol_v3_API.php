@@ -153,14 +153,21 @@ class Eol_v3_API
         $filename = self::generate_path_filename($tc_id);
         if(file_exists($filename)) {
             if($GLOBALS['ENV_DEBUG']) echo "\nCache already exists.\n";
-            $arr = self::retrieve_json($filename);
-            return $arr;
+            
+            // $this->download_options['expire_seconds'] = 60; //debug only - force assign --- test success
+            
+            $file_age_in_seconds = time() - filemtime($filename);
+            if($file_age_in_seconds < $this->download_options['expire_seconds']) return self::retrieve_json($filename); //not yet expired
+            if($this->download_options['expire_seconds'] === false)              return self::retrieve_json($filename); //doesn't expire
+            
+            if($GLOBALS['ENV_DEBUG']) echo "\nCache expired. Will run cypher now...\n";
+            self::run_cypher_query($tc_id, $filename);
+            return self::retrieve_json($filename);
         }
         else {
             if($GLOBALS['ENV_DEBUG']) echo "\nRun cypher query...\n";
             self::run_cypher_query($tc_id, $filename);
-            $arr = self::retrieve_json($filename);
-            return $arr;
+            return self::retrieve_json($filename);
         }
     }
     private function retrieve_json($filename)
