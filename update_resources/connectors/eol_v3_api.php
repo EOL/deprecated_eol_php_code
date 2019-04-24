@@ -3,6 +3,7 @@ namespace php_active_record;
 /* used for /lib/Eol_v3_API.php */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+$GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false
 
 require_library('connectors/Eol_v3_API');
 
@@ -10,7 +11,7 @@ $resource_id = 'eol';
 // /* normal operation ============================================
 $func = new Eol_v3_API($resource_id);
 $func->start(); //normal operation
-finalize_archive($resource_id, true);
+// finalize_archive($resource_id, true);
 // ================================================================*/
 
 /* post DWC-A analysis =========================================

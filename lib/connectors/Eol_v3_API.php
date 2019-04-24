@@ -12,11 +12,12 @@ class Eol_v3_API
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
-            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 0, 'delay_in_minutes' => 0.5);
+            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
-
+        $this->main_path = $this->download_options['cache_path'].$this->download_options['resource_id']."/";
+        
         $this->api['Pages'] = "http://eol.org/api/pages/1.0.json?batch=false&images_per_page=75&images_page=1&videos_per_page=75&videos_page=1&sounds_per_page=75&sounds_page=1&maps_per_page=75&maps_page=1&texts_per_page=75&texts_page=1&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&taxonomy=true&vetted=0&cache_ttl=&language=en&id=";
         $this->api['Pages2'][0] = 'https://eol.org/api/pages/1.0/';
         $this->api['Pages2'][1] = '.json?details=true&xxx_per_page=75&xxx_page=';
@@ -33,24 +34,26 @@ class Eol_v3_API
     }
     function start()
     {
-        /* normal operation
+        // /* normal operation
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/Thunderbolt4/z backup of AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
         self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
-        */
-        
-        // /* tests
-        $scinames = array();                                        //make use of manual taxon list
-        $scinames["baby Isaiah"] = 919224; //919224;
-        // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
-        $scinames["Gadus morhua"] = 46564415; //206692;
-        foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         // */
+        
+        /* tests
+        $scinames = array();                                        //make use of manual taxon list
+        // $scinames["baby Isaiah"] = 919224; //919224;
+        $scinames["baby Isaiah"] = 37663;
+        // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
+        // $scinames["Gadus morhua"] = 46564415; //206692;
+        foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
+        */
     }
     private function process_all_eol_taxa($path, $listOnly = false)
     {
         if($listOnly) $list = array();
         $i = 0;
+        $found = 0; //for debug only
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $line = explode("\t", $line);
             $taxon_concept_id = $line[0];
@@ -72,11 +75,13 @@ class Eol_v3_API
                 if(!$cont) continue;
                 */
                 //==================
+                $found++;
+                // if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
+                if(($found % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
                 
-                if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
                 // $taxon_concept_id = 46559686; //force - debug only
                 self::api_using_tc_id($taxon_concept_id);
-                // if($i >= 5) break; //debug
+                // if($found >= 10) break; //debug
             }
             // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
         }//end loop
@@ -87,8 +92,8 @@ class Eol_v3_API
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
             $stats = self::compute_totals($arr, $taxon_concept_id);
-            $objects = $arr['dataObjects'];
-            echo "\nobjects count = " . count($objects)."\n";
+            $objects = @$arr['dataObjects'];
+            // echo "\nobjects count = " . count($objects)."\n";
             return; //debug
             foreach($objects as $o) {
                 echo "\n" . $o['dataObjectVersionID'];
@@ -122,19 +127,52 @@ class Eol_v3_API
         H*- number of languages represented among the common names
         */
         // print_r($arr); exit;
-        $totals['media_counts'] = self::get_media_counts($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
-        $ret = self::get_unique_subjects_and_languages_from_articles($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
-        $totals['unique_subjects_of_articles'] = $ret['subjects'];
-        $totals['unique_languages_of_articles'] = $ret['languages'];
+        // /*
+        if($objects = @$arr['taxonConcept']['dataObjects']) {
+            $totals['media_counts'] = self::get_media_counts($objects, $taxon_concept_id);
+            $ret = self::get_unique_subjects_and_languages_from_articles($objects, $taxon_concept_id);
+            $totals['unique_subjects_of_articles'] = $ret['subjects'];
+            $totals['unique_languages_of_articles'] = $ret['languages'];
+        }
         $totals['unique_languages_of_vernaculars'] = self::get_unique_languages_of_vernaculars($arr['taxonConcept']['vernacularNames']);
-        print_r($totals); exit;
+        // */
+        // $ret = self::get_trait_totals($taxon_concept_id);
+        if($GLOBALS['ENV_DEBUG']) print_r($totals); //exit;
+        // print_r($totals);
+    }
+    private function get_trait_totals($tc_id)
+    {
+        $arr = self::retrieve_trait_totals($tc_id);
+    }
+    private function retrieve_trait_totals($tc_id)
+    {
+        $filename = self::generate_path_filename($tc_id);
+        if(file_exists($filename)) {}
+        else {
+            self::run_cypher_query($tc_id);
+        }
+    }
+    private function run_cypher_query($tc_id)
+    {
+        $qry = "MATCH (t:Trait)<-[:trait]-(p:Page), (t)-[:supplier]->(r:Resource), (t)-[:predicate]->(pred:Term)
+        WHERE p.page_id = ".$tc_id." OPTIONAL MATCH (t)-[:units_term]->(units:Term) RETURN COUNT(pred.name) LIMIT 5";
+        // file_open
+        
+    }
+    private function generate_path_filename($tc_id)
+    {
+        $main_path = $this->main_path;
+        $md5 = md5($tc_id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        $filename = $main_path . "$cache1/$cache2/$tc_id.json";
     }
     private function get_unique_languages_of_vernaculars($comnames)
     {
         $final = array();
         foreach($comnames as $comname) $final[$comname['language']] = '';
         $final = array_keys($final);
-        print_r($final); //exit; //good debug
+        if($GLOBALS['ENV_DEBUG']) print_r($final); //exit; //good debug
         return count($final);
     }
     private function get_unique_subjects_and_languages_from_articles($objects, $taxon_concept_id)
@@ -158,7 +196,7 @@ class Eol_v3_API
         if(@$final['MovingImage'] == 75) $final['MovingImage'] = self::count_all_media_of_type('MovingImage', $taxon_concept_id);
         if(@$final['Sound'] == 75) $final['Sound'] = self::count_all_media_of_type('Sound', $taxon_concept_id);
         if(@$final['Text'] == 75) $final['Text'] = self::count_all_media_of_type('Text', $taxon_concept_id);
-        print_r($final); //exit;
+        if($GLOBALS['ENV_DEBUG']) print_r($final); //exit;
         return $final;
     }
     private function count_all_media_of_type($type, $taxon_concept_id, $purpose = false)
@@ -193,14 +231,16 @@ class Eol_v3_API
                 // ---------------------------------------------------------------------------------------------------
                 $count = count($objects);
                 $sum = $sum + $count;
-                echo "\n$count -- $sum\n";
+                if($GLOBALS['ENV_DEBUG']) echo "\n$count -- $sum\n";
             }
             else $count = 0;
             $ctr++;
         }
         if($purpose == 'unique_subj_and_lang') {
-            print_r(array_keys($subjects)); //good debug
-            print_r(array_keys($languages)); //good debug
+            if($GLOBALS['ENV_DEBUG']) {
+                print_r(array_keys($subjects)); //good debug
+                print_r(array_keys($languages)); //good debug
+            }
             return array('subjects' => count(array_keys($subjects)), 'languages' => count(array_keys($languages)));
         }
         else return $sum;
