@@ -18,6 +18,9 @@ class Eol_v3_API
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
 
         $this->api['Pages'] = "http://eol.org/api/pages/1.0.json?batch=false&images_per_page=75&images_page=1&videos_per_page=75&videos_page=1&sounds_per_page=75&sounds_page=1&maps_per_page=75&maps_page=1&texts_per_page=75&texts_page=1&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&taxonomy=true&vetted=0&cache_ttl=&language=en&id=";
+        $this->api['Pages2'][0] = 'https://eol.org/api/pages/1.0/';
+        $this->api['Pages2'][1] = '.json?details=true&xxx_per_page=75&xxx_page=';
+
         $this->api['DataObjects'][0] = "http://eol.org/api/data_objects/1.0/";
         $this->api['DataObjects'][1] = ".json?taxonomy=true&cache_ttl=";
         // e.g. http://eol.org/api/data_objects/1.0/19173106.json?taxonomy=true&cache_ttl=
@@ -83,7 +86,7 @@ class Eol_v3_API
     {
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
-            $stats = self::compute_totals($arr);
+            $stats = self::compute_totals($arr, $taxon_concept_id);
             $objects = $arr['dataObjects'];
             echo "\nobjects count = " . count($objects)."\n";
             return; //debug
@@ -98,11 +101,8 @@ class Eol_v3_API
             }
         }
     }
-    private function compute_totals($arr)
-    {
-        // print_r($arr); exit;
-        // print_r(array_keys($arr['taxonConcept'])); exit;
-        /*Array(
+    private function compute_totals($arr, $taxon_concept_id)
+    {   /*Array(
             [0] => identifier
             [1] => scientificName
             [2] => richness_score
@@ -112,7 +112,6 @@ class Eol_v3_API
             [6] => taxonConcepts
             [7] => dataObjects
             [8] => licenses
-        )
         A- number of non-map media
         B- number of articles
         C- number of different Subjects represented by the articles
@@ -122,28 +121,53 @@ class Eol_v3_API
         G- number of maps, including GBIF
         H- number of languages represented among the common names
         */
-        $totals['non-map media'] = self::get_non_map_media_count($arr['taxonConcept']['dataObjects']);
+        // print_r($arr); exit;
+        $totals['non-map media'] = self::get_media_counts($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
         // print_r($totals); exit;
     }
-    private function get_non_map_media_count($objects)
+    private function get_media_counts($objects, $taxon_concept_id)
     {
         foreach($objects as $o) {
             // print_r($o); //exit;
             // [dataType] => http://purl.org/dc/dcmitype/Text
             // [dataType] => http://purl.org/dc/dcmitype/StillImage
-            
-            
-            
-            
-            
-            
             if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') @$final['Text']++;
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') @$final['StillImage']++;
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/MovingImage') @$final['MovingImage']++;
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/Sound') @$final['Sound']++;
             else exit("\nInvestigate no dataType\n");
         }
+        if(@$final['StillImage'] == 75) $final['StillImage'] = self::count_all_media_of_type('StillImage', $taxon_concept_id);
+        if(@$final['MovingImage'] == 75) $final['MovingImage'] = self::count_all_media_of_type('MovingImage', $taxon_concept_id);
+        if(@$final['Sound'] == 75) $final['Sound'] = self::count_all_media_of_type('Sound', $taxon_concept_id);
+        if(@$final['Text'] == 75) $final['Text'] = self::count_all_media_of_type('Text', $taxon_concept_id);
         print_r($final); exit;
+    }
+    private function count_all_media_of_type($type, $taxon_concept_id)
+    {
+        if($type == 'StillImage')       $xxx = 'images';
+        elseif($type == 'MovingImage')  $xxx = 'videos';
+        elseif($type == 'Sound')        $xxx = 'sounds';
+        elseif($type == 'Text')         $xxx = 'texts';
+        else exit("\nInvestigate dataType\n");
+        $url = $this->api['Pages2'][0].$taxon_concept_id.$this->api['Pages2'][1];
+        // 'https://eol.org/api/pages/1.0/';
+        // '.json?details=true&images_per_page=75&images_page=';
+        $url = str_replace("xxx", $xxx, $url);
+        $ctr = 1; $count = 75; $sum = 0;
+        while($count == 75) {
+            $arr = self::make_an_api_call($url.$ctr);
+            $count = count($arr['taxonConcept']['dataObjects']);
+            $sum = $sum + $count;
+            echo "\n$count -- $sum\n";
+            $ctr++;
+        }
+        return $sum;
+    }
+    private function make_an_api_call($url)
+    {
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) return json_decode($json, true);
+        return false;
     }
     private function get_objects($data_object_id)
     {
