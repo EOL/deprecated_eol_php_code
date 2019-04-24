@@ -41,9 +41,9 @@ class Eol_v3_API
         
         // /* tests
         $scinames = array();                                        //make use of manual taxon list
-        $scinames["baby Isaiah"] = 206692; //919224;
+        $scinames["baby Isaiah"] = 919224; //919224;
         // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
-        // $scinames["Gadus morhua"] = 46564415; //206692;
+        $scinames["Gadus morhua"] = 46564415; //206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         // */
     }
@@ -113,17 +113,17 @@ class Eol_v3_API
             [7] => dataObjects
             [8] => licenses
         A- number of non-map media
-        B- number of articles
-        C- number of different Subjects represented by the articles
-        D- number of languages represented by the articles
+        B*- number of articles
+        C*- number of different Subjects represented by the articles
+        D*- number of languages represented by the articles
         E- number of trait records
         F- number of measurementTypes represented by the trait records
         G- number of maps, including GBIF
-        H- number of languages represented among the common names
+        H*- number of languages represented among the common names
         */
         // print_r($arr); exit;
         $totals['media_counts'] = self::get_media_counts($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
-        $ret = self::get_unique_subjects_of_articles($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
+        $ret = self::get_unique_subjects_and_languages_from_articles($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
         $totals['unique_subjects_of_articles'] = $ret['subjects'];
         $totals['unique_languages_of_articles'] = $ret['languages'];
         $totals['unique_languages_of_vernaculars'] = self::get_unique_languages_of_vernaculars($arr['taxonConcept']['vernacularNames']);
@@ -131,17 +131,15 @@ class Eol_v3_API
     }
     private function get_unique_languages_of_vernaculars($comnames)
     {
-        foreach($comnames as $comname) {
-            // print_r($comname); exit;
-            $final[$comname['language']] = '';
-        }
+        $final = array();
+        foreach($comnames as $comname) $final[$comname['language']] = '';
         $final = array_keys($final);
-        // print_r($final); //exit; //good debug
+        print_r($final); //exit; //good debug
         return count($final);
     }
-    private function get_unique_subjects_of_articles($objects, $taxon_concept_id)
+    private function get_unique_subjects_and_languages_from_articles($objects, $taxon_concept_id)
     {
-        $ret = self::count_all_media_of_type('Text', $taxon_concept_id, 'unique_subjects');
+        $ret = self::count_all_media_of_type('Text', $taxon_concept_id, 'unique_subj_and_lang');
         return $ret;
     }
     private function get_media_counts($objects, $taxon_concept_id)
@@ -165,7 +163,7 @@ class Eol_v3_API
     }
     private function count_all_media_of_type($type, $taxon_concept_id, $purpose = false)
     {
-        if($purpose == 'unique_subjects') {
+        if($purpose == 'unique_subj_and_lang') {
             $subjects = array();
             $languages = array();
         }
@@ -183,7 +181,7 @@ class Eol_v3_API
             $arr = self::make_an_api_call($url.$ctr);
             if($objects = @$arr['taxonConcept']['dataObjects']) {
                 // ---------------------------------------------------------------------------------------------------
-                if($purpose == 'unique_subjects') {
+                if($purpose == 'unique_subj_and_lang') {
                     foreach($objects as $o) {
                         // print_r($o); exit;
                         if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') {
@@ -200,7 +198,7 @@ class Eol_v3_API
             else $count = 0;
             $ctr++;
         }
-        if($purpose == 'unique_subjects') {
+        if($purpose == 'unique_subj_and_lang') {
             print_r(array_keys($subjects)); //good debug
             print_r(array_keys($languages)); //good debug
             return array('subjects' => count(array_keys($subjects)), 'languages' => count(array_keys($languages)));
