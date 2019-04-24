@@ -11,7 +11,7 @@ class Eol_v3_API
         /* add: 'resource_id' => "eol_api_v3" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
-            'expire_seconds'     => false,         //maybe 1 month to expire
+            'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
             'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
@@ -41,9 +41,9 @@ class Eol_v3_API
         
         // /* tests
         $scinames = array();                                        //make use of manual taxon list
-        // $scinames["baby Isaiah"] = 1;
-        // $scinames["Chanos chanos"] = 224731;
-        $scinames["Gadus morhua"] = 46564415; //206692;
+        // $scinames["baby Isaiah"] = 919224;
+        $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
+        // $scinames["Gadus morhua"] = 46564415; //206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         // */
     }
@@ -122,8 +122,16 @@ class Eol_v3_API
         H- number of languages represented among the common names
         */
         // print_r($arr); exit;
-        $totals['non-map media'] = self::get_media_counts($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
-        // print_r($totals); exit;
+        $totals['media_counts'] = self::get_media_counts($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
+        $ret = self::get_unique_subjects_of_articles($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
+        $totals['unique_subjects_of_articles'] = $ret['subjects'];
+        $totals['unique_languages_of_articles'] = $ret['languages'];
+        print_r($totals); exit;
+    }
+    private function get_unique_subjects_of_articles($objects, $taxon_concept_id)
+    {
+        $ret = self::count_all_media_of_type('Text', $taxon_concept_id, 'unique_subjects');
+        return $ret;
     }
     private function get_media_counts($objects, $taxon_concept_id)
     {
@@ -141,9 +149,10 @@ class Eol_v3_API
         if(@$final['MovingImage'] == 75) $final['MovingImage'] = self::count_all_media_of_type('MovingImage', $taxon_concept_id);
         if(@$final['Sound'] == 75) $final['Sound'] = self::count_all_media_of_type('Sound', $taxon_concept_id);
         if(@$final['Text'] == 75) $final['Text'] = self::count_all_media_of_type('Text', $taxon_concept_id);
-        print_r($final); exit;
+        print_r($final); //exit;
+        return $final;
     }
-    private function count_all_media_of_type($type, $taxon_concept_id)
+    private function count_all_media_of_type($type, $taxon_concept_id, $purpose = false)
     {
         if($type == 'StillImage')       $xxx = 'images';
         elseif($type == 'MovingImage')  $xxx = 'videos';
@@ -157,12 +166,29 @@ class Eol_v3_API
         $ctr = 1; $count = 75; $sum = 0;
         while($count == 75) {
             $arr = self::make_an_api_call($url.$ctr);
-            $count = count($arr['taxonConcept']['dataObjects']);
+            $objects = $arr['taxonConcept']['dataObjects'];
+            // ---------------------------------------------------------------------------------------------------
+            if($purpose == 'unique_subjects') {
+                foreach($objects as $o) {
+                    // print_r($o); exit;
+                    if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') {
+                        $subjects[$o['subject'][0]] = '';
+                        $languages[$o['language']] = '';
+                    }
+                }
+            }
+            // ---------------------------------------------------------------------------------------------------
+            $count = count($objects);
             $sum = $sum + $count;
             echo "\n$count -- $sum\n";
             $ctr++;
         }
-        return $sum;
+        if($purpose == 'unique_subjects') {
+            print_r(array_keys($subjects)); //good debug
+            print_r(array_keys($languages)); //good debug
+            return array('subjects' => count(array_keys($subjects)), 'languages' => count(array_keys($languages)));
+        }
+        else return $sum;
     }
     private function make_an_api_call($url)
     {
