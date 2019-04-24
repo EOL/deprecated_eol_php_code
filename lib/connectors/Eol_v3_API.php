@@ -152,7 +152,7 @@ class Eol_v3_API
     {
         $filename = self::generate_path_filename($tc_id);
         if(file_exists($filename)) {
-            if($GLOBALS['ENV_DEBUG']) echo "\nCache already exists.\n";
+            if($GLOBALS['ENV_DEBUG']) echo "\nCache already exists. [$filename]\n";
             
             // $this->download_options['expire_seconds'] = 60; //debug only - force assign --- test success
             
