@@ -29,17 +29,19 @@ class Eol_v3_API
     }
     function start()
     {
+        /* normal operation
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/Thunderbolt4/z backup of AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
         self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
+        */
         
-        /*
+        // /* tests
         $scinames = array();                                        //make use of manual taxon list
-        $scinames["baby Isaiah"] = 1;
-        // $scinames["Chanos chanos"] = 224731;
+        // $scinames["baby Isaiah"] = 1;
+        $scinames["Chanos chanos"] = 224731;
         // $scinames["Gadus morhua"] = 206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
-        */
+        // */
     }
     private function process_all_eol_taxa($path, $listOnly = false)
     {
@@ -81,7 +83,7 @@ class Eol_v3_API
     {
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
-            // print_r($arr); exit;
+            $stats = self::compute_totals($arr);
             $objects = $arr['dataObjects'];
             echo "\nobjects count = " . count($objects)."\n";
             return; //debug
@@ -95,6 +97,11 @@ class Eol_v3_API
                 }
             }
         }
+    }
+    private function compute_totals($arr)
+    {
+        print_r($arr); exit;
+        
     }
     private function get_objects($data_object_id)
     {
