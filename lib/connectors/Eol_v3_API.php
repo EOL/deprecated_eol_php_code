@@ -12,7 +12,7 @@ class Eol_v3_API
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
-            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
+            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 0, 'delay_in_minutes' => 0.5);
 
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
@@ -41,8 +41,8 @@ class Eol_v3_API
         
         // /* tests
         $scinames = array();                                        //make use of manual taxon list
-        // $scinames["baby Isaiah"] = 919224;
-        $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
+        $scinames["baby Isaiah"] = 206692; //919224;
+        // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
         // $scinames["Gadus morhua"] = 46564415; //206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         // */
@@ -126,7 +126,18 @@ class Eol_v3_API
         $ret = self::get_unique_subjects_of_articles($arr['taxonConcept']['dataObjects'], $taxon_concept_id);
         $totals['unique_subjects_of_articles'] = $ret['subjects'];
         $totals['unique_languages_of_articles'] = $ret['languages'];
+        $totals['unique_languages_of_vernaculars'] = self::get_unique_languages_of_vernaculars($arr['taxonConcept']['vernacularNames']);
         print_r($totals); exit;
+    }
+    private function get_unique_languages_of_vernaculars($comnames)
+    {
+        foreach($comnames as $comname) {
+            // print_r($comname); exit;
+            $final[$comname['language']] = '';
+        }
+        $final = array_keys($final);
+        // print_r($final); //exit; //good debug
+        return count($final);
     }
     private function get_unique_subjects_of_articles($objects, $taxon_concept_id)
     {
@@ -154,6 +165,10 @@ class Eol_v3_API
     }
     private function count_all_media_of_type($type, $taxon_concept_id, $purpose = false)
     {
+        if($purpose == 'unique_subjects') {
+            $subjects = array();
+            $languages = array();
+        }
         if($type == 'StillImage')       $xxx = 'images';
         elseif($type == 'MovingImage')  $xxx = 'videos';
         elseif($type == 'Sound')        $xxx = 'sounds';
@@ -166,21 +181,23 @@ class Eol_v3_API
         $ctr = 1; $count = 75; $sum = 0;
         while($count == 75) {
             $arr = self::make_an_api_call($url.$ctr);
-            $objects = $arr['taxonConcept']['dataObjects'];
-            // ---------------------------------------------------------------------------------------------------
-            if($purpose == 'unique_subjects') {
-                foreach($objects as $o) {
-                    // print_r($o); exit;
-                    if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') {
-                        $subjects[$o['subject'][0]] = '';
-                        $languages[$o['language']] = '';
+            if($objects = @$arr['taxonConcept']['dataObjects']) {
+                // ---------------------------------------------------------------------------------------------------
+                if($purpose == 'unique_subjects') {
+                    foreach($objects as $o) {
+                        // print_r($o); exit;
+                        if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') {
+                            $subjects[$o['subject'][0]] = '';
+                            $languages[@$o['language']] = '';
+                        }
                     }
                 }
+                // ---------------------------------------------------------------------------------------------------
+                $count = count($objects);
+                $sum = $sum + $count;
+                echo "\n$count -- $sum\n";
             }
-            // ---------------------------------------------------------------------------------------------------
-            $count = count($objects);
-            $sum = $sum + $count;
-            echo "\n$count -- $sum\n";
+            else $count = 0;
             $ctr++;
         }
         if($purpose == 'unique_subjects') {
