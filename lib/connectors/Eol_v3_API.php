@@ -21,6 +21,7 @@ class Eol_v3_API
         $this->api['DataObjects'][0] = "http://eol.org/api/data_objects/1.0/";
         $this->api['DataObjects'][1] = ".json?taxonomy=true&cache_ttl=";
         // e.g. http://eol.org/api/data_objects/1.0/19173106.json?taxonomy=true&cache_ttl=
+        //      http://eol.org/api/data_objects/1.0/EOL-media-509-2828226.json?taxonomy=true&cache_ttl=
         // max of 7 simultaneous api calls, still works OK
         
         // for creating archives
@@ -38,8 +39,8 @@ class Eol_v3_API
         // /* tests
         $scinames = array();                                        //make use of manual taxon list
         // $scinames["baby Isaiah"] = 1;
-        $scinames["Chanos chanos"] = 224731;
-        // $scinames["Gadus morhua"] = 206692;
+        // $scinames["Chanos chanos"] = 224731;
+        $scinames["Gadus morhua"] = 46564415; //206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         // */
     }
@@ -57,7 +58,6 @@ class Eol_v3_API
                 continue;
             }
             $i++;
-
             if(stripos($sciname, " ") !== false) { //only species-level taxa - if required this way
             // if(true) { //all taxa - orig
                 //==================
@@ -100,8 +100,50 @@ class Eol_v3_API
     }
     private function compute_totals($arr)
     {
-        print_r($arr); exit;
-        
+        // print_r($arr); exit;
+        // print_r(array_keys($arr['taxonConcept'])); exit;
+        /*Array(
+            [0] => identifier
+            [1] => scientificName
+            [2] => richness_score
+            [3] => synonyms
+            [4] => vernacularNames
+            [5] => references
+            [6] => taxonConcepts
+            [7] => dataObjects
+            [8] => licenses
+        )
+        A- number of non-map media
+        B- number of articles
+        C- number of different Subjects represented by the articles
+        D- number of languages represented by the articles
+        E- number of trait records
+        F- number of measurementTypes represented by the trait records
+        G- number of maps, including GBIF
+        H- number of languages represented among the common names
+        */
+        $totals['non-map media'] = self::get_non_map_media_count($arr['taxonConcept']['dataObjects']);
+        // print_r($totals); exit;
+    }
+    private function get_non_map_media_count($objects)
+    {
+        foreach($objects as $o) {
+            // print_r($o); //exit;
+            // [dataType] => http://purl.org/dc/dcmitype/Text
+            // [dataType] => http://purl.org/dc/dcmitype/StillImage
+            
+            
+            
+            
+            
+            
+            if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') @$final['Text']++;
+            elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') @$final['StillImage']++;
+            elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/MovingImage') @$final['MovingImage']++;
+            elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/Sound') @$final['Sound']++;
+            else exit("\nInvestigate no dataType\n");
+        }
+        print_r($final); exit;
     }
     private function get_objects($data_object_id)
     {
