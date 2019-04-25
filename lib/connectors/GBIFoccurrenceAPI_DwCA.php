@@ -55,7 +55,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['taxa_csv_path']     = "/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/";
             $this->save_path['multimedia_gbifID'] = "/extra/other_files/GBIF_occurrence/multimedia_gbifID/";
             $this->save_path['map_data']          = "/extra/map_data_dwca/";
-            $this->eol_taxon_concept_names_tab    = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
+            // $this->eol_taxon_concept_names_tab    = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab"; obsolete
+            $this->eol_taxon_concept_names_tab    = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
             
             $this->occurrence_txt_path['Animalia']     = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
             $this->occurrence_txt_path['Plantae']      = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
@@ -65,7 +66,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['taxa_csv_path']     = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/GBIF_taxa_csv_dwca/";
             $this->save_path['multimedia_gbifID'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/multimedia_gbifID/";
             $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";
-            $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/JRice_tc_ids/taxon_concept_names.tab";
+            // $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/JRice_tc_ids/taxon_concept_names.tab"; obsolete
+            $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
 
             $this->occurrence_txt_path['Gadus morhua'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
             $this->occurrence_txt_path['Lates niloticus'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Lates niloticus/occurrence.txt";
@@ -150,8 +152,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         for ($x = 1; $x <= $total; $x=$x+$batch) $final[] = array($x, $x+$batch);
         return $final;
     }
-    function start()
+    function start() //this start() function will not be used in eol-archive Jenkins run
     {
+        // /* tests
+        self::process_all_eol_taxa_using_DH(false, true); return;
+        exit("\nend test\n");
+        // */
+        
         /* tests
         $datasetKey = "0e7bd6f7-7fc6-4150-a531-2209f7156a91";
         $datasetKey = "492d63a8-4978-4bc7-acd8-7d0e3ac0e744";
@@ -186,7 +193,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             self::save_ids_to_text_from_many_folders();
         
         //---------------------------------------------------------------------------------------------------------------------------------------------
-        /*
+        /* obsolete since the JRice text file is very old, old tc_ids
         self::process_all_eol_taxa(false, false); return;   //make use of tab-delimited text file from JRice
         */
         //---------------------------------------------------------------------------------------------------------------------------------------------
@@ -361,7 +368,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         if($sciname && $tc_id) $eol_taxon_id_list[$sciname] = $tc_id;
         else {
-            $eol_taxon_id_list = self::process_all_eol_taxa(false, true); //listOnly = true
+            $eol_taxon_id_list = self::process_all_eol_taxa_using_DH(false, true); //listOnly = true
             echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
         }
         
@@ -629,6 +636,52 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     //==========================
     // end GBIF methods
     //==========================
+    private function process_all_eol_taxa_using_DH($path = false, $listOnly = false) //total rows = 2,724,672 | rows where EOLid is not blank = 2,237,550
+    {
+        if(!$path) $path = $this->eol_taxon_concept_names_tab;
+        if($listOnly) $list = array();
+        $i = 0;
+        foreach(new FileIterator($path) as $line => $row) {
+            $i++;
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                $rec = explode("\t", $row);
+                $k = -1; $rek = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rek[$field] = $rec[$k];
+                }
+                if($rek['EOLid']) {
+                    // $debug[$rek['EOLid']] = ''; //debug just for counting
+                    print_r($rek); //exit;
+                    
+                    $taxon_concept_id = $rek['EOLid'];
+                    $sciname = false;
+                    if($val = $rek['canonicalName']) $sciname = $val;
+                    else                             $sciname = Functions::canonical_form($rek['scientificName']);
+                    if(!$sciname) continue;
+                    
+                    if($listOnly) {
+                        if($taxon_concept_id) $list[$sciname] = $taxon_concept_id;
+                        continue;
+                    }
+                    /* never went here bec. listonly is true ever since
+                    if($taxon_concept_id == 1) continue;
+                    // if($rek['taxonRank'] == 'species') { //only species-level taxa
+                    if(true) { //all taxa
+                        echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
+                        self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                        if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
+                        else                                          echo " - usageKey not found!";
+                        exit("\n--stopx--\n"); //doesn't go here if it is $listOnly boolean true
+                    }
+                    */
+                }
+            }
+        }
+        // exit("\n".count($debug)."\n"); //debug just for counting
+        if($listOnly) return $list;
+    }
     private function process_all_eol_taxa($path = false, $listOnly = false)
     {
         if(!$path) $path = $this->eol_taxon_concept_names_tab;
