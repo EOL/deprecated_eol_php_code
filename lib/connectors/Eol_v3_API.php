@@ -59,7 +59,7 @@ class Eol_v3_API
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         */
     }
-    private function process_all_eol_taxa_using_DH($path) //rows = 1,906,685
+    private function process_all_eol_taxa_using_DH($path) //rows = 1,906,685 -> rank 'species' and with EOLid
     {
         $i = 0; $found = 0;
         foreach(new FileIterator($path) as $line => $row) {
