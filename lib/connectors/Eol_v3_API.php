@@ -51,10 +51,10 @@ class Eol_v3_API
         
         /* tests
         $scinames = array();                                        //make use of manual taxon list
-        // $scinames["baby Isaiah"] = 526227; //919224;
+        $scinames["baby Isaiah"] = 526227; //919224;
         // $scinames["baby Isaiah"] = 37663;
         // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
-        $scinames["Gadus morhua"] = 46564415; //206692;
+        // $scinames["Gadus morhua"] = 46564415; //206692;
         // $scinames["Gadus morhua"] = 206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         */
@@ -97,44 +97,6 @@ class Eol_v3_API
         }
         // exit("\n".count($debug)."\n");
         exit;
-    }
-    private function process_all_eol_taxa($path, $listOnly = false)
-    {
-        if($listOnly) $list = array();
-        $i = 0;
-        $found = 0; //for debug only
-        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $line = explode("\t", $line);
-            $taxon_concept_id = $line[0];
-            if(!$line[1]) continue;
-            $sciname = Functions::canonical_form($line[1]);
-            if($listOnly) {
-                $list[$sciname] = $taxon_concept_id;
-                continue;
-            }
-            $i++;
-            if(stripos($sciname, " ") !== false) { //only species-level taxa - if required this way
-            // if(true) { //all taxa - orig
-                //==================
-                /*
-                $m = 75000;
-                $cont = false;
-                // if($i >=  1    && $i < $m)    $cont = true; done
-                // if($i >=  $m   && $i < $m*2)  $cont = true; done
-                if(!$cont) continue;
-                */
-                //==================
-                $found++;
-                // if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
-                if(($found % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
-                
-                // $taxon_concept_id = 46559686; //force - debug only
-                self::api_using_tc_id($taxon_concept_id);
-                // if($found >= 10) break; //debug
-            }
-            // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
-        }//end loop
-        if($listOnly) return $list;
     }
     private function api_using_tc_id($taxon_concept_id)
     {
@@ -245,7 +207,7 @@ class Eol_v3_API
         fwrite($WRITE, $qry); fclose($WRITE);
         $destination = DOC_ROOT."temp/".$this->basename.".out.json";
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`cat '.$in_file.'`"';
-        // $cmd .= ' 2>/dev/null'; //this will throw away the output
+        $cmd .= ' 2>/dev/null'; //this will throw away the output
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         $json = file_get_contents($destination);
         $obj = json_decode($json);
@@ -369,5 +331,43 @@ class Eol_v3_API
     {
         self::api_using_tc_id($taxon_concept_id);
     }
+    /* not used anymore
+    private function process_all_eol_taxa($path, $listOnly = false)
+    {
+        if($listOnly) $list = array();
+        $i = 0;
+        $found = 0; //for debug only
+        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $line = explode("\t", $line);
+            $taxon_concept_id = $line[0];
+            if(!$line[1]) continue;
+            $sciname = Functions::canonical_form($line[1]);
+            if($listOnly) {
+                $list[$sciname] = $taxon_concept_id;
+                continue;
+            }
+            $i++;
+            if(stripos($sciname, " ") !== false) { //only species-level taxa - if required this way
+            // if(true) { //all taxa - orig
+                //==================
+                $m = 75000;
+                $cont = false;
+                // if($i >=  1    && $i < $m)    $cont = true; done
+                // if($i >=  $m   && $i < $m*2)  $cont = true; done
+                if(!$cont) continue;
+                //==================
+                $found++;
+                // if(($i % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
+                if(($found % 100) == 0) echo "\n".number_format($i).". [$sciname][tc_id = $taxon_concept_id]";
+                
+                // $taxon_concept_id = 46559686; //force - debug only
+                self::api_using_tc_id($taxon_concept_id);
+                // if($found >= 10) break; //debug
+            }
+            // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
+        }//end loop
+        if($listOnly) return $list;
+    }
+    */
 }
 ?>
