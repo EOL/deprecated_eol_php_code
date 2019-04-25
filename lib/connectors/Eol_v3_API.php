@@ -46,8 +46,8 @@ class Eol_v3_API
         // /* normal operation NEW
         if(Functions::is_production()) $path = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
         else                           $path = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
-        self::process_all_eol_taxa_using_DH($path); return;                    //make use of Katja's EOL DH with EOL Page IDs -- good choice
-        // */
+        self::process_all_eol_taxa_using_DH($path); return; //make use of Katja's EOL DH with EOL Page IDs -- good choice
+        // */                                               //https://opendata.eol.org/dataset/tram-580-581/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6                            
         
         /* tests
         $scinames = array();                                        //make use of manual taxon list
