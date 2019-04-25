@@ -91,7 +91,7 @@ class Eol_v3_API
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
                     self::api_using_tc_id($taxon_concept_id);
-                    if(($found % 10000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
+                    if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
                 }
             }
         }
