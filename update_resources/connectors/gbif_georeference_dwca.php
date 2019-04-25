@@ -45,6 +45,7 @@ php gbif_georeference_dwca.php jenkins '{"group":"Plantae","divisor":6}'        
 php gbif_georeference_dwca.php jenkins '{"group":"Other7Groups","divisor":6}'       //~25 million - Took 5 hr 10 min (when API calls are not yet cached)
 */
 
+// /* Jenkins run: use this block
 $func = new GBIFoccurrenceAPI_DwCA();
 
 // print_r($argv);
@@ -67,7 +68,7 @@ if($task = @$arr['task']) {
     if($task == "generate_map_data_using_GBIF_csv_files") {
         if    (($sciname = @$arr['sciname'])       && ($tc_id = @$arr['tc_id']))       $func->generate_map_data_using_GBIF_csv_files($sciname, $tc_id);
         elseif($divisor = @$arr['divisor']) {
-            $batches = $func->get_range_batches(false, $divisor, 519012); //2nd param is divisor; 3rd is total tc_ids from JRice.
+            $batches = $func->get_range_batches(false, $divisor, 2237550); //2nd param is divisor; 3rd is total tc_ids from DH file.
             print_r($batches);
             //start create temp group indicator files
             for ($x = 1; $x <= $divisor; $x++) {
@@ -83,6 +84,7 @@ if($task = @$arr['task']) {
     elseif($task == "breakdown_multimedia_to_gbifID_files") $func->breakdown_multimedia_to_gbifID_files();
     elseif($task == "save_ids_to_text_from_many_folders")   $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
 }
+// */
 
 /* Original. Use this if you want run one instance of the connector. Very long to finish.
 $func = new GBIFoccurrenceAPI_DwCA();
