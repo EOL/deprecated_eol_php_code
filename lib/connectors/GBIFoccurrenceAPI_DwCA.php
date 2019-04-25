@@ -36,7 +36,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
         $this->download_options = array(
-            'expire_seconds'     => 60*60*24*30*3, //3 months to expire
+            'expire_seconds'     => false, //60*60*24*30*3, //ideally 3 months to expire
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //debug | true -- expires now
 
