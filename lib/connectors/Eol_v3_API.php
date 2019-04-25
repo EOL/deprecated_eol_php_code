@@ -32,24 +32,71 @@ class Eol_v3_API
         // for creating archives
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        
+        $this->basename = "cypher_".date('YmdHis');
     }
     function start()
     {
-        // /* normal operation
+        /* normal operation OLD
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/Thunderbolt4/z backup of AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
         self::process_all_eol_taxa($path); return;                    //make use of tab-delimited text file from JRice
+        */
+        
+        // /* normal operation NEW
+        if(Functions::is_production()) $path = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
+        else                           $path = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
+        self::process_all_eol_taxa_using_DH($path); return;                    //make use of Katja's EOL DH with EOL Page IDs -- good choice
         // */
         
         /* tests
         $scinames = array();                                        //make use of manual taxon list
-        // $scinames["baby Isaiah"] = 919224; //919224;
+        // $scinames["baby Isaiah"] = 526227; //919224;
         // $scinames["baby Isaiah"] = 37663;
-        $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
-        // $scinames["Gadus morhua"] = 46564415; //206692;
+        // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
+        $scinames["Gadus morhua"] = 46564415; //206692;
         // $scinames["Gadus morhua"] = 206692;
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         */
+    }
+    private function process_all_eol_taxa_using_DH($path) //rows = 1,906,685
+    {
+        $i = 0; $found = 0;
+        foreach(new FileIterator($path) as $line => $row) {
+            $i++;
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                $rec = explode("\t", $row);
+                $k = -1; $rek = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rek[$field] = $rec[$k];
+                }
+                if($rek['taxonRank'] == 'species' && $rek['EOLid']) {
+                    // $debug[$rek['EOLid']] = '';
+                    // print_r($rek); exit;
+                    $found++;
+                    //==================
+                    // /*
+                    $m = 317780;
+                    $cont = false;
+                    if($found >=  1    && $found < $m)    $cont = true;
+                    // if($found >=  $m   && $found < $m*2)  $cont = true;
+                    // if($found >=  $m*2 && $found < $m*3)  $cont = true;
+                    // if($found >=  $m*3 && $found < $m*4)  $cont = true;
+                    // if($found >=  $m*4 && $found < $m*5)  $cont = true;
+                    // if($found >=  $m*5 && $found < $m*6)  $cont = true;
+                    if(!$cont) continue;
+                    // */
+                    //==================
+                    $taxon_concept_id = $rek['EOLid'];
+                    self::api_using_tc_id($taxon_concept_id);
+                    if(($found % 10000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
+                }
+            }
+        }
+        // exit("\n".count($debug)."\n");
+        exit;
     }
     private function process_all_eol_taxa($path, $listOnly = false)
     {
@@ -129,6 +176,7 @@ class Eol_v3_API
         F- number of measurementTypes represented by the trait records
         G- number of maps, including GBIF
         H*- number of languages represented among the common names
+        R=(A/20 with a max of 1)(C/8 with a max of 1)(D/10 with a max of 1)(G/2 with a max of 1)(H/10 with a max of 1)+5*(F/12 with a max of 1)
         */
         // print_r($arr); exit;
         // /*
@@ -192,11 +240,12 @@ class Eol_v3_API
     }
     private function run_query($qry)
     {
-        $WRITE = Functions::file_open(DOC_ROOT."/temp/cypher.in", "w");
+        $in_file = DOC_ROOT."/temp/".$this->basename.".in";
+        $WRITE = Functions::file_open($in_file, "w");
         fwrite($WRITE, $qry); fclose($WRITE);
-        $destination = DOC_ROOT.'temp/cypher.out.json';
-        $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`cat '.DOC_ROOT.'temp/cypher.in`"';
-        $cmd .= ' 2>/dev/null'; //this will throw away the output
+        $destination = DOC_ROOT."temp/".$this->basename.".out.json";
+        $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`cat '.$in_file.'`"';
+        // $cmd .= ' 2>/dev/null'; //this will throw away the output
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         $json = file_get_contents($destination);
         $obj = json_decode($json);
@@ -262,6 +311,7 @@ class Eol_v3_API
         $url = str_replace("xxx", $xxx, $url);
         $ctr = 1; $count = 75; $sum = 0;
         while($count == 75) {
+            if(!$purpose && $sum >= 300) break; //means just counting no. of media objects; then we can put a limit
             $arr = self::make_an_api_call($url.$ctr);
             if($objects = @$arr['taxonConcept']['dataObjects']) {
                 // ---------------------------------------------------------------------------------------------------
@@ -274,10 +324,12 @@ class Eol_v3_API
                         }
                     }
                 }
+                else { //means just counting no. of media objects; then we can put a limit
+                }
                 // ---------------------------------------------------------------------------------------------------
                 $count = count($objects);
                 $sum = $sum + $count;
-                if($GLOBALS['ENV_DEBUG']) echo "\n$count -- $sum\n";
+                if($GLOBALS['ENV_DEBUG']) echo "\n$count -- $sum [$purpose]\n";
             }
             else $count = 0;
             $ctr++;

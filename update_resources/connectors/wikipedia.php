@@ -264,6 +264,7 @@ wikipedia-ru	Saturday 2018-11-17 03:13:13 AM	{"media_resource.tab":81804,"taxon.
 wikipedia-ru	Monday 2018-11-19 11:20:03 AM	{"media_resource.tab":81804,"taxon.tab":49707}
 wikipedia-ru	Thursday 2018-12-20 04:02:22 AM	{"media_resource.tab":82064,"taxon.tab":49847} -- looking good :-)
 wikipedia-ru	Monday 2019-02-18 09:29:31 AM	{"media_resource.tab":82814,"taxon.tab":50255} -- consistent OK.
+wikipedia-ru	Wednesday 2019-04-24 06:38:49 PM{"media_resource.tab":83696,"taxon.tab":50801} -- consistent increase even after -> only taxon with object is included in DwCA
 
 wikipedia-pt	Sunday 2017-12-03 01:34:21 AM	{"media_resource.tab":192390,"taxon.tab":108840}
 wikipedia-pt	Friday 2018-05-04 01:26:59 PM	{"media_resource.tab":192384,"taxon.tab":108838}
@@ -271,6 +272,7 @@ wikipedia-pt	Monday 2018-11-19 12:44:50 PM	{"media_resource.tab":156778,"taxon.t
 wikipedia-pt	Tuesday 2018-11-20 05:17:44 AM	{"media_resource.tab":197927,"taxon.tab":111719} -- back to normal
 wikipedia-pt	Saturday 2018-12-22 11:51:14 AM	{"media_resource.tab":198183,"taxon.tab":111889} -- looking good :-)
 wikipedia-pt	Sunday 2019-02-17 06:16:01 PM	{"media_resource.tab":198441,"taxon.tab":112063} -- consistent OK. Started the 6-connectors run.
+wikipedia-pt	Wednesday 2019-04-24 01:28:22 PM{"media_resource.tab":200018,"taxon.tab":112900} -- consistent increase even after -> only taxon with object is included in DwCA
 
 wikipedia-zh	Tuesday 2017-11-14 03:41:12 PM	{"media_resource.tab":156137,"taxon.tab":91145}
 wikipedia-zh	Sunday 2017-12-03 12:33:20 AM	{"media_resource.tab":156585,"taxon.tab":91396}
