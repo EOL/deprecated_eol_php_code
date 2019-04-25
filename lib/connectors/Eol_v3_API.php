@@ -77,7 +77,7 @@ class Eol_v3_API
                     // print_r($rek); exit;
                     $found++;
                     //==================
-                    // /*
+                    // /* right now this is manully being batched in Jenkins. I edit the code here, save, upload to eol-archive then run on Jenkins. Each of the 6 connectors are done that way.
                     $m = 317780;
                     $cont = false;
                     // if($found >=  1    && $found < $m)    $cont = true;
