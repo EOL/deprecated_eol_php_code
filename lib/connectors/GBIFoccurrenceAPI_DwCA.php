@@ -653,7 +653,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 }
                 if($rek['EOLid']) {
                     // $debug[$rek['EOLid']] = ''; //debug just for counting
-                    print_r($rek); //exit;
+                    // print_r($rek); //exit;
                     
                     $taxon_concept_id = $rek['EOLid'];
                     $sciname = false;
