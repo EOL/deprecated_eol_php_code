@@ -135,7 +135,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // */
         }
     }
-    private function total_occurrence_rows_per_group($group, $divisor)
+    private function total_occurrence_rows_per_group($group)
     {
         /* source: https://stackoverflow.com/questions/3137094/how-to-count-lines-in-a-document */
         $total = shell_exec("wc -l < ".escapeshellarg($this->occurrence_txt_path[$group]));
@@ -146,7 +146,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function get_range_batches($group, $divisor, $total = false)
     {
-        if(!$total) $total = self::total_occurrence_rows_per_group($group, $divisor);
+        if(!$total) $total = self::total_occurrence_rows_per_group($group);
         $batch = $total/$divisor;
         $batch = ceil($batch);
         for ($x = 1; $x <= $total; $x=$x+$batch) $final[] = array($x, $x+$batch);
