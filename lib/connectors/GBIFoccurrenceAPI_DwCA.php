@@ -118,7 +118,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             
             // echo "\n$cmd\n";
             
-            // /* works well locally but bit problematic in eol-archive, will abandon for a while
+            // /* works well locally but bit problematic in eol-archive, will abandon for a while. Works OK now, as of Apr 25, 2019.
             $cmd .= " 2>&1";
             $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
             $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
@@ -131,7 +131,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
 
             // break; //debug only -- just run 1 batch
             echo "\nCACHE_PATH 03 is ".CACHE_PATH."\n";
-            sleep(20); //this is important so Jenkins will detect that the first job is already taken and will use the next available job.
+            sleep(20); //this is important so Jenkins will detect that the first job is already taken and will use the next available job. Effective works OK
             // */
         }
     }
