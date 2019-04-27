@@ -8,6 +8,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 echo "\nCACHE_PATH xx 01 is ".CACHE_PATH."\n"; //exit;
 
 require_library('connectors/GBIFoccurrenceAPI_DwCA');
+ini_set('memory_limit','15096M'); //15096M
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
