@@ -86,10 +86,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
         require_once(DOC_ROOT."../FreshData/controllers/other.php");
         require_once(DOC_ROOT."../FreshData/controllers/freshdata.php");
-        ini_set('memory_limit','15096M'); //15096M
         echo "\nCACHE_PATH 02 is ".CACHE_PATH."\n";
 
         $ctrler = new \freshdata_controller(array());
+        ini_set('memory_limit','15096M'); //15096M
         $postfix = "_map_data";
 
         /* was never used here
