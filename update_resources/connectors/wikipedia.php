@@ -296,6 +296,8 @@ Not yet with multiple connectors: "no", "fi", "ca", "uk", "tr", "ro", "cs"
 wikipedia-cs	Saturday 2019-04-27 06:30:40 AM	{"media_resource.tab":23413,"taxon.tab":17991}
 wikipedia-tr	Saturday 2019-04-27 07:39:05 AM	{"media_resource.tab":11114,"taxon.tab":9113}
 wikipedia-fi	Saturday 2019-04-27 09:26:44 AM	{"media_resource.tab":39542,"taxon.tab":26545}
+wikipedia-no	Saturday 2019-04-27 02:04:01 PM	{"media_resource.tab":61203,"taxon.tab":37024}
+wikipedia-ro	Saturday 2019-04-27 02:09:48 PM	{"media_resource.tab":60752,"taxon.tab":34846}
 
 */
 /*
