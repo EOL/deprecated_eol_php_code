@@ -285,12 +285,17 @@ wikipedia-zh	Friday 2018-12-21 11:58:59 PM	{"media_resource.tab":175948,"taxon.t
 wikipedia-zh	Monday 2019-02-18 01:36:00 PM	{"media_resource.tab":176247,"taxon.tab":103406} -- consistent OK. Started the 6-connectors run.
 wikipedia-zh	Wednesday 2019-04-24 10:03:31 PM{"media_resource.tab":177332,"taxon.tab":103989} -- consistent increase even after -> only taxon with object is included in DwCA
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
-wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118}
+wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118} - asked by Jen to ignore for now.
 
+langs_with_multiple_connectors: "nl", "pl", "sv", "vi"
 wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
-
 wikipedia-pl	Thursday 2019-04-18 07:30:05 PM	{"media_resource.tab":92390,"taxon.tab":56112}
-
+wikipedia-vi	Saturday 2019-04-27 01:40:44 AM	{"media_resource.tab":1582933,"taxon.tab":826812}
+ 
+Not yet with multiple connectors: "no", "fi", "ca", "uk", "tr", "ro", "cs"
+wikipedia-cs	Saturday 2019-04-27 06:30:40 AM	{"media_resource.tab":23413,"taxon.tab":17991}
+wikipedia-tr	Saturday 2019-04-27 07:39:05 AM	{"media_resource.tab":11114,"taxon.tab":9113}
+wikipedia-fi	Saturday 2019-04-27 09:26:44 AM	{"media_resource.tab":39542,"taxon.tab":26545}
 
 */
 /*
