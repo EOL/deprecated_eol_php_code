@@ -569,7 +569,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $final_path = self::get_md5_path($path, $usageKey);
             $csv = $final_path . $usageKey . ".csv";
             if(file_exists($csv)) {
-                echo "\nusageKey = [$usageKey] found in [$path]";
+                echo "\nusageKey = [$usageKey] found in [$csv]";
                 $file_array = file($csv);
                 $gbif_ids = array(); $i = 0;
                 foreach($file_array as $line) {
