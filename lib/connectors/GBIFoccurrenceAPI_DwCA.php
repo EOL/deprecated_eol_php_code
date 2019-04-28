@@ -29,6 +29,12 @@ https://www.gbif.org/occurrence/download/0012209-181003121212138    24,543,817 r
 e.g.
 download URL:   http://api.gbif.org/v1/occurrence/download/request/0004645-180730143533302.zip
 DOI:            https://www.gbif.org/occurrence/download/0004645-180730143533302
+----------------------------------------------------
+May need to investigate, very big csv files. Before I needed to delete these 2 and just use API option since I cannot solve the memory_limit error.
+May need to delete it again in next harvest or: the removal of file($csv) in place of FileIterator($csv) may already be good. We'll see...
+cd /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/38/c3/5135513.csv
+cd /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/39/39/2490384.csv
+----------------------------------------------------
 */
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
 {
