@@ -49,10 +49,18 @@ class DH_v1_1_postProcessing
     }
     private function start()
     {
-        $taxID_info = self::get_taxID_nodes_info(); //un-comment in real operation
+        $ret = self::get_taxID_nodes_info(); //un-comment in real operation
+        
+        
         // /* tests only
-        $ancestry = self::get_ancestry_of_taxID('-111644', $taxID_info);
+        $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']);
         print_r($ancestry);
+        
+        print_r($ret['descendants']['-111644']);
+        - then loop to all descendatns
+        - remove all that is 'was_container'
+        - those flagged as 'incertae_sedis' give it a new parent...
+        
         exit("\n-end tests-\n");
         // */
         
@@ -108,9 +116,8 @@ class DH_v1_1_postProcessing
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopx\n");
-            $final[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name']);
-            // if(isset($rec['identifier'])) $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
-            // else                          $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank']);
+            $final['taxID_info'][$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name']); //used for ancesty
+            $final['descendants'][$rec['parent_uid']][$rec['uid']] = ''; //used for descendants
         }
         return $final;
     }
