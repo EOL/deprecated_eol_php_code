@@ -148,9 +148,8 @@ class DH_v1_1_postProcessing
     }
     private function get_or_create_new_parent($pID)
     {
-        $parent_of_pID = $this->taxID_info[$pID]['pID'];
-        print_r($this->taxID_info[$parent_of_pID]);
-        exit("\n".$parent_of_pID."\n");
+        print_r($this->taxID_info[$pID]);
+        exit("\n".$pID."\n");
     }
     private function get_taxID_nodes_info()
     {
