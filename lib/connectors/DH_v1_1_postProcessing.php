@@ -54,12 +54,12 @@ class DH_v1_1_postProcessing
         $this->taxID_info = $ret['taxID_info'];
         unset($ret['taxID_info']);
         
-        /* tests only
+        // /* tests only
         // $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']); print_r($ancestry); //working OK but not used yet
         $uid = '-111644';
         self::step_1_of_9($ret, $uid); //1. Clean up children of container taxa
         exit("\n-end tests-\n");
-        */
+        // */
         
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -159,7 +159,7 @@ class DH_v1_1_postProcessing
         foreach($desc_info as $info) {
             if(substr($info['pID'],0,4) == 'unc-') $this->taxID_info[$info['uid']]['pID'] = $info['pID'];
         }
-        // print_r($this->unclassified_parent);
+        print_r($this->unclassified_parent);
         // print_r($this->taxID_info['-146724']);
         // print_r($this->taxID_info['-146722']);
         // print_r($this->taxID_info['-146718']);
@@ -180,7 +180,7 @@ class DH_v1_1_postProcessing
         if(!isset($this->unclassified_parent[$sci])) {
             $this->unclassified_parent_id_increments++;
             $unclassified_new_taxon = Array(
-                'uid' => 'unc-'.$what.Functions::format_number_with_leading_zeros($this->unclassified_parent_id_increments, 3),
+                'uid' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_parent_id_increments, 6),
                 'pID' => $info['pID'],
                 'n' => 'unclassified '.$sci,
                 'taxonRank' => 'no rank'
