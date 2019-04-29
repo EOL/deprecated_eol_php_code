@@ -25,6 +25,7 @@ class DH_v1_1_postProcessing
                 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-807/";
+            $this->main_path = "/Users/eagbayani/Sites/TRAM-807/";
         }
         
         
@@ -53,12 +54,12 @@ class DH_v1_1_postProcessing
         $this->taxID_info = $ret['taxID_info'];
         unset($ret['taxID_info']);
         
-        // /* tests only
+        /* tests only
         // $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']); print_r($ancestry); //working OK but not used yet
         $uid = '-111644';
         self::step_1_of_9($ret, $uid); //1. Clean up children of container taxa
         exit("\n-end tests-\n");
-        // */
+        */
         
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -78,7 +79,7 @@ class DH_v1_1_postProcessing
                     $k++;
                 }
             }
-            print_r($rec); exit("\nstopx\n");
+            // print_r($rec); exit("\nstopx\n");
             /*Array(
                 [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
                 [parent_uid] => 
@@ -88,7 +89,12 @@ class DH_v1_1_postProcessing
                 [uniqname] => 
                 [flags] => 
             )*/
+            $uid = $rec['uid'];
+            self::step_1_of_9($ret, $uid); //1. Clean up children of container taxa
+            
         }
+        print_r($this->unclassified_parent);
+        
     }
     private function step_1_of_9($ret, $uid) //1. Clean up children of container taxa
     {
@@ -100,8 +106,9 @@ class DH_v1_1_postProcessing
         1. Remove remnants of containers:
         Delete all taxa flagged with was_container. These should all be childless, so there's no need to look for children to remove.
         */
-        $descendants = array_keys($ret['descendants'][$uid]);
-        print_r($descendants);
+        if($val = @$ret['descendants'][$uid]) $descendants = array_keys($val);
+        else return;
+        // print_r($descendants);
         //step 1: build-up descendants metadata
         foreach($descendants as $desc) {
             $desc_info[$desc] = $this->taxID_info[$desc];
@@ -131,6 +138,7 @@ class DH_v1_1_postProcessing
         /*2. Create new containers for children of containers that remain incertae_sedis and other taxa that smasher considers incertae sedis:
         For all taxa that are flagged as incertae_sedis by smasher, create a new parent that descends from the current parent of these taxa. Call this parent "unclassified name-of-current-parent." If there is more than one direct incertae-sedis child of a given parent, put all incertae_sedis children into a common "unclassified" container. Don't worry about incertae_sedis_inherited flags. These taxa will automatically move to the right place when their parents are moved.
         */
+        $i = 0;
         foreach($desc_info as $info) {
             /*[6] => Array(
                     [pID] => -111644
@@ -142,14 +150,45 @@ class DH_v1_1_postProcessing
             */
             if(stripos($info['f'], "incertae_sedis") !== false) { //string is found
                 $new_parent_id = self::get_or_create_new_parent($info['pID']);
+                $desc_info[$i]['pID'] = $new_parent_id;
             }
+            $i++;
         }
-        
+        // save to global var.
+        print_r($desc_info); //exit;
+        foreach($desc_info as $info) {
+            if(substr($info['pID'],0,4) == 'unc-') $this->taxID_info[$info['uid']]['pID'] = $info['pID'];
+        }
+        // print_r($this->unclassified_parent);
+        // print_r($this->taxID_info['-146724']);
+        // print_r($this->taxID_info['-146722']);
+        // print_r($this->taxID_info['-146718']);
+        // exit;
     }
     private function get_or_create_new_parent($pID)
     {
-        print_r($this->taxID_info[$pID]);
-        exit("\n".$pID."\n");
+        $info = $this->taxID_info[$pID];
+        print_r($info);
+        /*Array(
+            [pID] => -50186
+            [r] => order
+            [n] => Eunicida
+            [s] => trunk:e51ef3de-ee4f-457e-9434-4084ef8d164b,COL:850bd377331655b9421c450bfd5bda3e
+            [f] => 
+        */
+        $sci = $info['n'];
+        if(!isset($this->unclassified_parent[$sci])) {
+            $this->unclassified_parent_id_increments++;
+            $unclassified_new_taxon = Array(
+                'uid' => 'unc-'.$what.Functions::format_number_with_leading_zeros($this->unclassified_parent_id_increments, 3),
+                'pID' => $info['pID'],
+                'n' => 'unclassified '.$sci,
+                'taxonRank' => 'no rank'
+            );
+            $this->unclassified_parent[$sci] = $unclassified_new_taxon;
+        }
+        else $unclassified_new_taxon = $this->unclassified_parent[$sci];
+        return $unclassified_new_taxon['uid'];
     }
     private function get_taxID_nodes_info()
     {
