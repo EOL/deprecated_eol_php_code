@@ -104,9 +104,28 @@ class DH_v1_1_postProcessing
         //step 1: build-up descendants metadata
         foreach($descendants as $desc) {
             $desc_info[$desc] = $taxID_info[$desc];
+            $desc_info[$desc]['uid'] = $desc;
         }
+        // print_r($desc_info); exit;
+        /*sample $desc_info: Array(
+            [-146712] => Array(
+                    [pID] => -111644
+                    [r] => no rank - terminal
+                    [n] => unclassified extinct Eunicida
+                    [s] => trunk:26248996-ae0e-4e03-9bac-1dba4988bc83
+                    [f] => was_container
+            [-146713] => Array(
+                    [pID] => -111644
+                    [r] => family
+                    [n] => Onuphidae
+                    [s] => trunk:6fcc2a55-e669-41bf-b3d4-42546bca2d06,COL:de5d5d9c500a4759fb8c1bd5db434de9
+                    [f] => sibling_higher
+        */
+        foreach($desc_info as $uid => $info) {
+            if(stripos($info['f'], "was_container") !== false) unset($desc_info[$uid]); //string is found
+        }
+        $desc_info = array_values($desc_info); //reindex key
         print_r($desc_info); exit;
-        
         
         /*2. Create new containers for children of containers that remain incertae_sedis and other taxa that smasher considers incertae sedis:
         For all taxa that are flagged as incertae_sedis by smasher, create a new parent that descends from the current parent of these taxa. Call this parent "unclassified name-of-current-parent." If there is more than one direct incertae-sedis child of a given parent, put all incertae_sedis children into a common "unclassified" container. Don't worry about incertae_sedis_inherited flags. These taxa will automatically move to the right place when their parents are moved.
