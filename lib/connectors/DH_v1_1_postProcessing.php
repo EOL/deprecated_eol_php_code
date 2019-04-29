@@ -53,8 +53,8 @@ class DH_v1_1_postProcessing
 
         // /* tests only
         $uid = '-111644';
-        $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
-        self::get_descendants_of_taxID($uid);
+        // $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
+        $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
         self::step_1_of_9($uid); //1. Clean up children of container taxa
         exit("\n-end tests-\n");
         // */
@@ -219,7 +219,7 @@ class DH_v1_1_postProcessing
                 [flags] => 
             )*/
             $this->taxID_info[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
-            $this->descendants[$rec['parent_uid']][$rec['uid']] = ''; //used for descendants
+            $this->descendants[$rec['parent_uid']][$rec['uid']] = ''; //used for descendants (children)
         }
         // return $final; not needed anymore
     }
@@ -246,7 +246,69 @@ class DH_v1_1_postProcessing
         }
         return $final;
     }
-    
+    private function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false)
+    {
+        $descendants = array();
+        if($val = @$this->descendants[$uid]) $descendants = array_keys($val);
+        if($direct_descendants_only_YN) return $descendants;
+        if($descendants) {
+            foreach($descendants as $child) {
+                $final[$child] = '';
+                if($val = @$this->descendants[$child]) {
+                    $descendants2 = array_keys($val);
+                    foreach($descendants2 as $child2) {
+                        $final[$child2] = '';
+                        if($val = @$this->descendants[$child2]) {
+                            $descendants3 = array_keys($val);
+                            foreach($descendants3 as $child3) {
+                                $final[$child3] = '';
+                                if($val = @$this->descendants[$child3]) {
+                                    $descendants4 = array_keys($val);
+                                    foreach($descendants4 as $child4) {
+                                        $final[$child4] = '';
+                                        if($val = @$this->descendants[$child4]) {
+                                            $descendants5 = array_keys($val);
+                                            foreach($descendants5 as $child5) {
+                                                $final[$child5] = '';
+                                                if($val = @$this->descendants[$child5]) {
+                                                    $descendants6 = array_keys($val);
+                                                    foreach($descendants6 as $child6) {
+                                                        $final[$child6] = '';
+                                                        if($val = @$this->descendants[$child6]) {
+                                                            $descendants7 = array_keys($val);
+                                                            foreach($descendants7 as $child7) {
+                                                                $final[$child7] = '';
+                                                                if($val = @$this->descendants[$child7]) {
+                                                                    $descendants8 = array_keys($val);
+                                                                    foreach($descendants8 as $child8) {
+                                                                        $final[$child8] = '';
+                                                                        if($val = @$this->descendants[$child8]) {
+                                                                            $descendants9 = array_keys($val);
+                                                                            foreach($descendants9 as $child9) {
+                                                                                $final[$child9] = '';
+                                                                                exit("\nReached level 9, will need to extend.\n");
+                                                                            }
+                                                                        }
+                                                                        //end block copy here, if to extend further
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // print_r($final); exit("\n-end here-\n");
+        return array_keys($final);
+    }
     // ----------------------------------------------------------------- end TRAM-807 -----------------------------------------------------------------
     private function get_CLP_roots()
     {
