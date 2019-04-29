@@ -50,6 +50,8 @@ class DH_v1_1_postProcessing
     private function start()
     {
         $ret = self::get_taxID_nodes_info(); //un-comment in real operation
+        $this->taxID_info = $ret['taxID_info'];
+        unset($ret['taxID_info']);
         
         // /* tests only
         // $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']); print_r($ancestry); //working OK but not used yet
@@ -98,12 +100,11 @@ class DH_v1_1_postProcessing
         1. Remove remnants of containers:
         Delete all taxa flagged with was_container. These should all be childless, so there's no need to look for children to remove.
         */
-        $taxID_info = $ret['taxID_info'];
         $descendants = array_keys($ret['descendants'][$uid]);
         print_r($descendants);
         //step 1: build-up descendants metadata
         foreach($descendants as $desc) {
-            $desc_info[$desc] = $taxID_info[$desc];
+            $desc_info[$desc] = $this->taxID_info[$desc];
             $desc_info[$desc]['uid'] = $desc;
         }
         // print_r($desc_info); exit;
@@ -124,13 +125,32 @@ class DH_v1_1_postProcessing
         foreach($desc_info as $uid => $info) {
             if(stripos($info['f'], "was_container") !== false) unset($desc_info[$uid]); //string is found
         }
-        $desc_info = array_values($desc_info); //reindex key
-        print_r($desc_info); exit;
+        $desc_info = array_values($desc_info); //reindex key and more importantly remove in array with null value
+        // print_r($desc_info); exit;
         
         /*2. Create new containers for children of containers that remain incertae_sedis and other taxa that smasher considers incertae sedis:
         For all taxa that are flagged as incertae_sedis by smasher, create a new parent that descends from the current parent of these taxa. Call this parent "unclassified name-of-current-parent." If there is more than one direct incertae-sedis child of a given parent, put all incertae_sedis children into a common "unclassified" container. Don't worry about incertae_sedis_inherited flags. These taxa will automatically move to the right place when their parents are moved.
         */
+        foreach($desc_info as $info) {
+            /*[6] => Array(
+                    [pID] => -111644
+                    [r] => family
+                    [n] => Tretoprionidae
+                    [s] => COL:9247fcc1da43519fbc148267a152dc34
+                    [f] => incertae_sedis
+                    [uid] => -146720
+            */
+            if(stripos($info['f'], "incertae_sedis") !== false) { //string is found
+                $new_parent_id = self::get_or_create_new_parent($info['pID']);
+            }
+        }
         
+    }
+    private function get_or_create_new_parent($pID)
+    {
+        $parent_of_pID = $this->taxID_info[$pID]['pID'];
+        print_r($this->taxID_info[$parent_of_pID]);
+        exit("\n".$parent_of_pID."\n");
     }
     private function get_taxID_nodes_info()
     {
