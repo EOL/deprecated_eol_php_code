@@ -52,8 +52,9 @@ class DH_v1_1_postProcessing
         self::get_taxID_nodes_info(); //un-comment in real operation
 
         // /* tests only
-        // $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']); print_r($ancestry); //working OK but not used yet
         $uid = '-111644';
+        $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
+        self::get_descendants_of_taxID($uid);
         self::step_1_of_9($uid); //1. Clean up children of container taxa
         exit("\n-end tests-\n");
         // */
@@ -91,7 +92,6 @@ class DH_v1_1_postProcessing
             
         }
         print_r($this->unclassified_parent);
-        
     }
     private function step_1_of_9($uid) //1. Clean up children of container taxa
     {
@@ -165,7 +165,7 @@ class DH_v1_1_postProcessing
     private function get_or_create_new_parent($pID)
     {
         $info = $this->taxID_info[$pID];
-        print_r($info);
+        // print_r($info);
         /*Array(
             [pID] => -50186
             [r] => order
@@ -223,6 +223,30 @@ class DH_v1_1_postProcessing
         }
         // return $final; not needed anymore
     }
+    private function get_ancestry_of_taxID($tax_id)
+    {   /* Array(
+            [1] => Array(
+                    [pID] => 1
+                    [r] => no rank
+                    [dID] => 8
+                )
+        )*/
+        $final = array();
+        $final[] = $tax_id;
+        while($parent_id = @$this->taxID_info[$tax_id]['pID']) {
+            if(!in_array($parent_id, $final)) $final[] = $parent_id;
+            else {
+                if($parent_id == 1) return $final;
+                else {
+                    print_r($final);
+                    exit("\nInvestigate $parent_id already in array.\n");
+                }
+            }
+            $tax_id = $parent_id;
+        }
+        return $final;
+    }
+    
     // ----------------------------------------------------------------- end TRAM-807 -----------------------------------------------------------------
     private function get_CLP_roots()
     {
@@ -430,29 +454,6 @@ class DH_v1_1_postProcessing
         $sciname = $rec['scientificName'];
         if($rank = $rec['taxonRank']) $sciname = ucfirst(strtolower($rank))." not assigned";
         return $sciname;
-    }
-    private function get_ancestry_of_taxID($tax_id, $taxID_info)
-    {   /* Array(
-            [1] => Array(
-                    [pID] => 1
-                    [r] => no rank
-                    [dID] => 8
-                )
-        )*/
-        $final = array();
-        $final[] = $tax_id;
-        while($parent_id = @$taxID_info[$tax_id]['pID']) {
-            if(!in_array($parent_id, $final)) $final[] = $parent_id;
-            else {
-                if($parent_id == 1) return $final;
-                else {
-                    print_r($final);
-                    exit("\nInvestigate $parent_id already in array.\n");
-                }
-            }
-            $tax_id = $parent_id;
-        }
-        return $final;
     }
     private function write_taxon_DH($rec)
     {   //from NCBI ticket: a general rule
