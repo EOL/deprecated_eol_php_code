@@ -164,8 +164,7 @@ class DH_v1_1_postProcessing
     }
     private function get_or_create_new_parent($pID)
     {
-        $info = $this->taxID_info[$pID];
-        // print_r($info);
+        $info = $this->taxID_info[$pID]; // print_r($info);
         /*Array(
             [pID] => -50186
             [r] => order
