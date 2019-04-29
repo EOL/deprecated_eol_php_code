@@ -25,9 +25,8 @@ class DH_v1_1_postProcessing
                 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-807/";
-            $this->main_path = "/Users/eagbayani/Sites/TRAM-807/";
+            // $this->main_path = "/Users/eagbayani/Sites/TRAM-807/"; //for MacBook
         }
-        
         
         /*
         $this->prune_further = array();
@@ -37,7 +36,7 @@ class DH_v1_1_postProcessing
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
         $this->run = '';
         */
-        $this->unclassified_id_increments = 0;
+        $this->unclassified_parent_id_increments = 0;
     }
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
     function start_tram_807()
@@ -50,14 +49,12 @@ class DH_v1_1_postProcessing
     }
     private function start()
     {
-        $ret = self::get_taxID_nodes_info(); //un-comment in real operation
-        $this->taxID_info = $ret['taxID_info'];
-        unset($ret['taxID_info']);
-        
+        self::get_taxID_nodes_info(); //un-comment in real operation
+
         // /* tests only
         // $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']); print_r($ancestry); //working OK but not used yet
         $uid = '-111644';
-        self::step_1_of_9($ret, $uid); //1. Clean up children of container taxa
+        self::step_1_of_9($uid); //1. Clean up children of container taxa
         exit("\n-end tests-\n");
         // */
         
@@ -90,13 +87,13 @@ class DH_v1_1_postProcessing
                 [flags] => 
             )*/
             $uid = $rec['uid'];
-            self::step_1_of_9($ret, $uid); //1. Clean up children of container taxa
+            self::step_1_of_9($uid); //1. Clean up children of container taxa
             
         }
         print_r($this->unclassified_parent);
         
     }
-    private function step_1_of_9($ret, $uid) //1. Clean up children of container taxa
+    private function step_1_of_9($uid) //1. Clean up children of container taxa
     {
         // - then loop to all descendatns
         // - remove all that is 'was_container'
@@ -106,7 +103,7 @@ class DH_v1_1_postProcessing
         1. Remove remnants of containers:
         Delete all taxa flagged with was_container. These should all be childless, so there's no need to look for children to remove.
         */
-        if($val = @$ret['descendants'][$uid]) $descendants = array_keys($val);
+        if($val = @$this->descendants[$uid]) $descendants = array_keys($val);
         else return;
         // print_r($descendants);
         //step 1: build-up descendants metadata
@@ -154,7 +151,7 @@ class DH_v1_1_postProcessing
             }
             $i++;
         }
-        // save to global var.
+        // save to global var. -> $this->taxID_info
         print_r($desc_info); //exit;
         foreach($desc_info as $info) {
             if(substr($info['pID'],0,4) == 'unc-') $this->taxID_info[$info['uid']]['pID'] = $info['pID'];
@@ -221,10 +218,10 @@ class DH_v1_1_postProcessing
                 [uniqname] => 
                 [flags] => 
             )*/
-            $final['taxID_info'][$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
-            $final['descendants'][$rec['parent_uid']][$rec['uid']] = ''; //used for descendants
+            $this->taxID_info[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
+            $this->descendants[$rec['parent_uid']][$rec['uid']] = ''; //used for descendants
         }
-        return $final;
+        // return $final; not needed anymore
     }
     // ----------------------------------------------------------------- end TRAM-807 -----------------------------------------------------------------
     private function get_CLP_roots()
