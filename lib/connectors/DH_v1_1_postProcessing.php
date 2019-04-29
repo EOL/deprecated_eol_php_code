@@ -51,16 +51,10 @@ class DH_v1_1_postProcessing
     {
         $ret = self::get_taxID_nodes_info(); //un-comment in real operation
         
-        
         // /* tests only
-        $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']);
-        print_r($ancestry);
-        
-        print_r($ret['descendants']['-111644']);
-        - then loop to all descendatns
-        - remove all that is 'was_container'
-        - those flagged as 'incertae_sedis' give it a new parent...
-        
+        // $ancestry = self::get_ancestry_of_taxID('-111644', $ret['taxID_info']); print_r($ancestry); //working OK but not used yet
+        $uid = '-111644';
+        self::step_1_of_9($ret, $uid); //1. Clean up children of container taxa
         exit("\n-end tests-\n");
         // */
         
@@ -94,6 +88,31 @@ class DH_v1_1_postProcessing
             )*/
         }
     }
+    private function step_1_of_9($ret, $uid) //1. Clean up children of container taxa
+    {
+        // - then loop to all descendatns
+        // - remove all that is 'was_container'
+        // - those flagged as 'incertae_sedis' give it a new parent...
+        
+        /*In taxonomy.tsv:
+        1. Remove remnants of containers:
+        Delete all taxa flagged with was_container. These should all be childless, so there's no need to look for children to remove.
+        */
+        $taxID_info = $ret['taxID_info'];
+        $descendants = array_keys($ret['descendants'][$uid]);
+        print_r($descendants);
+        //step 1: build-up descendants metadata
+        foreach($descendants as $desc) {
+            $desc_info[$desc] = $taxID_info[$desc];
+        }
+        print_r($desc_info); exit;
+        
+        
+        /*2. Create new containers for children of containers that remain incertae_sedis and other taxa that smasher considers incertae sedis:
+        For all taxa that are flagged as incertae_sedis by smasher, create a new parent that descends from the current parent of these taxa. Call this parent "unclassified name-of-current-parent." If there is more than one direct incertae-sedis child of a given parent, put all incertae_sedis children into a common "unclassified" container. Don't worry about incertae_sedis_inherited flags. These taxa will automatically move to the right place when their parents are moved.
+        */
+        
+    }
     private function get_taxID_nodes_info()
     {
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
@@ -116,7 +135,16 @@ class DH_v1_1_postProcessing
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopx\n");
-            $final['taxID_info'][$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name']); //used for ancesty
+            /*Array(
+                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
+                [parent_uid] => 
+                [name] => Life
+                [rank] => clade
+                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            $final['taxID_info'][$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
             $final['descendants'][$rec['parent_uid']][$rec['uid']] = ''; //used for descendants
         }
         return $final;
