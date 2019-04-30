@@ -25,7 +25,7 @@ class DH_v1_1_postProcessing
                 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-807/";
-            $this->main_path = "/Users/eagbayani/Sites/TRAM-807/"; //for MacBook
+            // $this->main_path = "/Users/eagbayani/Sites/TRAM-807/"; //for MacBook
         }
         
         /*
@@ -51,13 +51,13 @@ class DH_v1_1_postProcessing
     {
         self::get_taxID_nodes_info(); //un-comment in real operation
         
-        /* tests only
+        // /* tests only
         $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
         $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
         // $uid = '-542'; //Cyanobacteria/Melainabacteria group
-        $uid = '-111644';
+        // $uid = '-111644';
         // $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
-        // $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
+        $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
         echo "\ncount: ".count($this->taxID_info)."\n";
         self::step_1_of_9($uid); //1. Clean up children of container taxa
         echo "\ncount: ".count($this->taxID_info)."\n";
@@ -70,11 +70,11 @@ class DH_v1_1_postProcessing
         self::write2txt_unclassified_parents();
         return;
         exit("\n-end tests-\n");
-        */
+        // */
         
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
             $row = explode("\t|\t", $line); // print_r($row);
             if($i == 1) {
