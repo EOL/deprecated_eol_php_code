@@ -61,6 +61,7 @@ class DH_v1_1_postProcessing
         echo "\ncount: ".count($this->taxID_info)."\n";
         self::step_1_of_9($uid); //1. Clean up children of container taxa
         echo "\ncount: ".count($this->taxID_info)."\n";
+        self::save_unclassified_parents();
 
         $uid = '-119639'; //sample where flag = 'infraspecific'
         self::step_2_of_9($uid); //2. Clean up infraspecifics
@@ -317,7 +318,7 @@ class DH_v1_1_postProcessing
             $this->unclassified_parent_id_increments++;
             $unclassified_new_taxon = Array(
                 'uid' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_parent_id_increments, 6),
-                'pID' => $info['pID'],
+                'pID' => $pID,
                 'n' => 'unclassified '.$sci,
                 'r' => 'no rank'
             );
