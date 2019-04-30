@@ -54,7 +54,7 @@ class DH_v1_1_postProcessing
         // /* tests only
         $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
         $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
-        // $uid = '-542'; //Cyanobacteria/Melainabacteria group
+        $uid = '-542'; //Cyanobacteria/Melainabacteria group
         // $uid = '-111644';
         // $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
         $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
@@ -108,6 +108,12 @@ class DH_v1_1_postProcessing
         self::step_3_of_9(); //3. Rank adjustments
         self::save_global_var_to_txt();
         self::write2txt_unclassified_parents(); //unclassified parents from step 1.
+        self::step_4pt2_of_9(); //4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
+    }
+    private function step_4pt2_of_9() //4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
+    {   /*
+        */
+        
     }
     private function step_3_of_9() //3. Rank adjustments
     {   /*(1) Change ranks of the following taxa to genus */
@@ -119,6 +125,11 @@ class DH_v1_1_postProcessing
         */
         foreach($this->taxID_info as $uid => $xxx) {
             if($this->taxID_info[$uid]['r'] == 'no rank') $this->taxID_info[$uid]['r'] = '';
+        }
+        
+        /*4.1. Remove all taxa where rank is "no rank - terminal" */
+        foreach($this->taxID_info as $uid => $xxx) {
+            if($this->taxID_info[$uid]['r'] == 'no rank - terminal') unset($this->taxID_info[$uid]);
         }
     }
     private function write2txt_unclassified_parents()
@@ -427,7 +438,39 @@ class DH_v1_1_postProcessing
                                                                                                                                             $descendants17 = array_keys($val);
                                                                                                                                             foreach($descendants17 as $child17) {
                                                                                                                                                 $final[$child17] = '';
-                                                                                                                                                exit("\nReached level 17, will need to extend.\n");
+                                                                                                                                                // exit("\nReached level 17, will need to extend.\n");
+
+if($val = @$this->descendants[$child17]) {
+    $descendants18 = array_keys($val);
+    foreach($descendants18 as $child18) {
+        $final[$child18] = '';
+        // exit("\nReached level 18, will need to extend.\n");
+        if($val = @$this->descendants[$child18]) {
+            $descendants19 = array_keys($val);
+            foreach($descendants19 as $child19) {
+                $final[$child19] = '';
+                // exit("\nReached level 19, will need to extend.\n");
+                if($val = @$this->descendants[$child19]) {
+                    $descendants20 = array_keys($val);
+                    foreach($descendants20 as $child20) {
+                        $final[$child20] = '';
+                        // exit("\nReached level 20, will need to extend.\n");
+                        if($val = @$this->descendants[$child20]) {
+                            $descendants21 = array_keys($val);
+                            foreach($descendants21 as $child21) {
+                                $final[$child21] = '';
+                                exit("\nReached level 21, will need to extend.\n");
+                            }
+                        }
+                        
+                    }
+                }
+            }
+        }
+    }
+}
+
+
                                                                                                                                             }
                                                                                                                                         }
                                                                                                                                         
