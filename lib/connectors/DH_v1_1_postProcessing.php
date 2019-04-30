@@ -134,12 +134,15 @@ class DH_v1_1_postProcessing
                 unset($this->taxID_info[$uid]);
             }
         }
+        self::save_global_var_to_txt($this->main_path.'/taxonomy2.txt');
     }
     private function taxon_has_descendants_whose_rank_is_genus($uid)
     {
         $children = self::get_descendants_of_taxID($uid); // print_r($children); exit("\n$uid\n");
-        foreach($children as $child) {
-            if($this->taxID_info[$uid]['r'] == 'genus') return true;
+        if($children) {
+            foreach($children as $child) {
+                if($this->taxID_info[$uid]['r'] == 'genus') return true;
+            }
         }
         return false;
     }
@@ -185,9 +188,10 @@ class DH_v1_1_postProcessing
         fclose($WRITE);
         unset($this->unclassified_parent);
     }
-    private function save_global_var_to_txt()
+    private function save_global_var_to_txt($destination = false)
     {
-        $WRITE = fopen($this->main_path.'/taxonomy1.txt', "w");
+        if(!$destination) $this->main_path.'/taxonomy1.txt';
+        $WRITE = fopen($destination, "w");
         $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
         fwrite($WRITE, implode("\t|\t", $fields)."\t|\t"."\n");
         foreach($this->taxID_info as $uid => $rec) {
@@ -391,6 +395,7 @@ class DH_v1_1_postProcessing
     }
     private function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false)
     {
+        $final = array();
         $descendants = array();
         if($val = @$this->descendants[$uid]) $descendants = array_keys($val);
         if($direct_descendants_only_YN) return $descendants;
@@ -604,7 +609,8 @@ if($val = @$this->descendants[$child17]) {
             }
         }
         // print_r($final); exit("\n-end here-\n");
-        return array_keys($final);
+        if($final) return array_keys($final);
+        return array();
     }
     // ----------------------------------------------------------------- end TRAM-807 -----------------------------------------------------------------
     private function get_CLP_roots()
