@@ -51,7 +51,7 @@ class DH_v1_1_postProcessing
     {
         self::get_taxID_nodes_info(); //un-comment in real operation
 
-        // /* tests only
+        /* tests only
         $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
         $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
         // $uid = '-542'; //Cyanobacteria/Melainabacteria group
@@ -66,7 +66,7 @@ class DH_v1_1_postProcessing
         self::step_2_of_9($uid); //2. Clean up infraspecifics
         echo "\ncount: ".count($this->taxID_info)."\n";
         exit("\n-end tests-\n");
-        // */
+        */
         
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -100,7 +100,7 @@ class DH_v1_1_postProcessing
             self::step_1_of_9($uid); //1. Clean up children of container taxa
             self::step_2_of_9($uid); //2. Clean up infraspecifics
         }
-        print_r($this->unclassified_parent);
+        // print_r($this->unclassified_parent);
     }
     private function step_2_of_9($uid) //2. Clean up infraspecifics
     {   /*Remove all taxa where all of these are true:
@@ -108,7 +108,8 @@ class DH_v1_1_postProcessing
         2. rank is "no rank"
         3. flag is "infraspecific"
         */
-        $rec = $this->taxID_info[$uid];
+        if($rec = @$this->taxID_info[$uid]) {}
+        else return; //meaning taxon have been deleted from step 1.
         // print_r($rec); exit;
         /*Array(
             [pID] => -57132
@@ -118,7 +119,7 @@ class DH_v1_1_postProcessing
             [f] => infraspecific
         */
         $sources = self::get_all_sources($rec['s']);
-        print_r($sources);
+        // print_r($sources);
         if(in_array('NCBI', $sources) && $rec['r'] == 'no rank' && $rec['f'] == 'infraspecific') unset($this->taxID_info[$uid]); // save to global var. -> $this->taxID_info
     }
     private function get_all_sources($sourceinfo)
@@ -197,7 +198,7 @@ class DH_v1_1_postProcessing
         foreach($desc_info as $info) {
             if(substr($info['pID'],0,4) == 'unc-') $this->taxID_info[$info['uid']]['pID'] = $info['pID'];
         }
-        print_r($this->unclassified_parent);
+        // print_r($this->unclassified_parent);
         // print_r($this->taxID_info['-146724']);
         // print_r($this->taxID_info['-146722']);
         // print_r($this->taxID_info['-146718']);
