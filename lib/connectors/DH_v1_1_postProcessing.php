@@ -119,7 +119,7 @@ class DH_v1_1_postProcessing
         */
         $sources = self::get_all_sources($rec['s']);
         print_r($sources);
-        if(in_array('NCBI', $sources) && $rec['r'] == 'no rank' && $rec['f'] == 'infraspecific') unset($this->taxID_info[$uid]);
+        if(in_array('NCBI', $sources) && $rec['r'] == 'no rank' && $rec['f'] == 'infraspecific') unset($this->taxID_info[$uid]); // save to global var. -> $this->taxID_info
     }
     private function get_all_sources($sourceinfo)
     {

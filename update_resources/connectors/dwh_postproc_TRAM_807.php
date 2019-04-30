@@ -9,6 +9,15 @@ require_library('connectors/DH_v1_1_postProcessing');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
+/*
+$a[0] = 'eli';
+$a[1] = 'cha';
+$a[2] = 'isaiah';
+unset($a[1]);
+print_r($a);
+exit("\n-end tests-\n");
+*/
+
 //############################################################ start main
 // /*
 $resource_id = "DH_v1_1_postproc";
