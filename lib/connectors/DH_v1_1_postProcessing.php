@@ -109,12 +109,15 @@ class DH_v1_1_postProcessing
         self::step_3_of_9(); //3. Rank adjustments
         self::save_global_var_to_txt();
         self::write2txt_unclassified_parents(); //unclassified parents from step 1.
-        self::step_4pt2_of_9(); //4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
     }
-    private function step_4pt2_of_9() //4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
-    {   /*
+    function step_4pt2_of_9()
+    {   /*4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
+        (1) One of the sources of the taxon is trunk
+        (2) The rank of the barren taxon is genus
+        (3) The barren taxon has descendants whose rank is genus (either direct descendants or indirect, i.e., grandchildren or great grandchildren)
         */
-        // start here...
+        self::get_taxID_nodes_info($this->main_path.'/taxonomy1.txt'); //un-comment in real operation
+        
     }
     private function step_3_of_9() //3. Rank adjustments
     {   /*(1) Change ranks of the following taxa to genus */
@@ -303,9 +306,11 @@ class DH_v1_1_postProcessing
         else $unclassified_new_taxon = $this->unclassified_parent[$sci];
         return $unclassified_new_taxon['uid'];
     }
-    private function get_taxID_nodes_info()
+    private function get_taxID_nodes_info($txtfile = false)
     {
-        $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
+        $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
+        if(!$txtfile) $txtfile = $this->main_path.'/taxonomy.tsv';
+        $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
@@ -337,7 +342,6 @@ class DH_v1_1_postProcessing
             $this->taxID_info[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
             $this->descendants[$rec['parent_uid']][$rec['uid']] = ''; //used for descendants (children)
         }
-        // return $final; not needed anymore
     }
     private function get_ancestry_of_taxID($tax_id)
     {   /* Array(
