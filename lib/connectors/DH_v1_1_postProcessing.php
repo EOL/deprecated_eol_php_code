@@ -25,7 +25,7 @@ class DH_v1_1_postProcessing
                 'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-807/";
-            // $this->main_path = "/Users/eagbayani/Sites/TRAM-807/"; //for MacBook
+            $this->main_path = "/Users/eagbayani/Sites/TRAM-807/"; //for MacBook
         }
         
         /*
@@ -42,16 +42,16 @@ class DH_v1_1_postProcessing
     function start_tram_807()
     {
         self::start();
-        exit("\nstop muna\n");
+        // exit("\nstop muna\n");
         // self::main_tram_807(); //from another template
-        $this->archive_builder->finalize(TRUE);
-        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
+        // $this->archive_builder->finalize(TRUE);
+        // if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function start()
     {
         self::get_taxID_nodes_info(); //un-comment in real operation
-
-        /* tests only
+        
+        // /* tests only
         $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
         $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
         // $uid = '-542'; //Cyanobacteria/Melainabacteria group
@@ -65,8 +65,10 @@ class DH_v1_1_postProcessing
         $uid = '-119639'; //sample where flag = 'infraspecific'
         self::step_2_of_9($uid); //2. Clean up infraspecifics
         echo "\ncount: ".count($this->taxID_info)."\n";
+        self::save_global_var_to_txt();
+        return;
         exit("\n-end tests-\n");
-        */
+        // */
         
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -101,6 +103,23 @@ class DH_v1_1_postProcessing
             self::step_2_of_9($uid); //2. Clean up infraspecifics
         }
         // print_r($this->unclassified_parent);
+        self::save_global_var_to_txt();
+    }
+    private function save_global_var_to_txt()
+    {
+        $WRITE = fopen($this->main_path.'/taxonomy1.txt', "w");
+        foreach($this->taxID_info as $uid => $rec) {
+            // print_r($rec); exit;
+            $rek = array();
+            $rek[] = $uid;
+            $rek[] = $rec['pID'];
+            $rek[] = $rec['n'];
+            $rek[] = $rec['r'];
+            $rek[] = $rec['s'];
+            $rek[] = $rec['f'];
+            fwrite($WRITE, implode("\t",$rek)."\n");
+        }
+        fclose($WRITE);
     }
     private function step_2_of_9($uid) //2. Clean up infraspecifics
     {   /*Remove all taxa where all of these are true:
