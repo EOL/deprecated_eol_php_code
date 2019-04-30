@@ -117,7 +117,31 @@ class DH_v1_1_postProcessing
         (3) The barren taxon has descendants whose rank is genus (either direct descendants or indirect, i.e., grandchildren or great grandchildren)
         */
         self::get_taxID_nodes_info($this->main_path.'/taxonomy1.txt'); //un-comment in real operation
-        
+        foreach($this->taxID_info as $uid => $info) {
+            // print_r($rec); exit("\n$uid\n");
+            /*Array(
+                [pID] => 
+                [r] => clade
+                [n] => Life
+                [s] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [f] => 
+            */
+            if(stripos($info['f'], "barren") !== false) { //string is found
+                $sources = self::get_all_sources($info['s']); // print_r($sources);
+                if(in_array('trunk', $sources)) continue;
+                if($info['r'] == 'genus') continue;
+                if(self::taxon_has_descendants_whose_rank_is_genus($uid)) continue;
+                unset($this->taxID_info[$uid]);
+            }
+        }
+    }
+    private function taxon_has_descendants_whose_rank_is_genus($uid)
+    {
+        $children = self::get_descendants_of_taxID($uid); // print_r($children); exit("\n$uid\n");
+        foreach($children as $child) {
+            if($this->taxID_info[$uid]['r'] == 'genus') return true;
+        }
+        return false;
     }
     private function step_3_of_9() //3. Rank adjustments
     {   /*(1) Change ranks of the following taxa to genus */
@@ -196,8 +220,7 @@ class DH_v1_1_postProcessing
             [s] => NCBI:1549160
             [f] => infraspecific
         */
-        $sources = self::get_all_sources($rec['s']);
-        // print_r($sources);
+        $sources = self::get_all_sources($rec['s']); // print_r($sources);
         if(in_array('NCBI', $sources) && $rec['r'] == 'no rank' && $rec['f'] == 'infraspecific') unset($this->taxID_info[$uid]); // save to global var. -> $this->taxID_info
     }
     private function get_all_sources($sourceinfo)
