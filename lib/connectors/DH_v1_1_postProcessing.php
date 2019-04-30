@@ -66,6 +66,8 @@ class DH_v1_1_postProcessing
         self::step_2_of_9($uid); //2. Clean up infraspecifics
         echo "\ncount: ".count($this->taxID_info)."\n";
         self::save_global_var_to_txt();
+        print_r($this->unclassified_parent);
+        self::save_unclassified_parents();
         return;
         exit("\n-end tests-\n");
         // */
@@ -104,6 +106,32 @@ class DH_v1_1_postProcessing
         }
         // print_r($this->unclassified_parent);
         self::save_global_var_to_txt();
+        self::save_unclassified_parents(); //unclassified parents from step 1.
+    }
+    private function save_unclassified_parents()
+    {   /*Array(
+            [Eunicida] => Array(
+                    [uid] => unc-000001
+                    [pID] => -50186
+                    [n] => unclassified Eunicida
+                    [r] => no rank
+                )
+        )
+        */
+        $WRITE = fopen($this->main_path.'/taxonomy1.txt', "a");
+        foreach($this->unclassified_parent as $sci => $rec) {
+            // print_r($rec); exit;
+            $rek = array();
+            $rek[] = $rec['uid'];
+            $rek[] = $rec['pID'];
+            $rek[] = $rec['n'];
+            $rek[] = $rec['r'];
+            $rek[] = '';
+            $rek[] = '';
+            fwrite($WRITE, implode("\t",$rek)."\n");
+        }
+        fclose($WRITE);
+        unset($this->unclassified_parent);
     }
     private function save_global_var_to_txt()
     {
@@ -240,7 +268,7 @@ class DH_v1_1_postProcessing
                 'uid' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_parent_id_increments, 6),
                 'pID' => $info['pID'],
                 'n' => 'unclassified '.$sci,
-                'taxonRank' => 'no rank'
+                'r' => 'no rank'
             );
             $this->unclassified_parent[$sci] = $unclassified_new_taxon;
         }
