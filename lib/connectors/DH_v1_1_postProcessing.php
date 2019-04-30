@@ -54,10 +54,17 @@ class DH_v1_1_postProcessing
         // /* tests only
         $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
         $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
-        // $uid = '-111644';
+        // $uid = '-542'; //Cyanobacteria/Melainabacteria group
+        $uid = '-111644';
         // $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
-        $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
+        // $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
+        echo "\ncount: ".count($this->taxID_info)."\n";
         self::step_1_of_9($uid); //1. Clean up children of container taxa
+        echo "\ncount: ".count($this->taxID_info)."\n";
+
+        $uid = '-119639'; //sample where flag = 'infraspecific'
+        self::step_2_of_9($uid); //2. Clean up infraspecifics
+        echo "\ncount: ".count($this->taxID_info)."\n";
         exit("\n-end tests-\n");
         // */
         
@@ -91,9 +98,38 @@ class DH_v1_1_postProcessing
             )*/
             $uid = $rec['uid'];
             self::step_1_of_9($uid); //1. Clean up children of container taxa
-            
+            self::step_2_of_9($uid); //2. Clean up infraspecifics
         }
         print_r($this->unclassified_parent);
+    }
+    private function step_2_of_9($uid) //2. Clean up infraspecifics
+    {   /*Remove all taxa where all of these are true:
+        1. source is NCBI
+        2. rank is "no rank"
+        3. flag is "infraspecific"
+        */
+        $rec = $this->taxID_info[$uid];
+        // print_r($rec); exit;
+        /*Array(
+            [pID] => -57132
+            [r] => no rank - terminal
+            [n] => Desertifilum fontinale KR2012/2
+            [s] => NCBI:1549160
+            [f] => infraspecific
+        */
+        $sources = self::get_all_sources($rec['s']);
+        print_r($sources);
+        if(in_array('NCBI', $sources) && $rec['r'] == 'no rank' && $rec['f'] == 'infraspecific') unset($this->taxID_info[$uid]);
+    }
+    private function get_all_sources($sourceinfo)
+    {
+        $tmp = explode(",", $sourceinfo);
+        foreach($tmp as $t) {
+            $tmp2 = explode(":", $t);
+            $final[$tmp2[0]] = '';
+        }
+        $final = array_keys($final);
+        return array_map('trim', $final);
     }
     private function step_1_of_9($uid) //1. Clean up children of container taxa
     {
