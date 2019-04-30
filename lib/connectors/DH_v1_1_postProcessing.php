@@ -52,7 +52,9 @@ class DH_v1_1_postProcessing
         self::get_taxID_nodes_info(); //un-comment in real operation
 
         // /* tests only
-        $uid = '-111644';
+        $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
+        $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
+        // $uid = '-111644';
         // $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
         $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
         self::step_1_of_9($uid); //1. Clean up children of container taxa
@@ -127,7 +129,10 @@ class DH_v1_1_postProcessing
                     [f] => sibling_higher
         */
         foreach($desc_info as $uid => $info) {
-            if(stripos($info['f'], "was_container") !== false) unset($desc_info[$uid]); //string is found
+            if(stripos($info['f'], "was_container") !== false) { //string is found
+                unset($desc_info[$uid]);
+                unset($this->taxID_info[$uid]); // save to global var. -> $this->taxID_info
+            }
         }
         $desc_info = array_values($desc_info); //reindex key and more importantly remove in array with null value
         // print_r($desc_info); exit;
@@ -152,7 +157,7 @@ class DH_v1_1_postProcessing
             $i++;
         }
         // save to global var. -> $this->taxID_info
-        print_r($desc_info); //exit;
+        // print_r($desc_info); //exit;
         foreach($desc_info as $info) {
             if(substr($info['pID'],0,4) == 'unc-') $this->taxID_info[$info['uid']]['pID'] = $info['pID'];
         }
@@ -285,10 +290,69 @@ class DH_v1_1_postProcessing
                                                                             $descendants9 = array_keys($val);
                                                                             foreach($descendants9 as $child9) {
                                                                                 $final[$child9] = '';
-                                                                                exit("\nReached level 9, will need to extend.\n");
+                                                                                // exit("\nReached level 9, will need to extend.\n");
+                                                                                if($val = @$this->descendants[$child9]) {
+                                                                                    $descendants10 = array_keys($val);
+                                                                                    foreach($descendants10 as $child10) {
+                                                                                        $final[$child10] = '';
+                                                                                        // exit("\nReached level 10, will need to extend.\n");
+                                                                                        if($val = @$this->descendants[$child10]) {
+                                                                                            $descendants11 = array_keys($val);
+                                                                                            foreach($descendants11 as $child11) {
+                                                                                                $final[$child11] = '';
+                                                                                                // exit("\nReached level 11, will need to extend.\n");
+                                                                                                if($val = @$this->descendants[$child11]) {
+                                                                                                    $descendants12 = array_keys($val);
+                                                                                                    foreach($descendants12 as $child12) {
+                                                                                                        $final[$child12] = '';
+                                                                                                        // exit("\nReached level 12, will need to extend.\n");
+                                                                                                        if($val = @$this->descendants[$child12]) {
+                                                                                                            $descendants13 = array_keys($val);
+                                                                                                            foreach($descendants13 as $child13) {
+                                                                                                                $final[$child13] = '';
+                                                                                                                // exit("\nReached level 13, will need to extend.\n");
+                                                                                                                if($val = @$this->descendants[$child13]) {
+                                                                                                                    $descendants14 = array_keys($val);
+                                                                                                                    foreach($descendants14 as $child14) {
+                                                                                                                        $final[$child14] = '';
+                                                                                                                        // exit("\nReached level 14, will need to extend.\n");
+                                                                                                                        if($val = @$this->descendants[$child14]) {
+                                                                                                                            $descendants15 = array_keys($val);
+                                                                                                                            foreach($descendants15 as $child15) {
+                                                                                                                                $final[$child15] = '';
+                                                                                                                                // exit("\nReached level 15, will need to extend.\n");
+                                                                                                                                if($val = @$this->descendants[$child15]) {
+                                                                                                                                    $descendants16 = array_keys($val);
+                                                                                                                                    foreach($descendants16 as $child16) {
+                                                                                                                                        $final[$child16] = '';
+                                                                                                                                        // exit("\nReached level 16, will need to extend.\n");
+                                                                                                                                        if($val = @$this->descendants[$child16]) {
+                                                                                                                                            $descendants17 = array_keys($val);
+                                                                                                                                            foreach($descendants17 as $child17) {
+                                                                                                                                                $final[$child17] = '';
+                                                                                                                                                exit("\nReached level 17, will need to extend.\n");
+                                                                                                                                            }
+                                                                                                                                        }
+                                                                                                                                        
+                                                                                                                                    }
+                                                                                                                                }
+                                                                                                                                
+                                                                                                                            }
+                                                                                                                        }
+                                                                                                                        
+                                                                                                                    }
+                                                                                                                }
+                                                                                                                
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
                                                                             }
                                                                         }
-                                                                        //end block copy here, if to extend further
                                                                     }
                                                                 }
                                                             }
