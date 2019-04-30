@@ -54,7 +54,7 @@ class DH_v1_1_postProcessing
         // /* tests only
         $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
         $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
-        $uid = '-542'; //Cyanobacteria/Melainabacteria group
+        // $uid = '-542'; //Cyanobacteria/Melainabacteria group
         // $uid = '-111644';
         // $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
         $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
@@ -160,6 +160,8 @@ class DH_v1_1_postProcessing
     private function save_global_var_to_txt()
     {
         $WRITE = fopen($this->main_path.'/taxonomy1.txt', "w");
+        $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
+        fwrite($WRITE, implode("\t",$fields)."\n");
         foreach($this->taxID_info as $uid => $rec) {
             // print_r($rec); exit;
             $rek = array();
@@ -168,6 +170,7 @@ class DH_v1_1_postProcessing
             $rek[] = $rec['n'];
             $rek[] = $rec['r'];
             $rek[] = $rec['s'];
+            $rek[] = ''; //for uniqname
             $rek[] = $rec['f'];
             fwrite($WRITE, implode("\t",$rek)."\n");
         }
