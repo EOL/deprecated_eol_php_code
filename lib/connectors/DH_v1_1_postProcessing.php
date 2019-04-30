@@ -105,8 +105,59 @@ class DH_v1_1_postProcessing
             self::step_2_of_9($uid); //2. Clean up infraspecifics
         }
         // print_r($this->unclassified_parent);
+        self::step_3_of_9(); //3. Rank adjustments
         self::save_global_var_to_txt();
         self::save_unclassified_parents(); //unclassified parents from step 1.
+    }
+    private function step_3_of_9() //3. Rank adjustments
+    {   /*(1) Change ranks of the following taxa to genus
+        -1863729 -1543420 Danae no rank COC:Danae,COL:a52713315eb91bcf5a28cc7b0b7b9198 Danae (in clade Opisthokonta)
+        -367484 -182408 Danae no rank COL:2cfb2e4177d32840ba88a728a0212137 Danae (in kingdom Archaeplastida)
+        -1078997 -1028336 Ineptiae no rank COL:0e842af8a02b957784df6b1b3a8474bf incertae_sedis
+        -1534388 -1331003 Telephae no rank COL:6c16602d1855274674e6dacdfd23ccf5
+        -1065460 -1017055 Abdosetae no rank COL:7bcb288182810b057f94fd0e1227d7d2
+        -1534309 -1331003 Macrotelephae no rank COL:7bf0d4afc120e6de7b145fa6298ec16e
+        -1657343 -1424141 Aglae no rank COL:7e0dee98865e91e4d8794ccc0d9fa945
+        -704485 -513974 Hippophae no rank COL:10d9c00d1a46f7e5d099971eeb699481
+        -2312101 -2268265 Dipaenae no rank ERE:Dipaenae,COL:14f8cd6d203071a87d3418c2d62e4329
+        -1231958 -1144698 Verae no rank COL:056b6025acaef693d096cc8cbbc6f9bf
+        -1611983 -1371831 Cranae no rank COL:58eaea93259af6d5e1cfefa780496eae
+        -1657167 -1424137 Neopasiphae no rank COL:068c0248ce3a89416a5ca673793265af
+        -1530527 -1331002 Ganae no rank COL:75c79bd43dd0d5c02c685c0c22c0f96d
+        -1089167 -1052868 Polychelidae no rank COL:96f36aba6e16a5b447d4d0a1b131f7df Polychelidae (COL:96f36aba6e16a5b447d4d0a1b131f7df)
+        -1090558 -1053012 Eupasiphae no rank COL:269ec642210a6788bea5b9171e591ea4
+        -1356886 -1157208 Antonae no rank COL:599d908747740ffba45ae6ae143a3aba
+        -461982 -367377 Cornucopiae no rank COL:860e6c7b111b5bb962fcd0968462c33f
+        -1548436 -1331059 Gelae no rank COL:943ec73209e4510de87d414941ad4333
+        -1612204 -1371831 Pseudocranae no rank COL:9193fd4adbaa93ba883c53cdec19d9e7
+        -1612148 -1371831 Sphaerocranae no rank COL:908716dff0b9423a9e458ea91f62c580
+        -150144 -112409 Thysanolaenae no rank COL:77810628752c42dbf1960777914f8aca
+        -1356787 -1157208 Parantonae no rank COL:a23f1f91f5d00654c31710db8d6247c1
+        -1612015 -1371831 Paracranae no rank COL:adc7b43a36aa74b7b4a2341ae2ca0eec
+        -1613042 -1371831 Philicranae no rank COL:b9a8bf6e5d9e981e40644d31e64464d0
+        -1090557 -1053012 Parapasiphae no rank COL:da6de79ccf6d22c295a140feead95e3f
+        -219833 -145862 Susanlimae no rank COL:e4d1ca8fedd6f0201d348192c8baaa36
+        -1531408 -1331003 Notiopatae no rank COL:e44588c7d441cda48c879309eb7cb6b8
+        -1424032 -1228089 Pae no rank COL:f72a6c6b5947514c21c34abc3130e59e
+        -1612667 -1371831 Anacranae no rank COL:faa05aaed56a2a1d3b7db84412a41468
+        -1535028 -1331003 Bradypatae no rank COL:feff2fbb0fe37cc9c4e39022caa2dbe1
+        -429157 -228671 Irewiae no rank EET:EET-5737
+        -2311919 -2268214 Tentasetae no rank - terminal ERE:Tentasetae
+        -12643 -8496 Massilimaliae no rank NCBI:1987010
+        */
+        $uids = array('-2311919','-12643');
+        foreach($uids as $uid) {
+            $this->taxID_info[$uid]['r'] = 'genus';
+        }
+        
+        /*
+        (2) Replace "no rank" rank values with nothing, i.e., a blank value
+        Notes: TTT & smasher require a rank value, but EOL does not, so we don't have to carry the awkward "no rank" over into the DH. It looks like smasher has built in rules that check the endings for taxa of certain ranks and knock things to no rank if there are unexpected endings. This works pretty well for families where COL tries to slip in a bunch of informal groups as families. But it looks like one of the rules is that genera cannot end in -ae, which is simply not valid. So we'll have to reconstitute these ranks for these genera posthoc for the time being.
+        */
+        foreach($this->taxID_info as $uid => $xxx) {
+            if($this->taxID_info[$uid]['r'] == 'no rank') $this->taxID_info[$uid]['r'] = '';
+        }
+        
     }
     private function save_unclassified_parents()
     {   /*Array(
