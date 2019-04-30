@@ -51,7 +51,7 @@ class DH_v1_1_postProcessing
     {
         self::get_taxID_nodes_info(); //un-comment in real operation
         
-        // /* tests only
+        /* tests only
         $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
         $uid = '80a181c5-8eff-4f2c-baf7-194e11f32270'; //Cellular Organisms
         // $uid = '-542'; //Cyanobacteria/Melainabacteria group
@@ -70,7 +70,7 @@ class DH_v1_1_postProcessing
         self::write2txt_unclassified_parents();
         return;
         exit("\n-end tests-\n");
-        // */
+        */
         
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -103,6 +103,7 @@ class DH_v1_1_postProcessing
             $uid = $rec['uid'];
             self::step_1_of_9($uid); //1. Clean up children of container taxa
             self::step_2_of_9($uid); //2. Clean up infraspecifics
+            // if($i > 10) break; //debug only
         }
         // print_r($this->unclassified_parent);
         self::step_3_of_9(); //3. Rank adjustments
@@ -152,7 +153,7 @@ class DH_v1_1_postProcessing
             $rek[] = $rec['r'];
             $rek[] = '';
             $rek[] = '';
-            fwrite($WRITE, implode("\t",$rek)."\n");
+            fwrite($WRITE, implode("\t|\t", $rek)."\t|\t"."\n");
         }
         fclose($WRITE);
         unset($this->unclassified_parent);
@@ -161,7 +162,7 @@ class DH_v1_1_postProcessing
     {
         $WRITE = fopen($this->main_path.'/taxonomy1.txt', "w");
         $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
-        fwrite($WRITE, implode("\t",$fields)."\n");
+        fwrite($WRITE, implode("\t|\t", $fields)."\t|\t"."\n");
         foreach($this->taxID_info as $uid => $rec) {
             // print_r($rec); exit;
             $rek = array();
@@ -172,7 +173,7 @@ class DH_v1_1_postProcessing
             $rek[] = $rec['s'];
             $rek[] = ''; //for uniqname
             $rek[] = $rec['f'];
-            fwrite($WRITE, implode("\t",$rek)."\n");
+            fwrite($WRITE, implode("\t|\t", $rek)."\t|\t"."\n");
         }
         fclose($WRITE);
     }
@@ -482,10 +483,45 @@ if($val = @$this->descendants[$child17]) {
                                                             $descendants25 = array_keys($val);
                                                             foreach($descendants25 as $child25) {
                                                                 $final[$child25] = '';
-                                                                exit("\nReached level 25, will need to extend.\n");
+                                                                // exit("\nReached level 25, will need to extend.\n");
+                                                                if($val = @$this->descendants[$child25]) {
+                                                                    $descendants26 = array_keys($val);
+                                                                    foreach($descendants26 as $child26) {
+                                                                        $final[$child26] = '';
+                                                                        // exit("\nReached level 26, will need to extend.\n");
+                                                                        if($val = @$this->descendants[$child26]) {
+                                                                            $descendants27 = array_keys($val);
+                                                                            foreach($descendants27 as $child27) {
+                                                                                $final[$child27] = '';
+                                                                                // exit("\nReached level 27, will need to extend.\n");
+                                                                                if($val = @$this->descendants[$child27]) {
+                                                                                    $descendants28 = array_keys($val);
+                                                                                    foreach($descendants28 as $child28) {
+                                                                                        $final[$child28] = '';
+                                                                                        // exit("\nReached level 28, will need to extend.\n");
+                                                                                        if($val = @$this->descendants[$child28]) {
+                                                                                            $descendants29 = array_keys($val);
+                                                                                            foreach($descendants29 as $child29) {
+                                                                                                $final[$child29] = '';
+                                                                                                // exit("\nReached level 29, will need to extend.\n");
+                                                                                                if($val = @$this->descendants[$child29]) {
+                                                                                                    $descendants30 = array_keys($val);
+                                                                                                    foreach($descendants30 as $child30) {
+                                                                                                        $final[$child30] = '';
+                                                                                                        exit("\nReached level 30, will need to extend.\n");
+                                                                                                    }
+                                                                                                }
+                                                                                                
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
                                                             }
                                                         }
-                                                        
                                                     }
                                                 }
                                             }
