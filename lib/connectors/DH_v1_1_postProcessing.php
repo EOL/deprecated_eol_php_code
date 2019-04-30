@@ -113,7 +113,7 @@ class DH_v1_1_postProcessing
     private function step_4pt2_of_9() //4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
     {   /*
         */
-        start here...
+        // start here...
     }
     private function step_3_of_9() //3. Rank adjustments
     {   /*(1) Change ranks of the following taxa to genus */
@@ -135,7 +135,7 @@ class DH_v1_1_postProcessing
     private function write2txt_unclassified_parents()
     {   /*Array(
             [Eunicida] => Array(
-                    [uid] => unc-000001
+                    [uid] => unc-P00001
                     [pID] => -50186
                     [n] => unclassified Eunicida
                     [r] => no rank
@@ -292,7 +292,7 @@ class DH_v1_1_postProcessing
         if(!isset($this->unclassified_parent[$sci])) {
             $this->unclassified_parent_id_increments++;
             $unclassified_new_taxon = Array(
-                'uid' => 'unc-'.Functions::format_number_with_leading_zeros($this->unclassified_parent_id_increments, 6),
+                'uid' => 'unc-P'.Functions::format_number_with_leading_zeros($this->unclassified_parent_id_increments, 5),
                 'pID' => $pID,
                 'n' => 'unclassified '.$sci,
                 'r' => 'no rank'
@@ -462,10 +462,38 @@ if($val = @$this->descendants[$child17]) {
                             $descendants21 = array_keys($val);
                             foreach($descendants21 as $child21) {
                                 $final[$child21] = '';
-                                exit("\nReached level 21, will need to extend.\n");
+                                // exit("\nReached level 21, will need to extend.\n");
+                                if($val = @$this->descendants[$child21]) {
+                                    $descendants22 = array_keys($val);
+                                    foreach($descendants22 as $child22) {
+                                        $final[$child22] = '';
+                                        // exit("\nReached level 22, will need to extend.\n");
+                                        if($val = @$this->descendants[$child22]) {
+                                            $descendants23 = array_keys($val);
+                                            foreach($descendants23 as $child23) {
+                                                $final[$child23] = '';
+                                                // exit("\nReached level 23, will need to extend.\n");
+                                                if($val = @$this->descendants[$child23]) {
+                                                    $descendants24 = array_keys($val);
+                                                    foreach($descendants24 as $child24) {
+                                                        $final[$child24] = '';
+                                                        // exit("\nReached level 24, will need to extend.\n");
+                                                        if($val = @$this->descendants[$child24]) {
+                                                            $descendants25 = array_keys($val);
+                                                            foreach($descendants25 as $child25) {
+                                                                $final[$child25] = '';
+                                                                exit("\nReached level 25, will need to extend.\n");
+                                                            }
+                                                        }
+                                                        
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-                        
                     }
                 }
             }
