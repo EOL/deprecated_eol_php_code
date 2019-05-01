@@ -1480,10 +1480,13 @@ php update_resources/connectors/dwh_v2.php _ VSP
             $this->archive_builder->write_object_to_file($synonym);
         }
     }
-    public function generate_dwca($resource_id)
+    public function generate_dwca($resource_id, $txtfile = false, $withSynonyms = true)
     {
-        $path = $this->main_path."/zresults_".$resource_id; 
-        $txtfile = $path.'/taxonomy.tsv'; $i = 0;
+        if(!$txtfile) {
+            $path = $this->main_path."/zresults_".$resource_id; 
+            $txtfile = $path.'/taxonomy.tsv';
+        }
+        $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 25000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
@@ -1521,7 +1524,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
             $this->archive_builder->write_object_to_file($taxon);
             // if($i >= 1000) break; //debug only
         }
-        self::generate_synonym_extension($resource_id);
+        if($withSynonyms) self::generate_synonym_extension($resource_id);
         $this->archive_builder->finalize(true);
     }
     private function separate_what_and_taxon_id($haystack)

@@ -391,6 +391,13 @@ class DH_v1_1_postProcessing
         }
         return $final;
     }
+    public function generate_dwca($resource_id)
+    {
+        $txtfile = $this->main_path.'/taxonomy2.txt';
+        require_library('connectors/DHSourceHierarchiesAPI_v2');
+        $func = new DHSourceHierarchiesAPI_v2();
+        $func->generate_dwca($resource_id, $txtfile, false); //3rd param false means, will not generate synonyms in DwCA
+    }
     private function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false)
     {
         $final = array();
