@@ -188,7 +188,7 @@ class DH_v1_1_postProcessing
     }
     private function save_global_var_to_txt($destination = false)
     {
-        if(!$destination) $this->main_path.'/taxonomy1.txt';
+        if(!$destination) $destination = $this->main_path.'/taxonomy1.txt';
         $WRITE = fopen($destination, "w");
         $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
         fwrite($WRITE, implode("\t|\t", $fields)."\t|\t"."\n");
