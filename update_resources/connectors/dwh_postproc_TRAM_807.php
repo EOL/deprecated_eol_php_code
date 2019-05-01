@@ -1,22 +1,11 @@
 <?php
 namespace php_active_record;
-/* TRAM-807: Dynamic Hierarchy Version 1.1. Postprocessing
-*/
+/* TRAM-807: Dynamic Hierarchy Version 1.1. Postprocessing */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DH_v1_1_postProcessing');
-// ini_set('memory_limit','15096M');
 // ini_set('memory_limit','6096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
-
-/*
-$a[0] = 'eli';
-$a[1] = 'cha';
-$a[2] = 'isaiah';
-unset($a[1]);
-print_r($a);
-exit("\n-end tests-\n");
-*/
 
 //############################################################ start main
 // /*
