@@ -127,7 +127,6 @@ class DH_v1_1_postProcessing
         $info['s'] = 'WOR:109388';
         $info['f'] = 'incertae_sedis,barren';
         
-        
         if(stripos($info['f'], "barren") !== false) { //string is found
             $sources = self::get_all_sources($info['s']); print_r($sources);
             if(in_array('trunk', $sources)) echo "\nyes 1\n";
@@ -172,7 +171,7 @@ class DH_v1_1_postProcessing
         if($children) {
             foreach($children as $child) {
                 if($this->taxID_info[$child]['r'] == 'genus') return true;
-                // if(substr($children[0],0,5) == 'unc-P') return true; //new by Eli
+                // if(substr($children[0],0,5) == 'unc-P') return true; //new by Eli. Was never used. Used Katja's addt'l instruction for step 1 instead.
             }
         }
         return false;
