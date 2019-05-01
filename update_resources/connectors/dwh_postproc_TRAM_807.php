@@ -12,7 +12,7 @@ $timestart = time_elapsed();
 $resource_id = "DH_v1_1_postproc";
 $func = new DH_v1_1_postProcessing($resource_id);
 // $func->start_tram_807(); //this creates taxonomy1.txt
-// $func->step_4pt2_of_9(); //this uses and starts with taxonomy1.txt from prev. step. Creates taxonomy2.txt
+$func->step_4pt2_of_9(); //this uses and starts with taxonomy1.txt from prev. step. Creates taxonomy2.txt
 // $func->test2(); exit;
 $func->generate_dwca($resource_id);
 unset($func);
