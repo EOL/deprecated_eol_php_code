@@ -13,12 +13,10 @@ class DH_v1_1_postProcessing
         $this->debug = array();
         
         if(Functions::is_production()) {
-            /* not used
             $this->download_options = array(
                 'cache_path'         => '/extra/eol_cache_smasher/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
-            $this->main_path = "/extra/d_w_h/xxx/"; //download_wait_time is 1/4 of a second -> 1000000/4
-            */
+            $this->main_path = "/extra/other_files/DWH/TRAM-807/"; //download_wait_time is 1/4 of a second -> 1000000/4
         }
         else {
             $this->download_options = array(
