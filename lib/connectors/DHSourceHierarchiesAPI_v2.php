@@ -1550,8 +1550,17 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $tmp = $arr[0];
         $arr = self::separate_what_and_taxon_id($tmp);
         if(!$arr) {
-            print_r($rec);
-            exit("\nInvestigate sourceinfo\n");
+            /* e.g. Array(
+                [uid] => unc-P00001
+                [parent_uid] => -3272
+                [name] => unclassified Cyanobacteria
+                [rank] => no rank
+                [sourceinfo] => 
+                [uniqname] => 
+                [flags] => 
+            */
+            return $rec['name'];
+            print_r($rec); exit("\nInvestigate sourceinfo\n");
         }
         $what = $arr[0];
         $taxon_id = $arr[1];

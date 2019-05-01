@@ -112,15 +112,24 @@ class DH_v1_1_postProcessing
     {
         self::get_taxID_nodes_info($this->main_path.'/taxonomy1.txt'); //un-comment in real operation
         // -11510   |   -8266   |   Borziaceae  |   family  |   NCBI:1892250,WOR:146657 |       |   barren  |   
-        $uid = '-11510';
-        $info['pID'] = '-8266';
-        $info['r'] = 'family';
-        $info['n'] = 'Borziaceae';
-        $info['s'] = 'NCBI:1892250,WOR:146657';
-        $info['f'] = 'barren';
+        // $uid = '-11510';
+        // $info['pID'] = '-8266';
+        // $info['r'] = 'family';
+        // $info['n'] = 'Borziaceae';
+        // $info['s'] = 'NCBI:1892250,WOR:146657';
+        // $info['f'] = 'barren';
+        
+        // -6989    |   unc-P00089  |   Desmocapsales   |   order   |   WOR:109388  |       |   incertae_sedis,barren   |   
+        $uid = '-6989';
+        $info['pID'] = 'unc-P00089';
+        $info['r'] = 'order';
+        $info['n'] = 'Desmocapsales';
+        $info['s'] = 'WOR:109388';
+        $info['f'] = 'incertae_sedis,barren';
+        
         
         if(stripos($info['f'], "barren") !== false) { //string is found
-            $sources = self::get_all_sources($info['s']); // print_r($sources);
+            $sources = self::get_all_sources($info['s']); print_r($sources);
             if(in_array('trunk', $sources)) echo "\nyes 1\n";
             else echo "\nhere 001\n";
             if($info['r'] == 'genus') echo "\nyes 2\n";
@@ -163,6 +172,7 @@ class DH_v1_1_postProcessing
         if($children) {
             foreach($children as $child) {
                 if($this->taxID_info[$child]['r'] == 'genus') return true;
+                // if(substr($children[0],0,5) == 'unc-P') return true; //new by Eli
             }
         }
         return false;
