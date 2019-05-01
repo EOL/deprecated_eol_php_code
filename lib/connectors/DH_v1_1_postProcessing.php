@@ -108,6 +108,29 @@ class DH_v1_1_postProcessing
         self::save_global_var_to_txt();
         self::write2txt_unclassified_parents(); //unclassified parents from step 1.
     }
+    function test2() //good debug
+    {
+        self::get_taxID_nodes_info($this->main_path.'/taxonomy1.txt'); //un-comment in real operation
+        // -11510   |   -8266   |   Borziaceae  |   family  |   NCBI:1892250,WOR:146657 |       |   barren  |   
+        $uid = '-11510';
+        $info['pID'] = '-8266';
+        $info['r'] = 'family';
+        $info['n'] = 'Borziaceae';
+        $info['s'] = 'NCBI:1892250,WOR:146657';
+        $info['f'] = 'barren';
+        
+        if(stripos($info['f'], "barren") !== false) { //string is found
+            $sources = self::get_all_sources($info['s']); // print_r($sources);
+            if(in_array('trunk', $sources)) echo "\nyes 1\n";
+            else echo "\nhere 001\n";
+            if($info['r'] == 'genus') echo "\nyes 2\n";
+            else echo "\nhere 002\n";
+            if(self::taxon_has_descendants_whose_rank_is_genus($uid)) echo "\nyes 3\n";
+            else echo "\nhere 003\n";
+            // unset($this->taxID_info[$uid]);
+        }
+        exit("\n-----\n");
+    }
     function step_4pt2_of_9()
     {   /*4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
         (1) One of the sources of the taxon is trunk
@@ -139,7 +162,7 @@ class DH_v1_1_postProcessing
         $children = self::get_descendants_of_taxID($uid); // print_r($children); exit("\n$uid\n");
         if($children) {
             foreach($children as $child) {
-                if($this->taxID_info[$uid]['r'] == 'genus') return true;
+                if($this->taxID_info[$child]['r'] == 'genus') return true;
             }
         }
         return false;
@@ -395,7 +418,7 @@ class DH_v1_1_postProcessing
     {
         $txtfile = $this->main_path.'/taxonomy2.txt';
         require_library('connectors/DHSourceHierarchiesAPI_v2');
-        $func = new DHSourceHierarchiesAPI_v2();
+        $func = new DHSourceHierarchiesAPI_v2($resource_id);
         $func->generate_dwca($resource_id, $txtfile, false); //3rd param false means, will not generate synonyms in DwCA
     }
     private function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false)
