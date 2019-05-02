@@ -92,10 +92,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
         require_once(DOC_ROOT."../FreshData/controllers/other.php");
         require_once(DOC_ROOT."../FreshData/controllers/freshdata.php");
-        ini_set('memory_limit','15096M'); //15096M
         echo "\nCACHE_PATH 02 is ".CACHE_PATH."\n";
 
         $ctrler = new \freshdata_controller(array());
+        ini_set('memory_limit','10096M'); //15096M
         $postfix = "_map_data";
 
         /* was never used here
@@ -459,7 +459,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function gen_map_data_using_api($sciname, $taxon_concept_id) //NEW Aug 24, 2018
     {
-        echo "\nWill try to use API...\n";
+        echo "\nWill try to use API...";
         if($rec = self::get_initial_data($sciname)) {
             print_r($rec);
             self::get_georeference_data_via_api($rec['usageKey'], $taxon_concept_id);
@@ -1061,7 +1061,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 $rec["count"] = $count;
                 return $rec;
             }
-            else echo("\nNo occurrence\n");
+            else echo("\nNo occurrence. ");
         }
         else {
             exit("\nCannot get usage_key for ($sciname)\n");
