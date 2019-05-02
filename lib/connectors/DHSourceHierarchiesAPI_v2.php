@@ -1551,7 +1551,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
             $tmp = $arr[0];
             $tmp = explode(":", $tmp);
             $what = $tmp[0];
-            if($what != 'COL') continue;
+            // if($what != 'COL') continue;
             
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID             = $rec['uid'];
@@ -1612,6 +1612,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
             print_r($rec); exit("\nInvestigate sourceinfo\n");
         }
         $what = $arr[0];
+        if($what == 'CLP') $what = 'COL'; //only for TRAM-807
         $taxon_id = $arr[1];
 
         $taxon_id = str_replace("'", "\'", $taxon_id);

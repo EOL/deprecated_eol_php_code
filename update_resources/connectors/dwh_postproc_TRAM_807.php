@@ -16,9 +16,9 @@ $func = new DH_v1_1_postProcessing($resource_id);
 // exit("\n-end step4-\n");
 // $func->test2(); exit;
 
-$func->save_all_ids_from_all_hierarchies_2MySQL();
+// $func->save_all_ids_from_all_hierarchies_2MySQL();
 
-// $func->generate_dwca($resource_id);
+$func->generate_dwca($resource_id);
 // unset($func);
 // Functions::finalize_dwca_resource($resource_id, true, false);
 // run_diagnostics($resource_id);
