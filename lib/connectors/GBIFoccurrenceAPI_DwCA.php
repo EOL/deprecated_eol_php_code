@@ -32,8 +32,9 @@ DOI:            https://www.gbif.org/occurrence/download/0004645-180730143533302
 ----------------------------------------------------
 May need to investigate, very big csv files. Before I needed to delete these 2 and just use API option since I cannot solve the memory_limit error.
 May need to delete it again in next harvest or: the removal of file($csv) in place of FileIterator($csv) may already be good. We'll see...
-cd /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/38/c3/5135513.csv
-cd /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/39/39/2490384.csv
+/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/38/c3/5135513.csv
+/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/39/39/2490384.csv
+/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/99/7b/2482077.csv
 ----------------------------------------------------
 */
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
