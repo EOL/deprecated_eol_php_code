@@ -456,6 +456,13 @@ class DH_v1_1_postProcessing
         $func = new DHSourceHierarchiesAPI_v2($resource_id);
         $func->generate_dwca($resource_id, $txtfile, false); //3rd param false means, will not generate synonyms in DwCA
     }
+    public function save_all_ids_from_all_hierarchies_2MySQL()
+    {
+        require_library('connectors/DHSourceHierarchiesAPI_v2');
+        $func = new DHSourceHierarchiesAPI_v2(null); //param supposed to be resource_id
+        $func->save_all_ids_from_all_hierarchies_2MySQL('write2mysql_v2.txt', true); //2nd param true means it's a postProcess task
+        
+    }
     private function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false)
     {
         $final = array();
