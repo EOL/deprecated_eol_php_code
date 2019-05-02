@@ -80,6 +80,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->sh['ictv']['run_gnparse']    = false;
 
         $this->sh['CLP']['source']          = $this->main_path."/Catalogue_of_Life_Protists_DH_20Feb2019/";
+        $this->sh['CLP']['source']['postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
         $this->sh['CLP']['has_syn']         = false;
         $this->sh['CLP']['run_gnparse']     = true;
 
@@ -96,6 +97,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->sh['IOC']['run_gnparse']     = true;
 
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH_20Feb2019/";
+        $this->sh['CLP']['source']['postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
         $this->sh['COL']['has_syn']         = false; //false based from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
         $this->sh['COL']['run_gnparse']     = true;
 
