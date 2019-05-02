@@ -1455,7 +1455,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
                     else                                                          $datasetID = 'COL-'.$rec['datasetID'];
                 }
 
-                $arr = array($what, $rec['taxonID'], $rec['scientificName'], $scientificNameAuthorship, $furtherInformationURL, $taxonRemarks, $datasetID);
+                $taxonID = $rec['taxonID'];
+                if(in_array($what, array('COL','CLP'))) $taxonID = $rec['identifier'];
+                
+                $arr = array($what, $taxonID, $rec['scientificName'], $scientificNameAuthorship, $furtherInformationURL, $taxonRemarks, $datasetID);
                 // */
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
@@ -1498,7 +1501,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
             
             $synonym = new \eol_schema\Taxon();
             $synonym->taxonID               = $tmp[1];
-            $synonym->scientificName        = self::get_orig_sciname_from_mysql($rec);
+
+            $rek = self::get_orig_rekord_from_mysql($rec);
+            $synonym->scientificName = $rek['sciname'];
+            
             $synonym->canonicalName         = $rec["name"];
             $synonym->acceptedNameUsageID   = $rec["uid"];
             $synonym->taxonomicStatus       = "synonym";
@@ -1540,17 +1546,34 @@ php update_resources/connectors/dwh_v2.php _ VSP
                 [uniqname] => 
                 [flags] => 
             )*/
+            
+            $arr = explode(",", $rec['sourceinfo']);
+            $tmp = $arr[0];
+            $tmp = explode(":", $tmp);
+            $what = $tmp[0];
+            if($what != 'COL') continue;
+            
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID             = $rec['uid'];
-            $taxon->scientificName      = self::get_orig_sciname_from_mysql($rec);
+            
+            $rek      = self::get_orig_rekord_from_mysql($rec);
+            // print_r($rek); echo "\n".$rec['sourceinfo']."\n";
+            $taxon->scientificName = $rek['sciname'];
+            if($what == 'trunk') $taxon->scientificName = $rec['name']." ".$rek['scientificNameAuthorship'];
+            
             $taxon->canonicalName       = $rec['name'];
             $taxon->parentNameUsageID   = $rec["parent_uid"];
             $taxon->taxonRank           = $rec["rank"];
-            $taxon->taxonRemarks        = $rec['sourceinfo'];
+            $taxon->source              = $rec['sourceinfo'];
+            
+            $taxon->furtherInformationURL   = $rek['furtherInformationURL'];
+            $taxon->taxonRemarks            = $rek['taxonRemarks'];
+            $taxon->datasetID               = $rek['datasetID'];
+            
             $this->archive_builder->write_object_to_file($taxon);
             // if($i >= 1000) break; //debug only
         }
-        if($withSynonyms) self::generate_synonym_extension($resource_id);
+        // if($withSynonyms) self::generate_synonym_extension($resource_id);
         $this->archive_builder->finalize(true);
     }
     private function separate_what_and_taxon_id($haystack)
@@ -1570,7 +1593,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         }
         return false;
     }
-    private function get_orig_sciname_from_mysql($rec)
+    private function get_orig_rekord_from_mysql($rec)
     {
         $arr = explode(",", $rec['sourceinfo']);
         $tmp = $arr[0];
@@ -1593,21 +1616,21 @@ php update_resources/connectors/dwh_v2.php _ VSP
 
         $taxon_id = str_replace("'", "\'", $taxon_id);
 
-        if($val = self::query_orig_sciname($what, $taxon_id)) return $val;
+        if($val = self::query_orig_rekord($what, $taxon_id)) return $val;
         
         echo "\nstart 2nd try:\n";
         $taxon_id = urldecode($taxon_id);
 
-        if($val = self::query_orig_sciname($what, $taxon_id)) return $val;
+        if($val = self::query_orig_rekord($what, $taxon_id)) return $val;
         
         echo "\nNot found --> what: [$what]  taxon_id: [$taxon_id]";
         return "";
     }
-    private function query_orig_sciname($what, $taxon_id)
+    private function query_orig_rekord($what, $taxon_id)
     {
-        $sql = "SELECT t.sciname from DWH.ids_scinames t where t.what = '$what' and t.taxon_id = '$taxon_id'";
+        $sql = "SELECT t.* from DWH.ids_scinames t where t.what = '$what' and t.taxon_id = '$taxon_id'";
         $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['sciname'];
+        while($result && $row=$result->fetch_assoc()) return $row;
         return false;
     }
 }
