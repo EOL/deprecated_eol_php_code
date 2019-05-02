@@ -80,7 +80,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->sh['ictv']['run_gnparse']    = false;
 
         $this->sh['CLP']['source']          = $this->main_path."/Catalogue_of_Life_Protists_DH_20Feb2019/";
-        $this->sh['CLP']['source']['postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
+        $this->sh['CLP']['source_postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
         $this->sh['CLP']['has_syn']         = false;
         $this->sh['CLP']['run_gnparse']     = true;
 
@@ -97,7 +97,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->sh['IOC']['run_gnparse']     = true;
 
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH_20Feb2019/";
-        $this->sh['CLP']['source']['postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
+        $this->sh['CLP']['source_postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
         $this->sh['COL']['has_syn']         = false; //false based from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
         $this->sh['COL']['run_gnparse']     = true;
 
@@ -201,9 +201,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
         // */
     }
-    private function get_meta($what)
+    private function get_meta($what, $postProcessYN = false)
     {
-        $meta_xml_path = $this->sh[$what]['source']."meta.xml";
+        if($postProcessYN && in_array($what, array('COL','CLP'))) $meta_xml_path = $this->sh[$what]['source_postprocess']."meta.xml"; //for TRAM-807
+        else                                                      $meta_xml_path = $this->sh[$what]['source']."meta.xml"; //original, during creation of taxonomy.tsv
         $meta = self::analyze_meta_xml($meta_xml_path);
         if($meta == "No core entry in meta.xml") $meta = self::analyze_eol_meta_xml($meta_xml_path);
         $meta['what'] = $what;
@@ -1403,14 +1404,17 @@ php update_resources/connectors/dwh_v2.php _ VSP
         return $final;
     }
     
-    public function save_all_ids_from_all_hierarchies_2MySQL()
+    public function save_all_ids_from_all_hierarchies_2MySQL($filename = false, $postProcessYN = false)
     {
-        $file = $this->main_path."/zFiles/write2mysql.txt"; $WRITE = fopen($file, "w"); //will overwrite existing
+        if(!$filename) $filename = 'write2mysql.txt'; //an old version, may not be used again.
+        $file = $this->main_path."/zFiles/".$filename; $WRITE = fopen($file, "w"); //will overwrite existing
         $hierarchies = self::get_order_of_hierarchies(); print_r($hierarchies);
-        // $hierarchies = array("CLP");
+        $hierarchies = array("CLP"); //debug only
         foreach($hierarchies as $what) {
-            $meta = self::get_meta($what);
-            $file = $this->sh[$what]['source'].$meta['taxon_file']; $i = 0;
+            $meta = self::get_meta($what, $postProcessYN);
+            if($postProcessYN && in_array($what, array('COL','CLP'))) $file = $this->sh[$what]['source_postprocess'].$meta['taxon_file']; //for TRAM-807
+            else                                                      $file = $this->sh[$what]['source'].$meta['taxon_file']; //normal, when generating taxonomy.tsv
+            $i = 0;
             echo "\naccessing [$file]]\n";
             foreach(new FileIterator($file) as $line => $row) {
                 $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -1424,7 +1428,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
                     $rec[$field] = $tmp[$k];
                     $k++;
                 }
-                // print_r($rec); exit("\n-elix-\n");
+                print_r($rec); exit("\n-elix-\n");
                 /*Array(
                     [taxonID] => Erebidae
                     [scientificName] => Erebidae
