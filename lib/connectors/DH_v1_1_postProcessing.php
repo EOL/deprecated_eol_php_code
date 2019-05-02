@@ -55,11 +55,14 @@ class DH_v1_1_postProcessing
         // $uid = '-542'; //Cyanobacteria/Melainabacteria group
         // $uid = '-111644';
         // $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
-        $children = self::get_descendants_of_taxID($uid); print_r($children); exit;
+        $uid = '-6989';
+        // $children = self::get_descendants_of_taxID($uid); print_r($children); //exit;
         echo "\ncount: ".count($this->taxID_info)."\n";
         self::step_1_of_9($uid); //1. Clean up children of container taxa
         echo "\ncount: ".count($this->taxID_info)."\n";
-
+        exit("\n-end tests-\n");
+        */
+        /*
         $uid = '-119639'; //sample where flag = 'infraspecific'
         self::step_2_of_9($uid); //2. Clean up infraspecifics
         echo "\ncount: ".count($this->taxID_info)."\n";
@@ -68,7 +71,7 @@ class DH_v1_1_postProcessing
         self::write2txt_unclassified_parents();
         return;
         exit("\n-end tests-\n");
-        */
+        // */
         
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -277,7 +280,10 @@ class DH_v1_1_postProcessing
         1. Remove remnants of containers:
         Delete all taxa flagged with was_container. These should all be childless, so there's no need to look for children to remove.
         */
-        if($val = @$this->descendants[$uid]) $descendants = array_keys($val);
+        if($val = @$this->descendants[$uid]) {
+            $descendants = array_keys($val);
+            $descendants_to_create_parent_container_YN = self::check_descendants_to_create_parent_container_YN($descendants);
+        }
         else return;
         // print_r($descendants);
         //step 1: build-up descendants metadata
@@ -312,32 +318,52 @@ class DH_v1_1_postProcessing
         /*2. Create new containers for children of containers that remain incertae_sedis and other taxa that smasher considers incertae sedis:
         For all taxa that are flagged as incertae_sedis by smasher, create a new parent that descends from the current parent of these taxa. Call this parent "unclassified name-of-current-parent." If there is more than one direct incertae-sedis child of a given parent, put all incertae_sedis children into a common "unclassified" container. Don't worry about incertae_sedis_inherited flags. These taxa will automatically move to the right place when their parents are moved.
         */
-        $i = 0;
-        foreach($desc_info as $info) {
-            /*[6] => Array(
-                    [pID] => -111644
-                    [r] => family
-                    [n] => Tretoprionidae
-                    [s] => COL:9247fcc1da43519fbc148267a152dc34
-                    [f] => incertae_sedis
-                    [uid] => -146720
-            */
-            if(stripos($info['f'], "incertae_sedis") !== false) { //string is found
-                $new_parent_id = self::get_or_create_new_parent($info['pID']);
-                $desc_info[$i]['pID'] = $new_parent_id;
+        if($descendants_to_create_parent_container_YN) {
+            // echo "\ncreating parent container\n";
+            $i = 0;
+            foreach($desc_info as $info) {
+                /*[6] => Array(
+                        [pID] => -111644
+                        [r] => family
+                        [n] => Tretoprionidae
+                        [s] => COL:9247fcc1da43519fbc148267a152dc34
+                        [f] => incertae_sedis
+                        [uid] => -146720
+                */
+                if(stripos($info['f'], "incertae_sedis") !== false) { //string is found
+                    $new_parent_id = self::get_or_create_new_parent($info['pID']);
+                    $desc_info[$i]['pID'] = $new_parent_id;
+                }
+                $i++;
             }
-            $i++;
+            // save to global var. -> $this->taxID_info
+            // print_r($desc_info); //exit;
+            foreach($desc_info as $info) {
+                if(substr($info['pID'],0,4) == 'unc-') $this->taxID_info[$info['uid']]['pID'] = $info['pID'];
+            }
         }
-        // save to global var. -> $this->taxID_info
-        // print_r($desc_info); //exit;
-        foreach($desc_info as $info) {
-            if(substr($info['pID'],0,4) == 'unc-') $this->taxID_info[$info['uid']]['pID'] = $info['pID'];
-        }
+        // else echo "\nNOT creating parent container\n";
+        
         // print_r($this->unclassified_parent);
         // print_r($this->taxID_info['-146724']);
         // print_r($this->taxID_info['-146722']);
         // print_r($this->taxID_info['-146718']);
         // exit;
+        
+    }
+    private function check_descendants_to_create_parent_container_YN($descendants)
+    {   /* add a new rule to Step 1 (Clean up children of container taxa): Don't create a new container taxon if all of its descendants will be barren 
+           and don't qualify for the rank=genus or source=trunk exception. From: https://eol-jira.bibalex.org/browse/TRAM-807?focusedCommentId=63428&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63428
+        */
+        // echo "\ndescendants: ".count($descendants)."\n"; print_r($descendants);
+        foreach($descendants as $desc_id) {
+            $info = $this->taxID_info[$desc_id]; //print_r($info);
+            $sources = self::get_all_sources($info['s']); // print_r($sources);
+            // echo "\n[$desc_id]---\n";
+            if((stripos($info['f'], "barren") !== false) && (!in_array('trunk', $sources) && $info['r'] != 'genus' && !self::taxon_has_descendants_whose_rank_is_genus($desc_id))) {}
+            else return true;
+        }
+        return false;
     }
     private function get_or_create_new_parent($pID)
     {
