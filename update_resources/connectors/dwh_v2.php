@@ -43,7 +43,7 @@ So generally we don't need this syn_integrity_check(). We can just add to phytho
 
 // $func->test($cmdline_params['what']);                    //for testing only
 
-// this is now obsolete in TRAM-805: Dynamic Hierarchy Version 1.1.
+// this is now OBSOLETE in TRAM-805: Dynamic Hierarchy Version 1.1.
 // $func->start($cmdline_params['what'], "CLP_adjustment"); //from CLP #3 from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
 
 
@@ -101,6 +101,9 @@ mysql> CREATE TABLE ids_scinames LIKE ids_scinames_v1;
 to load from txt file:
 mysql> load data local infile '/Users/eliagbayani/Desktop/eee/eli_tar_gz/eli/write2mysql.txt' into table ids_scinames;
 mysql> load data local infile 'write2mysql.txt' into table ids_scinames;
+
+For TRAM-807:
+mysql> load data local infile '/Volumes/AKiTiO4/d_w_h/2019_04/zFiles/write2mysql_v2.txt' into table ids_scinames;
 */
 
 /* =========== generate DwCA --- OK
