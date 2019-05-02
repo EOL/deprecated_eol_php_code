@@ -97,7 +97,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $this->sh['IOC']['run_gnparse']     = true;
 
         $this->sh['COL']['source']          = $this->main_path."/Catalogue_of_Life_DH_20Feb2019/";
-        $this->sh['CLP']['source_postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
+        $this->sh['COL']['source_postprocess'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
         $this->sh['COL']['has_syn']         = false; //false based from: https://eol-jira.bibalex.org/browse/TRAM-800?focusedCommentId=63045&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63045
         $this->sh['COL']['run_gnparse']     = true;
 
@@ -1411,7 +1411,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         $hierarchies = self::get_order_of_hierarchies();
         if($postProcessYN) $hierarchies = array_diff($hierarchies, array('CLP')); //since CLP and COL have the same source file. We'll only get one.
         // print_r($hierarchies); exit;
-        $hierarchies = array("CLP"); //debug only
+        // $hierarchies = array("COL"); //debug only, used during development
         foreach($hierarchies as $what) {
             $meta = self::get_meta($what, $postProcessYN);
             if($postProcessYN && in_array($what, array('COL','CLP'))) $file = $this->sh[$what]['source_postprocess'].$meta['taxon_file']; //for TRAM-807
@@ -1419,7 +1419,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
             $i = 0;
             echo "\naccessing [$file]]\n";
             foreach(new FileIterator($file) as $line => $row) {
-                $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+                $i++; if(($i % 100000) == 0) echo "\n$what - ".number_format($i);
                 if($meta['ignoreHeaderLines'] && $i == 1) continue;
                 if(!$row) continue;
                 $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -1430,7 +1430,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
                     $rec[$field] = $tmp[$k];
                     $k++;
                 }
-                print_r($rec); exit("\n-elix-\n");
+                // print_r($rec); //exit("\n-elix-\n");
                 /*Array(
                     [taxonID] => Erebidae
                     [scientificName] => Erebidae
@@ -1438,8 +1438,25 @@ php update_resources/connectors/dwh_v2.php _ VSP
                     [taxonRank] => family
                     [taxonomicStatus] => accepted
                 )*/
-                // $arr = array($what, $rec['taxonID'], $rec['scientificName']); //old version
-                $arr = array($what, $rec['taxonID'], $rec['scientificName']);
+                /* $arr = array($what, $rec['taxonID'], $rec['scientificName']); //old version */
+                // /* new version
+                $scientificNameAuthorship = ''; //for everybody except trunk
+                if($what == 'trunk') $scientificNameAuthorship = $rec['scientificNameAuthorship']; //another step needed when writing to DwCA
+
+                $furtherInformationURL = @$rec['furtherInformationURL'];
+                if($what == 'IOC') $furtherInformationURL = $rec['source'];
+                if(in_array($what, array('COL','CLP'))) $furtherInformationURL = $rec['references'];
+
+                $taxonRemarks = @$rec['taxonRemarks']; //another step needed when writing to DwCA
+                
+                $datasetID = $what;
+                if(in_array($what, array('COL','CLP'))) {
+                    if($rec['datasetID'] == 'Species 2000' || !$rec['datasetID']) $datasetID = 'COL';
+                    else                                                          $datasetID = 'COL-'.$rec['datasetID'];
+                }
+
+                $arr = array($what, $rec['taxonID'], $rec['scientificName'], $scientificNameAuthorship, $furtherInformationURL, $taxonRemarks, $datasetID);
+                // */
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
             echo "\n$what -> $i\n";
