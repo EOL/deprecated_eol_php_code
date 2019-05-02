@@ -1408,7 +1408,9 @@ php update_resources/connectors/dwh_v2.php _ VSP
     {
         if(!$filename) $filename = 'write2mysql.txt'; //an old version, may not be used again.
         $file = $this->main_path."/zFiles/".$filename; $WRITE = fopen($file, "w"); //will overwrite existing
-        $hierarchies = self::get_order_of_hierarchies(); print_r($hierarchies);
+        $hierarchies = self::get_order_of_hierarchies();
+        if($postProcessYN) $hierarchies = array_diff($hierarchies, array('CLP')); //since CLP and COL have the same source file. We'll only get one.
+        // print_r($hierarchies); exit;
         $hierarchies = array("CLP"); //debug only
         foreach($hierarchies as $what) {
             $meta = self::get_meta($what, $postProcessYN);
@@ -1436,6 +1438,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
                     [taxonRank] => family
                     [taxonomicStatus] => accepted
                 )*/
+                // $arr = array($what, $rec['taxonID'], $rec['scientificName']); //old version
                 $arr = array($what, $rec['taxonID'], $rec['scientificName']);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
