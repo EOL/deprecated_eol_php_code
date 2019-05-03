@@ -1596,9 +1596,10 @@ php update_resources/connectors/dwh_v2.php _ VSP
     private function get_orig_rekord_from_mysql($rec)
     {
         // -------------------- e.g. 'unclassified Taxon' from Step 1.
-        if(substr($rec['uid'],0,5) == 'unc-P') $rek = array('sciname' => $rec['name'], 'scientificNameAuthorship' => '', 'furtherInformationURL' => '', 
-                                                            'taxonRemarks' => '', 'datasetID' => 'trunk');
-        return $rek;
+        if(substr($rec['uid'],0,5) == 'unc-P') {
+            $rek = array('sciname' => $rec['name'], 'scientificNameAuthorship' => '', 'furtherInformationURL' => '', 'taxonRemarks' => '', 'datasetID' => 'trunk');
+            return $rek;
+        }
         // --------------------
         
         $arr = explode(",", $rec['sourceinfo']);
