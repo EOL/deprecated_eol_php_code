@@ -213,7 +213,7 @@ class DH_v1_1_postProcessing
             $rek[] = $rec['uid'];
             $rek[] = $rec['pID'];
             $rek[] = $rec['n'];
-            $rek[] = $rec['r'];
+            $rek[] = ''; //$rec['r']; -- no longer 'no rank'
             $rek[] = '';
             $rek[] = '';
             fwrite($WRITE, implode("\t|\t", $rek)."\t|\t"."\n");
