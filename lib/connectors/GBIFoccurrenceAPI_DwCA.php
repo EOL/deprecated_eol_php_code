@@ -605,6 +605,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     if(isset($gbif_ids[$gbifid])) continue;
                     else $gbif_ids[$gbifid] = '';
                     
+                    if($rek['decimallatitude'] && $rek['decimallongitude']) {}
+                    else continue;
+                    
                     $rec = array();
                     $rec['a']   = $rek['catalognumber'];
                     $rec['b']   = $rek['scientificname'];
