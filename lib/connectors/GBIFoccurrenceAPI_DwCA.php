@@ -36,6 +36,7 @@ May need to delete it again in next harvest or: the removal of file($csv) in pla
 /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/39/39/2490384.csv
 /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/99/7b/2482077.csv
 /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/1e/3f/2480726.csv
+/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/f3/cd/2474393.csv
 ----------------------------------------------------
 */
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
