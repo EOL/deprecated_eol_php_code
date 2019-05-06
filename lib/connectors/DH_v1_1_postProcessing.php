@@ -145,26 +145,33 @@ class DH_v1_1_postProcessing
     //===================================================start minting
     private function get_max_minted_id()
     {
-        $sql = "SELECT max(m.uid) as max_id from DWH.minted_records m;";
+        $sql = "SELECT max(m.minted_id) as max_id from DWH.minted_records m;";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['max_id'];
         return false;
     }
     private function search_minted_record($uid, $parent_uid, $sciname, $rank)
     {
-        $sql = "SELECT count(m.minted_id) as count from DWH.minted_records m WHERE m.uid = '$uid' and m.sciname = '$sciname' and m.rank = '$rank' and m.parent_uid = '$parent_uid';";
+        $sql = "SELECT m.minted_id from DWH.minted_records m WHERE m.uid = '$uid' and m.sciname = '$sciname' and m.rank = '$rank' and m.parent_uid = '$parent_uid';";
         $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['count'];
+        while($result && $row=$result->fetch_assoc()) return $row['minted_id'];
         return false;
+    }
+    private function format_minted_id()
+    {
+        return "EOL-".Functions::format_number_with_leading_zeros($this->incremental, 12);
     }
     function step_5_minting()
     {   
-        $file = $this->main_path."/zFiles/append_minted.txt"; $WRITE = fopen($file, "w"); //will overwrite existing
+        $file = $this->main_path."/append_minted_2mysql.txt"; $WRITE = fopen($file, "w"); //will overwrite existing
         $this->mysqli =& $GLOBALS['db_connection'];
         /* step 1: get max minted_id value */
         $max_id = self::get_max_minted_id();
-        if(!$max_id) $max_id = 0;
+        if(!$max_id) $max_id = 'EOL-000000000000';
+        $incremental = str_replace('EOL-','',$max_id);
+        $this->incremental = intval($incremental);
         echo("\nmax minted ID: [$max_id]\n");
+        echo("\nincrement starts with: [$this->incremental]\n");
         
         /* step 2: loop taxonomy file, check if each name exists already. If yes, get minted_id from table. If no, increment id and assign. */
         $txtfile = $this->main_path.'/taxonomy2.txt';
@@ -187,7 +194,7 @@ class DH_v1_1_postProcessing
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); //exit("\nstopx\n");
+            // print_r($rec); //exit("\nstopx\n");
             /*Array(
                 [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
                 [parent_uid] => 
@@ -197,16 +204,24 @@ class DH_v1_1_postProcessing
                 [uniqname] => 
                 [flags] => 
             */
-            $count = self::search_minted_record($rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
+            $minted_id = self::search_minted_record($rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
             // exit("\n no. of recs: [$max_id]\n");
-            if($count == 0) {
-                $max_id++;
-                $arr = array(self::format_minted_id($max_id), $rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
+            if(!$minted_id) { //new name --- will be assigned with newly minted ID
+                $this->incremental++;
+                $arr = array(self::format_minted_id(), $rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
-            if($i > 5) break; //debug only
+            else echo "\nRecord already exists [$minted_id]\n";
+            if($i > 10) break; //debug only
         }
         fclose($WRITE);
+        
+        /* step 3: append to MySQL table */
+        if(filesize($file)) {
+            $sql = "LOAD data local infile '".$file."' into table DWH.minted_records;";
+            if($result = $this->mysqli->query($sql)) echo "\nSaved OK to MySQL\n";
+        }
+        else echo "\nNothing to save.\n";
     }
     //=====================================================end minting
     function step_4pt2_of_9()
