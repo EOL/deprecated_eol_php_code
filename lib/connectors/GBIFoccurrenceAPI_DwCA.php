@@ -40,6 +40,8 @@ May need to delete it again in next harvest or: the removal of file($csv) in pla
 /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/c2/dd/2480242.csv
 /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/2f/6f/2480320.csv - 477M | 499271387
 /extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/67/a5/2481720.csv - 163M | 170778770
+/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/d6/8b/2481798.csv - 175M | 182543695 not deleted, will use when fixing memory leak prob.
+
 ----------------------------------------------------
 */
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
@@ -633,6 +635,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $final['records'][] = $rec;
                 }
                 $final['count'] = count($final['records']);
+                // /* new
+                if($final['count'] > $this->rec_limit) return $final;
+                // */
             }
             else echo "\n[$usageKey] NOT found in [$path]";
         }
