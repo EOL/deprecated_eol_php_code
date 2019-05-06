@@ -224,6 +224,7 @@ class DH_v1_1_postProcessing
         fclose($WRITE);
         
         /* step 3: append to MySQL table */
+        echo "\nSaving minted records to MySQL...\n";
         if(filesize($file_append)) {
             $sql = "LOAD data local infile '".$file_append."' into table DWH.minted_records;";
             if($result = $this->mysqli->query($sql)) echo "\nSaved OK to MySQL\n";
@@ -234,6 +235,7 @@ class DH_v1_1_postProcessing
         $file_taxonomy = $this->main_path."/taxonomy_4dwca.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
         $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
         fwrite($WRITE2, implode("\t|\t", $fields)."\t|\t"."\n");
+        echo "\nGenerating $file_taxonomy\n";
         
         $txtfile = $this->main_path.'/taxonomy2.txt';
         $i = 0;
