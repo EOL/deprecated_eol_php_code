@@ -1615,6 +1615,15 @@ php update_resources/connectors/dwh_v2.php _ VSP
                 [uniqname] => 
                 [flags] => 
             */
+
+            /* will not need this if uid is preserved with unc-P000000 format.
+            $rek['sciname']                     = $arr['name'];
+            $rek['scientificNameAuthorship']    = '';
+            $rek['furtherInformationURL']       = '';
+            $rek['taxonRemarks']                = '';
+            $rek['datasetID']                   = '';
+            */
+            
             print_r($rec); exit("\nInvestigate sourceinfo\n");
         }
         $what = $arr[0];
