@@ -163,7 +163,9 @@ class DH_v1_1_postProcessing
     }
     function step_5_minting()
     {   
-        $file = $this->main_path."/append_minted_2mysql.txt"; $WRITE = fopen($file, "w"); //will overwrite existing
+        $file_append = $this->main_path."/append_minted_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $file_taxonomy = $this->main_path."/taxonomy_4dwca.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
+        
         $this->mysqli =& $GLOBALS['db_connection'];
         /* step 1: get max minted_id value */
         $max_id = self::get_max_minted_id();
@@ -212,13 +214,18 @@ class DH_v1_1_postProcessing
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
             else echo "\nRecord already exists [$minted_id]\n";
-            if($i > 10) break; //debug only
+            
+            /* for taxonomy file for DwCA */
+            $arr = array($minted_id, $rec['parent_uid'], $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
+            fwrite($WRITE2, implode("\t", $arr)."\n");
+            
+            if($i > 12) break; //debug only
         }
-        fclose($WRITE);
+        fclose($WRITE); fclose($WRITE2);
         
         /* step 3: append to MySQL table */
-        if(filesize($file)) {
-            $sql = "LOAD data local infile '".$file."' into table DWH.minted_records;";
+        if(filesize($file_append)) {
+            $sql = "LOAD data local infile '".$file_append."' into table DWH.minted_records;";
             if($result = $this->mysqli->query($sql)) echo "\nSaved OK to MySQL\n";
         }
         else echo "\nNothing to save.\n";
