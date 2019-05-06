@@ -1595,7 +1595,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
     }
     private function get_orig_rekord_from_mysql($rec)
     {
-        // -------------------- e.g. 'unclassified Taxon' from Step 1.
+        // -------------------- e.g. 'unclassified Taxon' from Step 1 of DH_v1_1_postProcessing.php
         if(substr($rec['uid'],0,5) == 'unc-P') {
             $rek = array('sciname' => $rec['name'], 'scientificNameAuthorship' => '', 'furtherInformationURL' => '', 'taxonRemarks' => '', 'datasetID' => 'trunk');
             return $rek;
@@ -1615,7 +1615,6 @@ php update_resources/connectors/dwh_v2.php _ VSP
                 [uniqname] => 
                 [flags] => 
             */
-            return $rec['name'];
             print_r($rec); exit("\nInvestigate sourceinfo\n");
         }
         $what = $arr[0];
