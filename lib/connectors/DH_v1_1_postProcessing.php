@@ -198,6 +198,7 @@ class DH_v1_1_postProcessing
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); //exit("\nstopx\n");
+            if(substr($rec['uid'],0,5) == 'unc-P') continue; //no need to mint 'unclassified ???'
             /*Array(
                 [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
                 [parent_uid] => 
@@ -265,8 +266,6 @@ class DH_v1_1_postProcessing
                 [flags] => 
             */
             
-            // $old_id_minted_id_info[$rec['uid']] = $minted_id; //to be used below
-            
             // /* for taxonomy file for DwCA
             if($minted_id = $old_id_minted_id_info[$rec['uid']]) {}
             else exit("\nInvestigate no minted uid...\n");
@@ -276,6 +275,10 @@ class DH_v1_1_postProcessing
                 else exit("\nInvestigate no minted parent_uid...\n");
             }
             else $parent_id = '';
+            
+            if(substr($rec['uid'],0,5) == 'unc-P')        $minted_id = $rec['uid']; //no need to mint 'unclassified ???'
+            if(substr($rec['parent_uid'],0,5) == 'unc-P') $parent_id = $rec['parent_uid']; //no need to mint 'unclassified ???'
+            
             $arr = array($minted_id, $parent_id, $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
             fwrite($WRITE2, implode("\t|\t", $arr)."\t|\t"."\n");
             // */
@@ -283,8 +286,6 @@ class DH_v1_1_postProcessing
             // if($i > 15) break; //debug only
         }
         fclose($WRITE2);
-        
-        
     }
     //=====================================================end minting
     function step_4pt2_of_9()
