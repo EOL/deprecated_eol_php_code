@@ -8,22 +8,31 @@ require_library('connectors/DH_v1_1_postProcessing');
 $timestart = time_elapsed();
 
 //############################################################ start main
-// /*
+
 $resource_id = "DH_v1_1_postproc";
 $func = new DH_v1_1_postProcessing($resource_id);
 // $func->start_tram_807(); //this creates taxonomy1.txt
 // $func->step_4pt2_of_9(); //this uses and starts with taxonomy1.txt from prev. step. Creates taxonomy2.txt
 // exit("\n-end step4-\n");
-$func->step_5_minting(); exit("\n-end step5-\n"); //this starts with taxonomy2.txt from prev. step. Creates taxonomy_4dwca.txt
+$func->step_5_minting(); //exit("\n-end step5-\n"); //this starts with taxonomy2.txt from prev. step. Creates taxonomy_4dwca.txt
 // $func->test2(); exit;
 
-// $func->save_all_ids_from_all_hierarchies_2MySQL(); //used source hierarchies
+/*
+$func->save_all_ids_from_all_hierarchies_2MySQL(); //used source hierarchies. Manually done alone. Generates write2mysql_v2.txt. Table ids_scinames is needed below by generate_dwca().
+
+$ mysql -u root -p --local-infile DWH;
+copy table structure only:
+mysql> CREATE TABLE ids_scinames LIKE ids_scinames_v1;
+to load from txt file:
+mysql> load data local infile '/Volumes/AKiTiO4/d_w_h/2019_04/zFiles/write2mysql_v2.txt' into table ids_scinames;
+
+*/
 
 $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 unset($func);
 Functions::finalize_dwca_resource($resource_id, true, false);
 run_diagnostics($resource_id);
-// */
+
 //############################################################ end main
 
 $elapsed_time_sec = time_elapsed() - $timestart;
