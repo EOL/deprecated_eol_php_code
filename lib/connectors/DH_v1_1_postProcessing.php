@@ -215,7 +215,7 @@ class DH_v1_1_postProcessing
                 $arr = array($minted_id, $rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
-            else echo "\nRecord already exists [$minted_id]\n";
+            // else echo "\nRecord already exists [$minted_id]\n";
             
             $old_id_minted_id_info[$rec['uid']] = $minted_id; //to be used below
             
@@ -269,17 +269,20 @@ class DH_v1_1_postProcessing
             */
             
             // /* for taxonomy file for DwCA
-            if($minted_id = $old_id_minted_id_info[$rec['uid']]) {}
-            else exit("\nInvestigate no minted uid...\n");
-
-            if($val = $rec['parent_uid']) {
-                if($parent_id = $old_id_minted_id_info[$val]) {}
-                else exit("\nInvestigate no minted parent_uid...\n");
+            if(substr($rec['uid'],0,5) == 'unc-P') $minted_id = $rec['uid']; //no need to mint 'unclassified ???'
+            else {
+                if($minted_id = $old_id_minted_id_info[$rec['uid']]) {}
+                else exit("\nInvestigate no minted uid...\n");
             }
-            else $parent_id = '';
-            
-            if(substr($rec['uid'],0,5) == 'unc-P')        $minted_id = $rec['uid']; //no need to mint 'unclassified ???'
+
             if(substr($rec['parent_uid'],0,5) == 'unc-P') $parent_id = $rec['parent_uid']; //no need to mint 'unclassified ???'
+            else {
+                if($val = $rec['parent_uid']) {
+                    if($parent_id = $old_id_minted_id_info[$val]) {}
+                    else exit("\nInvestigate no minted parent_uid...\n");
+                }
+                else $parent_id = '';
+            }
             
             $arr = array($minted_id, $parent_id, $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
             fwrite($WRITE2, implode("\t|\t", $arr)."\t|\t"."\n");
