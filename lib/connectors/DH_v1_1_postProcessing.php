@@ -142,6 +142,73 @@ class DH_v1_1_postProcessing
         }
         exit("\n-----\n");
     }
+    //===================================================start minting
+    private function get_max_minted_id()
+    {
+        $sql = "SELECT max(m.uid) as max_id from DWH.minted_records m;";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row['max_id'];
+        return false;
+    }
+    private function search_minted_record($uid, $parent_uid, $sciname, $rank)
+    {
+        $sql = "SELECT count(m.minted_id) as count from DWH.minted_records m WHERE m.uid = '$uid' and m.sciname = '$sciname' and m.rank = '$rank' and m.parent_uid = '$parent_uid';";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row['count'];
+        return false;
+    }
+    function step_5_minting()
+    {   
+        $file = $this->main_path."/zFiles/append_minted.txt"; $WRITE = fopen($file, "w"); //will overwrite existing
+        $this->mysqli =& $GLOBALS['db_connection'];
+        /* step 1: get max minted_id value */
+        $max_id = self::get_max_minted_id();
+        if(!$max_id) $max_id = 0;
+        echo("\nmax minted ID: [$max_id]\n");
+        
+        /* step 2: loop taxonomy file, check if each name exists already. If yes, get minted_id from table. If no, increment id and assign. */
+        $txtfile = $this->main_path.'/taxonomy2.txt';
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t|\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            print_r($rec); //exit("\nstopx\n");
+            /*Array(
+                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
+                [parent_uid] => 
+                [name] => Life
+                [rank] => clade
+                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            */
+            $count = self::search_minted_record($rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
+            // exit("\n no. of recs: [$max_id]\n");
+            if($count == 0) {
+                $max_id++;
+                $arr = array(self::format_minted_id($max_id), $rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
+                fwrite($WRITE, implode("\t", $arr)."\n");
+            }
+            if($i > 5) break; //debug only
+        }
+        fclose($WRITE);
+    }
+    //=====================================================end minting
     function step_4pt2_of_9()
     {   /*4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
         (1) One of the sources of the taxon is trunk

@@ -11,9 +11,10 @@ $timestart = time_elapsed();
 // /*
 $resource_id = "DH_v1_1_postproc";
 $func = new DH_v1_1_postProcessing($resource_id);
-$func->start_tram_807(); //this creates taxonomy1.txt
-$func->step_4pt2_of_9(); //this uses and starts with taxonomy1.txt from prev. step. Creates taxonomy2.txt
-exit("\n-end step4-\n");
+// $func->start_tram_807(); //this creates taxonomy1.txt
+// $func->step_4pt2_of_9(); //this uses and starts with taxonomy1.txt from prev. step. Creates taxonomy2.txt
+// exit("\n-end step4-\n");
+$func->step_5_minting(); exit("\n-end step5-\n"); //this starts with taxonomy2.txt from prev. step. Creates taxonomy_minted.txt
 // $func->test2(); exit;
 
 // $func->save_all_ids_from_all_hierarchies_2MySQL();
