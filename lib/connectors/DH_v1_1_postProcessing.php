@@ -166,7 +166,6 @@ class DH_v1_1_postProcessing
     function step_5_minting()
     {   
         $file_append = $this->main_path."/append_minted_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        $file_taxonomy = $this->main_path."/taxonomy_4dwca.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
         
         $this->mysqli =& $GLOBALS['db_connection'];
         /* step 1: get max minted_id value */
@@ -209,7 +208,6 @@ class DH_v1_1_postProcessing
                 [flags] => 
             */
             $minted_id = self::search_minted_record($rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
-            // exit("\n no. of recs: [$max_id]\n");
             if(!$minted_id) { //new name --- will be assigned with newly minted ID
                 $this->incremental++;
                 $minted_id = self::format_minted_id();
@@ -218,13 +216,11 @@ class DH_v1_1_postProcessing
             }
             else echo "\nRecord already exists [$minted_id]\n";
             
-            /* for taxonomy file for DwCA */
-            $arr = array($minted_id, $rec['parent_uid'], $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
-            fwrite($WRITE2, implode("\t", $arr)."\n");
+            $old_id_minted_id_info[$rec['uid']] = $minted_id; //to be used below
             
             // if($i > 15) break; //debug only
         }
-        fclose($WRITE); fclose($WRITE2);
+        fclose($WRITE);
         
         /* step 3: append to MySQL table */
         if(filesize($file_append)) {
@@ -232,6 +228,63 @@ class DH_v1_1_postProcessing
             if($result = $this->mysqli->query($sql)) echo "\nSaved OK to MySQL\n";
         }
         else echo "\nNothing to save.\n";
+        
+        /*step 4: loop again taxonomy2.txt and generate taxonomy_4dwca.txt, now using minted_id for uid and parent_uid */
+        $file_taxonomy = $this->main_path."/taxonomy_4dwca.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
+        $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
+        fwrite($WRITE2, implode("\t|\t", $fields)."\t|\t"."\n");
+        
+        $txtfile = $this->main_path.'/taxonomy2.txt';
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t|\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); //exit("\nstopx\n");
+            /*Array(
+                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
+                [parent_uid] => 
+                [name] => Life
+                [rank] => clade
+                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            */
+            
+            // $old_id_minted_id_info[$rec['uid']] = $minted_id; //to be used below
+            
+            // /* for taxonomy file for DwCA
+            if($minted_id = $old_id_minted_id_info[$rec['uid']]) {}
+            else exit("\nInvestigate no minted uid...\n");
+
+            if($val = $rec['parent_uid']) {
+                if($parent_id = $old_id_minted_id_info[$val]) {}
+                else exit("\nInvestigate no minted parent_uid...\n");
+            }
+            else $parent_id = '';
+            $arr = array($minted_id, $parent_id, $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
+            fwrite($WRITE2, implode("\t|\t", $arr)."\t|\t"."\n");
+            // */
+            
+            // if($i > 15) break; //debug only
+        }
+        fclose($WRITE2);
+        
+        
     }
     //=====================================================end minting
     function step_4pt2_of_9()
