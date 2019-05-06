@@ -152,6 +152,8 @@ class DH_v1_1_postProcessing
     }
     private function search_minted_record($uid, $parent_uid, $sciname, $rank)
     {
+        $sciname = str_replace("'", "\'", $sciname);
+        
         $sql = "SELECT m.minted_id from DWH.minted_records m WHERE m.uid = '$uid' and m.sciname = '$sciname' and m.rank = '$rank' and m.parent_uid = '$parent_uid';";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['minted_id'];
@@ -210,7 +212,8 @@ class DH_v1_1_postProcessing
             // exit("\n no. of recs: [$max_id]\n");
             if(!$minted_id) { //new name --- will be assigned with newly minted ID
                 $this->incremental++;
-                $arr = array(self::format_minted_id(), $rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
+                $minted_id = self::format_minted_id();
+                $arr = array($minted_id, $rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
             else echo "\nRecord already exists [$minted_id]\n";
@@ -219,7 +222,7 @@ class DH_v1_1_postProcessing
             $arr = array($minted_id, $rec['parent_uid'], $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
             fwrite($WRITE2, implode("\t", $arr)."\n");
             
-            if($i > 12) break; //debug only
+            // if($i > 15) break; //debug only
         }
         fclose($WRITE); fclose($WRITE2);
         
