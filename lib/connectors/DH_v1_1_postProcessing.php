@@ -550,7 +550,7 @@ class DH_v1_1_postProcessing
     }
     public function generate_dwca($resource_id)
     {
-        $txtfile = $this->main_path.'/taxonomy2.txt';
+        $txtfile = $this->main_path.'/taxonomy_4dwca.txt';
         require_library('connectors/DHSourceHierarchiesAPI_v2');
         $func = new DHSourceHierarchiesAPI_v2($resource_id);
         $func->generate_dwca($resource_id, $txtfile, false); //3rd param false means, will not generate synonyms in DwCA
