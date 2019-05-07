@@ -210,17 +210,18 @@ class FishBaseArchiveAPI
         self::process_taxa_object_references(); echo "\n dataObject references -- DONE";
         self::process_taxa_object_agents();     echo "\n agents -- DONE";
         
-        
-        self::initialize_mapping(); //un-comment in real operation
-        self::process_taxa_objects();           echo "\n dataObjects -- DONE";
+        self::initialize_mapping(); //mapping for trait data
+        self::process_taxa_objects();           echo "\n dataObjects and Trait data -- DONE";
         $this->archive_builder->finalize(true);
+        Functions::start_print_debug($this->debug, $this->resource_id);
         return true;
     }
     private function initialize_mapping()
     {
         $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        $mappings = Functions::additional_mappings($mappings); //add more mappings used in the past
+        $this->uris = array_merge($mappings, $this->uris);
         // print_r($this->uris); exit;
     }
     private function process_taxa_synonyms()
@@ -462,7 +463,7 @@ class FishBaseArchiveAPI
                                                                 "http://purl.org/obo/owlATOL_0001659", "http://purl.org/obo/owlATOL_0001660"))) {
                             if($rec['statisticalMethod'] == "http://semanticscience.org/resource/SIO_001114") {
                                 $rec['lifeStage'] = 'http://www.ebi.ac.uk/efo/EFO_0001272';
-                                print_r($rec);
+                                // print_r($rec);
                             }
                         }
                         /* end new */
@@ -499,7 +500,7 @@ class FishBaseArchiveAPI
                         }
                         $rec["measurementRemarks"] = $text['desc'];
                         if($location_strings = self::parse_location_strings($text['desc'])) { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1639?focusedCommentId=63426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63426
-                            
+                            self::create_trait($location_strings, $rec);
                         }
                         else {
                             //start special -------------------------------------------------------------
@@ -544,6 +545,32 @@ class FishBaseArchiveAPI
             }
             // if($k > 10) break; //debug
         }
+    }
+    private function create_trait($location_strings, $rec)
+    {
+        $mtype = "http://eol.org/schema/terms/Present";
+        foreach($location_strings as $string_val) {
+            if($string_val) {
+                $string_val = Functions::conv_to_utf8($string_val);
+                $rec["catnum"] .= "-".str_replace(" ","_",$string_val);
+                if($string_uri = self::get_string_uri($string_val)) {
+                    $this->func->add_string_types($rec, $string_uri, $mtype, "true");
+                }
+                // elseif($val = @$this->addtl_mappings[strtoupper(str_replace('"', "", $string_val))]) {
+                //     $rec['measurementRemarks'] = $string_val;
+                //     self::write_addtl_mappings($val, $rec);
+                // }
+                else $this->debug['undefined locations'][$string_val] = '';
+            }
+        }
+    }
+    private function get_string_uri($string)
+    {
+        switch ($string) { //put here customized mapping
+            case "EliBoy":                return false;
+            // case "United States of America":    return "http://www.wikidata.org/entity/Q30";
+        }
+        if($string_uri = @$this->uris[$string]) return $string_uri;
     }
     function parse_location_strings($str)
     {
