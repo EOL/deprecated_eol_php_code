@@ -31,8 +31,8 @@ class FishBaseArchiveAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
-        // $this->uri_mappings_spreadsheet = "http://localhost/cp_new/FishBase/fishbase mappings.xlsx";
-        $this->uri_mappings_spreadsheet = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/fishbase%20mappings.xlsx";
+        $this->uri_mappings_spreadsheet = "http://localhost/cp_new/FishBase/fishbase mappings.xlsx";
+        // $this->uri_mappings_spreadsheet = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/fishbase%20mappings.xlsx";
         $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
         $this->download_options['expire_seconds'] = false; //doesn't expire - debug
     }
@@ -411,6 +411,7 @@ class FishBaseArchiveAPI
                         $rec["measurementRemarks"] = '';
                         $rec["measurementUnit"] = '';
                         $rec["sex"] = '';
+                        $rec['lifeStage'] = '';
                         /*
                             [measurement] => http://rs.tdwg.org/dwc/terms/verbatimDepth
                             [value] => 0
@@ -436,7 +437,26 @@ class FishBaseArchiveAPI
                         if($val = @$item['unit'])     $rec['measurementUnit'] = $val;
                         if($val = @$item['sex'])      $rec['occur']['sex'] = $val;
                      
-                        // lifeStage
+                        /* new: https://eol-jira.bibalex.org/browse/DATA-1639?focusedCommentId=63396&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63396
+                        I'd like to try adding
+                        lifeStage= http://www.ebi.ac.uk/efo/EFO_0001272 (i.e. we will assume this record is for an adult)
+                        only to records where measurementType =
+                        http://purl.obolibrary.org/obo/VT_0001259
+                        http://purl.obolibrary.org/obo/VT_0015039
+                        http://purl.org/obo/owlATOL_0001658
+                        http://purl.org/obo/owlATOL_0001659
+                        OR
+                        http://purl.org/obo/owlATOL_0001660
+                        and statisticalMethod = http://semanticscience.org/resource/SIO_001114
+                        */
+                        if(in_array($item['measurement'], array("http://purl.obolibrary.org/obo/VT_0001259", "http://purl.obolibrary.org/obo/VT_0015039", "http://purl.org/obo/owlATOL_0001658", 
+                                                                "http://purl.org/obo/owlATOL_0001659", "http://purl.org/obo/owlATOL_0001660"))) {
+                            if($rec['statisticalMethod'] == "http://semanticscience.org/resource/SIO_001114") {
+                                print_r($rec);
+                                $rec['lifeStage'] = 'http://www.ebi.ac.uk/efo/EFO_0001272';
+                            }
+                        }
+                        /* end new */
                         
                         $rec['bibliographicCitation'] = $this->bibliographic_citation;
                         
