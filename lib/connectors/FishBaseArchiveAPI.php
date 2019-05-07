@@ -452,8 +452,8 @@ class FishBaseArchiveAPI
                         if(in_array($item['measurement'], array("http://purl.obolibrary.org/obo/VT_0001259", "http://purl.obolibrary.org/obo/VT_0015039", "http://purl.org/obo/owlATOL_0001658", 
                                                                 "http://purl.org/obo/owlATOL_0001659", "http://purl.org/obo/owlATOL_0001660"))) {
                             if($rec['statisticalMethod'] == "http://semanticscience.org/resource/SIO_001114") {
-                                print_r($rec);
                                 $rec['lifeStage'] = 'http://www.ebi.ac.uk/efo/EFO_0001272';
+                                print_r($rec);
                             }
                         }
                         /* end new */
@@ -482,23 +482,25 @@ class FishBaseArchiveAPI
                                 )
                         )
                     */
+                    $rec['bibliographicCitation'] = $this->bibliographic_citation;
                     foreach($texts as $text) {
                         $rec["referenceID"] = '';
                         if($val = @$text['reference_ids']) {
                             if($ref_ids = self::convert_FBrefID_with_archiveID($val)) $rec["referenceID"] = implode("; ", $ref_ids);
                         }
-                        
-                        $rec['bibliographicCitation'] = $this->bibliographic_citation;
-                        
-                        //start special -------------------------------------------------------------
-                        $var = md5('http://eol.org/schema/terms/Present' . $text['desc'] . $taxon_id);
-                        if(!isset($this->unique_measurements[$var]))
-                        {
-                            $this->unique_measurements[$var] = '';
-                                // self::add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true"); //working. old implementation of trait
-                            $this->func->add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true");
+                        $rec["measurementRemarks"] = $text['desc'];
+                        if($location_strings = self::parse_location_strings($text['desc'])) { // per Jen: https://eol-jira.bibalex.org/browse/DATA-1639?focusedCommentId=63426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63426
+                            
                         }
-                        //end special -------------------------------------------------------------
+                        else {
+                            //start special -------------------------------------------------------------
+                            $var = md5('http://eol.org/schema/terms/Present' . $text['desc'] . $taxon_id);
+                            if(!isset($this->unique_measurements[$var])) {
+                                $this->unique_measurements[$var] = '';
+                                $this->func->add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true");
+                            }
+                            //end special -------------------------------------------------------------
+                        }
                     }
                     
                 }
@@ -533,6 +535,49 @@ class FishBaseArchiveAPI
             }
             // if($k > 10) break; //debug
         }
+    }
+    function parse_location_strings($str)
+    {
+        $locations = array();
+        if(stripos($str, ":") !== false) { //string is found
+            $arr = explode(":", $str);
+            $str = $arr[0];
+            echo "\n[$str]\n";
+            
+            $separators = array(" and ", " to ", ",");
+            foreach($separators as $separator) {
+                $tmp = explode($separator, $str);
+                if(@$tmp[1]) {
+                    foreach($tmp as $t) {
+                        foreach($separators as $separator) {
+                            $tmp2 = explode($separator, $t);
+                            if(@$tmp2[1]) $locations = array_merge($locations, $tmp2);
+                        }
+                    }
+                }
+            }
+            
+            $locations = array_map('trim', $locations);
+            $locations = array_filter($locations); //remove null arrays
+            $locations = array_unique($locations); //make unique
+            $locations = array_values($locations); //reindex key
+            print_r($locations);
+
+            foreach($locations as $l) {
+                if(stripos($l, $separators[0]) !== false || stripos($l, $separators[1]) !== false || stripos($l, $separators[2]) !== false) {} //string is found
+                else $final[] = $l;
+                
+            }
+
+            $final = array_map('trim', $final);
+            $final = array_filter($final); //remove null arrays
+            $final = array_unique($final); //make unique
+            $final = array_values($final); //reindex key
+            print_r($final);
+            
+        }
+        // else return false;
+        exit("\n-end-\n");
     }
     private function use_best_fishbase_server($url)
     {
