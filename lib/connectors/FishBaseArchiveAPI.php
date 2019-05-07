@@ -15,8 +15,8 @@ class FishBaseArchiveAPI
         $this->test_run = $test_run;
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_not_in_folder.zip";
-        // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase.zip";
-        $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip"; //temporarily not available, until further notice by FishBase
+        $this->fishbase_data = "http://localhost/cp/FishBase/fishbase.zip";
+        // $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip"; //temporarily not available, until further notice by FishBase
         // $this->fishbase_data = "http://editors.eol.org/other_files/FishBase/fishbase.zip"; //given directly by FishBase staff and since they don't have hosting ability atm, we're hosting it.
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->text_path = array();
@@ -34,7 +34,7 @@ class FishBaseArchiveAPI
         // $this->uri_mappings_spreadsheet = "http://localhost/cp_new/FishBase/fishbase mappings.xlsx";
         $this->uri_mappings_spreadsheet = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/fishbase%20mappings.xlsx";
         $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
-        // $this->download_options['expire_seconds'] = false; //doesn't expire - debug
+        $this->download_options['expire_seconds'] = false; //doesn't expire - debug
     }
 
     function get_all_taxa($resource_id)
@@ -302,12 +302,12 @@ class FishBaseArchiveAPI
                      )
         */
         foreach($taxon_dataobject_reference as $do_id => $refs) { //do_id is int_do_id in FB text file
-            $reference_ids = self::create_references($refs);
+            $reference_ids = self::create_references($refs, 2, $do_id);
             $this->object_reference_ids[$do_id] = $reference_ids;
         }
     }
     
-    private function create_references($refs)
+    private function create_references($refs, $from, $taxon_or_do_id) //2nd and 3rd params here are just for debugging
     {
         $reference_ids = array();
         foreach($refs as $ref) {
@@ -325,6 +325,7 @@ class FishBaseArchiveAPI
             else {
                 echo "\nno ref id; investigate: " . $ref["url"];
                 $ref_id = '';
+                print_r($refs); exit("\nEli investigates [$from] [$taxon_or_do_id]\n");
             }
             
             if(!isset($this->reference_ids[$ref_id])) {
@@ -527,7 +528,7 @@ class FishBaseArchiveAPI
         $taxon_references = self::make_array($this->text_path['TAXON_REFERENCES_PATH'], $fields, "int_id", array(1,2,3,4,5,7,8,9,10,12,14,15));
         foreach($taxon_references as $taxon_id => $refs) //taxon_id is int_id in FB text file
         {
-            $reference_ids = self::create_references($refs);
+            $reference_ids = self::create_references($refs, 1, $taxon_id);
             $this->taxa_reference_ids[$taxon_id] = $reference_ids;
         }
     }
@@ -573,6 +574,17 @@ class FishBaseArchiveAPI
 
     function make_array($filename, $fields, $index_key="", $excluded_fields=array(), $separator="\t")
     {
+        // /* new. To fix undefined refs. May 6, 2019.
+        if(in_array($filename, array($this->text_path['TAXON_REFERENCES_PATH'], $this->text_path['TAXON_DATAOBJECT_REFERENCE_PATH']))) {
+            $tmp = file_get_contents($filename);
+            $tmp = str_replace('\\'."\n", " ", $tmp);
+            $WRITE = fopen($filename, "w"); //will overwrite existing
+            fwrite($WRITE, $tmp);
+            fclose($WRITE);
+            echo "\nUpdated $filename\n";
+        }
+        // */
+        
         /*
         $excluded_fields can be array of fieldnames e.g. array("taxonID", "scientificName");
         or can be array of index values of the fields array e.g. array("0", "1", "3")
