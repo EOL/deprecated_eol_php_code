@@ -209,11 +209,20 @@ class FishBaseArchiveAPI
         self::process_taxa_synonyms();          echo "\n synonyms -- DONE";
         self::process_taxa_object_references(); echo "\n dataObject references -- DONE";
         self::process_taxa_object_agents();     echo "\n agents -- DONE";
+        
+        
+        self::initialize_mapping(); //un-comment in real operation
         self::process_taxa_objects();           echo "\n dataObjects -- DONE";
         $this->archive_builder->finalize(true);
         return true;
     }
-
+    private function initialize_mapping()
+    {
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // print_r($this->uris); exit;
+    }
     private function process_taxa_synonyms()
     {
         /*
