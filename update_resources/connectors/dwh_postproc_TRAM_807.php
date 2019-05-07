@@ -33,6 +33,11 @@ unset($func);
 Functions::finalize_dwca_resource($resource_id, true, false);
 run_diagnostics($resource_id);
 
+/* stats:
+counting: [/Library/WebServer/Documents/eol_php_code/applications/content_server/resources/DH_v1_1_postproc/taxon.tab] total: [2338864]
+*/
+
+
 //############################################################ end main
 
 $elapsed_time_sec = time_elapsed() - $timestart;
