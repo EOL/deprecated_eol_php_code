@@ -31,11 +31,11 @@ $timestart = time_elapsed();
 $resource_id = 42;
 $func = new FishBaseArchiveAPI(false, $resource_id);
 
-// /* tests
+/* tests
 $str = "Western to Atlantic and Eli boy and batman , robin, joker to bahamas island and 1 2 3 4 5:  Massachusetts, USA and Bermuda to the Gulf of Mexico, the Caribbean and southern Brazil";
 $func->parse_location_strings($str);
 exit("\n-end tests-\n");
-// */
+*/
 
 $func->get_all_taxa($resource_id);
 Functions::finalize_dwca_resource($resource_id, false, true);
