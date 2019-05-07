@@ -15,8 +15,8 @@ class FishBaseArchiveAPI
         $this->test_run = $test_run;
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_in_folder.zip";
         // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase_not_in_folder.zip";
-        $this->fishbase_data = "http://localhost/cp/FishBase/fishbase.zip";
-        // $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip"; //temporarily not available, until further notice by FishBase
+        // $this->fishbase_data = "http://localhost/cp/FishBase/fishbase.zip";
+        $this->fishbase_data = "http://www.fishbase.us/FB_data_for_EOL/fishbase.zip"; //temporarily not available, until further notice by FishBase
         // $this->fishbase_data = "http://editors.eol.org/other_files/FishBase/fishbase.zip"; //given directly by FishBase staff and since they don't have hosting ability atm, we're hosting it.
         if($this->test_run) $this->fishbase_data = "http://dl.dropbox.com/u/7597512/FishBase/fishbase_not_in_folder.zip";
         $this->text_path = array();
@@ -34,7 +34,7 @@ class FishBaseArchiveAPI
         // $this->uri_mappings_spreadsheet = "http://localhost/cp_new/FishBase/fishbase mappings.xlsx";
         $this->uri_mappings_spreadsheet = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/fishbase%20mappings.xlsx";
         $this->download_options = array('resource_id' => 42, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
-        $this->download_options['expire_seconds'] = false; //doesn't expire - debug
+        // $this->download_options['expire_seconds'] = false; //doesn't expire - debug
     }
 
     function get_all_taxa($resource_id)
@@ -432,7 +432,7 @@ class FishBaseArchiveAPI
                         if($val = @$item['unit'])     $rec['measurementUnit'] = $val;
                         if($val = @$item['sex'])      $rec['sex'] = $val;
                      
-                        lifeStage
+                        // lifeStage
                             
                         self::add_string_types($rec, $item['value'], $item['measurement'], "true");
                     }
