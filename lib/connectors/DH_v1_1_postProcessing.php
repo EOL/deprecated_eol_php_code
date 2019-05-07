@@ -484,7 +484,10 @@ class DH_v1_1_postProcessing
                         [f] => incertae_sedis
                         [uid] => -146720
                 */
+                /* wrong criteria: 
                 if(stripos($info['f'], "incertae_sedis") !== false) { //string is found
+                */
+                if(self::there_is_incertae_sedis_in_flag($info['f'])) {
                     $new_parent_id = self::get_or_create_new_parent($info['pID']);
                     $desc_info[$i]['pID'] = $new_parent_id;
                 }
@@ -504,6 +507,14 @@ class DH_v1_1_postProcessing
         // print_r($this->taxID_info['-146718']);
         // exit;
         
+    }
+    function there_is_incertae_sedis_in_flag($flag_str)
+    {
+        $flags = explode(",", $flag_str);
+        foreach($flags as $flag) {
+            if($flag == "incertae_sedis") return true;
+        }
+        return false;
     }
     private function check_descendants_to_create_parent_container_YN($descendants)
     {   /* add a new rule to Step 1 (Clean up children of container taxa): Don't create a new container taxon if all of its descendants will be barren 
