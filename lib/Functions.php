@@ -492,14 +492,14 @@ class Functions
     }
     public static function get_eol_defined_uris($download_options = false, $directionOpposite = false)
     {
-        // /* Use this temporarily until EOL V3 hosts known_uris
+        /* Use this temporarily until EOL V3 hosts known_uris
         $ret = self::get_eol_defined_uris_v1($download_options, $directionOpposite);
         return $ret;
-        // */
-        /* Seems the initial EOL V3 interface is now back online.
+        */
+        // /* Seems the initial EOL V3 interface is now back online.
         $ret = self::get_eol_defined_uris_v2($download_options, $directionOpposite);
         return $ret;
-        */
+        // */
         
         $url = "http://beta-repo.eol.org/terms?per_page=1000&page=";
         if(!$download_options) $download_options = array('resource_id' => 'URIs', 'download_wait_time' => 500000, 'timeout' => 900, 'expire_seconds' => 60*60*24, 'download_attempts' => 1);
