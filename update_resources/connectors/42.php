@@ -33,7 +33,10 @@ $func = new FishBaseArchiveAPI(false, $resource_id);
 
 /* tests
 $str = "Western to Atlantic and Eli boy and batman , robin, joker to bahamas island and 1 2 3 4 5:  Massachusetts, USA and Bermuda to the Gulf of Mexico, the Caribbean and southern Brazil";
-$func->parse_location_strings($str);
+$str = "Indo-West,Pacific eli:  Red Sea and East Africa to Southeast Asia, north to Japan and south to northern Australia (Ref. 28)";
+$arr = $func->parse_location_strings($str);
+if($arr) print_r($arr);
+else echo "\nnot array\n";
 exit("\n-end tests-\n");
 */
 
