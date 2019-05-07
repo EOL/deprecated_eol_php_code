@@ -338,6 +338,9 @@ class FishBaseArchiveAPI
     
     private function process_taxa_objects()
     {
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
         /*
         [dc_identifier] => FB-pic-2-13870
         [dataType] => http://purl.org/dc/dcmitype/StillImage
@@ -431,11 +434,21 @@ class FishBaseArchiveAPI
                         if($val = @$item['sMethod'])  $rec['statisticalMethod'] = $val;
                         if($val = @$item['mRemarks']) $rec['measurementRemarks'] = $val;
                         if($val = @$item['unit'])     $rec['measurementUnit'] = $val;
-                        if($val = @$item['sex'])      $rec['sex'] = $val;
+                        if($val = @$item['sex'])      $rec['occur']['sex'] = $val;
                      
                         // lifeStage
-                            
-                        self::add_string_types($rec, $item['value'], $item['measurement'], "true");
+                        
+                        $rec['bibliographicCitation'] = $this->bibliographic_citation;
+                        
+                        //start special -------------------------------------------------------------
+                        $var = md5($item['measurement'] . $item['value'] . $taxon_id);
+                        if(!isset($this->unique_measurements[$var])) {
+                            $this->unique_measurements[$var] = '';
+                                // self::add_string_types($rec, $item['value'], $item['measurement'], "true"); //working. old implementation of trait
+                            $this->func->add_string_types($rec, $item['value'], $item['measurement'], "true");
+                        }
+                        //end special -------------------------------------------------------------
+                        
                     }
                 }
                 elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution") {
@@ -454,7 +467,18 @@ class FishBaseArchiveAPI
                         if($val = @$text['reference_ids']) {
                             if($ref_ids = self::convert_FBrefID_with_archiveID($val)) $rec["referenceID"] = implode("; ", $ref_ids);
                         }
-                        self::add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true");
+                        
+                        $rec['bibliographicCitation'] = $this->bibliographic_citation;
+                        
+                        //start special -------------------------------------------------------------
+                        $var = md5('http://eol.org/schema/terms/Present' . $text['desc'] . $taxon_id);
+                        if(!isset($this->unique_measurements[$var]))
+                        {
+                            $this->unique_measurements[$var] = '';
+                                // self::add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true"); //working. old implementation of trait
+                            $this->func->add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true");
+                        }
+                        //end special -------------------------------------------------------------
                     }
                     
                 }
