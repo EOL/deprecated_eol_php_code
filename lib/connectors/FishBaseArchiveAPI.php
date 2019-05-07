@@ -538,12 +538,11 @@ class FishBaseArchiveAPI
     }
     function parse_location_strings($str)
     {
-        $locations = array();
+        $locations = array(); $final = array();
         if(stripos($str, ":") !== false) { //string is found
             $arr = explode(":", $str);
             $str = $arr[0];
-            echo "\n[$str]\n";
-            
+            // echo "\n[$str]\n";
             $separators = array(" and ", " to ", ",");
             foreach($separators as $separator) {
                 $tmp = explode($separator, $str);
@@ -556,28 +555,23 @@ class FishBaseArchiveAPI
                     }
                 }
             }
-            
             $locations = array_map('trim', $locations);
             $locations = array_filter($locations); //remove null arrays
             $locations = array_unique($locations); //make unique
             $locations = array_values($locations); //reindex key
-            print_r($locations);
-
+            // print_r($locations);
             foreach($locations as $l) {
                 if(stripos($l, $separators[0]) !== false || stripos($l, $separators[1]) !== false || stripos($l, $separators[2]) !== false) {} //string is found
                 else $final[] = $l;
-                
             }
-
             $final = array_map('trim', $final);
             $final = array_filter($final); //remove null arrays
             $final = array_unique($final); //make unique
             $final = array_values($final); //reindex key
-            print_r($final);
-            
+            // print_r($final);
+            return $final;
         }
-        // else return false;
-        exit("\n-end-\n");
+        else return false;
     }
     private function use_best_fishbase_server($url)
     {
