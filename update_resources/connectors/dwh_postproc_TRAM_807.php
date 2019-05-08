@@ -24,6 +24,7 @@ exit("\n-end test-\n");
 $func->start_tram_807(); //this creates taxonomy1.txt
 $func->step_4pt2_of_9(); //this uses and starts with taxonomy1.txt from prev. step. Creates taxonomy2.txt
 // exit("\n-end step4-\n");
+$func->post_step_4(); //to clean up empty containers. If we end up with a lot of containers with only one or a few descendants (<5), we may want to remove those containers too and attach their children directly to the grandparent.
 $func->step_5_minting(); //exit("\n-end step5-\n"); //this starts with taxonomy2.txt from prev. step. Creates taxonomy_4dwca.txt
 // $func->test2(); exit;
 

@@ -173,7 +173,7 @@ class DH_v1_1_postProcessing
         echo("\nincrement starts with: [$this->incremental]\n");
         
         /* step 2: loop taxonomy file, check if each name exists already. If yes, get minted_id from table. If no, increment id and assign. */
-        $txtfile = $this->main_path.'/taxonomy2.txt';
+        $txtfile = $this->main_path.'/taxonomy3.txt';
         $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -227,13 +227,13 @@ class DH_v1_1_postProcessing
         }
         else echo "\nNothing to save.\n";
         
-        /*step 4: loop again taxonomy2.txt and generate taxonomy_4dwca.txt, now using minted_id for uid and parent_uid */
+        /*step 4: loop again taxonomy3.txt and generate taxonomy_4dwca.txt, now using minted_id for uid and parent_uid */
         $file_taxonomy = $this->main_path."/taxonomy_4dwca.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
         $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
         fwrite($WRITE2, implode("\t|\t", $fields)."\t|\t"."\n");
         echo "\nGenerating $file_taxonomy\n";
         
-        $txtfile = $this->main_path.'/taxonomy2.txt';
+        $txtfile = $this->main_path.'/taxonomy3.txt';
         $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -289,6 +289,27 @@ class DH_v1_1_postProcessing
         fclose($WRITE2);
     }
     //=====================================================end minting
+    
+    //=====================================================start post step 4
+    function post_step_4()
+    {   /*That's no big deal, we just have to add a step after "4. Clean up deadend branches" to clean up empty containers. If we end up with a lot of containers with only one 
+          or a few descendants (<5), we may want to remove those containers too and attach their children directly to the grandparent. The main function of the containers is to keep 
+          the taxon tree tidy for browsing. Incertae sedis taxa only create a problem if they occur in larger batches and it doesn't make sense to keep them containerized if there 
+          are only a handful of them.
+        */
+        self::get_taxID_nodes_info($this->main_path.'/taxonomy2.txt'); //un-comment in real operation
+        foreach($this->taxID_info as $uid => $info) {
+            // print_r($rec); exit("\n$uid\n");
+            /* 
+            */
+
+        }
+        self::save_global_var_to_txt($this->main_path.'/taxonomy3.txt');
+    }
+
+    //=======================================================end post step 4
+    
+    
     function step_4pt2_of_9()
     {   /*4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
         (1) One of the sources of the taxon is trunk
