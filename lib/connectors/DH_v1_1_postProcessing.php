@@ -509,10 +509,15 @@ class DH_v1_1_postProcessing
         
     }
     function there_is_incertae_sedis_in_flag($flag_str)
-    {
+    {   /* "Clarification, so it should only be for flag where there is 'incertae_sedis'
+        Which means it also includes flag = incertae_sedis,barren
+        But definitely excludes 'incertae_sedis_inherited'."
+        Yes, exactly. Other flags in addition to incertae_sedis are fine, but we don't want things that have the 'incertae_sedis_inherited' flag.
+        */
         $flags = explode(",", $flag_str);
         foreach($flags as $flag) {
             if($flag == "incertae_sedis") return true;
+            if($flag == "incertae_sedis_inherited") return false;
         }
         return false;
     }
