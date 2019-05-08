@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
-/* TRAM-807: Dynamic Hierarchy Version 1.1. Postprocessing */
+/* TRAM-807: Dynamic Hierarchy Version 1.1. Postprocessing 
+
+Statistics
+http://rs.tdwg.org/dwc/terms/taxon: Total: 2329082  --> before post_step_4()
+
+*/
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DH_v1_1_postProcessing');
 // ini_set('memory_limit','6096M');
@@ -20,12 +25,13 @@ if($func->there_is_incertae_sedis_in_flag($flag)) echo "\nthere is IS\n";
 else echo "\nwalang IS\n";
 exit("\n-end test-\n");
 */
-
+/* part of main operation, un-comment in real operation
 $func->start_tram_807(); //this creates taxonomy1.txt
 $func->step_4pt2_of_9(); //this uses and starts with taxonomy1.txt from prev. step. Creates taxonomy2.txt
+*/
 // exit("\n-end step4-\n");
-$func->post_step_4(); //to clean up empty containers. If we end up with a lot of containers with only one or a few descendants (<5), we may want to remove those containers too and attach their children directly to the grandparent.
-$func->step_5_minting(); //exit("\n-end step5-\n"); //this starts with taxonomy2.txt from prev. step. Creates taxonomy_4dwca.txt
+$func->post_step_4(); exit("\n-end post_step_4-\n"); //Uses taxonomy2.txt, generates taxonomy3.txt. To clean up empty containers. If we end up with a lot of containers with only one or a few descendants (<5), we may want to remove those containers too and attach their children directly to the grandparent.
+$func->step_5_minting(); //exit("\n-end step5-\n"); //this starts with taxonomy3.txt from prev. step. Creates taxonomy_4dwca.txt
 // $func->test2(); exit;
 
 /*
