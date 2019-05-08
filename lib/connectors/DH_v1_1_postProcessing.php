@@ -289,7 +289,6 @@ class DH_v1_1_postProcessing
         fclose($WRITE2);
     }
     //=====================================================end minting
-    
     //=====================================================start post step 4
     function post_step_4()
     {   /*That's no big deal, we just have to add a step after "4. Clean up deadend branches" to clean up empty containers. If we end up with a lot of containers with only one 
@@ -299,17 +298,30 @@ class DH_v1_1_postProcessing
         */
         self::get_taxID_nodes_info($this->main_path.'/taxonomy2.txt'); //un-comment in real operation
         foreach($this->taxID_info as $uid => $info) {
-            // print_r($rec); exit("\n$uid\n");
-            /* 
+            // print_r($info); exit("\n$uid\n");
+            /*Array( $uid = f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
+                [pID] => 
+                [r] => clade
+                [n] => Life
+                [s] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [f] => 
             */
-
+            if(substr($uid,0,5) == 'unc-P') {
+                $children = self::get_descendants_of_taxID($uid);
+                if($children) {
+                    if(count($children) > 5) {
+                        /* If we end up with a lot of containers with only one or a few descendants (<5), we may want to remove those containers too 
+                           and attach their children directly to the grandparent. */
+                        print_r($children); echo " - $uid \n";
+                    }
+                }
+                else unset($this->taxID_info[$uid]);
+                
+            }
         }
         self::save_global_var_to_txt($this->main_path.'/taxonomy3.txt');
     }
-
     //=======================================================end post step 4
-    
-    
     function step_4pt2_of_9()
     {   /*4.2. remove barren taxa EXCEPT if at least one of the following conditions is true:
         (1) One of the sources of the taxon is trunk
@@ -318,7 +330,7 @@ class DH_v1_1_postProcessing
         */
         self::get_taxID_nodes_info($this->main_path.'/taxonomy1.txt'); //un-comment in real operation
         foreach($this->taxID_info as $uid => $info) {
-            // print_r($rec); exit("\n$uid\n");
+            // print_r($info); exit("\n$uid\n");
             /*Array(
                 [pID] => 
                 [r] => clade
