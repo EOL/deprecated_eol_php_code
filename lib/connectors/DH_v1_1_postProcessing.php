@@ -309,17 +309,28 @@ class DH_v1_1_postProcessing
             if(substr($uid,0,5) == 'unc-P') {
                 $children = self::get_descendants_of_taxID($uid);
                 if($children) {
-                    if(count($children) > 5) {
+                    if(count($children) < 5) {
+                        @$totals['unc-P']['< 5 desc']++;
                         /* If we end up with a lot of containers with only one or a few descendants (<5), we may want to remove those containers too 
                            and attach their children directly to the grandparent. */
-                        print_r($children); echo " - $uid \n";
+                        // print_r($children); echo " - $uid \n";
+                        if($val = $info['pID']) $parent_of_unclassified = $val;
+                        else { //should not go here...
+                            print_r($info);
+                            exit("\nInvestigate no parent\n");
+                        }
+                        foreach($children as $child) $this->taxID_info[$child]['pID'] = $parent_of_unclassified;
+                        unset($this->taxID_info[$uid]); //then delete the unclassified taxon
                     }
                 }
-                else unset($this->taxID_info[$uid]);
-                
+                else {
+                    unset($this->taxID_info[$uid]);
+                    @$totals['unc-P']['zero desc']++;
+                }
             }
         }
         self::save_global_var_to_txt($this->main_path.'/taxonomy3.txt');
+        print_r($totals);
     }
     //=======================================================end post step 4
     function step_4pt2_of_9()
