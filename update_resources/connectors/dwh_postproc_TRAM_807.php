@@ -43,6 +43,10 @@ mysql> CREATE TABLE ids_scinames LIKE ids_scinames_v1;
 to load from txt file:
 mysql> load data local infile '/Volumes/AKiTiO4/d_w_h/2019_04/zFiles/write2mysql_v2.txt' into table ids_scinames;
 
+To make a backup of minted_records table
+mysql> CREATE TABLE minted_records_bak LIKE minted_records;
+mysql> INSERT minted_records_bak SELECT * FROM minted_records;
+
 */
 
 $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
