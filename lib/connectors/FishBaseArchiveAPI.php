@@ -463,6 +463,7 @@ class FishBaseArchiveAPI
                                                                 "http://purl.org/obo/owlATOL_0001659", "http://purl.org/obo/owlATOL_0001660"))) {
                             if($rec['statisticalMethod'] == "http://semanticscience.org/resource/SIO_001114") {
                                 $rec['lifeStage'] = 'http://www.ebi.ac.uk/efo/EFO_0001272';
+                                @$this->debug['with lifestage']++; //only for stats
                                 // print_r($rec);
                             }
                         }
