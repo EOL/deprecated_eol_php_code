@@ -4,7 +4,7 @@ namespace php_active_record;
 Statistics
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/DH_v1_1_postProcessing');
+require_library('connectors/DH_v1_1_Mapping_EOL_IDs');
 // ini_set('memory_limit','6096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
