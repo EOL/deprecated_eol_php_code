@@ -11,7 +11,6 @@ class DH_v1_1_postProcessing
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
         $this->debug = array();
-        
         if(Functions::is_production()) {
             $this->download_options = array(
                 'cache_path'         => '/extra/eol_cache_smasher/',
@@ -25,15 +24,6 @@ class DH_v1_1_postProcessing
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-807/";
             // $this->main_path = "/Users/eagbayani/Sites/TRAM-807/"; //for MacBook
         }
-        
-        /*
-        $this->prune_further = array();
-        // these paths are manually created, since dumps are using explicit dates
-        if(Functions::is_production()) $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/COL_2019-02-20-archive-complete/";
-        else                           $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";
-        $this->dwca['iterator_options'] = array('row_terminator' => "\n");
-        $this->run = '';
-        */
         $this->unclassified_parent_id_increments = 0;
     }
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
