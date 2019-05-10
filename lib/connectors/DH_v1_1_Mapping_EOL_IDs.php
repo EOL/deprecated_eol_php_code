@@ -128,7 +128,7 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nstopx\n");
+            print_r($rec); //exit("\nstopx\n");
             /*Array(
                 [taxonID] => EOL-000000000001
                 [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
@@ -153,12 +153,20 @@ class DH_v1_1_mapping_EOL_IDs
                 fwrite($WRITE, implode("\t", array($EOL_id, $rec['taxonID'], $rec['scientificName']))."\n");
             }
             else { //No EOL_id
-                // if(source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) unmatched
+                if(source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) $rec['annotations'] = 'unmatched';
             }
             // */
             // if($i > 10) break; //debug only
         }
         fclose($WRITE);
+    }
+    private function source_is_in_listof_sources($source_str, $sources_list)
+    {
+        $sources = self::get_all_sources($source_str);
+        foreach($sources as $source) {
+            if(in_array($source, $sources_list)) return true;
+        }
+        return false;
     }
     private function get_all_source_identifiers($source)
     {
