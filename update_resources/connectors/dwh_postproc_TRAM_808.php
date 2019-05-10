@@ -17,7 +17,7 @@ $func = new DH_v1_1_Mapping_EOL_IDs($resource_id);
 /* tests only
 exit("\n-end test-\n");
 */
-$func->start_tram_808(); //this creates taxonomy1.txt
+$func->start_tram_808_v2(); //this creates taxonomy1.txt
 exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 // unset($func);
