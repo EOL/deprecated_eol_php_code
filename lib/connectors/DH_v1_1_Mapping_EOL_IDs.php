@@ -137,13 +137,7 @@ class DH_v1_1_mapping_EOL_IDs
                 [datasetID] => trunk
                 [canonicalName] => Life
             */
-            
             $source_ids = self::get_all_source_identifiers($rec['source']);
-            /*
-            if($EOL_id = self::loop_old_DH_get_EOL_id($source_ids)) echo "\nwith EOL_id [$EOL_id]\n";
-            else                                                    echo "\nNo EOL_id\n";
-            */
-            
             // /* MySQL option
             if($EOL_id = self::get_EOL_id($source_ids)) {
                 echo "\nwith EOL_id [$EOL_id]\n"; print_r($rec);
@@ -183,49 +177,5 @@ class DH_v1_1_mapping_EOL_IDs
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
         return false;
     }
-    /*
-    private function loop_old_DH_get_EOL_id($source_ids)
-    {
-        foreach($source_ids as $source_id) {
-            if($taxon_id = self::get_taxonid_from_old_DH($source_id)) {
-                if($EOL_id = self::query_eol_id($taxon_id)) return $EOL_id;
-            }
-        }
-    }
-    private function query_eol_id($taxon_id)
-    {
-        $sql = "select m.* from EOLid_map m where m.smasher_id = '".$taxon_id."'";
-        $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
-        return false;
-    }
-    private function get_taxonid_from_old_DH($source_id)
-    {
-        $i = 0;
-        foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
-            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t", $line); // print_r($row);
-            if($i == 1) {
-                $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
-                continue;
-            }
-            else {
-                if(!@$row[0]) continue;
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = @$row[$k];
-                    $k++;
-                }
-            }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx old_DH\n");
-            $source_ids = self::get_all_source_identifiers($rec['source']);
-            if(in_array($source_id, $source_ids)) return $rec['taxonid'];
-        }
-        return false;
-    }
-    */
 }
 ?>
