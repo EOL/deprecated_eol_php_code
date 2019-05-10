@@ -10,7 +10,6 @@ require_library('connectors/DH_v1_1_Mapping_EOL_IDs');
 $timestart = time_elapsed();
 
 //############################################################ start main
-
 $resource_id = "DH_v1_1_Map_EOL_IDs";
 $func = new DH_v1_1_Mapping_EOL_IDs($resource_id);
 
@@ -18,7 +17,7 @@ $func = new DH_v1_1_Mapping_EOL_IDs($resource_id);
 exit("\n-end test-\n");
 */
 
-$func->create_append_text(); exit("\n-end create_append_text-\n");//done only once; worked OK
+// $func->create_append_text(); exit("\n-end create_append_text-\n");//done only once; worked OK
 $func->start_tram_808();
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.

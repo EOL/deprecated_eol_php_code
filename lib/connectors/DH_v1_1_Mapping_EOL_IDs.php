@@ -99,11 +99,11 @@ class DH_v1_1_mapping_EOL_IDs
     function start_tram_808()
     {
         self::step_1(); //1. Match EOLid based on source identifiers
-        // Functions::start_print_debug($this->debug, $this->resource_id);
+        Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function step_1() //1. Match EOLid based on source identifiers
     {   
-        $file_append = $this->main_path."/minted_id_EOL_id.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $file_append = $this->main_path."/new_DH_after_step1.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         //loop new DH
         $i = 0;
         foreach(new FileIterator($this->file['new DH']) as $line_number => $line) {
@@ -112,6 +112,10 @@ class DH_v1_1_mapping_EOL_IDs
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
+                //special
+                $fields[] = 'EOLid';
+                $fields[] = 'EOLidAnnotations';
+                fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
             else {
@@ -123,7 +127,7 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); //exit("\nstopx\n");
+            // print_r($rec); //exit("\nstopx\n");
             /*Array(
                 [taxonID] => EOL-000000000001
                 [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
@@ -135,21 +139,36 @@ class DH_v1_1_mapping_EOL_IDs
                 [datasetID] => trunk
                 [canonicalName] => Life
             */
+            $rec['EOLid'] = '';
+            $rec['EOLidAnnotations'] = '';
+            
             $source_ids = self::get_all_source_identifiers($rec['source']);
             // /* MySQL option
             if($EOL_id = self::get_EOL_id($source_ids)) {
-                echo "\nwith EOL_id [$EOL_id]\n"; print_r($rec);
-                fwrite($WRITE, implode("\t", array($EOL_id, $rec['taxonID'], $rec['scientificName']))."\n");
+                echo "\nwith EOL_id [$EOL_id]\n";
                 $rec['EOLid'] = $EOL_id;
+                @$this->debug['totals']['matched EOLid']++;
             }
             else { //No EOL_id
-                if(source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) $rec['EOLidAnnotations'] = 'unmatched';
+                if(self::source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) {
+                    $rec['EOLidAnnotations'] = 'unmatched';
+                    @$this->debug['totals']['unmatched']++;
+                }
             }
             // */
-            if($rec['EOLid']) print_r($rec);
-            if($rec['EOLidAnnotations']) print_r($rec);
+            // if($rec['EOLid']) print_r($rec);
+            if($rec['EOLidAnnotations']) {
+                print_r($rec);
+                exit("\nstopx\n");
+            }
             
-            // if($i > 10) break; //debug only
+            /* start writing */
+            $headers = array_keys($rec);
+            $save = array();
+            foreach($headers as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
+            
+            // if($i > 100) break; //debug only
         }
         fclose($WRITE);
     }
@@ -178,6 +197,16 @@ class DH_v1_1_mapping_EOL_IDs
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
         return false;
+    }
+    private function get_all_sources($sourceinfo)
+    {
+        $tmp = explode(",", $sourceinfo);
+        foreach($tmp as $t) {
+            $tmp2 = explode(":", $t);
+            $final[$tmp2[0]] = '';
+        }
+        $final = array_keys($final);
+        return array_map('trim', $final);
     }
 }
 ?>
