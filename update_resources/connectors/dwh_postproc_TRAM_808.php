@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* TRAM-808: Map EOL IDs for Dynamic Hierarchy Version 1.1. 
+/* TRAM-808: Map EOL IDs for Dynamic Hierarchy Version 1.1.
 Statistics
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -17,7 +17,9 @@ $func = new DH_v1_1_Mapping_EOL_IDs($resource_id);
 /* tests only
 exit("\n-end test-\n");
 */
-$func->start_tram_808_v2(); //this creates taxonomy1.txt
+
+// $func->create_append_text(); //done only once; worked OK
+$func->start_tram_808();
 exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 // unset($func);

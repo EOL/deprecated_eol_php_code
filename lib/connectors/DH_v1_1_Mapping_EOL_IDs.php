@@ -29,21 +29,16 @@ class DH_v1_1_mapping_EOL_IDs
         }
         $this->mysqli =& $GLOBALS['db_connection'];
     }
-    function start_tram_808_v2()
-    {
-        /* steps for step 1:
-        1. run create_append_text(); --> creates [append_taxonID_source_id_2mysql.txt]
-           then saves it to MySQL table [taxonID_source_ids]
-        2. manually put JRice's eolpageids.csv to MySQL as well. Created eolpageids.csv.tsv, replace 'comma' with 'tab'.
+    /* steps for step 1:
+    step. manually put JRice's eolpageids.csv to MySQL as well. Created eolpageids.csv.tsv, replace 'comma' with 'tab'.
             $ mysql -u root -p --local-infile DWH;
             to load from txt file:
             mysql> load data local infile '/Volumes/AKiTiO4/d_w_h/TRAM-808/eolpageids.csv.tsv' into table EOLid_map;
-        3. run step_1()
-        */
-        self::create_append_text();
-        
-    }
-    private function create_append_text()
+    step. run create_append_text(); --> creates [append_taxonID_source_id_2mysql.txt]
+          then saves it to MySQL table [taxonID_source_ids]
+    step. run step_1()
+    */
+    function create_append_text()
     {
         $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
@@ -94,7 +89,6 @@ class DH_v1_1_mapping_EOL_IDs
             // if($i > 10) break; //debug only
         }
         fclose($WRITE);
-        
         /* append to MySQL table */
         echo "\nSaving taxonID_source_ids records to MySQL...\n";
         if(filesize($file_append)) {
@@ -106,13 +100,6 @@ class DH_v1_1_mapping_EOL_IDs
     function start_tram_808()
     {
         /* steps for step 1:
-        1. manually put old DH to MySQL table. Easier to do SQL queries when searching...
-            $ mysql -u root -p --local-infile DWH;
-            to load from txt file:
-            mysql> load data local infile '/Volumes/AKiTiO4/d_w_h/TRAM-808/eoldynamichierarchywithlandmarks/taxa.txt' into table old_DH;
-        2. manually put JRice's eolpageids.csv to MySQL as well. Created eolpageids.csv.tsv, replace 'comma' with 'tab'.
-            to load from txt file:
-            mysql> load data local infile '/Volumes/AKiTiO4/d_w_h/TRAM-808/eolpageids.csv.tsv' into table EOLid_map;
         3. run step_1()
         */
         self::step_1(); //1. Match EOLid based on source identifiers
@@ -152,22 +139,25 @@ class DH_v1_1_mapping_EOL_IDs
                 [canonicalname] => Paenibacillus uliginis
             */
             $source_ids = self::get_all_source_identifiers($rec['source']);
+            /*
             if($EOL_id = self::loop_old_DH_get_EOL_id($source_ids)) {
                 echo "\nwith EOL_id [$EOL_id]\n";
                 $this->debug[$EOL_id] = json_encode($rec);
             }
             else echo "\nNo EOL_id\n";
-
-            /* MySQL option
+            */
+            
+            // /* MySQL option
             if($EOL_id = self::get_EOL_id($source_ids)) {
                 echo "\nwith EOL_id [$EOL_id]\n";
                 $this->debug[$EOL_id] = json_encode($rec);
             }
             else echo "\nNo EOL_id\n";
-            */
+            // */
             if($i > 10) break; //debug only
         }
     }
+    /*
     private function loop_old_DH_get_EOL_id($source_ids)
     {
         foreach($source_ids as $source_id) {
@@ -210,12 +200,13 @@ class DH_v1_1_mapping_EOL_IDs
         }
         return false;
     }
+    */
     private function get_all_source_identifiers($source)
     {
         $tmp = explode(",", $source);
         return array_map('trim', $tmp);
     }
-    /*
+    // /*
     private function get_EOL_id($source_ids)
     {
         foreach($source_ids as $id) {
@@ -224,11 +215,11 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function query_EOL_id($id)
     {
-        $sql = "SELECT m.EOL_id, o.taxonID from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.source LIKE '%".$id."%'";
+        $sql = "SELECT m.EOL_id, o.taxonID from DWH.taxonID_source_ids o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.source_id = '".$id."'";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
         return false;
     }
-    */
+    // */
 }
 ?>
