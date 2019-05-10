@@ -40,7 +40,7 @@ class DH_v1_1_mapping_EOL_IDs
     */
     function create_append_text()
     {
-        // $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -99,9 +99,6 @@ class DH_v1_1_mapping_EOL_IDs
     }
     function start_tram_808()
     {
-        /* steps for step 1:
-        3. run step_1()
-        */
         self::step_1(); //1. Match EOLid based on source identifiers
         // Functions::start_print_debug($this->debug, $this->resource_id);
     }
@@ -175,13 +172,13 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function get_EOL_id($source_ids)
     {
-        foreach($source_ids as $id) {
-            if($val = self::query_EOL_id($id)) return $val;
+        foreach($source_ids as $source_id) {
+            if($val = self::query_EOL_id($source_id)) return $val;
         }
     }
-    private function query_EOL_id($id)
+    private function query_EOL_id($source_id)
     {
-        $sql = "SELECT m.EOL_id, o.taxonID from DWH.taxonID_source_ids o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.source_id = '".$id."'";
+        $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
         return false;
