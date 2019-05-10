@@ -20,7 +20,7 @@ exit("\n-end test-\n");
 
 // $func->create_append_text(); //done only once; worked OK
 $func->start_tram_808();
-exit("\n-end for now-\n");
+// exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 // unset($func);
 // Functions::finalize_dwca_resource($resource_id, true, false);

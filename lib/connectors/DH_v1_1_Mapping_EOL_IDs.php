@@ -103,10 +103,12 @@ class DH_v1_1_mapping_EOL_IDs
         3. run step_1()
         */
         self::step_1(); //1. Match EOLid based on source identifiers
-        Functions::start_print_debug($this->debug, $this->resource_id);
+        // Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function step_1() //1. Match EOLid based on source identifiers
-    {   //loop new DH
+    {   
+        $file_append = $this->main_path."/minted_id_EOL_id.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        //loop new DH
         $i = 0;
         foreach(new FileIterator($this->file['new DH']) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -126,7 +128,7 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); //exit("\nstopx\n");
+            // print_r($rec); //exit("\nstopx\n");
             /*Array(
                 [taxonid] => EOL-000000008199
                 [source] => NCBI:683737
@@ -149,13 +151,32 @@ class DH_v1_1_mapping_EOL_IDs
             
             // /* MySQL option
             if($EOL_id = self::get_EOL_id($source_ids)) {
-                echo "\nwith EOL_id [$EOL_id]\n";
-                $this->debug[$EOL_id] = json_encode($rec);
+                echo "\nwith EOL_id [$EOL_id]\n"; print_r($rec);
+                fwrite($WRITE, implode("\t", array($EOL_id, $rec['taxonid'], $rec['scientificname']))."\n");
             }
             else echo "\nNo EOL_id\n";
             // */
-            if($i > 10) break; //debug only
+            // if($i > 10) break; //debug only
         }
+        fclose($WRITE);
+    }
+    private function get_all_source_identifiers($source)
+    {
+        $tmp = explode(",", $source);
+        return array_map('trim', $tmp);
+    }
+    private function get_EOL_id($source_ids)
+    {
+        foreach($source_ids as $id) {
+            if($val = self::query_EOL_id($id)) return $val;
+        }
+    }
+    private function query_EOL_id($id)
+    {
+        $sql = "SELECT m.EOL_id, o.taxonID from DWH.taxonID_source_ids o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.source_id = '".$id."'";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
+        return false;
     }
     /*
     private function loop_old_DH_get_EOL_id($source_ids)
@@ -201,25 +222,5 @@ class DH_v1_1_mapping_EOL_IDs
         return false;
     }
     */
-    private function get_all_source_identifiers($source)
-    {
-        $tmp = explode(",", $source);
-        return array_map('trim', $tmp);
-    }
-    // /*
-    private function get_EOL_id($source_ids)
-    {
-        foreach($source_ids as $id) {
-            if($val = self::query_EOL_id($id)) return $val;
-        }
-    }
-    private function query_EOL_id($id)
-    {
-        $sql = "SELECT m.EOL_id, o.taxonID from DWH.taxonID_source_ids o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.source_id = '".$id."'";
-        $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
-        return false;
-    }
-    // */
 }
 ?>
