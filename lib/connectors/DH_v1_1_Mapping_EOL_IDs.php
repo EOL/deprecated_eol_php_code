@@ -40,11 +40,11 @@ class DH_v1_1_mapping_EOL_IDs
     */
     function create_append_text()
     {
-        $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        // $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
+            // if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
@@ -60,7 +60,7 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx old_DH\n");
+            print_r($rec); exit("\nstopx old_DH\n");
             /*Array(
                 [taxonid] => -100000
                 [acceptednameusageid] => -100000
@@ -83,7 +83,7 @@ class DH_v1_1_mapping_EOL_IDs
             $source_ids = self::get_all_source_identifiers($rec['source']);
             foreach($source_ids as $source_id) {
                 $arr = array();
-                $arr = array($rec['taxonid'], $source_id);
+                $arr = array($rec['taxonID'], $source_id);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
             // if($i > 10) break; //debug only
@@ -112,7 +112,7 @@ class DH_v1_1_mapping_EOL_IDs
         $i = 0;
         foreach(new FileIterator($this->file['new DH']) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
+            // if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
@@ -128,33 +128,33 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); //exit("\nstopx\n");
+            print_r($rec); exit("\nstopx\n");
             /*Array(
-                [taxonid] => EOL-000000008199
-                [source] => NCBI:683737
-                [furtherinformationurl] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=683737
-                [parentnameusageid] => EOL-000000007969
-                [scientificname] => Paenibacillus uliginis
-                [taxonrank] => species
-                [taxonremarks] => 
-                [datasetid] => NCBI
-                [canonicalname] => Paenibacillus uliginis
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
             */
+            
             $source_ids = self::get_all_source_identifiers($rec['source']);
             /*
-            if($EOL_id = self::loop_old_DH_get_EOL_id($source_ids)) {
-                echo "\nwith EOL_id [$EOL_id]\n";
-                $this->debug[$EOL_id] = json_encode($rec);
-            }
-            else echo "\nNo EOL_id\n";
+            if($EOL_id = self::loop_old_DH_get_EOL_id($source_ids)) echo "\nwith EOL_id [$EOL_id]\n";
+            else                                                    echo "\nNo EOL_id\n";
             */
             
             // /* MySQL option
             if($EOL_id = self::get_EOL_id($source_ids)) {
                 echo "\nwith EOL_id [$EOL_id]\n"; print_r($rec);
-                fwrite($WRITE, implode("\t", array($EOL_id, $rec['taxonid'], $rec['scientificname']))."\n");
+                fwrite($WRITE, implode("\t", array($EOL_id, $rec['taxonID'], $rec['scientificName']))."\n");
             }
-            else echo "\nNo EOL_id\n";
+            else { //No EOL_id
+                // if(source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) unmatched
+            }
             // */
             // if($i > 10) break; //debug only
         }
