@@ -158,8 +158,8 @@ class DH_v1_1_mapping_EOL_IDs
             // */
             // if($rec['EOLid']) print_r($rec);
             if($rec['EOLidAnnotations']) {
-                print_r($rec);
-                exit("\nstopx\n");
+                // print_r($rec);
+                // exit("\nstopx\n");
             }
             
             /* start writing */
