@@ -44,8 +44,7 @@ class DH_v1_1_mapping_EOL_IDs
         $i = 0;
         foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            // if($i == 1) $line = strtolower($line);
-            $row = explode("\t", $line); // print_r($row);
+            $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
@@ -60,25 +59,25 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nstopx old_DH\n");
+            // print_r($rec); exit("\nstopx old_DH\n");
             /*Array(
-                [taxonid] => -100000
-                [acceptednameusageid] => -100000
-                [parentnameusageid] => -79407
-                [scientificname] => Frescocyathus nagagreboensis Barta-Calmus, 1969
-                [taxonrank] => species
+                [taxonID] => -100000
+                [acceptedNameUsageID] => -100000
+                [parentNameUsageID] => -79407
+                [scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
+                [taxonRank] => species
                 [source] => gbif:4943435
-                [taxonomicstatus] => accepted
-                [canonicalname] => Frescocyathus nagagreboensis
-                [scientificnameauthorship] => Barta-Calmus, 1969
-                [scientificnameid] => 
-                [taxonremarks] => 
-                [namepublishedin] => 
-                [furtherinformationurl] => https://www.gbif-uat.org/species/4943435
-                [datasetid] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
-                [eolid] => 
-                [eolidannotations] => 
-                [landmark] => 
+                [taxonomicStatus] => accepted
+                [canonicalName] => Frescocyathus nagagreboensis
+                [scientificNameAuthorship] => Barta-Calmus, 1969
+                [scientificNameID] => 
+                [taxonRemarks] => 
+                [namePublishedIn] => 
+                [furtherInformationURL] => https://www.gbif-uat.org/species/4943435
+                [datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [Landmark] => 
             */
             $source_ids = self::get_all_source_identifiers($rec['source']);
             foreach($source_ids as $source_id) {
@@ -109,8 +108,7 @@ class DH_v1_1_mapping_EOL_IDs
         $i = 0;
         foreach(new FileIterator($this->file['new DH']) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            // if($i == 1) $line = strtolower($line);
-            $row = explode("\t", $line); // print_r($row);
+            $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
@@ -142,11 +140,15 @@ class DH_v1_1_mapping_EOL_IDs
             if($EOL_id = self::get_EOL_id($source_ids)) {
                 echo "\nwith EOL_id [$EOL_id]\n"; print_r($rec);
                 fwrite($WRITE, implode("\t", array($EOL_id, $rec['taxonID'], $rec['scientificName']))."\n");
+                $rec['EOLid'] = $EOL_id;
             }
             else { //No EOL_id
-                if(source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) $rec['annotations'] = 'unmatched';
+                if(source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) $rec['EOLidAnnotations'] = 'unmatched';
             }
             // */
+            if($rec['EOLid']) print_r($rec);
+            if($rec['EOLidAnnotations']) print_r($rec);
+            
             // if($i > 10) break; //debug only
         }
         fclose($WRITE);
