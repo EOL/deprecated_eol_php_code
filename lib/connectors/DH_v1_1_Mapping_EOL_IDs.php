@@ -191,7 +191,7 @@ class DH_v1_1_mapping_EOL_IDs
             if($val = self::query_EOL_id($source_id)) return $val;
         }
     }
-    private function query_EOL_id($source_id)
+    private function query_EOL_id($source_id) //param $source_id is from new_DH
     {
         $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
         $result = $this->mysqli->query($sql);
