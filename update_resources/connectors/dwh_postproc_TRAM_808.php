@@ -14,6 +14,9 @@ $resource_id = "DH_v1_1_Map_EOL_IDs";
 $func = new DH_v1_1_Mapping_EOL_IDs($resource_id);
 
 /* tests only
+$source_str = "trunk:26c58c2e-b902-4cd8-8596-9c7796338c98,ictv:ICTV:Viruses";
+$arr = $func->get_all_source_identifiers($source_str); print_r($arr);
+$arr = $func->get_all_sources($source_str); print_r($arr);
 exit("\n-end test-\n");
 */
 
