@@ -174,7 +174,7 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function source_is_in_listof_sources($source_str, $sources_list)
     {
-        $sources = self::get_all_sources($source_str);
+        $sources = self::get_all_source_abbreviations($source_str);
         foreach($sources as $source) {
             if(in_array($source, $sources_list)) return true;
         }
@@ -198,7 +198,7 @@ class DH_v1_1_mapping_EOL_IDs
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
         return false;
     }
-    private function get_all_sources($sourceinfo)
+    private function get_all_source_abbreviations($sourceinfo)
     {
         $tmp = explode(",", $sourceinfo);
         foreach($tmp as $t) {
