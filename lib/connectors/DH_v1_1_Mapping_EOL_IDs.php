@@ -4,8 +4,7 @@ namespace php_active_record;
 */
 class DH_v1_1_mapping_EOL_IDs
 {
-    function __construct($folder)
-    {
+    function __construct($folder) {
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -29,7 +28,7 @@ class DH_v1_1_mapping_EOL_IDs
         }
         $this->mysqli =& $GLOBALS['db_connection'];
     }
-    /* steps for step 1:
+    /* Main Steps:
     step. manually put JRice's eolpageids.csv to MySQL as well. Created eolpageids.csv.tsv, replace 'comma' with 'tab'.
             $ mysql -u root -p --local-infile DWH;
             to load from txt file:
@@ -38,70 +37,7 @@ class DH_v1_1_mapping_EOL_IDs
           then saves it to MySQL table [taxonID_source_ids]
     step. run step_1()
     */
-    function create_append_text()
-    {
-        $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        $i = 0;
-        foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
-            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            $row = explode("\t", $line);
-            if($i == 1) {
-                $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
-                continue;
-            }
-            else {
-                if(!@$row[0]) continue;
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = @$row[$k];
-                    $k++;
-                }
-            }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx old_DH\n");
-            /*Array(
-                [taxonID] => -100000
-                [acceptedNameUsageID] => -100000
-                [parentNameUsageID] => -79407
-                [scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
-                [taxonRank] => species
-                [source] => gbif:4943435
-                [taxonomicStatus] => accepted
-                [canonicalName] => Frescocyathus nagagreboensis
-                [scientificNameAuthorship] => Barta-Calmus, 1969
-                [scientificNameID] => 
-                [taxonRemarks] => 
-                [namePublishedIn] => 
-                [furtherInformationURL] => https://www.gbif-uat.org/species/4943435
-                [datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
-                [EOLid] => 
-                [EOLidAnnotations] => 
-                [Landmark] => 
-            */
-            $source_ids = self::get_all_source_identifiers($rec['source']);
-            foreach($source_ids as $source_id) {
-                $arr = array();
-                $arr = array($rec['taxonID'], $source_id);
-                fwrite($WRITE, implode("\t", $arr)."\n");
-            }
-            // if($i > 10) break; //debug only
-        }
-        fclose($WRITE);
-        /* append to MySQL table */
-        echo "\nSaving taxonID_source_ids records to MySQL...\n";
-        if(filesize($file_append)) {
-            $sql = "LOAD data local infile '".$file_append."' into table DWH.taxonID_source_ids;";
-            if($result = $this->mysqli->query($sql)) echo "\nSaved OK to MySQL\n";
-        }
-        else echo "\nNothing to save.\n";
-    }
-    function start_tram_808()
-    {
-        self::step_1(); //1. Match EOLid based on source identifiers
-        Functions::start_print_debug($this->debug, $this->resource_id);
-    }
-    private function step_1() //1. Match EOLid based on source identifiers
+    function step_1() //1. Match EOLid based on source identifiers
     {   
         $file_append = $this->main_path."/new_DH_after_step1.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         //loop new DH
@@ -171,6 +107,7 @@ class DH_v1_1_mapping_EOL_IDs
             // if($i > 100) break; //debug only
         }
         fclose($WRITE);
+        Functions::start_print_debug($this->debug, $this->resource_id);
     }
     private function source_is_in_listof_sources($source_str, $sources_list)
     {
@@ -207,6 +144,64 @@ class DH_v1_1_mapping_EOL_IDs
         }
         $final = array_keys($final);
         return array_map('trim', $final);
+    }
+    function create_append_text()
+    {
+        $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0;
+        foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx old_DH\n");
+            /*Array(
+                [taxonID] => -100000
+                [acceptedNameUsageID] => -100000
+                [parentNameUsageID] => -79407
+                [scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
+                [taxonRank] => species
+                [source] => gbif:4943435
+                [taxonomicStatus] => accepted
+                [canonicalName] => Frescocyathus nagagreboensis
+                [scientificNameAuthorship] => Barta-Calmus, 1969
+                [scientificNameID] => 
+                [taxonRemarks] => 
+                [namePublishedIn] => 
+                [furtherInformationURL] => https://www.gbif-uat.org/species/4943435
+                [datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [Landmark] => 
+            */
+            $source_ids = self::get_all_source_identifiers($rec['source']);
+            foreach($source_ids as $source_id) {
+                $arr = array();
+                $arr = array($rec['taxonID'], $source_id);
+                fwrite($WRITE, implode("\t", $arr)."\n");
+            }
+            // if($i > 10) break; //debug only
+        }
+        fclose($WRITE);
+        /* append to MySQL table */
+        echo "\nSaving taxonID_source_ids records to MySQL...\n";
+        if(filesize($file_append)) {
+            $sql = "LOAD data local infile '".$file_append."' into table DWH.taxonID_source_ids;";
+            if($result = $this->mysqli->query($sql)) echo "\nSaved OK to MySQL\n";
+        }
+        else echo "\nNothing to save.\n";
     }
 }
 ?>

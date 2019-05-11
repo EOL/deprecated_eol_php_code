@@ -20,8 +20,13 @@ $arr = $func->get_all_sources($source_str); print_r($arr);
 exit("\n-end test-\n");
 */
 
-// $func->create_append_text(); exit("\n-end create_append_text-\n");//done only once; worked OK
-$func->start_tram_808();
+/* main operations
+$func->create_append_text(); exit("\n-end create_append_text-\n");//done only once; worked OK
+$func->step_1(); //1. Match EOLid based on source identifiers --> generates [new_DH_after_step1.txt]
+*/
+
+$func->step_2(); //2. Match EOLid based on full scientificName strings & rank
+
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 // unset($func);
