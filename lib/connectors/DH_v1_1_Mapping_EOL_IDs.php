@@ -37,6 +37,10 @@ class DH_v1_1_mapping_EOL_IDs
           then saves it to MySQL table [taxonID_source_ids]
     step. run step_1()
     */
+    //==========================================================================start step 2
+    //==========================================================================end step 2
+
+    //==========================================================================start step 1
     function step_1() //1. Match EOLid based on source identifiers
     {   
         $file_append = $this->main_path."/new_DH_after_step1.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
@@ -92,11 +96,14 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             // */
-            // if($rec['EOLid']) print_r($rec);
+
+            /* debug
+            if($rec['EOLid']) print_r($rec);
             if($rec['EOLidAnnotations']) {
-                // print_r($rec);
-                // exit("\nstopx\n");
+                print_r($rec);
+                exit("\nstopx\n");
             }
+            */
             
             /* start writing */
             $headers = array_keys($rec);
@@ -145,6 +152,7 @@ class DH_v1_1_mapping_EOL_IDs
         $final = array_keys($final);
         return array_map('trim', $final);
     }
+    //==========================================================================end step 1
     function create_append_text()
     {
         $file_append = $this->main_path."/append_taxonID_source_id_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
