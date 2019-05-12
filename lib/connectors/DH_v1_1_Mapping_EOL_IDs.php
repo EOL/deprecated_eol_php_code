@@ -42,7 +42,30 @@ class DH_v1_1_mapping_EOL_IDs
     {
         /* 2.1 get list of used EOL_ids */
         $used_EOLids = self::get_used_EOLids($this->main_path."/new_DH_after_step1.txt");
-        print_r($used_EOLids); echo "\n".count($used_EOLids)."\n";
+        // print_r($used_EOLids); 
+        echo "\n".count($used_EOLids)."\n";
+        
+        /*
+        ------------sent email
+        Hi Katja, as I was investigating results of step 1. Match EOLid based on source identifiers.
+        I have these five records in new DH:
+        EOL-000000085511	trunk:06e1feb1-fc37-4596-a605-46601d3f74a9,NCBI:33634,WOR:368898		EOL-000000025792	Stramenopiles 	clade		trunk	Stramenopiles
+        EOL-000000085560	trunk:6660e13d-acb7-451b-9659-46ed72a8cc47,WOR:345465		EOL-000000085512	Ochrophyta 	phylum		trunk	Ochrophyta
+        EOL-000000085561	trunk:608e5df3-4b08-4d6c-a3df-3fbe9534da68,WOR:576884		EOL-000000085560	Diatomista 	clade		trunk	Diatomista
+        EOL-000000095234	trunk:513e4f24-6a52-4700-9f44-af7af734d516,WOR:449151		EOL-000000085511	Bigyra 	clade		trunk	Bigyra
+        EOL-000000095335	trunk:b6259274-728a-4b38-a135-f7286fdc5917,WOR:582466		EOL-000000095234	Opalozoa 	phylum		trunk	Opalozoa
+        All five ended up with just one EOLid => 2912001
+        Why? because we have this one record in old DH:
+        -7957	-7957	-7958	Stramenopiles	clade	trunk:1850f573-8fd1-4d14-8794-df5ed1c294ec,WOR:368898,WOR:449151,WOR:345465,WOR:582466,WOR:576884,WOR:588641,WOR:591205,WOR:591209,WOR:588643	accepted							trunk	2912001	multiple;	1
+        Where all five WOR:XXXXXX shared identifiers from new DH is linked to this one record in old DH.
+        What do you suggest to do here.
+        Thanks,
+        Eli
+        
+        more investigation from old DH:
+        -23684	-23684	-7957	Ochrophyta	phylum	gbif:98	accepted	Ochrophyta					https://www.gbif-uat.org/species/98	7ddf754f-d193-4cc9-b351-99906754a03b	3402	multiple; canonical;	
+        -23677	-23677	-7957	Bigyra	phylum	gbif:8158183	accepted	Bigyra					https://www.gbif-uat.org/species/8158183	7ddf754f-d193-4cc9-b351-99906754a03b	13047845	multiple;	
+        */
     }
     private function get_used_EOLids($file)
     {
@@ -65,7 +88,13 @@ class DH_v1_1_mapping_EOL_IDs
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopx\n");
-            if($val = $rec['EOLid']) $final[$val] = '';
+            
+            // if($rec['EOLid'] == 2912001) print_r($rec); //debug only
+            
+            if($val = $rec['EOLid']) {
+                if(isset($final[$val])) print_r($rec);
+                else $final[$val] = '';
+            }
         }
         return array_keys($final);
     }
