@@ -42,6 +42,7 @@ class DH_v1_1_mapping_EOL_IDs
     {
         /* 2.1 get list of used EOL_ids */
         $used_EOLids = self::get_used_EOLids($this->main_path."/new_DH_after_step1.txt");
+        print_r($used_EOLids); echo "\n".count($used_EOLids)."\n";
     }
     private function get_used_EOLids($file)
     {
@@ -52,7 +53,6 @@ class DH_v1_1_mapping_EOL_IDs
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
-                fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
             else {
@@ -64,8 +64,10 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nstopx\n");
+            // print_r($rec); exit("\nstopx\n");
+            if($val = $rec['EOLid']) $final[$val] = '';
         }
+        return array_keys($final);
     }
     //==========================================================================end step 2
     //==========================================================================start step 1
@@ -115,12 +117,12 @@ class DH_v1_1_mapping_EOL_IDs
             if($EOL_id = self::get_EOL_id($source_ids)) {
                 echo "\nwith EOL_id [$EOL_id]\n";
                 $rec['EOLid'] = $EOL_id;
-                @$this->debug['totals']['matched EOLid']++;
+                @$this->debug['totals']['matched EOLid count']++;
             }
             else { //No EOL_id
                 if(self::source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) {
                     $rec['EOLidAnnotations'] = 'unmatched';
-                    @$this->debug['totals']['unmatched']++;
+                    @$this->debug['totals']['unmatched count']++;
                 }
             }
             // */
