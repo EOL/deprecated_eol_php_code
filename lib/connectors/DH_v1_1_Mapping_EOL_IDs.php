@@ -38,8 +38,36 @@ class DH_v1_1_mapping_EOL_IDs
     step. run step_1()
     */
     //==========================================================================start step 2
+    function step_2()
+    {
+        /* 2.1 get list of used EOL_ids */
+        $used_EOLids = self::get_used_EOLids($this->main_path."/new_DH_after_step1.txt");
+    }
+    private function get_used_EOLids($file)
+    {
+        $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            print_r($rec); exit("\nstopx\n");
+        }
+    }
     //==========================================================================end step 2
-
     //==========================================================================start step 1
     function step_1() //1. Match EOLid based on source identifiers
     {   
