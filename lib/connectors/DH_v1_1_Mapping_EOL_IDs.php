@@ -40,11 +40,64 @@ class DH_v1_1_mapping_EOL_IDs
     //==========================================================================start step 2
     function step_2()
     {
-        /* 2.1 get list of used EOL_ids */
-        $used_EOLids = self::get_used_EOLids($this->main_path."/new_DH_after_step1.txt");
+        /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
+        $file = $this->main_path."/new_DH_after_step1.txt";
+        $used_EOLids = self::get_used_EOLids($file);
         // print_r($used_EOLids); 
         echo "\n".count($used_EOLids)."\n";
-        
+        /* 2.2 loop new DH -----------------------------------------------------------------------------------------*/
+        $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            if($rec['EOLidAnnotations'] == 'unmatched') continue;
+            if($rec['EOLid']) continue;
+            /*Array(
+                [taxonID] => EOL-000000095335
+                [source] => trunk:b6259274-728a-4b38-a135-f7286fdc5917,WOR:582466
+                [furtherInformationURL] => 
+                [parentNameUsageID] => EOL-000000095234
+                [scientificName] => Opalozoa
+                [taxonRank] => phylum
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Opalozoa
+                [EOLid] => 2912001
+                [EOLidAnnotations] => 
+            For the new DH taxa that remain unmatched after step 1, try to find an exact scientificName match in the old DH file, making sure that taxonRank is the same for the matched taxa.
+            EXCEPTIONS:
+            If taxonRank is blank or if it is clade, cohort, division, hyporder, informal group, infracohort, megacohort, paraphyletic group, polyphyletic group, section, subcohort or supercohort, 
+                you can match with taxa of any rank EXCEPT genus, subgenus or family.
+            If taxonRank is infraspecies, you can match with taxa that have one of the following taxonRank values: form, subspecies, subvariety, variety
+            */
+            if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
+                // $sql = "SELECT m.EOL_id from old_DH o join EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$rec['scientificName']."' and o.taxonRank not in('genus', 'subgenus', 'family');"
+                // if($EOL_id = self::get_EOL_id(false, $sql)) {
+                //     // echo "\nwith EOL_id [$EOL_id]\n";
+                //     $rec['EOLid'] = $EOL_id;
+                //     @$this->debug['totals step2']['matched EOLid count']++;
+                // }
+                // else { //No EOL_id
+                // }
+            }
+            elseif($rec['taxonRank'] == 'infraspecies') {
+                print_r($rec);
+            }
+        }
         /*
         ------------sent email
         Hi Katja, as I was investigating results of step 1. Match EOLid based on source identifiers.
@@ -88,11 +141,11 @@ class DH_v1_1_mapping_EOL_IDs
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopx\n");
-            
             // if($rec['EOLid'] == 2912001) print_r($rec); //debug only
-            
             if($val = $rec['EOLid']) {
-                if(isset($final[$val])) print_r($rec);
+                if(isset($final[$val])) {
+                    // print_r($rec); //just for debug
+                }
                 else $final[$val] = '';
             }
         }
@@ -194,9 +247,9 @@ class DH_v1_1_mapping_EOL_IDs
             if($val = self::query_EOL_id($source_id)) return $val;
         }
     }
-    private function query_EOL_id($source_id) //param $source_id is from new_DH
+    private function query_EOL_id($source_id, $sql = false) //param $source_id is from new_DH
     {
-        $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
+        if($source_id) $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
         return false;
