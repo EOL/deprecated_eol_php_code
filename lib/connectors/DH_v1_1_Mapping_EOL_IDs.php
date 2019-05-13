@@ -62,7 +62,6 @@ class DH_v1_1_mapping_EOL_IDs
         $children_of['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
         $children_of['Metazoa'] = $func->get_descendants_of_taxID("691846", false, $this->descendants);
         
-        
         /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
@@ -139,7 +138,7 @@ class DH_v1_1_mapping_EOL_IDs
                         
                     }
                 }
-                else {} //No EOL_id
+                else {} //No sql rows
             }
             elseif($rec['taxonRank'] == 'infraspecies') { //EXC2
                 $sql = "SELECT m.EOL_id, o.source FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
@@ -175,7 +174,7 @@ class DH_v1_1_mapping_EOL_IDs
                         if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
                     }
                 }
-                else {} //No EOL_id
+                else {} //No sql rows
             }
             else { //EXC0
                 $sql = "SELECT m.EOL_id, o.source FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
@@ -211,7 +210,7 @@ class DH_v1_1_mapping_EOL_IDs
                         if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
                     }
                 }
-                else {} //No EOL_id
+                else {} //No sql rows
             }
         }
         Functions::start_print_debug($this->debug, $this->resource_id);
