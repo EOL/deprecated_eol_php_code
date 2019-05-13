@@ -61,7 +61,6 @@ class DH_v1_1_mapping_EOL_IDs
         Thanks!  Katja
         */
         $matched = 0;
-        // print_r($taxa); exit;
         foreach($taxa as $rec) {
             /*Array(
                 [taxonID] => EOL-000000085511
@@ -81,7 +80,7 @@ class DH_v1_1_mapping_EOL_IDs
                 $sciname = str_replace("'", "\'", $rec['scientificName']);
                 $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id JOIN DWH.old_DH o2 ON o.taxonID = o2.taxonID WHERE o2.scientificName = '".$sciname."' AND o.source_id = '".$source_id."'";
                 if($row = self::query_EOL_id(false, $sql)) {
-                    if($eol_id != $row['EOL_id']) exit("\nInvestigate 001\n"); //just a test, should always be true
+                    if($eol_id != $row['EOL_id']) exit("\nInvestigate 001\n"); //just a test, should always be false
                     $rec['EOLid'] = $eol_id;
                     $matched++;
                 }
@@ -89,19 +88,77 @@ class DH_v1_1_mapping_EOL_IDs
                 $used_when_saving_2text[$rec['taxonID']] = $rec;
             }
         }
-        if($matched == 1) {} //save to text file
-        elseif($matched == 0 || $matched > 1) {} //set all EOLid to blank, then save to text file
 
-        print_r($used_when_saving_2text); exit("\nMatched:[$matched]\n");
+        echo("\nMatched:[$matched]\n");
+        if($matched == 1) self::save_to_text($used_when_saving_2text); //save to text file
+        elseif($matched == 0 || $matched > 1) { //set all EOLid to blank, then save to text file
+            $final = array();
+            foreach($used_when_saving_2text as $taxonID => $rec) {
+                $rec['EOLid'] = '';
+                $final[$taxonID] = $rec;
+            }
+            self::save_to_text($final);
+        }
+    }
+    private function save_to_text($used_when_saving_2text)
+    {
         echo "\nSaving to text...\n";
-        // self::save_to_text($used_when_saving_2text);
+        $file_append = $this->main_path."/new_DH_before_step2.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0; $this->debug = array();
+        foreach(new FileIterator($this->main_path."/new_DH_after_step1.txt") as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\neliboy\n");
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 
+                [EOLidAnnotations] => 
+            )*/
+            
+            if($rek = @$used_when_saving_2text[$rec['taxonID']]) $rec = $rek;
+            
+            if($rec['EOLid'])                           @$this->debug['totals']['matched EOLid count']++;
+            if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
+            
+            
+            /* start writing */
+            $headers = array_keys($rec);
+            $save = array();
+            foreach($headers as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
+        }
+        fclose($WRITE);
+        Functions::start_print_debug($this->debug, $this->resource_id."_before_step2");
     }
     //==========================================================================end before step 2
     //==========================================================================start step 2
     function step_2()
     {
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
-        $file = $this->main_path."/new_DH_after_step1.txt";
+        $file = $this->main_path."/new_DH_before_step2.txt";
         // $used_EOLids = self::get_results_tool($file, 'get EOLids);
         // echo "\n".count($used_EOLids)."\n";
         
@@ -518,7 +575,7 @@ class DH_v1_1_mapping_EOL_IDs
             // if($i > 100) break; //debug only
         }
         fclose($WRITE);
-        Functions::start_print_debug($this->debug, $this->resource_id);
+        Functions::start_print_debug($this->debug, $this->resource_id."_after_step1");
     }
     private function source_is_in_listof_sources($source_str, $sources_list)
     {
