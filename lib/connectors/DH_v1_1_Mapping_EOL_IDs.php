@@ -51,12 +51,7 @@ class DH_v1_1_mapping_EOL_IDs
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
         
-        /* test only
-        $uid = "EOL-000000618833";
-        $children = $func->get_descendants_of_taxID($uid, false, $this->descendants); //print_r($children); //exit("\n$uid\n");
-        print_r($children);
-        exit("\nxxx\n");
-        */
+        $children_of['Lissamphibia'] = $func->get_descendants_of_taxID("EOL-000000618833", false, $this->descendants);
         
         /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
         $i = 0;
@@ -100,19 +95,21 @@ class DH_v1_1_mapping_EOL_IDs
             $sciname_4sql = str_replace("'", "\'", $rec['scientificName']);
             if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
                 $sql = "SELECT m.EOL_id from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$sciname_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
-                if($EOL_id = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
-                    $rec['EOLid'] = $EOL_id;
-                    @$this->debug['totals step2']['matched EOLid count']++;
+                if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
+                    if($EOL_id = $info['EOL_id']) {
+                        if(self::source_is_in_listof_sources($info['source'], array('AMP'))) { //RULE 1
+                            if(in_array($rec['taxonID'], $children_of['Lissamphibia'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['matched EOLid count']++;
+                            }
+                        }
+                    }
                 }
                 else {} //No EOL_id
             }
             elseif($rec['taxonRank'] == 'infraspecies') {
                 $sql = "SELECT m.EOL_id FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
-                if($EOL_id = self::query_EOL_id(false, $sql)) {
-                    $rec['EOLid'] = $EOL_id;
-                    @$this->debug['totals step2']['matched EOLid count']++;
-                }
-                else {} //No EOL_id
+                
             }
         }
         Functions::start_print_debug($this->debug, $this->resource_id);
@@ -309,7 +306,10 @@ class DH_v1_1_mapping_EOL_IDs
     {
         if($source_id) $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
         $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
+        while($result && $row=$result->fetch_assoc()) {
+            if($source_id) return $row['EOL_id'];
+            elseif($sql) return $row;
+        }
         return false;
     }
     private function get_all_source_abbreviations($sourceinfo)
