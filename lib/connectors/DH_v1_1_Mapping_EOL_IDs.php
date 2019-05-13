@@ -44,7 +44,7 @@ class DH_v1_1_mapping_EOL_IDs
         $recs = self::get_results_tool($file, "get EOLid - taxa list");
         foreach($recs as $eol_id => $taxa) {
             if(count($taxa) > 1) {
-                print_r($taxa); echo "\n[$eol_id]\n";
+                // print_r($taxa); echo "\n[$eol_id]\n";
                 self::fix_same_EOLid_for_multiple_taxa($eol_id, $taxa);
             }
         }
@@ -61,6 +61,7 @@ class DH_v1_1_mapping_EOL_IDs
         Thanks!  Katja
         */
         $matched = 0;
+        // print_r($taxa); exit;
         foreach($taxa as $rec) {
             /*Array(
                 [taxonID] => EOL-000000085511
@@ -89,7 +90,7 @@ class DH_v1_1_mapping_EOL_IDs
             }
         }
         if($matched == 1) {} //save to text file
-        elseif($matched == 0 || $matched > 1) //set all EOLid to blank, then save to text file
+        elseif($matched == 0 || $matched > 1) {} //set all EOLid to blank, then save to text file
 
         print_r($used_when_saving_2text); exit("\nMatched:[$matched]\n");
         echo "\nSaving to text...\n";
