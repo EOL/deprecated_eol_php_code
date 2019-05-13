@@ -46,15 +46,22 @@ class DH_v1_1_mapping_EOL_IDs
         // echo "\n".count($used_EOLids)."\n";
         
         /* 2.2 initialize info global ------------------------------------------------------------------------------*/
-        self::get_taxID_nodes_info($file); //un-comment in real operation
-        
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
-        
+
+        self::get_taxID_nodes_info($file); //for new DH
         $children_of['Lissamphibia'] = $func->get_descendants_of_taxID("EOL-000000618833", false, $this->descendants);
         $children_of['Neoptera'] = $func->get_descendants_of_taxID("EOL-000000987353", false, $this->descendants);
         $children_of['Arachnida'] = $func->get_descendants_of_taxID("EOL-000000890725", false, $this->descendants);
         $children_of['Embryophytes'] = $func->get_descendants_of_taxID("EOL-000000105445", false, $this->descendants);
+        unset($this->descendants);
+        
+        self::get_taxID_nodes_info($this->file['old DH']); //for old DH
+        $children_of['Endopterygota'] = $func->get_descendants_of_taxID("-556430", false, $this->descendants);
+        $children_of['Embryophytes'] = $func->get_descendants_of_taxID("-30127", false, $this->descendants);
+        $children_of['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
+        $children_of['Metazoa'] = $func->get_descendants_of_taxID("691846", false, $this->descendants);
+        
         
         /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
         $i = 0;
