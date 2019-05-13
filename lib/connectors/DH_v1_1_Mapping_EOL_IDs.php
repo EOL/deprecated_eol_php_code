@@ -84,8 +84,9 @@ class DH_v1_1_mapping_EOL_IDs
                 you can match with taxa of any rank EXCEPT genus, subgenus or family.
             If taxonRank is infraspecies, you can match with taxa that have one of the following taxonRank values: form, subspecies, subvariety, variety
             */
+            $sciname_4sql = str_replace("'", "\'", $rec['scientificName']);
             if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
-                $sql = "SELECT m.EOL_id from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$rec['scientificName']."' and o.taxonRank not in('genus', 'subgenus', 'family');";
+                $sql = "SELECT m.EOL_id from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$sciname_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
                 if($EOL_id = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
                     $rec['EOLid'] = $EOL_id;
                     @$this->debug['totals step2']['matched EOLid count']++;
@@ -93,7 +94,7 @@ class DH_v1_1_mapping_EOL_IDs
                 else {} //No EOL_id
             }
             elseif($rec['taxonRank'] == 'infraspecies') {
-                $sql = "SELECT m.EOL_id FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$rec['scientificName']."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
+                $sql = "SELECT m.EOL_id FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
                 if($EOL_id = self::query_EOL_id(false, $sql)) {
                     $rec['EOLid'] = $EOL_id;
                     @$this->debug['totals step2']['matched EOLid count']++;
@@ -253,7 +254,6 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function query_EOL_id($source_id, $sql = false) //param $source_id is from new_DH
     {
-        if($sql) $sql = str_replace("'", "\'", $sql);
         if($source_id) $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
