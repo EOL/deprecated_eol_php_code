@@ -52,6 +52,7 @@ class DH_v1_1_mapping_EOL_IDs
         $func = new DH_v1_1_postProcessing(1);
         
         $children_of['Lissamphibia'] = $func->get_descendants_of_taxID("EOL-000000618833", false, $this->descendants);
+        $children_of['Neoptera'] = $func->get_descendants_of_taxID("EOL-000000987353", false, $this->descendants);
         
         /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
         $i = 0;
@@ -109,6 +110,17 @@ class DH_v1_1_mapping_EOL_IDs
             }
             elseif($rec['taxonRank'] == 'infraspecies') {
                 $sql = "SELECT m.EOL_id FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
+                if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
+                    if($EOL_id = $info['EOL_id']) {
+                        if(self::source_is_in_listof_sources($info['source'], array('APH', 'BLA', 'COL', 'COR', 'DER', 'EMB', 'GRY', 'LYG', 'MAN', 'MNT', 'ORTH', 'PHA', 'PLE', 'PSO', 'TER', 'ZOR'))) { //RULE 2
+                            if(in_array($rec['taxonID'], $children_of['Neoptera'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['matched EOLid count']++;
+                            }
+                        }
+                    }
+                }
+                else {} //No EOL_id
                 
             }
         }
