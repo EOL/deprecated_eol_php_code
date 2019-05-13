@@ -143,11 +143,10 @@ class DH_v1_1_mapping_EOL_IDs
             if($rec['EOLid'])                           @$this->debug['totals']['matched EOLid count']++;
             if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
             
-            
             /* start writing */
-            $headers = array_keys($rec);
+            // $headers = array_keys($rec);
             $save = array();
-            foreach($headers as $head) $save[] = $rec[$head];
+            foreach($fields as $head) $save[] = $rec[$head];
             fwrite($WRITE, implode("\t", $save)."\n");
         }
         fclose($WRITE);
@@ -159,8 +158,8 @@ class DH_v1_1_mapping_EOL_IDs
     {
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
         $file = $this->main_path."/new_DH_before_step2.txt";
-        // $used_EOLids = self::get_results_tool($file, 'get EOLids);
-        // echo "\n".count($used_EOLids)."\n";
+        // $used_EOLids = self::get_results_tool($file, 'get EOLids');
+        // echo "\n".count($used_EOLids)."\n"; exit;
         
         /* 2.2 initialize info global ------------------------------------------------------------------------------*/
         require_library('connectors/DH_v1_1_postProcessing');
@@ -181,13 +180,15 @@ class DH_v1_1_mapping_EOL_IDs
         unset($this->descendants);
         
         /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
+        $file_append = $this->main_path."/new_DH_after_step2.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
             else {
@@ -394,8 +395,17 @@ class DH_v1_1_mapping_EOL_IDs
                 }
                 else {} //No sql rows
             }
+            
+            if($rec['EOLid'])                           @$this->debug['totals']['matched EOLid count']++;
+            if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
+            
+            /* start writing */
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
         }
-        Functions::start_print_debug($this->debug, $this->resource_id);
+        fclose($WRITE);
+        Functions::start_print_debug($this->debug, $this->resource_id."_after_step2");
         /*
         ------------sent email
         Hi Katja, as I was investigating results of step 1. Match EOLid based on source identifiers.
