@@ -253,6 +253,7 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function query_EOL_id($source_id, $sql = false) //param $source_id is from new_DH
     {
+        if($sql) $sql = str_replace("'", "\'", $sql);
         if($source_id) $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['EOL_id'];
