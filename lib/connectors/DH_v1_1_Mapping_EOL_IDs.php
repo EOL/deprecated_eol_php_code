@@ -130,12 +130,6 @@ class DH_v1_1_mapping_EOL_IDs
                         if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) {} //RULE 7
                         if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
                         
-                        
-
-                        
-                            
-                        
-                        
                     }
                 }
                 else {} //No EOL_id
@@ -168,6 +162,10 @@ class DH_v1_1_mapping_EOL_IDs
                                 @$this->debug['totals step2']['EXC2 RULE4 count']++;
                             }
                         }
+                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) {} //RULE 5
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) {} //RULE 6
+                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) {} //RULE 7
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
                     }
                 }
                 else {} //No EOL_id
@@ -200,6 +198,10 @@ class DH_v1_1_mapping_EOL_IDs
                                 @$this->debug['totals step2']['EXC0 RULE4 count']++;
                             }
                         }
+                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) {} //RULE 5
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) {} //RULE 6
+                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) {} //RULE 7
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
                     }
                 }
                 else {} //No EOL_id
