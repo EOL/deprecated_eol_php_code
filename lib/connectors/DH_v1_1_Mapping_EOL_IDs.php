@@ -57,10 +57,11 @@ class DH_v1_1_mapping_EOL_IDs
         unset($this->descendants);
         
         self::get_taxID_nodes_info($this->file['old DH']); //for old DH
-        $children_of['Endopterygota'] = $func->get_descendants_of_taxID("-556430", false, $this->descendants);
-        $children_of['Embryophytes'] = $func->get_descendants_of_taxID("-30127", false, $this->descendants);
-        $children_of['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
-        $children_of['Metazoa'] = $func->get_descendants_of_taxID("691846", false, $this->descendants);
+        $children_of_oldDH['Endopterygota'] = $func->get_descendants_of_taxID("-556430", false, $this->descendants);
+        $children_of_oldDH['Embryophytes'] = $func->get_descendants_of_taxID("-30127", false, $this->descendants);
+        $children_of_oldDH['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
+        $children_of_oldDH['Metazoa'] = $func->get_descendants_of_taxID("691846", false, $this->descendants);
+        unset($this->descendants);
         
         /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
         $i = 0;
@@ -103,7 +104,7 @@ class DH_v1_1_mapping_EOL_IDs
             */
             $sciname_4sql = str_replace("'", "\'", $rec['scientificName']);
             if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
-                $sql = "SELECT m.EOL_id, o.source from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$sciname_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$sciname_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
                 if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
                     if($EOL_id = $info['EOL_id']) {
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
@@ -131,17 +132,37 @@ class DH_v1_1_mapping_EOL_IDs
                             }
                         }
                         
-                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) {} //RULE 5
-                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) {} //RULE 6
-                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) {} //RULE 7
-                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
+                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) { //RULE 5
+                            if(in_array($info['taxonID'], $children_of_oldDH['Endopterygota'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC1 RULE5 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) { //RULE 6
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Embryophytes'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC1 RULE6 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) { //RULE 7
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Fungi'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC1 RULE7 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) { //RULE 8
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Metazoa'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC1 RULE8 count']++;
+                            }
+                        }
                         
                     }
                 }
                 else {} //No sql rows
             }
             elseif($rec['taxonRank'] == 'infraspecies') { //EXC2
-                $sql = "SELECT m.EOL_id, o.source FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
@@ -168,16 +189,38 @@ class DH_v1_1_mapping_EOL_IDs
                                 @$this->debug['totals step2']['EXC2 RULE4 count']++;
                             }
                         }
-                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) {} //RULE 5
-                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) {} //RULE 6
-                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) {} //RULE 7
-                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
+                        
+                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) { //RULE 5
+                            if(in_array($info['taxonID'], $children_of_oldDH['Endopterygota'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC2 RULE5 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) { //RULE 6
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Embryophytes'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC2 RULE6 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) { //RULE 7
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Fungi'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC2 RULE7 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) { //RULE 8
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Metazoa'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC2 RULE8 count']++;
+                            }
+                        }
+                        
                     }
                 }
                 else {} //No sql rows
             }
             else { //EXC0
-                $sql = "SELECT m.EOL_id, o.source FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
@@ -204,10 +247,32 @@ class DH_v1_1_mapping_EOL_IDs
                                 @$this->debug['totals step2']['EXC0 RULE4 count']++;
                             }
                         }
-                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) {} //RULE 5
-                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) {} //RULE 6
-                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) {} //RULE 7
-                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) {} //RULE 8
+                        
+                        if(self::source_is_in_listof_sources($rec['source'], array('BOM','ERE','COC','VSP'))) { //RULE 5
+                            if(in_array($info['taxonID'], $children_of_oldDH['Endopterygota'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC0 RULE5 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI','WOR'))) { //RULE 6
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Embryophytes'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC0 RULE6 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('NCBI','WOR'))) { //RULE 7
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Fungi'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC0 RULE7 count']++;
+                            }
+                        }
+                        if(self::source_is_in_listof_sources($rec['source'], array('CLP','NCBI'))) { //RULE 8
+                            if(!in_array($info['taxonID'], $children_of_oldDH['Metazoa'])) {
+                                $rec['EOLid'] = $EOL_id;
+                                @$this->debug['totals step2']['EXC0 RULE8 count']++;
+                            }
+                        }
+                        
                     }
                 }
                 else {} //No sql rows
