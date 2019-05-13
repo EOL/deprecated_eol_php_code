@@ -586,7 +586,52 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_after_step1");
+        /* self::retire_old_DH_with_these_taxonIDs() not yet implemented... may not be implemented anymore */
     }
+    /*
+    private function retire_old_DH_with_these_taxonIDs()
+    {
+        $file_append = $this->main_path."/old_DH_after_step1.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0;
+        foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx old_DH\n");
+            Array(
+                [taxonID] => -100000
+                [acceptedNameUsageID] => -100000
+                [parentNameUsageID] => -79407
+                [scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
+                [taxonRank] => species
+                [source] => gbif:4943435
+                [taxonomicStatus] => accepted
+                [canonicalName] => Frescocyathus nagagreboensis
+                [scientificNameAuthorship] => Barta-Calmus, 1969
+                [scientificNameID] => 
+                [taxonRemarks] => 
+                [namePublishedIn] => 
+                [furtherInformationURL] => https://www.gbif-uat.org/species/4943435
+                [datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [Landmark] => 
+        }
+        fclose($WRITE);
+    }*/
     private function source_is_in_listof_sources($source_str, $sources_list)
     {
         $sources = self::get_all_source_abbreviations($source_str);
@@ -608,10 +653,13 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function query_EOL_id($source_id, $sql = false) //param $source_id is from new_DH
     {
-        if($source_id) $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.source_id = '".$source_id."'";
+        if($source_id) $sql = "SELECT m.EOL_id, o.taxonID FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonID = m.smasher_id WHERE o.source_id = '".$source_id."'";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) {
-            if($source_id) return $row['EOL_id'];
+            if($source_id) {
+                /* $this->retired_old_DH_taxonID[$row['taxonID']] = ''; */
+                return $row['EOL_id'];
+            }
             elseif($sql) return $row;
         }
         return false;
