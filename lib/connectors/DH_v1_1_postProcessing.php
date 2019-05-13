@@ -667,8 +667,9 @@ class DH_v1_1_postProcessing
         $func->save_all_ids_from_all_hierarchies_2MySQL('write2mysql_v2.txt', true); //2nd param true means it's a postProcess task
         
     }
-    private function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false)
+    function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false, $this_descendants = array())
     {
+        if(!isset($this->descendants)) $this->descendants = $this_descendants;
         $final = array();
         $descendants = array();
         if($val = @$this->descendants[$uid]) $descendants = array_keys($val);

@@ -42,10 +42,23 @@ class DH_v1_1_mapping_EOL_IDs
     {
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
         $file = $this->main_path."/new_DH_after_step1.txt";
-        $used_EOLids = self::get_used_EOLids($file);
-        // print_r($used_EOLids); 
-        echo "\n".count($used_EOLids)."\n";
-        /* 2.2 loop new DH -----------------------------------------------------------------------------------------*/
+        // $used_EOLids = self::get_used_EOLids($file);
+        // echo "\n".count($used_EOLids)."\n";
+        
+        /* 2.2 initialize info global ------------------------------------------------------------------------------*/
+        self::get_taxID_nodes_info($file); //un-comment in real operation
+        
+        require_library('connectors/DH_v1_1_postProcessing');
+        $func = new DH_v1_1_postProcessing(1);
+        
+        /* test only
+        $uid = "EOL-000000618833";
+        $children = $func->get_descendants_of_taxID($uid, false, $this->descendants); //print_r($children); //exit("\n$uid\n");
+        print_r($children);
+        exit("\nxxx\n");
+        */
+        
+        /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -124,6 +137,46 @@ class DH_v1_1_mapping_EOL_IDs
         -23684	-23684	-7957	Ochrophyta	phylum	gbif:98	accepted	Ochrophyta					https://www.gbif-uat.org/species/98	7ddf754f-d193-4cc9-b351-99906754a03b	3402	multiple; canonical;	
         -23677	-23677	-7957	Bigyra	phylum	gbif:8158183	accepted	Bigyra					https://www.gbif-uat.org/species/8158183	7ddf754f-d193-4cc9-b351-99906754a03b	13047845	multiple;	
         */
+    }
+    private function get_taxID_nodes_info($txtfile)
+    {
+        $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonid] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherinformationurl] => 
+                [parentnameusageid] => 
+                [scientificname] => Life
+                [taxonrank] => clade
+                [taxonremarks] => 
+                [datasetid] => trunk
+                [canonicalname] => Life
+                [eolid] => 
+                [eolidannotations] => 
+            )*/
+            // $this->taxID_info[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
+            $this->descendants[$rec['parentnameusageid']][$rec['taxonid']] = ''; //used for descendants (children)
+        }
     }
     private function get_used_EOLids($file)
     {
