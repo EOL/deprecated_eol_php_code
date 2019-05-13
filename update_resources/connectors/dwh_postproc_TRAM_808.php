@@ -25,7 +25,10 @@ $func->create_append_text(); exit("\n-end create_append_text-\n");//done only on
 $func->step_1(); //1. Match EOLid based on source identifiers --> generates [new_DH_after_step1.txt]
 */
 
+$func->before_step_2(); //fix prob. described in an email to Katja
+/*
 $func->step_2(); //2. Match EOLid based on full scientificName strings & rank
+*/
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.

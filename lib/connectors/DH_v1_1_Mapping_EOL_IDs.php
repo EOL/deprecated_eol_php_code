@@ -45,9 +45,52 @@ class DH_v1_1_mapping_EOL_IDs
         foreach($recs as $eol_id => $taxa) {
             if(count($taxa) > 1) {
                 print_r($taxa); echo "\n[$eol_id]\n";
+                self::fix_same_EOLid_for_multiple_taxa($eol_id, $taxa);
             }
         }
         exit("\n-end before step 2\n");
+    }
+    private function fix_same_EOLid_for_multiple_taxa($eol_id, $taxa)
+    {   /*Hi Eli, 
+        Ah yes, we tried some weird synonym mappings in that version of the DH that we have given up on since. 
+        If you encounter situations where multiple new DH nodes map to the same old DH taxon during step 1, 
+        try to resolve the proper mapping by also looking at the scientificName, 
+        i.e., if one of the new DH sourceID matches also matches on scientificName, give the EOLid to that new DH taxon (in your example EOL-000000085511) 
+        and return the other new DH taxa to the matching pool. If none of the scientificNames match the old DH taxon or if there still are multiple matches, 
+        don't assign the EOLid based on the source identifier and leave all taxa involved in the matching pool for subsequent steps.
+        Thanks!  Katja
+        */
+        $matched = 0;
+        foreach($taxa as $rec) {
+            /*Array(
+                [taxonID] => EOL-000000085511
+                [source] => trunk:06e1feb1-fc37-4596-a605-46601d3f74a9,NCBI:33634,WOR:368898
+                [furtherInformationURL] => 
+                [parentNameUsageID] => EOL-000000025792
+                [scientificName] => Stramenopiles
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Stramenopiles
+                [EOLid] => 2912001
+                [EOLidAnnotations] => 
+            )*/
+            $source_ids = self::get_all_source_identifiers($rec['source']);
+            foreach($source_ids as $source_id) {
+                $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$rec['scientificName']."' AND o.source_id = '".$source_id."'";
+                if($row = self::query_EOL_id(false, $sql)) {
+                    if($eol_id != $row['EOL_id']) exit("\nInvestigate 001\n"); //just a test, should always be true
+                    $rec['EOLid'] = $eol_id;
+                    $matched++;
+                }
+                else $rec['EOLid'] = '';
+                $used_when_saving_2text[$rec['taxonID']] = $rec;
+            }
+        }
+        if($matched == 1) {} //save to text file
+        elseif($matched == 0 || $matched > 1) //set all EOLid to blank, then save to text file
+        
+        print_r($used_when_saving_2text);
     }
     //==========================================================================end before step 2
     //==========================================================================start step 2
