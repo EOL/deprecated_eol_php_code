@@ -85,19 +85,23 @@ class DH_v1_1_mapping_EOL_IDs
             If taxonRank is infraspecies, you can match with taxa that have one of the following taxonRank values: form, subspecies, subvariety, variety
             */
             if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
-                // $sql = "SELECT m.EOL_id from old_DH o join EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$rec['scientificName']."' and o.taxonRank not in('genus', 'subgenus', 'family');"
-                // if($EOL_id = self::get_EOL_id(false, $sql)) {
-                //     // echo "\nwith EOL_id [$EOL_id]\n";
-                //     $rec['EOLid'] = $EOL_id;
-                //     @$this->debug['totals step2']['matched EOLid count']++;
-                // }
-                // else { //No EOL_id
-                // }
+                $sql = "SELECT m.EOL_id from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$rec['scientificName']."' and o.taxonRank not in('genus', 'subgenus', 'family');";
+                if($EOL_id = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
+                    $rec['EOLid'] = $EOL_id;
+                    @$this->debug['totals step2']['matched EOLid count']++;
+                }
+                else {} //No EOL_id
             }
             elseif($rec['taxonRank'] == 'infraspecies') {
-                print_r($rec);
+                $sql = "SELECT m.EOL_id FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$rec['scientificName']."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
+                if($EOL_id = self::query_EOL_id(false, $sql)) {
+                    $rec['EOLid'] = $EOL_id;
+                    @$this->debug['totals step2']['matched EOLid count']++;
+                }
+                else {} //No EOL_id
             }
         }
+        Functions::start_print_debug($this->debug, $this->resource_id);
         /*
         ------------sent email
         Hi Katja, as I was investigating results of step 1. Match EOLid based on source identifiers.
