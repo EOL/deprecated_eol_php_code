@@ -158,7 +158,7 @@ class DH_v1_1_mapping_EOL_IDs
     {
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
         $file = $this->main_path."/new_DH_before_step2.txt";
-        // $used_EOLids = self::get_results_tool($file, 'get EOLids');
+        $this->used_EOLids = self::get_results_tool($file, 'get EOLids');
         // echo "\n".count($used_EOLids)."\n"; exit;
         
         /* 2.2 initialize info global ------------------------------------------------------------------------------*/
@@ -507,7 +507,7 @@ class DH_v1_1_mapping_EOL_IDs
             }
             //==================================================================================
         }
-        if($what == "get EOLids") return array_keys($final);
+        if($what == "get EOLids") return $final; //return array_keys($final);
         if($what == "get EOLid - taxa list") return $final;
     }
     //==========================================================================end step 2
@@ -660,7 +660,13 @@ class DH_v1_1_mapping_EOL_IDs
                 /* $this->retired_old_DH_taxonID[$row['taxonID']] = ''; */
                 return $row['EOL_id'];
             }
-            elseif($sql) return $row;
+            elseif($sql) {
+                if(isset($this->used_EOLids)) { //limit EOLid assignment
+                    if(isset($this->used_EOLids[$row['EOL_id']])) return false;
+                    else return $row;
+                }
+                else return $row;
+            }
         }
         return false;
     }
