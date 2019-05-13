@@ -77,7 +77,8 @@ class DH_v1_1_mapping_EOL_IDs
             )*/
             $source_ids = self::get_all_source_identifiers($rec['source']);
             foreach($source_ids as $source_id) {
-                $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id JOIN DWH.old_DH o2 ON o.taxonID = o2.taxonID WHERE o2.scientificName = '".$rec['scientificName']."' AND o.source_id = '".$source_id."'";
+                $sciname = str_replace("'", "\'", $rec['scientificName']);
+                $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id JOIN DWH.old_DH o2 ON o.taxonID = o2.taxonID WHERE o2.scientificName = '".$sciname."' AND o.source_id = '".$source_id."'";
                 if($row = self::query_EOL_id(false, $sql)) {
                     if($eol_id != $row['EOL_id']) exit("\nInvestigate 001\n"); //just a test, should always be true
                     $rec['EOLid'] = $eol_id;
@@ -89,8 +90,10 @@ class DH_v1_1_mapping_EOL_IDs
         }
         if($matched == 1) {} //save to text file
         elseif($matched == 0 || $matched > 1) //set all EOLid to blank, then save to text file
-        
-        print_r($used_when_saving_2text);
+
+        print_r($used_when_saving_2text); exit("\nMatched:[$matched]\n");
+        echo "\nSaving to text...\n";
+        // self::save_to_text($used_when_saving_2text);
     }
     //==========================================================================end before step 2
     //==========================================================================start step 2
