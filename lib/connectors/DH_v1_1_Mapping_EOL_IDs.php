@@ -37,12 +37,25 @@ class DH_v1_1_mapping_EOL_IDs
           then saves it to MySQL table [taxonID_source_ids]
     step. run step_1()
     */
+    //==========================================================================start before step 2
+    function before_step_2() //fix prob. described in an email to Katja
+    {
+        $file = $this->main_path."/new_DH_after_step1.txt";
+        $recs = self::get_results_tool($file, "get EOLid - taxa list");
+        foreach($recs as $eol_id => $taxa) {
+            if(count($taxa) > 1) {
+                print_r($taxa); echo "\n[$eol_id]\n";
+            }
+        }
+        exit("\n-end before step 2\n");
+    }
+    //==========================================================================end before step 2
     //==========================================================================start step 2
     function step_2()
     {
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
         $file = $this->main_path."/new_DH_after_step1.txt";
-        // $used_EOLids = self::get_used_EOLids($file);
+        // $used_EOLids = self::get_results_tool($file, 'get EOLids);
         // echo "\n".count($used_EOLids)."\n";
         
         /* 2.2 initialize info global ------------------------------------------------------------------------------*/
@@ -341,9 +354,9 @@ class DH_v1_1_mapping_EOL_IDs
             $this->descendants[$rec['parentnameusageid']][$rec['taxonid']] = ''; //used for descendants (children)
         }
     }
-    private function get_used_EOLids($file)
+    private function get_results_tool($file, $what)
     {
-        $i = 0;
+        $i = 0; $final = array();
         foreach(new FileIterator($file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
@@ -363,14 +376,25 @@ class DH_v1_1_mapping_EOL_IDs
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopx\n");
             // if($rec['EOLid'] == 2912001) print_r($rec); //debug only
-            if($val = $rec['EOLid']) {
-                if(isset($final[$val])) {
-                    // print_r($rec); //just for debug
-                }
-                else $final[$val] = '';
+
+            //==================================================================================
+            if($what == "get EOLid - taxa list") {
+                if($val = $rec['EOLid']) $final[$val][] = $rec;
             }
+            //==================================================================================
+            if($what == "get EOLids") {
+                if($val = $rec['EOLid']) $final[$val] = '';
+                /* just for debug, good debug
+                {
+                    if(isset($final[$val])) print_r($rec);
+                    else $final[$val] = '';
+                }
+                */
+            }
+            //==================================================================================
         }
-        return array_keys($final);
+        if($what == "get EOLids") return array_keys($final);
+        if($what == "get EOLid - taxa list") return $final;
     }
     //==========================================================================end step 2
     //==========================================================================start step 1
