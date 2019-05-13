@@ -77,7 +77,7 @@ class DH_v1_1_mapping_EOL_IDs
             )*/
             $source_ids = self::get_all_source_identifiers($rec['source']);
             foreach($source_ids as $source_id) {
-                $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$rec['scientificName']."' AND o.source_id = '".$source_id."'";
+                $sql = "SELECT m.EOL_id FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id JOIN DWH.old_DH o2 ON o.taxonID = o2.taxonID WHERE o2.scientificName = '".$rec['scientificName']."' AND o.source_id = '".$source_id."'";
                 if($row = self::query_EOL_id(false, $sql)) {
                     if($eol_id != $row['EOL_id']) exit("\nInvestigate 001\n"); //just a test, should always be true
                     $rec['EOLid'] = $eol_id;
