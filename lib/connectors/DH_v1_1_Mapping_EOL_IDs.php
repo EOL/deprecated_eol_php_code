@@ -48,38 +48,44 @@ class DH_v1_1_mapping_EOL_IDs
     {   
         $file = $this->main_path."/".$tbl.".txt";
         $recs = self::get_results_tool($file, "get EOLid - taxa list");
+        $more_than_one = 0; $final = array();
         foreach($recs as $eol_id => $taxa) {
             if(count($taxa) > 1) {
+                $more_than_one++;
                 if($what == 'step 1')     self::fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa);
-                elseif($what == 'step 2') self::fix_same_EOLid_for_multiple_taxa_step2($eol_id, $taxa);
+                elseif($what == 'step 2') $final[$eol_id] = $taxa;
             }
         }
-        echo "\n-end before [$what]-\n";
+        echo "\n-end before [$what] [$more_than_one]-\n";
+        if($what == 'step 2') {
+            if($final) self::fix_same_EOLid_for_multiple_taxa_step2($final);
+        }
     }
-    private function fix_same_EOLid_for_multiple_taxa_step2($eol_id, $taxa)
+    private function fix_same_EOLid_for_multiple_taxa_step2($final)
     {   /*If there are still multiple matches for a given scientificName string once these rules are applied, take the unresolved new DH taxa out of the matching pool 
           and flag them as "multiple." */
         $used_when_saving_2text = array();
-        foreach($taxa as $rec) {
-            /*Array(
-                [taxonID] => EOL-000000085511
-                [source] => trunk:06e1feb1-fc37-4596-a605-46601d3f74a9,NCBI:33634,WOR:368898
-                [furtherInformationURL] => 
-                [parentNameUsageID] => EOL-000000025792
-                [scientificName] => Stramenopiles
-                [taxonRank] => clade
-                [taxonRemarks] => 
-                [datasetID] => trunk
-                [canonicalName] => Stramenopiles
-                [EOLid] => 2912001
-                [EOLidAnnotations] => 
-            )*/
-            $rec['EOLidAnnotations'] = 'multiple';
-            $used_when_saving_2text[$rec['taxonID']] = $rec;
+        foreach($final as $eol_id => $taxa) {
+            foreach($taxa as $rec) {
+                /*Array(
+                    [taxonID] => EOL-000000085511
+                    [source] => trunk:06e1feb1-fc37-4596-a605-46601d3f74a9,NCBI:33634,WOR:368898
+                    [furtherInformationURL] => 
+                    [parentNameUsageID] => EOL-000000025792
+                    [scientificName] => Stramenopiles
+                    [taxonRank] => clade
+                    [taxonRemarks] => 
+                    [datasetID] => trunk
+                    [canonicalName] => Stramenopiles
+                    [EOLid] => 2912001
+                    [EOLidAnnotations] => 
+                )*/
+                $rec['EOLidAnnotations'] = 'multiple';
+                $used_when_saving_2text[$rec['taxonID']] = $rec;
+            }
         }
         self::save_to_text($used_when_saving_2text, 'new_DH_before_step3', 'new_DH_after_step2', 2); //save to text file
     }
-    
     private function fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa)
     {   /*Hi Eli, 
         Ah yes, we tried some weird synonym mappings in that version of the DH that we have given up on since. 
