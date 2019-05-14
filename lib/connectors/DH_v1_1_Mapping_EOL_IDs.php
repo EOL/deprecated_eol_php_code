@@ -37,6 +37,12 @@ class DH_v1_1_mapping_EOL_IDs
           then saves it to MySQL table [taxonID_source_ids]
     step. run step_1()
     */
+    //==========================================================================start step 3
+    function step_3()
+    {
+        
+    }
+    //============================================================================end step 3
     //==========================================================================start before step 2
     function before_step_2() //fix prob. described in an email to Katja
     {
@@ -48,7 +54,7 @@ class DH_v1_1_mapping_EOL_IDs
                 self::fix_same_EOLid_for_multiple_taxa($eol_id, $taxa);
             }
         }
-        exit("\n-end before step 2\n");
+        echo "\n-end before step 2-\n";
     }
     private function fix_same_EOLid_for_multiple_taxa($eol_id, $taxa)
     {   /*Hi Eli, 
@@ -186,7 +192,8 @@ class DH_v1_1_mapping_EOL_IDs
         $children_of['Embryophytes'] = $func->get_descendants_of_taxID("EOL-000000105445", false, $this->descendants);
         unset($this->descendants);
         
-        self::get_taxID_nodes_info($this->file['old DH']); //for old DH
+        // self::get_taxID_nodes_info($this->file['old DH']); //for old DH
+        self::get_taxID_nodes_info($this->main_path."/old_DH_after_step1.txt");
         $children_of_oldDH['Endopterygota'] = $func->get_descendants_of_taxID("-556430", false, $this->descendants);
         $children_of_oldDH['Embryophytes'] = $func->get_descendants_of_taxID("-30127", false, $this->descendants);
         $children_of_oldDH['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
