@@ -200,7 +200,7 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-
+            //------------------------------------------------------------------------------------------
             if($rec['EOLidAnnotations'] == 'unmatched') {
                 @$this->debug['totals']['unmatched count']++;
                 /* start writing */
@@ -217,7 +217,7 @@ class DH_v1_1_mapping_EOL_IDs
                 fwrite($WRITE, implode("\t", $save)."\n");
                 continue;
             }
-            
+            //------------------------------------------------------------------------------------------
             /*Array(
                 [taxonID] => EOL-000000095335
                 [source] => trunk:b6259274-728a-4b38-a135-f7286fdc5917,WOR:582466
