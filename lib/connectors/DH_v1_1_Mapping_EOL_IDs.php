@@ -466,8 +466,7 @@ class DH_v1_1_mapping_EOL_IDs
                 @$this->debug['totals']['matched EOLid count']++;
                 $this->retired_old_DH_taxonID[$o_taxonID] = '';
             }
-            if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
-            
+            /* if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++; --> irrelevant here... */
             /* start writing */
             $save = array();
             foreach($fields as $head) $save[] = $rec[$head];
