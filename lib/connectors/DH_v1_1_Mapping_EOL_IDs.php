@@ -50,7 +50,7 @@ class DH_v1_1_mapping_EOL_IDs
         $recs = self::get_results_tool($file, "get EOLid - taxa list");
         foreach($recs as $eol_id => $taxa) {
             if(count($taxa) > 1) {
-                if($what == 'step 1') self::fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa);
+                if($what == 'step 1')     self::fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa);
                 elseif($what == 'step 2') self::fix_same_EOLid_for_multiple_taxa_step2($eol_id, $taxa);
             }
         }
@@ -59,6 +59,7 @@ class DH_v1_1_mapping_EOL_IDs
     private function fix_same_EOLid_for_multiple_taxa_step2($eol_id, $taxa)
     {   /*If there are still multiple matches for a given scientificName string once these rules are applied, take the unresolved new DH taxa out of the matching pool 
           and flag them as "multiple." */
+        $used_when_saving_2text = array();
         foreach($taxa as $rec) {
             /*Array(
                 [taxonID] => EOL-000000085511
