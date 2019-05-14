@@ -176,6 +176,7 @@ class DH_v1_1_mapping_EOL_IDs
     //==========================================================================start step 2
     function step_2()
     {
+        $this->retired_old_DH_taxonID = array();
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
         $file = $this->main_path."/new_DH_before_step2.txt";
         $this->used_EOLids = self::get_results_tool($file, 'get EOLids');
@@ -263,6 +264,7 @@ class DH_v1_1_mapping_EOL_IDs
                 $sql = "SELECT m.EOL_id, o.source, o.taxonID from DWH.".$old_DH_tbl." o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$sciname_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
                 if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
                     if($EOL_id = $info['EOL_id']) {
+                        $o_taxonID = $info['taxonID'];
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
                             if(in_array($rec['taxonID'], $children_of['Lissamphibia'])) { //RULE 1
                                 $rec['EOLid'] = $EOL_id;
@@ -321,6 +323,7 @@ class DH_v1_1_mapping_EOL_IDs
                 $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
+                        $o_taxonID = $info['taxonID'];
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
                             if(in_array($rec['taxonID'], $children_of['Lissamphibia'])) { //RULE 1
                                 $rec['EOLid'] = $EOL_id;
@@ -379,6 +382,7 @@ class DH_v1_1_mapping_EOL_IDs
                 $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
+                        $o_taxonID = $info['taxonID'];
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
                             if(in_array($rec['taxonID'], $children_of['Lissamphibia'])) { //RULE 1
                                 $rec['EOLid'] = $EOL_id;
@@ -434,7 +438,10 @@ class DH_v1_1_mapping_EOL_IDs
                 else {} //No sql rows
             }
             
-            if($rec['EOLid'])                           @$this->debug['totals']['matched EOLid count']++;
+            if($rec['EOLid']) {
+                @$this->debug['totals']['matched EOLid count']++;
+                $this->retired_old_DH_taxonID[$o_taxonID] = '';
+            }
             if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
             
             /* start writing */
@@ -444,6 +451,11 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_after_step2");
+        
+        
+        // retire xxx
+        
+        
         /*
         ------------sent email
         Hi Katja, as I was investigating results of step 1. Match EOLid based on source identifiers.
@@ -625,13 +637,15 @@ class DH_v1_1_mapping_EOL_IDs
         fclose($WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_after_step1");
         // /*
-        self::retire_old_DH_with_these_taxonIDs(); //not yet implemented... may not be implemented anymore 
+        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step1"); //not yet implemented... may not be implemented anymore 
         // */
     }
     // /*
-    private function retire_old_DH_with_these_taxonIDs()
+    private function retire_old_DH_with_these_taxonIDs($table)
     {
-        $file_append = $this->main_path."/old_DH_after_step1.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        echo "\nStart retiring process...\n";
+        $file_append = $this->main_path."/".$table.".txt";
+        $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -681,14 +695,14 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         /* append to MySQL table */
-        echo "\nSaving [old_DH_after_step1] records to MySQL...\n";
+        echo "\nSaving [$table] records to MySQL...\n";
         if(filesize($file_append)) {
             //truncate first
-            $sql = "TRUNCATE TABLE DWH.old_DH_after_step1;";
-            if($result = $this->mysqli->query($sql)) echo "\nTable truncated [old_DH_after_step1] OK.\n";
+            $sql = "TRUNCATE TABLE DWH.".$table.";";
+            if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
             //load data to a blank table
-            $sql = "LOAD data local infile '".$file_append."' into table DWH.old_DH_after_step1;";
-            if($result = $this->mysqli->query($sql)) echo "\nSaved table [old_DH_after_step1] to MySQL\n";
+            $sql = "LOAD data local infile '".$file_append."' into table DWH.".$table.";";
+            if($result = $this->mysqli->query($sql)) echo "\nSaved table [$table] to MySQL\n";
         }
         else echo "\nNothing to save.\n";
     }
@@ -709,6 +723,7 @@ class DH_v1_1_mapping_EOL_IDs
     private function get_EOL_id($source_ids)
     {
         foreach($source_ids as $source_id) {
+            if(!$source_id) continue;
             if($val = self::query_EOL_id($source_id)) return $val;
         }
     }
