@@ -679,6 +679,17 @@ class DH_v1_1_mapping_EOL_IDs
             }
         }
         fclose($WRITE);
+        /* append to MySQL table */
+        echo "\nSaving [old_DH_after_step1] records to MySQL...\n";
+        if(filesize($file_append)) {
+            //truncate first
+            $sql = "TRUNCATE TABLE DWH.old_DH_after_step1;";
+            if($result = $this->mysqli->query($sql)) echo "\nTable truncated [old_DH_after_step1] OK.\n";
+            //load data to a blank table
+            $sql = "LOAD data local infile '".$file_append."' into table DWH.old_DH_after_step1;";
+            if($result = $this->mysqli->query($sql)) echo "\nSaved table [old_DH_after_step1] to MySQL\n";
+        }
+        else echo "\nNothing to save.\n";
     }
     // */
     private function source_is_in_listof_sources($source_str, $sources_list)
