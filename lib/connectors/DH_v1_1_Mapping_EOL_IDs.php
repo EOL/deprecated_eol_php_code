@@ -83,8 +83,22 @@ class DH_v1_1_mapping_EOL_IDs
                     if($eol_id != $row['EOL_id']) exit("\nInvestigate 001\n"); //just a test, should always be false
                     $rec['EOLid'] = $eol_id;
                     $matched++;
+                    /* $this->retired_old_DH_taxonID[$row['taxonID']] = ''; --- not needed I think...already retired in step 1 */
                 }
-                else $rec['EOLid'] = '';
+                else {
+                    $rec['EOLid'] = '';
+                    //start un-retire --- not needed I think...
+                    /*
+                    $source_ids = self::get_all_source_identifiers($rec['source']);
+                    foreach($source_ids as $source_id) {
+                        if($source_id) $sql = "SELECT o.taxonID FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonID = m.smasher_id WHERE o.source_id = '".$source_id."'";
+                        $result = $this->mysqli->query($sql);
+                        while($result && $row=$result->fetch_assoc()) {
+                            un-retire $row['taxonID'];
+                        }
+                    }
+                    */
+                }
                 $used_when_saving_2text[$rec['taxonID']] = $rec;
             }
         }
@@ -602,9 +616,11 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_after_step1");
-        /* self::retire_old_DH_with_these_taxonIDs() not yet implemented... may not be implemented anymore */
+        // /*
+        self::retire_old_DH_with_these_taxonIDs(); //not yet implemented... may not be implemented anymore 
+        // */
     }
-    /*
+    // /*
     private function retire_old_DH_with_these_taxonIDs()
     {
         $file_append = $this->main_path."/old_DH_after_step1.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
@@ -627,7 +643,7 @@ class DH_v1_1_mapping_EOL_IDs
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nstopx old_DH\n");
-            Array(
+            /*Array(
                 [taxonID] => -100000
                 [acceptedNameUsageID] => -100000
                 [parentNameUsageID] => -79407
@@ -645,9 +661,11 @@ class DH_v1_1_mapping_EOL_IDs
                 [EOLid] => 
                 [EOLidAnnotations] => 
                 [Landmark] => 
+            */
         }
         fclose($WRITE);
-    }*/
+    }
+    // */
     private function source_is_in_listof_sources($source_str, $sources_list)
     {
         $sources = self::get_all_source_abbreviations($source_str);
@@ -673,7 +691,7 @@ class DH_v1_1_mapping_EOL_IDs
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) {
             if($source_id) {
-                /* $this->retired_old_DH_taxonID[$row['taxonID']] = ''; */
+                $this->retired_old_DH_taxonID[$row['taxonID']] = '';
                 return $row['EOL_id'];
             }
             elseif($sql) {
