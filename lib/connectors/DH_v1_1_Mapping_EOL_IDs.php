@@ -194,6 +194,7 @@ class DH_v1_1_mapping_EOL_IDs
         
         // self::get_taxID_nodes_info($this->file['old DH']); //for old DH
         self::get_taxID_nodes_info($this->main_path."/old_DH_after_step1.txt");
+        $old_DH_tbl = "old_DH_after_step1";
         $children_of_oldDH['Endopterygota'] = $func->get_descendants_of_taxID("-556430", false, $this->descendants);
         $children_of_oldDH['Embryophytes'] = $func->get_descendants_of_taxID("-30127", false, $this->descendants);
         $children_of_oldDH['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
@@ -259,7 +260,7 @@ class DH_v1_1_mapping_EOL_IDs
             */
             $sciname_4sql = str_replace("'", "\'", $rec['scientificName']);
             if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
-                $sql = "SELECT m.EOL_id, o.source, o.taxonID from DWH.old_DH o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$sciname_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID from DWH.".$old_DH_tbl." o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$sciname_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
                 if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
                     if($EOL_id = $info['EOL_id']) {
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
@@ -317,7 +318,7 @@ class DH_v1_1_mapping_EOL_IDs
                 else {} //No sql rows
             }
             elseif($rec['taxonRank'] == 'infraspecies') { //EXC2
-                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
@@ -375,7 +376,7 @@ class DH_v1_1_mapping_EOL_IDs
                 else {} //No sql rows
             }
             else { //EXC0
-                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.old_DH o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$sciname_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         if(self::source_is_in_listof_sources($info['source'], array('AMP'))) {
@@ -713,7 +714,10 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function query_EOL_id($source_id, $sql = false) //param $source_id is from new_DH
     {
-        if($source_id) $sql = "SELECT m.EOL_id, o.taxonID FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonID = m.smasher_id WHERE o.source_id = '".$source_id."'";
+        if($source_id) {
+            $source_id_4sql = str_replace("'", "\'", $source_id);
+            $sql = "SELECT m.EOL_id, o.taxonID FROM DWH.taxonID_source_ids o JOIN DWH.EOLid_map m ON o.taxonID = m.smasher_id WHERE o.source_id = '".$source_id_4sql."'";
+        }
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) {
             if($source_id) {
