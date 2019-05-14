@@ -630,7 +630,8 @@ class DH_v1_1_mapping_EOL_IDs
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
             else {
@@ -662,6 +663,13 @@ class DH_v1_1_mapping_EOL_IDs
                 [EOLidAnnotations] => 
                 [Landmark] => 
             */
+            if(isset($this->retired_old_DH_taxonID[$rec['taxonID']])) continue;
+            else {
+                /* start writing */
+                $save = array();
+                foreach($fields as $head) $save[] = $rec[$head];
+                fwrite($WRITE, implode("\t", $save)."\n");
+            }
         }
         fclose($WRITE);
     }
