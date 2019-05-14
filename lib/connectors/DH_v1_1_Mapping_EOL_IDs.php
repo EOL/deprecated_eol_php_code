@@ -586,7 +586,7 @@ class DH_v1_1_mapping_EOL_IDs
             $source_ids = self::get_all_source_identifiers($rec['source']);
             // /* MySQL option
             if($EOL_id = self::get_EOL_id($source_ids)) {
-                echo "\nwith EOL_id [$EOL_id]\n";
+                // echo "\nwith EOL_id [$EOL_id]\n";
                 $rec['EOLid'] = $EOL_id;
                 @$this->debug['totals']['matched EOLid count']++;
             }
