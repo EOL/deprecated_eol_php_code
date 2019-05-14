@@ -84,7 +84,7 @@ class DH_v1_1_mapping_EOL_IDs
                 $used_when_saving_2text[$rec['taxonID']] = $rec;
             }
         }
-        self::save_to_text($used_when_saving_2text, 'new_DH_before_step3', 'new_DH_after_step2', 2); //save to text file
+        self::save_to_text($used_when_saving_2text, 'new_DH_before_step3', 'new_DH_after_step2', 3); //save to text file
     }
     private function fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa)
     {   /*Hi Eli, 
@@ -140,14 +140,14 @@ class DH_v1_1_mapping_EOL_IDs
         }
 
         echo("\nMatched:[$matched]\n");
-        if($matched == 1) self::save_to_text($used_when_saving_2text, 'new_DH_before_step2', 'new_DH_after_step1', 1); //save to text file
+        if($matched == 1) self::save_to_text($used_when_saving_2text, 'new_DH_before_step2', 'new_DH_after_step1', 2); //save to text file
         elseif($matched == 0 || $matched > 1) { //set all EOLid to blank, then save to text file
             $final = array();
             foreach($used_when_saving_2text as $taxonID => $rec) {
                 $rec['EOLid'] = '';
                 $final[$taxonID] = $rec;
             }
-            self::save_to_text($final, 'new_DH_before_step2', 'new_DH_after_step1', 1);
+            self::save_to_text($final, 'new_DH_before_step2', 'new_DH_after_step1', 2);
         }
     }
     private function save_to_text($used_when_saving_2text, $destinef, $sourcef, $which)
@@ -264,7 +264,7 @@ class DH_v1_1_mapping_EOL_IDs
                 continue;
             }
             if($rec['EOLid']) {
-                @$this->debug['totals']['matched EOLid count']++;
+                @$this->debug['totals']['matched EOLid count from Step1']++;
                 /* start writing */
                 $save = array();
                 foreach($fields as $head) $save[] = $rec[$head];
@@ -470,7 +470,7 @@ class DH_v1_1_mapping_EOL_IDs
             }
             
             if($rec['EOLid']) {
-                @$this->debug['totals']['matched EOLid count']++;
+                @$this->debug['totals']['matched EOLid count from Step2']++;
                 $this->retired_old_DH_taxonID[$o_taxonID] = '';
             }
             /* if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++; --> irrelevant here... */
