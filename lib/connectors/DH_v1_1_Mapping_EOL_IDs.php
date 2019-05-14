@@ -448,7 +448,7 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_after_step2");
-        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step2"); //not yet implemented... may not be implemented anymore 
+        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step2");
     }
     private function get_taxID_nodes_info($txtfile)
     {
