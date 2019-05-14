@@ -44,16 +44,42 @@ class DH_v1_1_mapping_EOL_IDs
     }
     //============================================================================end step 3
     //==========================================================================start before step 2
-    function before_step_2() //fix prob. described in an email to Katja
-    {
-        $file = $this->main_path."/new_DH_after_step1.txt";
+    function before_step_2_or_3($tbl, $what) //fix prob. described in an email to Katja
+    {   
+        $file = $this->main_path."/".$tbl.".txt";
         $recs = self::get_results_tool($file, "get EOLid - taxa list");
         foreach($recs as $eol_id => $taxa) {
-            if(count($taxa) > 1) self::fix_same_EOLid_for_multiple_taxa($eol_id, $taxa);
+            if(count($taxa) > 1) {
+                if($what == 'step 1') self::fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa);
+                elseif($what == 'step 2') self::fix_same_EOLid_for_multiple_taxa_step2($eol_id, $taxa);
+            }
         }
-        echo "\n-end before step 2-\n";
+        echo "\n-end before [$what]-\n";
     }
-    private function fix_same_EOLid_for_multiple_taxa($eol_id, $taxa)
+    private function fix_same_EOLid_for_multiple_taxa_step2($eol_id, $taxa)
+    {   /*If there are still multiple matches for a given scientificName string once these rules are applied, take the unresolved new DH taxa out of the matching pool 
+          and flag them as "multiple." */
+        foreach($taxa as $rec) {
+            /*Array(
+                [taxonID] => EOL-000000085511
+                [source] => trunk:06e1feb1-fc37-4596-a605-46601d3f74a9,NCBI:33634,WOR:368898
+                [furtherInformationURL] => 
+                [parentNameUsageID] => EOL-000000025792
+                [scientificName] => Stramenopiles
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Stramenopiles
+                [EOLid] => 2912001
+                [EOLidAnnotations] => 
+            )*/
+            $rec['EOLidAnnotations'] = 'multiple';
+            $used_when_saving_2text[$rec['taxonID']] = $rec;
+        }
+        self::save_to_text($used_when_saving_2text, 'new_DH_before_step3', 'new_DH_after_step2', 2); //save to text file
+    }
+    
+    private function fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa)
     {   /*Hi Eli, 
         Ah yes, we tried some weird synonym mappings in that version of the DH that we have given up on since. 
         If you encounter situations where multiple new DH nodes map to the same old DH taxon during step 1, 
@@ -107,22 +133,22 @@ class DH_v1_1_mapping_EOL_IDs
         }
 
         echo("\nMatched:[$matched]\n");
-        if($matched == 1) self::save_to_text($used_when_saving_2text); //save to text file
+        if($matched == 1) self::save_to_text($used_when_saving_2text, 'new_DH_before_step2', 'new_DH_after_step1', 1); //save to text file
         elseif($matched == 0 || $matched > 1) { //set all EOLid to blank, then save to text file
             $final = array();
             foreach($used_when_saving_2text as $taxonID => $rec) {
                 $rec['EOLid'] = '';
                 $final[$taxonID] = $rec;
             }
-            self::save_to_text($final);
+            self::save_to_text($final, 'new_DH_before_step2', 'new_DH_after_step1', 1);
         }
     }
-    private function save_to_text($used_when_saving_2text)
+    private function save_to_text($used_when_saving_2text, $destinef, $sourcef, $which)
     {
         echo "\nSaving to text...\n";
-        $file_append = $this->main_path."/new_DH_before_step2.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $file_append = $this->main_path."/".$destinef.".txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0; $this->debug = array();
-        foreach(new FileIterator($this->main_path."/new_DH_after_step1.txt") as $line_number => $line) {
+        foreach(new FileIterator($this->main_path."/".$sourcef.".txt") as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
@@ -159,6 +185,7 @@ class DH_v1_1_mapping_EOL_IDs
             
             if($rec['EOLid'])                           @$this->debug['totals']['matched EOLid count']++;
             if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
+            if($rec['EOLidAnnotations'] == 'multiple') @$this->debug['totals']['multiple count']++;
             
             /* start writing */
             // $headers = array_keys($rec);
@@ -167,7 +194,7 @@ class DH_v1_1_mapping_EOL_IDs
             fwrite($WRITE, implode("\t", $save)."\n");
         }
         fclose($WRITE);
-        Functions::start_print_debug($this->debug, $this->resource_id."_before_step2");
+        Functions::start_print_debug($this->debug, $this->resource_id."_before_step".$which);
     }
     //==========================================================================end before step 2
     //==========================================================================start step 2
@@ -613,7 +640,7 @@ class DH_v1_1_mapping_EOL_IDs
     // /*
     private function retire_old_DH_with_these_taxonIDs($table)
     {
-        echo "\nStart retiring process...\n";
+        echo "\nStart retiring process...[$table]\n";
         $file_append = $this->main_path."/".$table.".txt";
         $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
