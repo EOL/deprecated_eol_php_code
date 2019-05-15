@@ -43,13 +43,22 @@ class DH_v1_1_mapping_EOL_IDs
         step: fill-up blank canonical using gnparser
         gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
         */
-        self::fill_blank_canonical_using_gnparser('old_DH_after_step2_xxx');
+        /* main operations
+        self::generate_canonicals_to_text_files('old_DH_after_step2');
+        */
+        self::fill_old_DH_with_blank_canonical();
     }
-    private function fill_blank_canonical_using_gnparser($sourcef)
+    private function fill_old_DH_with_blank_canonical()
+    {
+        /* step: get all taxonID - canonicals list */
+        
+        
+    }
+    private function generate_canonicals_to_text_files($sourcef)
     {
         echo "\nUsing gnparser...\n";
-        $file_append = $this->main_path."/step3_scinames.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        $i = 0; $this->debug = array(); $xxx = 0; $ctr = 0;
+        $file_append = $this->main_path."/gnparser/step3_scinames_1.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0; $this->debug = array(); $xxx = 0; $ctr = 1;
         foreach(new FileIterator($this->main_path."/".$sourcef.".txt") as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
@@ -90,31 +99,22 @@ class DH_v1_1_mapping_EOL_IDs
             if(!$rec['canonicalName']) {
                 fwrite($WRITE, $rec['scientificName']."\n");
                 @$xxx++;
-                if($xxx > 200000) {
+                if($xxx > 400000) {
                     $xxx = 0; $ctr++;
                     fclose($WRITE);
-                    $file_append = $this->main_path."/step3_scinames_".$ctr.".txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+                    $file_append = $this->main_path."/gnparser/step3_scinames_".$ctr.".txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
                 }
             }
         }
         fclose($WRITE);
         echo "\nWithout canonicals: [$xxx]\n";
         /* step: convert file to gnparsed */
-        $source = $this->main_path."/step3_scinames.txt";
-        $destination = $this->main_path."/step3_gnparsed.txt";
-        $cmd = "gnparser file -f json-compact --input $source --output $destination";
-        $out = shell_exec($cmd); echo "\n$out\n";
-
-        $source = $this->main_path."/step3_scinames_1.txt";
-        $destination = $this->main_path."/step3_gnparsed_1.txt";
-        $cmd = "gnparser file -f json-compact --input $source --output $destination";
-        $out = shell_exec($cmd); echo "\n$out\n";
-        
-        $source = $this->main_path."/step3_scinames_2.txt";
-        $destination = $this->main_path."/step3_gnparsed_2.txt";
-        $cmd = "gnparser file -f json-compact --input $source --output $destination";
-        $out = shell_exec($cmd); echo "\n$out\n";
-        
+        for($i = 1; $i <= $ctr; $i++) {
+            $source = $this->main_path."/gnparser/step3_scinames_".$i.".txt";
+            $destination = $this->main_path."/gnparser/step3_gnparsed_".$i.".txt";
+            $cmd = "gnparser file -f simple --input $source --output $destination"; //'simple' or 'json-compact'
+            $out = shell_exec($cmd); echo "\n$out\n";
+        }
     }
     //============================================================================end step 3
     //==========================================================================start before step 2
