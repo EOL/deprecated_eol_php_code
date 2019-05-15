@@ -298,7 +298,7 @@ class DH_v1_1_mapping_EOL_IDs
                 if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
                     if($EOL_id = $info['EOL_id']) {
                         $o_taxonID = $info['taxonID']; //111
-                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC1', $children_of, $children_of_oldDH)
+                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC1', $children_of, $children_of_oldDH);
                     }
                 }
                 else {} //No sql rows
@@ -308,7 +308,7 @@ class DH_v1_1_mapping_EOL_IDs
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         $o_taxonID = $info['taxonID']; //222
-                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC2', $children_of, $children_of_oldDH)
+                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC2', $children_of, $children_of_oldDH);
                     }
                 }
                 else {} //No sql rows
@@ -318,7 +318,7 @@ class DH_v1_1_mapping_EOL_IDs
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         $o_taxonID = $info['taxonID']; //000
-                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC0', $children_of, $children_of_oldDH)
+                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC0', $children_of, $children_of_oldDH);
                     }
                 }
                 else {} //No sql rows
@@ -390,6 +390,12 @@ class DH_v1_1_mapping_EOL_IDs
             }
         }
         $rec = self::proc_RULE_9($EOL_id, $rec, $info, $excep_no);
+        /* not sure if this will make a difference... SEEMS DO NOT USE THIS!!! since the RULES are important to be followed
+        if(!$rec['EOLid']) {
+            $rec['EOLid'] = $EOL_id;
+            @$this->debug['totals step2']["$excep_no NO RULES count"]++;
+        }
+        */
         return $rec;
     }
     private function proc_RULE_9($EOL_id, $rec, $info, $exception_no)
