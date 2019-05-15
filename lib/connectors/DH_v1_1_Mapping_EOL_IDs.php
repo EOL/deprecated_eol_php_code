@@ -42,17 +42,86 @@ class DH_v1_1_mapping_EOL_IDs
     {   /* use new_DH_before_step3.txt
         step: fill-up blank canonical using gnparser
         gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
+        gnparser name -f simple 'Tricornina (Bicornina) jordan, 1964'
+        
         */
         /* main operations
         self::generate_canonicals_to_text_files('old_DH_after_step2');
         */
-        self::fill_old_DH_with_blank_canonical();
+        self::fill_old_DH_with_blank_canonical('old_DH_after_step2');
     }
-    private function fill_old_DH_with_blank_canonical()
+    private function fill_old_DH_with_blank_canonical($sourcef)
     {
         /* step: get all taxonID - canonicals list */
-        
-        
+        $sciname_canonical = self::build_sciname_canonical_list(); echo "\nsciname_canonical: ".count($sciname_canonical)."\n";
+
+        /* step: fill blank canonicals */
+        echo "\nSaving to old_DH_gnparsed.txt...\n";
+        $file_append = $this->main_path."/old_DH_gnparsed.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0; $this->debug = array();
+        foreach(new FileIterator($this->main_path."/".$sourcef.".txt") as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\neliboy\n");
+            /**/
+            
+            if(!$rec['canonicalName']) {
+                if($rec['canonicalName'] = $sciname_canonical[$rec['scientificName']]) {
+                    // echo "\nassigned ".$rec['scientificName']." --> ".$rec['canonicalName']."\n";
+                }
+                else {
+                    if(stripos($rec['scientificName'], "unplaced extinct") !== false) {} //string is found
+                    elseif(stripos($rec['scientificName'], "extinct ") !== false) {} //string is found
+                    elseif(stripos($rec['scientificName'], "unplaced ") !== false) {} //string is found
+                    elseif(stripos($rec['scientificName'], "fragile ") !== false) {} //string is found
+                    elseif(stripos($rec['scientificName'], "virus") !== false) {} //string is found
+                    elseif(stripos($rec['scientificName'], " incertae sedis") !== false) {} //string is found
+                    elseif(in_array($rec['scientificName'], array('Aloe x L.C. Leach', 'landbirds', 'waterbirds', 'berothid clade', 'Tricornina (Bicornina) jordan, 1964', 'HaploVejdovskya Ax, 1954', 'Burana orthonairovirus', 'HaploVejdovskya subterranea Ax, 1954'))) {}
+                    else {
+                        print_r($rec);
+                        // exit("\nInvestigate 001\n");
+                    }
+                }
+            }
+            
+            /* start writing */
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
+        }
+        fclose($WRITE);
+    }
+    private function build_sciname_canonical_list()
+    {
+        $ctr = 0;
+        while(true) {
+            $ctr++;
+            $file = $this->main_path."/gnparser/step3_gnparsed_".$ctr.".txt";
+            if(file_exists($file)) {
+                $file_array = file($file);
+                foreach($file_array as $line) {
+                    $row = explode("\t", $line);
+                    $final[$row[1]] = $row[3];
+                }
+            }
+            else break;
+        }
+        return $final;
     }
     private function generate_canonicals_to_text_files($sourcef)
     {
