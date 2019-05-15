@@ -608,6 +608,16 @@ class DH_v1_1_mapping_EOL_IDs
             $rec['EOLid'] = '';
             $rec['EOLidAnnotations'] = '';
             
+            if(self::source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) { //NEW. will not work in step 1, but will process in step 2.
+                /* start writing */
+                $headers = array_keys($rec);
+                $save = array();
+                foreach($headers as $head) $save[] = $rec[$head];
+                fwrite($WRITE, implode("\t", $save)."\n");
+                /* end writing */
+                continue;
+            }
+            
             $source_ids = self::get_all_source_identifiers($rec['source']);
             // /* MySQL option
             if($EOL_id = self::get_EOL_id($source_ids)) {
@@ -616,10 +626,12 @@ class DH_v1_1_mapping_EOL_IDs
                 @$this->debug['totals']['matched EOLid count']++;
             }
             else { //No EOL_id
+                /* obsolete per: https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63456&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63456
                 if(self::source_is_in_listof_sources($rec['source'], array('ictv', 'IOC', 'ODO'))) {
                     $rec['EOLidAnnotations'] = 'unmatched';
                     @$this->debug['totals']['unmatched count']++;
                 }
+                */
             }
             // */
 
