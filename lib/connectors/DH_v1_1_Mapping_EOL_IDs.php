@@ -42,9 +42,45 @@ class DH_v1_1_mapping_EOL_IDs
     {   /* use new_DH_before_step3.txt
         step: fill-up blank canonical using gnparser
         */
-        iterator
+        self::fill_blank_canonical_using_gnparser('new_DH_before_step3');
         
-        
+    }
+    private function fill_blank_canonical_using_gnparser($sourcef)
+    {
+        echo "\nUsing gnparser...\n";
+        $file_append = $this->main_path."/new_DH_after_gnparser.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0; $this->debug = array();
+        foreach(new FileIterator($this->main_path."/".$sourcef.".txt") as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            print_r($rec); exit("\neliboy\n");
+            /*
+            */
+            
+            
+            /* start writing */
+            // $headers = array_keys($rec);
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
+        }
+        fclose($WRITE);
+        // Functions::start_print_debug($this->debug, $this->resource_id."_before_step".$which);
     }
     //============================================================================end step 3
     //==========================================================================start before step 2

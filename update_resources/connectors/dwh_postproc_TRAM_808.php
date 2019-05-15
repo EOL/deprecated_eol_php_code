@@ -23,11 +23,11 @@ exit("\n-end test-\n");
 /* main operations
 $func->create_append_text(); exit("\n-end create_append_text-\n");//done only once; worked OK
 */
-// /*
+/*
 $func->step_1(); //1. Match EOLid based on source identifiers --> generates [new_DH_after_step1.txt] [old_DH_after_step1.txt]
 $func->before_step_2_or_3("new_DH_after_step1", "step 1"); //fix prob. described in an email to Katja //--> uses [new_DH_after_step1.txt]
                                                                                                       //--> generates [new_DH_before_step2.txt]
-// */
+*/
 /* these two can run one after the other (2.42 hours)
 $func->step_2(); //2. Match EOLid based on full scientificName strings & rank //--> uses [new_DH_before_step2.txt] [old_DH_after_step1.txt] 
                                                                               //--> generates [new_DH_after_step2.txt] [old_DH_after_step2.txt]
