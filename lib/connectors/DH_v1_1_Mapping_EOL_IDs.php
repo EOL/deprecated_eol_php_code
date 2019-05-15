@@ -41,22 +41,21 @@ class DH_v1_1_mapping_EOL_IDs
     function step_3()
     {   /* use new_DH_before_step3.txt
         step: fill-up blank canonical using gnparser
+        gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
         */
-        self::fill_blank_canonical_using_gnparser('new_DH_before_step3');
-        
+        self::fill_blank_canonical_using_gnparser('old_DH_after_step2_xxx');
     }
     private function fill_blank_canonical_using_gnparser($sourcef)
     {
         echo "\nUsing gnparser...\n";
-        $file_append = $this->main_path."/new_DH_after_gnparser.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        $i = 0; $this->debug = array();
+        $file_append = $this->main_path."/step3_scinames.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0; $this->debug = array(); $xxx = 0; $ctr = 0;
         foreach(new FileIterator($this->main_path."/".$sourcef.".txt") as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); //print_r($fields);
-                fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
             else {
@@ -68,19 +67,54 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\neliboy\n");
-            /*
-            */
-            
-            
-            /* start writing */
-            // $headers = array_keys($rec);
-            $save = array();
-            foreach($fields as $head) $save[] = $rec[$head];
-            fwrite($WRITE, implode("\t", $save)."\n");
+            // print_r($rec); //exit("\neliboy\n");
+            /*Array(
+                [taxonID] => -106000
+                [acceptedNameUsageID] => -106000
+                [parentNameUsageID] => -81247
+                [scientificName] => Dystactella eisenmanni Hryniewicz, Jakubowicz, Belka, Dopieralska & Kaim, 2016
+                [taxonRank] => species
+                [source] => gbif:8946026
+                [taxonomicStatus] => accepted
+                [canonicalName] => Dystactella eisenmanni
+                [scientificNameAuthorship] => Hryniewicz, Jakubowicz, Belka, Dopieralska & Kaim, 2016
+                [scientificNameID] => 
+                [taxonRemarks] => 
+                [namePublishedIn] => 
+                [furtherInformationURL] => https://www.gbif-uat.org/species/8946026
+                [datasetID] => b9a214b7-c368-4d22-aa53-b1fc16a1210a
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [Landmark] => 
+            )*/
+            if(!$rec['canonicalName']) {
+                fwrite($WRITE, $rec['scientificName']."\n");
+                @$xxx++;
+                if($xxx > 200000) {
+                    $xxx = 0; $ctr++;
+                    fclose($WRITE);
+                    $file_append = $this->main_path."/step3_scinames_".$ctr.".txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+                }
+            }
         }
         fclose($WRITE);
-        // Functions::start_print_debug($this->debug, $this->resource_id."_before_step".$which);
+        echo "\nWithout canonicals: [$xxx]\n";
+        /* step: convert file to gnparsed */
+        $source = $this->main_path."/step3_scinames.txt";
+        $destination = $this->main_path."/step3_gnparsed.txt";
+        $cmd = "gnparser file -f json-compact --input $source --output $destination";
+        $out = shell_exec($cmd); echo "\n$out\n";
+
+        $source = $this->main_path."/step3_scinames_1.txt";
+        $destination = $this->main_path."/step3_gnparsed_1.txt";
+        $cmd = "gnparser file -f json-compact --input $source --output $destination";
+        $out = shell_exec($cmd); echo "\n$out\n";
+        
+        $source = $this->main_path."/step3_scinames_2.txt";
+        $destination = $this->main_path."/step3_gnparsed_2.txt";
+        $cmd = "gnparser file -f json-compact --input $source --output $destination";
+        $out = shell_exec($cmd); echo "\n$out\n";
+        
     }
     //============================================================================end step 3
     //==========================================================================start before step 2
