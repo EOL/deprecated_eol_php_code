@@ -39,7 +39,11 @@ class DH_v1_1_mapping_EOL_IDs
     */
     //==========================================================================start step 3
     function step_3()
-    {
+    {   /* use new_DH_before_step3.txt
+        step: fill-up blank canonical using gnparser
+        */
+        iterator
+        
         
     }
     //============================================================================end step 3
