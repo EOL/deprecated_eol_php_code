@@ -44,14 +44,138 @@ class DH_v1_1_mapping_EOL_IDs
         gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
         gnparser name -f simple 'Tricornina (Bicornina) jordan, 1964'
         */
-        /* main operations OK
+        // /* main operations OK
         self::generate_canonicals_to_text_files('old_DH_after_step2');
         self::fill_old_DH_with_blank_canonical('old_DH_after_step2');
-        */
+        // */
     }
     function step_3()
     {
+        $this->retired_old_DH_taxonID = array();
+        /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
+        $file = $this->main_path."/new_DH_multiple_match_fixed.txt";
+        $this->used_EOLids = self::get_results_tool($file, 'get EOLids');
+        // echo "\n".count($used_EOLids)."\n"; exit;
         
+        /* 2.2 initialize info global ------------------------------------------------------------------------------*/
+        require_library('connectors/DH_v1_1_postProcessing');
+        $func = new DH_v1_1_postProcessing(1);
+
+        self::get_taxID_nodes_info($file); //for new DH
+        $children_of['Lissamphibia'] = $func->get_descendants_of_taxID("EOL-000000618833", false, $this->descendants);
+        $children_of['Neoptera'] = $func->get_descendants_of_taxID("EOL-000000987353", false, $this->descendants);
+        $children_of['Arachnida'] = $func->get_descendants_of_taxID("EOL-000000890725", false, $this->descendants);
+        $children_of['Embryophytes'] = $func->get_descendants_of_taxID("EOL-000000105445", false, $this->descendants);
+        unset($this->descendants);
+        
+        self::get_taxID_nodes_info($this->main_path."/old_DH_gnparsed.txt");
+        $old_DH_tbl = "old_DH_gnparsed";
+        $children_of_oldDH['Endopterygota'] = $func->get_descendants_of_taxID("-556430", false, $this->descendants);
+        $children_of_oldDH['Embryophytes'] = $func->get_descendants_of_taxID("-30127", false, $this->descendants);
+        $children_of_oldDH['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
+        $children_of_oldDH['Metazoa'] = $func->get_descendants_of_taxID("691846", false, $this->descendants);
+        unset($this->descendants);
+        
+        /* 2.3 loop new DH -----------------------------------------------------------------------------------------*/
+        $file_append = $this->main_path."/new_DH_after_step3.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            //------------------------------------------------------------------------------------------
+            if(in_array($rec['EOLidAnnotations'], array('unmatched', 'multiple', 'manual'))) {
+                @$this->debug['totals steps 1 & 2'][$rec['EOLidAnnotations'].' count']++;
+                // start writing
+                $save = array();
+                foreach($fields as $head) $save[] = $rec[$head];
+                fwrite($WRITE, implode("\t", $save)."\n");
+                continue;
+            }
+            if($rec['EOLid']) {
+                @$this->debug['totals steps 1 & 2']['matched EOLid count']++;
+                /* start writing */
+                $save = array();
+                foreach($fields as $head) $save[] = $rec[$head];
+                fwrite($WRITE, implode("\t", $save)."\n");
+                continue;
+            }
+            //------------------------------------------------------------------------------------------
+            /*Array(
+                [taxonID] => EOL-000000095335
+                [source] => trunk:b6259274-728a-4b38-a135-f7286fdc5917,WOR:582466
+                [furtherInformationURL] => 
+                [parentNameUsageID] => EOL-000000095234
+                [scientificName] => Opalozoa
+                [taxonRank] => phylum
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Opalozoa
+                [EOLid] => 2912001
+                [EOLidAnnotations] => 
+            */
+            $canonical_4sql = str_replace("'", "\'", $rec['canonicalName']);
+            if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID from DWH.".$old_DH_tbl." o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$canonical_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
+                if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
+                    if($EOL_id = $info['EOL_id']) {
+                        $o_taxonID = $info['taxonID']; //111
+                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC1', $children_of, $children_of_oldDH);
+                    }
+                }
+                else {} //No sql rows
+            }
+            elseif($rec['taxonRank'] == 'infraspecies') { //EXC2
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$canonical_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
+                if($info = self::query_EOL_id(false, $sql)) {
+                    if($EOL_id = $info['EOL_id']) {
+                        $o_taxonID = $info['taxonID']; //222
+                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC2', $children_of, $children_of_oldDH);
+                    }
+                }
+                else {} //No sql rows
+            }
+            else { //EXC0
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$canonical_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
+                if($info = self::query_EOL_id(false, $sql)) {
+                    if($EOL_id = $info['EOL_id']) {
+                        $o_taxonID = $info['taxonID']; //000
+                        $rec = self::proc_RULES($EOL_id, $rec, $info, 'EXC0', $children_of, $children_of_oldDH);
+                    }
+                }
+                else {} //No sql rows
+            }
+            
+            if($rec['EOLid']) {
+                @$this->debug['totals']['matched EOLid count from Step3']++;
+                $this->retired_old_DH_taxonID[$o_taxonID] = ''; //step 3
+            }
+            else {
+                $rec['EOLidAnnotations'] = 'unmatched';
+                @$this->debug['totals']['unmatched count from Step3']++;
+            }
+            /* start writing */
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
+        }
+        fclose($WRITE);
+        Functions::start_print_debug($this->debug, $this->resource_id."_after_step3");
+        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step3", $this->main_path."/old_DH_gnparsed.txt");
     }
     private function fill_old_DH_with_blank_canonical($sourcef)
     {
@@ -473,7 +597,7 @@ class DH_v1_1_mapping_EOL_IDs
             
             if($rec['EOLid']) {
                 @$this->debug['totals']['matched EOLid count from Step2']++;
-                $this->retired_old_DH_taxonID[$o_taxonID] = '';
+                $this->retired_old_DH_taxonID[$o_taxonID] = ''; //step 2
             }
             /* if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++; --> irrelevant here... */
             /* start writing */
@@ -483,7 +607,7 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_after_step2");
-        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step2");
+        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step2", $this->main_path."/old_DH_after_step1.txt");
     }
     private function proc_RULES($EOL_id, $rec, $info, $excep_no, $children_of, $children_of_oldDH)
     {
@@ -844,16 +968,16 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_after_step1");
-        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step1"); //not yet implemented... may not be implemented anymore 
+        self::retire_old_DH_with_these_taxonIDs("old_DH_after_step1", $this->file['old DH']); //not yet implemented... may not be implemented anymore 
     }
     // /*
-    private function retire_old_DH_with_these_taxonIDs($table)
+    private function retire_old_DH_with_these_taxonIDs($table, $sourcef) //$table is destination
     {
         echo "\nStart retiring process...[$table]\n";
         $file_append = $this->main_path."/".$table.".txt";
         $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
-        foreach(new FileIterator($this->file['old DH']) as $line_number => $line) {
+        foreach(new FileIterator($sourcef) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
@@ -942,7 +1066,7 @@ class DH_v1_1_mapping_EOL_IDs
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) {
             if($source_id) {
-                $this->retired_old_DH_taxonID[$row['taxonID']] = '';
+                $this->retired_old_DH_taxonID[$row['taxonID']] = ''; //primarily used in step 1
                 return $row['EOL_id'];
             }
             elseif($sql) {
