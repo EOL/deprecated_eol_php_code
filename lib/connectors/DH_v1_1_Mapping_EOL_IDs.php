@@ -56,6 +56,7 @@ class DH_v1_1_mapping_EOL_IDs
     }
     function step_3()
     {
+        $this->debug = array();
         $this->retired_old_DH_taxonID = array();
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
         $file = $this->main_path."/new_DH_multiple_match_fixed.txt";
@@ -483,6 +484,7 @@ class DH_v1_1_mapping_EOL_IDs
     //==========================================================================start step 2
     function step_2()
     {
+        $this->debug = array();
         $this->retired_old_DH_taxonID = array();
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
         $file = $this->main_path."/new_DH_before_step2.txt";
