@@ -660,7 +660,6 @@ class DH_v1_1_mapping_EOL_IDs
         $func = new DH_v1_1_postProcessing(1);
         $file = $this->main_path.'/new_DH_before_step3.txt';
         self::get_taxID_nodes_info($file); //un-comment in real operation
-        
         /* step:
         Finally, some of the multiples were due to taxa not properly merging in smasher. I will add these to the synonyms list for the next smasher run, 
         so hopefully they will merge in the future. For now, please just delete these taxa and any descendants they may have:
