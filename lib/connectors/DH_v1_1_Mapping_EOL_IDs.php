@@ -51,7 +51,6 @@ class DH_v1_1_mapping_EOL_IDs
         $this->retired_old_DH_taxonID = array();
         unset($this->retired_old_DH_taxonID);
         self::retire_old_DH_with_these_taxonIDs("old_DH_gnparsed_tbl", $this->main_path."/old_DH_gnparsed.txt");
-        
         // */
     }
     function step_3()
@@ -136,7 +135,7 @@ class DH_v1_1_mapping_EOL_IDs
             */
             $canonical_4sql = str_replace("'", "\'", $rec['canonicalName']);
             if(in_array($rec['taxonRank'], array('', 'clade', 'cohort', 'division', 'hyporder', 'informal group', 'infracohort', 'megacohort', 'paraphyletic group', 'polyphyletic group', 'section', 'subcohort', 'supercohort'))) {
-                $sql = "SELECT m.EOL_id, o.source, o.taxonID from DWH.".$old_DH_tbl." o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.scientificName = '".$canonical_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID from DWH.".$old_DH_tbl." o join DWH.EOLid_map m ON o.taxonId = m.smasher_id where o.canonicalName = '".$canonical_4sql."' and o.taxonRank not in('genus', 'subgenus', 'family');";
                 if($info = self::query_EOL_id(false, $sql)) { //Note: sometimes here, EOLid from old DH already has a value.
                     if($EOL_id = $info['EOL_id']) {
                         $o_taxonID = $info['taxonID']; //111
@@ -146,7 +145,7 @@ class DH_v1_1_mapping_EOL_IDs
                 else {} //No sql rows
             }
             elseif($rec['taxonRank'] == 'infraspecies') { //EXC2
-                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$canonical_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.canonicalName = '".$canonical_4sql."' AND o.taxonRank IN('form', 'subspecies', 'subvariety', 'variety');";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         $o_taxonID = $info['taxonID']; //222
@@ -156,7 +155,7 @@ class DH_v1_1_mapping_EOL_IDs
                 else {} //No sql rows
             }
             else { //EXC0
-                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.scientificName = '".$canonical_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
+                $sql = "SELECT m.EOL_id, o.source, o.taxonID FROM DWH.".$old_DH_tbl." o JOIN DWH.EOLid_map m ON o.taxonId = m.smasher_id WHERE o.canonicalName = '".$canonical_4sql."' AND o.taxonRank = '".$rec['taxonRank']."';";
                 if($info = self::query_EOL_id(false, $sql)) {
                     if($EOL_id = $info['EOL_id']) {
                         $o_taxonID = $info['taxonID']; //000
