@@ -710,14 +710,21 @@ class DH_v1_1_mapping_EOL_IDs
                 [EOLid] => 2913056
                 [EOLidAnnotations] => 
             )*/
-            if(in_array($rec['taxonID'], $deleted_ids)) continue;
+            if(in_array($rec['taxonID'], $delete_ids)) continue;
             $rec = self::apply_eolid_and_put_manual($rec);
+            
+            if($rec['EOLid']) @$this->debug['totals']['matched EOLid count']++;
+            if($rec['EOLidAnnotations'] == 'manual') @$this->debug['totals']['manual count']++;
+            if($rec['EOLidAnnotations'] == 'multiple') @$this->debug['totals']['multiple count']++;
+            if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
+            
             /* start writing */
             $save = array();
             foreach($fields as $head) $save[] = $rec[$head];
             fwrite($WRITE, implode("\t", $save)."\n");
         }
         fclose($WRITE);
+        Functions::start_print_debug($this->debug, $this->resource_id."_after_multiple_fix");
     }
     private function apply_eolid_and_put_manual($rec)
     {   /* Following up on the "multiple" matches in Step 2. Please apply the following EOLid mappings and put "manual" in the EOLidAnnotations field of these records: */
