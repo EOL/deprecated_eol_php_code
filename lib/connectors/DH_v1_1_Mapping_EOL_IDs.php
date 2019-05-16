@@ -331,14 +331,18 @@ class DH_v1_1_mapping_EOL_IDs
                 $more_than_one++;
                 if($what == 'step 1')     self::fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa);
                 elseif($what == 'step 2') $final[$eol_id] = $taxa;
+                elseif($what == 'step 3') $final[$eol_id] = $taxa;
             }
         }
         echo "\n-end before [$what] [$more_than_one]-\n";
         if($what == 'step 2') {
-            if($final) self::fix_same_EOLid_for_multiple_taxa_step2($final);
+            if($final) self::fix_same_EOLid_for_multiple_taxa_step2_3($final, 'new_DH_before_step3', 'new_DH_after_step2', 3);
+        }
+        elseif($what == 'step 3') {
+            if($final) self::fix_same_EOLid_for_multiple_taxa_step2_3($final, 'new_DH_before_step4', 'new_DH_after_step3', 4);
         }
     }
-    private function fix_same_EOLid_for_multiple_taxa_step2($final)
+    private function fix_same_EOLid_for_multiple_taxa_step2_3($final, $destinef, $sourcef, $which)
     {   /*If there are still multiple matches for a given scientificName string once these rules are applied, take the unresolved new DH taxa out of the matching pool 
           and flag them as "multiple." */
         $used_when_saving_2text = array();
@@ -361,7 +365,7 @@ class DH_v1_1_mapping_EOL_IDs
                 $used_when_saving_2text[$rec['taxonID']] = $rec;
             }
         }
-        self::save_to_text($used_when_saving_2text, 'new_DH_before_step3', 'new_DH_after_step2', 3); //save to text file
+        self::save_to_text($used_when_saving_2text, $destinef, $sourcef, $which); //save to text file
     }
     private function fix_same_EOLid_for_multiple_taxa_step1($eol_id, $taxa)
     {   /*Hi Eli, 
@@ -470,6 +474,7 @@ class DH_v1_1_mapping_EOL_IDs
             if($rec['EOLid'])                           @$this->debug['totals']['matched EOLid count']++;
             if($rec['EOLidAnnotations'] == 'unmatched') @$this->debug['totals']['unmatched count']++;
             if($rec['EOLidAnnotations'] == 'multiple') @$this->debug['totals']['multiple count']++;
+            if($rec['EOLidAnnotations'] == 'manual') @$this->debug['totals']['manual count']++;
             
             /* start writing */
             // $headers = array_keys($rec);
