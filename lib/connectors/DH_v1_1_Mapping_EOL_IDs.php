@@ -661,29 +661,31 @@ class DH_v1_1_mapping_EOL_IDs
         $file = $this->main_path.'/new_DH_before_step3.txt';
         self::get_taxID_nodes_info($file); //un-comment in real operation
         
-        do this first...
-        Finally, some of the multiples were due to taxa not properly merging in smasher. I will add these to the synonyms list for the next smasher run, so hopefully they will merge in the future. For now, please just delete these taxa and any descendants they may have:
+        /* step:
+        Finally, some of the multiples were due to taxa not properly merging in smasher. I will add these to the synonyms list for the next smasher run, 
+        so hopefully they will merge in the future. For now, please just delete these taxa and any descendants they may have:
+        */
+        $delete_ids = array('EOL-000000097660','EOL-000000097661','EOL-000000097649','EOL-000000097647','EOL-000000097662','EOL-000000097648','EOL-000000097653','EOL-000000097643','EOL-000000097650','EOL-000000097656','EOL-000000097657');
+        $children_2delete = array();
+        foreach($delete_ids as $delete_id) {
+            $arr = $func->get_descendants_of_taxID($delete_id, false, $this->descendants);
+            $children_2delete = array_merge($arr, $children_2delete);
+        }
+        echo "\n".count($delete_ids)."\n";
+        print_r($children_2delete); echo "\n".count($children_2delete)."\n";
+        $delete_ids = array_merge($delete_ids, $children_2delete);
+        echo "\n".count($delete_ids)."\n"; //exit;
 
-        EOL-000000097660 Cavostelium
-        EOL-000000097661 Ceratiomyxella
-        EOL-000000097649 Endostelium
-        EOL-000000097647 Nematostelium
-        EOL-000000097662 Planoprotostelium
-        EOL-000000097648 Protosteliopsis
-        EOL-000000097653 Protostelium
-        EOL-000000097643 Schizoplasmodiopsis
-        EOL-000000097650 Schizoplasmodium
-        EOL-000000097656 Soliformovum
-        EOL-000000097657 Tychosporium
-        
-        
+        /* step: Loop DH */
+        $file_append = $this->main_path."/new_DH_multiple_match_fixed.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
             else {
@@ -695,7 +697,7 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx\n");
+            // print_r($rec); exit("\nstopx old_DH\n");
             /*Array(
                 [taxonID] => EOL-000000000001
                 [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
@@ -709,35 +711,40 @@ class DH_v1_1_mapping_EOL_IDs
                 [EOLid] => 2913056
                 [EOLidAnnotations] => 
             )*/
+            if(in_array($rec['taxonID'], $deleted_ids)) continue;
+            $rec = self::apply_eolid_and_put_manual($rec);
+            /* start writing */
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
         }
-        
-        /*
-        foreach($this->taxID_info as $uid => $info) {
-            print_r($info); exit("\n$uid\n");
-            if(substr($uid,0,5) == 'unc-P') {
-                $children = self::get_descendants_of_taxID($uid);
-                if($children) {
-                    if(count($children) < 5) {
-                        @$totals['unc-P']['< 5 desc']++;
-                        // print_r($children); echo " - $uid \n";
-                        if($val = $info['pID']) $parent_of_unclassified = $val;
-                        else { //should not go here...
-                            print_r($info);
-                            exit("\nInvestigate no parent\n");
-                        }
-                        foreach($children as $child) $this->taxID_info[$child]['pID'] = $parent_of_unclassified;
-                        unset($this->taxID_info[$uid]); //then delete the unclassified taxon
-                    }
-                }
-                else {
-                    unset($this->taxID_info[$uid]);
-                    @$totals['unc-P']['zero desc']++;
-                }
-            }
+        fclose($WRITE);
+    }
+    private function apply_eolid_and_put_manual($rec)
+    {   /* Following up on the "multiple" matches in Step 2. Please apply the following EOLid mappings and put "manual" in the EOLidAnnotations field of these records: */
+        $arr['EOL-000000688413'] = 7989;    $arr['EOL-000000097598'] = 21243;   $arr['EOL-000000096028'] = 21414;   $arr['EOL-000000097620'] = 22017;
+        $arr['EOL-000000097592'] = 22130;   $arr['EOL-000000097608'] = 22273;   $arr['EOL-000000097605'] = 22933;   $arr['EOL-000000107750'] = 29168;
+        $arr['EOL-000000171804'] = 29338;   $arr['EOL-000000191866'] = 29548;   $arr['EOL-000000392132'] = 32577;   $arr['EOL-000000183167'] = 35384;
+        $arr['EOL-000000097615'] = 35391;   $arr['EOL-000000097623'] = 35397;   $arr['EOL-000000097618'] = 35400;   $arr['EOL-000000232187'] = 59393;
+        $arr['EOL-000000267238'] = 59433;   $arr['EOL-000000268789'] = 60821;   $arr['EOL-000000412776'] = 61710;   $arr['EOL-000002173027'] = 65109;
+        $arr['EOL-000000097596'] = 75600;   $arr['EOL-000000476199'] = 78249;   $arr['EOL-000000157580'] = 80153;   $arr['EOL-000000380326'] = 92394;
+        $arr['EOL-000000014525'] = 97742;   $arr['EOL-000000006871'] = 97760;   $arr['EOL-000002172343'] = 100752;  $arr['EOL-000000097636'] = 101783;
+        $arr['EOL-000000189560'] = 108306;  $arr['EOL-000000095424'] = 2912226; $arr['EOL-000000484142'] = 5302490; $arr['EOL-000000343895'] = 5380037;
+        $arr['EOL-000000274767'] = 8807432;     $arr['EOL-000002321022'] = 11808699;    $arr['EOL-000002173414'] = 11927148;    $arr['EOL-000000271088'] = 11927159;
+        $arr['EOL-000000013753'] = 45284459;    $arr['EOL-000002173437'] = 46702872;    $arr['EOL-000000393931'] = 47109635;    $arr['EOL-000000206020'] = 47129164;
+        $arr['EOL-000000313356'] = 47135734;    $arr['EOL-000000268511'] = 47142374;    $arr['EOL-000000335746'] = 47146899;    $arr['EOL-000000139381'] = 47160531;
+        $arr['EOL-000000519366'] = 47177223;    $arr['EOL-000000520622'] = 47179258;    $arr['EOL-000000021227'] = 47181406;    $arr['EOL-000000102279'] = 52185892;
+        /* Also, the following taxa should have their EOLid field left blank. There are no good matches for them. Also, please put "manual" in the EOLidAnnotations field for them: */
+        $arr['EOL-000000090957'] = '';  $arr['EOL-000000531663'] = '';  $arr['EOL-000002172659'] = '';  $arr['EOL-000000035438'] = '';
+        $arr['EOL-000000006893'] = '';  $arr['EOL-000000531384'] = '';  $arr['EOL-000002321721'] = '';  $arr['EOL-000000091237'] = '';
+        $arr['EOL-000000024275'] = '';  $arr['EOL-000002172624'] = '';  $arr['EOL-000000040604'] = '';  $arr['EOL-000000037708'] = '';
+        $arr['EOL-000000029515'] = '';  $arr['EOL-000000035203'] = '';  $arr['EOL-000000010438'] = '';  $arr['EOL-000000021105'] = '';
+        $arr['EOL-000000016315'] = '';  $arr['EOL-000000035925'] = '';  $arr['EOL-000000035202'] = '';
+        if(isset($arr[$rec['taxonID']])) {
+            $rec['EOLid'] = $arr[$rec['taxonID']];
+            $rec['EOLidAnnotations'] = 'manual';
         }
-        */
-        self::save_global_var_to_txt($this->main_path.'/new_DH_after_multiple_match_fix.txt');
-        
+        return $rec;
     }
     //==========================================================================end step 2
     //==========================================================================start step 1

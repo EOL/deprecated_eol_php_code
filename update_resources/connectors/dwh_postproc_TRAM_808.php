@@ -36,7 +36,7 @@ $func->before_step_2_or_3("new_DH_after_step2", "step 2"); //--> uses [new_DH_af
 */
 
 // /*                                       //--> use [new_DH_before_step3.txt]
-                                            //--> generates [new_DH_after_multiple_fix.txt]
+                                            //--> generates [new_DH_multiple_match_fixed.txt]
 $func->fix_multiple_matches_after_step2('new_DH_before_step3'); //https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63460&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63460
 // */
 
