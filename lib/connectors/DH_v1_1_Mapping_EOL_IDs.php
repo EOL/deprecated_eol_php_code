@@ -55,6 +55,7 @@ class DH_v1_1_mapping_EOL_IDs
     }
     function step_3()
     {
+        echo "\nStart step 3...\n";
         $this->debug = array();
         $this->retired_old_DH_taxonID = array();
         /* 2.1 get list of used EOL_ids ----------------------------------------------------------------------------*/
