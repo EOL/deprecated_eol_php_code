@@ -658,11 +658,62 @@ class DH_v1_1_mapping_EOL_IDs
     {   echo "\nRun fix_multiple_matches_after_step2...\n";
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
+        $file = $this->main_path.'/new_DH_before_step3.txt';
+        self::get_taxID_nodes_info($file); //un-comment in real operation
         
-        self::get_taxID_nodes_info($this->main_path.'/new_DH_before_step3.txt'); //un-comment in real operation
+        do this first...
+        Finally, some of the multiples were due to taxa not properly merging in smasher. I will add these to the synonyms list for the next smasher run, so hopefully they will merge in the future. For now, please just delete these taxa and any descendants they may have:
+
+        EOL-000000097660 Cavostelium
+        EOL-000000097661 Ceratiomyxella
+        EOL-000000097649 Endostelium
+        EOL-000000097647 Nematostelium
+        EOL-000000097662 Planoprotostelium
+        EOL-000000097648 Protosteliopsis
+        EOL-000000097653 Protostelium
+        EOL-000000097643 Schizoplasmodiopsis
+        EOL-000000097650 Schizoplasmodium
+        EOL-000000097656 Soliformovum
+        EOL-000000097657 Tychosporium
+        
+        
+        $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+            )*/
+        }
+        
+        /*
         foreach($this->taxID_info as $uid => $info) {
             print_r($info); exit("\n$uid\n");
-            /**/
             if(substr($uid,0,5) == 'unc-P') {
                 $children = self::get_descendants_of_taxID($uid);
                 if($children) {
@@ -684,7 +735,8 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
         }
-        self::save_global_var_to_txt($this->main_path.'/taxonomy3.txt');
+        */
+        self::save_global_var_to_txt($this->main_path.'/new_DH_after_multiple_match_fix.txt');
         
     }
     //==========================================================================end step 2
