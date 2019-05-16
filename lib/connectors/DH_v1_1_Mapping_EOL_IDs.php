@@ -47,6 +47,11 @@ class DH_v1_1_mapping_EOL_IDs
         // /* main operations OK
         self::generate_canonicals_to_text_files('old_DH_after_step2');
         self::fill_old_DH_with_blank_canonical('old_DH_after_step2');
+        
+        $this->retired_old_DH_taxonID = array();
+        unset($this->retired_old_DH_taxonID);
+        self::retire_old_DH_with_these_taxonIDs("old_DH_gnparsed_tbl", $this->main_path."/old_DH_gnparsed.txt");
+        
         // */
     }
     function step_3()
@@ -69,7 +74,7 @@ class DH_v1_1_mapping_EOL_IDs
         unset($this->descendants);
         
         self::get_taxID_nodes_info($this->main_path."/old_DH_gnparsed.txt");
-        $old_DH_tbl = "old_DH_gnparsed";
+        $old_DH_tbl = "old_DH_gnparsed_tbl";
         $children_of_oldDH['Endopterygota'] = $func->get_descendants_of_taxID("-556430", false, $this->descendants);
         $children_of_oldDH['Embryophytes'] = $func->get_descendants_of_taxID("-30127", false, $this->descendants);
         $children_of_oldDH['Fungi'] = $func->get_descendants_of_taxID("352914", false, $this->descendants);
