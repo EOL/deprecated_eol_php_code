@@ -38,17 +38,20 @@ class DH_v1_1_mapping_EOL_IDs
     step. run step_1()
     */
     //==========================================================================start step 3
-    function step_3()
-    {   /* use new_DH_before_step3.txt
+    function pre_step_3()
+    {   /* use new_DH_multiple_match_fixed.txt
         step: fill-up blank canonical using gnparser
         gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
         gnparser name -f simple 'Tricornina (Bicornina) jordan, 1964'
-        
         */
-        /* main operations
+        /* main operations OK
         self::generate_canonicals_to_text_files('old_DH_after_step2');
-        */
         self::fill_old_DH_with_blank_canonical('old_DH_after_step2');
+        */
+    }
+    function step_3()
+    {
+        
     }
     private function fill_old_DH_with_blank_canonical($sourcef)
     {
@@ -113,6 +116,7 @@ class DH_v1_1_mapping_EOL_IDs
             $ctr++;
             $file = $this->main_path."/gnparser/step3_gnparsed_".$ctr.".txt";
             if(file_exists($file)) {
+                echo "\nProcessing [$file]...\n";
                 $file_array = file($file);
                 foreach($file_array as $line) {
                     $row = explode("\t", $line);

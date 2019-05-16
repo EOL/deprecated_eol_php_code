@@ -40,7 +40,12 @@ $func->before_step_2_or_3("new_DH_after_step2", "step 2"); //--> uses [new_DH_af
 $func->fix_multiple_matches_after_step2('new_DH_before_step3'); //https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63460&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63460
 */
 
-$func->step_3(); //3. Match EOLid based on canonical form strings & rank //--> uses [new_DH_multiple_match_fixed.txt]
+/*
+$func->pre_step_3(); //3. Match EOLid based on canonical form strings & rank //--> uses [new_DH_multiple_match_fixed.txt] [old_DH_after_step2.txt]
+                                                                             //--> generates [] [old_DH_gnparsed.txt]
+*/
+$func->step_3(); //main step 3
+
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
