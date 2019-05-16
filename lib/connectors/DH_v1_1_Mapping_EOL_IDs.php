@@ -654,6 +654,39 @@ class DH_v1_1_mapping_EOL_IDs
         if($what == "get EOLids") return $final; //return array_keys($final);
         if($what == "get EOLid - taxa list") return $final;
     }
+    function fix_multiple_matches_after_step2()
+    {   echo "\nRun fix_multiple_matches_after_step2...\n";
+        require_library('connectors/DH_v1_1_postProcessing');
+        $func = new DH_v1_1_postProcessing(1);
+        
+        self::get_taxID_nodes_info($this->main_path.'/new_DH_before_step3.txt'); //un-comment in real operation
+        foreach($this->taxID_info as $uid => $info) {
+            print_r($info); exit("\n$uid\n");
+            /**/
+            if(substr($uid,0,5) == 'unc-P') {
+                $children = self::get_descendants_of_taxID($uid);
+                if($children) {
+                    if(count($children) < 5) {
+                        @$totals['unc-P']['< 5 desc']++;
+                        // print_r($children); echo " - $uid \n";
+                        if($val = $info['pID']) $parent_of_unclassified = $val;
+                        else { //should not go here...
+                            print_r($info);
+                            exit("\nInvestigate no parent\n");
+                        }
+                        foreach($children as $child) $this->taxID_info[$child]['pID'] = $parent_of_unclassified;
+                        unset($this->taxID_info[$uid]); //then delete the unclassified taxon
+                    }
+                }
+                else {
+                    unset($this->taxID_info[$uid]);
+                    @$totals['unc-P']['zero desc']++;
+                }
+            }
+        }
+        self::save_global_var_to_txt($this->main_path.'/taxonomy3.txt');
+        
+    }
     //==========================================================================end step 2
     //==========================================================================start step 1
     function step_1() //1. Match EOLid based on source identifiers
