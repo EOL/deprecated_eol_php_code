@@ -39,7 +39,8 @@ class DH_v1_1_mapping_EOL_IDs
     */
     //==========================================================================start step 3
     function pre_step_3()
-    {   /* use new_DH_multiple_match_fixed.txt
+    {   $this->debug = array();
+        /* use new_DH_multiple_match_fixed.txt
         step: fill-up blank canonical using gnparser
         gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
         gnparser name -f simple 'Tricornina (Bicornina) jordan, 1964'
@@ -322,7 +323,7 @@ class DH_v1_1_mapping_EOL_IDs
     //============================================================================end step 3
     //==========================================================================start before step 2
     function before_step_2_or_3($tbl, $what) //fix prob. described in an email to Katja
-    {   
+    {   $this->debug = array();
         $file = $this->main_path."/".$tbl.".txt";
         $recs = self::get_results_tool($file, "get EOLid - taxa list");
         $more_than_one = 0; $final = array();
@@ -795,7 +796,8 @@ class DH_v1_1_mapping_EOL_IDs
         if($what == "get EOLid - taxa list") return $final;
     }
     function fix_multiple_matches_after_step2()
-    {   echo "\nRun fix_multiple_matches_after_step2...\n";
+    {   $this->debug = array();
+        echo "\nRun fix_multiple_matches_after_step2...\n";
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
         $file = $this->main_path.'/new_DH_before_step3.txt';
