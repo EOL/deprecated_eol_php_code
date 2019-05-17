@@ -37,6 +37,52 @@ class DH_v1_1_mapping_EOL_IDs
           then saves it to MySQL table [taxonID_source_ids]
     step. run step_1()
     */
+    //==========================================================================start step 4
+    function step_4()
+    {
+        $file_append = $this->main_path."/taxonomy_tsv_uniqname.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $count = 0;
+        $txtfile = '/Volumes/AKiTiO4/d_w_h/TRAM-807/taxonomy.tsv'; $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t|\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
+                [parent_uid] => 
+                [name] => Life
+                [rank] => clade
+                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            if($val = $rec['uniqname']) {
+                // print_r($rec);
+                /* start writing */
+                $save = array();
+                foreach($fields as $head) $save[] = $rec[$head];
+                fwrite($WRITE, implode("\t", $save)."\n");
+            }
+        }
+        fclose($WRITE);
+        /* append to MySQL table */
+        self::append_to_MySQL_table($table, $file_append);
+    }
+    //============================================================================end step 4
     //==========================================================================start step 3
     function pre_step_3()
     {   $this->debug = array();
@@ -1039,6 +1085,10 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         /* append to MySQL table */
+        self::append_to_MySQL_table($table, $file_append);
+    }
+    private function append_to_MySQL_table($table, $file_append)
+    {
         echo "\nSaving [$table] records to MySQL...\n";
         if(filesize($file_append)) {
             //truncate first
