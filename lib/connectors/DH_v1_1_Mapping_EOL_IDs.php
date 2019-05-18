@@ -39,9 +39,17 @@ class DH_v1_1_mapping_EOL_IDs
     */
     //==========================================================================start step 4
     function step_4()
+    {   /* step4_1: save to MySQL taxonomy.tsv with uniqname
+        self::step4_1();
+        */
+        /* step4_2: manually run the 'Generate higherClassification Tool' on the latest new DH */
+        /* step4_3: loop on new DH with higherC, filter with table taxonomy_tsv_uniqname */
+        
+
+    }
+    private function step4_1()
     {
         $file_append = $this->main_path."/taxonomy_tsv_uniqname.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        $count = 0;
         $txtfile = '/Volumes/AKiTiO4/d_w_h/TRAM-807/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -80,6 +88,7 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE);
         /* append to MySQL table */
+        $table = 'taxonomy_tsv_uniqname';
         self::append_to_MySQL_table($table, $file_append);
     }
     //============================================================================end step 4

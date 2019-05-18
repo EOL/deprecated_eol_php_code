@@ -38,6 +38,7 @@ $func->before_step_2_or_3("new_DH_after_step2", "step 2"); //--> uses [new_DH_af
 /*                                       //--> uses [new_DH_before_step3.txt]
                                          //--> generates [new_DH_multiple_match_fixed.txt]
 $func->fix_multiple_matches_after_step2('new_DH_before_step3'); //https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63460&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63460
+                                        //--> generates [new_DH_multiple_match_fixed.txt]
 */
 
 /* these two can run one after the other (2.08 hours)
@@ -51,8 +52,7 @@ $func->step_3(); //main step 3  //--> uses [new_DH_multiple_match_fixed.txt] [ol
 // $func->before_step_2_or_3("new_DH_after_step3", "step 3"); //--> uses [new_DH_after_step3.txt]
                                                               //--> generates [new_DH_before_step4.txt]
 
-
-$func->step_4();
+$func->step_4(); //4. Create a special report for known homonyms
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
