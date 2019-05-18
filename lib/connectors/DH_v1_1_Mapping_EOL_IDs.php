@@ -577,6 +577,20 @@ class DH_v1_1_mapping_EOL_IDs
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+
+            /* debug only - force assign
+            if($i > 1) {
+                $line = "EOL-000000638862	trunk:4acff1d9-7d02-4206-b332-cc742744b6c5		EOL-000000638603	Reithrodonini	tribe		trunk	Reithrodonini		
+                ";
+                $line = "EOL-000002098677	trunk:a11819bb-4f09-4261-8e31-ba4f576dfec2		EOL-000002098642	Peracarida	superorder		trunk	Peracarida		
+                ";
+                $line = "EOL-000000733938	trunk:775458eb-0abc-43f3-805b-84d3bcd5542f		EOL-000000733071	Octopodiformes Berthold and Engeser, 1987	superorder		trunk	Octopodiformes		
+                ";
+                $line = "EOL-000001631839	COL:becddd197de172686bc3449097a7c1ab	http://www.catalogueoflife.org/col/details/species/id/becddd197de172686bc3449097a7c1ab	EOL-000001631838	Unumgar siccus Chandler, 2001	species		COL-204	Unumgar siccus		
+                ";
+            }
+            */
+
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
@@ -729,12 +743,12 @@ class DH_v1_1_mapping_EOL_IDs
             }
         }
         $rec = self::proc_RULE_9($EOL_id, $rec, $info, $excep_no);
-        /* not sure if this will make a difference... SEEMS DO NOT USE THIS!!! since the RULES are important to be followed
+        // /* it actually made a whole lot of difference... use it for sure! Katja's 4 example were fixed here. https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63464&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63464
         if(!$rec['EOLid']) {
             $rec['EOLid'] = $EOL_id;
             @$this->debug['totals step2']["$excep_no NO RULES count"]++;
         }
-        */
+        // */
         return $rec;
     }
     private function proc_RULE_9($EOL_id, $rec, $info, $exception_no)
