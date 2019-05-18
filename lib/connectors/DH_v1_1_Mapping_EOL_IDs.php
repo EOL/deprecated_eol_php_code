@@ -378,7 +378,8 @@ class DH_v1_1_mapping_EOL_IDs
     //============================================================================end step 3
     //==========================================================================start before step 2
     function before_step_2_or_3($tbl, $what) //fix prob. described in an email to Katja
-    {   $this->debug = array();
+    {   echo "\nstart before_step_2_or_3() [$tbl] [$what]\n";
+        $this->debug = array();
         $file = $this->main_path."/".$tbl.".txt";
         $recs = self::get_results_tool($file, "get EOLid - taxa list");
         $more_than_one = 0; $final = array();

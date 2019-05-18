@@ -5,7 +5,7 @@ Statistics
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DH_v1_1_Mapping_EOL_IDs');
-// ini_set('memory_limit','6096M');
+ini_set('memory_limit','6096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
@@ -28,21 +28,21 @@ $func->step_1(); //1. Match EOLid based on source identifiers --> generates [new
 $func->before_step_2_or_3("new_DH_after_step1", "step 1"); //fix prob. described in an email to Katja //--> uses [new_DH_after_step1.txt]
                                                                                                       //--> generates [new_DH_before_step2.txt]
 */
-// /* these two can run one after the other (2.42 hours)
+/* these two can run one after the other (2.42 hours)
 $func->step_2(); //2. Match EOLid based on full scientificName strings & rank //--> uses [new_DH_before_step2.txt] [old_DH_after_step1.txt] 
                                                                               //--> generates [new_DH_after_step2.txt] [old_DH_after_step2.txt]
 $func->before_step_2_or_3("new_DH_after_step2", "step 2"); //--> uses [new_DH_after_step2.txt]
                                                            //--> generates [new_DH_before_step3.txt]
-// */
+*/
 
-// /*                                    //--> uses [new_DH_before_step3.txt]
+/*                                    //--> uses [new_DH_before_step3.txt]
                                          //--> generates [new_DH_multiple_match_fixed.txt]
 $func->fix_multiple_matches_after_step2('new_DH_before_step3'); //https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63460&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63460
                                         //--> generates [new_DH_multiple_match_fixed.txt]
-// */
+*/
 
 // /* these two can run one after the other (2.08 hours)
-$func->pre_step_3(); //fix 'multiple' match   //--> uses [old_DH_after_step2.txt]
+// $func->pre_step_3(); //fix 'multiple' match   //--> uses [old_DH_after_step2.txt]
                                               //--> generates [] [old_DH_gnparsed.txt]
 $func->step_3(); //main step 3  //--> uses [new_DH_multiple_match_fixed.txt] [old_DH_gnparsed_tbl] [old_DH_gnparsed.txt]
                                 //--> generates [new_DH_after_step3] [old_DH_after_step3]
