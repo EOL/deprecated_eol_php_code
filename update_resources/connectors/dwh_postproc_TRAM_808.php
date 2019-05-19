@@ -5,7 +5,7 @@ Statistics
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DH_v1_1_Mapping_EOL_IDs');
-ini_set('memory_limit','6096M');
+ini_set('memory_limit','7096M'); //this is imperative, unless you want to change strategy for a one-time-run script.
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
@@ -40,6 +40,8 @@ $func->before_step_2_or_3("new_DH_after_step2", "step 2"); //--> uses [new_DH_af
 $func->fix_multiple_matches_after_step2('new_DH_before_step3'); //https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63460&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63460
                                         //--> generates [new_DH_multiple_match_fixed.txt]
 */
+
+/* REMINDER: if there is memory issue, end with pre_step_3(). And resume with step_3(). WORKED OK */
 
 // /* these two can run one after the other (2.08 hours)
 // $func->pre_step_3(); //fix 'multiple' match   //--> uses [old_DH_after_step2.txt]
