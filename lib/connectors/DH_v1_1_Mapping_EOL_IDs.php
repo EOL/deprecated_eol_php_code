@@ -45,7 +45,26 @@ class DH_v1_1_mapping_EOL_IDs
         /* step4_2: manually run the 'Generate higherClassification Tool' on the latest new DH */
         /* step4_3: loop on new DH with higherC, filter with table taxonomy_tsv_uniqname */
         
+        Known homonyms have an entry in the uniqname column of the smasher taxonomy.tsv file. There are about 4000 of these. I would like to have a file that makes it easy for me to double-check the EOLid mappings for these taxa.
 
+        For those taxa that have an entry in the uniqname column of taxonomy.tsv AND that are still in the latest version of the new DH, please create a file with the following columns:
+
+        taxonID - the new uuid you have minted
+        smasherTaxonID - the one used in the taxonomy.tsv file
+        source
+        furtherInformationURL
+        parentNameUsageID
+        scientificName
+        taxonRank
+        taxonRemarks
+        datasetID
+        canonicalName
+        higherClassification
+        oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
+        EOLid
+        EOLidAnnotations
+
+        Please let me know if you need additional information on any part of this workflow.
     }
     private function step4_1()
     {

@@ -43,24 +43,24 @@ $func->fix_multiple_matches_after_step2('new_DH_before_step3'); //https://eol-ji
 
 /* REMINDER: if there is memory issue, end with pre_step_3(). And resume with step_3(). WORKED OK */
 
-// /* these two can run one after the other (2.08 hours)
+/* these two can run one after the other (2.08 hours)
 // $func->pre_step_3(); //fix 'multiple' match   //--> uses [old_DH_after_step2.txt]
                                               //--> generates [] [old_DH_gnparsed.txt]
 $func->step_3(); //main step 3  //--> uses [new_DH_multiple_match_fixed.txt] [old_DH_gnparsed_tbl] [old_DH_gnparsed.txt]
                                 //--> generates [new_DH_after_step3] [old_DH_after_step3]
                                 // 3. Match EOLid based on canonical form strings & rank
-// */
-
+*/
+/*
 $func->before_step_2_or_3("new_DH_after_step3", "step 3"); //--> uses [new_DH_after_step3.txt]
                                                            //--> generates [new_DH_before_step4.txt]
-
+*/
 // $func->step_4(); //4. Create a special report for known homonyms
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 // unset($func);
 // Functions::finalize_dwca_resource($resource_id, true, false);
-// run_diagnostics($resource_id);
+run_diagnostics($resource_id);
 
 //############################################################ end main
 
@@ -76,11 +76,13 @@ Function run_diagnostics($resource_id) // utility - takes time for this resource
     $func = new DWCADiagnoseAPI();
     // $func->check_unique_ids($resource_id); //takes time
 
-    $undefined = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+    $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_before_step4.txt";
+
+    $undefined = $func->check_if_all_parents_have_entries($resource_id, true, $taxa_file); //true means output will write to text file
     if($undefined) echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";
     else           echo "\nOK: All parents in taxon.tab have entries.\n";
 
-    $undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, array(), "acceptedNameUsageID"); //true means output will write to text file
+    $undefined = $func->check_if_all_parents_have_entries($resource_id, true, $taxa_file, array(), "acceptedNameUsageID"); //true means output will write to text file
     if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
     else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 }
