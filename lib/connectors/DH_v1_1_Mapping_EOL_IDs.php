@@ -39,16 +39,14 @@ class DH_v1_1_mapping_EOL_IDs
     */
     //==========================================================================start step 4
     function step_4()
-    {   /* step4_1: save to MySQL taxonomy.tsv with uniqname
-        self::step4_1();
+    {   /* first step: manually run the 'Generate higherClassification Tool' on the latest new DH */
+        /* step4_1: save to MySQL table [taxonomy_tsv_uniqname] all rows from taxonomy.tsv with uniqname
+        self::step4_1(); DONE
         */
-        /* step4_2: manually run the 'Generate higherClassification Tool' on the latest new DH */
-        /* step4_3: loop on new DH with higherC, filter with table taxonomy_tsv_uniqname */
-        
+        /* step4_2: loop on new DH with higherC, filter with table taxonomy_tsv_uniqname */
+        /*
         Known homonyms have an entry in the uniqname column of the smasher taxonomy.tsv file. There are about 4000 of these. I would like to have a file that makes it easy for me to double-check the EOLid mappings for these taxa.
-
         For those taxa that have an entry in the uniqname column of taxonomy.tsv AND that are still in the latest version of the new DH, please create a file with the following columns:
-
         taxonID - the new uuid you have minted
         smasherTaxonID - the one used in the taxonomy.tsv file
         source
@@ -63,8 +61,22 @@ class DH_v1_1_mapping_EOL_IDs
         oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
         EOLid
         EOLidAnnotations
-
-        Please let me know if you need additional information on any part of this workflow.
+        ----------------
+        Conversion completed. 
+        This is the URL of the converted file [new_DH_after_Step3.txt.zip] with higherClassification:
+         http://localhost/eol_php_code//applications/genHigherClass_jenkins/temp/1558240552.txt
+         http://localhost/eol_php_code//applications/genHigherClass_jenkins/temp/1558240552.txt.zip
+         Reminder: These files will be deleted from the server after 24 hours.
+        */
+    }
+    function step4_2()
+    {
+        $sql = "SELECT m.minted_id, t.uid from DWH.taxonomy_tsv_uniqname t JOIN DWH.minted_records m ON t.uid = m.uid;";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) {
+            $EOLids[$row['minted_id']] = '';
+        }
+        echo "\n".count($EOLids)."\n"; exit;
     }
     private function step4_1()
     {

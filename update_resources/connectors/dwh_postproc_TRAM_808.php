@@ -53,14 +53,19 @@ $func->step_3(); //main step 3  //--> uses [new_DH_multiple_match_fixed.txt] [ol
 /*
 $func->before_step_2_or_3("new_DH_after_step3", "step 3"); //--> uses [new_DH_after_step3.txt]
                                                            //--> generates [new_DH_before_step4.txt]
+run_diagnostics(false, $taxa_file);
 */
+
+// /*
 // $func->step_4(); //4. Create a special report for known homonyms
+$func->step4_2();
+// */
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 // unset($func);
 // Functions::finalize_dwca_resource($resource_id, true, false);
-run_diagnostics($resource_id);
+// run_diagnostics($resource_id);
 
 //############################################################ end main
 
@@ -70,13 +75,13 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 // /*
-Function run_diagnostics($resource_id) // utility - takes time for this resource but very helpful to catch if all parents have entries.
+Function run_diagnostics($resource_id, $taxa_file = false) // utility - takes time for this resource but very helpful to catch if all parents have entries.
 {
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
     // $func->check_unique_ids($resource_id); //takes time
 
-    $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_before_step4.txt";
+    if(!$resource_id) $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_before_step4.txt";
 
     $undefined = $func->check_if_all_parents_have_entries($resource_id, true, $taxa_file); //true means output will write to text file
     if($undefined) echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";
