@@ -70,13 +70,44 @@ class DH_v1_1_mapping_EOL_IDs
         */
     }
     function step4_2()
-    {
+    {   
+        /*
         $sql = "SELECT m.minted_id, t.uid from DWH.taxonomy_tsv_uniqname t JOIN DWH.minted_records m ON t.uid = m.uid;";
         $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) {
-            $EOLids[$row['minted_id']] = '';
+        while($result && $row=$result->fetch_assoc()) $EOLids[$row['minted_id']] = '';
+        echo "\nEOLids with unigname in latest new DH: ".count($EOLids)."\n"; //exit;
+        */
+        /* start loop of DH */
+        $file_append = $this->main_path."/subset_new_DH_with_uniqname.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0;
+        foreach(new FileIterator($this->main_path."/with_higherClassification/1558240552.txt") as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            print_r($rec); exit;
+            /**/
+            /* start writing */
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
         }
-        echo "\n".count($EOLids)."\n"; exit;
+        fclose($WRITE);
+        
+        
     }
     private function step4_1()
     {
