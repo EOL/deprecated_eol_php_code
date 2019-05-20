@@ -148,7 +148,6 @@ class DwCA_Utility_cmd
     //=====================================================================================================================
     //start functions for the interface tool "genHigherClass"
     //=====================================================================================================================
-    
     function tool_generate_higherClassification($file)
     {
         if(self::create_records_array($file)) {
@@ -162,7 +161,6 @@ class DwCA_Utility_cmd
         }
         else return false;
     }
-
     private function create_records_array($file)
     {
         $i = 0;
@@ -199,8 +197,6 @@ class DwCA_Utility_cmd
                 /* Eli as of May 19, used in DH TRAM-808
                 $fieldz = $fields;
                 */
-                
-                
             }
             else {
                 $rec = array();
@@ -212,7 +208,6 @@ class DwCA_Utility_cmd
                     $k++;
                 }
                 if($rec) {
-                    
                     //originally from build_id_name_array()
                     $taxon_id = (string) $rec["tID"];
                     $this->id_name[$taxon_id]['sN'] = (string) $rec["sN"];
@@ -230,13 +225,11 @@ class DwCA_Utility_cmd
                     if($i > 3 && $i <= 10) { //can check this early if we can compute for higherClassification, used a range so it will NOT check for every record but just 7 records.
                         if(!self::can_compute_higherClassification($rec)) return false;
                     }
-                    
                 }
             }
         }
         return true;
     }
-    
     private function normalize_fields($arr)
     {
         $fields = array_keys($arr);
@@ -247,7 +240,6 @@ class DwCA_Utility_cmd
         }
         return $fields;
     }
-
     private function shorten_field($field)
     {
         switch ($field) {
