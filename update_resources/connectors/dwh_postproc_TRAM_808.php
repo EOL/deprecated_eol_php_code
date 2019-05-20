@@ -53,12 +53,20 @@ $func->step_3(); //main step 3  //--> uses [new_DH_multiple_match_fixed.txt] [ol
 /*
 $func->before_step_2_or_3("new_DH_after_step3", "step 3"); //--> uses [new_DH_after_step3.txt]
                                                            //--> generates [new_DH_before_step4.txt]
+$taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_before_step4.txt";
+run_diagnostics(false, $taxa_file);
+*/
+
+
+/* important utility: check ancestry integrity of old DH
+$taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/eoldynamichierarchywithlandmarks/taxa.txt";
 run_diagnostics(false, $taxa_file);
 */
 
 // /*
 // $func->step_4(); //4. Create a special report for known homonyms
 $func->step4_2();
+// $func->step4_3();
 // */
 
 // exit("\n-end for now-\n");
@@ -80,8 +88,6 @@ Function run_diagnostics($resource_id, $taxa_file = false) // utility - takes ti
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
     // $func->check_unique_ids($resource_id); //takes time
-
-    if(!$resource_id) $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_before_step4.txt";
 
     $undefined = $func->check_if_all_parents_have_entries($resource_id, true, $taxa_file); //true means output will write to text file
     if($undefined) echo "\nERROR: There is undefined parent(s): ".count($undefined)."\n";

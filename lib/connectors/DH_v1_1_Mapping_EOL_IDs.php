@@ -43,7 +43,7 @@ class DH_v1_1_mapping_EOL_IDs
         /* step4_1: save to MySQL table [taxonomy_tsv_uniqname] all rows from taxonomy.tsv with uniqname
         self::step4_1(); DONE
         */
-        /* step4_2: loop on new DH with higherC, filter with table taxonomy_tsv_uniqname */
+        /* step4_3: loop on new DH with higherC, filter with table taxonomy_tsv_uniqname */
         /*
         Known homonyms have an entry in the uniqname column of the smasher taxonomy.tsv file. There are about 4000 of these. I would like to have a file that makes it easy for me to double-check the EOLid mappings for these taxa.
         For those taxa that have an entry in the uniqname column of taxonomy.tsv AND that are still in the latest version of the new DH, please create a file with the following columns:
@@ -69,23 +69,72 @@ class DH_v1_1_mapping_EOL_IDs
          Reminder: These files will be deleted from the server after 24 hours.
         */
     }
-    function step4_2()
-    {   
-        /*
+    function step4_3()
+    {   // /*
         $sql = "SELECT m.minted_id, t.uid from DWH.taxonomy_tsv_uniqname t JOIN DWH.minted_records m ON t.uid = m.uid;";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) $EOLids[$row['minted_id']] = '';
         echo "\nEOLids with unigname in latest new DH: ".count($EOLids)."\n"; //exit;
-        */
+        // */
         /* start loop of DH */
         $file_append = $this->main_path."/subset_new_DH_with_uniqname.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
-        foreach(new FileIterator($this->main_path."/with_higherClassification/1558240552.txt") as $line_number => $line) {
+        $write_fields = array('taxonID', 'smasherTaxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
+                              'datasetID', 'canonicalName', 'higherClassification', 'oldHigherClassification', 'EOLid', 'EOLidAnnotations');
+        foreach(new FileIterator($this->main_path."/with_higherClassification/1558328467.txt") as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
-                $fields = array_filter($fields); //print_r($fields);
+                $fields = array_filter($fields); print_r($fields);
+                fwrite($WRITE, implode("\t", $write_fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit;
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+            )*/
+            
+            // smasherTaxonID - the one used in the taxonomy.tsv file
+            // oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
+            
+            /* start writing */
+            $save = array();
+            foreach($write_fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
+        }
+        fclose($WRITE);
+    }
+    function step4_2()
+    {
+        $file_append = $this->main_path."/old_DH_with_higherClassification.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $txtfile = '/Volumes/AKiTiO4/d_w_h/TRAM-808/with_higherClassification/old_DH/1558351382.txt'; $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
                 fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
@@ -98,16 +147,28 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit;
-            /**/
-            /* start writing */
-            $save = array();
-            foreach($fields as $head) $save[] = $rec[$head];
-            fwrite($WRITE, implode("\t", $save)."\n");
+            print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
+                [parent_uid] => 
+                [name] => Life
+                [rank] => clade
+                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [uniqname] => 
+                [flags] => 
+            )*/
+            if(true) {
+                // print_r($rec);
+                /* start writing */
+                $save = array();
+                foreach($fields as $head) $save[] = $rec[$head];
+                fwrite($WRITE, implode("\t", $save)."\n");
+            }
         }
         fclose($WRITE);
-        
-        
+        /* append to MySQL table */
+        // $table = 'old_DH_with_higherClassification';
+        // self::append_to_MySQL_table($table, $file_append);
     }
     private function step4_1()
     {
