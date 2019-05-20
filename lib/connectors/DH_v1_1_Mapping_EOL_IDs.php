@@ -40,12 +40,11 @@ class DH_v1_1_mapping_EOL_IDs
     //==========================================================================start step 4
     function step_4()
     {   /* Manual steps:
-            - manually run the 'Generate higherClassification Tool' on the old DH. Will be used in step4_2()
-            - manually run the 'Generate higherClassification Tool' on the latest new DH. Will be used in step4_3()
+            - manually run the 'Generate higherClassification Tool' on the old DH. Will be used in step4_2(). Move the file (e.g. 1234567890.txt) accordingly
+            - manually run the 'Generate higherClassification Tool' on the latest new DH. Will be used in step4_3(). Move the file (e.g. 1234567890.txt) accordingly
                          
         step4_1: save to MySQL table [taxonomy_tsv_uniqname] all rows from taxonomy.tsv with uniqname
         self::step4_1(); DONE
-        
         step4_2: save to MySQL table [old_DH_with_higherClassification] all rows from old DH. Importantly with the field higherClassification.
         step4_3: loop on new DH with higherC, filter with table taxonomy_tsv_uniqname */
         /*
@@ -85,10 +84,9 @@ class DH_v1_1_mapping_EOL_IDs
         $i = 0;
         $write_fields = array('taxonID', 'smasherTaxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                               'datasetID', 'canonicalName', 'higherClassification', 'oldHigherClassification', 'EOLid', 'EOLidAnnotations');
-        foreach(new FileIterator($this->main_path."/with_higherClassification/1558328467.txt") as $line_number => $line) {
+        foreach(new FileIterator($this->main_path."/with_higherClassification/1558361160.txt") as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
-            print_r($row);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
@@ -119,25 +117,19 @@ class DH_v1_1_mapping_EOL_IDs
                 [EOLidAnnotations] => 
                 [higherClassification] => 
             )*/
-
-            // /* debug only
+            /* debug only
             if($rec['taxonID'] == 'EOL-000000000003') {
                 print_r($rec); exit;
             }
-            // */
-            
+            */
             if($val = @$EOLids[$rec['taxonID']]) {
-                $rec['smasherTaxonID'] = $val['uid'];
-                $rec['oldHigherClassification'] = $val['hC'];
+                $rec['smasherTaxonID'] = $val['uid'];               // smasherTaxonID - the one used in the taxonomy.tsv file
+                $rec['oldHigherClassification'] = $val['hC'];       // oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
                 /* start writing */
                 $save = array();
                 foreach($write_fields as $head) $save[] = $rec[$head];
                 fwrite($WRITE, implode("\t", $save)."\n");
             }
-            
-            // smasherTaxonID - the one used in the taxonomy.tsv file
-            // oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
-            
         }
         fclose($WRITE);
     }
