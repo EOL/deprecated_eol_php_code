@@ -185,18 +185,18 @@ class DwCA_Utility_cmd
                 else $fieldz = $fields; //no criteria needed, for normal operation
                 */
                 
-                // /*
+                /*
                 //became default for all resources as of 29-Oct-2017
                 $fieldz = array();
                 $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus"); 
                 foreach($proposed as $p) {
                     if(in_array($p, $fields)) $fieldz[] = $p;
                 }
-                // */
-                
-                /* Eli as of May 19, used in DH TRAM-808
-                $fieldz = $fields;
                 */
+                
+                // /* Eli as of May 19, used in DH TRAM-808
+                $fieldz = $fields;
+                // */
             }
             else {
                 $rec = array();
@@ -264,7 +264,6 @@ class DwCA_Utility_cmd
             default: exit("\nundefined field [$field]\n");
         }
     }
-
     private function lengthen_field($field)
     {
         switch ($field) {
@@ -289,10 +288,8 @@ class DwCA_Utility_cmd
             default:
         }
     }
-
     //=====================================================================================================================
     //end functions for the interface tool "genHigherClass"
     //=====================================================================================================================
-
 }
 ?>
