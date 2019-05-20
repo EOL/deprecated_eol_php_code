@@ -264,7 +264,7 @@ class DwCA_Utility_cmd
             case "canonicalName":           return "cN"; break;
             case "EOLid":                   return "Ei"; break;
             case "EOLidAnnotations":        return "EiA"; break;
-            default: exit("\nundefined field [$field]\n");
+            default: //exit("\nundefined field [$field]\n");
         }
     }
 
