@@ -187,18 +187,18 @@ class DwCA_Utility_cmd
                 else $fieldz = $fields; //no criteria needed, for normal operation
                 */
                 
-                /*
+                // /*
                 //became default for all resources as of 29-Oct-2017
                 $fieldz = array();
                 $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus"); 
                 foreach($proposed as $p) {
                     if(in_array($p, $fields)) $fieldz[] = $p;
                 }
-                */
-                
-                // /* Eli as of May 19, used in DH TRAM-808
-                $fieldz = $fields;
                 // */
+                
+                /* Eli as of May 19, used in DH TRAM-808
+                $fieldz = $fields;
+                */
                 
                 
             }
@@ -257,14 +257,19 @@ class DwCA_Utility_cmd
             case "scientificName":      return "sN"; break;
             case "taxonRank":           return "tR"; break;
             case "taxonomicStatus":     return "tS"; break;
-            case "taxonRemarks":        return "tRe"; break;
-            case "source":              return "s"; break;
+            case "higherClassification":    return "hC"; break;
+            case "taxonRemarks":            return "tRe"; break;
+            case "source":                  return "s"; break;
             case "furtherInformationURL":   return "fIU"; break;
             case "datasetID":               return "dID"; break;
             case "canonicalName":           return "cN"; break;
             case "EOLid":                   return "Ei"; break;
             case "EOLidAnnotations":        return "EiA"; break;
-            default: //exit("\nundefined field [$field]\n");
+            case "scientificNameAuthorship":    return "sNA"; break;
+            case "scientificNameID":            return "sNI"; break;
+            case "namePublishedIn":             return "nPI"; break;
+            case "Landmark":                    return "L"; break;
+            default: exit("\nundefined field [$field]\n");
         }
     }
 
@@ -285,6 +290,10 @@ class DwCA_Utility_cmd
             case "cN":  return "canonicalName"; break;
             case "Ei":  return "EOLid"; break;
             case "EiA": return "EOLidAnnotations"; break;
+            case "sNA": return "scientificNameAuthorship"; break;
+            case "sNI": return "scientificNameID"; break;
+            case "nPI": return "namePublishedIn"; break;
+            case "L":   return "Landmark"; break;
             default:
         }
     }
