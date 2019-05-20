@@ -39,9 +39,9 @@ class DH_v1_1_mapping_EOL_IDs
     */
     //==========================================================================start step 4
     function step_4()
-    {   /* Manual steps: 
+    {   /* Manual steps:
             - manually run the 'Generate higherClassification Tool' on the old DH. Will be used in step4_2()
-            - manually run the 'Generate higherClassification Tool' on the latest new DH. Will be used in step4_3() 
+            - manually run the 'Generate higherClassification Tool' on the latest new DH. Will be used in step4_3()
                          
         step4_1: save to MySQL table [taxonomy_tsv_uniqname] all rows from taxonomy.tsv with uniqname
         self::step4_1(); DONE
@@ -75,9 +75,9 @@ class DH_v1_1_mapping_EOL_IDs
     }
     function step4_3()
     {   // /*
-        $sql = "SELECT m.minted_id, t.uid from DWH.taxonomy_tsv_uniqname t JOIN DWH.minted_records m ON t.uid = m.uid;";
+        $sql = "SELECT m.minted_id, t.uid, o.higherClassification old_DH_hC FROM DWH.taxonomy_tsv_uniqname t JOIN DWH.minted_records m ON t.uid = m.uid JOIN DWH.old_DH_with_higherClassification o ON m.uid = o.taxonID";
         $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) $EOLids[$row['minted_id']] = '';
+        while($result && $row=$result->fetch_assoc()) $EOLids[$row['minted_id']] = array('uid' => $row['uid'], 'hC' => $row['old_DH_hC']);
         echo "\nEOLids with unigname in latest new DH: ".count($EOLids)."\n"; //exit;
         // */
         /* start loop of DH */
@@ -88,6 +88,7 @@ class DH_v1_1_mapping_EOL_IDs
         foreach(new FileIterator($this->main_path."/with_higherClassification/1558328467.txt") as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
+            print_r($row);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
@@ -103,7 +104,7 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); exit;
+            // print_r($rec); //exit;
             /*Array(
                 [taxonID] => EOL-000000000001
                 [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
@@ -118,28 +119,47 @@ class DH_v1_1_mapping_EOL_IDs
                 [EOLidAnnotations] => 
                 [higherClassification] => 
             )*/
+
+            // /* debug only
+            if($rec['taxonID'] == 'EOL-000000000003') {
+                print_r($rec); exit;
+            }
+            // */
+            
+            if($val = @$EOLids[$rec['taxonID']]) {
+                $rec['smasherTaxonID'] = $val['uid'];
+                $rec['oldHigherClassification'] = $val['hC'];
+                /* start writing */
+                $save = array();
+                foreach($write_fields as $head) $save[] = $rec[$head];
+                fwrite($WRITE, implode("\t", $save)."\n");
+            }
             
             // smasherTaxonID - the one used in the taxonomy.tsv file
             // oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
             
-            /* start writing */
-            $save = array();
-            foreach($write_fields as $head) $save[] = $rec[$head];
-            fwrite($WRITE, implode("\t", $save)."\n");
         }
         fclose($WRITE);
     }
     function step4_2()
     {
+        $sql = "SELECT t.uid from DWH.taxonomy_tsv_uniqname t ;";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) $taxonIDs[$row['uid']] = '';
+        echo "\n taxonIDs with unigname in taxonomy.tsv: ".count($taxonIDs)."\n"; //exit;
+        
         $file_append = $this->main_path."/old_DH_with_higherClassification.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        $txtfile = '/Volumes/AKiTiO4/d_w_h/TRAM-808/with_higherClassification/old_DH/1558351382.txt'; $i = 0;
+        $txtfile = '/Volumes/AKiTiO4/d_w_h/TRAM-808/with_higherClassification/old_DH/1558355336.txt'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
+                /* not used here...will just save two fields
                 fwrite($WRITE, implode("\t", $fields)."\n");
+                */
+                fwrite($WRITE, implode("\t", array('taxonID', 'higherClassification'))."\n");
                 continue;
             }
             else {
@@ -151,28 +171,42 @@ class DH_v1_1_mapping_EOL_IDs
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nstopx\n");
+            // print_r($rec); exit("\nstopx\n");
             /*Array(
-                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
-                [parent_uid] => 
-                [name] => Life
-                [rank] => clade
-                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
-                [uniqname] => 
-                [flags] => 
+                [taxonID] => -100000
+                [acceptedNameUsageID] => -100000
+                [parentNameUsageID] => -79407
+                [scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
+                [taxonRank] => species
+                [source] => gbif:4943435
+                [taxonomicStatus] => accepted
+                [canonicalName] => Frescocyathus nagagreboensis
+                [scientificNameAuthorship] => Barta-Calmus, 1969
+                [scientificNameID] => 
+                [taxonRemarks] => 
+                [namePublishedIn] => 
+                [furtherInformationURL] => https://www.gbif-uat.org/species/4943435
+                [datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [Landmark] => 
+                [higherClassification] => Life|Cellular|Eukaryota|Opisthokonta|Metazoa|Cnidaria|Anthozoa|Hexacorallia|Scleractinia|Frescocyathus
             )*/
-            if(true) {
+            if(isset($taxonIDs[$rec['taxonID']])) {
                 // print_r($rec);
                 /* start writing */
+                /* not used here...
                 $save = array();
                 foreach($fields as $head) $save[] = $rec[$head];
+                */
+                $save = array($rec['taxonID'], $rec['higherClassification']); //save to text just two fields
                 fwrite($WRITE, implode("\t", $save)."\n");
             }
         }
         fclose($WRITE);
         /* append to MySQL table */
-        // $table = 'old_DH_with_higherClassification';
-        // self::append_to_MySQL_table($table, $file_append);
+        $table = 'old_DH_with_higherClassification';
+        self::append_to_MySQL_table($table, $file_append);
     }
     private function step4_1()
     {
