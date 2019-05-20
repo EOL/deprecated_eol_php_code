@@ -65,8 +65,8 @@ run_diagnostics(false, $taxa_file);
 
 // /*
 // $func->step_4(); //4. Create a special report for known homonyms
-$func->step4_2();
-// $func->step4_3();
+// $func->step4_2();
+$func->step4_3();
 // */
 
 // exit("\n-end for now-\n");
