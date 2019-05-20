@@ -187,12 +187,19 @@ class DwCA_Utility_cmd
                 else $fieldz = $fields; //no criteria needed, for normal operation
                 */
                 
+                /*
                 //became default for all resources as of 29-Oct-2017
                 $fieldz = array();
                 $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus"); 
                 foreach($proposed as $p) {
                     if(in_array($p, $fields)) $fieldz[] = $p;
                 }
+                */
+                
+                // /* Eli as of May 19, used in DH TRAM-808
+                $fieldz = $fields;
+                // */
+                
                 
             }
             else {
@@ -252,7 +259,12 @@ class DwCA_Utility_cmd
             case "taxonomicStatus":     return "tS"; break;
             case "taxonRemarks":        return "tRe"; break;
             case "source":              return "s"; break;
-            default: //exit("\nundefined field\n");
+            case "furtherInformationURL":   return "fIU"; break;
+            case "datasetID":               return "dID"; break;
+            case "canonicalName":           return "cN"; break;
+            case "EOLid":                   return "Ei"; break;
+            case "EOLidAnnotations":        return "EiA"; break;
+            default: exit("\nundefined field [$field]\n");
         }
     }
 
@@ -268,6 +280,11 @@ class DwCA_Utility_cmd
             case "hC":  return "higherClassification"; break;
             case "tRe": return "taxonRemarks"; break;
             case "s":   return "source"; break;
+            case "fIU": return "furtherInformationURL"; break;
+            case "dID": return "datasetID"; break;
+            case "cN":  return "canonicalName"; break;
+            case "Ei":  return "EOLid"; break;
+            case "EiA": return "EOLidAnnotations"; break;
             default:
         }
     }
