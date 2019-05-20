@@ -80,7 +80,7 @@ class DH_v1_1_mapping_EOL_IDs
         echo "\nEOLids with unigname in latest new DH: ".count($EOLids)."\n"; //exit;
         // */
         /* start loop of DH */
-        $file_append = $this->main_path."/subset_new_DH_with_uniqname.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $file_append = $this->main_path."/known_homonyms.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing (old name was 'subset_new_DH_with_uniqname.txt')
         $i = 0;
         $write_fields = array('taxonID', 'smasherTaxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                               'datasetID', 'canonicalName', 'higherClassification', 'oldHigherClassification', 'EOLid', 'EOLidAnnotations');
