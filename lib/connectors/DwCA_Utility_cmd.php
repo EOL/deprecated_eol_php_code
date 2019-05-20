@@ -186,7 +186,7 @@ class DwCA_Utility_cmd
                 */
                 
                 /*
-                //became default for all resources as of 29-Oct-2017
+                //became default for all resources as of 29-Oct-2017 - CAN USE THIS IF YOU WANT TO LIMIT THE SIZE BUY LIMITING THE NO. OF FIELDS
                 $fieldz = array();
                 $proposed = array("taxonID", "acceptedNameUsageID", "parentNameUsageID", "scientificName", "taxonRank", "taxonomicStatus"); 
                 foreach($proposed as $p) {
@@ -194,7 +194,7 @@ class DwCA_Utility_cmd
                 }
                 */
                 
-                // /* Eli as of May 19, used in DH TRAM-808
+                // /* Eli as of May 19, used in DH TRAM-808 - can now be the default
                 $fieldz = $fields;
                 // */
             }
@@ -261,7 +261,7 @@ class DwCA_Utility_cmd
             case "scientificNameID":            return "sNI"; break;
             case "namePublishedIn":             return "nPI"; break;
             case "Landmark":                    return "L"; break;
-            default: exit("\nundefined field [$field]\n");
+            default: exit("\nUndefined field [$field]. Must be initialized before proceeding!\n");
         }
     }
     private function lengthen_field($field)
