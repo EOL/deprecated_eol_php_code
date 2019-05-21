@@ -1275,7 +1275,7 @@ class DH_v1_1_mapping_EOL_IDs
         /* append to MySQL table */
         self::append_to_MySQL_table($table, $file_append);
     }
-    private function append_to_MySQL_table($table, $file_append)
+    function append_to_MySQL_table($table, $file_append)
     {
         echo "\nSaving [$table] records to MySQL...\n";
         if(filesize($file_append)) {
@@ -1297,7 +1297,7 @@ class DH_v1_1_mapping_EOL_IDs
         }
         return false;
     }
-    private function get_all_source_identifiers($source)
+    function get_all_source_identifiers($source)
     {
         $tmp = explode(",", $source);
         return array_map('trim', $tmp);

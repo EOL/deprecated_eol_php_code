@@ -27,6 +27,9 @@ $func->step_1(); //1. Add taxonomicStatus values to DH taxa
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
 */
 // /*
+$func->create_append_text(); exit("\n-end create_append_text-\n");//done only once; worked OK
+// */
+// /*
 $func->step_2(); //2. Fetch synonyms & metadata from DH sources
         // --> input:
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus

@@ -29,7 +29,9 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->mysqli =& $GLOBALS['db_connection'];
         
         $sources_path = "/Volumes/AKiTiO4/d_w_h/2019_04/"; //new - TRAM-805 - 2nd Smasher run
-        $this->sh['NCBI']['source']         = $sources_path."/NCBI_Taxonomy_Harvest_DH/";
+        $this->sh['NCBI']['source']     = $sources_path."/NCBI_Taxonomy_Harvest_DH/";
+        $this->sh['NCBI']['syn_status'] = 'synonym';
+        
         
     }
     function step_2()
@@ -39,10 +41,92 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     private function process_data_source($what)
     {
-        require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2($resource_id);
+        require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2('');
         $this->what = $what;
         $meta = $func->get_meta($what);
-        print_r($meta); exit;
+        self::get_info_from_taxon_tab($meta);
+    }
+    private function get_info_from_taxon_tab($meta)
+    {
+        $what = $meta['what']; $i = 0; $final = array();
+        foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                if(!$field) continue;
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            if($this->sh[$what]['syn_status'] == $rec['taxonomicStatus']) {
+                // print_r($rec); exit("\nstopx\n");
+                /* NCBI Array(
+                    [taxonID] => 1_1
+                    [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
+                    [referenceID] => 
+                    [acceptedNameUsageID] => 1
+                    [parentNameUsageID] => 
+                    [scientificName] => all
+                    [taxonRank] => no rank
+                    [taxonomicStatus] => synonym
+                )*/
+                $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
+            }
+        }
+        return $final;
+    }
+    function create_append_text($source = '', $table = '') //do only once
+    {
+        $source = $this->main_path."/new_DH_before_step4.txt"; $table = 'taxonID_source_ids_newDH';
+        $file_append = $this->main_path_TRAM_809."/".$table.".txt";
+        
+        require_library('connectors/DH_v1_1_Mapping_EOL_IDs'); $func = new DH_v1_1_Mapping_EOL_IDs('');
+        
+        $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0;
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+            )*/
+            $source_ids = $func->get_all_source_identifiers($rec['source']);
+            foreach($source_ids as $source_id) {
+                $arr = array();
+                $arr = array($rec['taxonID'], $source_id);
+                fwrite($WRITE, implode("\t", $arr)."\n");
+            }
+        }
+        fclose($WRITE);
+        $func->append_to_MySQL_table($table, $file_append);
     }
     function step_1()
     {   echo "\nStart step 1...\n";
