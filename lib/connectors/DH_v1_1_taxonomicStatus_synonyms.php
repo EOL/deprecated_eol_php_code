@@ -32,9 +32,10 @@ class DH_v1_1_taxonomicStatus_synonyms
     {
         echo "\nStart step 1...\n";
         $this->debug = array();
-        $this->retired_old_DH_taxonID = array();
+        // $this->retired_old_DH_taxonID = array();
 
         $file = $this->main_path."/new_DH_before_step4.txt"; //last DH output of TRAM-808
+        $file = $this->main_path."/with_higherClassification/1558361160.txt"; //last DH output of TRAM-808 --> with higherClassification
         /* initialize info global ------------------------------------------------------------------------------*/
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
@@ -63,18 +64,25 @@ class DH_v1_1_taxonomicStatus_synonyms
         $children_of['Eumycetozoa'] = $func->get_descendants_of_taxID("EOL-000000096158", false, $this->descendants);
         $children_of['Protosteliida'] = $func->get_descendants_of_taxID("EOL-000000097604", false, $this->descendants);
         $children_of['Dinoflagellata'] = $func->get_descendants_of_taxID("EOL-000000025794", false, $this->descendants);
-        echo "\nFungi: ".count($children_of['Fungi'])."\n";
+        // echo "\nMicrosporidia: ".count($children_of['Microsporidia'])."\n";
+        // echo "\nArchaeplastida: ".count($children_of['Archaeplastida'])."\n";
+        // echo "\nCyanobacteria: ".count($children_of['Cyanobacteria'])."\n";
+        // echo "\nFungi: ".count($children_of['Fungi'])."\n";
+        // echo "\nGyrista: ".count($children_of['Gyrista'])."\n";
+        // echo "\nEumycetozoa: ".count($children_of['Eumycetozoa'])."\n";
+        // echo "\nProtosteliida: ".count($children_of['Protosteliida'])."\n";
+        // echo "\nDinoflagellata: ".count($children_of['Dinoflagellata'])."\n";
         unset($this->descendants);
-
         /* loop new DH -----------------------------------------------------------------------------------------*/
-        $file_append = $this->main_path."/new_DH_taxonStatus.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $file_append = $this->main_path_TRAM_809."/new_DH_taxonStatus.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
-                $fields = array_filter($fields); //print_r($fields);
+                $fields = array_filter($fields);
+                $fields[] = 'taxonomicStatus'; //print_r($fields);
                 fwrite($WRITE, implode("\t", $fields)."\n");
                 continue;
             }
@@ -87,15 +95,69 @@ class DH_v1_1_taxonomicStatus_synonyms
                 }
             }
             $rec = array_map('trim', $rec);
+            //------------------------------------------------------start taxonomicStatus
+            if(in_array($rec['taxonID'], $children_of['Microsporidia'])) $rec['taxonomicStatus'] = 'valid';
+            if(!@$rec['taxonomicStatus']) {
+                if(in_array($rec['taxonID'], $children_of['Archaeplastida'])) $rec['taxonomicStatus'] = 'accepted';
+                if(in_array($rec['taxonID'], $children_of['Cyanobacteria'])) $rec['taxonomicStatus'] = 'accepted';
+                if(in_array($rec['taxonID'], $children_of['Fungi'])) $rec['taxonomicStatus'] = 'accepted';
+                if(in_array($rec['taxonID'], $children_of['Gyrista'])) $rec['taxonomicStatus'] = 'accepted';
+                if(in_array($rec['taxonID'], $children_of['Eumycetozoa'])) $rec['taxonomicStatus'] = 'accepted';
+                if(in_array($rec['taxonID'], $children_of['Protosteliida'])) $rec['taxonomicStatus'] = 'accepted';
+                if(in_array($rec['taxonID'], $children_of['Dinoflagellata'])) $rec['taxonomicStatus'] = 'accepted';
+            }
+            if(!@$rec['taxonomicStatus']) $rec['taxonomicStatus'] = 'valid';
+            //------------------------------------------------------end taxonomicStatus
             print_r($rec); exit;
-            /**/
+            /*
+            */
             /* start writing */
             $save = array();
             foreach($fields as $head) $save[] = $rec[$head];
             fwrite($WRITE, implode("\t", $save)."\n");
         }
         fclose($WRITE);
-        Functions::start_print_debug($this->debug, $this->resource_id."_after_step3");
+        Functions::start_print_debug($this->debug, $this->resource_id."_step1");
+    }
+    private function get_taxID_nodes_info($txtfile)
+    {
+        $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
+        $i = 0;
+        foreach(new FileIterator($txtfile) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonid] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherinformationurl] => 
+                [parentnameusageid] => 
+                [scientificname] => Life
+                [taxonrank] => clade
+                [taxonremarks] => 
+                [datasetid] => trunk
+                [canonicalname] => Life
+                [eolid] => 2913056
+                [eolidannotations] => 
+            )*/
+            // $this->taxID_info[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
+            $this->descendants[$rec['parentnameusageid']][$rec['taxonid']] = ''; //used for descendants (children)
+        }
     }
     
 }

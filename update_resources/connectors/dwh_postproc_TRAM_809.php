@@ -18,6 +18,8 @@ $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_before_step4.txt";
 run_diagnostics(false, $taxa_file);
 */
 
+$func->step_1(); //1. Add taxonomicStatus values to DH taxa
+
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id);
