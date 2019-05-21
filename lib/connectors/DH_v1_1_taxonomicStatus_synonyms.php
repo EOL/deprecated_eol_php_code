@@ -31,13 +31,17 @@ class DH_v1_1_taxonomicStatus_synonyms
         $sources_path = "/Volumes/AKiTiO4/d_w_h/2019_04/"; //new - TRAM-805 - 2nd Smasher run
         $this->sh['NCBI']['source']     = $sources_path."/NCBI_Taxonomy_Harvest_DH/";
         $this->sh['NCBI']['syn_status'] = 'synonym';
-        
-        
+        $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
+                                    'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
     }
     function step_2()
     {
+        $file_append = $this->main_path_TRAM_809."/synonyms.txt";
+        $this->WRITE = fopen($file_append, "w"); //will overwrite existing
+        fwrite($this->WRITE, implode("\t", $arr)."\n");
         /* run NCBI */
         self::process_data_source('NCBI');
+        fclose($this->WRITE);
     }
     private function process_data_source($what)
     {
@@ -73,10 +77,57 @@ class DH_v1_1_taxonomicStatus_synonyms
                     [taxonRank] => no rank
                     [taxonomicStatus] => synonym
                 )*/
-                $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
+                // $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
+                if($accepted_id = is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID'])) { //e.g. param is 'NCBI:1'
+                    echo "\n-found-"; //add this synonym to DH
+                    
+                    $save = array(
+                    'taxonID' => $rec['taxonID'], //for minting next
+                    'source' => "$what:".$rec['acceptedNameUsageID'],
+                    'furtherInformationURL' => $rec['furtherInformationURL'],
+                    'parentNameUsageID' => ''. //$rec['parentNameUsageID'],
+                    'scientificName' => $rec['scientificName'],
+                    'taxonRank' => $rec['taxonRank'],
+                    'taxonRemarks' => '',
+                    'datasetID' => $what,
+                    'canonicalName' => '',
+                    'EOLid' => '',
+                    'EOLidAnnotations' => '',
+                    'higherClassification' => '',
+                    'taxonomicStatus' => 'synonym',
+                    'acceptedNameUsageID' => $accepted_id);
+                    
+                    $arr = array();
+                    foreach($write_fields as $f) $arr[] = $save[$f];
+                    fwrite($this->WRITE, implode("\t", $arr)."\n");
+                    
+                    
+                }
+                else echo "\n-not found-";
             }
         }
-        return $final;
+        // return $final;
+    }
+    private function is_acceptedName_in_DH($source_id) //e.g. 'NCBI:944587'
+    {   /*(b) Check if the accepted name is in the DH
+    From the pool of eligible synonyms, we only want to import synonyms of taxa we are actually using in the DH. To confirm usage, 
+    check if the acceptedNameUsageID of the synonym is represented in the DH source column, with the proper source acronym prefix. For example, this synonym in the NCBI resource:
+    944587_1 https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=944587	944587 Achlya sparrowi species synonym
+    points to this DH taxon:
+    EOL-000000094375 NCBI:944587,CLP:45bd70145e07edfd1e59299651108cb6 https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=944587	EOL-000000094355 Achlya sparrowii species NCBI Achlya sparrowii
+    so we would want to import it and assign EOL-000000094375 as its acceptedNameUsageID.
+        */
+        $source_id_4sql = str_replace("'", "\'", $source_id);
+        $sql = "SELECT h.taxonID, h.source_id FROM DWH.taxonID_source_ids_newDH h WHERE h.source_id = '".$source_id_4sql."'";
+        $row = self::run_sql($sql);
+        if($val = $row['taxonID']) return $val;
+        return false;
+    }
+    private function run_sql($sql)
+    {
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row;
+        return false;
     }
     function create_append_text($source = '', $table = '') //do only once
     {
