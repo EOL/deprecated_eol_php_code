@@ -35,6 +35,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->sh['ASW']['source']      = $sources_path."/amphibianspeciesoftheworld/";
         $this->sh['ASW']['syn_status'] = 'invalid';
         
+        start here with ODO...
         
         
         $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
