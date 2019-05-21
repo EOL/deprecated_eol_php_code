@@ -26,10 +26,11 @@ $func->step_1(); //1. Add taxonomicStatus values to DH taxa
         // --> output:
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
 */
+// /*
 $func->step_2(); //2. Fetch synonyms & metadata from DH sources
         // --> input:
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
-
+// */
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id);
