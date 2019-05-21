@@ -82,9 +82,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     {
         $source = $this->main_path."/new_DH_before_step4.txt"; $table = 'taxonID_source_ids_newDH';
         $file_append = $this->main_path_TRAM_809."/".$table.".txt";
-        
         require_library('connectors/DH_v1_1_Mapping_EOL_IDs'); $func = new DH_v1_1_Mapping_EOL_IDs('');
-        
         $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
@@ -103,8 +101,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     $k++;
                 }
             }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx\n");
+            $rec = array_map('trim', $rec); // print_r($rec); exit("\nstopx\n");
             /*Array(
                 [taxonID] => EOL-000000000001
                 [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
