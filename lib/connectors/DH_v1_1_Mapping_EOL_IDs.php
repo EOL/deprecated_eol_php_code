@@ -74,9 +74,9 @@ class DH_v1_1_mapping_EOL_IDs
     }
     function step4_3()
     {   // /*
-        $sql = "SELECT m.minted_id, t.uid, o.higherClassification old_DH_hC FROM DWH.taxonomy_tsv_uniqname t JOIN DWH.minted_records m ON t.uid = m.uid JOIN DWH.old_DH_with_higherClassification o ON m.uid = o.taxonID";
+        $sql = "SELECT m.minted_id, t.uid FROM DWH.minted_records m JOIN DWH.taxonomy_tsv_uniqname t ON m.uid = t.uid";
         $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) $EOLids[$row['minted_id']] = array('uid' => $row['uid'], 'hC' => $row['old_DH_hC']);
+        while($result && $row=$result->fetch_assoc()) $EOLids[$row['minted_id']] = array('uid' => $row['uid'], 'hC' => ''); //$row['old_DH_hC']
         echo "\nEOLids with unigname in latest new DH: ".count($EOLids)."\n"; //exit;
         // */
         /* start loop of DH */
@@ -124,7 +124,8 @@ class DH_v1_1_mapping_EOL_IDs
             */
             if($val = @$EOLids[$rec['taxonID']]) {
                 $rec['smasherTaxonID'] = $val['uid'];               // smasherTaxonID - the one used in the taxonomy.tsv file
-                $rec['oldHigherClassification'] = $val['hC'];       // oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
+                $rec['oldHigherClassification'] = self::get_old_DH_higherClassification($rec['EOLid']);       // oldHigherClassification - the higherClassification of the old DH taxon that provided the EOLid match
+                // print_r($rec);
                 /* start writing */
                 $save = array();
                 foreach($write_fields as $head) $save[] = $rec[$head];
@@ -132,6 +133,14 @@ class DH_v1_1_mapping_EOL_IDs
             }
         }
         fclose($WRITE);
+    }
+    private function get_old_DH_higherClassification($eol_id)
+    {
+        return "";
+        $sql = "SELECT o.taxonID, o.higherClassification from DWH.old_DH_with_higherClassification o JOIN DWH.EOLid_map m ON o.taxonID = m.smasher_id WHERE m.EOL_id = '".$eol_id."'";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row['higherClassification'];
+        
     }
     function step4_2()
     {
@@ -184,16 +193,20 @@ class DH_v1_1_mapping_EOL_IDs
                 [Landmark] => 
                 [higherClassification] => Life|Cellular|Eukaryota|Opisthokonta|Metazoa|Cnidaria|Anthozoa|Hexacorallia|Scleractinia|Frescocyathus
             )*/
+            
+            /* NEVER confine it like this since: old DH's smasher ID is not same as taxonomy.tsv's smasher ID
             if(isset($taxonIDs[$rec['taxonID']])) {
-                // print_r($rec);
-                /* start writing */
-                /* not used here...
-                $save = array();
-                foreach($fields as $head) $save[] = $rec[$head];
-                */
-                $save = array($rec['taxonID'], $rec['higherClassification']); //save to text just two fields
-                fwrite($WRITE, implode("\t", $save)."\n");
             }
+            */
+            
+            // print_r($rec);
+            /* start writing */
+            /* not used here... only two fields are saved below
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            */
+            $save = array($rec['taxonID'], $rec['higherClassification']); //save to text just two fields
+            fwrite($WRITE, implode("\t", $save)."\n");
         }
         fclose($WRITE);
         /* append to MySQL table */
