@@ -201,7 +201,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
         print_r($final); self::scan_resource_file($meta, $final); exit("\n");
         // */
     }
-    private function get_meta($what, $postProcessYN = false)
+    function get_meta($what, $postProcessYN = false)
     {
         if($postProcessYN && in_array($what, array('COL','CLP'))) $meta_xml_path = $this->sh[$what]['source_postprocess']."meta.xml"; //for TRAM-807
         else                                                      $meta_xml_path = $this->sh[$what]['source']."meta.xml"; //original, during creation of taxonomy.tsv
