@@ -136,11 +136,9 @@ class DH_v1_1_mapping_EOL_IDs
     }
     private function get_old_DH_higherClassification($eol_id)
     {
-        return "";
         $sql = "SELECT o.taxonID, o.higherClassification from DWH.old_DH_with_higherClassification o JOIN DWH.EOLid_map m ON o.taxonID = m.smasher_id WHERE m.EOL_id = '".$eol_id."'";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['higherClassification'];
-        
     }
     function step4_2()
     {
