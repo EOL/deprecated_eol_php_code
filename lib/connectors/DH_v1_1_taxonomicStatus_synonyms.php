@@ -38,7 +38,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
-        fwrite($this->WRITE, implode("\t", $arr)."\n");
+        fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         /* run NCBI */
         self::process_data_source('NCBI');
         fclose($this->WRITE);
@@ -78,14 +78,14 @@ class DH_v1_1_taxonomicStatus_synonyms
                     [taxonomicStatus] => synonym
                 )*/
                 // $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
-                if($accepted_id = is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID'])) { //e.g. param is 'NCBI:1'
+                if($accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID'])) { //e.g. param is 'NCBI:1'
                     echo "\n-found-"; //add this synonym to DH
                     
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
                     'source' => "$what:".$rec['acceptedNameUsageID'],
                     'furtherInformationURL' => $rec['furtherInformationURL'],
-                    'parentNameUsageID' => ''. //$rec['parentNameUsageID'],
+                    'parentNameUsageID' => '', //$rec['parentNameUsageID'],
                     'scientificName' => $rec['scientificName'],
                     'taxonRank' => $rec['taxonRank'],
                     'taxonRemarks' => '',
@@ -98,7 +98,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     'acceptedNameUsageID' => $accepted_id);
                     
                     $arr = array();
-                    foreach($write_fields as $f) $arr[] = $save[$f];
+                    foreach($this->write_fields as $f) $arr[] = $save[$f];
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
                     
                     
