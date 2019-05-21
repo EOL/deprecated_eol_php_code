@@ -92,7 +92,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     [parentNameUsageID] => 
                     [taxonRemarks] => synonymous original name
                     [acceptedNameUsageID] => v-Ptychadena-schillukorum-(Werner-1908)
-                    [nameAccordingTo] => Parker, 1931 , Proc. Zool. Soc. London, 1930
+                    ***[nameAccordingTo] => Parker, 1931 , Proc. Zool. Soc. London, 1930
                     [furtherInformationURL] => http://research.amnh.org/herpetology/amphibia/index.html
                 )
                 */
