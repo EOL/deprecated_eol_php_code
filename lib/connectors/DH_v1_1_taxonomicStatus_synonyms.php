@@ -28,35 +28,35 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         $this->mysqli =& $GLOBALS['db_connection'];
     }
+    function step_2()
+    {
+        
+    }
     function step_1()
     {
         echo "\nStart step 1...\n";
         $this->debug = array();
         // $this->retired_old_DH_taxonID = array();
-
         $file = $this->main_path."/new_DH_before_step4.txt"; //last DH output of TRAM-808
         $file = $this->main_path."/with_higherClassification/1558361160.txt"; //last DH output of TRAM-808 --> with higherClassification
         /* initialize info global ------------------------------------------------------------------------------*/
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
         /*We want to add taxonomicStatus to DH taxa based on the following rules:
-
         taxonomicStatus: accepted
         Apply to all descendants of the following taxa:
-        Archaeplastida (EOL-000000097815)
-        Cyanobacteria (EOL-000000000047)
-        Fungi (EOL-000002172573) EXCEPT Microsporidia (EOL-000002172574)
-        Gyrista (EOL-000000085512)
-        Eumycetozoa (EOL-000000096158)
-        Protosteliida (EOL-000000097604)
-        Dinoflagellata (EOL-000000025794)
-
+            Archaeplastida (EOL-000000097815)
+            Cyanobacteria (EOL-000000000047)
+            Fungi (EOL-000002172573) EXCEPT Microsporidia (EOL-000002172574)
+            Gyrista (EOL-000000085512)
+            Eumycetozoa (EOL-000000096158)
+            Protosteliida (EOL-000000097604)
+            Dinoflagellata (EOL-000000025794)
         taxonomicStatus: valid
-        Apply to all other taxa including Microsporidia (EOL-000002172574), which is a descendant of Fungi.
+            Apply to all other taxa including Microsporidia (EOL-000002172574), which is a descendant of Fungi.
         */
         self::get_taxID_nodes_info($file); //for new DH
         $children_of['Microsporidia'] = $func->get_descendants_of_taxID("EOL-000002172574", false, $this->descendants);
-
         $children_of['Archaeplastida'] = $func->get_descendants_of_taxID("EOL-000000097815", false, $this->descendants);
         $children_of['Cyanobacteria'] = $func->get_descendants_of_taxID("EOL-000000000047", false, $this->descendants);
         $children_of['Fungi'] = $func->get_descendants_of_taxID("EOL-000002172573", false, $this->descendants);
@@ -108,9 +108,22 @@ class DH_v1_1_taxonomicStatus_synonyms
             }
             if(!@$rec['taxonomicStatus']) $rec['taxonomicStatus'] = 'valid';
             //------------------------------------------------------end taxonomicStatus
-            print_r($rec); exit;
-            /*
-            */
+            // print_r($rec); exit;
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => valid
+            )*/
             /* start writing */
             $save = array();
             foreach($fields as $head) $save[] = $rec[$head];

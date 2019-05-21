@@ -18,7 +18,17 @@ $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_before_step4.txt";
 run_diagnostics(false, $taxa_file);
 */
 
+/*
 $func->step_1(); //1. Add taxonomicStatus values to DH taxa
+        // --> input: 
+        // $this->main_path."/new_DH_before_step4.txt";                    //last DH output of TRAM-808
+        // $this->main_path."/with_higherClassification/1558361160.txt";   //last DH output of TRAM-808 --> with higherClassification
+        // --> output:
+        // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
+*/
+$func->step_2(); //2. Fetch synonyms & metadata from DH sources
+        // --> input:
+        // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
 
 
 // exit("\n-end for now-\n");
