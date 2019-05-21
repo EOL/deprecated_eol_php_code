@@ -31,6 +31,12 @@ class DH_v1_1_taxonomicStatus_synonyms
         $sources_path = "/Volumes/AKiTiO4/d_w_h/2019_04/"; //new - TRAM-805 - 2nd Smasher run
         $this->sh['NCBI']['source']     = $sources_path."/NCBI_Taxonomy_Harvest_DH/";
         $this->sh['NCBI']['syn_status'] = 'synonym';
+        
+        $this->sh['ASW']['source']      = $sources_path."/amphibianspeciesoftheworld/";
+        $this->sh['ASW']['syn_status'] = 'invalid';
+        
+        
+        
         $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
     }
@@ -40,7 +46,8 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         /* run NCBI */
-        self::process_data_source('NCBI');
+        // self::process_data_source('NCBI');
+        self::process_data_source('ASW');
         fclose($this->WRITE);
     }
     private function process_data_source($what)
@@ -66,7 +73,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 $k++;
             }
             if($this->sh[$what]['syn_status'] == $rec['taxonomicStatus']) {
-                // print_r($rec); exit("\nstopx\n");
+                // print_r($rec); exit("\nstopx 1\n");
                 /* NCBI Array(
                     [taxonID] => 1_1
                     [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
@@ -76,7 +83,19 @@ class DH_v1_1_taxonomicStatus_synonyms
                     [scientificName] => all
                     [taxonRank] => no rank
                     [taxonomicStatus] => synonym
-                )*/
+                )
+                ASW Array(
+                    [taxonID] => inv-Abrana-cotti-Parker-1931
+                    [scientificName] => Abrana cotti Parker, 1931
+                    [taxonRank] => species
+                    [taxonomicStatus] => invalid
+                    [parentNameUsageID] => 
+                    [taxonRemarks] => synonymous original name
+                    [acceptedNameUsageID] => v-Ptychadena-schillukorum-(Werner-1908)
+                    [nameAccordingTo] => Parker, 1931 , Proc. Zool. Soc. London, 1930
+                    [furtherInformationURL] => http://research.amnh.org/herpetology/amphibia/index.html
+                )
+                */
                 // $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
                 if($accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID'])) { //e.g. param is 'NCBI:1'
                     echo "\n-found-"; //add this synonym to DH
