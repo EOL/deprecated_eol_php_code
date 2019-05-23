@@ -33,10 +33,16 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->sh['NCBI']['syn_status'] = 'synonym';
         
         $this->sh['ASW']['source']      = $sources_path."/amphibianspeciesoftheworld/";
-        $this->sh['ASW']['syn_status'] = 'invalid';
+        $this->sh['ASW']['syn_status']  = 'invalid';
         
-        start here with ODO...
+        $this->sh['ODO']['source']      = $sources_path."/worldodonata/";
+        $this->sh['ODO']['syn_status']  = 'synonym';
         
+        $this->sh['BOM']['source']      = $sources_path."/kitchingetal2018/";
+        $this->sh['BOM']['syn_status']  = 'synonym';
+        
+        $this->sh['WOR']['source']      = $sources_path."/WoRMS_DH/";
+        $this->sh['WOR']['syn_status']  = 'synonym';
         
         $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
@@ -46,9 +52,13 @@ class DH_v1_1_taxonomicStatus_synonyms
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
-        /* run data sources */
-        // self::process_data_source('NCBI');
+        /* run data sources 
+        self::process_data_source('NCBI');
         self::process_data_source('ASW');
+        self::process_data_source('ODO');
+        self::process_data_source('BOM');
+        */
+        self::process_data_source('WOR');
         fclose($this->WRITE);
     }
     private function process_data_source($what)
@@ -96,10 +106,48 @@ class DH_v1_1_taxonomicStatus_synonyms
                     ***[nameAccordingTo] => Parker, 1931 , Proc. Zool. Soc. London, 1930
                     [furtherInformationURL] => http://research.amnh.org/herpetology/amphibia/index.html
                 )
+                ODO Array(
+                    [taxonID] => Heliocharitidae
+                    [acceptedNameUsageID] => Dicteriadidae 
+                    [parentNameUsageID] => 
+                    [scientificName] => Heliocharitidae
+                    [taxonRank] => family
+                    [furtherInformationURL] => https://www.pugetsound.edu/academics/academic-resources/slater-museum/biodiversity-resources/dragonflies/world-odonata-list2/
+                    [taxonomicStatus] => synonym
+                    [taxonRemarks] => 
+                )
+                BOM Array(
+                    [taxonID] => Zanolidae
+                    [scientificName] => Zanolidae McDunnough 1938
+                    [parentNameUsageID] => 
+                    [kingdom] => Metazoa
+                    [phylum] => Arthropoda
+                    [class] => Insecta
+                    [order] => Lepidoptera
+                    [family] => 
+                    [genus] => 
+                    [taxonRank] => 
+                    [furtherInformationURL] => https://doi.org/10.3897/BDJ.6.e22236
+                    [taxonomicStatus] => synonym
+                    [taxonRemarks] => 
+                    [acceptedNameUsageID] => Apatelodidae
+                    [referenceID] => 10.3897/BDJ.6.e22236
+                )
+                WOR Array(
+                    [taxonID] => 101234
+                    [furtherInformationURL] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=101234
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 101185
+                    [scientificName] => Strobilidium proboscidiferum (Milne, 1886) Kahl, 1932
+                    [taxonRank] => species
+                    [taxonomicStatus] => synonym
+                    [taxonRemarks] => 
+                )
+                
                 */
                 // $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
                 if($accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID'])) { //e.g. param is 'NCBI:1'
-                    echo "\n-found-"; //add this synonym to DH
+                    echo " -found-"; //add this synonym to DH
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
                     'source' => "$what:".$rec['acceptedNameUsageID'],
@@ -119,7 +167,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     foreach($this->write_fields as $f) $arr[] = $save[$f];
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
                 }
-                else echo "\n-not found-";
+                else echo " -not found-";
             }
         }
         // return $final;
