@@ -44,6 +44,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->sh['WOR']['source']      = $sources_path."/WoRMS_DH/";
         $this->sh['WOR']['syn_status']  = 'synonym';
         
+        $this->sh['COL']['source'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
+        $this->sh['COL']['syn_status']  = 'synonym';
+        
+        
         $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
     }
@@ -57,15 +61,16 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::process_data_source('ASW');
         self::process_data_source('ODO');
         self::process_data_source('BOM');
-        */
         self::process_data_source('WOR');
+        */
+        self::process_data_source('COL', true);
         fclose($this->WRITE);
     }
-    private function process_data_source($what)
+    private function process_data_source($what, $postProcessYN = false)
     {
         require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2('');
         $this->what = $what;
-        $meta = $func->get_meta($what);
+        $meta = $func->get_meta($what, $postProcessYN);
         self::get_info_from_taxon_tab($meta);
     }
     private function get_info_from_taxon_tab($meta)
@@ -143,15 +148,56 @@ class DH_v1_1_taxonomicStatus_synonyms
                     [taxonomicStatus] => synonym
                     [taxonRemarks] => 
                 )
-                
+                COL Array(
+                    [taxonID] => 316502
+                    [identifier] => 
+                    [datasetID] => 26
+                    [datasetName] => ScaleNet in Species 2000 & ITIS Catalogue of Life: 20th February 2019
+                    [acceptedNameUsageID] => 316423
+                    [parentNameUsageID] => 
+                    [taxonomicStatus] => synonym
+                    [taxonRank] => species
+                    [verbatimTaxonRank] => 
+                    [scientificName] => Canceraspis brasiliensis Hempel, 1934
+                    [kingdom] => Animalia
+                    [phylum] => 
+                    [class] => 
+                    [order] => 
+                    [superfamily] => 
+                    [family] => 
+                    [genericName] => Canceraspis
+                    [genus] => Limacoccus
+                    [subgenus] => 
+                    [specificEpithet] => brasiliensis
+                    [infraspecificEpithet] => 
+                    [scientificNameAuthorship] => Hempel, 1934
+                    [source] => 
+                    [namePublishedIn] => 
+                    [nameAccordingTo] => 
+                    [modified] => 
+                    [description] => 
+                    [taxonConceptID] => 
+                    [scientificNameID] => Coc-100-7
+                    [references] => http://www.catalogueoflife.org/col/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0
+                    [isExtinct] => 
+                )
                 */
                 // $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
-                if($accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID'])) { //e.g. param is 'NCBI:1'
+                
+                $accepted_id = false;
+                if(in_array($what, array('COL', 'CLP'))) {
+                    if($rec_acceptedNameUsageID = self::get_COL_acceptedNameUsageID_from_url($rec['references'])) {
+                        $accepted_id = self::is_acceptedName_in_DH($what.":".$rec_acceptedNameUsageID);
+                    }
+                }
+                else $accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID']); // 'NCBI', 'ASW', 'ODO', 'BOM', 'WOR'
+
+                if($accepted_id) { //e.g. param is 'NCBI:1'
                     echo " -found-"; //add this synonym to DH
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
                     'source' => "$what:".$rec['acceptedNameUsageID'],
-                    'furtherInformationURL' => $rec['furtherInformationURL'],
+                    'furtherInformationURL' => self::format_fIURL($rec, $what), //$rec['furtherInformationURL'],
                     'parentNameUsageID' => '', //$rec['parentNameUsageID'],
                     'scientificName' => $rec['scientificName'],
                     'taxonRank' => $rec['taxonRank'],
@@ -166,13 +212,29 @@ class DH_v1_1_taxonomicStatus_synonyms
                     $arr = array();
                     foreach($this->write_fields as $f) $arr[] = $save[$f];
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
+                    // print_r($save); exit;
                 }
                 else echo " -not found-";
             }
         }
         // return $final;
     }
-    private function is_acceptedName_in_DH($source_id) //e.g. 'NCBI:944587'
+    private function format_fIURL($rec, $what)
+    {
+        if(in_array($what, array('COL', 'CLP'))) return $rec['references'];
+        else                                     return $rec['furtherInformationURL'];
+    }
+    private function get_COL_acceptedNameUsageID_from_url($url)
+    {   /* http://www.catalogueoflife.org/col/details/species/id/[acceptedNameUsageID]]/synonym/[taxonIDofSynonym]
+        So this synonym:
+        316502 26 ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018 316423 synonym species Canceraspis brasiliensis Hempel, 1934 Animalia Canceraspis Limacoccus brasiliensis Hempel, 1934 Coc-100-7 
+        http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/6a3ba2fef8659ce9708106356d875285/synonym/3eb3b75ad13a5d0fbd1b22fa1074adc0	
+        points to this DH taxon:
+        EOL-000001939037 COL:6a3ba2fef8659ce9708106356d875285 http://www.catalogueoflife.org/col/details/species/id/6a3ba2fef8659ce9708106356d875285	EOL-000001939036 Limacoccus brasiliensis (Hempel, 1934) species COL-26 Limacoccus brasiliensis
+        */
+        if(preg_match("/\/species\/id\/(.*?)\/synonym\//ims", $url, $arr)) return $arr[1];
+    }
+    private function is_acceptedName_in_DH($source_id) //e.g. 'NCBI:944587' OR 'COL:6a3ba2fef8659ce9708106356d875285'
     {   /*(b) Check if the accepted name is in the DH
     From the pool of eligible synonyms, we only want to import synonyms of taxa we are actually using in the DH. To confirm usage, 
     check if the acceptedNameUsageID of the synonym is represented in the DH source column, with the proper source acronym prefix. For example, this synonym in the NCBI resource:
