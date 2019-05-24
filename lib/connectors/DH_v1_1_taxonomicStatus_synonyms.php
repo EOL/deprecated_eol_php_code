@@ -51,6 +51,37 @@ class DH_v1_1_taxonomicStatus_synonyms
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
         $this->write_fields_rep = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID');
     }
+    function step_5()
+    {
+        $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w");
+        $add_syns = self::get_problematic_names();
+        // print_r($add_syns); echo "\n".count($add_syns)."\n";
+        /*[1251] => Array(
+                    [0] => Xerus rutilus
+                    [1] => EOL-000000636192
+                    [2] => invalid
+                    [3] => species
+                )*/
+        foreach($add_syns as $s) {
+            $save = array('scientificName' => $s[0], 'acceptedNameUsageID' => $s[1], 'taxonomicStatus' => $s[2], 'taxonRank' => $s[3]);
+            self::write_report($save, $this->write_fields, $this->WRITE);
+            break; //debug only
+        }
+        fclose($this->WRITE);
+    }
+    private function get_problematic_names() //sheet found here: TRAM-809
+    {
+        require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng';
+        $params['range']         = 'manually curated synonyms!A1:D1300'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        return $arr; //no need to massage anymore...
+        //start massage array
+        // foreach($arr as $item) $final[$item[0]] = $item[2];
+        // return $final;
+    }
+    
     function step_2()
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
@@ -319,7 +350,8 @@ class DH_v1_1_taxonomicStatus_synonyms
     private function write_report($save_rec, $fields, $fileH)
     {
         $arr = array();
-        foreach($fields as $f) $arr[] = $save_rec[$f];
+        foreach($fields as $f) $arr[] = @$save_rec[$f];
+        // print_r($arr);
         fwrite($fileH, implode("\t", $arr)."\n");
     }
     private function with_duplicates_in_DH_YN($rec, $accepted_id)
