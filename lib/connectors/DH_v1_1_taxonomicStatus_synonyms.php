@@ -282,13 +282,13 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $sci = 'Ceroputo pilosellae Šulc, 1898'; //debug only force assign
         
         if($authorship = @$rec['scientificNameAuthorship']) {
-            $canonical = trim(str_replace($authorship, "", $sci));
-
             $json = $this->func->get_json_from_cache($sci); $eol_canonical = self::parse_json_get_canonical($json);
-            
+            /* debug only
+            $canonical = trim(str_replace($authorship, "", $sci));
             if($canonical != $eol_canonical) {
                 print_r($rec); echo "investigate 01x [$canonical] [$eol_canonical]\n";
             }
+            */
             return $eol_canonical;
         }
         else {
