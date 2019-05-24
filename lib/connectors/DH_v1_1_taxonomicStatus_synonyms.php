@@ -45,7 +45,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->sh['WOR']['syn_status']  = 'synonym';
         
         $this->sh['COL']['source'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
-        // 'synonym' or 'ambiguous synonym'
+        /* 'synonym' OR 'ambiguous synonym' */
         
         $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
@@ -55,13 +55,13 @@ class DH_v1_1_taxonomicStatus_synonyms
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
-        // /* run data sources 
+        /* run data sources 
         self::process_data_source('NCBI');
         self::process_data_source('ASW');
         self::process_data_source('ODO');
         self::process_data_source('BOM');
         self::process_data_source('WOR');
-        // */
+        */
         $this->sh['COL']['syn_status']  = 'synonym';
         self::process_data_source('COL', true); // 19 minutes execution
         $this->sh['COL']['syn_status']  = 'ambiguous synonym';
@@ -70,9 +70,9 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     private function process_data_source($what, $postProcessYN = false)
     {   echo "\nProcessing synonyms from [$what]...\n";
-        require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2('');
+        require_library('connectors/DHSourceHierarchiesAPI_v2'); $this->func = new DHSourceHierarchiesAPI_v2('');
         $this->what = $what;
-        $meta = $func->get_meta($what, $postProcessYN);
+        $meta = $this->func->get_meta($what, $postProcessYN);
         self::get_info_from_taxon_tab($meta);
     }
     private function get_info_from_taxon_tab($meta)
@@ -195,7 +195,16 @@ class DH_v1_1_taxonomicStatus_synonyms
                 else $accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID']); // 'NCBI', 'ASW', 'ODO', 'BOM', 'WOR'
 
                 if($accepted_id) { //e.g. param is 'NCBI:1'
-                    echo " -found-"; //add this synonym to DH //debug only
+                    // echo " -found-"; //add this synonym to DH //debug only
+                    
+                    if(in_array($what, array('ASW', 'BOM', 'ODO'))) $cont = true;
+                    else { //COL, NCBI, WOR
+                        if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) $cont = false;
+                        else $cont = true;
+                    }
+                    
+                    if(!$cont) continue; //good
+                    
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
                     'source' => "$what:".$rec['acceptedNameUsageID'],
@@ -220,6 +229,42 @@ class DH_v1_1_taxonomicStatus_synonyms
             }
         }
         // return $final;
+    }
+    private function with_duplicates_in_DH_YN($rec, $accepted_id)
+    {
+        $canonical = self::get_canonical($rec);
+        echo("\n[$canonical]\n");
+        // continue here...
+        exit;
+    }
+    private function get_canonical($rec)
+    {
+        $sci = $rec['scientificName'];
+        $sci = 'Tricornina (Bicornina) Jordan, 1964'; //debug only force assign
+        // $sci = 'Tricornina (Bicornina) jordan, 1964'; //debug only force assign
+        $sci = 'Ceroputo pilosellae Šulc, 1898';
+        
+        
+        if($authorship = @$rec['scientificNameAuthorship']) {
+            $canonical = trim(str_replace($authorship, "", $sci));
+
+            $json = $this->func->get_json_from_cache($sci);
+            $eol_canonical = self::parse_json_get_canonical($json);
+            
+            if($canonical != $eol_canonical) {
+                print_r($rec); echo "investigate 01x [$canonical] [$eol_canonical]\n";
+            }
+            return $eol_canonical;
+        }
+        else {
+            return $this->func->get_json_from_cache($sci);
+        }
+    }
+    private function parse_json_get_canonical($json)
+    {
+        $obj = json_decode($json); print_r($obj); //exit;
+        if($val = @$obj->canonicalName->valueRanked) return $val;
+        else return $obj->verbatim;
     }
     private function format_fIURL($rec, $what)
     {
