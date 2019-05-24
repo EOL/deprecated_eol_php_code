@@ -270,7 +270,6 @@ class DH_v1_1_taxonomicStatus_synonyms
         while($result && $row=$result->fetch_assoc()) $rows[] = $row;
         if($rows) {
             echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
-            // exit("\nelix\n");
             return true;
         }
         return false;
