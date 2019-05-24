@@ -56,7 +56,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         // /* run data sources 
-        self::process_data_source('NCBI');
+        // self::process_data_source('NCBI');
         // self::process_data_source('ASW');
         // self::process_data_source('ODO');
         // self::process_data_source('BOM');
@@ -64,7 +64,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         // */
         
         // /*
-        // $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
+        $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
         // $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
         // */
         fclose($this->WRITE);
@@ -80,6 +80,11 @@ class DH_v1_1_taxonomicStatus_synonyms
     private function get_info_from_taxon_tab($meta)
     {
         $what = $meta['what']; $i = 0; $final = array();
+        
+        // /* for caching COL
+        $m = 3963198/6;
+        // */
+        
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -197,17 +202,29 @@ class DH_v1_1_taxonomicStatus_synonyms
                 else $accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID']); // 'NCBI', 'ASW', 'ODO', 'BOM', 'WOR'
 
                 if($accepted_id) { //e.g. param is 'NCBI:1'
-                    echo " -found-"; //add this synonym to DH //debug only
+                    // echo " -found-"; //add this synonym to DH //debug only
                     
                     if(in_array($what, array('ASW', 'BOM', 'ODO'))) $cont = true;
                     else { //COL, NCBI, WOR
+                        
+                        // /* breakdown when caching:
+                        $cont = false;
+                        if($i >=  1    && $i < $m) $cont = true;
+                        // if($i >=  $m   && $i < $m*2) $cont = true;
+                        // if($i >=  $m*2 && $i < $m*3) $cont = true;
+                        // if($i >=  $m*3 && $i < $m*4) $cont = true;
+                        // if($i >=  $m*4 && $i < $m*5) $cont = true;
+                        // if($i >=  $m*5 && $i < $m*6) $cont = true;
+                        if(!$cont) continue;
+                        // */
+                        
                         if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) $cont = false;
                         else $cont = true;
                     }
                     
                     if(!$cont) {
-                        print_r($rec);
-                        exit("\nsynonym excluded [$accepted_id]\n");
+                        // print_r($rec);
+                        // exit("\nsynonym excluded [$accepted_id]\n");
                         continue; //good
                     }
                     
@@ -252,9 +269,9 @@ class DH_v1_1_taxonomicStatus_synonyms
         $rows = array();
         while($result && $row=$result->fetch_assoc()) $rows[] = $row;
         if($rows) {
-            echo "\n-------------------------\n";
-            print_r($rows);
-            echo "\n-------------------------\n";
+            // echo "\n-------------------------\n";
+            // print_r($rows);
+            // echo "\n-------------------------\n";
             // exit("\nelix\n");
             return true;
         }
