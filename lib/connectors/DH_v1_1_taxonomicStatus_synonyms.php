@@ -240,16 +240,14 @@ class DH_v1_1_taxonomicStatus_synonyms
     private function get_canonical($rec)
     {
         $sci = $rec['scientificName'];
-        $sci = 'Tricornina (Bicornina) Jordan, 1964'; //debug only force assign
+        // $sci = 'Tricornina (Bicornina) Jordan, 1964'; //debug only force assign
         // $sci = 'Tricornina (Bicornina) jordan, 1964'; //debug only force assign
-        $sci = 'Ceroputo pilosellae Šulc, 1898';
-        
+        // $sci = 'Ceroputo pilosellae Šulc, 1898'; //debug only force assign
         
         if($authorship = @$rec['scientificNameAuthorship']) {
             $canonical = trim(str_replace($authorship, "", $sci));
 
-            $json = $this->func->get_json_from_cache($sci);
-            $eol_canonical = self::parse_json_get_canonical($json);
+            $json = $this->func->get_json_from_cache($sci); $eol_canonical = self::parse_json_get_canonical($json);
             
             if($canonical != $eol_canonical) {
                 print_r($rec); echo "investigate 01x [$canonical] [$eol_canonical]\n";
@@ -257,7 +255,8 @@ class DH_v1_1_taxonomicStatus_synonyms
             return $eol_canonical;
         }
         else {
-            return $this->func->get_json_from_cache($sci);
+            $json = $this->func->get_json_from_cache($sci); $eol_canonical = self::parse_json_get_canonical($json);
+            return $eol_canonical;
         }
     }
     private function parse_json_get_canonical($json)
@@ -304,10 +303,21 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     function create_append_text($source = '', $table = '') //do only once
     {
-        $source = $this->main_path."/new_DH_before_step4.txt"; $table = 'taxonID_source_ids_newDH';
+        $source = $this->main_path."/new_DH_before_step4.txt"; 
+        
+        /*
+        $table = 'taxonID_source_ids_newDH';
         $file_append = $this->main_path_TRAM_809."/".$table.".txt";
-        require_library('connectors/DH_v1_1_Mapping_EOL_IDs'); $func = new DH_v1_1_Mapping_EOL_IDs('');
         $WRITE = fopen($file_append, "w"); //will overwrite existing
+        */
+        
+        // /* for 3. Check for conflicts with DH valid/accepted name assertions
+        $table2 = 'newDH_optimal';
+        $file_append2 = $this->main_path_TRAM_809."/".$table2.".txt";
+        $WRITE2 = fopen($file_append2, "w"); //will overwrite existing
+        // */
+
+        require_library('connectors/DH_v1_1_Mapping_EOL_IDs'); $func = new DH_v1_1_Mapping_EOL_IDs('');
         $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -339,15 +349,25 @@ class DH_v1_1_taxonomicStatus_synonyms
                 [EOLid] => 2913056
                 [EOLidAnnotations] => 
             )*/
+            
+            /*
             $source_ids = $func->get_all_source_identifiers($rec['source']);
             foreach($source_ids as $source_id) {
                 $arr = array();
                 $arr = array($rec['taxonID'], $source_id);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
+            */
+            
+            // /* for 3. Check for conflicts with DH valid/accepted name assertions --- this was added later on
+            $arr = array();
+            $arr = array($rec['taxonID'], $rec['scientificName'], $rec['canonicalName'], $rec['source']);
+            fwrite($WRITE2, implode("\t", $arr)."\n");
+            // */
+            
         }
-        fclose($WRITE);
-        $func->append_to_MySQL_table($table, $file_append);
+        /* fclose($WRITE);  $func->append_to_MySQL_table($table, $file_append); */
+        fclose($WRITE2); $func->append_to_MySQL_table($table2, $file_append2);
     }
     function step_1()
     {   echo "\nStart step 1...\n";
