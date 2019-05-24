@@ -63,10 +63,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         // self::process_data_source('WOR');
         // */
         
-        /*
-        $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
-        $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
-        */
+        // /*
+        // $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
+        // $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
+        // */
         fclose($this->WRITE);
         Functions::start_print_debug($this->debug, $this->resource_id."_syn_totals");
     }
@@ -93,7 +93,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 $k++;
             }
             if($this->sh[$what]['syn_status'] == $rec['taxonomicStatus']) {
-                print_r($rec); //exit("\nstopx 1\n");
+                // print_r($rec); //exit("\nstopx 1\n");
                 /* NCBI Array(
                     [taxonID] => 1_1
                     [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
@@ -205,7 +205,11 @@ class DH_v1_1_taxonomicStatus_synonyms
                         else $cont = true;
                     }
                     
-                    if(!$cont) continue; //good
+                    if(!$cont) {
+                        print_r($rec);
+                        exit("\nsynonym excluded [$accepted_id]\n");
+                        continue; //good
+                    }
                     
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
@@ -227,8 +231,8 @@ class DH_v1_1_taxonomicStatus_synonyms
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
                     @$this->debug['count synonyms'][$what]++;
                     
-                    print_r($save); //exit;
-                    if($rec['taxonID'] == '23_3') exit;
+                    // print_r($save); exit("\nsynonym included\n");
+                    // if($rec['taxonID'] == '23_3')  //debug only
                 }
                 // else echo " -not found-"; //debug only
             }
@@ -243,18 +247,18 @@ class DH_v1_1_taxonomicStatus_synonyms
         $sql = "SELECT t.* from DWH.newDH_optimal t WHERE t.canonicalName = '".$canonical_4sql."' AND t.taxonRank = '".$rec['taxonRank']."'";
         $sql .= " AND t.taxonID != '".$accepted_id."'"; //imperative
 
-        echo("\naaa\n$sql\n");
+        // echo("\naaa\n$sql\n");
         $result = $this->mysqli->query($sql);
         $rows = array();
         while($result && $row=$result->fetch_assoc()) $rows[] = $row;
         if($rows) {
+            echo "\n-------------------------\n";
             print_r($rows);
-            // exit;
+            echo "\n-------------------------\n";
+            // exit("\nelix\n");
+            return true;
         }
-        
         return false;
-        
-        
     }
     private function get_canonical($rec)
     {
