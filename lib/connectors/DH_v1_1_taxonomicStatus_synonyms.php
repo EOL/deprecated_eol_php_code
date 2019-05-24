@@ -68,6 +68,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
         */
         fclose($this->WRITE);
+        Functions::start_print_debug($this->debug, $this->resource_id."_syn_totals");
     }
     private function process_data_source($what, $postProcessYN = false)
     {   echo "\nProcessing synonyms from [$what]...\n";
@@ -92,7 +93,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 $k++;
             }
             if($this->sh[$what]['syn_status'] == $rec['taxonomicStatus']) {
-                // print_r($rec); exit("\nstopx 1\n");
+                print_r($rec); //exit("\nstopx 1\n");
                 /* NCBI Array(
                     [taxonID] => 1_1
                     [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
@@ -224,7 +225,10 @@ class DH_v1_1_taxonomicStatus_synonyms
                     $arr = array();
                     foreach($this->write_fields as $f) $arr[] = $save[$f];
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
-                    // print_r($save); exit;
+                    @$this->debug['count synonyms'][$what]++;
+                    
+                    print_r($save); //exit;
+                    if($rec['taxonID'] == '23_3') exit;
                 }
                 // else echo " -not found-"; //debug only
             }
@@ -234,9 +238,23 @@ class DH_v1_1_taxonomicStatus_synonyms
     private function with_duplicates_in_DH_YN($rec, $accepted_id)
     {
         $canonical = self::get_canonical($rec);
-        echo("\n[$canonical]\n");
-        // continue here...
-        // exit;
+        echo("\n[$canonical] [$accepted_id]\n");
+        $canonical_4sql = str_replace("'", "\'", $canonical);
+        $sql = "SELECT t.* from DWH.newDH_optimal t WHERE t.canonicalName = '".$canonical_4sql."' AND t.taxonRank = '".$rec['taxonRank']."'";
+        $sql .= " AND t.taxonID != '".$accepted_id."'"; //imperative
+
+        echo("\naaa\n$sql\n");
+        $result = $this->mysqli->query($sql);
+        $rows = array();
+        while($result && $row=$result->fetch_assoc()) $rows[] = $row;
+        if($rows) {
+            print_r($rows);
+            // exit;
+        }
+        
+        return false;
+        
+        
     }
     private function get_canonical($rec)
     {
