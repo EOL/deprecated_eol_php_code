@@ -56,7 +56,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         // /* run data sources 
-        // self::process_data_source('NCBI');
+        self::process_data_source('NCBI');
         // self::process_data_source('ASW');
         // self::process_data_source('ODO');
         // self::process_data_source('BOM');
@@ -64,7 +64,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         // */
         
         // /*
-        $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
+        // $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
         // $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
         // */
         fclose($this->WRITE);
@@ -207,7 +207,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     if(in_array($what, array('ASW', 'BOM', 'ODO'))) $cont = true;
                     else { //COL, NCBI, WOR
                         
-                        // /* breakdown when caching:
+                        /* breakdown when caching:
                         $cont = false;
                         if($i >=  1    && $i < $m) $cont = true;
                         // if($i >=  $m   && $i < $m*2) $cont = true;
@@ -216,15 +216,15 @@ class DH_v1_1_taxonomicStatus_synonyms
                         // if($i >=  $m*4 && $i < $m*5) $cont = true;
                         // if($i >=  $m*5 && $i < $m*6) $cont = true;
                         if(!$cont) continue;
-                        // */
+                        */
                         
                         if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) $cont = false;
                         else $cont = true;
                     }
                     
                     if(!$cont) {
-                        // print_r($rec);
-                        // exit("\nsynonym excluded [$accepted_id]\n");
+                        echo "\n-------------------------This synonym is excluded "; print_r($rec); echo "\n-------------------------\n";
+                        exit("\nsynonym excluded [$accepted_id]\n");
                         continue; //good
                     }
                     
@@ -269,9 +269,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $rows = array();
         while($result && $row=$result->fetch_assoc()) $rows[] = $row;
         if($rows) {
-            // echo "\n-------------------------\n";
-            // print_r($rows);
-            // echo "\n-------------------------\n";
+            echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
             // exit("\nelix\n");
             return true;
         }
