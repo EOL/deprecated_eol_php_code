@@ -45,8 +45,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->sh['WOR']['syn_status']  = 'synonym';
         
         $this->sh['COL']['source'] = '/Volumes/AKiTiO4/web/cp/COL/2019-02-20-archive-complete/';
-        $this->sh['COL']['syn_status']  = 'synonym';
-        
+        // 'synonym' or 'ambiguous synonym'
         
         $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
@@ -56,18 +55,21 @@ class DH_v1_1_taxonomicStatus_synonyms
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
-        /* run data sources 
+        // /* run data sources 
         self::process_data_source('NCBI');
         self::process_data_source('ASW');
         self::process_data_source('ODO');
         self::process_data_source('BOM');
         self::process_data_source('WOR');
-        */
+        // */
+        $this->sh['COL']['syn_status']  = 'synonym';
         self::process_data_source('COL', true); // 19 minutes execution
+        $this->sh['COL']['syn_status']  = 'ambiguous synonym';
+        self::process_data_source('COL', true); // 3 minutes execution
         fclose($this->WRITE);
     }
     private function process_data_source($what, $postProcessYN = false)
-    {
+    {   echo "\nProcessing synonyms from [$what]...\n";
         require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2('');
         $this->what = $what;
         $meta = $func->get_meta($what, $postProcessYN);
@@ -193,7 +195,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 else $accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID']); // 'NCBI', 'ASW', 'ODO', 'BOM', 'WOR'
 
                 if($accepted_id) { //e.g. param is 'NCBI:1'
-                    // echo " -found-"; //add this synonym to DH
+                    echo " -found-"; //add this synonym to DH //debug only
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
                     'source' => "$what:".$rec['acceptedNameUsageID'],
@@ -207,14 +209,14 @@ class DH_v1_1_taxonomicStatus_synonyms
                     'EOLid' => '',
                     'EOLidAnnotations' => '',
                     'higherClassification' => '',
-                    'taxonomicStatus' => 'synonym',
+                    'taxonomicStatus' => $rec['taxonomicStatus'], //'synonym',
                     'acceptedNameUsageID' => $accepted_id);
                     $arr = array();
                     foreach($this->write_fields as $f) $arr[] = $save[$f];
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
                     // print_r($save); exit;
                 }
-                else echo " -not found-";
+                // else echo " -not found-"; //debug only
             }
         }
         // return $final;
