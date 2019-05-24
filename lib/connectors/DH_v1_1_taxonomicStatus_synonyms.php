@@ -82,7 +82,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $what = $meta['what']; $i = 0; $final = array();
         
         // /* for caching COL
-        $m = 3963198/6;
+        $m = 3963198/15;
         // */
         
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
@@ -210,24 +210,35 @@ class DH_v1_1_taxonomicStatus_synonyms
                     if(in_array($what, array('ASW', 'BOM', 'ODO'))) $cont = true;
                     else { //COL, NCBI, WOR
                         
-                        /* breakdown when caching:
+                        // /* breakdown when caching:
                         $cont = false;
-                        if($i >=  1    && $i < $m) $cont = true;
+                        // if($i >=  1    && $i < $m) $cont = true;
                         // if($i >=  $m   && $i < $m*2) $cont = true;
                         // if($i >=  $m*2 && $i < $m*3) $cont = true;
                         // if($i >=  $m*3 && $i < $m*4) $cont = true;
                         // if($i >=  $m*4 && $i < $m*5) $cont = true;
                         // if($i >=  $m*5 && $i < $m*6) $cont = true;
+                        // if($i >=  $m*6 && $i < $m*7) $cont = true;
+
+                        // if($i >=  $m*7 && $i < $m*8) $cont = true; processing...
+                        // if($i >=  $m*8 && $i < $m*9) $cont = true; processing...
+                        // if($i >=  $m*9 && $i < $m*10) $cont = true; processing...
+                        // if($i >=  $m*10 && $i < $m*11) $cont = true; processing...
+
+                        // if($i >=  $m*11 && $i < $m*12) $cont = true; processing...
+                        // if($i >=  $m*12 && $i < $m*13) $cont = true; processing...
+                        // if($i >=  $m*13 && $i < $m*14) $cont = true; processing...
+                        if($i >=  $m*14 && $i < $m*15) $cont = true; //processing...
                         if(!$cont) continue;
-                        */
+                        // */
                         
                         if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) $cont = false;
                         else $cont = true;
                     }
                     
                     if(!$cont) {
-                        echo "\n-------------------------This synonym is excluded "; print_r($rec); echo "\n-------------------------\n";
-                        exit("\nsynonym excluded [$accepted_id]\n");
+                        // echo "\n-------------------------This synonym is excluded "; print_r($rec); echo "\n-------------------------\n";
+                        // exit("\nsynonym excluded [$accepted_id]\n");
                         continue; //good
                         /* Array(
                             [taxonID] => 23_3
@@ -247,23 +258,6 @@ class DH_v1_1_taxonomicStatus_synonyms
                         
                         Please report all the synonyms that were removed during this step 
                         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
-                        -----------------------------------
-                        Hi Katja, in you #3. Check for conflicts with DH valid/accepted name assertions.
-                        You mentioned: "Please report all the synonyms that were removed during this step 
-                         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).".
-                        Using your example, is this the report:
-
-                        Option 1:
-                        scientificName | source | acceptedNameUsageID | taxonID
-                        Icerya nuda (Green, 1930) | trunk:32530ae8-cb27-4a38-a5d6-db3d9ac1f29b | EOL-000001941761 | EOL-000001941880
-                        
-                        Or is this the report:
-                        Option 2:
-                        scientificName | source | acceptedNameUsageID | taxonID
-                        Icerya nuda Green, 1930 | ??? | EOL-000001941761 | 326788
-                        
-                        By the way, this is the record of the accepted name in DH:
-                        EOL-000001941761 Crypticerya nuda (Green, 1930) Crypticerya nuda COL:79daf66d28d88a076cbea2279d45c4cf species
                         */
                     }
                     
@@ -308,7 +302,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $rows = array();
         while($result && $row=$result->fetch_assoc()) $rows[] = $row;
         if($rows) {
-            echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
+            // echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
             return true;
             /*[0] => Array(
                         [taxonID] => EOL-000000017878
