@@ -56,7 +56,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         // /* run data sources 
-        self::process_data_source('NCBI');
+        // self::process_data_source('NCBI');
         // self::process_data_source('ASW');
         // self::process_data_source('ODO');
         // self::process_data_source('BOM');
@@ -64,7 +64,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         // */
         
         // /*
-        // $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
+        $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
         // $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
         // */
         fclose($this->WRITE);
@@ -195,6 +195,9 @@ class DH_v1_1_taxonomicStatus_synonyms
                 
                 $accepted_id = false;
                 if(in_array($what, array('COL', 'CLP'))) {
+                    /* debug only
+                    $rec['references'] = 'http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21';
+                    */
                     if($rec_acceptedNameUsageID = self::get_COL_acceptedNameUsageID_from_url($rec['references'])) {
                         $accepted_id = self::is_acceptedName_in_DH($what.":".$rec_acceptedNameUsageID);
                     }
@@ -226,6 +229,42 @@ class DH_v1_1_taxonomicStatus_synonyms
                         echo "\n-------------------------This synonym is excluded "; print_r($rec); echo "\n-------------------------\n";
                         exit("\nsynonym excluded [$accepted_id]\n");
                         continue; //good
+                        /* Array(
+                            [taxonID] => 23_3
+                            [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=23
+                            [referenceID] => 3213; 5650; 5651; 12363; 23861
+                            [acceptedNameUsageID] => 23
+                            [parentNameUsageID] => 
+                            [scientificName] => Shewanella affinis
+                            [taxonRank] => species
+                            [taxonomicStatus] => synonym
+                        )
+                        For example, this synonym from COL:
+                        326788 26 ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018 326787 synonym species Icerya nuda Green, 1930 Animalia Icerya Crypticerya nuda Green, 1930 
+                        Coc-18232-2495 http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21
+
+                        EOL-000001941880 trunk:32530ae8-cb27-4a38-a5d6-db3d9ac1f29b EOL-000001941868 Icerya nuda (Green, 1930) species trunk Icerya nuda
+                        
+                        Please report all the synonyms that were removed during this step 
+                        (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
+                        -----------------------------------
+                        Hi Katja, in you #3. Check for conflicts with DH valid/accepted name assertions.
+                        You mentioned: "Please report all the synonyms that were removed during this step 
+                         (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).".
+                        Using your example, is this the report:
+
+                        Option 1:
+                        scientificName | source | acceptedNameUsageID | taxonID
+                        Icerya nuda (Green, 1930) | trunk:32530ae8-cb27-4a38-a5d6-db3d9ac1f29b | EOL-000001941761 | EOL-000001941880
+                        
+                        Or is this the report:
+                        Option 2:
+                        scientificName | source | acceptedNameUsageID | taxonID
+                        Icerya nuda Green, 1930 | ??? | EOL-000001941761 | 326788
+                        
+                        By the way, this is the record of the accepted name in DH:
+                        EOL-000001941761 Crypticerya nuda (Green, 1930) Crypticerya nuda COL:79daf66d28d88a076cbea2279d45c4cf species
+                        */
                     }
                     
                     $save = array(
@@ -249,7 +288,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     @$this->debug['count synonyms'][$what]++;
                     
                     // print_r($save); exit("\nsynonym included\n");
-                    // if($rec['taxonID'] == '23_3')  //debug only
+                    // if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
                 }
                 // else echo " -not found-"; //debug only
             }
@@ -271,6 +310,16 @@ class DH_v1_1_taxonomicStatus_synonyms
         if($rows) {
             echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
             return true;
+            /*[0] => Array(
+                        [taxonID] => EOL-000000017878
+                        [scientificName] => Shewanella affinis Ivanova, Nedashkovskaya, Sawabe, Zhukova, Frolova, Nicolau, Mikhailov & Bowman, 2004
+                        [canonicalName] => Shewanella affinis
+                        [source] => WOR:396097
+                        [taxonRank] => species
+                    )
+            Please report all the synonyms that were removed during this step 
+            (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
+            */
         }
         return false;
     }
