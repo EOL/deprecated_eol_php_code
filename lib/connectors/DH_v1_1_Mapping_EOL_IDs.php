@@ -263,6 +263,7 @@ class DH_v1_1_mapping_EOL_IDs
         step: fill-up blank canonical using gnparser
         gnparser file -f json-compact --input step3_scinames.txt --output step3_gnparsed.txt
         gnparser name -f simple 'Tricornina (Bicornina) jordan, 1964'
+        gnparser name -f simple 'Ceroputo pilosellae Šulc, 1898'
         */
         // /* main operations OK
         self::generate_canonicals_to_text_files('old_DH_after_step2');
