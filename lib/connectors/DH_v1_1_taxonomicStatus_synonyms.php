@@ -49,12 +49,12 @@ class DH_v1_1_taxonomicStatus_synonyms
         
         $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
+        $this->write_fields_rep = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID');
     }
     function step_2()
     {
-        $file_append = $this->main_path_TRAM_809."/synonyms.txt";
-        $this->WRITE = fopen($file_append, "w"); //will overwrite existing
-        fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
+        $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
+        $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields_rep)."\n");
         // /* run data sources 
         // self::process_data_source('NCBI');
         // self::process_data_source('ASW');
@@ -68,6 +68,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
         // */
         fclose($this->WRITE);
+        fclose($this->WRITE_REP);
         Functions::start_print_debug($this->debug, $this->resource_id."_syn_totals");
     }
     private function process_data_source($what, $postProcessYN = false)
@@ -247,34 +248,40 @@ class DH_v1_1_taxonomicStatus_synonyms
                         if(!$cont) continue;
                         */
                         
-                        if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) $cont = false;
+                        if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) {
+                            $cont = false;
+                            echo "\n-------------------------This synonym is excluded [$accepted_id] "; print_r($rec); echo "\n-------------------------\n";
+                            /*
+                            scientificName: The scientificName string of the synonym - Icerya nuda Green, 1930
+                            source: The source hierarchy where the synonym came from - COL
+                            acceptedNameUsageID: DH taxon to which synonym would be attached - EOL-000001941761
+                            taxonID of other DH taxon for which there is a canonical match: EOL-000001941880
+                            This synonym is excluded Array(
+                                [taxonID] => 326788
+                                [identifier] => 
+                                [datasetID] => 
+                                [datasetName] => 
+                                [acceptedNameUsageID] => 
+                                [parentNameUsageID] => 
+                                [taxonomicStatus] => synonym
+                                [taxonRank] => species
+                                [verbatimTaxonRank] => 
+                                [scientificName] => Icerya nuda Green, 1930
+                                [references] => http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21
+                            )*/
+                            $for_reporting = array('scientificName' => $rec['scientificName'], 'source' => $what, 'acceptedNameUsageID' => $accepted_id, 'taxonID' => $with_dup_YN);
+                            print_r($for_reporting);
+                            /*Array(
+                                [scientificName] => Icerya nuda Green, 1930
+                                [source] => COL
+                                [acceptedNameUsageID] => EOL-000001941761
+                                [taxonID] => EOL-000001941880
+                            )*/
+                            self::write_report($for_reporting, $this->write_fields_rep, $this->WRITE_REP);
+                            if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
+                            continue; //good
+                        }
                         else $cont = true;
-                    }
-                    
-                    if(!$cont) {
-                        echo "\n-------------------------This synonym is excluded "; print_r($rec); echo "\n-------------------------\n";
-                        // exit("\nsynonym excluded [$accepted_id]\n");
-                        if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
-                        continue; //good
-                        /* Array(
-                            [taxonID] => 23_3
-                            [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=23
-                            [referenceID] => 3213; 5650; 5651; 12363; 23861
-                            [acceptedNameUsageID] => 23
-                            [parentNameUsageID] => 
-                            [scientificName] => Shewanella affinis
-                            [taxonRank] => species
-                            [taxonomicStatus] => synonym
-                        )
-                        For example, this synonym from COL:
-                        326788 26 ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018 326787 synonym species Icerya nuda Green, 1930 Animalia Icerya Crypticerya nuda Green, 1930 
-                        Coc-18232-2495 http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21
-
-                        EOL-000001941880 trunk:32530ae8-cb27-4a38-a5d6-db3d9ac1f29b EOL-000001941868 Icerya nuda (Green, 1930) species trunk Icerya nuda
-                        
-                        Please report all the synonyms that were removed during this step 
-                        (scientificName, source, acceptedNameUsageID, taxonID of other DH taxon for which there is a canonical match).
-                        */
                     }
                     
                     $save = array(
@@ -292,9 +299,14 @@ class DH_v1_1_taxonomicStatus_synonyms
                     'higherClassification' => '',
                     'taxonomicStatus' => $rec['taxonomicStatus'], //'synonym',
                     'acceptedNameUsageID' => $accepted_id);
+                    
+                    /* replaced by one-liner below
                     $arr = array();
                     foreach($this->write_fields as $f) $arr[] = $save[$f];
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
+                    */
+                    self::write_report($save, $this->write_fields, $this->WRITE);
+                    
                     @$this->debug['count synonyms'][$what]++;
                     
                     // print_r($save); exit("\nsynonym included\n");
@@ -303,6 +315,12 @@ class DH_v1_1_taxonomicStatus_synonyms
             }
         }
         // return $final;
+    }
+    private function write_report($save_rec, $fields, $fileH)
+    {
+        $arr = array();
+        foreach($fields as $f) $arr[] = $save_rec[$f];
+        fwrite($fileH, implode("\t", $arr)."\n");
     }
     private function with_duplicates_in_DH_YN($rec, $accepted_id)
     {
@@ -318,6 +336,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         while($result && $row=$result->fetch_assoc()) $rows[] = $row;
         if($rows) {
             echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
+            return $rows[0]['taxonID'];
             return true;
             /*[0] => Array(
                         [taxonID] => EOL-000000017878
