@@ -55,17 +55,18 @@ class DH_v1_1_taxonomicStatus_synonyms
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";
         $this->WRITE = fopen($file_append, "w"); //will overwrite existing
         fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
-        /* run data sources 
+        // /* run data sources 
         self::process_data_source('NCBI');
-        self::process_data_source('ASW');
-        self::process_data_source('ODO');
-        self::process_data_source('BOM');
-        self::process_data_source('WOR');
+        // self::process_data_source('ASW');
+        // self::process_data_source('ODO');
+        // self::process_data_source('BOM');
+        // self::process_data_source('WOR');
+        // */
+        
+        /*
+        $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
+        $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
         */
-        $this->sh['COL']['syn_status']  = 'synonym';
-        self::process_data_source('COL', true); // 19 minutes execution
-        $this->sh['COL']['syn_status']  = 'ambiguous synonym';
-        self::process_data_source('COL', true); // 3 minutes execution
         fclose($this->WRITE);
     }
     private function process_data_source($what, $postProcessYN = false)
@@ -195,7 +196,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 else $accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID']); // 'NCBI', 'ASW', 'ODO', 'BOM', 'WOR'
 
                 if($accepted_id) { //e.g. param is 'NCBI:1'
-                    // echo " -found-"; //add this synonym to DH //debug only
+                    echo " -found-"; //add this synonym to DH //debug only
                     
                     if(in_array($what, array('ASW', 'BOM', 'ODO'))) $cont = true;
                     else { //COL, NCBI, WOR
@@ -235,7 +236,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $canonical = self::get_canonical($rec);
         echo("\n[$canonical]\n");
         // continue here...
-        exit;
+        // exit;
     }
     private function get_canonical($rec)
     {
@@ -261,7 +262,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     private function parse_json_get_canonical($json)
     {
-        $obj = json_decode($json); print_r($obj); //exit;
+        $obj = json_decode($json); //print_r($obj); //exit;
         if($val = @$obj->canonicalName->valueRanked) return $val;
         else return $obj->verbatim;
     }
@@ -361,10 +362,9 @@ class DH_v1_1_taxonomicStatus_synonyms
             
             // /* for 3. Check for conflicts with DH valid/accepted name assertions --- this was added later on
             $arr = array();
-            $arr = array($rec['taxonID'], $rec['scientificName'], $rec['canonicalName'], $rec['source']);
+            $arr = array($rec['taxonID'], $rec['scientificName'], $rec['canonicalName'], $rec['source'], $rec['taxonRank']);
             fwrite($WRITE2, implode("\t", $arr)."\n");
             // */
-            
         }
         /* fclose($WRITE);  $func->append_to_MySQL_table($table, $file_append); */
         fclose($WRITE2); $func->append_to_MySQL_table($table2, $file_append2);
