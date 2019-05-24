@@ -63,7 +63,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::process_data_source('BOM');
         self::process_data_source('WOR');
         */
-        self::process_data_source('COL', true);
+        self::process_data_source('COL', true); // 19 minutes execution
         fclose($this->WRITE);
     }
     private function process_data_source($what, $postProcessYN = false)
@@ -193,7 +193,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 else $accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID']); // 'NCBI', 'ASW', 'ODO', 'BOM', 'WOR'
 
                 if($accepted_id) { //e.g. param is 'NCBI:1'
-                    echo " -found-"; //add this synonym to DH
+                    // echo " -found-"; //add this synonym to DH
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
                     'source' => "$what:".$rec['acceptedNameUsageID'],
