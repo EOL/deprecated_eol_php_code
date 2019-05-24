@@ -193,11 +193,26 @@ class DH_v1_1_taxonomicStatus_synonyms
                 */
                 // $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
                 
+                // /* debug only - force assign
+                // 326788 26 ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018 326787 synonym species Icerya nuda Green, 1930 Animalia Icerya Crypticerya nuda Green, 1930 Coc-18232-2495 http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21
+                // 326788 26 ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018 326787 synonym species Icerya nuda Green, 1930 Animalia Icerya Crypticerya nuda Green, 1930 Coc-18232-2495 http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21
+                $rec = Array(
+                    'taxonID' => '326788',
+                    'identifier' => '',
+                    'datasetID' => '',
+                    'datasetName' => '',
+                    'acceptedNameUsageID' => '',
+                    'parentNameUsageID' => '',
+                    'taxonomicStatus' => 'synonym',
+                    'taxonRank' => 'species',
+                    'verbatimTaxonRank' => '',
+                    'scientificName' => 'Icerya nuda Green, 1930',
+                    'references' => 'http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21'
+                );
+                // */
+
                 $accepted_id = false;
                 if(in_array($what, array('COL', 'CLP'))) {
-                    /* debug only
-                    $rec['references'] = 'http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21';
-                    */
                     if($rec_acceptedNameUsageID = self::get_COL_acceptedNameUsageID_from_url($rec['references'])) {
                         $accepted_id = self::is_acceptedName_in_DH($what.":".$rec_acceptedNameUsageID);
                     }
@@ -210,15 +225,15 @@ class DH_v1_1_taxonomicStatus_synonyms
                     if(in_array($what, array('ASW', 'BOM', 'ODO'))) $cont = true;
                     else { //COL, NCBI, WOR
                         
-                        // /* breakdown when caching:
+                        /* breakdown when caching:
                         $cont = false;
                         // if($i >=  1    && $i < $m) $cont = true;
                         // if($i >=  $m   && $i < $m*2) $cont = true;
-                        // if($i >=  $m*2 && $i < $m*3) $cont = true;
-                        // if($i >=  $m*3 && $i < $m*4) $cont = true;
-                        // if($i >=  $m*4 && $i < $m*5) $cont = true;
-                        // if($i >=  $m*5 && $i < $m*6) $cont = true;
-                        // if($i >=  $m*6 && $i < $m*7) $cont = true;
+                        if($i >=  $m*2 && $i < $m*3) $cont = true;      processing
+                        // if($i >=  $m*3 && $i < $m*4) $cont = true;   processing
+                        // if($i >=  $m*4 && $i < $m*5) $cont = true;   processing
+                        // if($i >=  $m*5 && $i < $m*6) $cont = true;   processing
+                        // if($i >=  $m*6 && $i < $m*7) $cont = true;   processing
 
                         // if($i >=  $m*7 && $i < $m*8) $cont = true; processing...
                         // if($i >=  $m*8 && $i < $m*9) $cont = true; processing...
@@ -228,17 +243,18 @@ class DH_v1_1_taxonomicStatus_synonyms
                         // if($i >=  $m*11 && $i < $m*12) $cont = true; processing...
                         // if($i >=  $m*12 && $i < $m*13) $cont = true; processing...
                         // if($i >=  $m*13 && $i < $m*14) $cont = true; processing...
-                        if($i >=  $m*14 && $i < $m*15) $cont = true; //processing...
+                        // if($i >=  $m*14 && $i < $m*15) $cont = true; //processing...
                         if(!$cont) continue;
-                        // */
+                        */
                         
                         if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) $cont = false;
                         else $cont = true;
                     }
                     
                     if(!$cont) {
-                        // echo "\n-------------------------This synonym is excluded "; print_r($rec); echo "\n-------------------------\n";
+                        echo "\n-------------------------This synonym is excluded "; print_r($rec); echo "\n-------------------------\n";
                         // exit("\nsynonym excluded [$accepted_id]\n");
+                        if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
                         continue; //good
                         /* Array(
                             [taxonID] => 23_3
@@ -282,7 +298,6 @@ class DH_v1_1_taxonomicStatus_synonyms
                     @$this->debug['count synonyms'][$what]++;
                     
                     // print_r($save); exit("\nsynonym included\n");
-                    // if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
                 }
                 // else echo " -not found-"; //debug only
             }
@@ -302,7 +317,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $rows = array();
         while($result && $row=$result->fetch_assoc()) $rows[] = $row;
         if($rows) {
-            // echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
+            echo "\n-------------------------Found duplicate canonical in DH "; print_r($rows); echo "\n-------------------------\n";
             return true;
             /*[0] => Array(
                         [taxonID] => EOL-000000017878
