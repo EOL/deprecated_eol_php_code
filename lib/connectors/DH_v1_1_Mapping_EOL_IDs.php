@@ -40,6 +40,23 @@ class DH_v1_1_mapping_EOL_IDs
     //==========================================================================start final_clean_up_for_EOLids
     function final_clean_up_for_EOLids()
     {
+        $delete = array('EOL-000000882532', 'EOL-000000952029', 'EOL-000001328799', 'EOL-000001467532', 'EOL-000002317805', 'EOL-000001529001', 'EOL-000000026782', 
+                        'EOL-000000026783', 'EOL-000000026784', 'EOL-000000026785', 'EOL-000000091353', 'EOL-000000091354', 'EOL-000000098142', 'EOL-000000098143');
+        /*
+        $arr = file($this->main_path.'Jira_attachments/blank_eolID.txt');
+        foreach($arr as $a) $blank_array[trim($a)] = '';
+        print_r($blank_array); exit("\n".count($blank_array)."\n");
+        */
+        
+        $arr = file($this->main_path.'Jira_attachments/manual_eolID.txt');
+        // print_r($arr); exit;
+        foreach($arr as $a) {
+            $vals = explode("\t", $a);
+            $vals = array_map('trim', $vals);
+            $manual_array[$vals[0]] = $vals[1];
+        }
+        print_r($manual_array); exit("\n".count($manual_array)."\n");
+        
         
     }
     //============================================================================end final_clean_up_for_EOLids
