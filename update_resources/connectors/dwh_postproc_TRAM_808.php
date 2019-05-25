@@ -65,6 +65,11 @@ run_diagnostics(false, $taxa_file);
 
 // /* Here is the final clean-up for the EOLids. https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63479&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63479
 $func->final_clean_up_for_EOLids();
+        //--> uses
+        // $this->main_path."/new_DH_before_step4.txt"
+        //--> generates
+        // $this->main_path."/new_DH_cleaned_up.txt"
+        
 // */
 
 /*

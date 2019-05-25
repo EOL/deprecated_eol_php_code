@@ -40,24 +40,81 @@ class DH_v1_1_mapping_EOL_IDs
     //==========================================================================start final_clean_up_for_EOLids
     function final_clean_up_for_EOLids()
     {
-        $delete = array('EOL-000000882532', 'EOL-000000952029', 'EOL-000001328799', 'EOL-000001467532', 'EOL-000002317805', 'EOL-000001529001', 'EOL-000000026782', 
-                        'EOL-000000026783', 'EOL-000000026784', 'EOL-000000026785', 'EOL-000000091353', 'EOL-000000091354', 'EOL-000000098142', 'EOL-000000098143');
-        /*
+        $delete_array = array('EOL-000000882532', 'EOL-000000952029', 'EOL-000001328799', 'EOL-000001467532', 'EOL-000002317805', 'EOL-000001529001', 'EOL-000000026782', 
+                              'EOL-000000026783', 'EOL-000000026784', 'EOL-000000026785', 'EOL-000000091353', 'EOL-000000091354', 'EOL-000000098142', 'EOL-000000098143');
+        // /*
         $arr = file($this->main_path.'Jira_attachments/blank_eolID.txt');
         foreach($arr as $a) $blank_array[trim($a)] = '';
-        print_r($blank_array); exit("\n".count($blank_array)."\n");
-        */
-        
+        // print_r($blank_array); exit("\n".count($blank_array)."\n");
+        // */
+        // /*
         $arr = file($this->main_path.'Jira_attachments/manual_eolID.txt');
-        // print_r($arr); exit;
         foreach($arr as $a) {
             $vals = explode("\t", $a);
             $vals = array_map('trim', $vals);
             $manual_array[$vals[0]] = $vals[1];
         }
-        print_r($manual_array); exit("\n".count($manual_array)."\n");
+        // print_r($manual_array); exit("\n".count($manual_array)."\n");
+        // */
         
-        
+        /* start loop of DH */
+        $file_append = $this->main_path."/new_DH_cleaned_up.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $i = 0;
+        foreach(new FileIterator($this->main_path."/new_DH_before_step4.txt") as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                fwrite($WRITE, implode("\t", $fields)."\n");
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); // print_r($rec); exit;
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+            )*/
+            
+            $taxon_id = $rec['taxonID'];
+            if(in_array($taxon_id, $delete_array)) {
+                @$counts['delete']++;
+                continue;
+            }
+            if(isset($blank_array[$taxon_id])) {
+                @$counts['blank']++;
+                $rec['EOLid'] = ''; //set to blank
+                $rec['EOLidAnnotations'] = 'manual';
+            }
+            if($val = @$manual_array[$taxon_id]) {
+                @$counts['manual']++;
+                $rec['EOLid'] = $val;
+                $rec['EOLidAnnotations'] = 'manual';
+            }
+            
+            /* start writing */
+            $save = array();
+            foreach($fields as $head) $save[] = $rec[$head];
+            fwrite($WRITE, implode("\t", $save)."\n");
+        }
+        fclose($WRITE); echo "\n[new_DH_cleaned_up.txt] generated OK.\n";
+        print_r($counts);
     }
     //============================================================================end final_clean_up_for_EOLids
     //==========================================================================start step 4
