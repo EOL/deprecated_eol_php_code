@@ -37,6 +37,12 @@ class DH_v1_1_mapping_EOL_IDs
           then saves it to MySQL table [taxonID_source_ids]
     step. run step_1()
     */
+    //==========================================================================start final_clean_up_for_EOLids
+    function final_clean_up_for_EOLids()
+    {
+        
+    }
+    //============================================================================end final_clean_up_for_EOLids
     //==========================================================================start step 4
     function step_4()
     {   /* Manual steps:
@@ -199,7 +205,7 @@ class DH_v1_1_mapping_EOL_IDs
             
             // print_r($rec);
             /* start writing */
-            /* not used here... only two fields are saved below
+            /* NOT used here... ONLY two fields are saved below
             $save = array();
             foreach($fields as $head) $save[] = $rec[$head];
             */

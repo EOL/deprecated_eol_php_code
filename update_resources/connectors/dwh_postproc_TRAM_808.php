@@ -63,12 +63,17 @@ $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/eoldynamichierarchywithlandmarks/t
 run_diagnostics(false, $taxa_file);
 */
 
-// /*
+// /* Here is the final clean-up for the EOLids. https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63479&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63479
+$func->final_clean_up_for_EOLids();
+// */
+
+/*
 // $func->step_4(); //4. Create a special report for known homonyms
 // $func->step4_2();
 $func->step4_3();
-// */
+*/
 
+/* BELOW HERE WAS NEVER USED */
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id); //use taxonomy_4dwca.txt from Step 5.
 // unset($func);
