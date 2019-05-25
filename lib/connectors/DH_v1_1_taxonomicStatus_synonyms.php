@@ -53,11 +53,62 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     function step_6()
     {
-        iterator
+        $syn_list = self::get_syn_list();
+        foreach($syn_list as $key => $recs) {
+            if(count($recs) > 1) {
+                print_r($recs);
+            }
+        }
+    }
+    private function get_syn_list()
+    {
+        $source = $this->main_path_TRAM_809."/synonyms.txt";
+        $i = 0; $list = array();
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => 42273049
+                [source] => COL:42227223
+                [furtherInformationURL] => http://www.catalogueoflife.org/col/details/species/id/8534d672d9b8cfb4e479fd3e91435efc/synonym/b160b9c1d485fb176336e2d8fdeb4c98
+                [parentNameUsageID] => 
+                [scientificName] => Geastrum schweinitzii var. stipitatum (Solms) P. Ponce de León, 1968
+                [taxonRank] => infraspecies
+                [taxonRemarks] => 
+                [datasetID] => COL
+                [canonicalName] => 
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => synonym
+                [acceptedNameUsageID] => EOL-000002269028
+            )
+            Two synonyms are equivalent IF
+            (1) They have the same acceptedNameUsageID
+            (2) They have exactly the same scientificName
+            */
+            $list[$rec['acceptedNameUsageID']."_".$rec['scientificName']][] = $rec;
+        }
+        return $list;
     }
     function step_5()
     {
-        $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w");
+        $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "a");
         $add_syns = self::get_problematic_names();
         // print_r($add_syns); echo "\n".count($add_syns)."\n";
         /*[1251] => Array(
@@ -89,6 +140,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     function step_2()
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
+        // exit;
         $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields_rep)."\n");
         // /* run data sources 
         // self::process_data_source('NCBI');
@@ -229,7 +281,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 */
                 // $final[$rec['taxonID']] = array("aID" => $rec['acceptedNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
                 
-                // /* debug only - force assign
+                /* debug only - force assign
                 // 326788 26 ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018 326787 synonym species Icerya nuda Green, 1930 Animalia Icerya Crypticerya nuda Green, 1930 Coc-18232-2495 http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21
                 // 326788 26 ScaleNet in Species 2000 & ITIS Catalogue of Life: 28th March 2018 326787 synonym species Icerya nuda Green, 1930 Animalia Icerya Crypticerya nuda Green, 1930 Coc-18232-2495 http://www.catalogueoflife.org/annual-checklist/2015/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21
                 $rec = Array(
@@ -245,7 +297,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     'scientificName' => 'Icerya nuda Green, 1930',
                     'references' => 'http://www.catalogueoflife.org/col/details/species/id/79daf66d28d88a076cbea2279d45c4cf/synonym/fb46c4638716d4b74f506b40a7349a21'
                 );
-                // */
+                */
 
                 $accepted_id = false;
                 if(in_array($what, array('COL', 'CLP'))) {
@@ -313,7 +365,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                                 [taxonID] => EOL-000001941880
                             )*/
                             self::write_report($for_reporting, $this->write_fields_rep, $this->WRITE_REP);
-                            if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
+                            // if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
                             continue; //good
                         }
                         else $cont = true;
@@ -321,13 +373,13 @@ class DH_v1_1_taxonomicStatus_synonyms
                     
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
-                    'source' => "$what:".$rec['acceptedNameUsageID'],
+                    'source' => $what, //"$what:".$rec['acceptedNameUsageID'],
                     'furtherInformationURL' => self::format_fIURL($rec, $what), //$rec['furtherInformationURL'],
                     'parentNameUsageID' => '', //$rec['parentNameUsageID'],
                     'scientificName' => $rec['scientificName'],
                     'taxonRank' => $rec['taxonRank'],
                     'taxonRemarks' => '',
-                    'datasetID' => $what,
+                    'datasetID' => '', //$what,
                     'canonicalName' => '',
                     'EOLid' => '',
                     'EOLidAnnotations' => '',
