@@ -228,7 +228,7 @@ class DH_v1_1_mapping_EOL_IDs
         while($result && $row=$result->fetch_assoc()) return $row['higherClassification'];
     }
     function step4_2()
-    {
+    {   exit("\nDone already: step4_2()\n");
         $sql = "SELECT t.uid from DWH.taxonomy_tsv_uniqname t ;";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) $taxonIDs[$row['uid']] = '';
@@ -299,7 +299,7 @@ class DH_v1_1_mapping_EOL_IDs
         self::append_to_MySQL_table($table, $file_append);
     }
     private function step4_1()
-    {
+    {   exit("\nDone already: step4_1()\n");
         $file_append = $this->main_path."/taxonomy_tsv_uniqname.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $txtfile = '/Volumes/AKiTiO4/d_w_h/TRAM-807/taxonomy.tsv'; $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
