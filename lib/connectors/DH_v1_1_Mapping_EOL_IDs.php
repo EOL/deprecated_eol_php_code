@@ -115,6 +115,13 @@ class DH_v1_1_mapping_EOL_IDs
         }
         fclose($WRITE); echo "\n[new_DH_cleaned_up.txt] generated OK.\n";
         print_r($counts);
+        /* results:
+        [new_DH_cleaned_up.txt] generated OK.
+        Array(
+            [blank] => 493
+            [manual] => 1522
+            [delete] => 14
+        )*/
     }
     //============================================================================end final_clean_up_for_EOLids
     //==========================================================================start step 4
