@@ -320,9 +320,9 @@ class DH_v1_1_taxonomicStatus_synonyms
                         
                         /* breakdown when caching:
                         $cont = false;
-                        // if($i >=  1    && $i < $m) $cont = true;
-                        // if($i >=  $m   && $i < $m*2) $cont = true;
-                        if($i >=  $m*2 && $i < $m*3) $cont = true;      processing
+                        if($i >=  1    && $i < $m) $cont = true;    processing
+                        // if($i >=  $m   && $i < $m*2) $cont = true;   processing
+                        // if($i >=  $m*2 && $i < $m*3) $cont = true;      processing
                         // if($i >=  $m*3 && $i < $m*4) $cont = true;   processing
                         // if($i >=  $m*4 && $i < $m*5) $cont = true;   processing
                         // if($i >=  $m*5 && $i < $m*6) $cont = true;   processing
