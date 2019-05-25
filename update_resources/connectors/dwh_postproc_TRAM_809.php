@@ -37,10 +37,18 @@ $func->step_2(); //2. Fetch synonyms & metadata from DH sources
         // $this->main_path_TRAM_809."/synonyms.txt";
         // $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt";
 */
-// /* step 4 is missing, wrong number increment in Jira ticket
+/* step 4 is missing, wrong number increment in Jira ticket
 $func->step_5(); //5. Add manually curated synonyms
+        // --> appends to:
+        // $this->main_path_TRAM_809."/synonyms.txt";
+*/
+// /*
+$func->step_6(); //6. Deduplicate synonyms
+        // --> input:
+        // $this->main_path_TRAM_809."/synonyms.txt";
+        // --> output:
+        // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
 // */
-
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id);

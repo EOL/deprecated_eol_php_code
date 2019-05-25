@@ -51,6 +51,10 @@ class DH_v1_1_taxonomicStatus_synonyms
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
         $this->write_fields_rep = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID');
     }
+    function step_6()
+    {
+        iterator
+    }
     function step_5()
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w");
@@ -449,13 +453,14 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     function create_append_text($source = '', $table = '') //do only once
     {
+        exit("\nDone already\n");
         $source = $this->main_path."/new_DH_before_step4.txt"; 
         
-        /*
+        // /*
         $table = 'taxonID_source_ids_newDH';
         $file_append = $this->main_path_TRAM_809."/".$table.".txt";
         $WRITE = fopen($file_append, "w"); //will overwrite existing
-        */
+        // */
         
         // /* for 3. Check for conflicts with DH valid/accepted name assertions
         $table2 = 'newDH_optimal';
@@ -496,14 +501,14 @@ class DH_v1_1_taxonomicStatus_synonyms
                 [EOLidAnnotations] => 
             )*/
             
-            /*
+            // /*
             $source_ids = $func->get_all_source_identifiers($rec['source']);
             foreach($source_ids as $source_id) {
                 $arr = array();
                 $arr = array($rec['taxonID'], $source_id);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
-            */
+            // */
             
             // /* for 3. Check for conflicts with DH valid/accepted name assertions --- this was added later on
             $arr = array();
@@ -511,7 +516,9 @@ class DH_v1_1_taxonomicStatus_synonyms
             fwrite($WRITE2, implode("\t", $arr)."\n");
             // */
         }
-        /* fclose($WRITE);  $func->append_to_MySQL_table($table, $file_append); */
+        // /* 
+        fclose($WRITE);  $func->append_to_MySQL_table($table, $file_append);
+        // */
         fclose($WRITE2); $func->append_to_MySQL_table($table2, $file_append2);
     }
     function step_1()
