@@ -1241,7 +1241,7 @@ php update_resources/connectors/dwh_v2.php _ VSP
             }
         }
     }
-    private function get_order_of_hierarchies()
+    function get_order_of_hierarchies()
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
