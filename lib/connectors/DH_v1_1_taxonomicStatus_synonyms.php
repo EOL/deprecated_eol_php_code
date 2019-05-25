@@ -53,6 +53,11 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     function step_6()
     {
+        /* uncomment in real operation
+        require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2('');
+        $order = $func->get_order_of_hierarchies();
+        print_r($order); exit;
+        */
         $syn_list = self::get_syn_list();
         foreach($syn_list as $key => $recs) {
             if(count($recs) > 1) {
@@ -106,9 +111,9 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         return $list;
     }
-    function step_5()
+    function step_5() //5. Add manually curated synonyms
     {
-        $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "a");
+        $file_append = $this->main_path_TRAM_809."/synonyms.txt"; $this->WRITE = fopen($file_append, "a"); //IMPORTANT TO USE 'a' HERE. NOT 'w'.
         $add_syns = self::get_problematic_names();
         // print_r($add_syns); echo "\n".count($add_syns)."\n";
         /*[1251] => Array(
