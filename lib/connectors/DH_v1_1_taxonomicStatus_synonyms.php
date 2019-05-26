@@ -145,7 +145,6 @@ class DH_v1_1_taxonomicStatus_synonyms
     function step_2()
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
-        // exit;
         $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields_rep)."\n");
         // /* run data sources 
         // self::process_data_source('NCBI');
@@ -320,23 +319,38 @@ class DH_v1_1_taxonomicStatus_synonyms
                         
                         /* breakdown when caching:
                         $cont = false;
-                        if($i >=  1    && $i < $m) $cont = true;    processing
-                        // if($i >=  $m   && $i < $m*2) $cont = true;   processing
-                        // if($i >=  $m*2 && $i < $m*3) $cont = true;      processing
-                        // if($i >=  $m*3 && $i < $m*4) $cont = true;   processing
-                        // if($i >=  $m*4 && $i < $m*5) $cont = true;   processing
-                        // if($i >=  $m*5 && $i < $m*6) $cont = true;   processing
-                        // if($i >=  $m*6 && $i < $m*7) $cont = true;   processing
+                        // if($i >=  1    && $i < $m) $cont = true;     done
+                        // if($i >=  $m   && $i < $m*2) $cont = true;   done
 
-                        // if($i >=  $m*7 && $i < $m*8) $cont = true; processing...
-                        // if($i >=  $m*8 && $i < $m*9) $cont = true; processing...
-                        // if($i >=  $m*9 && $i < $m*10) $cont = true; processing...
-                        // if($i >=  $m*10 && $i < $m*11) $cont = true; processing...
+                        // if($i >=  $m*2 && $i < $m*3) $cont = true;   done
+                        // if($i >=  $m*3 && $i < $m*4) $cont = true;   done
+                        // if($i >=  $m*4 && $i < $m*5) $cont = true;   done
+                        // if($i >=  $m*5 && $i < $m*6) $cont = true;   processing...
+                        // if($i >=  $m*6 && $i < $m*7) $cont = true;   processing...
+                        // if($i >=  $m*7 && $i < $m*8) $cont = true;   done
+                        // if($i >=  $m*8 && $i < $m*9) $cont = true;   done
+                        // if($i >=  $m*9 && $i < $m*10) $cont = true;  done
+                        // if($i >=  $m*10 && $i < $m*11) $cont = true; done
+                        // if($i >=  $m*11 && $i < $m*12) $cont = true; processing
+                        
+                        // if($i >=  $m*12 && $i < $m*13) $cont = true; done
+                        // if($i >=  $m*13 && $i < $m*14) $cont = true; processing
+                        // if($i >=  $m*14 && $i < $m*15) $cont = true; done
+                        // ========================
+                        // if($i >=  1321065 && $i < 1585278) $cont = true;
+                        // if($i >=  1500278 && $i < 1585278) $cont = true;
+                        
+                        // if($i >=  1585278 && $i < 1849491) $cont = true;
+                        // if($i >=  1800491 && $i < 1849491) $cont = true;
 
-                        // if($i >=  $m*11 && $i < $m*12) $cont = true; processing...
-                        // if($i >=  $m*12 && $i < $m*13) $cont = true; processing...
-                        // if($i >=  $m*13 && $i < $m*14) $cont = true; processing...
-                        // if($i >=  $m*14 && $i < $m*15) $cont = true; //processing...
+                        // if($i >=  2906343 && $i < 3170556) $cont = true; 
+                        // if($i >=  3100556 && $i < 3170556) $cont = true; 
+
+                        // if($i >=  3434769 && $i < 3698982) $cont = true; 
+                        if($i >=  3600982 && $i < 3698982) $cont = true; 
+                        
+                        // m = 264213.2
+                        
                         if(!$cont) continue;
                         */
                         
@@ -369,7 +383,9 @@ class DH_v1_1_taxonomicStatus_synonyms
                                 [acceptedNameUsageID] => EOL-000001941761
                                 [taxonID] => EOL-000001941880
                             )*/
+                            // /* uncomment in real operation
                             self::write_report($for_reporting, $this->write_fields_rep, $this->WRITE_REP);
+                            // */
                             // if($rec['taxonID'] == '326788') exit("\nstop muna\n");  //debug only
                             continue; //good
                         }
@@ -397,9 +413,10 @@ class DH_v1_1_taxonomicStatus_synonyms
                     foreach($this->write_fields as $f) $arr[] = $save[$f];
                     fwrite($this->WRITE, implode("\t", $arr)."\n");
                     */
+                    // /* uncomment in real operation
                     self::write_report($save, $this->write_fields, $this->WRITE);
-                    
-                    @$this->debug['count synonyms'][$what]++;
+                    // */
+                    @$this->debug['count synonyms'][$what]++; //stats
                     
                     // print_r($save); exit("\nsynonym included\n");
                 }
