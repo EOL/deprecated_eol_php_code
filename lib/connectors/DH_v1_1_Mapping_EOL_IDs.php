@@ -121,7 +121,55 @@ class DH_v1_1_mapping_EOL_IDs
             [blank] => 493
             [manual] => 1522
             [delete] => 14
-        )*/
+        )
+        
+        wc -l new_DH_cleaned_up.txt
+            2328984 new_DH_cleaned_up.txt
+        wc -l known_homonyms.txt
+            4363 known_homonyms.txt
+        */
+    }
+    function last_report()
+    {   /* start loop of DH */
+        $i = 0;
+        foreach(new FileIterator($this->main_path."/new_DH_cleaned_up.txt") as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); //print_r($rec); exit;
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+            )*/
+            @$final[$rec['EOLid']][] = $rec['taxonID'];
+        }
+        foreach($final as $EOLid => $recs) {
+            if(!$EOLid) continue;
+            if(count($recs) > 1) {
+                echo "\n[$EOLid]\n"; print_r($recs);
+            }
+        }
     }
     //============================================================================end final_clean_up_for_EOLids
     //==========================================================================start step 4

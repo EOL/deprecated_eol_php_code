@@ -84,6 +84,9 @@ OK: All acceptedNameUsageID have entries.
 // $func->step4_2();
 $func->step4_3();
 */
+// /*
+$func->last_report(); //check for duplicate EOLid's
+// */
 
 /* BELOW HERE WAS NEVER USED */
 // exit("\n-end for now-\n");
