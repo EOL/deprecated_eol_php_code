@@ -601,6 +601,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $this->retired_old_DH_taxonID = array();
         $file = $this->main_path."/new_DH_before_step4.txt"; //last DH output of TRAM-808
         $file = $this->main_path."/with_higherClassification/1558361160.txt"; //last DH output of TRAM-808 --> with higherClassification
+        $file = $this->main_path."/with_higherClassification/1558827333.txt"; //latest
         /* initialize info global ------------------------------------------------------------------------------*/
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
@@ -618,28 +619,57 @@ class DH_v1_1_taxonomicStatus_synonyms
             Apply to all other taxa including Microsporidia (EOL-000002172574), which is a descendant of Fungi.
         */
         self::get_taxID_nodes_info($file); //for new DH
+        
+        /* old
         $children_of['Microsporidia'] = $func->get_descendants_of_taxID("EOL-000002172574", false, $this->descendants); echo "\nDone Microsporidia";
         $children_of['Archaeplastida'] = $func->get_descendants_of_taxID("EOL-000000097815", false, $this->descendants); echo "\nDone Archaeplastida";
         $children_of['Cyanobacteria'] = $func->get_descendants_of_taxID("EOL-000000000047", false, $this->descendants); echo "\nDone Fungi";
         $children_of['Fungi'] = $func->get_descendants_of_taxID("EOL-000002172573", false, $this->descendants); echo "\nDone Microsporidia";
-        $children_of['Gyrista'] = $func->get_descendants_of_taxID("EOL-000000096158", false, $this->descendants); echo "\nDone Gyrista";
+        $children_of['Gyrista'] = $func->get_descendants_of_taxID("EOL-000000085512", false, $this->descendants); echo "\nDone Gyrista";
         $children_of['Eumycetozoa'] = $func->get_descendants_of_taxID("EOL-000000096158", false, $this->descendants); echo "\nDone Eumycetozoa";
         $children_of['Protosteliida'] = $func->get_descendants_of_taxID("EOL-000000097604", false, $this->descendants); echo "\nDone Protosteliida";
         $children_of['Dinoflagellata'] = $func->get_descendants_of_taxID("EOL-000000025794", false, $this->descendants); echo "\nDone Dinoflagellata\n";
-        // echo "\nMicrosporidia: ".count($children_of['Microsporidia'])."\n";
-        // echo "\nArchaeplastida: ".count($children_of['Archaeplastida'])."\n";
-        // echo "\nCyanobacteria: ".count($children_of['Cyanobacteria'])."\n";
-        // echo "\nFungi: ".count($children_of['Fungi'])."\n";
-        // echo "\nGyrista: ".count($children_of['Gyrista'])."\n";
-        // echo "\nEumycetozoa: ".count($children_of['Eumycetozoa'])."\n";
-        // echo "\nProtosteliida: ".count($children_of['Protosteliida'])."\n";
-        // echo "\nDinoflagellata: ".count($children_of['Dinoflagellata'])."\n";
+        */
+        
+        $children = $func->get_descendants_of_taxID("EOL-000002172574", false, $this->descendants); echo "\nDone Microsporidia";
+        foreach($children as $child) $children_of['Microsporidia'][$child] = '';
+        
+        $children = $func->get_descendants_of_taxID("EOL-000000097815", false, $this->descendants); echo "\nDone Archaeplastida";
+        foreach($children as $child) $children_of['Archaeplastida'][$child] = '';
+        
+        $children = $func->get_descendants_of_taxID("EOL-000000000047", false, $this->descendants); echo "\nDone Cyanobacteria";
+        foreach($children as $child) $children_of['Cyanobacteria'][$child] = '';
+        
+        $children = $func->get_descendants_of_taxID("EOL-000002172573", false, $this->descendants); echo "\nDone Fungi";
+        foreach($children as $child) $children_of['Fungi'][$child] = '';
+        
+        $children = $func->get_descendants_of_taxID("EOL-000000085512", false, $this->descendants); echo "\nDone Gyrista";
+        foreach($children as $child) $children_of['Gyrista'][$child] = '';
+        
+        $children = $func->get_descendants_of_taxID("EOL-000000096158", false, $this->descendants); echo "\nDone Eumycetozoa";
+        foreach($children as $child) $children_of['Eumycetozoa'][$child] = '';
+        
+        $children = $func->get_descendants_of_taxID("EOL-000000097604", false, $this->descendants); echo "\nDone Protosteliida";
+        foreach($children as $child) $children_of['Protosteliida'][$child] = '';
+        
+        $children = $func->get_descendants_of_taxID("EOL-000000025794", false, $this->descendants); echo "\nDone Dinoflagellata\n";
+        foreach($children as $child) $children_of['Dinoflagellata'][$child] = '';
+        
+        echo "\nMicrosporidia: ".count($children_of['Microsporidia'])."\n";
+        echo "\nArchaeplastida: ".count($children_of['Archaeplastida'])."\n";
+        echo "\nCyanobacteria: ".count($children_of['Cyanobacteria'])."\n";
+        echo "\nFungi: ".count($children_of['Fungi'])."\n";
+        echo "\nGyrista: ".count($children_of['Gyrista'])."\n";
+        echo "\nEumycetozoa: ".count($children_of['Eumycetozoa'])."\n";
+        echo "\nProtosteliida: ".count($children_of['Protosteliida'])."\n";
+        echo "\nDinoflagellata: ".count($children_of['Dinoflagellata'])."\n";
+        // exit("\nstopx\n");
         unset($this->descendants);
         /* loop new DH -----------------------------------------------------------------------------------------*/
         $file_append = $this->main_path_TRAM_809."/new_DH_taxonStatus.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
-            $i++; if(($i % 1000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 300000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
@@ -658,15 +688,25 @@ class DH_v1_1_taxonomicStatus_synonyms
             }
             $rec = array_map('trim', $rec);
             //------------------------------------------------------start taxonomicStatus
-            if(in_array($rec['taxonID'], $children_of['Microsporidia'])) $rec['taxonomicStatus'] = 'valid';
+            // Microsporidia    : 1465
+            // Protosteliida    : 8
+            // Cyanobacteria    : 1334
+            // Gyrista          : xxx
+            // Eumycetozoa      : 1406
+            // Dinoflagellata   : 1470
+            // Fungi            : 148395
+            // Archaeplastida   : 443598
+
+            $taxonID = $rec['taxonID'];
+            if(isset($children_of['Microsporidia'][$taxonID])) $rec['taxonomicStatus'] = 'valid';
             if(!@$rec['taxonomicStatus']) {
-                if(in_array($rec['taxonID'], $children_of['Archaeplastida'])) $rec['taxonomicStatus'] = 'accepted';
-                elseif(in_array($rec['taxonID'], $children_of['Cyanobacteria'])) $rec['taxonomicStatus'] = 'accepted';
-                elseif(in_array($rec['taxonID'], $children_of['Fungi'])) $rec['taxonomicStatus'] = 'accepted';
-                elseif(in_array($rec['taxonID'], $children_of['Gyrista'])) $rec['taxonomicStatus'] = 'accepted';
-                elseif(in_array($rec['taxonID'], $children_of['Eumycetozoa'])) $rec['taxonomicStatus'] = 'accepted';
-                elseif(in_array($rec['taxonID'], $children_of['Protosteliida'])) $rec['taxonomicStatus'] = 'accepted';
-                elseif(in_array($rec['taxonID'], $children_of['Dinoflagellata'])) $rec['taxonomicStatus'] = 'accepted';
+                if(isset($children_of['Protosteliida'][$taxonID])) $rec['taxonomicStatus'] = 'accepted';
+                elseif(isset($children_of['Cyanobacteria'][$taxonID])) $rec['taxonomicStatus'] = 'accepted';
+                elseif(isset($children_of['Gyrista'][$taxonID])) $rec['taxonomicStatus'] = 'accepted';
+                elseif(isset($children_of['Eumycetozoa'][$taxonID])) $rec['taxonomicStatus'] = 'accepted';
+                elseif(isset($children_of['Dinoflagellata'][$taxonID])) $rec['taxonomicStatus'] = 'accepted';
+                elseif(isset($children_of['Fungi'][$taxonID])) $rec['taxonomicStatus'] = 'accepted';
+                elseif(isset($children_of['Archaeplastida'][$taxonID])) $rec['taxonomicStatus'] = 'accepted';
             }
             if(!@$rec['taxonomicStatus']) $rec['taxonomicStatus'] = 'valid';
             //------------------------------------------------------end taxonomicStatus
