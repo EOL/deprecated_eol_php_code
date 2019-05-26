@@ -167,11 +167,13 @@ class DH_v1_1_mapping_EOL_IDs
         echo "\nEOLids with unigname in latest new DH: ".count($EOLids)."\n"; //exit;
         // */
         /* start loop of DH */
-        $file_append = $this->main_path."/known_homonyms.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing (old name was 'subset_new_DH_with_uniqname.txt')
+        $file_append = $this->main_path."/known_homonyms.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
         $write_fields = array('taxonID', 'smasherTaxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
                               'datasetID', 'canonicalName', 'higherClassification', 'oldHigherClassification', 'EOLid', 'EOLidAnnotations');
-        foreach(new FileIterator($this->main_path."/with_higherClassification/1558361160.txt") as $line_number => $line) {
+        $source = $this->main_path."/with_higherClassification/1558361160.txt";
+        $source = $this->main_path."/with_higherClassification/1558827333.txt";
+        foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
@@ -219,7 +221,7 @@ class DH_v1_1_mapping_EOL_IDs
                 fwrite($WRITE, implode("\t", $save)."\n");
             }
         }
-        fclose($WRITE);
+        fclose($WRITE); echo "\nEnd step4_3()\n";
     }
     private function get_old_DH_higherClassification($eol_id)
     {
