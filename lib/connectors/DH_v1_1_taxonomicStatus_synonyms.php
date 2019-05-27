@@ -180,7 +180,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $what = $meta['what']; $i = 0;
         $m = 3963198/15; //used when caching COL
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 50000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
