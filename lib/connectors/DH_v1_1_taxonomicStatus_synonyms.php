@@ -147,16 +147,15 @@ class DH_v1_1_taxonomicStatus_synonyms
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields_rep)."\n");
         // /* run data sources 
-        // self::process_data_source('NCBI');
-        // self::process_data_source('ASW');
-        // self::process_data_source('ODO');
-        // self::process_data_source('BOM');
-        // self::process_data_source('WOR');
+        self::process_data_source('NCBI');
+        self::process_data_source('ASW');
+        self::process_data_source('ODO');
+        self::process_data_source('BOM');
+        self::process_data_source('WOR');
         // */
-        
         // /*
         $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
-        // $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
+        $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
         // */
         fclose($this->WRITE);
         fclose($this->WRITE_REP);
