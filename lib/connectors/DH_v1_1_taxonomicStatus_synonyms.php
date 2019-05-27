@@ -114,7 +114,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     function step_5() //5. Add manually curated synonyms
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt"; $this->WRITE = fopen($file_append, "a"); //IMPORTANT TO USE 'a' HERE. NOT 'w'.
-        $add_syns = self::get_problematic_names();
+        $add_syns = self::get_manually_curated_syns();
         // print_r($add_syns); echo "\n".count($add_syns)."\n";
         /*[1251] => Array(
                     [0] => Xerus rutilus
@@ -125,11 +125,11 @@ class DH_v1_1_taxonomicStatus_synonyms
         foreach($add_syns as $s) {
             $save = array('scientificName' => $s[0], 'acceptedNameUsageID' => $s[1], 'taxonomicStatus' => $s[2], 'taxonRank' => $s[3]);
             self::write_report($save, $this->write_fields, $this->WRITE);
-            break; //debug only
+            // break; //debug only
         }
         fclose($this->WRITE);
     }
-    private function get_problematic_names() //sheet found here: TRAM-809
+    private function get_manually_curated_syns() //sheet found here: TRAM-809
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -137,11 +137,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $params['range']         = 'manually curated synonyms!A1:D1300'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         return $arr; //no need to massage anymore...
-        //start massage array
-        // foreach($arr as $item) $final[$item[0]] = $item[2];
-        // return $final;
     }
-    
     function step_2()
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
@@ -170,10 +166,8 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     private function get_info_from_taxon_tab($meta)
     {
-        $what = $meta['what']; $i = 0; //$final = array(); not used here
-        // /* for caching COL
-        $m = 3963198/15;
-        // */
+        $what = $meta['what']; $i = 0;
+        $m = 3963198/15; //used when caching COL
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -419,7 +413,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 // else echo " -not found-"; //debug only
             }
         }
-        // return $final;
+        
     }
     private function write_report($save_rec, $fields, $fileH)
     {
@@ -476,7 +470,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $sci = 'Tricornina (Bicornina) jordan, 1964'; //debug only force assign
         // $sci = 'Ceroputo pilosellae Šulc, 1898'; //debug only force assign
 
-        /* new May 26, 2019 - e.g. $sci is 'The Myxobacteria'
+        /* new May 26, 2019 - e.g. $sci is 'The Myxobacteria'. 
         if(substr($sci,0,4) == 'The ') {
             return trim(substr($sci,4,strlen($sci)));
         }
