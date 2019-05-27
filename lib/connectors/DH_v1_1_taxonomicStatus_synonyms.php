@@ -56,10 +56,11 @@ class DH_v1_1_taxonomicStatus_synonyms
         // /* uncomment in real operation
         require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2('');
         $ordered_sources = $func->get_order_of_hierarchies();
+        $ordered_sources[] = 'manual';
         print_r($ordered_sources); //exit;
         // */
 
-        $file_append = $this->main_path_TRAM_809."/synonyms_2be_discarded.txt"; $this->WRITE = fopen($file_append, "w");
+        $file_append = $this->main_path_TRAM_809."/synonyms_2be_discarded.txt"; $this->WRITE = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         $source = $this->main_path_TRAM_809."/synonyms.txt";
         $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
         $syn_list = self::get_syn_list($source);
@@ -167,7 +168,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     [3] => species
                 )*/
         foreach($add_syns as $s) {
-            $save = array('scientificName' => $s[0], 'acceptedNameUsageID' => $s[1], 'taxonomicStatus' => $s[2], 'taxonRank' => @$s[3]);
+            $save = array('scientificName' => $s[0], 'acceptedNameUsageID' => $s[1], 'taxonomicStatus' => $s[2], 'taxonRank' => @$s[3], 'datasetID' => 'manual');
             self::write_report($save, $this->write_fields, $this->WRITE);
             // break; //debug only
         }
