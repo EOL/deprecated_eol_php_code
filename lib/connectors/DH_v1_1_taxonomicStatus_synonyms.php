@@ -68,6 +68,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     private function get_syn_list()
     {
         $source = $this->main_path_TRAM_809."/synonyms.txt";
+        // $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
         $i = 0; $list = array();
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -111,11 +112,20 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         return $list;
     }
+    private function show_totals($file)
+    {
+        $total = shell_exec("wc -l < ".escapeshellarg($file));
+        $total = trim($total);  echo "\n$file: [$total]\n";
+    }
     function step_5() //5. Add manually curated synonyms
     {
-        $file_append = $this->main_path_TRAM_809."/synonyms.txt"; $this->WRITE = fopen($file_append, "a"); //IMPORTANT TO USE 'a' HERE. NOT 'w'.
+        $file_append = $this->main_path_TRAM_809."/synonyms.txt"; 
+        // $file_append = $this->main_path_TRAM_809."/synonyms_sample.txt"; //only during development - debug only
+        $this->WRITE = fopen($file_append, "a"); //IMPORTANT TO USE 'a' HERE. NOT 'w'. So it doesn't overwrite.
+        self::show_totals($file_append);
         $add_syns = self::get_manually_curated_syns();
-        // print_r($add_syns); echo "\n".count($add_syns)."\n";
+        // print_r($add_syns); 
+        echo "\n".count($add_syns)."\n";
         /*[1251] => Array(
                     [0] => Xerus rutilus
                     [1] => EOL-000000636192
@@ -123,11 +133,12 @@ class DH_v1_1_taxonomicStatus_synonyms
                     [3] => species
                 )*/
         foreach($add_syns as $s) {
-            $save = array('scientificName' => $s[0], 'acceptedNameUsageID' => $s[1], 'taxonomicStatus' => $s[2], 'taxonRank' => $s[3]);
+            $save = array('scientificName' => $s[0], 'acceptedNameUsageID' => $s[1], 'taxonomicStatus' => $s[2], 'taxonRank' => @$s[3]);
             self::write_report($save, $this->write_fields, $this->WRITE);
             // break; //debug only
         }
         fclose($this->WRITE);
+        self::show_totals($file_append);
     }
     private function get_manually_curated_syns() //sheet found here: TRAM-809
     {
@@ -150,8 +161,8 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::process_data_source('WOR');
         // */
         // /*
-        $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
         $this->sh['COL']['syn_status']  = 'ambiguous synonym';      self::process_data_source('COL', true); // 3 minutes execution
+        $this->sh['COL']['syn_status']  = 'synonym';                self::process_data_source('COL', true); // 19 minutes execution
         // */
         fclose($this->WRITE);
         fclose($this->WRITE_REP);
@@ -180,8 +191,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                 $rec[$field] = $tmp[$k];
                 $k++;
             }
-            if($this->sh[$what]['syn_status'] == $rec['taxonomicStatus']) {
-                // print_r($rec); //exit("\nstopx 1\n");
+            if($this->sh[$what]['syn_status'] == $rec['taxonomicStatus']) { // print_r($rec); //exit("\nstopx 1\n");
                 /* NCBI Array(
                     [taxonID] => 1_1
                     [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
@@ -303,16 +313,13 @@ class DH_v1_1_taxonomicStatus_synonyms
                 else $accepted_id = self::is_acceptedName_in_DH($what.":".$rec['acceptedNameUsageID']); // 'NCBI', 'ASW', 'ODO', 'BOM', 'WOR'
 
                 if($accepted_id) { //e.g. param is 'NCBI:1'
-                    // echo " -found-"; //add this synonym to DH //debug only
-                    
+                    // echo " -found-"; //add this synonym to DH
                     if(in_array($what, array('ASW', 'BOM', 'ODO'))) $cont = true;
                     else { //COL, NCBI, WOR
-                        
                         /* breakdown when caching:
                         $cont = false;
                         // if($i >=  1    && $i < $m) $cont = true;     done
                         // if($i >=  $m   && $i < $m*2) $cont = true;   done
-
                         // if($i >=  $m*2 && $i < $m*3) $cont = true;   done
                         // if($i >=  $m*3 && $i < $m*4) $cont = true;   done
                         // if($i >=  $m*4 && $i < $m*5) $cont = true;   done
@@ -323,28 +330,12 @@ class DH_v1_1_taxonomicStatus_synonyms
                         // if($i >=  $m*9 && $i < $m*10) $cont = true;  done
                         // if($i >=  $m*10 && $i < $m*11) $cont = true; done
                         // if($i >=  $m*11 && $i < $m*12) $cont = true; processing
-                        
                         // if($i >=  $m*12 && $i < $m*13) $cont = true; done
                         // if($i >=  $m*13 && $i < $m*14) $cont = true; processing
                         // if($i >=  $m*14 && $i < $m*15) $cont = true; done
-                        // ========================
-                        // if($i >=  1321065 && $i < 1585278) $cont = true;
-                        // if($i >=  1500278 && $i < 1585278) $cont = true;
-                        
-                        // if($i >=  1585278 && $i < 1849491) $cont = true;
-                        // if($i >=  1800491 && $i < 1849491) $cont = true;
-
-                        // if($i >=  2906343 && $i < 3170556) $cont = true; 
-                        // if($i >=  3100556 && $i < 3170556) $cont = true; 
-
-                        // if($i >=  3434769 && $i < 3698982) $cont = true; 
-                        if($i >=  3600982 && $i < 3698982) $cont = true; 
-                        
                         // m = 264213.2
-                        
                         if(!$cont) continue;
                         */
-                        
                         if($with_dup_YN = self::with_duplicates_in_DH_YN($rec, $accepted_id)) {
                             // echo "\n-------------------------This synonym is excluded [$accepted_id] "; print_r($rec); echo "\n-------------------------\n";
                             /*
@@ -408,7 +399,6 @@ class DH_v1_1_taxonomicStatus_synonyms
                 // else echo " -not found-"; //debug only
             }
         }
-        
     }
     private function write_report($save_rec, $fields, $fileH)
     {
@@ -464,27 +454,11 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $sci = 'Tricornina (Bicornina) Jordan, 1964'; //debug only force assign
         // $sci = 'Tricornina (Bicornina) jordan, 1964'; //debug only force assign
         // $sci = 'Ceroputo pilosellae Šulc, 1898'; //debug only force assign
-
         /* new May 26, 2019 - e.g. $sci is 'The Myxobacteria'. Worked but maybe can be used in the future. Not needed now.
-        if(substr($sci,0,4) == 'The ') {
-            return trim(substr($sci,4,strlen($sci)));
-        }
+        if(substr($sci,0,4) == 'The ') return trim(substr($sci,4,strlen($sci)));
         */
-        
-        if($authorship = @$rec['scientificNameAuthorship']) {
-            $json = $this->func->get_json_from_cache($sci); $eol_canonical = self::parse_json_get_canonical($json);
-            /* debug only
-            $canonical = trim(str_replace($authorship, "", $sci));
-            if($canonical != $eol_canonical) {
-                print_r($rec); echo "investigate 01x [$canonical] [$eol_canonical]\n";
-            }
-            */
-            return $eol_canonical;
-        }
-        else {
-            $json = $this->func->get_json_from_cache($sci); $eol_canonical = self::parse_json_get_canonical($json);
-            return $eol_canonical;
-        }
+        $json = $this->func->get_json_from_cache($sci); $eol_canonical = self::parse_json_get_canonical($json);
+        return $eol_canonical;
     }
     private function parse_json_get_canonical($json)
     {
