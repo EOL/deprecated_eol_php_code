@@ -398,11 +398,6 @@ class DH_v1_1_taxonomicStatus_synonyms
                     'taxonomicStatus' => $rec['taxonomicStatus'], //'synonym',
                     'acceptedNameUsageID' => $accepted_id);
                     
-                    /* replaced by one-liner below
-                    $arr = array();
-                    foreach($this->write_fields as $f) $arr[] = $save[$f];
-                    fwrite($this->WRITE, implode("\t", $arr)."\n");
-                    */
                     // /* uncomment in real operation
                     self::write_report($save, $this->write_fields, $this->WRITE);
                     // */
@@ -470,7 +465,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $sci = 'Tricornina (Bicornina) jordan, 1964'; //debug only force assign
         // $sci = 'Ceroputo pilosellae Šulc, 1898'; //debug only force assign
 
-        /* new May 26, 2019 - e.g. $sci is 'The Myxobacteria'. 
+        /* new May 26, 2019 - e.g. $sci is 'The Myxobacteria'. Worked but maybe can be used in the future. Not needed now.
         if(substr($sci,0,4) == 'The ') {
             return trim(substr($sci,4,strlen($sci)));
         }
