@@ -7,16 +7,10 @@ ini_set('memory_limit','7096M');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
-// /*
-// $arr['eli'] = array(1,2,3);
-// $arr['boy'] = array(4,5,6);
-// print_r($arr);
-// echo "\n".count($arr)."\n";
-
+/*
 $ordered_sources = Array('0' => 'trunk', '1' => 'ictv', '2' => 'IOC', '3' => 'ASW', '4' => 'ODO', '5' => 'BOM', '6' => 'ERE', 
     '7' => 'COC', '8' => 'VSP', '9' => 'ONY', '10' => 'EET', '11' => 'NCBI', '12' => 'WOR', '13' => 'CLP', '14' => 'COL');
 print_r($ordered_sources);
-
 $recs[] = Array(
             'taxonID' => 53689392,
             'source' => 'COL',
@@ -24,7 +18,6 @@ $recs[] = Array(
             'taxonomicStatus' => 'synonym',
             'acceptedNameUsageID' => 'xxx'
         );
-
 $recs[] = Array(
             'taxonID' => 222,
             'source' => 'IOC',
@@ -32,7 +25,6 @@ $recs[] = Array(
             'taxonomicStatus' => 'synonym',
             'acceptedNameUsageID' => 'xxx'
         );
-
 $recs[] = Array(
             'taxonID' => 53689393,
             'source' => 'COL',
@@ -54,10 +46,7 @@ $recs[] = Array(
             'taxonomicStatus' => 'synonym',
             'acceptedNameUsageID' => 'xxx'
         );
-
-
 print_r($recs);
-
 $cont = true;
 foreach($ordered_sources as $source) {
     foreach($recs as $rec) {
@@ -69,27 +58,13 @@ foreach($ordered_sources as $source) {
     }
     if(!$cont) break;
 }
-
 foreach($recs as $rec) {
     $temp = $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID'];
     if($temp != $final['retain']) $final['discard'][] = $rec;
 }
-
-
 print_r($final);
-// foreach($recs as $rec) {
-//     $sources[$rec['source']] = '';
-// }
-// if(count($sources) == 1) echo "\njust from 1 source\n";
-// else                     echo "\nfrom multiple sources\n";
-
-
-
-
-
-
 exit("\n-end test-\n");
-// */
+*/
 
 //############################################################ start main
 $resource_id = "DH_v1_1_Stat_Syn";

@@ -51,24 +51,58 @@ class DH_v1_1_taxonomicStatus_synonyms
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
         $this->write_fields_rep = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID');
     }
-    function step_6()
+    function step_6() //6. Deduplicate synonyms
     {
-        /* uncomment in real operation
+        // /* uncomment in real operation
         require_library('connectors/DHSourceHierarchiesAPI_v2'); $func = new DHSourceHierarchiesAPI_v2('');
-        $order = $func->get_order_of_hierarchies();
-        print_r($order); exit;
-        */
-        $syn_list = self::get_syn_list();
+        $ordered_sources = $func->get_order_of_hierarchies();
+        print_r($ordered_sources); //exit;
+        // */
+
+        $file_append = $this->main_path_TRAM_809."/synonyms_2be_discarded.txt"; $this->WRITE = fopen($file_append, "w");
+        $source = $this->main_path_TRAM_809."/synonyms.txt";
+        $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
+        $syn_list = self::get_syn_list($source);
         foreach($syn_list as $key => $recs) {
             if(count($recs) > 1) {
                 print_r($recs);
+                self::write_discard_syn_2text($ordered_sources, $recs);
             }
         }
+        fclose($this->WRITE);
+        self::regenerate_synonyms_without_duplicates();
     }
-    private function get_syn_list()
+    private function regenerate_synonyms_without_duplicates()
     {
-        $source = $this->main_path_TRAM_809."/synonyms.txt";
-        // $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
+        
+    }
+    private function write_discard_syn_2text($ordered_sources, $recs)
+    {
+        $final = array(); $cont = true;
+        foreach($ordered_sources as $source) {
+            foreach($recs as $rec) {
+                if($source == $rec['source']) {
+                    $final['retain'] = $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID'];
+                    $cont = false;
+                    break;
+                }
+            }
+            if(!$cont) break;
+        }
+        /* create discard list... */
+        foreach($recs as $rec) {
+            $temp = $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID'];
+            if($temp != $final['retain']) $final['discard'][] = $rec;
+        }
+        print_r($final);
+        /* write to text discard list */
+        if($discards = @$final['discard']) {
+            foreach($discards as $save) self::write_report($save, $this->write_fields, $this->WRITE);
+        }
+    }
+    private function get_syn_list($source)
+    {
+        echo "\nReading [$source]...\n";
         $i = 0; $list = array();
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -120,7 +154,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     function step_5() //5. Add manually curated synonyms
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt"; 
-        // $file_append = $this->main_path_TRAM_809."/synonyms_sample.txt"; //only during development - debug only
+        $file_append = $this->main_path_TRAM_809."/synonyms_sample.txt"; //only during development - debug only
         $this->WRITE = fopen($file_append, "a"); //IMPORTANT TO USE 'a' HERE. NOT 'w'. So it doesn't overwrite.
         self::show_totals($file_append);
         $add_syns = self::get_manually_curated_syns();
@@ -380,6 +414,16 @@ class DH_v1_1_taxonomicStatus_synonyms
                     // /* relevant metadata (if available):
                     $taxonRemarks = '';
                     if(in_array($what, array('IOC', 'ASW', 'ODO', 'BOM', 'WOR'))) $taxonRemarks = @$rec['taxonRemarks'];
+                    $datasetID = $what;
+                    if(in_array($what, array('COL', 'CLP'))) {
+                        // see instructions Use COL-datasetID from original file. If datasetID is "Species 2000" or it is not available, use COL.
+                        // see instructions Use COL-datasetID from original file. If datasetID is "Species 2000" or it is not available, use COL.
+                        if($val = $rec['datasetID']) {
+                            if($val == "Species 2000") $datasetID = 'COL';
+                            else                       $datasetID = 'COL-'.$val;
+                        }
+                        else                           $datasetID = 'COL';
+                    }
                     // */
                     
                     $save = array(
@@ -390,7 +434,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     'scientificName' => $rec['scientificName'],
                     'taxonRank' => $rec['taxonRank'],
                     'taxonRemarks' => $taxonRemarks,    //relevant metadata (if available):
-                    'datasetID' => $what,               //relevant metadata (if available):
+                    'datasetID' => $datasetID,          //relevant metadata (if available):
                     'canonicalName' => '',
                     'EOLid' => '',
                     'EOLidAnnotations' => '',
