@@ -438,7 +438,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         if($rec['scientificName'] == 'The Mycoplasmas') $canonical = 'Mycoplasmas';
         // */
         
-        // /* debug only
+        // /* will trap questionable gnparser results
         if($canonical == 'The') {
             print_r($rec); exit("\ninvestigate 100\n");
         }
