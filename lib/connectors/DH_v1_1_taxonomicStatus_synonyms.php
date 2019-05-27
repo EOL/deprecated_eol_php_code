@@ -623,8 +623,8 @@ class DH_v1_1_taxonomicStatus_synonyms
         /* old
         $children_of['Microsporidia'] = $func->get_descendants_of_taxID("EOL-000002172574", false, $this->descendants); echo "\nDone Microsporidia";
         $children_of['Archaeplastida'] = $func->get_descendants_of_taxID("EOL-000000097815", false, $this->descendants); echo "\nDone Archaeplastida";
-        $children_of['Cyanobacteria'] = $func->get_descendants_of_taxID("EOL-000000000047", false, $this->descendants); echo "\nDone Fungi";
-        $children_of['Fungi'] = $func->get_descendants_of_taxID("EOL-000002172573", false, $this->descendants); echo "\nDone Microsporidia";
+        $children_of['Cyanobacteria'] = $func->get_descendants_of_taxID("EOL-000000000047", false, $this->descendants); echo "\nDone Cyanobacteria";
+        $children_of['Fungi'] = $func->get_descendants_of_taxID("EOL-000002172573", false, $this->descendants); echo "\nDone Fungi";
         $children_of['Gyrista'] = $func->get_descendants_of_taxID("EOL-000000085512", false, $this->descendants); echo "\nDone Gyrista";
         $children_of['Eumycetozoa'] = $func->get_descendants_of_taxID("EOL-000000096158", false, $this->descendants); echo "\nDone Eumycetozoa";
         $children_of['Protosteliida'] = $func->get_descendants_of_taxID("EOL-000000097604", false, $this->descendants); echo "\nDone Protosteliida";
@@ -633,25 +633,18 @@ class DH_v1_1_taxonomicStatus_synonyms
         
         $children = $func->get_descendants_of_taxID("EOL-000002172574", false, $this->descendants); echo "\nDone Microsporidia";
         foreach($children as $child) $children_of['Microsporidia'][$child] = '';
-        
         $children = $func->get_descendants_of_taxID("EOL-000000097815", false, $this->descendants); echo "\nDone Archaeplastida";
         foreach($children as $child) $children_of['Archaeplastida'][$child] = '';
-        
         $children = $func->get_descendants_of_taxID("EOL-000000000047", false, $this->descendants); echo "\nDone Cyanobacteria";
         foreach($children as $child) $children_of['Cyanobacteria'][$child] = '';
-        
         $children = $func->get_descendants_of_taxID("EOL-000002172573", false, $this->descendants); echo "\nDone Fungi";
         foreach($children as $child) $children_of['Fungi'][$child] = '';
-        
         $children = $func->get_descendants_of_taxID("EOL-000000085512", false, $this->descendants); echo "\nDone Gyrista";
         foreach($children as $child) $children_of['Gyrista'][$child] = '';
-        
         $children = $func->get_descendants_of_taxID("EOL-000000096158", false, $this->descendants); echo "\nDone Eumycetozoa";
         foreach($children as $child) $children_of['Eumycetozoa'][$child] = '';
-        
         $children = $func->get_descendants_of_taxID("EOL-000000097604", false, $this->descendants); echo "\nDone Protosteliida";
         foreach($children as $child) $children_of['Protosteliida'][$child] = '';
-        
         $children = $func->get_descendants_of_taxID("EOL-000000025794", false, $this->descendants); echo "\nDone Dinoflagellata\n";
         foreach($children as $child) $children_of['Dinoflagellata'][$child] = '';
         
@@ -691,12 +684,11 @@ class DH_v1_1_taxonomicStatus_synonyms
             // Microsporidia    : 1465
             // Protosteliida    : 8
             // Cyanobacteria    : 1334
-            // Gyrista          : xxx
+            // Gyrista          : 9729
             // Eumycetozoa      : 1406
             // Dinoflagellata   : 1470
             // Fungi            : 148395
             // Archaeplastida   : 443598
-
             $taxonID = $rec['taxonID'];
             if(isset($children_of['Microsporidia'][$taxonID])) $rec['taxonomicStatus'] = 'valid';
             if(!@$rec['taxonomicStatus']) {
@@ -755,8 +747,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     $k++;
                 }
             }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx\n");
+            $rec = array_map('trim', $rec); // print_r($rec); exit("\nstopx\n");
             /*Array(
                 [taxonid] => EOL-000000000001
                 [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
@@ -774,6 +765,5 @@ class DH_v1_1_taxonomicStatus_synonyms
             $this->descendants[$rec['parentnameusageid']][$rec['taxonid']] = ''; //used for descendants (children)
         }
     }
-    
 }
 ?>
