@@ -528,7 +528,8 @@ class DH_v1_1_taxonomicStatus_synonyms
     function create_append_text($source = '', $table = '') //do only once
     {
         exit("\nDone already\n");
-        $source = $this->main_path."/new_DH_before_step4.txt"; 
+        $source = $this->main_path."/new_DH_before_step4.txt";          //obsolete
+        $source = $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";  //correct input
         
         // /*
         $table = 'taxonID_source_ids_newDH';
@@ -594,6 +595,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         fclose($WRITE);  $func->append_to_MySQL_table($table, $file_append);
         // */
         fclose($WRITE2); $func->append_to_MySQL_table($table2, $file_append2);
+        echo "\nend create_append_text()\n";
     }
     function step_1()
     {   echo "\nStart step 1...\n";
