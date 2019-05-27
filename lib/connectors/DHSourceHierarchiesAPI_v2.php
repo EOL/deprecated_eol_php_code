@@ -405,7 +405,8 @@ php update_resources/connectors/dwh_v2.php _ VSP
         }
         //generate json
         echo "\nGenerating cache json for the first time ($name)...\n";
-        $cmd = 'gnparser name -f json-compact "'.$name.'"';
+        $name_param = str_replace('"', '\"', $name);
+        $cmd = 'gnparser name -f json-compact "'.$name_param.'"';
         $json = shell_exec($cmd);
         if($json) {
             if($FILE = Functions::file_open($cache_path, 'w+')) {
