@@ -139,6 +139,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         fclose($this->WRITE);
         self::show_totals($file_append);
+        /*  /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_sample.txt: [1566220]
+            1252
+            /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_sample.txt: [1567472]
+        */
     }
     private function get_manually_curated_syns() //sheet found here: TRAM-809
     {
@@ -373,6 +377,11 @@ class DH_v1_1_taxonomicStatus_synonyms
                         else {}
                     }
                     
+                    // /* relevant metadata (if available):
+                    $taxonRemarks = '';
+                    if(in_array($what, array('IOC', 'ASW', 'ODO', 'BOM', 'WOR'))) $taxonRemarks = @$rec['taxonRemarks'];
+                    // */
+                    
                     $save = array(
                     'taxonID' => $rec['taxonID'], //for minting next
                     'source' => $what, //"$what:".$rec['acceptedNameUsageID'],
@@ -380,8 +389,8 @@ class DH_v1_1_taxonomicStatus_synonyms
                     'parentNameUsageID' => '', //$rec['parentNameUsageID'],
                     'scientificName' => $rec['scientificName'],
                     'taxonRank' => $rec['taxonRank'],
-                    'taxonRemarks' => '',
-                    'datasetID' => '', //$what,
+                    'taxonRemarks' => $taxonRemarks,    //relevant metadata (if available):
+                    'datasetID' => $what,               //relevant metadata (if available):
                     'canonicalName' => '',
                     'EOLid' => '',
                     'EOLidAnnotations' => '',
