@@ -134,6 +134,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         fclose($WRITE);
         self::show_totals($file_append);
     }
+    private function compact_syn_row($rec)
+    {
+        return $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID']."_".$rec['datasetID'];
+    }
     private function fetch_records_from_file($file, $purpose)
     {
         echo "\nReading [$file]...\n"; $i = 0;
@@ -177,10 +181,6 @@ class DH_v1_1_taxonomicStatus_synonyms
             }
         }
         return $final;
-    }
-    private function compact_syn_row($rec)
-    {
-        return $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID'];
     }
     private function write_discard_syn_2text($ordered_sources, $recs)
     {
