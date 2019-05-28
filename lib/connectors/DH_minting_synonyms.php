@@ -23,6 +23,8 @@ class DH_minting_synonyms
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/TRAM-809/";
         }
+        $this->write_fields = array('taxonID', 'source', 'furtherInformationURL', 'parentNameUsageID', 'scientificName', 'taxonRank', 'taxonRemarks', 
+                                    'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
     }
     //===================================================start minting
     function mint_synonym_ids()
@@ -42,7 +44,6 @@ class DH_minting_synonyms
         $i = 0;
         foreach(new FileIterator($sourcef) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
@@ -58,20 +59,35 @@ class DH_minting_synonyms
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); //exit("\nstopx\n");
-            /**/
-            $minted_id = self::search_minted_record($rec['uid'], $rec['accepted_uid'], $rec['name'], $rec['rank'], $rec['taxon_status'], $rec['datasetID']);
+            // print_r($rec); //exit("\nstopx\n");
+            /*Array(
+                [taxonID] => 1_1
+                [source] => NCBI
+                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
+                [parentNameUsageID] => 
+                [scientificName] => all
+                [taxonRank] => no rank
+                [taxonRemarks] => 
+                [datasetID] => NCBI
+                [canonicalName] => 
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => synonym
+                [acceptedNameUsageID] => EOL-000000000001
+            )*/
+            $minted_id = self::search_minted_record($rec['taxonID'], $rec['acceptedNameUsageID'], $rec['scientificName'], $rec['taxonRank'], $rec['taxonomicStatus'], $rec['datasetID']);
             if(!$minted_id) { //new name --- will be assigned with newly minted ID
                 $this->incremental++;
                 $minted_id = self::format_minted_id();
-                $arr = array($minted_id, $rec['uid'], $rec['accepted_uid'], $rec['name'], $rec['rank'], $rec['taxon_status'], $rec['datasetID']);
+                $arr = array($minted_id, $rec['taxonID'], $rec['acceptedNameUsageID'], $rec['scientificName'], $rec['taxonRank'], $rec['taxonomicStatus'], $rec['datasetID']);
                 fwrite($WRITE, implode("\t", $arr)."\n");
             }
-            // else echo "\nRecord already exists [$minted_id]\n";
+            else echo "\nRecord already exists [$minted_id]\n";
             
-            $old_id_minted_id_info[$rec['uid']] = $minted_id; //to be used below
+            $old_id_minted_id_info[$rec['taxonID']] = $minted_id; //to be used below
             
-            if($i > 3) break; //debug only
+            if($i > 8) break; //debug only
         }
         fclose($WRITE);
         
@@ -83,18 +99,17 @@ class DH_minting_synonyms
         }
         else echo "\nNothing to save.\n";
         
-        /* step 4: loop again synonyms_deduplicated.txt and generate synonyms_minted.txt, now using minted_id for uid and accepted_uid
+        // /* step 4: loop again synonyms_deduplicated.txt and generate synonyms_minted.txt, now using minted_id for uid and accepted_uid
         $file_taxonomy = $this->main_path."/synonyms_minted.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
         $fields = array('uid','accepted_uid','name','rank','sourceinfo','uniqname','flags');
-        fwrite($WRITE2, implode("\t|\t", $fields)."\t|\t"."\n");
+        fwrite($WRITE2, implode("\t", $this->write_fields)."\n");
         echo "\nGenerating $file_taxonomy\n";
         
         $sourcef = $this->main_path.'/synonyms_deduplicated.txt';
         $i = 0;
         foreach(new FileIterator($sourcef) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t|\t", $line); // print_r($row);
+            $row = explode("\t", $line);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
@@ -109,32 +124,43 @@ class DH_minting_synonyms
                 }
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); //exit("\nstopx\n");
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => 1_1
+                [source] => NCBI
+                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
+                [parentNameUsageID] => 
+                [scientificName] => all
+                [taxonRank] => no rank
+                [taxonRemarks] => 
+                [datasetID] => NCBI
+                [canonicalName] => 
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => synonym
+                [acceptedNameUsageID] => EOL-000000000001
+            )*/
             
             // for taxonomy file for DwCA -------------------------
-            if(substr($rec['uid'],0,5) == 'unc-P') $minted_id = $rec['uid']; //no need to mint 'unclassified ???'
-            else {
-                if($minted_id = $old_id_minted_id_info[$rec['uid']]) {}
-                else exit("\nInvestigate no minted uid...\n");
-            }
+            if($minted_id = $old_id_minted_id_info[$rec['taxonID']]) {}
+            else exit("\nInvestigate no minted taxonID...\n");
 
-            if(substr($rec['accepted_uid'],0,5) == 'unc-P') $accepted_id = $rec['accepted_uid']; //no need to mint 'unclassified ???'
-            else {
-                if($val = $rec['accepted_uid']) {
-                    if($accepted_id = $old_id_minted_id_info[$val]) {}
-                    else exit("\nInvestigate no minted accepted_uid...\n");
-                }
-                else $accepted_id = '';
-            }
-            
-            $arr = array($minted_id, $accepted_id, $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
-            fwrite($WRITE2, implode("\t|\t", $arr)."\t|\t"."\n");
+            $rec['taxonID'] = $minted_id;
+            self::write_report($rec, $fields, $WRITE2);
             // -------------------------
             
-            // if($i > 15) break; //debug only
+            if($i > 8) break; //debug only
         }
         fclose($WRITE2);
-        */
+        // */
+    }
+    private function write_report($save_rec, $fields, $fileH)
+    {
+        $arr = array();
+        foreach($fields as $f) $arr[] = @$save_rec[$f];
+        // print_r($arr);
+        fwrite($fileH, implode("\t", $arr)."\n");
     }
     private function get_max_minted_id()
     {
