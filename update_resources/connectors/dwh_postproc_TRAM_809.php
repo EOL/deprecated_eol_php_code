@@ -88,10 +88,10 @@ exit;
         // --> output:
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
 */
-// /*
-$func->create_append_text(); exit("\n-end create_append_text-\n"); //done only once; worked OK
-// */
 /*
+$func->create_append_text(); exit("\n-end create_append_text-\n"); //done only once; worked OK
+*/
+// /*
 $func->step_2(); //2. Fetch synonyms & metadata from DH sources
 exit;
         // --> input:
@@ -99,7 +99,7 @@ exit;
         // --> output:
         // $this->main_path_TRAM_809."/synonyms.txt";
         // $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt";
-*/
+// */
 /* step 4 is missing, wrong number increment in Jira ticket
 $func->step_5(); //5. Add manually curated synonyms
         // --> appends to:
