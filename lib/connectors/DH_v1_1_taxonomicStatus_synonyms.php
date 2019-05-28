@@ -73,9 +73,114 @@ class DH_v1_1_taxonomicStatus_synonyms
         fclose($this->WRITE);
         self::regenerate_synonyms_without_duplicates();
     }
-    private function regenerate_synonyms_without_duplicates()
+    function regenerate_synonyms_without_duplicates()
     {
+        // --> input:
+        // $this->main_path_TRAM_809."/synonyms.txt";
+        // --> to be removed from synonyms.txt:
+        // $this->main_path_TRAM_809."/synonyms_2be_discarded.txt";
+        // --> output:
+        // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
         
+        $file = $this->main_path_TRAM_809."/synonyms_2be_discarded.txt";
+        $delete_syn_compact_ids = self::fetch_records_from_file($file, 'synonyms_2be_discarded');
+        echo "\nSynonyms to be discarded: ".count($delete_syn_compact_ids)."\n";
+        
+        $source = $this->main_path_TRAM_809."/synonyms.txt";
+        $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
+        self::show_totals($source);
+        $file_append = $this->main_path_TRAM_809."/synonyms_deduplicated.txt"; $WRITE = fopen($file_append, "w"); fwrite($WRITE, implode("\t", $this->write_fields)."\n");
+        
+        echo "\nReading [$source]...\n"; $i = 0;
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => 1_1
+                [source] => NCBI
+                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
+                [parentNameUsageID] => 
+                [scientificName] => all
+                [taxonRank] => no rank
+                [taxonRemarks] => 
+                [datasetID] => NCBI
+                [canonicalName] => 
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => synonym
+                [acceptedNameUsageID] => EOL-000000000001
+            )*/
+            $tmp = self::compact_syn_row($rec);
+            if(!isset($delete_syn_compact_ids[$tmp])) {
+                self::write_report($rec, $this->write_fields, $WRITE);
+            }
+        }
+        fclose($WRITE);
+        self::show_totals($file_append);
+    }
+    private function fetch_records_from_file($file, $purpose)
+    {
+        echo "\nReading [$file]...\n"; $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopxs\n");
+            /*Array(
+                [taxonID] => inv-Arcifera-Cope-1889-B
+                [source] => ASW
+                [furtherInformationURL] => http://research.amnh.org/herpetology/amphibia/index.html
+                [parentNameUsageID] => 
+                [scientificName] => Arcifera Cope, 1889
+                [taxonRank] => order
+                [taxonRemarks] => synonymous original name
+                [datasetID] => ASW
+                [canonicalName] => 
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => invalid
+                [acceptedNameUsageID] => EOL-000000618834
+            )*/
+            if($purpose == 'synonyms_2be_discarded') {
+                $tmp = self::compact_syn_row($rec);
+                $final[$tmp] = '';
+            }
+        }
+        return $final;
+    }
+    private function compact_syn_row($rec)
+    {
+        return $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID'];
     }
     private function write_discard_syn_2text($ordered_sources, $recs)
     {
@@ -83,7 +188,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         foreach($ordered_sources as $source) {
             foreach($recs as $rec) {
                 if($source == $rec['source']) {
-                    $final['retain'] = $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID'];
+                    $final['retain'] = self::compact_syn_row($rec);
                     $cont = false;
                     break;
                 }
@@ -92,7 +197,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         /* create discard list... */
         foreach($recs as $rec) {
-            $temp = $rec['taxonID']."_".$rec['scientificName']."_".$rec['acceptedNameUsageID'];
+            $temp = self::compact_syn_row($rec);
             if($temp != $final['retain']) $final['discard'][] = $rec;
         }
         print_r($final);
@@ -192,7 +297,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     {
         // exit("\nDone step_2() May 27 already.\n");
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
-        $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields_rep)."\n");
+        $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE_REP, implode("\t", $this->write_fields_rep)."\n");
         // /* run data sources 
         self::process_data_source('NCBI');
         self::process_data_source('ASW');

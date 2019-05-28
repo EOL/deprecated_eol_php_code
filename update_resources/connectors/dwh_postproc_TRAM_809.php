@@ -91,7 +91,7 @@ exit;
 /*
 $func->create_append_text(); exit("\n-end create_append_text-\n"); //done only once; worked OK
 */
-// /*
+/*
 $func->step_2(); //2. Fetch synonyms & metadata from DH sources
 // exit;
         // --> input:
@@ -99,19 +99,22 @@ $func->step_2(); //2. Fetch synonyms & metadata from DH sources
         // --> output:
         // $this->main_path_TRAM_809."/synonyms.txt";
         // $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt";
-// */
+*/
 /* step 4 is missing, wrong number increment in Jira ticket
 $func->step_5(); //5. Add manually curated synonyms
         // --> appends to:
         // $this->main_path_TRAM_809."/synonyms.txt";
 */
-/*
-$func->step_6(); //6. Deduplicate synonyms
+// /*
+// $func->step_6(); //6. Deduplicate synonyms
         // --> input:
         // $this->main_path_TRAM_809."/synonyms.txt";
+        // --> to be removed from synonyms.txt:
+        // $this->main_path_TRAM_809."/synonyms_2be_discarded.txt";
         // --> output:
         // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
-*/
+$func->regenerate_synonyms_without_duplicates();
+// */
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id);
