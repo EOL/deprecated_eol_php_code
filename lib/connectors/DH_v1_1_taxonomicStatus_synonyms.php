@@ -636,6 +636,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $file = $this->main_path."/new_DH_before_step4.txt"; //last DH output of TRAM-808
         $file = $this->main_path."/with_higherClassification/1558361160.txt"; //last DH output of TRAM-808 --> with higherClassification
         $file = $this->main_path."/with_higherClassification/1558827333.txt"; //latest
+        $file = $this->main_path."/with_higherClassification/1559013226.txt"; //latest May 28, 2019
         /* initialize info global ------------------------------------------------------------------------------*/
         require_library('connectors/DH_v1_1_postProcessing');
         $func = new DH_v1_1_postProcessing(1);
