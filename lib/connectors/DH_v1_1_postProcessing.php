@@ -139,7 +139,6 @@ class DH_v1_1_postProcessing
     private function search_minted_record($uid, $parent_uid, $sciname, $rank)
     {
         $sciname = str_replace("'", "\'", $sciname);
-        
         $sql = "SELECT m.minted_id from DWH.minted_records m WHERE m.uid = '$uid' and m.sciname = '$sciname' and m.rank = '$rank' and m.parent_uid = '$parent_uid';";
         $result = $this->mysqli->query($sql);
         while($result && $row=$result->fetch_assoc()) return $row['minted_id'];
