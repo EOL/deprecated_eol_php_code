@@ -79,23 +79,33 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";     //new DH with taxonomicStatus
         // --> output:
         // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //new DH with synonyms
-        $source = $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";
-        $destination = $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";
-        if(copy($source, $destination)) echo "\nCopied initial OK\n";
-        else echo "\nInitial copy failed\n";
 
-        $file_append = $this->main_path_TRAM_809."/new_DH_with_synonyms.txt"; $WRITE = fopen($file_append, "a");
+        $file_append = $this->main_path_TRAM_809."/new_DH_with_synonyms.txt"; $WRITE = fopen($file_append, "w"); fwrite($WRITE, implode("\t", $this->write_fields)."\n");
         self::show_totals($file_append);
+
+        $source = $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";
+        self::append_file($source, $WRITE);
+        
         $source = $this->main_path_TRAM_809."/synonyms_minted.txt";
         $source = $this->main_path_TRAM_809."/synonyms_minted_sample.txt"; //debug only
+        self::append_file($source, $WRITE);
+
         self::show_totals($source);
+
+        self::show_totals($file_append);
+    }
+    private function append_file($source, $WRITE)
+    {
+        $fields = $this->write_fields;
         echo "\nReading [$source]...\n"; $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
+                /* $fields in set above
                 $fields = $row;
                 $fields = array_filter($fields); //print_r($fields);
+                */
                 continue;
             }
             else {
@@ -125,8 +135,8 @@ class DH_v1_1_taxonomicStatus_synonyms
                 [acceptedNameUsageID] => EOL-000000000001
             )*/
             self::write_report($rec, $fields, $WRITE);
+            // if($i < 5) break; //debug
         }
-        self::show_totals($file_append);
     }
     function regenerate_synonyms_without_duplicates()
     {
