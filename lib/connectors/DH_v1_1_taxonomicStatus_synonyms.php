@@ -190,6 +190,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     function step_2() //step 3 included here as well. Next step after this is step_5() "5. Add manually curated synonyms"
     {
+        exit("\nDone step_2() May 27 already.\n");
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields_rep)."\n");
         // /* run data sources 
