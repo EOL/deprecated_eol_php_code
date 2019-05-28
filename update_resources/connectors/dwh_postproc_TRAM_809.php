@@ -83,13 +83,14 @@ exit;
         // --> input: 
         // $this->main_path."/new_DH_before_step4.txt";                    //last DH output of TRAM-808
         // $this->main_path."/with_higherClassification/1558361160.txt";   //last DH output of TRAM-808 --> **ALWAYS USE with higherClassification
-                                                        1558827333.txt     //latest May 26, 2019
+                                                     // 1558827333.txt     //latest May 26, 2019
+                                                     // 1559013226.txt     //latest May 28, 2019
         // --> output:
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
 */
-/*
+// /*
 $func->create_append_text(); exit("\n-end create_append_text-\n"); //done only once; worked OK
-*/
+// */
 /*
 $func->step_2(); //2. Fetch synonyms & metadata from DH sources
 exit;
