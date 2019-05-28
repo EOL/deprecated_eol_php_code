@@ -25,7 +25,7 @@ class DH_minting_synonyms
         }
     }
     //===================================================start minting
-    function step_5_minting()
+    function mint_synonym_ids()
     {
         $file_append = $this->main_path."/minted_recs_syn_transaction.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $this->mysqli =& $GLOBALS['db_connection'];
@@ -38,9 +38,9 @@ class DH_minting_synonyms
         echo("\nincrement starts with: [$this->incremental]\n");
         
         /* step 2: loop synonym file, check if each name exists already. If yes, get minted_id from table. If no, increment id and assign. */
-        $txtfile = $this->main_path.'/synonyms_deduplicated.txt.txt';
+        $sourcef = $this->main_path.'/synonyms_deduplicated.txt';
         $i = 0;
-        foreach(new FileIterator($txtfile) as $line_number => $line) {
+        foreach(new FileIterator($sourcef) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line);
@@ -71,7 +71,7 @@ class DH_minting_synonyms
             
             $old_id_minted_id_info[$rec['uid']] = $minted_id; //to be used below
             
-            // if($i > 15) break; //debug only
+            if($i > 3) break; //debug only
         }
         fclose($WRITE);
         
@@ -83,16 +83,15 @@ class DH_minting_synonyms
         }
         else echo "\nNothing to save.\n";
         
-        /* NOT BELOW HERE...
-        step 4: loop again taxonomy3.txt and generate taxonomy_4dwca.txt, now using minted_id for uid and accepted_uid
-        $file_taxonomy = $this->main_path."/taxonomy_4dwca.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
+        /* step 4: loop again synonyms_deduplicated.txt and generate synonyms_minted.txt, now using minted_id for uid and accepted_uid
+        $file_taxonomy = $this->main_path."/synonyms_minted.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
         $fields = array('uid','accepted_uid','name','rank','sourceinfo','uniqname','flags');
         fwrite($WRITE2, implode("\t|\t", $fields)."\t|\t"."\n");
         echo "\nGenerating $file_taxonomy\n";
         
-        $txtfile = $this->main_path.'/taxonomy3.txt';
+        $sourcef = $this->main_path.'/synonyms_deduplicated.txt';
         $i = 0;
-        foreach(new FileIterator($txtfile) as $line_number => $line) {
+        foreach(new FileIterator($sourcef) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             if($i == 1) $line = strtolower($line);
             $row = explode("\t|\t", $line); // print_r($row);

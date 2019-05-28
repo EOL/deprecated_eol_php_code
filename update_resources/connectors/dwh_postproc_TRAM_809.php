@@ -106,7 +106,7 @@ $func->step_5(); //5. Add manually curated synonyms
         // $this->main_path_TRAM_809."/synonyms.txt";
 */
 
-// /*
+/*
 $func->step_6(); //6. Deduplicate synonyms
         // --> input:
         // $this->main_path_TRAM_809."/synonyms.txt";
@@ -115,15 +115,17 @@ $func->step_6(); //6. Deduplicate synonyms
         // --> output:
         // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
 // $func->regenerate_synonyms_without_duplicates(); //normally runs after step_6(), coded that way. Or run separately here...during development
-// */
+*/
 
-/*
-$func->mint_synonym_ids()
+// /*
+require_library('connectors/DH_minting_synonyms');
+$syn = new DH_minting_synonyms();
+$syn->mint_synonym_ids()
     // --> use:
     // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
     // --> output:
     // $this->main_path_TRAM_809."/synonyms_minted.txt";
-*/
+// */
 
 /*
 $func->add_synonyms_to_DH()
