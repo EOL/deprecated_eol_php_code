@@ -73,6 +73,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         fclose($this->WRITE);
         self::regenerate_synonyms_without_duplicates();
     }
+    function add_synonyms_to_DH()
+    {
+        
+    }
     function regenerate_synonyms_without_duplicates()
     {
         // --> input:

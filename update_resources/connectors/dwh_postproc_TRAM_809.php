@@ -105,6 +105,7 @@ $func->step_5(); //5. Add manually curated synonyms
         // --> appends to:
         // $this->main_path_TRAM_809."/synonyms.txt";
 */
+
 // /*
 $func->step_6(); //6. Deduplicate synonyms
         // --> input:
@@ -113,8 +114,27 @@ $func->step_6(); //6. Deduplicate synonyms
         // $this->main_path_TRAM_809."/synonyms_2be_discarded.txt";
         // --> output:
         // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
-// $func->regenerate_synonyms_without_duplicates();
+// $func->regenerate_synonyms_without_duplicates(); //normally runs after step_6(), coded that way. Or run separately here...during development
 // */
+
+/*
+$func->mint_synonym_ids()
+    // --> use:
+    // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
+    // --> output:
+    // $this->main_path_TRAM_809."/synonyms_minted.txt";
+*/
+
+/*
+$func->add_synonyms_to_DH()
+    // --> use:
+    // $this->main_path_TRAM_809."/synonyms_minted.txt";
+    // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";     //new DH with taxonomicStatus
+    // --> output:
+    // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //new DH with synonyms
+*/
+
+
 
 // exit("\n-end for now-\n");
 // $func->generate_dwca($resource_id);
