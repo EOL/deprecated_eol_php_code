@@ -78,27 +78,26 @@ OK: All parents in taxon.tab have entries.
 OK: All acceptedNameUsageID have entries.
 */
 
-// /* hopefully final clean-up for the EOLids. https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63482&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63482
+/* hopefully final clean-up for the EOLids. https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63482&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63482
 $func->final_clean_up_for_EOLids(2);
         //--> uses
         // $this->main_path."/new_DH_cleaned_up.txt"
         //--> generates
         // $this->main_path."/new_DH_cleaned_up_v2.txt"
-// */
-
-// /*
+*/
+/*
 $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_cleaned_up_v2.txt";
 run_diagnostics(false, $taxa_file); exit;
 // as of May 27, 2019:
-// OK: All parents in taxon.tab have entries. ???
-// OK: All acceptedNameUsageID have entries. ???
-// */
+// OK: All parents in taxon.tab have entries. OK
+// OK: All acceptedNameUsageID have entries. OK
+*/
 
-/*
+// /*
 // $func->step_4(); //4. Create a special report for known homonyms
 // $func->step4_2();
-$func->step4_3();
-*/
+$func->step4_3(); exit;
+// */
 // /*
 $func->last_report(); //check for duplicate EOLid's
 // */

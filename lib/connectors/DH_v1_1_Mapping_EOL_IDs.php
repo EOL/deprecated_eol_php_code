@@ -39,7 +39,7 @@ class DH_v1_1_mapping_EOL_IDs
     */
     //==========================================================================start final_clean_up_for_EOLids
     function final_clean_up_for_EOLids($pass1or2)
-    {
+    {   exit("\nDone so far May 27, 2019.\n");
         $delete_array = array(); $blank_array = array(); $manual_array = array(); 
         if($pass1or2 == 1) {
             $delete_array = array('EOL-000000882532', 'EOL-000000952029', 'EOL-000001328799', 'EOL-000001467532', 'EOL-000002317805', 'EOL-000001529001', 'EOL-000000026782', 
@@ -238,6 +238,7 @@ class DH_v1_1_mapping_EOL_IDs
                               'datasetID', 'canonicalName', 'higherClassification', 'oldHigherClassification', 'EOLid', 'EOLidAnnotations');
         $source = $this->main_path."/with_higherClassification/1558361160.txt";
         $source = $this->main_path."/with_higherClassification/1558827333.txt";
+        $source = $this->main_path."/with_higherClassification/1559013226.txt"; //May 28, 2019
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
