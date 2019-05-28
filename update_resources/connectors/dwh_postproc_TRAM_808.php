@@ -93,12 +93,13 @@ run_diagnostics(false, $taxa_file); exit;
 // OK: All acceptedNameUsageID have entries. OK
 */
 
-// /*
+/*
 // $func->step_4(); //4. Create a special report for known homonyms
 // $func->step4_2();
 $func->step4_3(); exit;
-// */
-// /*
+*/
+
+// /* last step: as of May 28, 2019 there is no more duplicate EOLid's OKAY!!!
 $func->last_report(); //check for duplicate EOLid's
 // */
 

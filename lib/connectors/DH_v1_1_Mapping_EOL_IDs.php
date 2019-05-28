@@ -148,8 +148,10 @@ class DH_v1_1_mapping_EOL_IDs
     }
     function last_report()
     {   /* start loop of DH */
+        $source = $this->main_path."/new_DH_cleaned_up.txt";
+        $source = $this->main_path."/new_DH_cleaned_up_v2.txt"; //latest May 28, 2019
         $i = 0;
-        foreach(new FileIterator($this->main_path."/new_DH_cleaned_up.txt") as $line_number => $line) {
+        foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
