@@ -38,29 +38,46 @@ class DH_v1_1_mapping_EOL_IDs
     step. run step_1()
     */
     //==========================================================================start final_clean_up_for_EOLids
-    function final_clean_up_for_EOLids()
+    function final_clean_up_for_EOLids($pass1or2)
     {
-        $delete_array = array('EOL-000000882532', 'EOL-000000952029', 'EOL-000001328799', 'EOL-000001467532', 'EOL-000002317805', 'EOL-000001529001', 'EOL-000000026782', 
-                              'EOL-000000026783', 'EOL-000000026784', 'EOL-000000026785', 'EOL-000000091353', 'EOL-000000091354', 'EOL-000000098142', 'EOL-000000098143');
-        // /*
-        $arr = file($this->main_path.'Jira_attachments/blank_eolID.txt');
-        foreach($arr as $a) $blank_array[trim($a)] = '';
-        // print_r($blank_array); exit("\n".count($blank_array)."\n");
-        // */
-        // /*
-        $arr = file($this->main_path.'Jira_attachments/manual_eolID.txt');
-        foreach($arr as $a) {
-            $vals = explode("\t", $a);
-            $vals = array_map('trim', $vals);
-            $manual_array[$vals[0]] = $vals[1];
+        $delete_array = array(); $blank_array = array(); $manual_array = array(); 
+        if($pass1or2 == 1) {
+            $delete_array = array('EOL-000000882532', 'EOL-000000952029', 'EOL-000001328799', 'EOL-000001467532', 'EOL-000002317805', 'EOL-000001529001', 'EOL-000000026782', 
+                                  'EOL-000000026783', 'EOL-000000026784', 'EOL-000000026785', 'EOL-000000091353', 'EOL-000000091354', 'EOL-000000098142', 'EOL-000000098143');
+            $blank_file_path = $this->main_path.'Jira_attachments/blank_eolID.txt';
+            $manual_file_path = $this->main_path.'Jira_attachments/manual_eolID.txt';
+            $append_file = 'new_DH_cleaned_up.txt';
+            $source_file = 'new_DH_before_step4.txt';
         }
-        // print_r($manual_array); exit("\n".count($manual_array)."\n");
+        elseif($pass1or2 == 2) {
+            $delete_array = array('EOL-000001317246', 'EOL-000001312196', 'EOL-000001331002');
+            $blank_file_path = $this->main_path.'Jira_attachments/pass2/blank_eolID.txt'; //does not exist
+            $manual_file_path = $this->main_path.'Jira_attachments/pass2/manual_eolID.txt';
+            $append_file = 'new_DH_cleaned_up_v2.txt';
+            $source_file = 'new_DH_cleaned_up.txt';
+        }
+        // /*
+        if(file_exists($blank_file_path)) {
+            $arr = file($blank_file_path);
+            foreach($arr as $a) $blank_array[trim($a)] = '';
+            // print_r($blank_array); exit("\n".count($blank_array)."\n");
+        }
         // */
-        
+        // /*
+        if(file_exists($manual_file_path)) {
+            $arr = file($manual_file_path);
+            foreach($arr as $a) {
+                $vals = explode("\t", $a);
+                $vals = array_map('trim', $vals);
+                $manual_array[$vals[0]] = $vals[1];
+            }
+            // print_r($manual_array); exit("\n".count($manual_array)."\n");
+        }
+        // */
         /* start loop of DH */
-        $file_append = $this->main_path."/new_DH_cleaned_up.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
+        $file_append = $this->main_path."/".$append_file; $WRITE = fopen($file_append, "w"); //will overwrite existing
         $i = 0;
-        foreach(new FileIterator($this->main_path."/new_DH_before_step4.txt") as $line_number => $line) {
+        foreach(new FileIterator($this->main_path."/".$source_file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
@@ -91,7 +108,6 @@ class DH_v1_1_mapping_EOL_IDs
                 [EOLid] => 2913056
                 [EOLidAnnotations] => 
             )*/
-            
             $taxon_id = $rec['taxonID'];
             if(in_array($taxon_id, $delete_array)) {
                 @$counts['delete']++;
@@ -107,26 +123,27 @@ class DH_v1_1_mapping_EOL_IDs
                 $rec['EOLid'] = $val;
                 $rec['EOLidAnnotations'] = 'manual';
             }
-            
             /* start writing */
             $save = array();
             foreach($fields as $head) $save[] = $rec[$head];
             fwrite($WRITE, implode("\t", $save)."\n");
         }
-        fclose($WRITE); echo "\n[new_DH_cleaned_up.txt] generated OK.\n";
+        fclose($WRITE); echo "\n[$append_file] generated OK.\n";
         print_r($counts);
-        /* results:
+        /* results: pass 1
         [new_DH_cleaned_up.txt] generated OK.
-        Array(
-            [blank] => 493
-            [manual] => 1522
-            [delete] => 14
-        )
-        
-        wc -l new_DH_cleaned_up.txt
-            2328984 new_DH_cleaned_up.txt
-        wc -l known_homonyms.txt
-            4363 known_homonyms.txt
+        Array(  [blank] => 493
+                [manual] => 1522
+                [delete] => 14
+        wc -l new_DH_cleaned_up.txt             2328984 new_DH_cleaned_up.txt
+        wc -l known_homonyms.txt                4363 known_homonyms.txt
+        */
+        /* results: pass 2
+        [new_DH_cleaned_up_v2.txt] generated OK.
+        Array(  [manual] => 70
+                [delete] => 3
+        wc -l new_DH_cleaned_up_v2.txt          2328981 new_DH_cleaned_up_v2.txt
+        wc -l new_DH_cleaned_up.txt             2328984 new_DH_cleaned_up.txt
         */
     }
     function last_report()

@@ -64,13 +64,12 @@ run_diagnostics(false, $taxa_file);
 */
 
 /* Here is the final clean-up for the EOLids. https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63479&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63479
-$func->final_clean_up_for_EOLids();
+$func->final_clean_up_for_EOLids(1);
         //--> uses
         // $this->main_path."/new_DH_before_step4.txt"
         //--> generates
         // $this->main_path."/new_DH_cleaned_up.txt"
 */
-
 /*
 $taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_cleaned_up.txt";
 run_diagnostics(false, $taxa_file);
@@ -78,6 +77,22 @@ as of May 25, 2019:
 OK: All parents in taxon.tab have entries.
 OK: All acceptedNameUsageID have entries.
 */
+
+// /* hopefully final clean-up for the EOLids. https://eol-jira.bibalex.org/browse/TRAM-808?focusedCommentId=63482&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63482
+$func->final_clean_up_for_EOLids(2);
+        //--> uses
+        // $this->main_path."/new_DH_cleaned_up.txt"
+        //--> generates
+        // $this->main_path."/new_DH_cleaned_up_v2.txt"
+// */
+
+// /*
+$taxa_file = "/Volumes/AKiTiO4/d_w_h/TRAM-808/new_DH_cleaned_up_v2.txt";
+run_diagnostics(false, $taxa_file); exit;
+// as of May 27, 2019:
+// OK: All parents in taxon.tab have entries. ???
+// OK: All acceptedNameUsageID have entries. ???
+// */
 
 /*
 // $func->step_4(); //4. Create a special report for known homonyms
@@ -105,6 +120,7 @@ echo "\nDone processing.\n";
 // /*
 Function run_diagnostics($resource_id, $taxa_file = false) // utility - takes time for this resource but very helpful to catch if all parents have entries.
 {
+    if($taxa_file) echo "\nRunning diagnostics [$taxa_file]:\n";
     require_library('connectors/DWCADiagnoseAPI');
     $func = new DWCADiagnoseAPI();
     // $func->check_unique_ids($resource_id); //takes time
