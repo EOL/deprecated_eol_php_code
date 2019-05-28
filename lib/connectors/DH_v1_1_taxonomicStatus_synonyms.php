@@ -140,7 +140,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     private function fetch_records_from_file($file, $purpose)
     {
-        echo "\nReading [$file]...\n"; $i = 0;
+        echo "\nReading [$file]...\n"; $i = 0; $final = array();
         foreach(new FileIterator($file) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
