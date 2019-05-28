@@ -101,7 +101,7 @@ class DH_minting_synonyms
         
         // /* step 4: loop again synonyms_deduplicated.txt and generate synonyms_minted.txt, now using minted_id for uid and accepted_uid
         $file_taxonomy = $this->main_path."/synonyms_minted.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
-        $fields = array('uid','accepted_uid','name','rank','sourceinfo','uniqname','flags');
+        // $fields = array('uid','accepted_uid','name','rank','sourceinfo','uniqname','flags'); //not used here...
         fwrite($WRITE2, implode("\t", $this->write_fields)."\n");
         echo "\nGenerating $file_taxonomy\n";
         
