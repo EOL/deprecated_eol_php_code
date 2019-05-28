@@ -74,8 +74,59 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::regenerate_synonyms_without_duplicates();
     }
     function add_synonyms_to_DH()
-    {
-        
+    {   // --> use:
+        // $this->main_path_TRAM_809."/synonyms_minted.txt";
+        // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";     //new DH with taxonomicStatus
+        // --> output:
+        // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //new DH with synonyms
+        $source = $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";
+        $destination = $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";
+        if(copy($source, $destination)) echo "\nCopied initial OK\n";
+        else echo "\nInitial copy failed\n";
+
+        $file_append = $this->main_path_TRAM_809."/new_DH_with_synonyms.txt"; $WRITE = fopen($file_append, "a");
+        self::show_totals($file_append);
+        $source = $this->main_path_TRAM_809."/synonyms_minted.txt";
+        $source = $this->main_path_TRAM_809."/synonyms_minted_sample.txt"; //debug only
+        self::show_totals($source);
+        echo "\nReading [$source]...\n"; $i = 0;
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => SYN-000000000001
+                [source] => NCBI
+                [furtherInformationURL] => https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=1
+                [parentNameUsageID] => 
+                [scientificName] => all
+                [taxonRank] => no rank
+                [taxonRemarks] => 
+                [datasetID] => NCBI
+                [canonicalName] => 
+                [EOLid] => 
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => synonym
+                [acceptedNameUsageID] => EOL-000000000001
+            )*/
+            self::write_report($rec, $fields, $WRITE);
+        }
+        self::show_totals($file_append);
     }
     function regenerate_synonyms_without_duplicates()
     {
