@@ -87,7 +87,7 @@ class DH_minting_synonyms
             
             $old_id_minted_id_info[$rec['taxonID']] = $minted_id; //to be used below
             
-            if($i > 8) break; //debug only
+            // if($i > 8) break; //debug only
         }
         fclose($WRITE);
         
@@ -150,7 +150,7 @@ class DH_minting_synonyms
             self::write_report($rec, $fields, $WRITE2);
             // -------------------------
             
-            if($i > 8) break; //debug only
+            // if($i > 8) break; //debug only
         }
         fclose($WRITE2);
         // */
@@ -172,6 +172,7 @@ class DH_minting_synonyms
     private function search_minted_record($uid, $accepted_uid, $sciname, $rank, $taxon_status, $datasetID)
     {
         $sciname = str_replace("'", "\'", $sciname);
+        $uid = str_replace("'", "\'", $uid);
         $sql = "SELECT m.minted_id from DWH.minted_records_synonyms m WHERE 
         m.uid = '$uid' 
         and m.accepted_uid = '$accepted_uid' 
