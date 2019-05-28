@@ -25,35 +25,9 @@ class DH_minting_synonyms
         }
     }
     //===================================================start minting
-    private function get_max_minted_id()
-    {
-        $sql = "SELECT max(m.minted_id) as max_id from DWH.minted_records_synonyms m;";
-        $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['max_id'];
-        return false;
-    }
-    private function search_minted_record($uid, $accepted_uid, $sciname, $rank, $taxon_status, $datasetID)
-    {
-        $sciname = str_replace("'", "\'", $sciname);
-        $sql = "SELECT m.minted_id from DWH.minted_records_synonyms m WHERE 
-        m.uid = '$uid' 
-        and m.accepted_uid = '$accepted_uid' 
-        and m.sciname = '$sciname' 
-        and m.rank = '$rank' 
-        and m.taxon_status = '$taxon_status' 
-        and m.datasetID = '$datasetID';";
-        $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['minted_id'];
-        return false;
-    }
-    private function format_minted_id()
-    {
-        return "SYN-".Functions::format_number_with_leading_zeros($this->incremental, 12);
-    }
     function step_5_minting()
-    {   
+    {
         $file_append = $this->main_path."/minted_recs_syn_transaction.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        
         $this->mysqli =& $GLOBALS['db_connection'];
         /* step 1: get max minted_id value */
         $max_id = self::get_max_minted_id();
@@ -162,6 +136,31 @@ class DH_minting_synonyms
         }
         fclose($WRITE2);
         */
+    }
+    private function get_max_minted_id()
+    {
+        $sql = "SELECT max(m.minted_id) as max_id from DWH.minted_records_synonyms m;";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row['max_id'];
+        return false;
+    }
+    private function search_minted_record($uid, $accepted_uid, $sciname, $rank, $taxon_status, $datasetID)
+    {
+        $sciname = str_replace("'", "\'", $sciname);
+        $sql = "SELECT m.minted_id from DWH.minted_records_synonyms m WHERE 
+        m.uid = '$uid' 
+        and m.accepted_uid = '$accepted_uid' 
+        and m.sciname = '$sciname' 
+        and m.rank = '$rank' 
+        and m.taxon_status = '$taxon_status' 
+        and m.datasetID = '$datasetID';";
+        $result = $this->mysqli->query($sql);
+        while($result && $row=$result->fetch_assoc()) return $row['minted_id'];
+        return false;
+    }
+    private function format_minted_id()
+    {
+        return "SYN-".Functions::format_number_with_leading_zeros($this->incremental, 12);
     }
     //=====================================================end minting
 }
