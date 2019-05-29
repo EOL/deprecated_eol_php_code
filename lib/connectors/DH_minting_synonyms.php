@@ -51,7 +51,9 @@ class DH_minting_synonyms
                 continue;
             }
             else {
+                /* will exclude manually curated synonyms added from the Google sheet
                 if(!@$row[0]) continue;
+                */
                 $k = 0; $rec = array();
                 foreach($fields as $fld) {
                     $rec[$fld] = @$row[$k];
@@ -116,7 +118,9 @@ class DH_minting_synonyms
                 continue;
             }
             else {
+                /* will exclude manually curated synonyms added from the Google sheet
                 if(!@$row[0]) continue;
+                */
                 $k = 0; $rec = array();
                 foreach($fields as $fld) {
                     $rec[$fld] = @$row[$k];
