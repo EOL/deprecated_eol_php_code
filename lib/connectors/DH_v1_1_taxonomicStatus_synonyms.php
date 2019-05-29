@@ -112,6 +112,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         fclose($WRITE);
         self::show_totals($source);
         self::show_totals($file_append);
+        /* as of May 29
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011067]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_landmarks.txt: [4011067]
+        */
     }
     function step_6() //6. Deduplicate synonyms
     {
@@ -303,8 +307,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     $k++;
                 }
             }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopxs\n");
+            $rec = array_map('trim', $rec); // print_r($rec); exit("\nstopxs\n");
             /*Array(
                 [taxonID] => inv-Arcifera-Cope-1889-B
                 [source] => ASW
@@ -379,8 +382,7 @@ class DH_v1_1_taxonomicStatus_synonyms
                     $k++;
                 }
             }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx\n");
+            $rec = array_map('trim', $rec); // print_r($rec); exit("\nstopx\n");
             /*Array(
                 [taxonID] => 42273049
                 [source] => COL:42227223
@@ -435,7 +437,8 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         fclose($this->WRITE);
         self::show_totals($file_append);
-        /*  /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1681122]
+        /*  as of May 29
+            /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1681122]
             1251
             /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1682373]
         */
