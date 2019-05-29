@@ -87,9 +87,11 @@ exit;
                                                      // 1559013226.txt     //latest May 28, 2019
         // --> output:
         // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";            //new DH with taxonomicStatus
+echo "\n***********************************************************************************************************\n";
 */
 /*
 $func->create_append_text(); exit("\n-end create_append_text-\n"); //done only once; worked OK
+echo "\n***********************************************************************************************************\n";
 */
 /*
 $func->step_2(); //2. Fetch synonyms & metadata from DH sources
@@ -99,12 +101,14 @@ $func->step_2(); //2. Fetch synonyms & metadata from DH sources
         // --> output:
         // $this->main_path_TRAM_809."/synonyms.txt";
         // $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt";
+echo "\n***********************************************************************************************************\n";
 */
 
 /* step 4 is missing, wrong number increment in Jira ticket
 $func->step_5(); //5. Add manually curated synonyms
         // --> appends to:
         // $this->main_path_TRAM_809."/synonyms.txt";
+echo "\n***********************************************************************************************************\n";
 */
 
 /*
@@ -116,6 +120,7 @@ $func->step_6(); //6. Deduplicate synonyms
         // --> output:
         // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
 // $func->regenerate_synonyms_without_duplicates(); //normally runs after step_6(), coded that way. Or run separately here...during development
+echo "\n***********************************************************************************************************\n";
 */
 
 /*
@@ -126,6 +131,7 @@ $syn->mint_synonym_ids(); echo "\n-End minting synonyms-\n";            //can ru
     // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
     // --> output:
     // $this->main_path_TRAM_809."/synonyms_minted.txt";
+echo "\n***********************************************************************************************************\n";
 */
 
 /*
@@ -136,6 +142,7 @@ $func->add_synonyms_to_DH();
     // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";     //new DH with taxonomicStatus
     // --> output:
     // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //final new DH with synonyms
+echo "\n***********************************************************************************************************\n";
 */
 
 /* important utility: check ancestry integrity of new DH
@@ -144,6 +151,7 @@ run_diagnostics(false, $taxa_file); exit;
 // as of May 29, 2019:
 // OK: All parents in taxon.tab have entries. OK
 // OK: All acceptedNameUsageID have entries. OK
+echo "\n***********************************************************************************************************\n";
 */
 
 // /*
@@ -152,6 +160,7 @@ $func->add_landmark_to_DH(); //TRAM-810: Add landmarks to DH 1.1
     // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //final new DH with synonyms
     // --> output:
     // $this->main_path_TRAM_809."/new_DH_with_landmarks.txt";  //final new DH
+echo "\n***********************************************************************************************************\n";
 // */
 
 
