@@ -99,8 +99,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::show_totals($source);         //synonyms_minted.txt
         self::show_totals($file_append);    //new_DH_with_synonyms.txt
         /* as of May 29, 2019
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_minted.txt: [1682100]
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011080]
+        -Start adding synonyms to final DH-
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_taxonStatus.txt: [2328981]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_minted.txt: [1682090]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011070]
         */
     }
     private function append_file($source, $WRITE)
