@@ -121,7 +121,7 @@ $func->step_6(); //6. Deduplicate synonyms
 // /*
 require_library('connectors/DH_minting_synonyms');
 $syn = new DH_minting_synonyms(1);
-$syn->mint_synonym_ids(); echo "\n-End minting synonyms-\n";
+$syn->mint_synonym_ids(); echo "\n-End minting synonyms-\n";            //can run this with add_synonyms_to_DH() AND run_diagnostics()
     // --> use:
     // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
     // --> output:

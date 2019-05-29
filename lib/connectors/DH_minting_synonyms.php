@@ -147,6 +147,8 @@ class DH_minting_synonyms
                 [acceptedNameUsageID] => EOL-000000000001
             )*/
             
+            if(!$rec['taxonID']) continue;
+            
             // for taxonomy file for DwCA -------------------------
             if($minted_id = $old_id_minted_id_info[$rec['taxonID']]) {}
             else exit("\nInvestigate no minted taxonID...\n");
