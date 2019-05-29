@@ -87,18 +87,21 @@ class DH_v1_1_taxonomicStatus_synonyms
         // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //new DH with synonyms
 
         $file_append = $this->main_path_TRAM_809."/new_DH_with_synonyms.txt"; $WRITE = fopen($file_append, "w"); fwrite($WRITE, implode("\t", $this->write_fields)."\n");
-        self::show_totals($file_append);
 
         $source = $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";
+        self::show_totals($source);         //new_DH_taxonStatus.txt
         self::append_file($source, $WRITE);
         
         $source = $this->main_path_TRAM_809."/synonyms_minted.txt";
         // $source = $this->main_path_TRAM_809."/synonyms_minted_sample.txt"; //debug only
         self::append_file($source, $WRITE);
 
-        self::show_totals($source);
-
-        self::show_totals($file_append);
+        self::show_totals($source);         //synonyms_minted.txt
+        self::show_totals($file_append);    //new_DH_with_synonyms.txt
+        /* as of May 29, 2019
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_minted.txt: [1682100]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011080]
+        */
     }
     private function append_file($source, $WRITE)
     {
@@ -351,6 +354,9 @@ class DH_v1_1_taxonomicStatus_synonyms
                 )*/
         foreach($add_syns as $s) {
             $save = array('scientificName' => $s[0], 'acceptedNameUsageID' => $s[1], 'taxonomicStatus' => $s[2], 'taxonRank' => @$s[3], 'datasetID' => 'manual');
+            $json = json_encode($save);
+            $taxonID = md5($json);
+            $save['taxonID'] = $taxonID;
             self::write_report($save, $this->write_fields, $this->WRITE);
             // break; //debug only
         }
