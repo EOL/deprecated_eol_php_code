@@ -78,6 +78,7 @@ class DH_minting_synonyms
                 [taxonomicStatus] => synonym
                 [acceptedNameUsageID] => EOL-000000000001
             )*/
+            if(!$rec['scientificName']) continue; //seems a blank row might crept in
             $minted_id = self::search_minted_record($rec['taxonID'], $rec['acceptedNameUsageID'], $rec['scientificName'], $rec['taxonRank'], $rec['taxonomicStatus'], $rec['datasetID']);
             if(!$minted_id) { //new name --- will be assigned with newly minted ID
                 $this->incremental++;

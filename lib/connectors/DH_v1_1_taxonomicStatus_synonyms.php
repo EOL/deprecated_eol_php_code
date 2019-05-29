@@ -51,6 +51,68 @@ class DH_v1_1_taxonomicStatus_synonyms
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
         $this->write_fields_rep = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID');
     }
+    function add_landmark_to_DH()
+    {
+        // --> use:
+        // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //final new DH with synonyms
+        // --> output:
+        // $this->main_path_TRAM_809."/new_DH_with_landmarks.txt";  //final new DH
+
+        $file = $this->main_path_TRAM_809.'Jira_attachments/DH1_1Landmarks.txt';
+        $taxonID_landmark_info = self::fetch_records_from_file($file, 'taxonID_landmark_info');
+        // print_r($taxonID_landmark_info); exit;
+
+        $fieldz = $this->write_fields;
+        $fieldz[] = 'Landmark';
+        $file_append = $this->main_path_TRAM_809."/new_DH_with_landmarks.txt"; $WRITE = fopen($file_append, "w"); fwrite($WRITE, implode("\t", $fieldz)."\n");
+        $source = $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";
+        
+        echo "\nReading [$source]...\n"; $i = 0;
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                // /* $fields is set above
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                // */
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => valid
+                [acceptedNameUsageID] => 
+            )*/
+            $rec['Landmark'] = @$taxonID_landmark_info[$rec['taxonID']];
+            if($rec['taxonID'] == 'taxonID') continue;
+            if($rec['parentNameUsageID'] == 'taxonID') continue;
+            self::write_report($rec, $fieldz, $WRITE);
+        }
+        fclose($WRITE);
+        self::show_totals($source);
+        self::show_totals($file_append);
+    }
     function step_6() //6. Deduplicate synonyms
     {
         // /* uncomment in real operation
@@ -102,7 +164,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         -Start adding synonyms to final DH-
         /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_taxonStatus.txt: [2328981]
         /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_minted.txt: [1682090]
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011070]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011069]
         */
     }
     private function append_file($source, $WRITE)
@@ -113,7 +175,7 @@ class DH_v1_1_taxonomicStatus_synonyms
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
             $row = explode("\t", $line);
             if($i == 1) {
-                /* $fields in set above
+                /* $fields is set above
                 $fields = $row;
                 $fields = array_filter($fields); //print_r($fields);
                 */
@@ -145,6 +207,8 @@ class DH_v1_1_taxonomicStatus_synonyms
                 [taxonomicStatus] => synonym
                 [acceptedNameUsageID] => EOL-000000000001
             )*/
+            if($rec['taxonID'] == 'taxonID') continue;
+            if($rec['parentNameUsageID'] == 'taxonID') continue;
             self::write_report($rec, $fields, $WRITE);
             // if($i < 5) break; //debug
         }
@@ -261,6 +325,13 @@ class DH_v1_1_taxonomicStatus_synonyms
                 $tmp = self::compact_syn_row($rec);
                 $final[$tmp] = '';
             }
+            elseif($purpose == 'taxonID_landmark_info') {
+                /*Array(
+                    [taxonID] => EOL-000000020019
+                    [Landmark] => 2
+                )*/
+                $final[$rec['taxonID']] = $rec['Landmark'];
+            }
         }
         return $final;
     }
@@ -364,9 +435,9 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         fclose($this->WRITE);
         self::show_totals($file_append);
-        /*  /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1681123]
+        /*  /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1681122]
             1251
-            /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1682374] OK
+            /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1682373]
         */
     }
     private function get_manually_curated_syns() //sheet found here: TRAM-809
