@@ -74,8 +74,8 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::regenerate_synonyms_without_duplicates();
         /* results:
         Synonyms to be discarded: 276
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt:              [1682375]
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_deduplicated.txt: [1682100]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1682374]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_deduplicated.txt: [1682099]
         Delete process count: [276]
         */
     }

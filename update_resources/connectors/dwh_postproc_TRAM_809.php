@@ -107,7 +107,7 @@ $func->step_5(); //5. Add manually curated synonyms
         // $this->main_path_TRAM_809."/synonyms.txt";
 */
 
-// /*
+/*
 $func->step_6(); //6. Deduplicate synonyms
         // --> input:
         // $this->main_path_TRAM_809."/synonyms.txt";
@@ -116,26 +116,27 @@ $func->step_6(); //6. Deduplicate synonyms
         // --> output:
         // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
 // $func->regenerate_synonyms_without_duplicates(); //normally runs after step_6(), coded that way. Or run separately here...during development
-// */
+*/
 
-/*
+// /*
 require_library('connectors/DH_minting_synonyms');
 $syn = new DH_minting_synonyms(1);
-$syn->mint_synonym_ids();
+$syn->mint_synonym_ids(); echo "\n-End minting synonyms-\n";
     // --> use:
     // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
     // --> output:
     // $this->main_path_TRAM_809."/synonyms_minted.txt";
-*/
+// */
 
-/*
+// /*
+echo "\n-Start adding synonyms to final DH-\n";
 $func->add_synonyms_to_DH();
     // --> use:
     // $this->main_path_TRAM_809."/synonyms_minted.txt";
     // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";     //new DH with taxonomicStatus
     // --> output:
-    // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //new DH with synonyms
-*/
+    // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //final new DH with synonyms
+// */
 
 
 
