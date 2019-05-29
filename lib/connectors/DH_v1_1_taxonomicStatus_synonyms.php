@@ -72,6 +72,11 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         fclose($this->WRITE);
         self::regenerate_synonyms_without_duplicates();
+        /* results:
+        Synonyms to be discarded: 276
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt:              [1682375]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_deduplicated.txt: [1680847]
+        */
     }
     function add_synonyms_to_DH()
     {   // --> use:
