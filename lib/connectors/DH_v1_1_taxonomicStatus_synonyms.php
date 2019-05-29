@@ -66,7 +66,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $syn_list = self::get_syn_list($source);
         foreach($syn_list as $key => $recs) {
             if(count($recs) > 1) {
-                print_r($recs);
+                // print_r($recs); //good debug
                 self::write_discard_syn_2text($ordered_sources, $recs);
             }
         }
@@ -75,7 +75,8 @@ class DH_v1_1_taxonomicStatus_synonyms
         /* results:
         Synonyms to be discarded: 276
         /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt:              [1682375]
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_deduplicated.txt: [1680847]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_deduplicated.txt: [1682100]
+        Delete process count: [276]
         */
     }
     function add_synonyms_to_DH()
@@ -161,6 +162,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::show_totals($source);
         $file_append = $this->main_path_TRAM_809."/synonyms_deduplicated.txt"; $WRITE = fopen($file_append, "w"); fwrite($WRITE, implode("\t", $this->write_fields)."\n");
         
+        $delete_count = 0;
         echo "\nReading [$source]...\n"; $i = 0;
         foreach(new FileIterator($source) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -171,7 +173,10 @@ class DH_v1_1_taxonomicStatus_synonyms
                 continue;
             }
             else {
+                /* wouldn't achieve expected result if you use $row[0] alone
                 if(!@$row[0]) continue;
+                if(!@$row[0] && !@$row[5]) continue; //row5 is scientificName. row0 here is expected as null/blank
+                */
                 $k = 0; $rec = array();
                 foreach($fields as $fld) {
                     $rec[$fld] = @$row[$k];
@@ -200,9 +205,11 @@ class DH_v1_1_taxonomicStatus_synonyms
             if(!isset($delete_syn_compact_ids[$tmp])) {
                 self::write_report($rec, $this->write_fields, $WRITE);
             }
+            else $delete_count++;
         }
         fclose($WRITE);
         self::show_totals($file_append);
+        echo "\nDelete process count: [$delete_count]\n";
     }
     private function compact_syn_row($rec)
     {
@@ -270,7 +277,7 @@ class DH_v1_1_taxonomicStatus_synonyms
             $temp = self::compact_syn_row($rec);
             if($temp != $final['retain']) $final['discard'][] = $rec;
         }
-        print_r($final);
+        // print_r($final); //good debug
         /* write to text discard list */
         if($discards = @$final['discard']) {
             foreach($discards as $save) self::write_report($save, $this->write_fields, $this->WRITE);
@@ -349,9 +356,9 @@ class DH_v1_1_taxonomicStatus_synonyms
         }
         fclose($this->WRITE);
         self::show_totals($file_append);
-        /*  /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_sample.txt: [1566220]
-            1252
-            /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_sample.txt: [1567472]
+        /*  /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1681123]
+            1251
+            /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1682374] OK
         */
     }
     private function get_manually_curated_syns() //sheet found here: TRAM-809
@@ -359,7 +366,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '1XreJW9AMKTmK13B32AhiCVc7ZTerNOH6Ck_BJ2d4Qng';
-        $params['range']         = 'manually curated synonyms!A1:D1300'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $params['range']         = 'manually curated synonyms!A2:D1300'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         return $arr; //no need to massage anymore...
     }
@@ -396,7 +403,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         $what = $meta['what']; $i = 0;
         $m = 3963198/15; //used when caching COL
         foreach(new FileIterator($this->sh[$what]['source'].$meta['taxon_file']) as $line => $row) {
-            $i++; if(($i % 50000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars

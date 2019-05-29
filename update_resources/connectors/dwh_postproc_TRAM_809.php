@@ -100,22 +100,23 @@ $func->step_2(); //2. Fetch synonyms & metadata from DH sources
         // $this->main_path_TRAM_809."/synonyms.txt";
         // $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt";
 */
+
 /* step 4 is missing, wrong number increment in Jira ticket
 $func->step_5(); //5. Add manually curated synonyms
         // --> appends to:
         // $this->main_path_TRAM_809."/synonyms.txt";
 */
 
-/*
+// /*
 $func->step_6(); //6. Deduplicate synonyms
         // --> input:
         // $this->main_path_TRAM_809."/synonyms.txt";
         // --> to be removed from synonyms.txt:
-        // $this->main_path_TRAM_809."/synonyms_2be_discarded.txt";
+        // $this->main_path_TRAM_809."/synonyms_2be_discarded.txt"; -- generated here as well
         // --> output:
         // $this->main_path_TRAM_809."/synonyms_deduplicated.txt";
 // $func->regenerate_synonyms_without_duplicates(); //normally runs after step_6(), coded that way. Or run separately here...during development
-*/
+// */
 
 /*
 require_library('connectors/DH_minting_synonyms');
@@ -127,14 +128,14 @@ $syn->mint_synonym_ids();
     // $this->main_path_TRAM_809."/synonyms_minted.txt";
 */
 
-// /*
+/*
 $func->add_synonyms_to_DH();
     // --> use:
     // $this->main_path_TRAM_809."/synonyms_minted.txt";
     // $this->main_path_TRAM_809."/new_DH_taxonStatus.txt";     //new DH with taxonomicStatus
     // --> output:
     // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //new DH with synonyms
-// */
+*/
 
 
 
