@@ -73,10 +73,10 @@ class DH_v1_1_taxonomicStatus_synonyms
         fclose($this->WRITE);
         self::regenerate_synonyms_without_duplicates();
         /* results:
-        Synonyms to be discarded: 276
+        Synonyms to be discarded: 286
         /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms.txt: [1682374]
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_deduplicated.txt: [1682099]
-        Delete process count: [276]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_deduplicated.txt: [1682089]
+        Delete process count: [286]
         */
     }
     function add_synonyms_to_DH()
