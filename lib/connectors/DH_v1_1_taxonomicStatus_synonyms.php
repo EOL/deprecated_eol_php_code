@@ -62,7 +62,7 @@ class DH_v1_1_taxonomicStatus_synonyms
 
         $file_append = $this->main_path_TRAM_809."/synonyms_2be_discarded.txt"; $this->WRITE = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         $source = $this->main_path_TRAM_809."/synonyms.txt";
-        $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
+        // $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
         $syn_list = self::get_syn_list($source);
         foreach($syn_list as $key => $recs) {
             if(count($recs) > 1) {
@@ -87,7 +87,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         self::append_file($source, $WRITE);
         
         $source = $this->main_path_TRAM_809."/synonyms_minted.txt";
-        $source = $this->main_path_TRAM_809."/synonyms_minted_sample.txt"; //debug only
+        // $source = $this->main_path_TRAM_809."/synonyms_minted_sample.txt"; //debug only
         self::append_file($source, $WRITE);
 
         self::show_totals($source);
@@ -152,7 +152,7 @@ class DH_v1_1_taxonomicStatus_synonyms
         echo "\nSynonyms to be discarded: ".count($delete_syn_compact_ids)."\n";
         
         $source = $this->main_path_TRAM_809."/synonyms.txt";
-        $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
+        // $source = $this->main_path_TRAM_809."/synonyms_sample.txt"; //debug only
         self::show_totals($source);
         $file_append = $this->main_path_TRAM_809."/synonyms_deduplicated.txt"; $WRITE = fopen($file_append, "w"); fwrite($WRITE, implode("\t", $this->write_fields)."\n");
         
@@ -325,7 +325,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     function step_5() //5. Add manually curated synonyms
     {
         $file_append = $this->main_path_TRAM_809."/synonyms.txt"; 
-        $file_append = $this->main_path_TRAM_809."/synonyms_sample.txt"; //only during development - debug only
+        // $file_append = $this->main_path_TRAM_809."/synonyms_sample.txt"; //only during development - debug only
         $this->WRITE = fopen($file_append, "a"); //IMPORTANT TO USE 'a' HERE. NOT 'w'. So it doesn't overwrite.
         self::show_totals($file_append);
         $add_syns = self::get_manually_curated_syns();
@@ -360,7 +360,7 @@ class DH_v1_1_taxonomicStatus_synonyms
     }
     function step_2() //step 3 included here as well. Next step after this is step_5() "5. Add manually curated synonyms"
     {
-        // exit("\nDone step_2() May 27 already.\n");
+        exit("\nDone step_2() May 28 already.\n");
         $file_append = $this->main_path_TRAM_809."/synonyms.txt";                  $this->WRITE     = fopen($file_append, "w"); fwrite($this->WRITE, implode("\t", $this->write_fields)."\n");
         $file_append = $this->main_path_TRAM_809."/synonyms_removed_in_step3.txt"; $this->WRITE_REP = fopen($file_append, "w"); fwrite($this->WRITE_REP, implode("\t", $this->write_fields_rep)."\n");
         // /* run data sources 
