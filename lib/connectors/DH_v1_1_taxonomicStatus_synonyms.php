@@ -163,8 +163,8 @@ class DH_v1_1_taxonomicStatus_synonyms
         /* as of May 29, 2019
         -Start adding synonyms to final DH-
         /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_taxonStatus.txt: [2328981]
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_minted.txt: [1682090]
-        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011069]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//synonyms_minted.txt: [1682087]
+        /Volumes/AKiTiO4/d_w_h/TRAM-809//new_DH_with_synonyms.txt: [4011067]
         */
     }
     private function append_file($source, $WRITE)
