@@ -633,11 +633,13 @@ class FishBaseArchiveAPI
         {
             if(!$taxon_id = trim($taxon_id)) continue;
             foreach($names as $name) {
+                $name = array_map('trim', $name);
                 foreach($name as $key => $value) $name[$key] = str_replace("\N", "", $value);
                 if(!Functions::is_utf8($name['commonName'])) continue;
+                if(stripos($name['commonName'], "?") !== false) continue; //exclude comname if with '?' //string is found
                 $v = new \eol_schema\VernacularName();
                 $v->taxonID         = $this->taxa_ids[$taxon_id];
-                $v->vernacularName  = trim($name['commonName']);
+                $v->vernacularName  = $name['commonName'];
                 $v->language        = $name['xml_lang'];
                 $this->archive_builder->write_object_to_file($v);
             }
