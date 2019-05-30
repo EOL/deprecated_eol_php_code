@@ -2524,6 +2524,12 @@ class Functions
         $uri_values = $func->add_additional_mappings(true, $url);
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from COLDataAPI.php. \n";
+
+        //from FishBaseArchiveAPI.php
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/mapped_locations.txt";
+        $uri_values = $func->add_additional_mappings(true, $url);
+        $mappings = array_merge($mappings, $uri_values);
+        echo "\n".count($mappings)." - URIs were added from FishBaseArchiveAPI.php. \n";
         
         return $mappings;
     }
