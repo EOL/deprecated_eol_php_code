@@ -120,6 +120,28 @@ class DarwinCoreExtensionBase
     }
     private function add_property() //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
     {
+        // /* new May 30, 2019
+        $fields = array();
+        $fields[] = array('name' => 'canonicalName',    'namespace' => 'http://rs.gbif.org/terms', 'uri' => 'http://rs.gbif.org/terms/1.0/canonicalName');
+        $fields[] = array('name' => 'EOLid',            'namespace' => 'http://eol.org/schema',    'uri' => 'http://eol.org/schema/EOLid');
+        $fields[] = array('name' => 'EOLidAnnotations', 'namespace' => 'http://eol.org/schema',    'uri' => 'http://eol.org/schema/EOLidAnnotations');
+        $fields[] = array('name' => 'Landmark',         'namespace' => 'http://eol.org/schema',    'uri' => 'http://eol.org/schema/Landmark');
+        foreach($fields as $f) {
+            $property = array();
+            $property['name']       = $f['name'];
+            $property['namespace']  = $f['namespace'];
+            $property['uri']        = $f['uri'];
+            $property['group']          = '';
+            $property['columnLength']   = '';
+            $property['thesaurus']      = '';
+            $property['required']       = '';
+            $this->accepted_properties[] = $property;
+            $this->accepted_properties_by_name[$property['name']] = $property;
+            $this->accepted_properties_by_uri[$property['uri']] = $property;
+        }
+        // */
+        
+        /* worked OK but only for one field. Used above instead for multiple fields
         $property = array();
         $property['name']       = 'canonicalName';
         $property['namespace']  = 'http://rs.gbif.org/terms';
@@ -128,10 +150,10 @@ class DarwinCoreExtensionBase
         $property['columnLength']   = '';
         $property['thesaurus']      = '';
         $property['required']       = '';
-        
         $this->accepted_properties[] = $property;
         $this->accepted_properties_by_name[$property['name']] = $property;
         $this->accepted_properties_by_uri[$property['uri']] = $property;
+        */
     }
     protected static function download_extension($url)
     {
@@ -170,6 +192,12 @@ class DarwinCoreExtensionBase
         
         //per https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=61534&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61534
         $this->accepted_properties_by_name['canonicalName'] = array('name' => 'canonicalName', 'namespace' => 'http://rs.gbif.org/terms', 'uri' => 'http://rs.gbif.org/terms/1.0/canonicalName');
+
+        // /* new May 30, 2019
+        $this->accepted_properties_by_name['EOLid'] = array('name' => 'EOLid', 'namespace' => 'http://eol.org/schema', 'uri' => 'http://eol.org/schema/EOLid');
+        $this->accepted_properties_by_name['EOLidAnnotations'] = array('name' => 'EOLidAnnotations', 'namespace' => 'http://eol.org/schema', 'uri' => 'http://eol.org/schema/EOLidAnnotations');
+        $this->accepted_properties_by_name['Landmark'] = array('name' => 'Landmark', 'namespace' => 'http://eol.org/schema', 'uri' => 'http://eol.org/schema/Landmark');
+        // */
 
         /* Not needed anymore, since a specific measurement_extension.xml is available for such resources
         //per TRY database resource:
