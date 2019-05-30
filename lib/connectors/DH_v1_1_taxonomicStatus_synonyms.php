@@ -102,19 +102,19 @@ class DH_v1_1_taxonomicStatus_synonyms
             
             $tax = new \eol_schema\Taxon();
             $tax->taxonID = $rec['taxonID'];
+            $tax->scientificName = $rec['scientificName'];
+            $tax->canonicalName = $rec['canonicalName'];
+            $tax->parentNameUsageID = $rec['parentNameUsageID'];
+            $tax->acceptedNameUsageID = $rec['acceptedNameUsageID'];
+            $tax->taxonRank = $rec['taxonRank'];
+            $tax->taxonomicStatus = $rec['taxonomicStatus'];
             $tax->source = $rec['source'];
             $tax->furtherInformationURL = $rec['furtherInformationURL'];
-            $tax->parentNameUsageID = $rec['parentNameUsageID'];
-            $tax->scientificName = $rec['scientificName'];
-            $tax->taxonRank = $rec['taxonRank'];
             $tax->taxonRemarks = $rec['taxonRemarks'];
             $tax->datasetID = $rec['datasetID'];
-            $tax->canonicalName = $rec['canonicalName'];
             $tax->EOLid = $rec['EOLid'];
             $tax->EOLidAnnotations = $rec['EOLidAnnotations'];
             $tax->higherClassification = $rec['higherClassification'];
-            $tax->taxonomicStatus = $rec['taxonomicStatus'];
-            $tax->acceptedNameUsageID = $rec['acceptedNameUsageID'];
             $tax->Landmark = $rec['Landmark'];
             $this->archive_builder->write_object_to_file($tax);
             // if($i == 5) break;
