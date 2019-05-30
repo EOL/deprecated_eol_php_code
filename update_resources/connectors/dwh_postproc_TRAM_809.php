@@ -154,21 +154,28 @@ run_diagnostics(false, $taxa_file); exit;
 echo "\n***********************************************************************************************************\n";
 */
 
-// /*
+/*
 $func->add_landmark_to_DH(); //TRAM-810: Add landmarks to DH 1.1
     // --> use:
     // $this->main_path_TRAM_809."/new_DH_with_synonyms.txt";   //final new DH with synonyms
     // --> output:
     // $this->main_path_TRAM_809."/new_DH_with_landmarks.txt";  //final new DH
 echo "\n***********************************************************************************************************\n";
+*/
+
+// /*
+unset($func);
+$resource_id = "DH_v1_1";
+$func = new DH_v1_1_taxonomicStatus_synonyms($resource_id);
+$func->generate_dwca(); //and some taxonRank fixing
+Functions::finalize_dwca_resource($resource_id, true, false);
+run_diagnostics($resource_id);
+    // --> use:
+    // $this->main_path_TRAM_809."/new_DH_with_landmarks.txt";  //final new DH
+    // --> output:
+    // DW_v1_1.tar.gz
 // */
 
-
-// exit("\n-end for now-\n");
-// $func->generate_dwca($resource_id);
-// unset($func);
-// Functions::finalize_dwca_resource($resource_id, true, false);
-// run_diagnostics($resource_id);
 //############################################################ end main
 
 $elapsed_time_sec = time_elapsed() - $timestart;

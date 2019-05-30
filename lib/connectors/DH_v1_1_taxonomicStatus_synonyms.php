@@ -51,6 +51,76 @@ class DH_v1_1_taxonomicStatus_synonyms
                                     'datasetID', 'canonicalName', 'EOLid', 'EOLidAnnotations', 'higherClassification', 'taxonomicStatus', 'acceptedNameUsageID');
         $this->write_fields_rep = array('scientificName', 'source', 'acceptedNameUsageID', 'taxonID');
     }
+    function generate_dwca()
+    {
+        // --> use:
+        // $this->main_path_TRAM_809."/new_DH_with_landmarks.txt";
+        // --> output:
+        // DW_v1_1.tar.gz
+        $source = $this->main_path_TRAM_809."/new_DH_with_landmarks.txt";
+        echo "\nReading [$source]...\n"; $i = 0;
+        foreach(new FileIterator($source) as $line_number => $line) {
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec); // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [taxonRank] => clade
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+                [higherClassification] => 
+                [taxonomicStatus] => valid
+                [acceptedNameUsageID] => 
+                [Landmark] => 3
+            )*/
+            
+            if($rank = $rec['taxonRank']) {
+                if($rank == 'no rank') $rank = '';
+                elseif($rank == 'varietas') $rank = 'variety';
+                elseif($rank == 'forma.') $rank = 'form';
+            }
+            
+            $tax = new \eol_schema\Taxon();
+            $tax->taxonID = $rec['taxonID'];
+            $tax->source = $rec['source'];
+            $tax->furtherInformationURL = $rec['furtherInformationURL'];
+            $tax->parentNameUsageID = $rec['parentNameUsageID'];
+            $tax->scientificName = $rec['scientificName'];
+            $tax->taxonRank = $rec['taxonRank'];
+            $tax->taxonRemarks = $rec['taxonRemarks'];
+            $tax->datasetID = $rec['datasetID'];
+            $tax->canonicalName = $rec['canonicalName'];
+            $tax->EOLid = $rec['EOLid'];
+            $tax->EOLidAnnotations = $rec['EOLidAnnotations'];
+            $tax->higherClassification = $rec['higherClassification'];
+            $tax->taxonomicStatus = $rec['taxonomicStatus'];
+            $tax->acceptedNameUsageID = $rec['acceptedNameUsageID'];
+            $tax->Landmark = $rec['Landmark'];
+            $this->archive_builder->write_object_to_file($tax);
+            // if($i == 5) break;
+        }
+        $this->archive_builder->finalize(true);
+    }
     function add_landmark_to_DH()
     {
         // --> use:
