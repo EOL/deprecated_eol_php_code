@@ -2497,17 +2497,17 @@ class SummaryDataResourcesAllAPI
     function generate_page_id_txt_files()
     {
         self::working_dir();
-        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
-            $i++; echo " $i";
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;
             else {
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                print_r($rec); exit;
+                // print_r($rec); exit;
                 /*Array(
                     [eol_pk] => R96-PK42724728
                     [page_id] => 328673
@@ -2527,6 +2527,7 @@ class SummaryDataResourcesAllAPI
                     [normal_measurement] => 
                     [normal_units_uri] => 
                     [resource_id] => 20
+                    )
                     
                     Fields from the [traits_all_201905.zip]:
                         eol_pk,page_id,resource_pk,resource_id,source,scientific_name,predicate,object_page_id,value_uri,normal_measurement,normal_units_uri,
@@ -2536,17 +2537,35 @@ class SummaryDataResourcesAllAPI
                         [lifestage] => 
                         [statistical_method] => 
                         [target_scientific_name] => 
+                
+                Array(
+                    [eol_pk] => R788-PK74508166
+                    [page_id] => 1180180
+                    [resource_pk] => 
+                    [resource_id] => 694
+                    [source] => 
+                    [scientific_name] => <i>Zygodontomys brevicauda</i>
+                    [predicate] => http://eol.org/schema/terms/ExtinctionStatus
+                    [object_page_id] => 
+                    [value_uri] => http://eol.org/schema/terms/extant
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [normal_units] => 
+                    [measurement] => 
+                    [units_uri] => 
+                    [units] => 
+                    [literal] => http://eol.org/schema/terms/extant
                 )*/
                 $txt_file = self::get_txt_path_by_page_id($rec['page_id']);
                 // /* normal operation ----------------------------------------------------------------------- working OK
                 if(file_exists($txt_file)) {
-                    echo "\nAppend [$txt_file] ";
+                    // echo "\nAppend [$txt_file] ";
                     $WRITE = fopen($txt_file, 'a');
                     fwrite($WRITE, implode("\t", $line)."\n");
                     fclose($WRITE);
                 }
                 else {
-                    echo "\nCreated [$txt_file] ";
+                    // echo "\nCreated [$txt_file] ";
                     $WRITE = fopen($txt_file, 'w');
                     fwrite($WRITE, implode("\t", $fields)."\n");
                     fwrite($WRITE, implode("\t", $line)."\n");
@@ -2561,7 +2580,7 @@ class SummaryDataResourcesAllAPI
                     else                  echo "- not deleted";
                 }
                 */
-                
+                // if($i >= 1000) break; //debug only
             }
         }
         fclose($file); exit("\n\nText file generation DONE.\n\n");
