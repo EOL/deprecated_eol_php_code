@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-/*
+/*  DATA-1777: Writing resource files
+    https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=63478&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63478
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
@@ -106,7 +107,7 @@ exit("\n");
 // exit("\nexit muna\n");
 
 $timestart = time_elapsed();
-$resource_id = 'SDR';
+$resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
 
 // $func->generate_page_id_txt_files();        return; //important initial step
