@@ -10,7 +10,7 @@ class SummaryDataResourcesAllAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         */
-        $this->download_options = array('resource_id' => 'SDR', 'timeout' => 60*5, 'expire_seconds' => 60*60*24, 'cache' => 1, 'download_wait_time' => 1000000);
+        $this->download_options = array('resource_id' => 'SDR_all', 'timeout' => 60*5, 'expire_seconds' => 60*60*24, 'cache' => 1, 'download_wait_time' => 1000000);
         $this->debug = array();
         
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
@@ -32,13 +32,19 @@ class SummaryDataResourcesAllAPI
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
         $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
         
-        $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
+        // $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
+        $this->dwca_file = "http://localhost/cp/summary data resources all/traits_all_201905.zip";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
         
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
-        else                            $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
+        else{
+                                        // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
+                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources all/page_ids/";
+        }
+        /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
+        */
         
         //for taxon summary
         /*
@@ -2521,6 +2527,15 @@ class SummaryDataResourcesAllAPI
                     [normal_measurement] => 
                     [normal_units_uri] => 
                     [resource_id] => 20
+                    
+                    Fields from the [traits_all_201905.zip]:
+                        eol_pk,page_id,resource_pk,resource_id,source,scientific_name,predicate,object_page_id,value_uri,normal_measurement,normal_units_uri,
+                        normal_units,measurement,units_uri,units,literal
+                    It is missing these 4 fields from the carnivora sample:
+                        [sex] => 
+                        [lifestage] => 
+                        [statistical_method] => 
+                        [target_scientific_name] => 
                 )*/
                 $txt_file = self::get_txt_path_by_page_id($rec['page_id']);
                 // /* normal operation ----------------------------------------------------------------------- working OK
