@@ -33,14 +33,14 @@ class SummaryDataResourcesAllAPI
         $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
         
         // $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
-        $this->dwca_file = "http://localhost/cp/summary data resources all/traits_all_201905.zip";
+        $this->dwca_file = "http://localhost/cp/summary_data_resources/traits_all_201905.zip";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
         
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else{
                                         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
-                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources all/page_ids/";
+                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
@@ -2507,7 +2507,7 @@ class SummaryDataResourcesAllAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                // print_r($rec); //exit;
+                print_r($rec); exit;
                 /*Array(
                     [eol_pk] => R96-PK42724728
                     [page_id] => 328673
@@ -3129,8 +3129,12 @@ class SummaryDataResourcesAllAPI
             $this->main_paths = $info;
         }
         else { //local development only
+            /*
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
+            */
+            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary_data_resources/trait_bank',
+                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
             $this->main_paths = $info;
         }
     }
