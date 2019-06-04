@@ -124,8 +124,8 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 */
 // $func->generate_refs_per_eol_pk_MySQL(); DONE //return;
 
-$func->test_basal_values();          return;
-// $func->print_basal_values();         return;
+// $func->test_basal_values();          return;
+$func->print_basal_values();         return;
 // $func->test_parent_basal_values();   return;
 // $func->print_parent_basal_values();  return;
 

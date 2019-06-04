@@ -362,7 +362,7 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
+        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
 
@@ -370,7 +370,7 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
 
-        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
 
         // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
@@ -1100,7 +1100,7 @@ class SummaryDataResourcesAllAPI
         self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
         fclose($file); exit("\n\nMetadata_refs to MySQL DONE.\n\n");
     }
-    function generate_refs_per_eol_pk() //total eol_pks 39,931 Carnivora | 11,233,522 metadata.csv
+    function generate_refs_per_eol_pk() //total eol_pks 39,931 Carnivora | 11,233,522 metadata.csv | 985,159 metadata_refs in MySQL
     {   
         exit; /* just save it to MySQL table. BE SURE TO INDEX eol_pk, trait_eol_pk */
         self::initialize();
@@ -1767,6 +1767,11 @@ class SummaryDataResourcesAllAPI
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
+            
+            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+                          'tables' => Array('taxa' => 'taxa.txt'));
+
             // $this->info_path = $info;
         }
         return $info;
@@ -2605,7 +2610,7 @@ class SummaryDataResourcesAllAPI
         $file_write = $this->main_dir."/MySQL_append_files/traits_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         
         self::working_dir();
-        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv | 11,276,097 in MySQL
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++;
             if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -2662,7 +2667,7 @@ class SummaryDataResourcesAllAPI
         fwrite($fileH, implode("\t", $arr)."\n");
     }
     function generate_page_id_txt_files() /* you MUST just save this to MySQL table. Index fields: page_id, predicate */
-    {
+    {   exit;
         self::working_dir();
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv
         $i = 0;
