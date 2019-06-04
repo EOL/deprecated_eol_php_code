@@ -62,8 +62,6 @@ class SummaryDataResourcesAllAPI
         
         /* ------------------ NEW June 4, 2019 ------------------ */
         $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/";
-        
-        
     }
     /*
     basal values
@@ -1034,7 +1032,69 @@ class SummaryDataResourcesAllAPI
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
-
+    function append_to_MySQL_table($table, $file_append)
+    {
+        echo "\nSaving [$table] records to MySQL...\n";
+        if(filesize($file_append)) {
+            /*
+            //truncate first
+            $sql = "TRUNCATE TABLE DWH.".$table.";";
+            if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
+            */
+            //load data to a blank table
+            $sql = "LOAD data local infile '".$file_append."' into table SDR.".$table.";";
+            if($result = $this->mysqli->query($sql)) echo "\nSaved table [$table] to MySQL\n";
+        }
+        else echo "\nNothing to save.\n";
+    }
+    function generate_refs_per_eol_pk_MySQL()
+    {
+        $file_cnt = 1; $save = 0;
+        $file_write = $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        
+        self::initialize();
+        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if(($i % 1000000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); //exit("\nstopx refs\n");
+                /*Array(
+                    [eol_pk] => MetaTrait-122920149
+                    [trait_eol_pk] => R788-PK74516597
+                    [predicate] => http://rs.tdwg.org/dwc/terms/measurementMethod
+                    [value_uri] => 
+                    [measurement] => 
+                    [units_uri] => 
+                    [literal] => Adult body mass averaged across males and females and geographic locations.
+                )*/
+                // /* main operation
+                $refs = array();
+                if(count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID"    && $rec['literal']) $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
+                if(count($fields) == count($line) && $rec['predicate'] == "http://purl.org/dc/terms/bibliographicCitation" && $rec['literal']) $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
+                if($refs) {
+                    $save++;
+                    if(($save % 500000) == 0) {
+                        echo "\nSaving...".number_format($save);
+                        fclose($WRITE);
+                        self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
+                        $file_cnt++;
+                        $file_write = $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                    }
+                    self::write_report($rec, $fields, $WRITE);
+                }
+                // */
+            }
+            // if($i >= 5) return; //debug
+        }
+        fclose($WRITE);
+        self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
+        fclose($file); exit("\n\nMetadata_refs to MySQL DONE.\n\n");
+    }
     function generate_refs_per_eol_pk() //total eol_pks 39,931 Carnivora | 11,233,522 metadata.csv
     {   
         exit; /* just save it to MySQL table. BE SURE TO INDEX eol_pk, trait_eol_pk */
@@ -1076,7 +1136,7 @@ class SummaryDataResourcesAllAPI
                 }
                 // */
             }
-            if($i >= 5) return; //debug
+            // if($i >= 5) return; //debug
         }
     }
     function delete_all_eol_pks_refs_fileTXT() //total eol_pks 39,931
