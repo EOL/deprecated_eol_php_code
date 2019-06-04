@@ -59,6 +59,11 @@ class SummaryDataResourcesAllAPI
         
         $this->parentModeYN = false;
         $this->fullref = array();
+        
+        /* ------------------ NEW June 4, 2019 ------------------ */
+        $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/";
+        
+        
     }
     /*
     basal values
@@ -1031,7 +1036,8 @@ class SummaryDataResourcesAllAPI
     }
 
     function generate_refs_per_eol_pk() //total eol_pks 39,931 Carnivora | 11,233,522 metadata.csv
-    {   just save it to MySQL table. BE SURE TO INDEX eol_pk, trait_eol_pk
+    {   
+        exit; /* just save it to MySQL table. BE SURE TO INDEX eol_pk, trait_eol_pk */
         self::initialize();
         $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
@@ -2507,7 +2513,69 @@ class SummaryDataResourcesAllAPI
         $final = array_unique($final, SORT_REGULAR);
         return $final;
     }
-    function generate_page_id_txt_files() /* you can also just save this to MySQL table. Index fields: page_id, predicate */
+    function generate_page_id_txt_files_MySQL()
+    {
+        $file_cnt = 1;
+        $file_write = $this->main_dir."/MySQL_append_files/traits_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        
+        self::working_dir();
+        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++;
+            if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /* Fields from the [traits_all_201905.zip]:
+                    eol_pk,page_id,resource_pk,resource_id,source,scientific_name,predicate,object_page_id,value_uri,normal_measurement,normal_units_uri,
+                    normal_units,measurement,units_uri,units,literal
+                It is missing these 4 fields from the carnivora sample:
+                    [sex] => 
+                    [lifestage] => 
+                    [statistical_method] => 
+                    [target_scientific_name] => 
+                Array(
+                    [eol_pk] => R788-PK74508166
+                    [page_id] => 1180180
+                    [resource_pk] => 
+                    [resource_id] => 694
+                    [source] => 
+                    [scientific_name] => <i>Zygodontomys brevicauda</i>
+                    [predicate] => http://eol.org/schema/terms/ExtinctionStatus
+                    [object_page_id] => 
+                    [value_uri] => http://eol.org/schema/terms/extant
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [normal_units] => 
+                    [measurement] => 
+                    [units_uri] => 
+                    [units] => 
+                    [literal] => http://eol.org/schema/terms/extant
+                )*/
+                if(($i % 1000000) == 0) {
+                    echo "\nSaving...".number_format($i);
+                    fclose($WRITE);
+                    $file_cnt++;
+                    $file_write = $this->main_dir."/MySQL_append_files/traits_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                }
+                self::write_report($rec, $fields, $WRITE);
+                // if($i >= 100) break; //debug only
+            }
+        }
+        fclose($WRITE);
+        fclose($file); exit("\n\nTraits to MySQL DONE.\n\n");
+    }
+    private function write_report($save_rec, $fields, $fileH)
+    {
+        $arr = array();
+        foreach($fields as $f) $arr[] = @$save_rec[$f];
+        fwrite($fileH, implode("\t", $arr)."\n");
+    }
+    function generate_page_id_txt_files() /* you MUST just save this to MySQL table. Index fields: page_id, predicate */
     {
         self::working_dir();
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv
@@ -2541,34 +2609,7 @@ class SummaryDataResourcesAllAPI
                     [normal_units_uri] => 
                     [resource_id] => 20
                     )
-                    
-                    Fields from the [traits_all_201905.zip]:
-                        eol_pk,page_id,resource_pk,resource_id,source,scientific_name,predicate,object_page_id,value_uri,normal_measurement,normal_units_uri,
-                        normal_units,measurement,units_uri,units,literal
-                    It is missing these 4 fields from the carnivora sample:
-                        [sex] => 
-                        [lifestage] => 
-                        [statistical_method] => 
-                        [target_scientific_name] => 
-                
-                Array(
-                    [eol_pk] => R788-PK74508166
-                    [page_id] => 1180180
-                    [resource_pk] => 
-                    [resource_id] => 694
-                    [source] => 
-                    [scientific_name] => <i>Zygodontomys brevicauda</i>
-                    [predicate] => http://eol.org/schema/terms/ExtinctionStatus
-                    [object_page_id] => 
-                    [value_uri] => http://eol.org/schema/terms/extant
-                    [normal_measurement] => 
-                    [normal_units_uri] => 
-                    [normal_units] => 
-                    [measurement] => 
-                    [units_uri] => 
-                    [units] => 
-                    [literal] => http://eol.org/schema/terms/extant
-                )*/
+                */
                 $txt_file = self::get_txt_path_by_page_id($rec['page_id']);
                 // /* normal operation ----------------------------------------------------------------------- working OK
                 if(file_exists($txt_file)) {
@@ -2585,7 +2626,7 @@ class SummaryDataResourcesAllAPI
                     fclose($WRITE);
                 }
                 // */
-                
+
                 /* use if u want to delete txt files ----------------------------------------------------------------------- working OK
                 if(file_exists($txt_file)) {
                     echo "\nFound [$txt_file] ";
