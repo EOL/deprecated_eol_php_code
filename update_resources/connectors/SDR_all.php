@@ -6,9 +6,11 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
 
-// $a = array(2,3,4); print_r($a);
-// array_unshift($a, 1); print_r($a);
-// exit;
+// $eol_pks = array('abc01', 'abc004', '1000'); print_r($eol_pks);
+// $str = implode(",", $eol_pks);
+// $str = str_replace(",","','", $str);
+// $str = "'".$str."'";
+// exit("\n[$str]\n");
 
 /*
 $a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);     
@@ -113,16 +115,16 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 /* replaced by generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
-// $func->generate_page_id_txt_files_MySQL(); currently running... //return;
+// $func->generate_page_id_txt_files_MySQL(); DONE //return;
 
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 
 /* replaced by 
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
 */
-$func->generate_refs_per_eol_pk_MySQL(); //return;
+// $func->generate_refs_per_eol_pk_MySQL(); DONE //return;
 
-// $func->test_basal_values();          return;
+$func->test_basal_values();          return;
 // $func->print_basal_values();         return;
 // $func->test_parent_basal_values();   return;
 // $func->print_parent_basal_values();  return;

@@ -62,6 +62,7 @@ class SummaryDataResourcesAllAPI
         
         /* ------------------ NEW June 4, 2019 ------------------ */
         $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/";
+        $this->mysqli =& $GLOBALS['db_connection'];
     }
     /*
     basal values
@@ -369,11 +370,11 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328598, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559154, 'predicate' => "http://eol.org/schema/terms/Habitat"); //reached step 7
 
-        // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
+        $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Habitat"); //test case for write resource
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //questioned by Jen, missing ref under biblio field
 
         // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
-        $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        // $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
 
         foreach($input as $i) {
             /* temp block
@@ -1036,9 +1037,9 @@ class SummaryDataResourcesAllAPI
     {
         echo "\nSaving [$table] records to MySQL...\n";
         if(filesize($file_append)) {
-            /*
+            /* Not needed here.
             //truncate first
-            $sql = "TRUNCATE TABLE DWH.".$table.";";
+            $sql = "TRUNCATE TABLE SDR.".$table.";";
             if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
             */
             //load data to a blank table
@@ -1049,6 +1050,10 @@ class SummaryDataResourcesAllAPI
     }
     function generate_refs_per_eol_pk_MySQL()
     {
+        //truncate first
+        $table = 'metadata_refs'; $sql = "TRUNCATE TABLE SDR.".$table.";";
+        if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
+        
         $file_cnt = 1; $save = 0;
         $file_write = $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         
@@ -1169,7 +1174,29 @@ class SummaryDataResourcesAllAPI
         }
         return array_keys($eol_pks);
     }
-    private function get_refs_from_metadata_csv($eol_pks) //replaced the ver 1, which is very slow
+    private function get_refs_from_metadata_csv($eol_pks)
+    {
+        $str = implode(",", $eol_pks);
+        $str = str_replace(",", "','", $str);
+        $str = "'".$str."'";
+        $sql = "SELECT m.* from SDR.metadata_refs m WHERE m.trait_eol_pk IN (".$str.")";
+        $result = $this->mysqli->query($sql);
+        $final = array(); $final2 = array();
+        while($result && $rec=$result->fetch_assoc()) $final[$rec['eol_pk']] = strip_tags($rec['literal']);
+        //make fullref unique
+        foreach($final as $refno => $fullref) {
+            if(isset($this->fullref[$fullref])) {
+                $refno = $this->fullref[$fullref];
+                $final2[$refno] = $fullref;
+            }
+            else {
+                $this->fullref[$fullref] = $refno;
+                $final2[$refno] = $fullref;
+            }
+        }
+        return $final2;
+    }
+    private function get_refs_from_metadata_csv_OLD($eol_pks) //replaced the ver 1, which is very slow
     {
         $final = array();
         foreach($eol_pks as $eol_pk) {
@@ -1181,8 +1208,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         //make fullref unique
-        foreach($final as $refno => $fullref)
-        {
+        foreach($final as $refno => $fullref) {
             if(isset($this->fullref[$fullref])) {
                 $refno = $this->fullref[$fullref];
                 $final2[$refno] = $fullref;
@@ -2709,6 +2735,44 @@ class SummaryDataResourcesAllAPI
         return $path . "$cache1/$cache2/";
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
+    {
+        $sql = "SELECT t.* from SDR.traits t WHERE t.page_id = $page_id AND t.predicate = '".$predicate."'";
+        $result = $this->mysqli->query($sql);
+        $recs = array();
+        while($result && $rec=$result->fetch_assoc()) {
+            // print_r($rec); exit;
+            /* e.g. Method: basal values
+            Array(
+                [eol_pk] => R512-PK71412778
+                [page_id] => 46559217
+                [resource_pk] => 
+                [resource_id] => 413
+                [source] => http://eol.org/pages/1053894
+                [scientific_name] => <i>Vulpes lagopus</i> (Linnaeus 1758)
+                [predicate] => http://eol.org/schema/terms/Habitat
+                [object_page_id] => 
+                [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000112
+                [normal_measurement] => 
+                [normal_units_uri] => 
+                [normal_units] => 
+                [measurement] => 
+                [units_uri] => 
+                [units] => 
+                [literal] => http://purl.obolibrary.org/obo/ENVO_00000112
+            )*/
+            if($required_fields) {
+                foreach($required_fields as $required_fld) {
+                    if(!$rec[$required_fld]) continue; //e.g. value_uri
+                    else $recs[] = $rec;
+                }
+            }
+            else $recs[] = $rec;
+            $this->original_nodes[$rec['value_uri']] = '';
+            $this->original_nodes_parent[$rec['value_uri']] = '';
+        }
+        return $recs;
+    }
+    private function assemble_recs_for_page_id_from_text_file_OLD($page_id, $predicate, $required_fields = array())
     {
         $recs = array();
         $txt_file = self::get_txt_path_by_page_id($page_id); // echo "\n$txt_file\n";
