@@ -223,8 +223,17 @@ class SummaryDataResourcesAllAPI
 
         $resource_id = 'taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
+        $total_predicates = count($predicates); $cnt_predicate = 0;
+        $total_page_ids = count($page_ids); $cnt_page_id = 0;
+
         foreach($predicates as $predicate) {
+            $cnt_predicate++; $cnt_page_id = 0;
             foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
+
+                $cnt_page_id++;
+                echo "\nPredicates $cnt_predicate of $total_predicates";
+                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     $this->ISVAT_TS = array();
