@@ -210,11 +210,20 @@ class SummaryDataResourcesAPI
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         //--------initialize start
         self::parse_DH();
-
         $resource_id = 'taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
+        /* for indicator */
+        $total_predicates = count($predicates); $cnt_predicate = 0;
+        $total_page_ids = count($page_ids); $cnt_page_id = 0;
+
         foreach($predicates as $predicate) {
+            $cnt_predicate++; $cnt_page_id = 0; /* for indicator */
             foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
+                /* for indicator */
+                $cnt_page_id++;
+                echo "\nPredicates $cnt_predicate of $total_predicates";
+                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     $this->ISVAT_TS = array();
@@ -3120,6 +3129,8 @@ class SummaryDataResourcesAPI
         }
         else { //local development only
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
+                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
+            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             $this->main_paths = $info;
         }
