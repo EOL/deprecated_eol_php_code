@@ -1656,6 +1656,11 @@ class SummaryDataResourcesAPI
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
+
+            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/', //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+                          'tables' => Array('taxa' => 'taxa.txt'));
+
             // $this->info_path = $info;
         }
         return $info;
