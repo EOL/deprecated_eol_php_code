@@ -1153,6 +1153,7 @@ class SummaryDataResourcesAllAPI
             // if($i >= 5) return; //debug
         }
     }
+    /* not being used anymore, since the use of MySQL tables
     function delete_all_eol_pks_refs_fileTXT() //total eol_pks 39,931
     {
         self::initialize();
@@ -1183,6 +1184,7 @@ class SummaryDataResourcesAllAPI
         }
         return array_keys($eol_pks);
     }
+    */
     private function get_refs_from_metadata_csv($eol_pks)
     {
         $str = implode(",", $eol_pks);

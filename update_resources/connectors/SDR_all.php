@@ -112,14 +112,14 @@ $timestart = time_elapsed();
 $resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
 
-/* replaced by generate_page_id_txt_files_MySQL()
+/* replaced by: generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
 // $func->generate_page_id_txt_files_MySQL(); DONE //return;
 
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 
-/* replaced by 
+/* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
 */
 // $func->generate_refs_per_eol_pk_MySQL(); DONE //return;
