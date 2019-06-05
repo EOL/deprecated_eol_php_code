@@ -192,13 +192,37 @@ class SummaryDataResourcesAllAPI
     function print_basal_values()
     {
         //step 1: get all 'basal values' predicates:
+        /*
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
+        [0] => http://eol.org/schema/terms/Present
+        [1] => http://eol.org/schema/terms/Habitat
+        [2] => http://purl.obolibrary.org/obo/FLOPO_0900032
+        */
+        // $predicates = array('http://eol.org/schema/terms/Present'); $resource_id = 'basal_values_Present'; 
+        $predicates = array('http://eol.org/schema/terms/Habitat'); $resource_id = 'basal_values_Habitat'; 
+
+        $WRITE = self::start_write2DwCA($resource_id, 'BV');
         self::initialize_basal_values();
+        /* removed. Moved below
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
-        $resource_id = 'basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        */
+
+        /* for indicator */
+        $total_predicates = count($predicates); $cnt_predicate = 0;
+
         foreach($predicates as $predicate) {
+            $cnt_predicate++; /* for indicator */
+            
+            echo "\nGet page_ids for...[$predicate]\n";
+            $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(array($predicate));
+            $total_page_ids = count($page_ids); $cnt_page_id = 0;
+            
             foreach($page_ids as $page_id => $taxon) {
-                // print_r($taxon);
+                /* for indicator */
+                $cnt_page_id++;
+                echo "\nPredicates $cnt_predicate of $total_predicates";
+                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_basal_values($page_id, $predicate)) {
