@@ -215,21 +215,30 @@ class SummaryDataResourcesAllAPI
     {
         $this->parentModeYN = false;
         //step 1: get all 'taxon summary' predicates:
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); print_r($predicates);
-        self::initialize();
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); echo "\nPredicates: ".count($predicates)."\n";
+        self::initialize(); 
+        /* removed bec it is getting page_ids without predicate in question. Moved below.
+        echo "\nGet page_ids...\n";
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates);
+        */
         //--------initialize start
+        echo "\nparse DH...\n";
         self::parse_DH();
-
         $resource_id = 'taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
+        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002470'); //debug only force assign
+        /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
-        $total_page_ids = count($page_ids); $cnt_page_id = 0;
 
         foreach($predicates as $predicate) {
-            $cnt_predicate++; $cnt_page_id = 0;
+            $cnt_predicate++; $cnt_page_id = 0; /* for indicator */
+            
+            echo "\nGet page_ids for...[$predicate]\n";
+            $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(array($predicate));
+            $total_page_ids = count($page_ids); $cnt_page_id = 0;
+            
             foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
-
+                /* for indicator */
                 $cnt_page_id++;
                 echo "\nPredicates $cnt_predicate of $total_predicates";
                 echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
@@ -1264,9 +1273,10 @@ class SummaryDataResourcesAllAPI
         foreach($recs as $rec) $final[$rec[$field]] = '';
         return array_keys($final);
     }
-    private function get_page_ids_fromTraitsCSV_andInfo_fromDH()
+    private function get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates)
     {   //step 1: get all page_ids from traits.csv
-        $ret = self::get_fields_from_file(array('page_id'), 'traits.csv');
+        $ret = self::get_fields_from_file(array('page_id'), 'traits.csv', $predicates);
+        if(!$ret) return array();
         $page_ids = $ret['page_id']; $ret = ''; //unset
         //step 2 get desired info from DH
         $info = self::prep_DH();
@@ -1304,8 +1314,16 @@ class SummaryDataResourcesAllAPI
         }
         return $page_ids;
     }
-    private function get_fields_from_file($headers, $filename)
+    private function get_fields_from_file($headers, $filename, $predicates)
     {
+        $sql = "SELECT DISTINCT(t.page_id) from SDR.traits t WHERE t.predicate = '".$predicates[0]."'";
+        $result = $this->mysqli->query($sql);
+        $final = array();
+        while($result && $rec=$result->fetch_assoc()) {
+            foreach($headers as $head) $final[$head][$rec[$head]] = '';
+        }
+        return $final;
+        /* working but too slow for All Export File
         $file = fopen($this->main_paths['archive_path'].'/'.$filename, 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
             $i++;
@@ -1315,15 +1333,32 @@ class SummaryDataResourcesAllAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                foreach($headers as $head) $final[$head][$rec[$head]] = '';
-                /*Array(
-                    [eol_pk] => R96-PK42724728
-                    [page_id] => 328673
-                    [scientific_name] => <i>Panthera pardus</i>
-                )*/
+                // print_r($rec); exit;
+                Array(
+                    [eol_pk] => R788-PK74508166
+                    [page_id] => 1180180
+                    [resource_pk] => 
+                    [resource_id] => 694
+                    [source] => 
+                    [scientific_name] => <i>Zygodontomys brevicauda</i>
+                    [predicate] => http://eol.org/schema/terms/ExtinctionStatus
+                    [object_page_id] => 
+                    [value_uri] => http://eol.org/schema/terms/extant
+                    [normal_measurement] => 
+                    [normal_units_uri] => 
+                    [normal_units] => 
+                    [measurement] => 
+                    [units_uri] => 
+                    [units] => 
+                    [literal] => http://eol.org/schema/terms/extant
+                )
+                if(in_array($rec['predicate'], $predicates)) {
+                    foreach($headers as $head) $final[$head][$rec[$head]] = '';
+                }
             }
         }
         return $final;
+        */
     }
     //############################################################################################ start method = 'parents basal values'
     private function main_parents_basal_values($main_page_id, $predicate)
