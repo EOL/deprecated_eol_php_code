@@ -1394,11 +1394,13 @@ class SummaryDataResourcesAllAPI
     private function get_fields_from_file($headers, $filename, $predicates)
     {
         $sql = "SELECT DISTINCT(t.page_id) from SDR.".$this->dbname." t WHERE t.predicate = '".$predicates[0]."'";
+        echo "\nQuery start: [$sql]\n";
         $result = $this->mysqli->query($sql);
         $final = array();
         while($result && $rec=$result->fetch_assoc()) {
             foreach($headers as $head) $final[$head][$rec[$head]] = '';
         }
+        echo "\nQuery end OK\n";
         return $final;
         /* working but too slow for All Export File
         $file = fopen($this->main_paths['archive_path'].'/'.$filename, 'r'); $i = 0;
