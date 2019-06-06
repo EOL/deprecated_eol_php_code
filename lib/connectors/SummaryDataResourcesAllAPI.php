@@ -198,8 +198,8 @@ class SummaryDataResourcesAllAPI
         [1] => http://eol.org/schema/terms/Habitat
         [2] => http://purl.obolibrary.org/obo/FLOPO_0900032
         */
-        // $predicates = array('http://eol.org/schema/terms/Present'); $resource_id = 'basal_values_Present'; 
-        $predicates = array('http://eol.org/schema/terms/Habitat'); $resource_id = 'basal_values_Habitat'; 
+        $predicates = array('http://eol.org/schema/terms/Present'); $resource_id = 'basal_values_Present';
+        // $predicates = array('http://eol.org/schema/terms/Habitat'); $resource_id = 'basal_values_Habitat';
 
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         self::initialize_basal_values();
@@ -1340,7 +1340,7 @@ class SummaryDataResourcesAllAPI
     }
     private function get_fields_from_file($headers, $filename, $predicates)
     {
-        $sql = "SELECT DISTINCT(t.page_id) from SDR.traits t WHERE t.predicate = '".$predicates[0]."'";
+        $sql = "SELECT DISTINCT(t.page_id) from SDR.".$this->dbname." t WHERE t.predicate = '".$predicates[0]."'";
         $result = $this->mysqli->query($sql);
         $final = array();
         while($result && $rec=$result->fetch_assoc()) {
@@ -2366,7 +2366,7 @@ class SummaryDataResourcesAllAPI
         //label PRM and REP if one record, REP if > 1
         if    (count($selected) == 1) $label = 'PRM and REP';
         elseif(count($selected) > 1)  $label = 'REP';
-        echo "\n----- label as: [$label]\n";
+        echo "\n----- label as: [$label] [".count($selected)."]\n";
         $selected = array_values($selected); //reindex array
         
         $ret = array('Selected' => $selected, 'label' => $label);
@@ -2823,7 +2823,8 @@ class SummaryDataResourcesAllAPI
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
-        $sql = "SELECT t.* from SDR.traits t WHERE t.page_id = $page_id AND t.predicate = '".$predicate."'";
+        $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = $page_id AND t.predicate = '".$predicate."'";
+        echo "\nAssemble recs start [$sql]\n";
         $result = $this->mysqli->query($sql);
         $recs = array();
         while($result && $rec=$result->fetch_assoc()) {
@@ -2857,6 +2858,7 @@ class SummaryDataResourcesAllAPI
             $this->original_nodes[$rec['value_uri']] = '';
             $this->original_nodes_parent[$rec['value_uri']] = '';
         }
+        echo "\nAssemble recs end.\n";
         return $recs;
     }
     private function assemble_recs_for_page_id_from_text_file_OLD($page_id, $predicate, $required_fields = array())

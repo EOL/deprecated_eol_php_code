@@ -115,7 +115,7 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 /* replaced by: generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
-/* normal operation
+/* normal operation - DONE worked OK
 $func->generate_page_id_txt_files_MySQL('BV');
 // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
 $func->generate_page_id_txt_files_MySQL('TS');
@@ -130,8 +130,8 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 */
 // $func->generate_refs_per_eol_pk_MySQL(); DONE //return;
 
-// $func->test_basal_values('BV');          return;
-// $func->print_basal_values('BV');         return;
+// $func->test_basal_values('BV');          //return;
+$func->print_basal_values('BV');         return;
 // $func->test_parent_basal_values('BV');   return;
 // $func->print_parent_basal_values('BV');  return;
 
