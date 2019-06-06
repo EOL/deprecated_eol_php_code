@@ -77,7 +77,7 @@ class SummaryDataResourcesAllAPI
     */
     private function generate_children_of_taxa_using_parentsCSV()
     {
-        $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r'); $i = 0;
+        $file = fopen($this->main_paths['archive_path'].'/pages.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if($i == 1) $fields = $line;
             else {
@@ -87,9 +87,34 @@ class SummaryDataResourcesAllAPI
                 }
                 // print_r($rec); exit;
                 /*Array(
-                    [child] => 47054812
-                    [parent] => 7662
-                )*/
+                    [page_id] => 351759
+                    [parent_id] => 9985
+                    [canonical] => Batocera gerstaeckerii
+                )
+                */
+                $child = $rec['page_id']; $parent = $rec['parent_id'];
+                $children_of[$parent][$child] = '';
+            }
+        }
+        foreach($children_of as $parent => $children) $final[$parent] = array_keys($children);
+        $this->CSV_children_of = $final;
+    }
+    /* obsolete for ALL TRAIT EXPORT file
+    private function generate_children_of_taxa_using_parentsCSV_old()
+    {
+        $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                // Array(
+                //     [child] => 47054812
+                //     [parent] => 7662
+                // )
                 $child = $rec['child']; $parent = $rec['parent'];
                 $children_of[$parent][$child] = '';
             }
@@ -97,6 +122,7 @@ class SummaryDataResourcesAllAPI
         foreach($children_of as $parent => $children) $final[$parent] = array_keys($children);
         $this->CSV_children_of = $final;
     }
+    */
     function generate_children_of_taxa_usingDH()
     {
         self::parse_DH(); self::initialize();
@@ -192,15 +218,17 @@ class SummaryDataResourcesAllAPI
     function print_basal_values($dbase)
     {   $this->dbname = 'traits_'.$dbase;
         //step 1: get all 'basal values' predicates:
-        /*
+        // /*
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
-        [0] => http://eol.org/schema/terms/Present
-        [1] => http://eol.org/schema/terms/Habitat
-        [2] => http://purl.obolibrary.org/obo/FLOPO_0900032
-        */
+        // [0] => http://eol.org/schema/terms/Present
+        // [1] => http://eol.org/schema/terms/Habitat
+        // [2] => http://purl.obolibrary.org/obo/FLOPO_0900032
+        // */
+        /* can also run per single predicate:
         $predicates = array('http://eol.org/schema/terms/Present'); $resource_id = 'basal_values_Present';
         // $predicates = array('http://eol.org/schema/terms/Habitat'); $resource_id = 'basal_values_Habitat';
-
+        */
+        
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         self::initialize_basal_values();
         /* removed. Moved below
@@ -242,12 +270,10 @@ class SummaryDataResourcesAllAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); echo "\nPredicates: ".count($predicates)."\n";
         self::initialize(); 
         /* removed bec it is getting page_ids without predicate in question. Moved below.
-        echo "\nGet page_ids...\n";
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates);
         */
         //--------initialize start
-        echo "\nparse DH...\n";
-        self::parse_DH();
+        echo "\nparse DH...\n"; self::parse_DH();
         $resource_id = 'taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002470'); //debug only force assign
@@ -314,11 +340,11 @@ class SummaryDataResourcesAllAPI
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH(); //seems not needed here...?
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
