@@ -2674,11 +2674,22 @@ class SummaryDataResourcesAllAPI
         $final = array_unique($final, SORT_REGULAR);
         return $final;
     }
-    function generate_page_id_txt_files_MySQL()
+    private function get_predicates_per_method_and_parentYN($method)
     {
-        $file_cnt = 1;
-        $file_write = $this->main_dir."/MySQL_append_files/traits_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
-        
+        if($method == 'BV') $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
+        elseif($method == 'pBV') $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value');
+        elseif($method == 'TS') $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary');
+        elseif($method == 'pTS') $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary');
+        elseif($method == 'LSM') $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method');
+        echo "\nPredicates: ".count($predicates)."\n";
+        if(!count($predicates)) exit("\nCheck params!\n");
+        return $predicates;
+    }
+    function generate_page_id_txt_files_MySQL($method)
+    {
+        $predicates = self::get_predicates_per_method_and_parentYN($method);
+        $filename = "traits_".$method."_"; $file_cnt = 1;
+        $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         self::working_dir();
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv | 11,276,097 in MySQL
         $i = 0;
@@ -2721,7 +2732,7 @@ class SummaryDataResourcesAllAPI
                     echo "\nSaving...".number_format($i);
                     fclose($WRITE);
                     $file_cnt++;
-                    $file_write = $this->main_dir."/MySQL_append_files/traits_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                    $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                 }
                 self::write_report($rec, $fields, $WRITE);
                 // if($i >= 100) break; //debug only
