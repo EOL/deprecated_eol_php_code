@@ -150,7 +150,7 @@ class SummaryDataResourcesAllAPI
                 echo "\nPredicates $cnt_predicate of $total_predicates";
                 echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
 
-                print_r($taxon); exit;
+                // print_r($taxon); exit;
                 // Array(
                 //     [taxonRank] => order
                 //     [Landmark] => 2
@@ -158,7 +158,6 @@ class SummaryDataResourcesAllAPI
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
-                    
                     $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
                     if($ret = self::main_parents_basal_values($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
@@ -496,7 +495,7 @@ class SummaryDataResourcesAllAPI
         echo("\n-- end method: basal values --\n");
         // */
     }
-    private function get_CSV_children_of($page_id)
+    private function get_CSV_children_of($page_id, $predicate = '') //$predicate param here is just for debug
     {
         $anaks = array();
         $children = @$this->CSV_children_of[$page_id];
@@ -519,7 +518,23 @@ class SummaryDataResourcesAllAPI
                             foreach($children6 as $child6) {
                                 if($children7 = @$this->CSV_children_of[$child6]) $anaks = array_merge($anaks, $children7);
                                 else continue;
-                                exit("\nreached level 7. May need to extend more.\n");
+                                foreach($children7 as $child7) {
+                                    if($children8 = @$this->CSV_children_of[$child7]) $anaks = array_merge($anaks, $children8);
+                                    else continue;
+                                    foreach($children8 as $child8) {
+                                        if($children9 = @$this->CSV_children_of[$child8]) $anaks = array_merge($anaks, $children9);
+                                        else continue;
+                                        foreach($children9 as $child9) {
+                                            if($children10 = @$this->CSV_children_of[$child9]) $anaks = array_merge($anaks, $children10);
+                                            else continue;
+                                            foreach($children10 as $child10) {
+                                                if($children11 = @$this->CSV_children_of[$child10]) $anaks = array_merge($anaks, $children11);
+                                                else continue;
+                                                exit("\nreached level 10. May need to extend more. [$page_id][$predicate]\n");
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1446,7 +1461,7 @@ class SummaryDataResourcesAllAPI
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
 
         // /*
-        if($children = self::get_CSV_children_of($main_page_id)) {
+        if($children = self::get_CSV_children_of($main_page_id, $predicate)) { //$predicate param here is just for debug
             echo "\n*Children of [$main_page_id]: "; print_r($children);
         }
         else {
