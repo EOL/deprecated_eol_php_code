@@ -1276,6 +1276,7 @@ class SummaryDataResourcesAllAPI
         }
         return $final2;
     }
+    /* used in Carnivora
     private function get_refs_from_metadata_csv_OLD($eol_pks) //replaced the ver 1, which is very slow
     {
         $final = array();
@@ -1288,6 +1289,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         //make fullref unique
+        $final2 = array();
         foreach($final as $refno => $fullref) {
             if(isset($this->fullref[$fullref])) {
                 $refno = $this->fullref[$fullref];
@@ -1314,11 +1316,11 @@ class SummaryDataResourcesAllAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec);exit;
-                /*Array(
-                    [eol_pk] => MetaTrait-19117935  [trait_eol_pk] => R261-PK22081478   [predicate] => http://rs.tdwg.org/dwc/terms/measurementMethod
-                    [literal] => Activity cycle of each species measured for non-captive populations; adult or age unspecified individuals, male, female, or sex unspecified individuals; primary, secondary, or extrapolated sources; all measures of central tendency; in all localities. Species were defined as (1) nocturnal only, (2) nocturnal/crepuscular, cathemeral, crepuscular or diurnal/crepuscular and (3) diurnal only.  Based on information from primary and secondary literature sources.  See source for details. 
-                    [measurement] => [value_uri] => [units] => [sex] => [lifestage] => [statistical_method] => [source] => 
-                )*/
+                // Array(
+                //     [eol_pk] => MetaTrait-19117935  [trait_eol_pk] => R261-PK22081478   [predicate] => http://rs.tdwg.org/dwc/terms/measurementMethod
+                //     [literal] => Activity cycle of each species measured for non-captive populations; adult or age unspecified individuals, male, female, or sex unspecified individuals; primary, secondary, or extrapolated sources; all measures of central tendency; in all localities. Species were defined as (1) nocturnal only, (2) nocturnal/crepuscular, cathemeral, crepuscular or diurnal/crepuscular and (3) diurnal only.  Based on information from primary and secondary literature sources.  See source for details. 
+                //     [measurement] => [value_uri] => [units] => [sex] => [lifestage] => [statistical_method] => [source] => 
+                // )
                 if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID")    $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
                 if(in_array($rec['trait_eol_pk'], $eol_pks) && count($fields) == count($line) && $rec['predicate'] == "http://purl.org/dc/terms/bibliographicCitation") $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
                 // $debug[$rec['predicate']] = '';
@@ -1328,6 +1330,7 @@ class SummaryDataResourcesAllAPI
         // echo "\nDONE: get_refs_from_metadata_csv()\n";
         return $refs;
     }
+    */
     private function get_sought_field($recs, $field)
     {
         foreach($recs as $rec) $final[$rec[$field]] = '';
