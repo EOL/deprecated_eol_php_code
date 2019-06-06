@@ -189,8 +189,8 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         echo("\n-end print parent taxon summary-\n");
     }
-    function print_basal_values()
-    {
+    function print_basal_values($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
         //step 1: get all 'basal values' predicates:
         /*
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
@@ -235,8 +235,8 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         echo("\n-end print resource files (Basal values)-\n");
     }
-    function print_taxon_summary()
-    {
+    function print_taxon_summary($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
         $this->parentModeYN = false;
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); echo "\nPredicates: ".count($predicates)."\n";
@@ -281,8 +281,8 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA();
         echo("\n-end print taxon summary-\n");
     }
-    function print_lifeStage_statMeth()
-    {
+    function print_lifeStage_statMeth($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
         //step 1: get all 'lifestage and statistical method' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method'); //3rd param is $item index no.
         self::initialize();
@@ -308,8 +308,8 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE);
         echo("\n-end print resource files (lifestage+statMeth)-\n");
     }
-    function test_parent_basal_values()
-    {
+    function test_parent_basal_values($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
         // { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH(); //seems not needed here...?
@@ -335,8 +335,8 @@ class SummaryDataResourcesAllAPI
         print_r($this->debug);
         echo("\n-- end method: parents: basal values --\n");
     }
-    function test_lifeStage_statMeth()
-    {
+    function test_lifeStage_statMeth($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
         self::initialize();
         $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         $page_ids = array(347436, 347438, 46559130);
@@ -356,8 +356,8 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE);
         echo("\n-- end method: lifestage_statMeth --\n");
     }
-    function test_taxon_summary()
-    {
+    function test_taxon_summary($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
         $this->parentModeYN = false;
         self::parse_DH(); self::initialize();
         $resource_id = 'test_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
@@ -387,8 +387,8 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA();
         echo("\n-- end method: 'taxon summary' --\n");
     }
-    function test_basal_values()
-    {
+    function test_basal_values($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values();
         $resource_id = 'test_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
@@ -2694,7 +2694,7 @@ class SummaryDataResourcesAllAPI
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv | 11,276,097 in MySQL
         $i = 0; $save_cnt = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++;
-            if(($i % 100000) == 0) echo "\n".number_format($i);
+            if(($i % 500000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;
             else {
                 $rec = array(); $k = 0;

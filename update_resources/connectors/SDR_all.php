@@ -115,16 +115,13 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 /* replaced by: generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
-// /* normal operation
+/* normal operation
 $func->generate_page_id_txt_files_MySQL('BV');
 // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
 $func->generate_page_id_txt_files_MySQL('TS');
 $func->generate_page_id_txt_files_MySQL('TSp');
 $func->generate_page_id_txt_files_MySQL('LSM');
-// */
-
-
-
+*/
 
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 
@@ -133,17 +130,17 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 */
 // $func->generate_refs_per_eol_pk_MySQL(); DONE //return;
 
-// $func->test_basal_values();          return;
-// $func->print_basal_values();         return;
-// $func->test_parent_basal_values();   return;
-// $func->print_parent_basal_values();  return;
+// $func->test_basal_values('BV');          return;
+// $func->print_basal_values('BV');         return;
+// $func->test_parent_basal_values('BV');   return;
+// $func->print_parent_basal_values('BV');  return;
 
-// $func->test_taxon_summary();         return;
-// $func->print_taxon_summary();        return;
-// $func->test_parent_taxon_summary();  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
-// $func->print_parent_taxon_summary(); return;
+// $func->test_taxon_summary('TS');         return;
+// $func->print_taxon_summary('TS');        return;
+// $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
+// $func->print_parent_taxon_summary('TSp'); return;
 
-// $func->print_lifeStage_statMeth();   return;
+// $func->print_lifeStage_statMeth('LSM');   return;
 
 // $func->start();
 // Functions::finalize_dwca_resource($resource_id);
