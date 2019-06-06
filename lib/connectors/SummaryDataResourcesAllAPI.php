@@ -404,7 +404,7 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
-        $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
+        // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
         // $input[] = array('page_id' => 4442159, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Habitat");
 
@@ -417,6 +417,9 @@ class SummaryDataResourcesAllAPI
 
         // $input[] = array('page_id' => 1037781, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
         // $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
+        
+        // page_id: 1004183 | predicate: [http://eol.org/schema/terms/Present]
+        $input[] = array('page_id' => 1004183, 'predicate' => "http://eol.org/schema/terms/Present"); // Jun 6, 2019 - seems infinite loop
 
         foreach($input as $i) {
             /* temp block
@@ -887,6 +890,7 @@ class SummaryDataResourcesAllAPI
     {
         // echo "\nSTART: get_from_ISVAT_descendants_of($term)\n";
         $desc_x = array($term);
+        $preserve_unique_desc_x = array(); //prevent infinite loop e.g. page_id: 1004183 | predicate: [http://eol.org/schema/terms/Present]
         while($desc_x) {
             echo "\ndesc_x count: ".count($desc_x)." "; print_r($desc_x);
             foreach($this->ISVAT as $a) {
@@ -899,6 +903,12 @@ class SummaryDataResourcesAllAPI
             $temp = array_keys($temp);
             $desc_x = $temp;
             $temp = array();
+            
+            /* prevent infinite loop START */ //added Jun 6, 2019 - still on a testing phase, hopefully doesn't mess original behavior/algorithm
+            $json = json_encode($desc_x);
+            if(!isset($preserve_unique_desc_x[$json])) $preserve_unique_desc_x[$json] = '';
+            else break;
+            /* prevent infinite loop END */
         }
         // echo "\nDONE: get_from_ISVAT_descendants_of()\n";
         return array_keys($desc_all);
@@ -2823,7 +2833,7 @@ class SummaryDataResourcesAllAPI
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
-        $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = $page_id AND t.predicate = '".$predicate."'";
+        $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
         echo "\nAssemble recs start [$sql]\n";
         $result = $this->mysqli->query($sql);
         $recs = array();
