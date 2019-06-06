@@ -115,7 +115,16 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 /* replaced by: generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
-// $func->generate_page_id_txt_files_MySQL(); DONE //return;
+// /* normal operation
+$func->generate_page_id_txt_files_MySQL('BV');
+// $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
+$func->generate_page_id_txt_files_MySQL('TS');
+$func->generate_page_id_txt_files_MySQL('TSp');
+$func->generate_page_id_txt_files_MySQL('LSM');
+// */
+
+
+
 
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 
@@ -125,7 +134,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // $func->generate_refs_per_eol_pk_MySQL(); DONE //return;
 
 // $func->test_basal_values();          return;
-$func->print_basal_values();         return;
+// $func->print_basal_values();         return;
 // $func->test_parent_basal_values();   return;
 // $func->print_parent_basal_values();  return;
 
@@ -145,22 +154,3 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

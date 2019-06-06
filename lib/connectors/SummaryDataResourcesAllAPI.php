@@ -2677,11 +2677,11 @@ class SummaryDataResourcesAllAPI
     private function get_predicates_per_method_and_parentYN($method)
     {
         if($method == 'BV') $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
-        elseif($method == 'pBV') $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value');
+        // elseif($method == 'BVp') $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value');
         elseif($method == 'TS') $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary');
-        elseif($method == 'pTS') $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary');
+        elseif($method == 'TSp') $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary');
         elseif($method == 'LSM') $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method');
-        echo "\nPredicates: ".count($predicates)."\n";
+        echo "\nPredicates [$method]: ".count($predicates)."\n";
         if(!count($predicates)) exit("\nCheck params!\n");
         return $predicates;
     }
@@ -2692,7 +2692,7 @@ class SummaryDataResourcesAllAPI
         $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         self::working_dir();
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv | 11,276,097 in MySQL
-        $i = 0;
+        $i = 0; $save_cnt = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++;
             if(($i % 100000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;
@@ -2728,10 +2728,11 @@ class SummaryDataResourcesAllAPI
                     [units] => 
                     [literal] => http://eol.org/schema/terms/extant
                 )*/
-                if(($i % 1000000) == 0) {
-                    echo "\nSaving...".number_format($i);
-                    fclose($WRITE);
-                    $file_cnt++;
+                if(!in_array($rec['predicate'], $predicates)) continue;
+                $save_cnt++;
+                if(($save_cnt % 1000000) == 0) {
+                    echo "\nSaving...".number_format($save_cnt);
+                    fclose($WRITE); $file_cnt++;
                     $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                 }
                 self::write_report($rec, $fields, $WRITE);
@@ -2739,7 +2740,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         fclose($WRITE);
-        fclose($file); exit("\n\nTraits to MySQL DONE.\n\n");
+        fclose($file); //exit("\n\nTraits to MySQL DONE.\n\n");
     }
     private function write_report($save_rec, $fields, $fileH)
     {
