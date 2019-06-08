@@ -353,11 +353,13 @@ class SummaryDataResourcesAllAPI
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH(); //seems not needed here...?
         
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
+
+        $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more.
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
@@ -496,7 +498,7 @@ class SummaryDataResourcesAllAPI
         // */
     }
     private function get_CSV_children_of($page_id, $predicate = '') //$predicate param here is just for debug
-    {
+    {   echo "\nGetting children of [$page_id]...\n";
         $anaks = array();
         $children = @$this->CSV_children_of[$page_id];
         $anaks = array_merge($anaks, $children);
@@ -530,7 +532,67 @@ class SummaryDataResourcesAllAPI
                                             foreach($children10 as $child10) {
                                                 if($children11 = @$this->CSV_children_of[$child10]) $anaks = array_merge($anaks, $children11);
                                                 else continue;
-                                                exit("\nreached level 10. May need to extend more. [$page_id][$predicate]\n");
+                                                foreach($children11 as $child11) {
+                                                    if($children12 = @$this->CSV_children_of[$child11]) $anaks = array_merge($anaks, $children12);
+                                                    else continue;
+                                                    foreach($children12 as $child12) {
+                                                        if($children13 = @$this->CSV_children_of[$child12]) $anaks = array_merge($anaks, $children13);
+                                                        else continue;
+                                                        foreach($children13 as $child13) {
+                                                            if($children14 = @$this->CSV_children_of[$child13]) $anaks = array_merge($anaks, $children14);
+                                                            else continue;
+                                                            foreach($children14 as $child14) {
+                                                                if($children15 = @$this->CSV_children_of[$child14]) $anaks = array_merge($anaks, $children15);
+                                                                else continue;
+                                                                foreach($children15 as $child15) {
+                                                                    if($children16 = @$this->CSV_children_of[$child15]) $anaks = array_merge($anaks, $children16);
+                                                                    else continue;
+                                                                    foreach($children16 as $child16) {
+                                                                        if($children17 = @$this->CSV_children_of[$child16]) $anaks = array_merge($anaks, $children17);
+                                                                        else continue;
+                                                                        foreach($children17 as $child17) {
+                                                                            if($children18 = @$this->CSV_children_of[$child17]) $anaks = array_merge($anaks, $children18);
+                                                                            else continue;
+                                                                            foreach($children18 as $child18) {
+                                                                                if($children19 = @$this->CSV_children_of[$child18]) $anaks = array_merge($anaks, $children19);
+                                                                                else continue;
+                                                                                foreach($children19 as $child19) {
+                                                                                    if($children20 = @$this->CSV_children_of[$child19]) $anaks = array_merge($anaks, $children20);
+                                                                                    else continue;
+                                                                                    foreach($children20 as $child20) {
+                                                                                        if($children21 = @$this->CSV_children_of[$child20]) $anaks = array_merge($anaks, $children21);
+                                                                                        else continue;
+                                                                                        foreach($children21 as $child21) {
+                                                                                            if($children22 = @$this->CSV_children_of[$child21]) $anaks = array_merge($anaks, $children22);
+                                                                                            else continue;
+                                                                                            foreach($children22 as $child22) {
+                                                                                                if($children23 = @$this->CSV_children_of[$child22]) $anaks = array_merge($anaks, $children23);
+                                                                                                else continue;
+                                                                                                foreach($children23 as $child23) {
+                                                                                                    if($children24 = @$this->CSV_children_of[$child23]) $anaks = array_merge($anaks, $children24);
+                                                                                                    else continue;
+                                                                                                    foreach($children24 as $child24) {
+                                                                                                        if($children25 = @$this->CSV_children_of[$child24]) $anaks = array_merge($anaks, $children25);
+                                                                                                        else continue;
+                                                                                                        foreach($children25 as $child25) {
+                                                                                                            if($children26 = @$this->CSV_children_of[$child25]) $anaks = array_merge($anaks, $children26);
+                                                                                                            else continue;
+                                                                                                            exit("\nreached level 25. May need to extend more. [$page_id][$predicate]\n");
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -542,6 +604,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         $anaks = array_unique($anaks);
+        "\nDone getting children of [$page_id] OK\n";
         return $anaks;
     }
     function start() //DH total recs 2,724,941
