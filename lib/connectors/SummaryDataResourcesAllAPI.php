@@ -358,11 +358,9 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
-
         $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more.
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
-
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
@@ -614,7 +612,6 @@ class SummaryDataResourcesAllAPI
         $main_page_id = 7665; //7662;
         $children = self::get_CSV_children_of($main_page_id); print_r($children);
         // */
-        
         /*
         self::initialize();
         self::investigate_traits_csv(); exit;
