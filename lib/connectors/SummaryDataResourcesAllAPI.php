@@ -358,12 +358,12 @@ class SummaryDataResourcesAllAPI
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH(); //seems not needed here...?
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
-        $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
+        // $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         foreach($input as $i) {
@@ -1555,7 +1555,7 @@ class SummaryDataResourcesAllAPI
         }
         */
         
-        /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up. 
+        /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up.  *******************************************
         E.g. page_id = 163 has many children without Present trait. But it is being checked one by one, very slow process.
         */
         $new_children = array();
@@ -1563,7 +1563,7 @@ class SummaryDataResourcesAllAPI
             if(self::page_id_has_trait_for_this_predicate($page_id, $predicate)) $new_children[] = $page_id;
         }
         $children = $new_children; unset($new_children);
-        /* end IMPORTANT NEW STEP */
+        /* .  ******************************************* end IMPORTANT NEW STEP */
         
         /* 2. get all recs for each child */
         $recs = array(); $children_total = count($children); $i = 0;
