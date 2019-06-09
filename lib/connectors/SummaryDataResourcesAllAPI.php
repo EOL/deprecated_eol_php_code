@@ -348,7 +348,12 @@ class SummaryDataResourcesAllAPI
         echo("\n-end print resource files (lifestage+statMeth)-\n");
     }
     function test_parent_basal_values($dbase)
-    {   $this->dbname = 'traits_'.$dbase;
+    {   /* this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
+        INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
+        INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
+        INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
+        */
+        $this->dbname = 'traits_'.$dbase;
         // { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
         self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
         // self::parse_DH(); //seems not needed here...?
@@ -358,7 +363,7 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
-        $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more.
+        $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         foreach($input as $i) {
@@ -1523,6 +1528,7 @@ class SummaryDataResourcesAllAPI
         // /*
         if($children = self::get_CSV_children_of($main_page_id, $predicate)) { //$predicate param here is just for debug
             echo "\n*Children of [$main_page_id]: "; print_r($children);
+            // exit("\n".count($children)."\n");
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
@@ -1549,9 +1555,19 @@ class SummaryDataResourcesAllAPI
         }
         */
         
-        /* 2. get all recs for each child */
-        $recs = array();
+        /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up. 
+        E.g. page_id = 163 has many children without Present trait. But it is being checked one by one, very slow process.
+        */
+        $new_children = array();
         foreach($children as $page_id) {
+            if(self::page_id_has_trait_for_this_predicate($page_id, $predicate)) $new_children[] = $page_id;
+        }
+        $children = $new_children; unset($new_children);
+        /* end IMPORTANT NEW STEP */
+        
+        /* 2. get all recs for each child */
+        $recs = array(); $children_total = count($children); $i = 0;
+        foreach($children as $page_id) { $i++; echo "\n$i of $children_total [$main_page_id][$predicate]\n";
             $child_recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); // echo "\n".count($child_recs)."\n";
             if($child_recs) $recs = array_merge($recs, $child_recs);
         }
@@ -1601,6 +1617,17 @@ class SummaryDataResourcesAllAPI
         return $final;
     }
     */
+    private function page_id_has_trait_for_this_predicate($page_id, $predicate)
+    {
+        if($predicate == 'http://eol.org/schema/terms/Present') $table = 'page_ids_Present';
+        elseif($predicate == 'http://eol.org/schema/terms/Habitat') $table = 'page_ids_Habitat';
+        elseif($predicate == 'http://purl.obolibrary.org/obo/FLOPO_0900032') $table = 'page_ids_FLOPO_0900032';
+        else exit("\nTable not yet initialized!\n");
+        $sql = "SELECT t.page_id from SDR.".$table." t WHERE t.page_id = '".$page_id."'";
+        $result = $this->mysqli->query($sql);
+        if($result && $rec=$result->fetch_assoc()) return true;
+        return false;
+    }
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate)
     {   echo "\n#####################################################################"; echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
