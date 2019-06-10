@@ -582,6 +582,7 @@ class SummaryDataResourcesAllAPI
                                                                                                         foreach($children25 as $child25) {
                                                                                                             if($children26 = @$this->CSV_children_of[$child25]) $anaks = array_merge($anaks, $children26);
                                                                                                             else continue;
+                                                                                                            return array(); //temporary only
                                                                                                             exit("\nreached level 25. May need to extend more. [$page_id][$predicate]\n");
                                                                                                         }
                                                                                                     }
@@ -612,12 +613,32 @@ class SummaryDataResourcesAllAPI
         "\nDone getting children of [$page_id] OK\n";
         return $anaks;
     }
-    function build_up_children_cache() //DH total recs 2,724,941
+    function build_up_children_cache() //DH total recs 2,724,941 | 2,237,554 Jun 9, 2019
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
         $page_ids = self::get_page_ids_andInfo_fromDH();
-        $i = 0; $total = count($page_ids); $k = 0;
+        $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
+            
+            
+            // /* breakdown when caching:
+            $cont = false;
+            // if($i >= 1 && $i < $m) $cont = true;
+            if($i >= $m && $i < $m*2) $cont = true;
+            // if($i >= $m*2 && $i < $m*3) $cont = true;
+            // if($i >= $m*3 && $i < $m*4) $cont = true;
+            // if($i >= $m*4 && $i < $m*5) $cont = true;
+            // if($i >= $m*5 && $i < $m*6) $cont = true;
+            // if($i >= $m*6 && $i < $m*7) $cont = true;
+            // if($i >= $m*7 && $i < $m*8) $cont = true;
+            // if($i >= $m*8 && $i < $m*9) $cont = true;
+            // if($i >= $m*9 && $i < $m*10) $cont = true;
+            if(!$cont) continue;
+            // */
+            
+            
+            
+            
             if(!$page_id) continue;
             if(!@$taxon['taxonRank']) continue;
             if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") { $i++;
@@ -648,9 +669,11 @@ class SummaryDataResourcesAllAPI
         else {
             echo "\nNot yet generated, creating now...\n";
             $children = self::get_CSV_children_of($page_id); //print_r($children);
-            $WRITE = fopen($txt_file, 'w');
-            fwrite($WRITE, json_encode($children)."\n");
-            fclose($WRITE);
+            if($children) {
+                $WRITE = fopen($txt_file, 'w');
+                fwrite($WRITE, json_encode($children)."\n");
+                fclose($WRITE);
+            }
         }
     }
     private function start_write2DwCA($resource_id, $method)
