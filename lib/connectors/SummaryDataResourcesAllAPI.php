@@ -123,10 +123,13 @@ class SummaryDataResourcesAllAPI
         $this->CSV_children_of = $final;
     }
     */
-    function generate_children_of_taxa_usingDH()
+    function generate_children_of_taxa_usingDH() //the big long program from SDR_all.php
     {
         self::parse_DH(); self::initialize();
+        /* obsolete for All Trait Export
         self::gen_children_of_taxon_usingDH();
+        */
+        self::gen_children_of_taxon_usingDH_New();
     }
     function print_parent_basal_values($dbase)
     {   $this->dbname = 'traits_'.$dbase;
@@ -181,7 +184,6 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
 
         $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
-
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
@@ -720,6 +722,18 @@ class SummaryDataResourcesAllAPI
             array_shift($temp);
             if($temp) self::write_ancestry_to_file($id, $temp);
         }
+    }
+    function get_children_from_txt_file($page_id) //just checking the old children txt file
+    {
+        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
+        $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
+        if(file_exists($json_file)) {
+            echo "\n[$page_id] $json_file\n";
+            $json = trim(file_get_contents($json_file));
+            $arr = json_decode($json, true);
+            print_r($arr);
+        }
+        else echo "\nNot yet generated\n";
     }
     private function write_ancestry_to_file($page_id, $children)
     {
@@ -1565,6 +1579,12 @@ class SummaryDataResourcesAllAPI
         $children = $new_children; unset($new_children);
         /* .  ******************************************* end IMPORTANT NEW STEP */
         
+        /*
+        all children with trait and predicate accordingly = 218233 [164][http://eol.org/schema/terms/Present]
+        ***HAS NOT YET FILTERED THIS TO JUST RANK 'species'
+        */
+        
+        
         /* 2. get all recs for each child */
         $recs = array(); $children_total = count($children); $i = 0;
         foreach($children as $page_id) { $i++; echo "\n$i of $children_total [$main_page_id][$predicate]\n";
@@ -1635,7 +1655,9 @@ class SummaryDataResourcesAllAPI
         // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
         // /*
         $children = array();
+        /* only added this for Carnivora, but for All Trait Export should be excluded based on text below. Jun 9, 2019.
         $children[] = $main_page_id;
+        */
         // and, just for the taxon summary parents (not for the basal value parents) a change in the contributing child taxa: please include
         // all descendant taxa at all ranks, up to and including the taxon in question, so the summary for page 7666 should be based on a record pool including records for page 7666.
         // You may want to include a filter so, if we re-run this in a few months, the summary records created for 7666 are not included in the new pool of records.
