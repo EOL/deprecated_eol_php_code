@@ -505,8 +505,8 @@ class SummaryDataResourcesAllAPI
     private function get_CSV_children_of($page_id, $predicate = '') //$predicate param here is just for debug
     {   echo "\nGetting children of [$page_id]...\n";
         $anaks = array();
-        $children = @$this->CSV_children_of[$page_id];
-        $anaks = array_merge($anaks, $children);
+        if($children = @$this->CSV_children_of[$page_id]) $anaks = array_merge($anaks, $children);
+        else return array();
         foreach($children as $child) {
             if($children2 = @$this->CSV_children_of[$child]) $anaks = array_merge($anaks, $children2);
             else continue;
@@ -617,27 +617,25 @@ class SummaryDataResourcesAllAPI
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
         $page_ids = self::get_page_ids_andInfo_fromDH();
-        $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
+        $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10; $m = 300;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
             
-            
+            if($page_id == 164) continue;
+            if($page_id == 344) continue;
             // /* breakdown when caching:
             $cont = false;
-            // if($i >= 1 && $i < $m) $cont = true;
-            if($i >= $m && $i < $m*2) $cont = true;
-            // if($i >= $m*2 && $i < $m*3) $cont = true;
-            // if($i >= $m*3 && $i < $m*4) $cont = true;
-            // if($i >= $m*4 && $i < $m*5) $cont = true;
-            // if($i >= $m*5 && $i < $m*6) $cont = true;
-            // if($i >= $m*6 && $i < $m*7) $cont = true;
-            // if($i >= $m*7 && $i < $m*8) $cont = true;
-            // if($i >= $m*8 && $i < $m*9) $cont = true;
-            // if($i >= $m*9 && $i < $m*10) $cont = true;
+            // if($k >= 1 && $k < $m) $cont = true;
+            // if($k >= $m && $k < $m*2) $cont = true;
+            if($k >= $m*2 && $k < $m*3) $cont = true;
+            // if($k >= $m*3 && $k < $m*4) $cont = true;
+            // if($k >= $m*4 && $k < $m*5) $cont = true;
+            // if($k >= $m*5 && $k < $m*6) $cont = true;
+            // if($k >= $m*6 && $k < $m*7) $cont = true;
+            // if($k >= $m*7 && $k < $m*8) $cont = true;
+            // if($k >= $m*8 && $k < $m*9) $cont = true;
+            // if($k >= $m*9 && $k < $m*10) $cont = true;
             if(!$cont) continue;
             // */
-            
-            
-            
             
             if(!$page_id) continue;
             if(!@$taxon['taxonRank']) continue;
@@ -1273,6 +1271,60 @@ class SummaryDataResourcesAllAPI
             if($result = $this->mysqli->query($sql)) echo "\nSaved table [$table] to MySQL\n";
         }
         else echo "\nNothing to save.\n";
+    }
+    function generate_metadata_LSM() //for method: lifestage and statMeth
+    {
+        //truncate first
+        $table = 'metadata_LSM'; $sql = "TRUNCATE TABLE SDR.".$table.";";
+        if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
+        
+        $file_cnt = 1; $save = 0;
+        $file_write = $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        
+        self::initialize();
+        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if(($i % 1000000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); //exit("\nstopx\n");
+                /*Array(
+                    [eol_pk] => OccurrenceMetadatum-8435138
+                    [trait_eol_pk] => R686-PK74397712
+                    [predicate] => http://rs.tdwg.org/dwc/terms/lifeStage
+                    [value_uri] => http://www.ebi.ac.uk/efo/EFO_0001272
+                    [measurement] => 
+                    [units_uri] => 
+                    [literal] => 
+                Array(
+                    [eol_pk] => MetaTrait-122684148
+                    [trait_eol_pk] => R686-PK74397712
+                    [predicate] => http://eol.org/schema/terms/statisticalMethod
+                    [value_uri] => http://semanticscience.org/resource/SIO_001114
+                    [measurement] => 
+                    [units_uri] => 
+                    [literal] => 
+                */
+                if(in_array($rec['predicate'], array('http://rs.tdwg.org/dwc/terms/lifeStage', 'http://eol.org/schema/terms/statisticalMethod'))) {
+                    $save++;
+                    if(($save % 500000) == 0) {
+                        echo "\nSaving...".number_format($save);
+                        fclose($WRITE);
+                        self::append_to_MySQL_table('metadata_LSM', $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt");
+                        $file_cnt++;
+                        $file_write = $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                    }
+                    self::write_report($rec, $fields, $WRITE);
+                }
+            }
+        }
+        fclose($WRITE);
+        self::append_to_MySQL_table('metadata_LSM', $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt");
+        fclose($file); exit("\n\nMetadata_LSM to MySQL DONE.\n\n");
     }
     function generate_refs_per_eol_pk_MySQL()
     {

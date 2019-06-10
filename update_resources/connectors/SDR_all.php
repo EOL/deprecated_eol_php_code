@@ -124,7 +124,7 @@ $func->generate_page_id_txt_files_MySQL('LSM');
 */
 
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
-$func->build_up_children_cache(); exit; //uses pages.csv - long process...
+// $func->build_up_children_cache(); exit; //uses pages.csv - long long process...
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
@@ -138,8 +138,12 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 
 // $func->test_taxon_summary('TS');         return;
 // $func->print_taxon_summary('TS');        //return;   //36.76 minutes
-$func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
+// $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary('TSp'); return;
+
+// /*
+$func->generate_metadata_LSM(); //used for method: lifestage and statMeth();
+// */
 
 // $func->print_lifeStage_statMeth('LSM');   return;
 
