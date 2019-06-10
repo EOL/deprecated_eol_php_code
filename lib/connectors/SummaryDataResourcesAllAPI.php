@@ -612,17 +612,46 @@ class SummaryDataResourcesAllAPI
         "\nDone getting children of [$page_id] OK\n";
         return $anaks;
     }
-    function start() //DH total recs 2,724,941
+    function build_up_children_cache() //DH total recs 2,724,941
     {
-        // /*
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
+        $page_ids = self::get_page_ids_andInfo_fromDH();
+        $i = 0; $total = count($page_ids); $k = 0;
+        foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
+            if(!$page_id) continue;
+            if(!@$taxon['taxonRank']) continue;
+            if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") { $i++;
+                self::get_children_from_txt_file($page_id);
+            }
+            // if($i >= 2) break; //debug only
+        }
+        
+        /* test only: single page_id
         $main_page_id = 7665; //7662;
-        $children = self::get_CSV_children_of($main_page_id); print_r($children);
-        // */
+        self::get_children_from_txt_file($main_page_id);
+        */
         /*
         self::initialize();
         self::investigate_traits_csv(); exit;
         */
+    }
+    private function get_children_from_txt_file($page_id)
+    {
+        // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/"; //debug only force assign
+        $txt_file = self::get_txt_path_by_page_id($page_id, "_ch.txt");
+        if(file_exists($txt_file)) {
+            echo "\nExists: [$page_id] $txt_file\n";
+            $json = trim(file_get_contents($txt_file));
+            $arr = json_decode($json, true);
+            return $arr;
+        }
+        else {
+            echo "\nNot yet generated, creating now...\n";
+            $children = self::get_CSV_children_of($page_id); //print_r($children);
+            $WRITE = fopen($txt_file, 'w');
+            fwrite($WRITE, json_encode($children)."\n");
+            fclose($WRITE);
+        }
     }
     private function start_write2DwCA($resource_id, $method)
     {
@@ -722,18 +751,6 @@ class SummaryDataResourcesAllAPI
             array_shift($temp);
             if($temp) self::write_ancestry_to_file($id, $temp);
         }
-    }
-    function get_children_from_txt_file($page_id) //just checking the old children txt file
-    {
-        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
-        $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
-        if(file_exists($json_file)) {
-            echo "\n[$page_id] $json_file\n";
-            $json = trim(file_get_contents($json_file));
-            $arr = json_decode($json, true);
-            print_r($arr);
-        }
-        else echo "\nNot yet generated\n";
     }
     private function write_ancestry_to_file($page_id, $children)
     {
@@ -1443,6 +1460,43 @@ class SummaryDataResourcesAllAPI
     {
         foreach($recs as $rec) $final[$rec[$field]] = '';
         return array_keys($final);
+    }
+    private function get_page_ids_andInfo_fromDH()
+    {   
+        //step 2 get desired info from DH
+        $info = self::prep_DH(); $i = 0;
+        foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                /*Array(
+                    [taxonID] => -168611
+                    [acceptedNameUsageID] => -168611
+                    [parentNameUsageID] => -105852
+                    [scientificName] => Torpediniformes
+                    [taxonRank] => order
+                    [source] => trunk:59edf7f2-b792-4351-9f37-562dd522eeca,WOR:10215,gbif:881
+                    [taxonomicStatus] => accepted
+                    [canonicalName] => 
+                    [scientificNameAuthorship] => 
+                    [scientificNameID] => 
+                    [taxonRemarks] => 
+                    [namePublishedIn] => 
+                    [furtherInformationURL] => 
+                    [datasetID] => trunk
+                    [EOLid] => 8898
+                    [EOLidAnnotations] => multiple;
+                    [Landmark] => 1
+                )*/
+                $page_ids[$rec['EOLid']] = array('taxonRank' => $rec['taxonRank'], 'Landmark' => $rec['Landmark']);
+            }
+        }
+        return $page_ids;
     }
     private function get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates)
     {   //step 1: get all page_ids from traits.csv
