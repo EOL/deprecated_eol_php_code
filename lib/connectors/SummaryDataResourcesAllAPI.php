@@ -327,15 +327,32 @@ class SummaryDataResourcesAllAPI
         //step 1: get all 'lifestage and statistical method' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'lifestage and statistical method'); //3rd param is $item index no.
         self::initialize();
+        /* removed bec it is getting page_ids without predicate in question. Moved below.
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        */
         //--------initialize start
         self::parse_DH();
         //write to file
         if(!($WRITE = Functions::file_open($this->lifeState_statMeth_resource_file, "w"))) return;
         $row = array("Page ID", 'eol_pk', "Predicate", "Label");
         fwrite($WRITE, implode("\t", $row). "\n");
+        
+        /* for indicator */
+        $total_predicates = count($predicates); $cnt_predicate = 0;
+        
         foreach($predicates as $predicate) {
+            $cnt_predicate++; $cnt_page_id = 0; /* for indicator */
+            
+            echo "\nGet page_ids for...[$predicate]\n";
+            $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(array($predicate));
+            $total_page_ids = count($page_ids); $cnt_page_id = 0;
+            
             foreach($page_ids as $page_id => $taxon) {
+                /* for indicator */
+                $cnt_page_id++;
+                echo "\nPredicates $cnt_predicate of $total_predicates";
+                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+
                 //print_r($taxon);
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
@@ -582,8 +599,87 @@ class SummaryDataResourcesAllAPI
                                                                                                         foreach($children25 as $child25) {
                                                                                                             if($children26 = @$this->CSV_children_of[$child25]) $anaks = array_merge($anaks, $children26);
                                                                                                             else continue;
-                                                                                                            return array(); //temporary only
-                                                                                                            exit("\nreached level 25. May need to extend more. [$page_id][$predicate]\n");
+foreach($children26 as $child26) {
+    if($children27 = @$this->CSV_children_of[$child26]) $anaks = array_merge($anaks, $children27);
+    else continue;
+    foreach($children27 as $child27) {
+        if($children28 = @$this->CSV_children_of[$child27]) $anaks = array_merge($anaks, $children28);
+        else continue;
+        foreach($children28 as $child28) {
+            if($children29 = @$this->CSV_children_of[$child28]) $anaks = array_merge($anaks, $children29);
+            else continue;
+            foreach($children29 as $child29) {
+                if($children30 = @$this->CSV_children_of[$child29]) $anaks = array_merge($anaks, $children30);
+                else continue;
+                foreach($children30 as $child30) {
+                    if($children31 = @$this->CSV_children_of[$child30]) $anaks = array_merge($anaks, $children31);
+                    else continue;
+                    foreach($children31 as $child31) {
+                        if($children32 = @$this->CSV_children_of[$child31]) $anaks = array_merge($anaks, $children32);
+                        else continue;
+                        foreach($children32 as $child32) {
+                            if($children33 = @$this->CSV_children_of[$child32]) $anaks = array_merge($anaks, $children33);
+                            else continue;
+                            foreach($children33 as $child33) {
+                                if($children34 = @$this->CSV_children_of[$child33]) $anaks = array_merge($anaks, $children34);
+                                else continue;
+                                foreach($children34 as $child34) {
+                                    if($children35 = @$this->CSV_children_of[$child34]) $anaks = array_merge($anaks, $children35);
+                                    else continue;
+                                    foreach($children35 as $child35) {
+                                        if($children36 = @$this->CSV_children_of[$child35]) $anaks = array_merge($anaks, $children36);
+                                        else continue;
+                                        foreach($children36 as $child36) {
+                                            if($children37 = @$this->CSV_children_of[$child36]) $anaks = array_merge($anaks, $children37);
+                                            else continue;
+                                            foreach($children37 as $child37) {
+                                                if($children38 = @$this->CSV_children_of[$child37]) $anaks = array_merge($anaks, $children38);
+                                                else continue;
+                                                foreach($children38 as $child38) {
+                                                    if($children39 = @$this->CSV_children_of[$child38]) $anaks = array_merge($anaks, $children39);
+                                                    else continue;
+                                                    foreach($children39 as $child39) {
+                                                        if($children40 = @$this->CSV_children_of[$child39]) $anaks = array_merge($anaks, $children40);
+                                                        else continue;
+                                                        foreach($children40 as $child40) {
+                                                            if($children41 = @$this->CSV_children_of[$child40]) $anaks = array_merge($anaks, $children41);
+                                                            else continue;
+                                                            foreach($children41 as $child41) {
+                                                                if($children42 = @$this->CSV_children_of[$child41]) $anaks = array_merge($anaks, $children42);
+                                                                else continue;
+                                                                foreach($children42 as $child42) {
+                                                                    if($children43 = @$this->CSV_children_of[$child42]) $anaks = array_merge($anaks, $children43);
+                                                                    else continue;
+                                                                    foreach($children43 as $child43) {
+                                                                        if($children44 = @$this->CSV_children_of[$child43]) $anaks = array_merge($anaks, $children44);
+                                                                        else continue;
+                                                                        foreach($children44 as $child44) {
+                                                                            if($children45 = @$this->CSV_children_of[$child44]) $anaks = array_merge($anaks, $children45);
+                                                                            else continue;
+                                                                            foreach($children45 as $child45) {
+                                                                                if($children46 = @$this->CSV_children_of[$child45]) $anaks = array_merge($anaks, $children46);
+                                                                                else continue;
+                                                                                $this->debug['reached L45'][$page_id][$predicate] = ''; return array();
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
                                                                                                         }
                                                                                                     }
                                                                                                 }
@@ -621,7 +717,7 @@ class SummaryDataResourcesAllAPI
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
             
             // if($page_id == 2634370) continue;
-            if($page_id == 10459935) continue;
+            // if($page_id == 10459935) continue;
         
             /* breakdown when caching:
             $cont = false;
@@ -641,19 +737,19 @@ class SummaryDataResourcesAllAPI
             if(!$page_id) continue;
             if(!@$taxon['taxonRank']) continue;
             if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") { $i++; //ORIG
-                /* NEW: so only 1 connector processes 1 page_id
+                // /* NEW: so only 1 connector processes 1 page_id
                 $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
                 if(file_exists($txt_file)) continue; //being processed...
                 else {
                     $WRITE = fopen($txt_file, 'w'); fclose($WRITE);
                 }
-                */
+                // */
                 self::get_children_from_txt_file($page_id);
                 unlink($txt_file);
             }
             // if($i >= 2) break; //debug only
         }
-        
+        print_r($this->debug);
         /* test only: single page_id
         $main_page_id = 7665; //7662;
         self::get_children_from_txt_file($main_page_id);
@@ -2431,7 +2527,10 @@ class SummaryDataResourcesAllAPI
         elseif($ret = self::lifestage_statMeth_Step23456789($recs)) {}
         else exit("\nsingle simple answer (PRM) if still needed: put REP records in order of value and select one from the middle (arbitrary tie breaks OK)\n");
         if($val = @$ret['recs']) $ret['recs_total'] = count($val);
-        if(count($ret['recs']) > 1) exit("\nMore than 1 record, do sort and pick median record.\n");
+        if(count($ret['recs']) > 1) {
+            print_r($ret);
+            exit("\nMore than 1 record, do sort and pick median record.\n");
+        }
         return $ret;
     }
     private function lifestage_statMeth_Step0($recs)
