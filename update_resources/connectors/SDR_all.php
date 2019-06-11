@@ -115,21 +115,21 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 /* replaced by: generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
-// /* normal operation - DONE worked OK
+/* normal operation - DONE worked OK
 // $func->generate_page_id_txt_files_MySQL('BV');
 // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
 // $func->generate_page_id_txt_files_MySQL('TS');
 // $func->generate_page_id_txt_files_MySQL('TSp');
 $func->generate_page_id_txt_files_MySQL('LSM'); return;
-// */
+*/
 
 /* hasn't ran this yet for All Trait Export
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 */
 
-/*
+// /*
 $func->build_up_children_cache(); exit; //uses pages.csv - long long process...
-*/
+// */
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
@@ -150,8 +150,8 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // $func->generate_metadata_LSM(); //used for method: lifestage and statMeth();
 // */
 
-$func->test_lifeStage_statMeth('LSM');
-// $func->print_lifeStage_statMeth('LSM');   //return;
+// $func->test_lifeStage_statMeth('LSM');
+$func->print_lifeStage_statMeth('LSM');   //return;
 
 // $func->start();
 // Functions::finalize_dwca_resource($resource_id);
