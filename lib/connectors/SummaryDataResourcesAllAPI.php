@@ -617,16 +617,17 @@ class SummaryDataResourcesAllAPI
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
         $page_ids = self::get_page_ids_andInfo_fromDH();
-        $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10; $m = 300;
+        $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
             
-            if($page_id == 164) continue;
-            if($page_id == 344) continue;
-            // /* breakdown when caching:
+            // if($page_id == 2634370) continue;
+            if($page_id == 10459935) continue;
+        
+            /* breakdown when caching:
             $cont = false;
             // if($k >= 1 && $k < $m) $cont = true;
             // if($k >= $m && $k < $m*2) $cont = true;
-            if($k >= $m*2 && $k < $m*3) $cont = true;
+            // if($k >= $m*2 && $k < $m*3) $cont = true;
             // if($k >= $m*3 && $k < $m*4) $cont = true;
             // if($k >= $m*4 && $k < $m*5) $cont = true;
             // if($k >= $m*5 && $k < $m*6) $cont = true;
@@ -635,12 +636,20 @@ class SummaryDataResourcesAllAPI
             // if($k >= $m*8 && $k < $m*9) $cont = true;
             // if($k >= $m*9 && $k < $m*10) $cont = true;
             if(!$cont) continue;
-            // */
+            */
             
             if(!$page_id) continue;
             if(!@$taxon['taxonRank']) continue;
-            if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") { $i++;
+            if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") { $i++; //ORIG
+                /* NEW: so only 1 connector processes 1 page_id
+                $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
+                if(file_exists($txt_file)) continue; //being processed...
+                else {
+                    $WRITE = fopen($txt_file, 'w'); fclose($WRITE);
+                }
+                */
                 self::get_children_from_txt_file($page_id);
+                unlink($txt_file);
             }
             // if($i >= 2) break; //debug only
         }
@@ -2414,6 +2423,7 @@ class SummaryDataResourcesAllAPI
     {   echo "\n================================================================Method: lifestage & statMeth\npage_id: $page_id | predicate: [$predicate]\n";
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        // print_r($recs); exit;
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nCandidate records: ".count($recs)."\n"; //print_r($recs); //good debug
         if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
@@ -3003,7 +3013,15 @@ class SummaryDataResourcesAllAPI
         $i = 0; $save_cnt = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++;
             if(($i % 500000) == 0) echo "\n".number_format($i);
-            if($i == 1) $fields = $line;
+            if($i == 1) {
+                $fields = $line;
+                if($method == "LSM") {
+                    $fields_write = $fields;
+                    $fields_write[] = 'lifestage';
+                    $fields_write[] = 'statistical_method';
+                }
+                else $fields_write = $fields;
+            }
             else {
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
@@ -3043,12 +3061,26 @@ class SummaryDataResourcesAllAPI
                     fclose($WRITE); $file_cnt++;
                     $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                 }
-                self::write_report($rec, $fields, $WRITE);
+                // /* NEW to linkup lifeStage and statMeth to traits
+                if($method == "LSM") {
+                    $rec['lifestage']           = self::lookup_value_from_metadata($rec['eol_pk'], 'http://rs.tdwg.org/dwc/terms/lifeStage');
+                    $rec['statistical_method']  = self::lookup_value_from_metadata($rec['eol_pk'], 'http://eol.org/schema/terms/statisticalMethod');
+                    // if($rec['lifestage']) print_r($rec); //debug only
+                }
+                // */
+                self::write_report($rec, $fields_write, $WRITE);
                 // if($i >= 100) break; //debug only
             }
         }
         fclose($WRITE);
         fclose($file); //exit("\n\nTraits to MySQL DONE.\n\n");
+    }
+    private function lookup_value_from_metadata($eol_pk, $predicate)
+    {
+        $sql = "SELECT m.value_uri from SDR.metadata_LSM m WHERE m.trait_eol_pk = '".$eol_pk."' AND m.predicate = '".$predicate."'";
+        $result = $this->mysqli->query($sql);
+        while($result && $rec=$result->fetch_assoc()) return $rec['value_uri'];
+        return '';
     }
     private function write_report($save_rec, $fields, $fileH)
     {
