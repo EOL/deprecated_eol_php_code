@@ -138,7 +138,7 @@ class SummaryDataResourcesAllAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         $resource_id = 'parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
-        echo "\nGet page_ids for parent method (BV)...\n";
+        echo "\nGet page_ids for parent (BV)...\n";
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $total_page_ids = count($page_ids); 
 
@@ -213,7 +213,7 @@ class SummaryDataResourcesAllAPI
 
         // $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(); WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
         
-        echo "\nGet page_ids for parent method (BV)...\n";
+        echo "\nGet page_ids for parent (TS)...\n";
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $total_page_ids = count($page_ids); 
 
