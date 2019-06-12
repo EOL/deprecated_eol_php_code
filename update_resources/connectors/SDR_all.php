@@ -6,13 +6,13 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
 
+/*
 $children_of[111]['01'] = 'species';
 $children_of[111]['02'] = 'species';
 $children_of[111]['03'] = 'species';
-
 print_r($children_of);
-
 exit;
+*/
 /*
 $arr = array(2,4,6,8,10);
 $arr = array(1,2,3,4);
@@ -137,10 +137,10 @@ $func->generate_page_id_txt_files_MySQL('LSM'); return;
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 */
 
-// /*
-// $func->build_up_children_cache(); exit; //uses pages.csv - long long process...
-$func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. 
-// */
+/*
+// $func->build_up_children_cache(); exit; //uses pages.csv - long long process... STILL RUNNING...
+$func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
+*/
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
@@ -149,7 +149,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 
 // $func->test_basal_values('BV');          //return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
-// $func->test_parent_basal_values('BV');   return;
+$func->test_parent_basal_values('BV');   return;
 // $func->print_parent_basal_values('BV');  return;
 
 // $func->test_taxon_summary('TS');         return;

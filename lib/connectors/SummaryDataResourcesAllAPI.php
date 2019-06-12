@@ -796,7 +796,7 @@ foreach($children48 as $child48) {
         self::investigate_traits_csv(); exit;
         */
     }
-    private function get_children_from_txt_file($page_id)
+    private function get_children_from_txt_file($page_id, $withCreateYN = true)
     {
         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/"; //debug only force assign
         $txt_file = self::get_txt_path_by_page_id($page_id, "_ch.txt");
@@ -807,12 +807,14 @@ foreach($children48 as $child48) {
             return $arr;
         }
         else {
-            echo "\nNot yet generated, creating now...\n";
-            $children = self::get_CSV_children_of($page_id); //print_r($children);
-            if($children) {
-                $WRITE = fopen($txt_file, 'w');
-                fwrite($WRITE, json_encode($children)."\n");
-                fclose($WRITE);
+            if($withCreateYN) {
+                echo "\nNot yet generated, creating now...\n";
+                $children = self::get_CSV_children_of($page_id); //print_r($children);
+                if($children) {
+                    $WRITE = fopen($txt_file, 'w');
+                    fwrite($WRITE, json_encode($children)."\n");
+                    fclose($WRITE);
+                }
             }
         }
     }
@@ -1878,12 +1880,12 @@ foreach($children48 as $child48) {
 
         // /*
         // if($children = self::get_CSV_children_of($main_page_id, $predicate)) { //$predicate param here is just for debug | OBSOLETE. Value is now cached to txt file.
-        if($children = self::get_children_from_txt_file($main_page_id)) { //Value is now cached to txt file
+        if($children = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
             echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
-            exit; //debug only
+            exit("\nelix stop\n"); //debug only
             return array();
         }
         // */
