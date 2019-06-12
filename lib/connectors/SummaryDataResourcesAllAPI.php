@@ -175,9 +175,10 @@ class SummaryDataResourcesAllAPI
         echo("\n-- end parents basal values --\n");
     }
     function test_parent_taxon_summary()
-    {
+    {   $this->dbname = 'traits_TS'; //for the main TS method
         $this->parentModeYN = true;
-        self::parse_DH(); self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
+        self::parse_DH(); self::initialize(); 
+        // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
 
         // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
@@ -198,10 +199,10 @@ class SummaryDataResourcesAllAPI
         echo("\n-- end method: parents: taxon summary --\n");
     }
     function print_parent_taxon_summary()
-    {
+    {   $this->dbname = 'traits_TS'; //for the main TS method
         $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
-        self::generate_children_of_taxa_using_parentsCSV();
+        // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
 
@@ -1881,7 +1882,7 @@ foreach($children48 as $child48) {
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
-            exit("\nelix stop\n"); //debug only
+            exit("\nelix stop basal\n"); //debug only
             return array();
         }
         // */
@@ -1981,13 +1982,17 @@ foreach($children48 as $child48) {
         return $final;
     }
     */
-    private function page_id_has_trait_for_this_predicate($page_id, $predicate)
+    private function page_id_has_trait_for_this_predicate($page_id, $predicate, $table = '') //3rd param $table is for 'parent taxon summary'
     {
         if($predicate == 'http://eol.org/schema/terms/Present') $table = 'page_ids_Present';
         elseif($predicate == 'http://eol.org/schema/terms/Habitat') $table = 'page_ids_Habitat';
         elseif($predicate == 'http://purl.obolibrary.org/obo/FLOPO_0900032') $table = 'page_ids_FLOPO_0900032';
+        elseif($table == 'traits_TSp') {} //so not to break the flow if-then-else
         else exit("\nTable not yet initialized!\n");
-        $sql = "SELECT t.page_id from SDR.".$table." t WHERE t.page_id = '".$page_id."'";
+        $sql = "SELECT t.page_id from SDR.".$table." t WHERE t.page_id = '".$page_id."' LIMIT 1";
+
+        if($table == 'traits_TSp') $sql = "SELECT t.page_id from SDR.".$table." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."' LIMIT 1";
+        
         $result = $this->mysqli->query($sql);
         if($result && $rec=$result->fetch_assoc()) return true;
         return false;
@@ -2014,9 +2019,30 @@ foreach($children48 as $child48) {
         // You may want to include a filter so, if we re-run this in a few months, the summary records created for 7666 are not included in the new pool of records.
         // (This is entirely because of the quality of the data. Basal value records, habitat and geography, include many questionable records at, for instance, the family level.
         // Interactions records include a lot of pretty reasonable records for the same taxa.)
-        if($mga_anak = self::get_CSV_children_of($main_page_id)) $children = array_merge($children, $mga_anak);
-        echo "\n*Children of [$main_page_id] inclusive: "; print_r($children);
+        
+        // if($mga_anak = self::get_CSV_children_of($main_page_id)) $children = array_merge($children, $mga_anak); OBSOLETE. children is now cached to txt file.
+        
+        if($mga_anak = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
+            $children = array_merge($children, $mga_anak);
+            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);    *Children of [xxx]: xxx
+        }
+        else {
+            echo "\n*No children found for [$main_page_id]\n";
+            exit("\nelix stop taxon summary\n"); //debug only
+            return array();
+        }
         // */
+        
+        /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up.  *******************************************
+        E.g. page_id = 163 has many children without Present trait. But it is being checked one by one, very slow process.
+        */
+        $new_children = array();
+        foreach($children as $page_id) {
+            if(self::page_id_has_trait_for_this_predicate($page_id, $predicate, 'traits_TSp')) $new_children[] = $page_id;
+        }
+        $children = $new_children; unset($new_children);
+        echo "\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"; //print_r($children); *New Children of [164] with pred: 218233
+        /* .  ******************************************* end IMPORTANT NEW STEP */
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
