@@ -374,15 +374,18 @@ class SummaryDataResourcesAllAPI
         */
         $this->dbname = 'traits_'.$dbase;
         // { folder test case is [2018 10 02 basal values parent]}  ============================================================================================================
-        self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
+        self::initialize_basal_values(); 
+        /* this generates: $this->CSV_children_of  --- Not needed here anymore since children comes form cache txt file.
+        self::generate_children_of_taxa_using_parentsCSV();
+        */
         // self::parse_DH(); //seems not needed here...?
         
-        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
-        // $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
+        $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
 
         $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         foreach($input as $i) {
@@ -1874,12 +1877,13 @@ foreach($children48 as $child48) {
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
 
         // /*
-        if($children = self::get_CSV_children_of($main_page_id, $predicate)) { //$predicate param here is just for debug
-            echo "\n*Children of [$main_page_id]: "; print_r($children);
-            // exit("\n".count($children)."\n");
+        // if($children = self::get_CSV_children_of($main_page_id, $predicate)) { //$predicate param here is just for debug | OBSOLETE. Value is now cached to txt file.
+        if($children = self::get_children_from_txt_file($main_page_id)) { //Value is now cached to txt file
+            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
+            exit; //debug only
             return array();
         }
         // */
@@ -1911,13 +1915,21 @@ foreach($children48 as $child48) {
             if(self::page_id_has_trait_for_this_predicate($page_id, $predicate)) $new_children[] = $page_id;
         }
         $children = $new_children; unset($new_children);
+        echo "\n*New Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);
         /* .  ******************************************* end IMPORTANT NEW STEP */
         
-        /*
+        /* *******************************************
         all children with trait and predicate accordingly = 218233 [164][http://eol.org/schema/terms/Present]
         ***HAS NOT YET FILTERED THIS TO JUST RANK 'species'
         */
-        
+        $new_children = array();
+        foreach($children as $page_id) {
+            if(self::page_id_has_rank_equal_to($page_id, 'species')) $new_children[] = $page_id;
+        }
+        $children = $new_children; unset($new_children);
+        echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children);
+        exit;
+        /* ******************************************* */
         
         /* 2. get all recs for each child */
         $recs = array(); $children_total = count($children); $i = 0;
@@ -1978,6 +1990,13 @@ foreach($children48 as $child48) {
         elseif($predicate == 'http://purl.obolibrary.org/obo/FLOPO_0900032') $table = 'page_ids_FLOPO_0900032';
         else exit("\nTable not yet initialized!\n");
         $sql = "SELECT t.page_id from SDR.".$table." t WHERE t.page_id = '".$page_id."'";
+        $result = $this->mysqli->query($sql);
+        if($result && $rec=$result->fetch_assoc()) return true;
+        return false;
+    }
+    private function page_id_has_rank_equal_to($page_id, $find_rank)
+    {
+        $sql = "SELECT d.taxonRank from SDR.DH_lookup d WHERE d.EOLid = '".$page_id."' AND d.taxonRank = '".$find_rank."'";
         $result = $this->mysqli->query($sql);
         if($result && $rec=$result->fetch_assoc()) return true;
         return false;
