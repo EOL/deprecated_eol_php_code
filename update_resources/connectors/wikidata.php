@@ -24,6 +24,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Sunday 2019-03-03 03:50:57 PM	 {"agent.tab":189430,"media_resource.tab":1298998,"taxon.tab":128348,"vernacular_name.tab":330901} decrease but looks OK still
 71	Thursday 2019-03-07 10:13:39 AM	 {"agent.tab":189457,"media_resource.tab":1299729,"taxon.tab":128348,"vernacular_name.tab":330906} consistent with last run
 71	Friday 2019-04-12 08:34:05 PM	 {"agent.tab":189886,"media_resource.tab":1315303,"taxon.tab":128676,"vernacular_name.tab":729662} expected big increase in vernaculars
+71	Thursday 2019-06-06 04:31:09 AM	 {"agent.tab":190674,"media_resource.tab":1324658,"taxon.tab":129200,"vernacular_name.tab":734354} consistent OK
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -40,6 +41,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Sunday 2019-03-03 04:04:22 PM	{"agent.tab":189430,"media_resource.tab":1298998,"taxon.tab":128348} decrease but looks OK still
 71_new	Thursday 2019-03-07 10:26:05 AM	{"agent.tab":189457,"media_resource.tab":1299729,"taxon.tab":128348} consistent with last run
 71_new	Friday 2019-04-12 08:48:05 PM	{"agent.tab":189886,"media_resource.tab":1315303,"taxon.tab":128676} expected big increase in vernaculars
+71_new	Thursday 2019-06-06 04:46:47 AM	{"agent.tab":190674,"media_resource.tab":1324658,"taxon.tab":129200} consistent OK
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource

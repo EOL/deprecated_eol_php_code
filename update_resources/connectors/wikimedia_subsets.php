@@ -19,7 +19,7 @@ wikimedia_comnames	Saturday 2019-02-09 03:21:30 PM	{"taxon.tab":128099,"vernacul
 wikimedia_comnames	Sunday 2019-03-03 03:52:33 PM	{"taxon.tab":128348,"vernacular_name.tab":330901}
 wikimedia_comnames	Thursday 2019-03-07 10:15:08 AM	{"taxon.tab":128348,"vernacular_name.tab":330906}
 wikimedia_comnames	Friday 2019-04-12 08:36:52 PM	{"taxon.tab":128676,"vernacular_name.tab":729662} expected big increase in vernaculars, per DATA-1803
-
+wikimedia_comnames	Thursday 2019-06-06 04:34:08 AM	{"taxon.tab":129200,"vernacular_name.tab":734354} consistent OK
 */
 
 // ini_set('error_reporting', E_ALL);
