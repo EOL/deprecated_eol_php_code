@@ -1411,17 +1411,19 @@ foreach($children48 as $child48) {
         }
         else echo "\nNothing to save.\n";
     }
-    function generate_metadata_LSM() //for method: lifestage and statMeth
+    function build_MySQL_table_from_csv($table) //generic means to build MySQL table from CSV file //1st client is method: lifestage and statMeth
     {
+        if($table == 'metadata_LSM') $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); 
+        else exit; //and so on...
+        
         //truncate first
-        $table = 'metadata_LSM'; $sql = "TRUNCATE TABLE SDR.".$table.";";
+        $sql = "TRUNCATE TABLE SDR.".$table.";";
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
         
         $file_cnt = 1; $save = 0;
-        $file_write = $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        $file_write = $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         
-        self::initialize();
-        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+        self::initialize(); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if(($i % 1000000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;
@@ -1453,7 +1455,7 @@ foreach($children48 as $child48) {
                     if(($save % 500000) == 0) {
                         echo "\nSaving...".number_format($save);
                         fclose($WRITE);
-                        self::append_to_MySQL_table('metadata_LSM', $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt");
+                        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
                         $file_cnt++;
                         $file_write = $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                     }
@@ -1462,8 +1464,8 @@ foreach($children48 as $child48) {
             }
         }
         fclose($WRITE);
-        self::append_to_MySQL_table('metadata_LSM', $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt");
-        fclose($file); exit("\n\nMetadata_LSM to MySQL DONE.\n\n");
+        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+        fclose($file); exit("\n\n$table to MySQL DONE.\n\n");
     }
     function generate_refs_per_eol_pk_MySQL()
     {
