@@ -404,6 +404,11 @@ class SummaryDataResourcesAllAPI
         $predicate = "http://purl.obolibrary.org/obo/VT_0001259";
         $page_ids = array(347436, 347438, 46559130);
         // $page_ids = array(328674);
+        
+        // /* test during All Trait Export
+        $predicate = "http://eol.org/schema/terms/ArmPlusDiscLength";
+        $page_ids = array(45327507);
+        // */
 
         //write to file
         if(!($WRITE = Functions::file_open($this->lifeState_statMeth_resource_file, "w"))) return;
@@ -659,7 +664,36 @@ foreach($children26 as $child26) {
                                                                             foreach($children45 as $child45) {
                                                                                 if($children46 = @$this->CSV_children_of[$child45]) $anaks = array_merge($anaks, $children46);
                                                                                 else continue;
-                                                                                $this->debug['reached L45'][$page_id][$predicate] = ''; return array();
+                                                                                foreach($children46 as $child46) {
+                                                                                    if($children47 = @$this->CSV_children_of[$child46]) $anaks = array_merge($anaks, $children47);
+                                                                                    else continue;
+                                                                                    foreach($children47 as $child47) {
+                                                                                        if($children48 = @$this->CSV_children_of[$child47]) $anaks = array_merge($anaks, $children48);
+                                                                                        else continue;
+                                                                                        
+foreach($children48 as $child48) {
+    if($children49 = @$this->CSV_children_of[$child48]) $anaks = array_merge($anaks, $children49);
+    else continue;
+    foreach($children49 as $child49) {
+        if($children50 = @$this->CSV_children_of[$child49]) $anaks = array_merge($anaks, $children50);
+        else continue;
+        foreach($children50 as $child50) {
+            if($children51 = @$this->CSV_children_of[$child50]) $anaks = array_merge($anaks, $children51);
+            else continue;
+            foreach($children51 as $child51) {
+                if($children52 = @$this->CSV_children_of[$child51]) $anaks = array_merge($anaks, $children52);
+                else continue;
+                foreach($children52 as $child52) {
+                    if($children53 = @$this->CSV_children_of[$child52]) $anaks = array_merge($anaks, $children53);
+                    else continue;
+                    $this->debug['reached L52'][$page_id][$predicate] = ''; return array();
+                }
+            }
+        }
+    }
+}
+                                                                                    }
+                                                                                }
                                                                             }
                                                                         }
                                                                     }
@@ -2529,7 +2563,13 @@ foreach($children26 as $child26) {
         if($val = @$ret['recs']) $ret['recs_total'] = count($val);
         if(count($ret['recs']) > 1) {
             print_r($ret);
-            exit("\nMore than 1 record, do sort and pick median record.\n");
+            $ret['recs'] = Functions::get_middle_record_from_array($ret['recs']);
+            $ret['recs_total'] = count($ret['recs']);
+            print_r($ret);
+            echo "\nMore than 1 record, do sort and picked middle record.\n"; //good debug
+        }
+        else {
+            // print_r($ret); exit("\nNormal operation. Debug only\n"); //debug only
         }
         return $ret;
     }

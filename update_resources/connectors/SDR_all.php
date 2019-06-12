@@ -6,11 +6,14 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
 
-// $eol_pks = array('abc01', 'abc004', '1000'); print_r($eol_pks);
-// $str = implode(",", $eol_pks);
-// $str = str_replace(",","','", $str);
-// $str = "'".$str."'";
-// exit("\n[$str]\n");
+/*
+$arr = array(2,4,6,8,10);
+$arr = array(1,2,3,4);
+$arr = array(1,2);
+$middle = get_middle_record($arr);
+echo "\n$arr[$middle]\n";
+exit("\n");
+*/
 
 /*
 $a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);     
@@ -127,9 +130,9 @@ $func->generate_page_id_txt_files_MySQL('LSM'); return;
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 */
 
-// /*
+/*
 $func->build_up_children_cache(); exit; //uses pages.csv - long long process...
-// */
+*/
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
@@ -161,4 +164,12 @@ echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
+
+function get_middle_record($arr)
+{   //print_r($arr);
+    $total_rows = count($arr);
+    $num = $total_rows/2; //echo "\n[$num]\n";
+    $num = ceil($num); //echo "\n[$num]\n"; //to round up a decimal number to next greater integral value.
+    return $num - 1;
+}
 ?>
