@@ -1467,6 +1467,67 @@ foreach($children48 as $child48) {
         self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
         fclose($file); exit("\n\n$table to MySQL DONE.\n\n");
     }
+    function build_MySQL_table_from_text($table) //generic means to build MySQL table from TSV file //1st client is DH with taxonRank table.
+    {
+        if($table == 'DH_lookup') {
+            $info = self::prep_DH();
+            $file = $info['archive_path'].$info['tables']['taxa'];
+        }
+        else exit; //and so on...
+        
+        //truncate first
+        $sql = "TRUNCATE TABLE SDR.".$table.";";
+        if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
+        
+        $file_cnt = 1; $save = 0;
+        $file_write = $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        
+        $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [taxonID] => -100000
+                    [acceptedNameUsageID] => -100000
+                    [parentNameUsageID] => -79407
+                    [scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
+                    [taxonRank] => species
+                    [source] => gbif:4943435
+                    [taxonomicStatus] => accepted
+                    [canonicalName] => Frescocyathus nagagreboensis
+                    [scientificNameAuthorship] => Barta-Calmus, 1969
+                    [scientificNameID] => 
+                    [taxonRemarks] => 
+                    [namePublishedIn] => 
+                    [furtherInformationURL] => https://www.gbif-uat.org/species/4943435
+                    [datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
+                    [EOLid] => 
+                    [EOLidAnnotations] => 
+                    [Landmark] => 
+                )*/
+                if($table == 'DH_lookup') {
+                    $save++;
+                    if(($save % 500000) == 0) {
+                        echo "\nSaving...".number_format($save); fclose($WRITE);
+                        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+                        $file_cnt++; $file_write = $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                    }
+                    self::write_report($rec, $fields, $WRITE);
+                }
+                else {} //for other tables...
+            }
+        }
+        fclose($WRITE);
+        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+        fclose($file); exit("\n\n$table to MySQL DONE.\n\n");
+    }
     function generate_refs_per_eol_pk_MySQL()
     {
         //truncate first
