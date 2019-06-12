@@ -138,16 +138,22 @@ class SummaryDataResourcesAllAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         $resource_id = 'parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
+        echo "\nGet page_ids for parent method (BV)...\n";
+        $page_ids = self::get_page_ids_andInfo_fromDH();
+        $total_page_ids = count($page_ids); 
+
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
 
         foreach($predicates as $predicate) {
             $cnt_predicate++; /* for indicator */
             
+            /* WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
             echo "\nGet page_ids for...[$predicate]\n";
             $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(array($predicate));
             $total_page_ids = count($page_ids); $cnt_page_id = 0;
-            
+            */
+            $cnt_page_id = 0;
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
@@ -204,12 +210,27 @@ class SummaryDataResourcesAllAPI
         self::parse_DH(); self::initialize();
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
-        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+
+        // $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(); WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
+        
+        echo "\nGet page_ids for parent method (BV)...\n";
+        $page_ids = self::get_page_ids_andInfo_fromDH();
+        $total_page_ids = count($page_ids); 
 
         $resource_id = 'parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
+        /* for indicator */
+        $total_predicates = count($predicates); $cnt_predicate = 0;
+
         foreach($predicates as $predicate) {
+            $cnt_predicate++; /* for indicator */
+            $cnt_page_id = 0;
             foreach($page_ids as $page_id => $taxon) {
+                /* for indicator */
+                $cnt_page_id++;
+                echo "\nPredicates $cnt_predicate of $total_predicates";
+                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                
                 // print_r($taxon); exit;
                 // Array(
                 //     [taxonRank] => order
