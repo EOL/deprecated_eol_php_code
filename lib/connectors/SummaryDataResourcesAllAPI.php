@@ -1881,7 +1881,7 @@ foreach($children48 as $child48) {
         // /*
         // if($children = self::get_CSV_children_of($main_page_id, $predicate)) { //$predicate param here is just for debug | OBSOLETE. Value is now cached to txt file.
         if($children = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
-            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);
+            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);    *Children of [164]: 1433142
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
@@ -1917,20 +1917,20 @@ foreach($children48 as $child48) {
             if(self::page_id_has_trait_for_this_predicate($page_id, $predicate)) $new_children[] = $page_id;
         }
         $children = $new_children; unset($new_children);
-        echo "\n*New Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);
+        echo "\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"; //print_r($children); *New Children of [164] with pred: 218233
         /* .  ******************************************* end IMPORTANT NEW STEP */
         
         /* *******************************************
         all children with trait and predicate accordingly = 218233 [164][http://eol.org/schema/terms/Present]
-        ***HAS NOT YET FILTERED THIS TO JUST RANK 'species'
+        ***WILL NOW FILTER THIS TO JUST RANK 'species'
         */
         $new_children = array();
         foreach($children as $page_id) {
             if(self::page_id_has_rank_equal_to($page_id, 'species')) $new_children[] = $page_id;
         }
         $children = $new_children; unset($new_children);
-        echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children);
-        exit;
+        echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children); *New Children of rank species [164]: 205167
+        // exit; //debug only
         /* ******************************************* */
         
         /* 2. get all recs for each child */
