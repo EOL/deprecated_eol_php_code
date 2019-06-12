@@ -164,12 +164,4 @@ echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
-
-function get_middle_record($arr)
-{   //print_r($arr);
-    $total_rows = count($arr);
-    $num = $total_rows/2; //echo "\n[$num]\n";
-    $num = ceil($num); //echo "\n[$num]\n"; //to round up a decimal number to next greater integral value.
-    return $num - 1;
-}
 ?>
