@@ -133,7 +133,8 @@ class SummaryDataResourcesAllAPI
     }
     function print_parent_basal_values($dbase)
     {   $this->dbname = 'traits_'.$dbase;
-        self::initialize_basal_values(); self::generate_children_of_taxa_using_parentsCSV();
+        self::initialize_basal_values(); 
+        // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         $resource_id = 'parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
@@ -748,29 +749,14 @@ foreach($children48 as $child48) {
     }
     function build_up_children_cache() //DH total recs 2,724,941 | 2,237,554 Jun 9, 2019
     {
-        self::initialize(); self::generate_children_of_taxa_using_parentsCSV();
+        self::initialize(); self::generate_children_of_taxa_using_parentsCSV(); //this generates: $this->CSV_children_of
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
-            
-            // if($page_id == 2634370) continue;
-            // if($page_id == 10459935) continue;
-        
-            /* breakdown when caching:
-            $cont = false;
-            // if($k >= 1 && $k < $m) $cont = true;
-            // if($k >= $m && $k < $m*2) $cont = true;
-            // if($k >= $m*2 && $k < $m*3) $cont = true;
-            // if($k >= $m*3 && $k < $m*4) $cont = true;
-            // if($k >= $m*4 && $k < $m*5) $cont = true;
-            // if($k >= $m*5 && $k < $m*6) $cont = true;
-            // if($k >= $m*6 && $k < $m*7) $cont = true;
-            // if($k >= $m*7 && $k < $m*8) $cont = true;
-            // if($k >= $m*8 && $k < $m*9) $cont = true;
-            // if($k >= $m*9 && $k < $m*10) $cont = true;
-            if(!$cont) continue;
-            */
-            
+
+            // if($page_id == 2634370) continue; //force to ignore a page_id
+
+            //================ FOR PARENT BASAL VALUES ================ 
             if(!$page_id) continue;
             if(!@$taxon['taxonRank']) continue;
             if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") { $i++; //ORIG
@@ -784,6 +770,16 @@ foreach($children48 as $child48) {
                 self::get_children_from_txt_file($page_id);
                 unlink($txt_file);
             }
+            //================ FOR PARENT BASAL VALUES end ================ 
+
+            //================ FOR PARENT TAXON SUMMARY ================ seems same for BASAL VALUES so just ignore.
+            /*
+            if(!$page_id) continue;
+            if(!@$taxon['taxonRank']) continue;
+            if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {}
+            */
+            //================ FOR PARENT TAXON SUMMARY end ================ 
+
             // if($i >= 2) break; //debug only
         }
         print_r($this->debug);
