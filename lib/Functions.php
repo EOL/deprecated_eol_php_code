@@ -2583,7 +2583,7 @@ class Functions
         $total_rows = count($arr);
         $num = $total_rows/2; //echo "\n[$num]\n";
         $num = ceil($num); //echo "\n[$num]\n"; //to round up a decimal number to next greater integral value.
-        return $arr[$num - 1];
+        return array($arr[$num - 1]);
     }
 
 }
