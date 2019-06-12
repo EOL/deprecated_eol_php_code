@@ -1513,20 +1513,23 @@ foreach($children48 as $child48) {
                     [Landmark] => 
                 )*/
                 if($table == 'DH_lookup') {
-                    $save++;
-                    if(($save % 500000) == 0) {
-                        echo "\nSaving...".number_format($save); fclose($WRITE);
-                        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
-                        $file_cnt++; $file_write = $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                    if($rec['EOLid']) {
+                        $save++;
+                        if(($save % 500000) == 0) {
+                            echo "\nSaving...".number_format($save); fclose($WRITE);
+                            self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+                            $file_cnt++; $file_write = $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                        }
+                        // self::write_report($rec, $fields, $WRITE); //normal if u want to save all columns
+                        self::write_report($rec, array('EOLid', 'taxonRank'), $WRITE);
                     }
-                    self::write_report($rec, $fields, $WRITE);
                 }
                 else {} //for other tables...
             }
         }
         fclose($WRITE);
         self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
-        fclose($file); exit("\n\n$table to MySQL DONE.\n\n");
+        exit("\n\n$table to MySQL DONE.\n\n");
     }
     function generate_refs_per_eol_pk_MySQL()
     {

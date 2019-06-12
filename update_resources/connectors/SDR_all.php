@@ -6,6 +6,13 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
 
+$children_of[111]['01'] = 'species';
+$children_of[111]['02'] = 'species';
+$children_of[111]['03'] = 'species';
+
+print_r($children_of);
+
+exit;
 /*
 $arr = array(2,4,6,8,10);
 $arr = array(1,2,3,4);
