@@ -2578,6 +2578,13 @@ class Functions
         echo "\nCheck debug file: [$file]\n";
         // print_r($this->debug);
     }
+    public static function get_middle_record_from_array($arr)
+    {   //print_r($arr);
+        $total_rows = count($arr);
+        $num = $total_rows/2; //echo "\n[$num]\n";
+        $num = ceil($num); //echo "\n[$num]\n"; //to round up a decimal number to next greater integral value.
+        return $arr[$num - 1];
+    }
 
 }
 ?>
