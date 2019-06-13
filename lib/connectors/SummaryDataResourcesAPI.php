@@ -98,6 +98,17 @@ class SummaryDataResourcesAPI
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
 
+        /* good debug to get the actual page_ids used during Carnivora times
+        foreach($page_ids as $page_id => $taxon) {
+            if(!$page_id) continue;
+            if(!@$taxon['taxonRank']) continue;
+            if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
+                $final[$page_id] = $taxon;
+            }
+        }
+        print_r($final); exit;
+        */
+        
         $resource_id = 'parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
 
         foreach($predicates as $predicate) {
