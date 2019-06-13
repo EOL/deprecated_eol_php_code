@@ -131,16 +131,26 @@ class SummaryDataResourcesAllAPI
         */
         self::gen_children_of_taxon_usingDH_New();
     }
-    function print_parent_basal_values($dbase)
+    function print_parent_basal_values($dbase, $page_id_param = false, $page_id_value = false)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
-        $resource_id = 'parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
+
+        print_r($page_id_param);
 
         echo "\nGet page_ids for parent (BV)...\n";
-        $page_ids = self::get_page_ids_andInfo_fromDH();
+        if($page_id_param) {
+            $page_ids = $page_id_param;
+            $resource_id = 'parent_basal_values_'.$page_id_value;
+        }
+        else {
+            $page_ids = self::get_page_ids_andInfo_fromDH();
+            $resource_id = 'parent_basal_values';
+        }
         $total_page_ids = count($page_ids);
+
+        $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
         $excluded_page_ids = array('2908256', '2913056');
 
@@ -3599,7 +3609,7 @@ foreach($children48 as $child48) {
     private function get_initial_shared_values_ancestry_tree($recs)
     {
         $final = array(); $i = 0;
-        $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE);
+        // $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE); //used initially for debugging. Not used anymore.
         foreach($recs as $rec) { $i++;
             $term = $rec['value_uri'];
             /* old ways

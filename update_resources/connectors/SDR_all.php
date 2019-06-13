@@ -147,23 +147,26 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 */
 // $func->generate_refs_per_eol_pk_MySQL(); DONE //return;
 
-// /* preparation for parent basal values. This takes some time.
-    /* this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
-    INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
-    INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
-    INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
-    */
+/* preparation for parent basal values. This takes some time.
+    // this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
+    // INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
+    // INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
+    // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
     $func->pre_parent_basal_values(); //not yet run. Will wait for new fresh harvest of 'All Trait Export'
-// */
+*/
 
 // $func->test_basal_values('BV');          //return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
 // $func->test_parent_basal_values('BV');   return;
 // $func->print_parent_basal_values('BV');  return;
 
+$func->print_parent_basal_values('BV', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662');   return;
+
+
+
 // $func->test_taxon_summary('TS');         return;
 // $func->print_taxon_summary('TS');        //return;   //36.76 minutes
-$func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
+// $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary('TSp'); return;
 
 // /*
@@ -171,7 +174,7 @@ $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.o
 // */
 
 // $func->test_lifeStage_statMeth('LSM');
-$func->print_lifeStage_statMeth('LSM');   //return;
+// $func->print_lifeStage_statMeth('LSM');   //return;
 
 // $func->start();
 // Functions::finalize_dwca_resource($resource_id);
