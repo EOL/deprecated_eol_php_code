@@ -131,17 +131,17 @@ class SummaryDataResourcesAllAPI
         */
         self::gen_children_of_taxon_usingDH_New();
     }
-    function print_parent_basal_values($dbase, $page_id_param = false, $page_id_value = false)
+    function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
 
-        print_r($page_id_param);
+        print_r($page_ids_param);
 
         echo "\nGet page_ids for parent (BV)...\n";
-        if($page_id_param) {
-            $page_ids = $page_id_param;
+        if($page_ids_param) {
+            $page_ids = self::get_page_ids_andInfo_fromDH($page_ids_param);
             $resource_id = 'parent_basal_values_'.$page_id_value;
         }
         else {
@@ -152,7 +152,7 @@ class SummaryDataResourcesAllAPI
 
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
-        $excluded_page_ids = array('2908256', '2913056');
+        $excluded_page_ids = array('xxx', 'yyy'); //debug only
 
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
@@ -218,7 +218,7 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         echo("\n-- end method: parents: taxon summary --\n");
     }
-    function print_parent_taxon_summary($dbase, $page_id_param = false, $page_id_value = false)
+    function print_parent_taxon_summary($dbase, $page_ids_param = false, $page_id_value = false)
     {   $this->dbname = 'traits_TS'; //for the main TS method
         $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
@@ -230,18 +230,17 @@ class SummaryDataResourcesAllAPI
         */
         
         echo "\nGet page_ids for parent (TS)...\n";
-        if($page_id_param) {
-            $page_ids = $page_id_param;
-            $resource_id = 'parent_basal_values_'.$page_id_value;
+        if($page_ids_param) {
+            $page_ids = self::get_page_ids_andInfo_fromDH($page_ids_param);
+            $resource_id = 'parent_taxon_summary_'.$page_id_value;
         }
         else {
             $page_ids = self::get_page_ids_andInfo_fromDH();
-            $resource_id = 'parent_basal_values';
+            $resource_id = 'parent_taxon_summary';
         }
         $total_page_ids = count($page_ids);
 
-        $resource_id = 'parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
-
+        $WRITE = self::start_write2DwCA($resource_id, 'TS');
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
 
@@ -890,7 +889,12 @@ foreach($children48 as $child48) {
                     fwrite($WRITE, json_encode($children)."\n");
                     fclose($WRITE);
                 }
-                else echo "\nNo children for [$page_id]\n";
+                /* good debug
+                else {
+                    echo "\nNo children for [$page_id]\n";
+                    if($page_id == '39311345') exit;
+                }
+                */
             }
         }
     }
@@ -1822,7 +1826,7 @@ foreach($children48 as $child48) {
         foreach($recs as $rec) $final[$rec[$field]] = '';
         return array_keys($final);
     }
-    private function get_page_ids_andInfo_fromDH()
+    private function get_page_ids_andInfo_fromDH($page_ids_param = array())
     {   
         //step 2 get desired info from DH
         $info = self::prep_DH(); $i = 0;
@@ -1854,7 +1858,13 @@ foreach($children48 as $child48) {
                     [EOLidAnnotations] => multiple;
                     [Landmark] => 1
                 )*/
-                $page_ids[$rec['EOLid']] = array('taxonRank' => $rec['taxonRank'], 'Landmark' => $rec['Landmark']);
+                
+                // /* NEW: good way to force list of page_ids
+                if($page_ids_param) {
+                    if(in_array($rec['EOLid'], $page_ids_param)) $page_ids[$rec['EOLid']] = array('taxonRank' => $rec['taxonRank'], 'Landmark' => $rec['Landmark']);
+                }
+                else $page_ids[$rec['EOLid']] = array('taxonRank' => $rec['taxonRank'], 'Landmark' => $rec['Landmark']);
+                // */
             }
         }
         return $page_ids;
@@ -2107,7 +2117,7 @@ foreach($children48 as $child48) {
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
-            exit("\nelix stop taxon summary\n"); //debug only
+            // exit("\nelix stop taxon summary\n"); //debug only
             return array();
         }
         // */
