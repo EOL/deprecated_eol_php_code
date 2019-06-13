@@ -200,9 +200,9 @@ class SummaryDataResourcesAllAPI
         self::parse_DH(); self::initialize(); 
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
 
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
+        // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
 
         $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
@@ -218,7 +218,7 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         echo("\n-- end method: parents: taxon summary --\n");
     }
-    function print_parent_taxon_summary()
+    function print_parent_taxon_summary($dbase, $page_id_param = false, $page_id_value = false)
     {   $this->dbname = 'traits_TS'; //for the main TS method
         $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
@@ -230,8 +230,15 @@ class SummaryDataResourcesAllAPI
         */
         
         echo "\nGet page_ids for parent (TS)...\n";
-        $page_ids = self::get_page_ids_andInfo_fromDH();
-        $total_page_ids = count($page_ids); 
+        if($page_id_param) {
+            $page_ids = $page_id_param;
+            $resource_id = 'parent_basal_values_'.$page_id_value;
+        }
+        else {
+            $page_ids = self::get_page_ids_andInfo_fromDH();
+            $resource_id = 'parent_basal_values';
+        }
+        $total_page_ids = count($page_ids);
 
         $resource_id = 'parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
