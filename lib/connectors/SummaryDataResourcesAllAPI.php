@@ -393,6 +393,24 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE);
         echo("\n-end print resource files (lifestage+statMeth)-\n");
     }
+    private function pre_parent_basal_values()
+    {   /*
+        INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
+        INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
+        INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
+        */
+        $recs['page_ids_Present'] = 'http://eol.org/schema/terms/Present';
+        $recs['page_ids_Habitat'] = 'http://eol.org/schema/terms/Habitat';
+        $recs['page_ids_FLOPO_0900032'] = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
+        foreach($recs as $table => $predicate) {
+            //truncate first
+            $sql = "TRUNCATE TABLE SDR.".$table.";";
+            if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
+            //insert data
+            $sql = "INSERT INTO $table SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = '".$predicate."'";
+            if($result = $this->mysqli->query($sql)) echo "\nTable updated [$table] OK.\n";
+        }
+    }
     function test_parent_basal_values($dbase)
     {   /* this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
         INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
