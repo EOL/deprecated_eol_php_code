@@ -225,7 +225,9 @@ class SummaryDataResourcesAllAPI
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
 
-        // $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(); WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
+        /* WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
+        $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
+        */
         
         echo "\nGet page_ids for parent (TS)...\n";
         $page_ids = self::get_page_ids_andInfo_fromDH();
@@ -244,7 +246,6 @@ class SummaryDataResourcesAllAPI
                 $cnt_page_id++;
                 echo "\nPredicates $cnt_predicate of $total_predicates";
                 echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
-                
                 // print_r($taxon); exit;
                 // Array(
                 //     [taxonRank] => order
