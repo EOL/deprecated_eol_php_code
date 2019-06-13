@@ -160,13 +160,11 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // $func->test_parent_basal_values('BV');   return;
 // $func->print_parent_basal_values('BV');  return;
 
-$func->print_parent_basal_values('BV', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662');   return;
-
-
+// $func->print_parent_basal_values('BV', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662');   return;
 
 // $func->test_taxon_summary('TS');         return;
 // $func->print_taxon_summary('TS');        //return;   //36.76 minutes
-// $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
+$func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary('TSp'); return;
 
 // /*
