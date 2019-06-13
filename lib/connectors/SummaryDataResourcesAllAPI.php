@@ -140,7 +140,9 @@ class SummaryDataResourcesAllAPI
 
         echo "\nGet page_ids for parent (BV)...\n";
         $page_ids = self::get_page_ids_andInfo_fromDH();
-        $total_page_ids = count($page_ids); 
+        $total_page_ids = count($page_ids);
+        
+        $excluded_page_ids = array('2908256', '2913056');
 
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
@@ -165,6 +167,8 @@ class SummaryDataResourcesAllAPI
                 //     [taxonRank] => order
                 //     [Landmark] => 2
                 // )
+                if(in_array($page_id, $excluded_page_ids)) continue;
+                
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
