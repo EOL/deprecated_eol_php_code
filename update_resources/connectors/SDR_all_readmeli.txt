@@ -80,6 +80,10 @@ SELECT DISTINCT t.page_id, d.taxonRank from SDR.traits_BV t JOIN DWH.old_DH d ON
 /Volumes/AKiTiO4/web/cp/summary_data_resources/z submitted/2019 06 09/
 scp non_parent_methods.zip archive:~/temp/.
 https://editors.eol.org/eol_php_code/applications/content_server/resources/non_parent_methods.zip
+
+scp Carnivora_parent_methods.zip archive:~/temp/.
+https://editors.eol.org/eol_php_code/applications/content_server/resources/Carnivora_parent_methods.zip
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 2634370
   2634372
