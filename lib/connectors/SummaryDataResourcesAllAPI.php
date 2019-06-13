@@ -812,6 +812,23 @@ foreach($children48 as $child48) {
     function build_up_children_cache() //DH total recs 2,724,941 | 2,237,554 Jun 9, 2019
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV(); //this generates: $this->CSV_children_of
+
+        /* good debug - proces only 1 page_id
+        if(true) {
+            $page_id = '39311345';
+            //NEW: so only 1 connector processes 1 page_id
+            $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
+            echo "\n$txt_file\n";
+            if(file_exists($txt_file)) continue; //being processed...
+            else {
+                $WRITE = fopen($txt_file, 'w'); fclose($WRITE);
+            }
+            self::get_children_from_txt_file($page_id);
+            unlink($txt_file);
+        }
+        exit("\nend muna\n");
+        */
+        
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
@@ -857,7 +874,7 @@ foreach($children48 as $child48) {
     private function get_children_from_txt_file($page_id, $withCreateYN = true)
     {
         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/"; //debug only force assign
-        $txt_file = self::get_txt_path_by_page_id($page_id, "_ch.txt");
+        $txt_file = self::get_txt_path_by_page_id($page_id, "_ch.txt"); //echo "\n$txt_file\n";
         if(file_exists($txt_file)) {
             echo "\nExists: [$page_id] $txt_file\n";
             $json = trim(file_get_contents($txt_file));
@@ -873,6 +890,7 @@ foreach($children48 as $child48) {
                     fwrite($WRITE, json_encode($children)."\n");
                     fclose($WRITE);
                 }
+                else echo "\nNo children for [$page_id]\n";
             }
         }
     }
@@ -1943,7 +1961,7 @@ foreach($children48 as $child48) {
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
-            exit("\nelix stop basal\n"); //debug only
+            // exit("\nelix stop basal\n"); //debug only
             return array();
         }
         // */
