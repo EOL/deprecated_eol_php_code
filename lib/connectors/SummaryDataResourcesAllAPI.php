@@ -3296,6 +3296,11 @@ foreach($children48 as $child48) {
     }
     function generate_page_id_txt_files_MySQL($method)
     {
+        $table = 'traits_'.$method;
+        //truncate first
+        $sql = "TRUNCATE TABLE SDR.".$table.";";
+        if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
+        
         $predicates = self::get_predicates_per_method_and_parentYN($method);
         $filename = "traits_".$method."_"; $file_cnt = 1;
         $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");

@@ -153,7 +153,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
     INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
     INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
     */
-    $func->pre_parent_basal_values();
+    $func->pre_parent_basal_values(); //not yet run. Will wait for new fresh harvest of 'All Trait Export'
 // */
 
 // $func->test_basal_values('BV');          //return;
@@ -167,7 +167,7 @@ $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.o
 // $func->print_parent_taxon_summary('TSp'); return;
 
 // /*
-// $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth();
+// $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth(); DONE
 // */
 
 // $func->test_lifeStage_statMeth('LSM');
