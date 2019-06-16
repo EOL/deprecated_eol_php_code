@@ -201,3 +201,4 @@ applications/partner_requests/TaxonConcept_check_if_name_inEOL.php
 applications/partner_requests/DiscoverLife_multiple_map_per_taxon.php
 vendor/google_client_library/json/sheets.googleapis.com-php-quickstart.json
 update_resources/connectors/files/wikimedia/.gitignore
+applications/content_server/resources_2
