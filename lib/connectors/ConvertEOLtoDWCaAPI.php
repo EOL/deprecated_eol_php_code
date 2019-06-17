@@ -21,6 +21,9 @@ class ConvertEOLtoDWCaAPI
         $this->occurrence_ids = array();
         $this->count = 0;
         // $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
+        
+        //first to use is resource = 330:
+        $this->download_options = array('resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*30, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
     }
 
     function export_xml_to_archive($params, $xml_file_YN = false, $expire_seconds = 60*60*24*25) //expires in 25 days
@@ -76,6 +79,7 @@ class ConvertEOLtoDWCaAPI
                     else $i = self::process_t($t, $i, $params);
                 }
             }
+            // if($i >= 5) break; //good debug --- if you want to limit the no. of taxa
         }
     }
     /* not used anymore...
@@ -182,6 +186,11 @@ class ConvertEOLtoDWCaAPI
                 }
                 else $rec['creator'] = 'Malcolm Storey'; // print_r($obj); print_r($rec); print_r($o); //good debug
             }
+
+            if($this->resource_id == 330) { //Moorea Biocode - https://eol-jira.bibalex.org/browse/DATA-1810
+                // print_r($rec); exit;
+                $rec['derivedFrom'] = self::get_res330_contributorID($rec['source']);
+            }
             // ================================================================end filters - for quality control ==================================================================
 
 
@@ -257,7 +266,22 @@ class ConvertEOLtoDWCaAPI
         // print_r($records);
         return $records;
     }
-
+    //=================================================== start customized functions [330] ===========================================
+    private function get_res330_contributorID($url)
+    {
+        if(!$url) return;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($html = Functions::lookup_with_cache($url, $options)) { /* <b>contributor's ID #</b></small>&nbsp;&nbsp;BMOO-01716 <li> */
+            if(preg_match("/contributor\'s ID \#(.*?)<li>/ims", $html, $arr)) {
+                $id = strip_tags(trim($arr[1]));
+                $id = str_replace("&nbsp;", "", $id);
+                // echo "\n[$id]\n";
+                return $id;
+            }
+        }
+    }
+    //=================================================== end customized functions [330] ===========================================
     private function is_media_object($data_type)
     {
         $media = array("http://purl.org/dc/dcmitype/MovingImage", "http://purl.org/dc/dcmitype/Sound", "http://purl.org/dc/dcmitype/StillImage");
