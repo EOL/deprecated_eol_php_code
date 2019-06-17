@@ -39,8 +39,7 @@ class ConvertEOLtoDWCaAPI
             $this->archive_builder->finalize(TRUE);
             recursive_rmdir($paths["temp_dir"]); // remove temp dir
         }
-        else //is XML file
-        {
+        else { //is XML file
             $params['path'] = DOC_ROOT . "tmp/";
             $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", "cache" => 1, "expire_seconds" => $expire_seconds, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
             /* expire_seconds is irrelevant if there is no cache => 1 in save_remote_file_to_local() */ 
@@ -52,7 +51,6 @@ class ConvertEOLtoDWCaAPI
         }
         echo "\ntotal rows: $this->count\n";
     }
-
     private function convert_stream_xml($params)
     {
         $file = $params["path"] . $params["filename"];
@@ -61,10 +59,8 @@ class ConvertEOLtoDWCaAPI
         $i = 0;
         while(@$reader->read()) {
             if($reader->nodeType == \XMLReader::ELEMENT && $reader->name == "taxon") {
-                if($page_xml = @$reader->readOuterXML())
-                {
-                    if($this->resource_id == 346)
-                    {
+                if($page_xml = @$reader->readOuterXML()) {
+                    if($this->resource_id == 346) {
                         require_library('ResourceDataObjectElementsSetting');
                         $nmnh = new ResourceDataObjectElementsSetting();
                         $page_xml = $nmnh->fix_NMNH_xml($page_xml);
@@ -102,19 +98,15 @@ class ConvertEOLtoDWCaAPI
     private function process_data_object($objects, $taxon_id, $params, $sciname) //$sciname here was added for AntWeb (24)
     {
         $records = array();
-        foreach($objects as $o)
-        {
+        foreach($objects as $o) {
             $o_dc       = $o->children("http://purl.org/dc/elements/1.1/");
             $o_dcterms  = $o->children("http://purl.org/dc/terms/");
             $rec = array();
-            foreach(array_keys((array) $o) as $field)
-            {
+            foreach(array_keys((array) $o) as $field) {
                 if(in_array($field, array("agent", "reference"))) continue; //processed separately below
-                else 
-                {
+                else {
                     $rec[$field] = (string) $o->$field;
-                    if($field == "additionalInformation")
-                    {
+                    if($field == "additionalInformation") {
                         if($val = (string) $o->$field->rating) $rec['rating'] = $val;
                         if($val = (string) $o->$field->subtype) $rec['subtype'] = $val;
                         
@@ -128,8 +120,7 @@ class ConvertEOLtoDWCaAPI
                 }
             }
             foreach(array_keys((array) $o_dc) as $field) $rec[$field] = (string) $o_dc->$field;
-            foreach(array_keys((array) $o_dcterms) as $field)
-            {
+            foreach(array_keys((array) $o_dcterms) as $field) {
                 /* if(in_array($field, array("some_field"))) continue; //how to exclude fields, not in schema */
                 $rec[$field] = (string) $o_dcterms->$field;
             }
@@ -208,8 +199,7 @@ class ConvertEOLtoDWCaAPI
             }
             
             //for agent
-            if($obj = @$o->agent)
-            {
+            if($obj = @$o->agent) {
                 if($agents = self::process_agent($obj, $params)) {
                     $agent_ids = array();
                     foreach($agents as $agent) {
@@ -304,8 +294,7 @@ class ConvertEOLtoDWCaAPI
     private function process_reference($objects, $taxon_id, $params)
     {
         $records = array();
-        foreach($objects as $o)
-        {
+        foreach($objects as $o) {
             $full_reference = trim((string) $o);
             if(!$full_reference) continue;
             
@@ -316,8 +305,7 @@ class ConvertEOLtoDWCaAPI
                 else echo("\n -- find or create your own ref identifier -- \n");
             }
             // elseif(in_array($params["dataset"], array("Pensoft XML files", "Amphibiaweb", "NMNH XML files"))) 
-            else
-            {
+            else {
                 if($val = $o{'doi'}) $identifier = (string) $val;
                 if($val = $o{'uri'}) $uri = $val;
             }
@@ -330,14 +318,11 @@ class ConvertEOLtoDWCaAPI
         // print_r($records);
         return $records;
     }
-
     private function process_synonym($objects, $taxon_id)
     {
         $records = array();
-        foreach($objects as $o)
-        {
-            if(trim((string) $o)) //needed validation for IUCN 211.php and NMNH XML resources
-            {
+        foreach($objects as $o) {
+            if(trim((string) $o)) { //needed validation for IUCN 211.php and NMNH XML resources
                 // print_r($o); //debug
                 $status = (string) @$o{"relationship"};
                 if(!$status) $status = 'synonym';
@@ -348,7 +333,6 @@ class ConvertEOLtoDWCaAPI
         // print_r($records);
         return $records;
     }
-
     private function process_vernacular($objects, $taxon_id)
     {
         $records = array();
@@ -360,7 +344,6 @@ class ConvertEOLtoDWCaAPI
         // print_r($records);
         return $records;
     }
-
     private function create_archive($rec, $type)
     {
         if    ($type == "taxon")       $t = new \eol_schema\Taxon();
@@ -368,9 +351,7 @@ class ConvertEOLtoDWCaAPI
         elseif($type == "reference")   $t = new \eol_schema\Reference();
         elseif($type == "data object") $t = new \eol_schema\MediaResource();
         elseif($type == "agent")       $t = new \eol_schema\Agent();
-        
-        foreach(array_keys($rec) as $orig_field)
-        {
+        foreach(array_keys($rec) as $orig_field) {
             $field = lcfirst($orig_field);
             if($field == 'additionalInformation') continue; //the actual field 'additionalInformation' is excluded in DwCA. Its contents (e.g. <rating>,<latitude>) are used elsewhere, not here.
             
@@ -424,9 +405,7 @@ class ConvertEOLtoDWCaAPI
                 $this->archive_builder->write_object_to_file($t);
             }
         }
-
     }
-
     private function process_t($t, $i, $params)
     {
         $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
@@ -439,7 +418,6 @@ class ConvertEOLtoDWCaAPI
         }
         else return; //exit;
         */
-        
         $i++; if(($i % 5000) == 0) echo "\n $i ";
         $rec = array();
         foreach(array_keys((array) $t_dc) as $field)  $rec[$field] = (string) $t_dc->$field;
@@ -460,11 +438,9 @@ class ConvertEOLtoDWCaAPI
         }
         else echo "\nwent here\n";
         if($val = $taxon_id) $rec["identifier"] = $val;
-        else
-        {
+        else {
             if(in_array($params["dataset"], array("NMNH XML files"))) continue; //meaning if there is no taxon id and sciname then ignore record
-            else 
-            {
+            else {
                 echo "\n -- try to figure how to get taxon_id for this resource: $params[dataset] -- \n";
                 // print_r($t); print_r($t_dc); print_r($t_dwc); exit; //debug
             }
@@ -474,7 +450,6 @@ class ConvertEOLtoDWCaAPI
         // if(substr($this->resource_id,0,3) == "LD_") $taxon_id = md5(trim($t_dwc->ScientificName));
         /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk multimedia resource (e.g. LD_afrotropicalbirds_multimedia.tar.gz). See CollectionsScrapeAPI.php */
         // ==================================end customize==============================
-        
 
         if($obj = @$t->commonName) {
             if($vernaculars = self::process_vernacular($obj, $taxon_id)) {
@@ -501,8 +476,7 @@ class ConvertEOLtoDWCaAPI
         
         if($obj = @$t->dataObject) {
             if($data_objects = self::process_data_object($obj, $taxon_id, $params, $t_dwc->ScientificName)) {
-                foreach($data_objects as $data_object) 
-                {
+                foreach($data_objects as $data_object) {
                     if($this->resource_id == 346 && $data_object['dataType'] == "http://purl.org/dc/dcmitype/Text") continue; //exclude text objects for resource (346) per DATA-1743
                     // print_r($rec); print_r($data_object); exit;
                     /*
@@ -535,8 +509,7 @@ class ConvertEOLtoDWCaAPI
         
         $rec = array_map('trim', $rec);
         // echo "\nidentifier: ".$rec['identifier']. " ScientificName: " . $rec['ScientificName']; exit("\nelix\n");
-        if($rec['identifier'] && $rec['ScientificName'])
-        {
+        if($rec['identifier'] && $rec['ScientificName']) {
             // ==================================start customize============================ was working OK, but decided to use the orig taxonID from LifeDesk XML
             // if(substr($this->resource_id,0,3) == "LD_") $rec['identifier'] = md5($rec['ScientificName']);
             /* Used md5(sciname) here so we can combine taxon.tab with LifeDesk multimedia resource (e.g. LD_afrotropicalbirds_multimedia.tar.gz). See CollectionsScrapeAPI.php */
