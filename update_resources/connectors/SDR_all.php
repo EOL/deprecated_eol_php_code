@@ -139,7 +139,7 @@ $func->generate_page_id_txt_files_MySQL('LSM'); return;
 
 /*
 $func->build_up_children_cache(); exit; //uses pages.csv - long long process... STILL RUNNING...
-// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
+$func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
 */
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
@@ -160,11 +160,15 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // $func->test_parent_basal_values('BV');   return;
 // $func->print_parent_basal_values('BV');  return;
 
-/* for multiple page_ids: BV
-$page_ids = array(7662, 4528789, 7675, 7669, 7672, 10647853, 7673, 7674, 4529519, 39311345, 7663, 4524096, 7665, 7677, 7676, 7664, 7670, 7671, 7666, 7667, 7668);
+// /* for multiple page_ids: BV
+// $page_ids = array(7662, 4528789, 7675, 7669, 7672, 10647853, 7673, 7674, 4529519, 39311345, 7663, 4524096, 7665, 7677, 7676, 7664, 7670, 7671, 7666, 7667, 7668);
+// $func->print_parent_basal_values('BV', $page_ids, 'Carnivora'); return;
+
+$page_ids = array(1);
+$func->print_parent_basal_values('BV', $page_ids, 'Metazoa'); //return;
+
 // foreach($page_ids as $page_id) $final[$page_id] = array('taxonRank' => 'not species', 'Landmark' => 1); //good but not used eventually
-$func->print_parent_basal_values('BV', $page_ids, 'Carnivora');   return;
-*/
+// */
 
 
 // $func->test_taxon_summary('TS');         return;
@@ -173,10 +177,10 @@ $func->print_parent_basal_values('BV', $page_ids, 'Carnivora');   return;
 // $func->print_parent_taxon_summary('TSp'); return;
 // $func->print_parent_taxon_summary('TSp', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662');   return;
 
-// /* for multiple page_ids: TS
+/* for multiple page_ids: TS
 $page_ids = array(7662, 4528789, 7675, 7669, 7672, 10647853, 7673, 7674, 4529519, 39311345, 7663, 4524096, 7665, 7677, 7676, 7664, 7670, 7671, 7666, 7667, 7668);
 $func->print_parent_taxon_summary('TSp', $page_ids, 'Carnivora'); return;
-// */
+*/
 
 
 // /*

@@ -32,7 +32,7 @@ load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_app
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_LSM_1.txt' into table traits_LSM;
 -> worked OK
 
-obsolete below: traits has now been subdivided...
+OBSOLETE below: traits has now been subdivided...
 mysql> 
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_1.txt' into table traits;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_2.txt' into table traits;
