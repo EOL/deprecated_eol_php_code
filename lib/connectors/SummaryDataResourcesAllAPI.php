@@ -1498,6 +1498,7 @@ foreach($children48 as $child48) {
     }
     function build_MySQL_table_from_csv($table) //generic means to build MySQL table from CSV file //1st client is method: lifestage and statMeth
     {
+        self::working_dir(); //initializes $this->main_paths
         if($table == 'metadata_LSM') $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); 
         else exit; //and so on...
         
@@ -1666,7 +1667,7 @@ foreach($children48 as $child48) {
         }
         fclose($WRITE);
         self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
-        fclose($file); exit("\n\nMetadata_refs to MySQL DONE.\n\n");
+        fclose($file); echo "\n\nMetadata_refs to MySQL DONE.\n\n";
     }
     function generate_refs_per_eol_pk() //total eol_pks 39,931 Carnivora | 11,233,522 metadata.csv | 985,159 metadata_refs in MySQL
     {   

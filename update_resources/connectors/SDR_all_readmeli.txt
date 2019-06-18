@@ -44,10 +44,12 @@ select count(*) from traits_LSM;
 select count(*) from traits_TS;
 select count(*) from traits_TSp;
 
+
+
 TABLES                  |2019May29 |  |2019Jun13 |
 DH_lookup;              |  2237553 |
-metadata_LSM;           |  1821929 |
-metadata_refs;          |   985159 |
+metadata_LSM;           |  1821929 |  |  1857279 |
+metadata_refs;          |   985159 |  |   984177 |
 page_ids_FLOPO_0900032; |   189717 |
 page_ids_Habitat;       |   295243 |
 page_ids_Present;       |  1229590 |

@@ -145,7 +145,7 @@ $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
 */
-$func->generate_refs_per_eol_pk_MySQL(); //DONE //return;
+// $func->generate_refs_per_eol_pk_MySQL(); //DONE //return;
 
 /* preparation for parent basal values. This takes some time.
     // this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details

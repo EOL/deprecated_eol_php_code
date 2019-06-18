@@ -60,6 +60,7 @@ Step 2 is a mapping:
 that mapping process may be a bit weird because the media-> taxa relationship is many-> one. One thing that may help is that the taxa you will be updating should not overlap with the taxa that are not updated. So it should be safe to delete any "old" taxon record connected to a record you're updating. I think you'll want to de-duplicate the new taxon records before you assign them taxonIDs, though. If you see what I mean. Sorry this one is so complicated.
 Another option you might prefer: When you identify the records with "contributor's ID # BMOO" strings at the furtherInformationURL, remove them from the existing resource, and make a new resource just for the matching records.
 */
+echo "\nStart 2nd part...\n";
 $resource_id = 330;
 require_library('connectors/MooreaBiocodeAPI');
 $func = new MooreaBiocodeAPI($resource_id);

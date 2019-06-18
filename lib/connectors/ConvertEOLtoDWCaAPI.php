@@ -22,7 +22,7 @@ class ConvertEOLtoDWCaAPI
         $this->count = 0;
         // $this->download_options = array('download_wait_time' => 500000, 'timeout' => 10800, 'download_attempts' => 1);
         
-        //first to use is resource = 330:
+        //first to use is resource = '330_pre':
         $this->download_options = array('resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*30, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
     }
 
@@ -178,7 +178,7 @@ class ConvertEOLtoDWCaAPI
                 else $rec['creator'] = 'Malcolm Storey'; // print_r($obj); print_r($rec); print_r($o); //good debug
             }
 
-            if($this->resource_id == 330) { //Moorea Biocode - https://eol-jira.bibalex.org/browse/DATA-1810
+            if($this->resource_id == '330_pre') { //Moorea Biocode - https://eol-jira.bibalex.org/browse/DATA-1810
                 // print_r($rec); exit;
                 $rec['derivedFrom'] = self::get_res330_contributorID($rec['source']);
             }
