@@ -62,7 +62,10 @@ require_library('connectors/MooreaBiocodeAPI');
 $func = new MooreaBiocodeAPI($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id);
+$func->investigate_taxon_tab(); //just a utility to check the final taxon.tab
 /*=========================end 2nd part of the connector================================*/
+
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";

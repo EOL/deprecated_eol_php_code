@@ -11,9 +11,7 @@ class MooreaBiocodeAPI
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
         $this->debug = array();
-        $this->download_options = array( 
-            'expire_seconds'     => 60*60*24*10, //10 days
-            'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+        // $this->download_options = array('expire_seconds' => 60*60*24*10, 'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         $this->main_path = CONTENT_RESOURCE_LOCAL_PATH . '/330_pre/';
         $this->spreadsheet_url = 'http://localhost/cp_new/MooreaBiocode/Moorea-Tahiti.xls';
         $this->spreadsheet_url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MooreaBiocode/Moorea-Tahiti.xls';
@@ -34,6 +32,33 @@ class MooreaBiocodeAPI
         */
         //massage debug for printing
         // Functions::start_print_debug($this->debug, $this->resource_id);
+    }
+    function investigate_taxon_tab()
+    {   $i = 0; $need2investigate = false;
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH . '/330/'.'taxon.tab') as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                $final[$rec['scientificName']][] = $rec['scientificName'];
+            }
+        }
+        foreach($final as $taxon => $recs) {
+            if(count($recs) > 1) {
+                print_r($recs);
+                $need2investigate = true;
+            }
+            // else echo " ".count($recs); //debug only
+        }
+        echo "\n-end util [$i]-\n";
+        if($need2investigate) echo "\nERROR: Need to investigate, duplicate scientificName\n";
+        else                  echo "\nOK, nothing to investigate.\n";
     }
     private function write_agents()
     {   $i = 0;
@@ -122,7 +147,8 @@ class MooreaBiocodeAPI
                     */
                     if(@$rek['Full Name']) {
                         $taxon_rec = array('taxonID' => strtolower(str_replace(' ','_',$rek['Full Name'])), 'scientificName' => $rek['Full Name'], 'family' => $rek['Family'], 
-                                           'genus' => $rek['Genus'], 'phylum' => $rek['Phyla ID'], 'furtherInformationURL' => $rec['furtherInformationURL']);
+                                           'genus' => $rek['Genus'], 'furtherInformationURL' => $rec['furtherInformationURL']);
+                                           /* we can add this if requested: 'phylum' => $rek['Phyla ID'] */
                         $rec['taxonID'] = $taxon_rec['taxonID'];
                     }
                     elseif($rek = @$taxon_info[$rec['taxonID']]) {
@@ -153,6 +179,12 @@ class MooreaBiocodeAPI
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->scientificName] = '';
         }
+        /* debug only
+        else {
+            print_r($taxon_rec);
+            echo "\nalready existing: [$taxon->scientificName]\n";
+        }
+        */
     }
     private function write_object($rec)
     {
@@ -171,6 +203,7 @@ class MooreaBiocodeAPI
             $temp = $parser->convert_sheet_to_array($local_path);
             $records = $parser->prepare_data($temp, "single", "Field Number", "Field Number", "Family", "Full Name", "Genus", "Phyla ID"); // print_r($records);
             debug("\n" . count($records));
+            unlink($local_path);
             return $records;
             /*[BMOO-17424] => Array(
                         [Field Number] => BMOO-17424
