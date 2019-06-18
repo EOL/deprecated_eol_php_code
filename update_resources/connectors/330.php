@@ -21,7 +21,7 @@ $timestart = time_elapsed();
 /*=========================start 1st part of the connector================================*/
 // /* first part of the operation: includes converting XML to DwCA and some additional media field 'derivedFrom' in media tab (new DATA-1810).
 require_library('connectors/INBioAPI');
-$resource_id = '330pre';
+$resource_id = '330_pre';
 
 $xml_resource = "http://calphotos.berkeley.edu/eol_biocode.xml.gz";
 // $xml_resource = "http://localhost/cp/CalPhotos/eol_biocode.xml.gz"; //local debug only
