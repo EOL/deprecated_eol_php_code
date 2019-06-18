@@ -12,13 +12,13 @@ taxa	images
 330	Saturday 2019-05-25 01:31:24 AM	{"agent.tab":27,"media_resource.tab":20942,"taxon.tab":4492}
 330	Saturday 2019-06-01 01:31:19 AM	{"agent.tab":27,"media_resource.tab":20942,"taxon.tab":4492} eol-archive
 330	Monday 2019-06-03 12:44:21 AM	{"agent.tab":27,"media_resource.tab":20942,"taxon.tab":4492} Mac mini
-
+330	Monday 2019-06-17 10:50:22 PM	{"agent.tab":27,"media_resource.tab":20942,"taxon.tab":4492} eol-archive -- start of adding: http://rs.tdwg.org/ac/terms/derivedFrom
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/INBioAPI');
 $timestart = time_elapsed();
-$resource_id = 330;
+$resource_id = '330pre';
 
 $xml_resource = "http://calphotos.berkeley.edu/eol_biocode.xml.gz";
 // $xml_resource = "http://localhost/cp/CalPhotos/eol_biocode.xml.gz"; //local debug only
@@ -46,6 +46,21 @@ Functions::set_resource_status_to_harvest_requested($resource_id);
 require_library('ResourceDataObjectElementsSetting');
 $nmnh = new ResourceDataObjectElementsSetting($resource_id);
 $nmnh->call_xml_2_dwca($resource_id, "Moorea Biocode", false); //false means not NMNH resource
+
+/*=========================start 2nd part of the connector================================
+this constitues to the 'step 2' part of the DATA-1810:
+Step 2 is a mapping:
+-in the attached mapping file, for each record, look for the BMOO string in http://rs.tdwg.org/ac/terms/derivedFrom, in the mapping's Field Number column.
+-if it appears, overwrite the taxon information for that record with the contents of the columns Family, Genus and Full Name (> scientificName)
+that mapping process may be a bit weird because the media-> taxa relationship is many-> one. One thing that may help is that the taxa you will be updating should not overlap with the taxa that are not updated. So it should be safe to delete any "old" taxon record connected to a record you're updating. I think you'll want to de-duplicate the new taxon records before you assign them taxonIDs, though. If you see what I mean. Sorry this one is so complicated.
+Another option you might prefer: When you identify the records with "contributor's ID # BMOO" strings at the furtherInformationURL, remove them from the existing resource, and make a new resource just for the matching records.
+*/
+$resource_id = 330;
+require_library('connectors/MooreaBiocodeAPI');
+$func = new MooreaBiocodeAPI($resource_id);
+$func->start();
+Functions::finalize_dwca_resource($resource_id);
+/*=========================end 2nd part of the connector================================*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n";
