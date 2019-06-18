@@ -125,13 +125,13 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 /* replaced by: generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
-/* normal operation - DONE worked OK
-// $func->generate_page_id_txt_files_MySQL('BV');
+// /* normal operation - DONE worked OK
+$func->generate_page_id_txt_files_MySQL('BV');
 // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
-// $func->generate_page_id_txt_files_MySQL('TS');
-// $func->generate_page_id_txt_files_MySQL('TSp');
+$func->generate_page_id_txt_files_MySQL('TS');
+$func->generate_page_id_txt_files_MySQL('TSp');
 $func->generate_page_id_txt_files_MySQL('LSM'); return;
-*/
+// */
 
 /* hasn't ran this yet for All Trait Export
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
@@ -183,7 +183,7 @@ $func->print_parent_taxon_summary('TSp', $page_ids, 'Carnivora'); return;
 
 
 // /*
-$func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth(); DONE
+// $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth(); DONE
 // */
 
 // $func->test_lifeStage_statMeth('LSM');

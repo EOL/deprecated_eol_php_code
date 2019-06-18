@@ -66,11 +66,15 @@ load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_app
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_3.txt' into table traits_BV;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_4.txt' into table traits_BV;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_5.txt' into table traits_BV;
+
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_1.txt' into table traits_TS;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_2.txt' into table traits_TS;
+
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TSp_1.txt' into table traits_TSp;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TSp_2.txt' into table traits_TSp;
+
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_LSM_1.txt' into table traits_LSM;
+
 -> worked OK
 
 OBSOLETE below: traits has now been subdivided...

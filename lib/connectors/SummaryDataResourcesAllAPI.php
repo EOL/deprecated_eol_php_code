@@ -3416,7 +3416,7 @@ foreach($children48 as $child48) {
             }
         }
         fclose($WRITE);
-        fclose($file); //exit("\n\nTraits to MySQL DONE.\n\n");
+        fclose($file); echo "\n\nTraits to MySQL DONE [$table].\n\n";
     }
     private function lookup_value_from_metadata($eol_pk, $predicate)
     {
