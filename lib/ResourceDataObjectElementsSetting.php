@@ -378,8 +378,9 @@ class ResourceDataObjectElementsSetting
         $func = new ConvertEOLtoDWCaAPI($resource_id);
         $func->export_xml_to_archive($params, true, 0); // true => means it is an XML file, not an archive file nor a zip file. IMPORTANT: Expires now = 0.
 
-        if($dataset == "NMNH XML files") $deleteYN = true; //before it was false...coz can't afford to delete NMNH departmental folders bec. we need it in processing media extension from type speciemen resource 891.
-        else                             $deleteYN = true;
+        if($dataset == "NMNH XML files")     $deleteYN = true; //before it was false...coz can't afford to delete NMNH departmental folders bec. we need it in processing media extension from type speciemen resource 891.
+        elseif($dataset == "Moorea Biocode") $deleteYN = false; //DATA-1810, need to process more, can't delete folder just yet.
+        else                                 $deleteYN = true;
         Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
         Functions::set_resource_status_to_harvest_requested($resource_id);
         
