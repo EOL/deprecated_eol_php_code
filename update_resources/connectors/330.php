@@ -16,6 +16,7 @@ taxa	images
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+/* first part of the operation: includes converting XML to DwCA and some additional media field 'derivedFrom' in media tab.
 require_library('connectors/INBioAPI');
 $timestart = time_elapsed();
 $resource_id = '330pre';
@@ -46,7 +47,7 @@ Functions::set_resource_status_to_harvest_requested($resource_id);
 require_library('ResourceDataObjectElementsSetting');
 $nmnh = new ResourceDataObjectElementsSetting($resource_id);
 $nmnh->call_xml_2_dwca($resource_id, "Moorea Biocode", false); //false means not NMNH resource
-
+*/
 /*=========================start 2nd part of the connector================================
 this constitues to the 'step 2' part of the DATA-1810:
 Step 2 is a mapping:
