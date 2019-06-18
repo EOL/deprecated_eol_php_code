@@ -68,13 +68,14 @@ class MooreaBiocodeAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
+                $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
                 /*Array(
                     [taxonID] => 02828bab8a94aed5a740750ebecec3d0
                     [furtherInformationURL] => http://calphotos.berkeley.edu/cgi/img_query?seq_num=226925&one=T
                     [scientificName] => Abdopus abaculus
                 )*/
-                $final[$rec['taxonID']] = array('scientificName' => $rec['scientificName'], 'furtherInformationURL' => $rec['furtherInformationURL']);
+                if($rec['scientificName']) $final[$rec['taxonID']] = array('scientificName' => $rec['scientificName'], 'furtherInformationURL' => $rec['furtherInformationURL']);
             }
         }
         return $final;
@@ -90,6 +91,7 @@ class MooreaBiocodeAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
+                $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
                 /*Array(
                     [identifier] => CalPhotos:4444 4444 0907 1138
