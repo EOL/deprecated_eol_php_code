@@ -4101,7 +4101,7 @@ foreach($children48 as $child48) {
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             */
-            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary_data_resources/trait_bank',
+            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary_data_resources/trait_bank_2019Jun13',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
             $this->main_paths = $info;
         }

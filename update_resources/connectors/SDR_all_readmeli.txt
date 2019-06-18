@@ -18,6 +18,45 @@ show tables;
 show warnings; 
 show tables;
 -> worked OK, even with multi-line entries. Just a test that was a success.
+
+----------------------------------------------------------------------------------------------------------------------------------------
+$ mysql -u root -p --local-infile SDR;
+
+DH_lookup
+metadata_LSM
+metadata_refs
+page_ids_FLOPO_0900032
+page_ids_Habitat
+page_ids_Present
+traits_BV
+traits_LSM
+traits_TS
+traits_TSp
+
+select count(*) from DH_lookup;
+select count(*) from metadata_LSM;
+select count(*) from metadata_refs;
+select count(*) from page_ids_FLOPO_0900032;
+select count(*) from page_ids_Habitat;
+select count(*) from page_ids_Present;
+select count(*) from traits_BV;
+select count(*) from traits_LSM;
+select count(*) from traits_TS;
+select count(*) from traits_TSp;
+
+TABLES                  |2019May29 |  |2019Jun13 |
+DH_lookup;              |  2237553 |
+metadata_LSM;           |  1821929 |
+metadata_refs;          |   985159 |
+page_ids_FLOPO_0900032; |   189717 |
+page_ids_Habitat;       |   295243 |
+page_ids_Present;       |  1229590 |
+traits_BV;              |  4689720 |
+traits_LSM;             |   194249 |
+traits_TS;              |  1458588 |
+traits_TSp;             |  1033725 |
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 mysql> 
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_1.txt' into table traits_BV;
