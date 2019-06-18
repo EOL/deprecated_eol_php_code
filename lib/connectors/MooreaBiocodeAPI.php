@@ -23,6 +23,8 @@ class MooreaBiocodeAPI
         $taxon_info = self::build_taxon_info();
         $field_no_info = self::convert_xls_2array(); //exit;
         self::loop_media_tab($field_no_info, $taxon_info);
+        $taxon_info = ''; $field_no_info = '';
+        self::write_agents();
         $this->archive_builder->finalize(true);
         
         /* uncomment in real operation
@@ -33,28 +35,26 @@ class MooreaBiocodeAPI
         //massage debug for printing
         // Functions::start_print_debug($this->debug, $this->resource_id);
     }
-    private function convert_xls_2array()
-    {
-        if($local_path = Functions::save_remote_file_to_local($this->spreadsheet_url, array('file_extension' => 'xls', 'cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 3))) {
-            require_library('XLSParser'); $parser = new XLSParser();
-            debug("\nreading: " . $this->spreadsheet_url . "\n");
-            $temp = $parser->convert_sheet_to_array($local_path);
-            $records = $parser->prepare_data($temp, "single", "Field Number", "Field Number", "Family", "Full Name", "Genus", "Phyla ID"); // print_r($records);
-            debug("\n" . count($records));
-            return $records;
-            /*[BMOO-17424] => Array(
-                        [Field Number] => BMOO-17424
-                        [Family] => 
-                        [Full Name] => Antipatharia
-                        [Genus] => 
-                    )
-                [BMOO-02955] => Array(
-                        [Field Number] => BMOO-02955
-                        [Family] => Acroporidae
-                        [Full Name] => Acropora austera
-                        [Genus] => Acropora
-                    )
-            */
+    private function write_agents()
+    {   $i = 0;
+        foreach(new FileIterator($this->main_path.'agent.tab') as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                $a = new \eol_schema\Agent();
+                foreach(array_keys($rec) as $field) $a->$field = $rec[$field];
+                if(!isset($this->agent_ids[$a->identifier])) {
+                    $this->archive_builder->write_object_to_file($a);
+                    $this->agent_ids[$a->identifier] = '';
+                }
+            }
         }
     }
     private function build_taxon_info()
@@ -109,8 +109,9 @@ class MooreaBiocodeAPI
                     [LocationCreated] => Fore reef NE of Tareu Pass (Moorea, French Polynesia)
                 )
                 */
-                $taxon_rec = array();
+                $taxon_rec = array(); $rek = array();
                 if($rek = @$field_no_info[$rec['derivedFrom']]) {
+                    // exit("\nwent here\n");
                     /*[BMOO-02955] => Array(
                             [Field Number] => BMOO-02955
                             [Family] => Acroporidae
@@ -119,9 +120,18 @@ class MooreaBiocodeAPI
                             [Phyla ID] => xxx
                         )
                     */
-                    $taxon_rec = array('taxonID' => strtolower(str_replace(' ','_',$rek['Full Name'])), 'scientificName' => $rek['Full Name'], 'family' => $rek['Family'], 
-                                       'genus' => $rek['Genus'], 'phylum' => $rek['Phyla ID'], 'furtherInformationURL' => $rec['furtherInformationURL']);
-                    $rec['taxonID'] = $taxon_rec['taxonID'];
+                    if(@$rek['Full Name']) {
+                        $taxon_rec = array('taxonID' => strtolower(str_replace(' ','_',$rek['Full Name'])), 'scientificName' => $rek['Full Name'], 'family' => $rek['Family'], 
+                                           'genus' => $rek['Genus'], 'phylum' => $rek['Phyla ID'], 'furtherInformationURL' => $rec['furtherInformationURL']);
+                        $rec['taxonID'] = $taxon_rec['taxonID'];
+                    }
+                    elseif($rek = @$taxon_info[$rec['taxonID']]) {
+                        $taxon_rec = array('taxonID' => $rec['taxonID'], 'scientificName' => $rek['scientificName'], 'furtherInformationURL' => $rec['furtherInformationURL']);
+                    }
+                    else {
+                        print_r($rec); print_r($rek);
+                        exit("\ninvestigate 02\n");
+                    }
                 }
                 elseif($rek = @$taxon_info[$rec['taxonID']]) {
                     $taxon_rec = array('taxonID' => $rec['taxonID'], 'scientificName' => $rek['scientificName'], 'furtherInformationURL' => $rec['furtherInformationURL']);
@@ -153,54 +163,29 @@ class MooreaBiocodeAPI
             $this->object_ids[$mr->identifier] = '';
         }
     }
-    /*
-    private function write_taxon_DH($rec)
-    {   
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                     = $rec['taxonID'];
-        $taxon->scientificName              = $rec['scientificName'];
-        $taxon->scientificNameAuthorship    = $rec['scientificNameAuthorship'];     //from look-ups
-        $taxon->canonicalName               = $rec['canonicalName'];                //from look-ups
-        $taxon->parentNameUsageID           = $rec['parentNameUsageID'];
-        $taxon->taxonRank                   = $rec['taxonRank'];                    //from look-ups
-        $taxon->taxonomicStatus             = $rec['taxonomicStatus'];
-        $taxon->acceptedNameUsageID         = $rec['acceptedNameUsageID'];
-        $taxon->furtherInformationURL       = $rec['furtherInformationURL'];
-        $taxon->taxonRemarks                = $rec['taxonRemarks'];
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->archive_builder->write_object_to_file($taxon);
-            $this->taxon_ids[$taxon->taxonID] = '';
-        }
-    }
-    private function create_text_object($rec)
+    private function convert_xls_2array()
     {
-        $this->taxa_with_trait[$rec['REF|Plant|theplant']] = ''; //to be used when creating taxon.tab
-        $mr = new \eol_schema\MediaResource();
-        $mr->taxonID        = $rec['REF|Plant|theplant'];
-        $mr->identifier     = $rec['DEF_id'];
-        $mr->type           = $rec['type'];
-        $mr->language       = 'en';
-        $mr->format         = "text/html";
-        $mr->CVterm         = $rec['Subject'];
-        // $mr->Owner          = '';
-        // $mr->rights         = '';
-        $mr->title          = $rec['Title'];
-        $mr->UsageTerms     = $rec['blank_1'];
-        $mr->description    = $rec['description'];
-        // $mr->LocationCreated = '';
-        $mr->bibliographicCitation = $this->partner_bibliographicCitation;
-        $mr->furtherInformationURL = $this->partner_source_url;
-        $mr->referenceID = $rec['REF|Reference|ref'];
-        if(!@$rec['REF|Reference|ref']) {
-            print_r($rec);
-            exit("\nNo reference!\n");
-        }
-        // if($agent_ids = )  $mr->agentID = implode("; ", $agent_ids);
-        if(!isset($this->object_ids[$mr->identifier])) {
-            $this->archive_builder->write_object_to_file($mr);
-            $this->object_ids[$mr->identifier] = '';
+        if($local_path = Functions::save_remote_file_to_local($this->spreadsheet_url, array('file_extension' => 'xls', 'cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 3))) {
+            require_library('XLSParser'); $parser = new XLSParser();
+            debug("\nreading: " . $this->spreadsheet_url . "\n");
+            $temp = $parser->convert_sheet_to_array($local_path);
+            $records = $parser->prepare_data($temp, "single", "Field Number", "Field Number", "Family", "Full Name", "Genus", "Phyla ID"); // print_r($records);
+            debug("\n" . count($records));
+            return $records;
+            /*[BMOO-17424] => Array(
+                        [Field Number] => BMOO-17424
+                        [Family] => 
+                        [Full Name] => Antipatharia
+                        [Genus] => 
+                    )
+                [BMOO-02955] => Array(
+                        [Field Number] => BMOO-02955
+                        [Family] => Acroporidae
+                        [Full Name] => Acropora austera
+                        [Genus] => Acropora
+                    )
+            */
         }
     }
-    */
 }
 ?>

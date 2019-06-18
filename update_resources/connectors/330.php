@@ -16,9 +16,10 @@ taxa	images
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$timestart = time_elapsed();
+
 /* first part of the operation: includes converting XML to DwCA and some additional media field 'derivedFrom' in media tab.
 require_library('connectors/INBioAPI');
-$timestart = time_elapsed();
 $resource_id = '330pre';
 
 $xml_resource = "http://calphotos.berkeley.edu/eol_biocode.xml.gz";
