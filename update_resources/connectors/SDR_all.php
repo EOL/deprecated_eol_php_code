@@ -157,9 +157,9 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 
 // $func->test_basal_values('BV');          //return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
-// $func->test_parent_basal_values('BV');   return;
+$func->test_parent_basal_values('BV', true);   return; //2nd parm is debugModeYN
 // $func->print_parent_basal_values('BV');  return;
-$func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
+// $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
 
 // /* for multiple page_ids: BV

@@ -429,7 +429,7 @@ class SummaryDataResourcesAllAPI
             if($result = $this->mysqli->query($sql)) echo "\nTable updated [$table] OK.\n";
         }
     }
-    function test_parent_basal_values($dbase)
+    function test_parent_basal_values($dbase, $debugModeYN = false)
     {   /* this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
         INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
         INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
@@ -454,14 +454,14 @@ class SummaryDataResourcesAllAPI
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
-            if($ret = self::main_parents_basal_values($page_id, $predicate)) {
+            if($ret = self::main_parents_basal_values($page_id, $predicate, $debugModeYN)) {
                 echo "\nFinal (parent basal values): "; print_r($ret);
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
             }
         }
         fclose($WRITE); self::end_write2DwCA();
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
         echo("\n-- end method: parents: basal values --\n");
     }
     function test_lifeStage_statMeth($dbase)
@@ -898,6 +898,50 @@ foreach($children48 as $child48) {
                 }
                 */
             }
+        }
+    }
+    private function get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)
+    {
+        $txt_file = self::get_txt_path_by_page_id($main_page_id, "_chTBP_".pathinfo($predicate, PATHINFO_FILENAME).".txt"); //echo "\n$txt_file\n";
+        if(file_exists($txt_file)) {
+            echo "\nExists: [$main_page_id] $txt_file\n";
+            $json = trim(file_get_contents($txt_file));
+            $arr = json_decode($json, true);
+            return $arr;
+        }
+        else {
+            echo "\nNot yet generated children TBP, creating now...\n";
+            /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up.  *******************************************
+            E.g. page_id = 163 has many children without Present trait. But it is being checked one by one, very slow process.
+            */
+            $new_children = array();
+            foreach($children as $page_id) {
+                if(self::page_id_has_trait_for_this_predicate($page_id, $predicate)) $new_children[] = $page_id;
+            }
+            $children = $new_children; unset($new_children);
+            echo "\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"; //print_r($children); *New Children of [164] with pred: 218233
+            /* .  ******************************************* end IMPORTANT NEW STEP */
+
+            /* *******************************************
+            all children with trait and predicate accordingly = 218233 [164][http://eol.org/schema/terms/Present]
+            ***WILL NOW FILTER THIS TO JUST RANK 'species'
+            */
+            $new_children = array();
+            foreach($children as $page_id) {
+                if(self::page_id_has_rank_equal_to($page_id, 'species')) $new_children[] = $page_id;
+            }
+            $children = $new_children; unset($new_children);
+            echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children); *New Children of rank species [164]: 205167
+            // exit; //debug only
+            /* ******************************************* */
+            
+            if($children) {
+                $WRITE = fopen($txt_file, 'w');
+                fwrite($WRITE, json_encode($children)."\n");
+                fclose($WRITE);
+                return $children;
+            }
+            return false;
         }
     }
     private function start_write2DwCA($resource_id, $method)
@@ -1962,7 +2006,7 @@ foreach($children48 as $child48) {
         */
     }
     //############################################################################################ start method = 'parents basal values'
-    private function main_parents_basal_values($main_page_id, $predicate, $debugModeYN)
+    private function main_parents_basal_values($main_page_id, $predicate, $debugModeYN = false)
     {   echo "\n#####################################################################\n";echo "\nMethod: parents basal values | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
@@ -1998,29 +2042,13 @@ foreach($children48 as $child48) {
         }
         */
         
-        /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up.  *******************************************
-        E.g. page_id = 163 has many children without Present trait. But it is being checked one by one, very slow process.
-        */
-        $new_children = array();
-        foreach($children as $page_id) {
-            if(self::page_id_has_trait_for_this_predicate($page_id, $predicate)) $new_children[] = $page_id;
+        if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)) {
+            echo "\n*Children TBP of [$main_page_id]: ".count($children)."\n";
         }
-        $children = $new_children; unset($new_children);
-        echo "\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"; //print_r($children); *New Children of [164] with pred: 218233
-        /* .  ******************************************* end IMPORTANT NEW STEP */
-        
-        /* *******************************************
-        all children with trait and predicate accordingly = 218233 [164][http://eol.org/schema/terms/Present]
-        ***WILL NOW FILTER THIS TO JUST RANK 'species'
-        */
-        $new_children = array();
-        foreach($children as $page_id) {
-            if(self::page_id_has_rank_equal_to($page_id, 'species')) $new_children[] = $page_id;
+        else {
+            echo "\n*No children TBP found for [$main_page_id]\n";
+            return array();
         }
-        $children = $new_children; unset($new_children);
-        echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children); *New Children of rank species [164]: 205167
-        // exit; //debug only
-        /* ******************************************* */
         
         if($debugModeYN) {
             $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count.txt"; $WRITE = fopen($file_write, "a");
