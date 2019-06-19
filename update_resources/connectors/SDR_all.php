@@ -157,8 +157,10 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 
 // $func->test_basal_values('BV');          //return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
-$func->test_parent_basal_values('BV');   return;
+// $func->test_parent_basal_values('BV');   return;
 // $func->print_parent_basal_values('BV');  return;
+$func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
+
 
 // /* for multiple page_ids: BV
 // $page_ids = array(7662, 4528789, 7675, 7669, 7672, 10647853, 7673, 7674, 4529519, 39311345, 7663, 4524096, 7665, 7677, 7676, 7664, 7670, 7671, 7666, 7667, 7668);

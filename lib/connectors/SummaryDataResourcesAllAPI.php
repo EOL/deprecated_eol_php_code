@@ -41,7 +41,7 @@ class SummaryDataResourcesAllAPI
         else{
                                         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
                                         $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
-                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190613/";
+                                        // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190613/";
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
@@ -132,7 +132,7 @@ class SummaryDataResourcesAllAPI
         */
         self::gen_children_of_taxon_usingDH_New();
     }
-    function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false)
+    function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
@@ -184,7 +184,7 @@ class SummaryDataResourcesAllAPI
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
                     $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
-                    if($ret = self::main_parents_basal_values($page_id, $predicate)) {
+                    if($ret = self::main_parents_basal_values($page_id, $predicate, $debugModeYN)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
                     }
@@ -1962,7 +1962,7 @@ foreach($children48 as $child48) {
         */
     }
     //############################################################################################ start method = 'parents basal values'
-    private function main_parents_basal_values($main_page_id, $predicate)
+    private function main_parents_basal_values($main_page_id, $predicate, $debugModeYN)
     {   echo "\n#####################################################################\n";echo "\nMethod: parents basal values | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
@@ -2021,6 +2021,12 @@ foreach($children48 as $child48) {
         echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children); *New Children of rank species [164]: 205167
         // exit; //debug only
         /* ******************************************* */
+        
+        if($debugModeYN) {
+            $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count.txt"; $WRITE = fopen($file_write, "a");
+            fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
+            return false;
+        }
         
         /* 2. get all recs for each child */
         $recs = array(); $children_total = count($children); $i = 0;
