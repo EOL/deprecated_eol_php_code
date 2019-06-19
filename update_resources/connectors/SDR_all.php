@@ -139,7 +139,7 @@ $func->generate_page_id_txt_files_MySQL('LSM'); return;
 
 /*
 $func->build_up_children_cache(); exit; //uses pages.csv - long long process... STILL RUNNING...
-$func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
+// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
 */
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()

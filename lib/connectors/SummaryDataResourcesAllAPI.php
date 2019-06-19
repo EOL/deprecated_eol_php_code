@@ -41,6 +41,7 @@ class SummaryDataResourcesAllAPI
         else{
                                         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
                                         $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
+                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190613/";
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
@@ -442,14 +443,14 @@ class SummaryDataResourcesAllAPI
         */
         // self::parse_DH(); //seems not needed here...?
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> orig test case
         // $input[] = array('page_id' => 7673, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7665, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes -> questioned by Jen, missing ref under biblio field
         // $input[] = array('page_id' => 7666, 'predicate' => "http://eol.org/schema/terms/Habitat"); //habitat includes
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present"); //infinite loop
-        $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
+        // $input[] = array('page_id' => 164, 'predicate' => "http://eol.org/schema/terms/Present"); //e.g. reached level 16. May need to extend more. LONG process.
 
-        $resource_id = 'test_parent_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $resource_id = 'test_parent_BV'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
@@ -815,6 +816,7 @@ foreach($children48 as $child48) {
         /* good debug - proces only 1 page_id
         if(true) {
             $page_id = '39311345';
+            $page_id = '7662';
             //NEW: so only 1 connector processes 1 page_id
             $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
             echo "\n$txt_file\n";
