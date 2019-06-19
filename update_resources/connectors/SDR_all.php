@@ -125,13 +125,13 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 /* replaced by: generate_page_id_txt_files_MySQL()
 $func->generate_page_id_txt_files(); return; //important initial step
 */
-// /* normal operation - DONE worked OK
+/* normal operation - DONE worked OK
 $func->generate_page_id_txt_files_MySQL('BV');
 // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
 $func->generate_page_id_txt_files_MySQL('TS');
 $func->generate_page_id_txt_files_MySQL('TSp');
 $func->generate_page_id_txt_files_MySQL('LSM'); return;
-// */
+*/
 
 /* hasn't ran this yet for All Trait Export
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
@@ -152,12 +152,12 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
     // INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
     // INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
     // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
-    $func->pre_parent_basal_values(); //not yet run. Will wait for new fresh harvest of 'All Trait Export'
+    $func->pre_parent_basal_values(); //Worked OK on the new fresh harvest 'All Trait Export'
 */
 
 // $func->test_basal_values('BV');          //return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
-// $func->test_parent_basal_values('BV');   return;
+$func->test_parent_basal_values('BV');   return;
 // $func->print_parent_basal_values('BV');  return;
 
 // /* for multiple page_ids: BV
