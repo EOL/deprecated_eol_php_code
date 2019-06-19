@@ -113,8 +113,8 @@ INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHER
 INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
 INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
 
-
-
+----------------------------------------------------------------------------------------------------------------------------------------
+These 3 were not used at all:
 INSERT INTO page_ids_Present_withRank SELECT DISTINCT t.page_id, d.taxonRank from SDR.traits_BV t JOIN DWH.old_DH d ON t.page_id = d.EOLid WHERE t.predicate = 'http://eol.org/schema/terms/Present';
 Query OK, 666338 rows affected (5 hours 44 min 15.93 sec)
 Records: 666338  Duplicates: 0  Warnings: 0
