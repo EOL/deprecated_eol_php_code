@@ -41,7 +41,7 @@ class SummaryDataResourcesAllAPI
         else{
                                         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
                                         $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
-                                        // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190613/";
+                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190613/";
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
