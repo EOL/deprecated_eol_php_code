@@ -410,7 +410,7 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE);
         echo("\n-end print resource files (lifestage+statMeth)-\n");
     }
-    private function pre_parent_basal_values()
+    function pre_parent_basal_values()
     {   /*
         INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
         INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
@@ -424,7 +424,7 @@ class SummaryDataResourcesAllAPI
             $sql = "TRUNCATE TABLE SDR.".$table.";";
             if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
             //insert data
-            $sql = "INSERT INTO $table SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = '".$predicate."'";
+            $sql = "INSERT INTO SDR.".$table." SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = '".$predicate."'";
             if($result = $this->mysqli->query($sql)) echo "\nTable updated [$table] OK.\n";
         }
     }
