@@ -837,6 +837,7 @@ foreach($children48 as $child48) {
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
 
+            // if($k < 2205100) continue; //debug only - force to skip many records
             // if($page_id == 2634370) continue; //force to ignore a page_id
 
             //================ FOR PARENT BASAL VALUES ================ 
@@ -894,12 +895,10 @@ foreach($children48 as $child48) {
                     fwrite($WRITE, json_encode($children)."\n");
                     fclose($WRITE);
                 }
-                /* good debug
                 else {
                     echo "\nNo children for [$page_id]\n";
-                    if($page_id == '39311345') exit;
+                    // if($page_id == '39311345') exit;
                 }
-                */
             }
         }
     }
