@@ -37,11 +37,17 @@ class SummaryDataResourcesAllAPI
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
         
+        /* ------------------ NEW June 4, 2019 ------------------ */
+        $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
+        $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
+        $this->mysqli =& $GLOBALS['db_connection'];
+        /* ------------------ NEW June 4, 2019 ------------------ */
+        
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else{
                                         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
-                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
-                                        // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190613/";
+                                        $this->working_dir = $this->main_dir."page_ids/";
+                                        $this->working_dir = $this->main_dir."page_ids_20190613/";
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
@@ -61,9 +67,6 @@ class SummaryDataResourcesAllAPI
         $this->parentModeYN = false;
         $this->fullref = array();
         
-        /* ------------------ NEW June 4, 2019 ------------------ */
-        $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/";
-        $this->mysqli =& $GLOBALS['db_connection'];
     }
     /*
     basal values
@@ -153,7 +156,7 @@ class SummaryDataResourcesAllAPI
 
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
-        $excluded_page_ids = array('xxx', 'yyy'); //debug only
+        // $excluded_page_ids = array('xxx', 'yyy'); //debug only
 
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
@@ -167,6 +170,7 @@ class SummaryDataResourcesAllAPI
             $total_page_ids = count($page_ids); $cnt_page_id = 0;
             */
             $cnt_page_id = 0;
+            $m = 2237554/3; //for breakdown when caching...
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
@@ -178,7 +182,19 @@ class SummaryDataResourcesAllAPI
                 //     [taxonRank] => order
                 //     [Landmark] => 2
                 // )
-                if(in_array($page_id, $excluded_page_ids)) continue;
+                
+                // if(in_array($page_id, $excluded_page_ids)) continue; //debug only
+                
+                // /* breakdown when caching:
+                $cont = false;
+                if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
+                // if($cnt_page_id >= $m && $cnt_page_id < $m*2) $cont = true;
+                // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
+                if(!$cont) continue;
+                // */
+                
+                
+                
                 
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
@@ -813,14 +829,16 @@ foreach($children48 as $child48) {
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV(); //this generates: $this->CSV_children_of
 
-        /* good debug - proces only 1 page_id
+        // /* good debug - proces only 1 page_id
         if(true) {
             $page_id = '39311345';
             $page_id = '7662';
+            $page_id = '8880788';
+            $page_id = '10459935';
             //NEW: so only 1 connector processes 1 page_id
             $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
             echo "\n$txt_file\n";
-            if(file_exists($txt_file)) continue; //being processed...
+            if(file_exists($txt_file)) echo "\nbeing processed...\n"; //continue; //being processed...
             else {
                 $WRITE = fopen($txt_file, 'w'); fclose($WRITE);
             }
@@ -828,12 +846,13 @@ foreach($children48 as $child48) {
             unlink($txt_file);
         }
         exit("\nend muna\n");
-        */
+        // */
         
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
 
+            // if($k < 2205100) continue; //debug only - force to skip many records
             // if($page_id == 2634370) continue; //force to ignore a page_id
 
             //================ FOR PARENT BASAL VALUES ================ 
@@ -862,7 +881,7 @@ foreach($children48 as $child48) {
 
             // if($i >= 2) break; //debug only
         }
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
         /* test only: single page_id
         $main_page_id = 7665; //7662;
         self::get_children_from_txt_file($main_page_id);
@@ -891,12 +910,10 @@ foreach($children48 as $child48) {
                     fwrite($WRITE, json_encode($children)."\n");
                     fclose($WRITE);
                 }
-                /* good debug
                 else {
                     echo "\nNo children for [$page_id]\n";
-                    if($page_id == '39311345') exit;
+                    // if($page_id == '39311345') exit;
                 }
-                */
             }
         }
     }
@@ -1597,7 +1614,7 @@ foreach($children48 as $child48) {
         }
         fclose($WRITE);
         self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
-        fclose($file); exit("\n\n$table to MySQL DONE.\n\n");
+        fclose($file); echo("\n\n$table to MySQL DONE.\n\n");
     }
     function build_MySQL_table_from_text($table) //generic means to build MySQL table from TSV file //1st client is DH with taxonRank table.
     {
@@ -2524,6 +2541,12 @@ foreach($children48 as $child48) {
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
 
+            // for MacBook
+            $info = Array('archive_path' => '/Users/eagbayani/Sites/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+                          'tables' => Array('taxa' => 'taxa.txt'));
+
+            
             // $this->info_path = $info;
         }
         return $info;
@@ -4138,7 +4161,7 @@ foreach($children48 as $child48) {
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             */
-            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary_data_resources/trait_bank_2019Jun13',
+            $info = Array('archive_path' => $this->main_dir.'trait_bank_2019Jun13',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
             $this->main_paths = $info;
         }

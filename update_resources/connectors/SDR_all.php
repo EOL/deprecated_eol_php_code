@@ -122,9 +122,12 @@ $timestart = time_elapsed();
 $resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
 
-/* replaced by: generate_page_id_txt_files_MySQL()
-$func->generate_page_id_txt_files(); return; //important initial step
-*/
+/* build data files - MySQL tables */
+// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
+
+// $func->generate_refs_per_eol_pk_MySQL(); return;
+// $func->build_MySQL_table_from_csv('metadata_LSM'); //return; //used for method: lifestage and statMeth(); DONE
+
 /* normal operation - DONE worked OK
 $func->generate_page_id_txt_files_MySQL('BV');
 // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
@@ -133,33 +136,37 @@ $func->generate_page_id_txt_files_MySQL('TSp');
 $func->generate_page_id_txt_files_MySQL('LSM'); return;
 */
 
+/* preparation for parent basal values. This takes some time.
+    // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
+    // INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
+    // INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
+    // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
+    $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export' Jun 13, 2019
+*/
+
+
+/* replaced by: generate_page_id_txt_files_MySQL()
+$func->generate_page_id_txt_files(); return; //important initial step
+*/
+
 /* hasn't ran this yet for All Trait Export
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 */
 
-/*
+// /*
 $func->build_up_children_cache(); exit; //uses pages.csv - long long process... STILL RUNNING...
-// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
-*/
+// */
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
 */
-// $func->generate_refs_per_eol_pk_MySQL(); //DONE //return;
 
-/* preparation for parent basal values. This takes some time.
-    // this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
-    // INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
-    // INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
-    // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
-    $func->pre_parent_basal_values(); //Worked OK on the new fresh harvest 'All Trait Export' Jun 13, 2019
-*/
 
 // $func->test_basal_values('BV');          //return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
-$func->test_parent_basal_values('BV', true);   return; //2nd parm is debugModeYN
+// $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
 // $func->print_parent_basal_values('BV');  return;
-// $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
+$func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
 
 // /* for multiple page_ids: BV
@@ -182,11 +189,6 @@ $func->test_parent_basal_values('BV', true);   return; //2nd parm is debugModeYN
 $page_ids = array(7662, 4528789, 7675, 7669, 7672, 10647853, 7673, 7674, 4529519, 39311345, 7663, 4524096, 7665, 7677, 7676, 7664, 7670, 7671, 7666, 7667, 7668);
 $func->print_parent_taxon_summary('TSp', $page_ids, 'Carnivora'); return;
 */
-
-
-// /*
-// $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth(); DONE
-// */
 
 // $func->test_lifeStage_statMeth('LSM');
 // $func->print_lifeStage_statMeth('LSM');   //return;
