@@ -37,11 +37,17 @@ class SummaryDataResourcesAllAPI
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
         
+        /* ------------------ NEW June 4, 2019 ------------------ */
+        $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
+        $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
+        $this->mysqli =& $GLOBALS['db_connection'];
+        /* ------------------ NEW June 4, 2019 ------------------ */
+        
         if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
         else{
                                         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
-                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
-                                        $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190613/";
+                                        $this->working_dir = $this->main_dir."page_ids/";
+                                        $this->working_dir = $this->main_dir."page_ids_20190613/";
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
@@ -61,9 +67,6 @@ class SummaryDataResourcesAllAPI
         $this->parentModeYN = false;
         $this->fullref = array();
         
-        /* ------------------ NEW June 4, 2019 ------------------ */
-        $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/";
-        $this->mysqli =& $GLOBALS['db_connection'];
     }
     /*
     basal values
@@ -862,7 +865,7 @@ foreach($children48 as $child48) {
 
             // if($i >= 2) break; //debug only
         }
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
         /* test only: single page_id
         $main_page_id = 7665; //7662;
         self::get_children_from_txt_file($main_page_id);
@@ -1597,7 +1600,7 @@ foreach($children48 as $child48) {
         }
         fclose($WRITE);
         self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
-        fclose($file); exit("\n\n$table to MySQL DONE.\n\n");
+        fclose($file); echo("\n\n$table to MySQL DONE.\n\n");
     }
     function build_MySQL_table_from_text($table) //generic means to build MySQL table from TSV file //1st client is DH with taxonRank table.
     {
@@ -2524,6 +2527,12 @@ foreach($children48 as $child48) {
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
 
+            // for MacBook
+            $info = Array('archive_path' => '/Users/eagbayani/Sites/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
+                          'tables' => Array('taxa' => 'taxa.txt'));
+
+            
             // $this->info_path = $info;
         }
         return $info;
@@ -4138,7 +4147,7 @@ foreach($children48 as $child48) {
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             */
-            $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary_data_resources/trait_bank_2019Jun13',
+            $info = Array('archive_path' => $this->main_dir.'trait_bank_2019Jun13',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
             $this->main_paths = $info;
         }
