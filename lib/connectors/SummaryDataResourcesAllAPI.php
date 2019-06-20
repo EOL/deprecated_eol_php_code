@@ -156,7 +156,7 @@ class SummaryDataResourcesAllAPI
 
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
-        $excluded_page_ids = array('xxx', 'yyy'); //debug only
+        // $excluded_page_ids = array('xxx', 'yyy'); //debug only
 
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
@@ -170,6 +170,7 @@ class SummaryDataResourcesAllAPI
             $total_page_ids = count($page_ids); $cnt_page_id = 0;
             */
             $cnt_page_id = 0;
+            $m = 2237554/3; //for breakdown when caching...
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
@@ -181,7 +182,19 @@ class SummaryDataResourcesAllAPI
                 //     [taxonRank] => order
                 //     [Landmark] => 2
                 // )
-                if(in_array($page_id, $excluded_page_ids)) continue;
+                
+                // if(in_array($page_id, $excluded_page_ids)) continue; //debug only
+                
+                // /* breakdown when caching:
+                $cont = false;
+                if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
+                // if($cnt_page_id >= $m && $cnt_page_id < $m*2) $cont = true;
+                // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
+                if(!$cont) continue;
+                // */
+                
+                
+                
                 
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
@@ -820,10 +833,11 @@ foreach($children48 as $child48) {
         if(true) {
             $page_id = '39311345';
             $page_id = '7662';
+            $page_id = '8880788';
             //NEW: so only 1 connector processes 1 page_id
             $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
             echo "\n$txt_file\n";
-            if(file_exists($txt_file)) continue; //being processed...
+            if(file_exists($txt_file)) echo "\nbeing processed...\n"; //continue; //being processed...
             else {
                 $WRITE = fopen($txt_file, 'w'); fclose($WRITE);
             }
