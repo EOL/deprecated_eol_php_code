@@ -39,7 +39,7 @@ class SummaryDataResourcesAllAPI
         
         /* ------------------ NEW June 4, 2019 ------------------ */
         $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
-        $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
+        // $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
         $this->mysqli =& $GLOBALS['db_connection'];
         /* ------------------ NEW June 4, 2019 ------------------ */
         
@@ -835,6 +835,11 @@ foreach($children48 as $child48) {
             $page_id = '7662';
             $page_id = '8880788';
             $page_id = '10459935';
+
+            $page_id = '2913056';
+            // $page_id = '2910700';
+            // $page_id = '2908256';
+            
             //NEW: so only 1 connector processes 1 page_id
             $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
             echo "\n$txt_file\n";
@@ -2526,7 +2531,6 @@ foreach($children48 as $child48) {
         if(Functions::is_production()) {
             if(!($info = self::extract_DH())) return;
             print_r($info);
-            // $this->info_path = $info;
         }
         else { //local development only
             /*
@@ -2540,14 +2544,12 @@ foreach($children48 as $child48) {
             $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
-
+            /*
             // for MacBook
             $info = Array('archive_path' => '/Users/eagbayani/Sites/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
-
-            
-            // $this->info_path = $info;
+            */
         }
         return $info;
     }

@@ -172,10 +172,10 @@ mysql -u root -p --one-database SDR < SDR_structure_only.sql
 mysqldump -p --all-databases > all_databases.sql
 -> dump all databases
 ----------------------------------------------------------------------------------------------------------------------------------------
+from MacBook, i used afp// then + ip, to connect from macbook to mac mini. then used eli_macbook as user and e173 as pw.
 connect to server: afp://
-then connect /web/
+then connect /web/, from Sites/ run ln below:
 sudo ln -s /Volumes/web/cp/ cp
-
 ----------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------
