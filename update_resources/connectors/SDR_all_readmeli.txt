@@ -76,6 +76,18 @@ load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_app
 
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_LSM_1.txt' into table traits_LSM;
 
+for MacBook:
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_BV_1.txt' into table traits_BV;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_BV_2.txt' into table traits_BV;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_BV_3.txt' into table traits_BV;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_BV_4.txt' into table traits_BV;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_BV_5.txt' into table traits_BV;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_TS_1.txt' into table traits_TS;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_TS_2.txt' into table traits_TS;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_TSp_1.txt' into table traits_TSp;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_TSp_2.txt' into table traits_TSp;
+load data local infile '/Users/eagbayani/Sites/cp/summary_data_resources/MySQL_append_files/traits_LSM_1.txt' into table traits_LSM;
+
 -> worked OK
 
 OBSOLETE below: traits has now been subdivided...
@@ -152,7 +164,13 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/Carni
          [2774383] => Array
 ----------------------------------------------------------------------------------------------------------------------------------------
 mysqldump -d -h localhost -u root -p SDR > SDR_structure_only.sql
-- worked OK
+- dump one database, worked OK
+
+mysql -u root -p --one-database SDR < SDR_structure_only.sql
+-> restore one database, worked OK
+
+mysqldump -p --all-databases > all_databases.sql
+-> dump all databases
 ----------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------
