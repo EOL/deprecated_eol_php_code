@@ -151,10 +151,10 @@ $func->generate_page_id_txt_files(); return; //important initial step
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 */
 
-// /*
+/*
 $func->build_up_children_cache(); exit; //uses pages.csv - long long process... STILL RUNNING...
 // $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
-// */
+*/
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
@@ -165,7 +165,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // $func->print_basal_values('BV');         //return;   //3.91 hours
 // $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
 // $func->print_parent_basal_values('BV');  return;
-// $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
+$func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
 
 // /* for multiple page_ids: BV
