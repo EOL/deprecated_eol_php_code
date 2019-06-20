@@ -123,6 +123,8 @@ $resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
 
 /* build data files - MySQL tables */
+// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
+
 // $func->generate_refs_per_eol_pk_MySQL(); return;
 // $func->build_MySQL_table_from_csv('metadata_LSM'); //return; //used for method: lifestage and statMeth(); DONE
 
@@ -151,10 +153,9 @@ $func->generate_page_id_txt_files(); return; //important initial step
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 */
 
-/*
+// /*
 $func->build_up_children_cache(); exit; //uses pages.csv - long long process... STILL RUNNING...
-// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
-*/
+// */
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
