@@ -829,11 +829,12 @@ foreach($children48 as $child48) {
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV(); //this generates: $this->CSV_children_of
 
-        /* good debug - proces only 1 page_id
+        // /* good debug - proces only 1 page_id
         if(true) {
             $page_id = '39311345';
             $page_id = '7662';
             $page_id = '8880788';
+            $page_id = '10459935';
             //NEW: so only 1 connector processes 1 page_id
             $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
             echo "\n$txt_file\n";
@@ -845,7 +846,7 @@ foreach($children48 as $child48) {
             unlink($txt_file);
         }
         exit("\nend muna\n");
-        */
+        // */
         
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
