@@ -185,16 +185,13 @@ class SummaryDataResourcesAllAPI
                 
                 // if(in_array($page_id, $excluded_page_ids)) continue; //debug only
                 
-                // /* breakdown when caching:
+                /* breakdown when caching:
                 $cont = false;
                 if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
                 // if($cnt_page_id >= $m && $cnt_page_id < $m*2) $cont = true;
                 // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
                 if(!$cont) continue;
-                // */
-                
-                
-                
+                */
                 
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
@@ -836,7 +833,7 @@ foreach($children48 as $child48) {
             $page_id = '8880788';
             $page_id = '10459935';
 
-            $page_id = '2913056';
+            // $page_id = '2913056';
             // $page_id = '2910700';
             // $page_id = '2908256';
             
