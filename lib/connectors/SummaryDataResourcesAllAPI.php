@@ -239,13 +239,22 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         echo("\n-- end method: parents: taxon summary --\n");
     }
-    function print_parent_taxon_summary($dbase, $page_ids_param = false, $page_id_value = false)
+    function print_parent_taxon_summary($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
     {   $this->dbname = 'traits_TS'; //for the main TS method
         $this->parentModeYN = true;
         self::parse_DH(); self::initialize();
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
+        
+        /* un-comment in real operation
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
+        */
 
+        // /* during caching only
+        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002454');
+        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002557', 'http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0002445');
+        $predicates = array('http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002458', 'http://purl.obolibrary.org/obo/RO_0002439', 'http://purl.obolibrary.org/obo/RO_0002622');
+        // */
+        
         /* WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         */
@@ -282,7 +291,7 @@ class SummaryDataResourcesAllAPI
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
                     $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
-                    if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
+                    if($ret = self::main_parents_taxon_summary($page_id, $predicate, $debugModeYN)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
                         self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
@@ -1944,7 +1953,7 @@ class SummaryDataResourcesAllAPI
         return false;
     }
     //############################################################################################ start method = 'parents taxon summary'
-    private function main_parents_taxon_summary($main_page_id, $predicate)
+    private function main_parents_taxon_summary($main_page_id, $predicate, $debugModeYN)
     {   echo "\n#####################################################################"; echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
