@@ -711,7 +711,7 @@ class SummaryDataResourcesAllAPI
             }
         }
     }
-    private function get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)
+    private function get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, $table = '') //4th param $table is for parent TS
     {
         $txt_file = self::get_txt_path_by_page_id($main_page_id, "_chTBP_".pathinfo($predicate, PATHINFO_FILENAME).".txt"); //echo "\n$txt_file\n";
         if(file_exists($txt_file)) {
@@ -727,7 +727,7 @@ class SummaryDataResourcesAllAPI
             */
             $new_children = array();
             foreach($children as $page_id) {
-                if(self::page_id_has_trait_for_this_predicate($page_id, $predicate)) $new_children[] = $page_id;
+                if(self::page_id_has_trait_for_this_predicate($page_id, $predicate, $table)) $new_children[] = $page_id;
             }
             $children = $new_children; unset($new_children);
             echo "\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"; //print_r($children); *New Children of [164] with pred: 218233
@@ -737,12 +737,14 @@ class SummaryDataResourcesAllAPI
             all children with trait and predicate accordingly = 218233 [164][http://eol.org/schema/terms/Present]
             ***WILL NOW FILTER THIS TO JUST RANK 'species'
             */
-            $new_children = array();
-            foreach($children as $page_id) {
-                if(self::page_id_has_rank_equal_to($page_id, 'species')) $new_children[] = $page_id;
+            if($table != 'traits_TSp') {
+                $new_children = array();
+                foreach($children as $page_id) {
+                    if(self::page_id_has_rank_equal_to($page_id, 'species')) $new_children[] = $page_id;
+                }
+                $children = $new_children; unset($new_children);
+                echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children); *New Children of rank species [164]: 205167
             }
-            $children = $new_children; unset($new_children);
-            echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children); *New Children of rank species [164]: 205167
             // exit; //debug only
             /* ******************************************* */
             
@@ -1970,16 +1972,34 @@ class SummaryDataResourcesAllAPI
         }
         // */
         
-        /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up.  *******************************************
+        /* refactored into a function
+        IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up.  *******************************************
         E.g. page_id = 163 has many children without Present trait. But it is being checked one by one, very slow process.
-        */
         $new_children = array();
         foreach($children as $page_id) {
             if(self::page_id_has_trait_for_this_predicate($page_id, $predicate, 'traits_TSp')) $new_children[] = $page_id;
         }
         $children = $new_children; unset($new_children);
         echo "\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"; //print_r($children); *New Children of [164] with pred: 218233
-        /* .  ******************************************* end IMPORTANT NEW STEP */
+        ******************************************* end IMPORTANT NEW STEP
+        */
+        
+        if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, 'traits_TSp')) {
+            echo "\n*Children TBP of [$main_page_id]: ".count($children)."\n";
+        }
+        else {
+            echo "\n*No children TBP found for [$main_page_id]\n";
+            return array();
+        }
+        
+        if($debugModeYN) {
+            $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
+            fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
+            return false;
+        }
+        
+        
+        exit("\nstop muna\n");
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
