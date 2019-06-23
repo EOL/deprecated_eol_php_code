@@ -141,7 +141,14 @@ class SummaryDataResourcesAllAPI
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
 
-        print_r($page_ids_param);
+        if($debugModeYN) {
+            foreach($predicates as $predicate) {
+                $file = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt";
+                if(file_exists($file)) unlink($file);
+            }
+        }
+
+        if($page_ids_param) print_r($page_ids_param);
 
         echo "\nGet page_ids for parent (BV)...\n";
         if($page_ids_param) {
@@ -603,225 +610,6 @@ class SummaryDataResourcesAllAPI
         echo("\n-- end method: basal values --\n");
         // */
     }
-    private function get_CSV_children_of($page_id, $predicate = '') //$predicate param here is just for debug
-    {   echo "\nGetting children of [$page_id]...\n";
-        $anaks = array();
-        if($children = @$this->CSV_children_of[$page_id]) $anaks = array_merge($anaks, $children);
-        else return array();
-        foreach($children as $child) {
-            if($children2 = @$this->CSV_children_of[$child]) $anaks = array_merge($anaks, $children2);
-            else continue;
-            foreach($children2 as $child2) {
-                if($children3 = @$this->CSV_children_of[$child2]) $anaks = array_merge($anaks, $children3);
-                else continue;
-                foreach($children3 as $child3) {
-                    if($children4 = @$this->CSV_children_of[$child3]) $anaks = array_merge($anaks, $children4);
-                    else continue;
-                    foreach($children4 as $child4) {
-                        if($children5 = @$this->CSV_children_of[$child4]) $anaks = array_merge($anaks, $children5);
-                        else continue;
-                        foreach($children5 as $child5) {
-                            if($children6 = @$this->CSV_children_of[$child5]) $anaks = array_merge($anaks, $children6);
-                            else continue;
-                            foreach($children6 as $child6) {
-                                if($children7 = @$this->CSV_children_of[$child6]) $anaks = array_merge($anaks, $children7);
-                                else continue;
-                                foreach($children7 as $child7) {
-                                    if($children8 = @$this->CSV_children_of[$child7]) $anaks = array_merge($anaks, $children8);
-                                    else continue;
-                                    foreach($children8 as $child8) {
-                                        if($children9 = @$this->CSV_children_of[$child8]) $anaks = array_merge($anaks, $children9);
-                                        else continue;
-                                        foreach($children9 as $child9) {
-                                            if($children10 = @$this->CSV_children_of[$child9]) $anaks = array_merge($anaks, $children10);
-                                            else continue;
-                                            foreach($children10 as $child10) {
-                                                if($children11 = @$this->CSV_children_of[$child10]) $anaks = array_merge($anaks, $children11);
-                                                else continue;
-                                                foreach($children11 as $child11) {
-                                                    if($children12 = @$this->CSV_children_of[$child11]) $anaks = array_merge($anaks, $children12);
-                                                    else continue;
-                                                    foreach($children12 as $child12) {
-                                                        if($children13 = @$this->CSV_children_of[$child12]) $anaks = array_merge($anaks, $children13);
-                                                        else continue;
-                                                        foreach($children13 as $child13) {
-                                                            if($children14 = @$this->CSV_children_of[$child13]) $anaks = array_merge($anaks, $children14);
-                                                            else continue;
-                                                            foreach($children14 as $child14) {
-                                                                if($children15 = @$this->CSV_children_of[$child14]) $anaks = array_merge($anaks, $children15);
-                                                                else continue;
-                                                                foreach($children15 as $child15) {
-                                                                    if($children16 = @$this->CSV_children_of[$child15]) $anaks = array_merge($anaks, $children16);
-                                                                    else continue;
-                                                                    foreach($children16 as $child16) {
-                                                                        if($children17 = @$this->CSV_children_of[$child16]) $anaks = array_merge($anaks, $children17);
-                                                                        else continue;
-                                                                        foreach($children17 as $child17) {
-                                                                            if($children18 = @$this->CSV_children_of[$child17]) $anaks = array_merge($anaks, $children18);
-                                                                            else continue;
-                                                                            foreach($children18 as $child18) {
-                                                                                if($children19 = @$this->CSV_children_of[$child18]) $anaks = array_merge($anaks, $children19);
-                                                                                else continue;
-                                                                                foreach($children19 as $child19) {
-                                                                                    if($children20 = @$this->CSV_children_of[$child19]) $anaks = array_merge($anaks, $children20);
-                                                                                    else continue;
-                                                                                    foreach($children20 as $child20) {
-                                                                                        if($children21 = @$this->CSV_children_of[$child20]) $anaks = array_merge($anaks, $children21);
-                                                                                        else continue;
-                                                                                        foreach($children21 as $child21) {
-                                                                                            if($children22 = @$this->CSV_children_of[$child21]) $anaks = array_merge($anaks, $children22);
-                                                                                            else continue;
-                                                                                            foreach($children22 as $child22) {
-                                                                                                if($children23 = @$this->CSV_children_of[$child22]) $anaks = array_merge($anaks, $children23);
-                                                                                                else continue;
-                                                                                                foreach($children23 as $child23) {
-                                                                                                    if($children24 = @$this->CSV_children_of[$child23]) $anaks = array_merge($anaks, $children24);
-                                                                                                    else continue;
-                                                                                                    foreach($children24 as $child24) {
-                                                                                                        if($children25 = @$this->CSV_children_of[$child24]) $anaks = array_merge($anaks, $children25);
-                                                                                                        else continue;
-                                                                                                        foreach($children25 as $child25) {
-                                                                                                            if($children26 = @$this->CSV_children_of[$child25]) $anaks = array_merge($anaks, $children26);
-                                                                                                            else continue;
-foreach($children26 as $child26) {
-    if($children27 = @$this->CSV_children_of[$child26]) $anaks = array_merge($anaks, $children27);
-    else continue;
-    foreach($children27 as $child27) {
-        if($children28 = @$this->CSV_children_of[$child27]) $anaks = array_merge($anaks, $children28);
-        else continue;
-        foreach($children28 as $child28) {
-            if($children29 = @$this->CSV_children_of[$child28]) $anaks = array_merge($anaks, $children29);
-            else continue;
-            foreach($children29 as $child29) {
-                if($children30 = @$this->CSV_children_of[$child29]) $anaks = array_merge($anaks, $children30);
-                else continue;
-                foreach($children30 as $child30) {
-                    if($children31 = @$this->CSV_children_of[$child30]) $anaks = array_merge($anaks, $children31);
-                    else continue;
-                    foreach($children31 as $child31) {
-                        if($children32 = @$this->CSV_children_of[$child31]) $anaks = array_merge($anaks, $children32);
-                        else continue;
-                        foreach($children32 as $child32) {
-                            if($children33 = @$this->CSV_children_of[$child32]) $anaks = array_merge($anaks, $children33);
-                            else continue;
-                            foreach($children33 as $child33) {
-                                if($children34 = @$this->CSV_children_of[$child33]) $anaks = array_merge($anaks, $children34);
-                                else continue;
-                                foreach($children34 as $child34) {
-                                    if($children35 = @$this->CSV_children_of[$child34]) $anaks = array_merge($anaks, $children35);
-                                    else continue;
-                                    foreach($children35 as $child35) {
-                                        if($children36 = @$this->CSV_children_of[$child35]) $anaks = array_merge($anaks, $children36);
-                                        else continue;
-                                        foreach($children36 as $child36) {
-                                            if($children37 = @$this->CSV_children_of[$child36]) $anaks = array_merge($anaks, $children37);
-                                            else continue;
-                                            foreach($children37 as $child37) {
-                                                if($children38 = @$this->CSV_children_of[$child37]) $anaks = array_merge($anaks, $children38);
-                                                else continue;
-                                                foreach($children38 as $child38) {
-                                                    if($children39 = @$this->CSV_children_of[$child38]) $anaks = array_merge($anaks, $children39);
-                                                    else continue;
-                                                    foreach($children39 as $child39) {
-                                                        if($children40 = @$this->CSV_children_of[$child39]) $anaks = array_merge($anaks, $children40);
-                                                        else continue;
-                                                        foreach($children40 as $child40) {
-                                                            if($children41 = @$this->CSV_children_of[$child40]) $anaks = array_merge($anaks, $children41);
-                                                            else continue;
-                                                            foreach($children41 as $child41) {
-                                                                if($children42 = @$this->CSV_children_of[$child41]) $anaks = array_merge($anaks, $children42);
-                                                                else continue;
-                                                                foreach($children42 as $child42) {
-                                                                    if($children43 = @$this->CSV_children_of[$child42]) $anaks = array_merge($anaks, $children43);
-                                                                    else continue;
-                                                                    foreach($children43 as $child43) {
-                                                                        if($children44 = @$this->CSV_children_of[$child43]) $anaks = array_merge($anaks, $children44);
-                                                                        else continue;
-                                                                        foreach($children44 as $child44) {
-                                                                            if($children45 = @$this->CSV_children_of[$child44]) $anaks = array_merge($anaks, $children45);
-                                                                            else continue;
-                                                                            foreach($children45 as $child45) {
-                                                                                if($children46 = @$this->CSV_children_of[$child45]) $anaks = array_merge($anaks, $children46);
-                                                                                else continue;
-                                                                                foreach($children46 as $child46) {
-                                                                                    if($children47 = @$this->CSV_children_of[$child46]) $anaks = array_merge($anaks, $children47);
-                                                                                    else continue;
-                                                                                    foreach($children47 as $child47) {
-                                                                                        if($children48 = @$this->CSV_children_of[$child47]) $anaks = array_merge($anaks, $children48);
-                                                                                        else continue;
-                                                                                        
-foreach($children48 as $child48) {
-    if($children49 = @$this->CSV_children_of[$child48]) $anaks = array_merge($anaks, $children49);
-    else continue;
-    foreach($children49 as $child49) {
-        if($children50 = @$this->CSV_children_of[$child49]) $anaks = array_merge($anaks, $children50);
-        else continue;
-        foreach($children50 as $child50) {
-            if($children51 = @$this->CSV_children_of[$child50]) $anaks = array_merge($anaks, $children51);
-            else continue;
-            foreach($children51 as $child51) {
-                if($children52 = @$this->CSV_children_of[$child51]) $anaks = array_merge($anaks, $children52);
-                else continue;
-                foreach($children52 as $child52) {
-                    if($children53 = @$this->CSV_children_of[$child52]) $anaks = array_merge($anaks, $children53);
-                    else continue;
-                    $this->debug['reached L52'][$page_id][$predicate] = ''; return array();
-                }
-            }
-        }
-    }
-}
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-                                                                                                        }
-                                                                                                    }
-                                                                                                }
-                                                                                            }
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                        }
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        $anaks = array_unique($anaks);
-        "\nDone getting children of [$page_id] OK\n";
-        return $anaks;
-    }
     function build_up_children_cache() //DH total recs 2,724,941 | 2,237,554 Jun 9, 2019
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV(); //this generates: $this->CSV_children_of
@@ -840,7 +628,11 @@ foreach($children48 as $child48) {
             //NEW: so only 1 connector processes 1 page_id
             $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
             echo "\n$txt_file\n";
-            if(file_exists($txt_file)) echo "\nbeing processed...\n"; //continue; //being processed...
+            if(file_exists($txt_file)) //continue; //being processed...
+            {
+                echo "\nbeing processed already... Program will terminate.\n";
+                exit;
+            }
             else {
                 $WRITE = fopen($txt_file, 'w'); fclose($WRITE);
             }
@@ -2070,7 +1862,7 @@ foreach($children48 as $child48) {
         }
         
         if($debugModeYN) {
-            $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count.txt"; $WRITE = fopen($file_write, "a");
+            $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
             fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
             return false;
         }
@@ -4220,6 +4012,228 @@ foreach($children48 as $child48) {
             }
         }
     }
+
+
+    private function get_CSV_children_of($page_id, $predicate = '') //$predicate param here is just for debug
+    {   echo "\nGetting children of [$page_id]...\n";
+        $anaks = array();
+        if($children = @$this->CSV_children_of[$page_id]) $anaks = array_merge($anaks, $children);
+        else return array();
+        foreach($children as $child) {
+            if($children2 = @$this->CSV_children_of[$child]) $anaks = array_merge($anaks, $children2);
+            else continue;
+            foreach($children2 as $child2) {
+                if($children3 = @$this->CSV_children_of[$child2]) $anaks = array_merge($anaks, $children3);
+                else continue;
+                foreach($children3 as $child3) {
+                    if($children4 = @$this->CSV_children_of[$child3]) $anaks = array_merge($anaks, $children4);
+                    else continue;
+                    foreach($children4 as $child4) {
+                        if($children5 = @$this->CSV_children_of[$child4]) $anaks = array_merge($anaks, $children5);
+                        else continue;
+                        foreach($children5 as $child5) {
+                            if($children6 = @$this->CSV_children_of[$child5]) $anaks = array_merge($anaks, $children6);
+                            else continue;
+                            foreach($children6 as $child6) {
+                                if($children7 = @$this->CSV_children_of[$child6]) $anaks = array_merge($anaks, $children7);
+                                else continue;
+                                foreach($children7 as $child7) {
+                                    if($children8 = @$this->CSV_children_of[$child7]) $anaks = array_merge($anaks, $children8);
+                                    else continue;
+                                    foreach($children8 as $child8) {
+                                        if($children9 = @$this->CSV_children_of[$child8]) $anaks = array_merge($anaks, $children9);
+                                        else continue;
+                                        foreach($children9 as $child9) {
+                                            if($children10 = @$this->CSV_children_of[$child9]) $anaks = array_merge($anaks, $children10);
+                                            else continue;
+                                            foreach($children10 as $child10) {
+                                                if($children11 = @$this->CSV_children_of[$child10]) $anaks = array_merge($anaks, $children11);
+                                                else continue;
+                                                foreach($children11 as $child11) {
+                                                    if($children12 = @$this->CSV_children_of[$child11]) $anaks = array_merge($anaks, $children12);
+                                                    else continue;
+                                                    foreach($children12 as $child12) {
+                                                        if($children13 = @$this->CSV_children_of[$child12]) $anaks = array_merge($anaks, $children13);
+                                                        else continue;
+                                                        foreach($children13 as $child13) {
+                                                            if($children14 = @$this->CSV_children_of[$child13]) $anaks = array_merge($anaks, $children14);
+                                                            else continue;
+                                                            foreach($children14 as $child14) {
+                                                                if($children15 = @$this->CSV_children_of[$child14]) $anaks = array_merge($anaks, $children15);
+                                                                else continue;
+                                                                foreach($children15 as $child15) {
+                                                                    if($children16 = @$this->CSV_children_of[$child15]) $anaks = array_merge($anaks, $children16);
+                                                                    else continue;
+                                                                    foreach($children16 as $child16) {
+                                                                        if($children17 = @$this->CSV_children_of[$child16]) $anaks = array_merge($anaks, $children17);
+                                                                        else continue;
+                                                                        foreach($children17 as $child17) {
+                                                                            if($children18 = @$this->CSV_children_of[$child17]) $anaks = array_merge($anaks, $children18);
+                                                                            else continue;
+                                                                            foreach($children18 as $child18) {
+                                                                                if($children19 = @$this->CSV_children_of[$child18]) $anaks = array_merge($anaks, $children19);
+                                                                                else continue;
+                                                                                foreach($children19 as $child19) {
+                                                                                    if($children20 = @$this->CSV_children_of[$child19]) $anaks = array_merge($anaks, $children20);
+                                                                                    else continue;
+                                                                                    foreach($children20 as $child20) {
+                                                                                        if($children21 = @$this->CSV_children_of[$child20]) $anaks = array_merge($anaks, $children21);
+                                                                                        else continue;
+                                                                                        foreach($children21 as $child21) {
+                                                                                            if($children22 = @$this->CSV_children_of[$child21]) $anaks = array_merge($anaks, $children22);
+                                                                                            else continue;
+                                                                                            foreach($children22 as $child22) {
+                                                                                                if($children23 = @$this->CSV_children_of[$child22]) $anaks = array_merge($anaks, $children23);
+                                                                                                else continue;
+                                                                                                foreach($children23 as $child23) {
+                                                                                                    if($children24 = @$this->CSV_children_of[$child23]) $anaks = array_merge($anaks, $children24);
+                                                                                                    else continue;
+                                                                                                    foreach($children24 as $child24) {
+                                                                                                        if($children25 = @$this->CSV_children_of[$child24]) $anaks = array_merge($anaks, $children25);
+                                                                                                        else continue;
+                                                                                                        foreach($children25 as $child25) {
+                                                                                                            if($children26 = @$this->CSV_children_of[$child25]) $anaks = array_merge($anaks, $children26);
+                                                                                                            else continue;
+    foreach($children26 as $child26) {
+        if($children27 = @$this->CSV_children_of[$child26]) $anaks = array_merge($anaks, $children27);
+        else continue;
+        foreach($children27 as $child27) {
+            if($children28 = @$this->CSV_children_of[$child27]) $anaks = array_merge($anaks, $children28);
+            else continue;
+            foreach($children28 as $child28) {
+                if($children29 = @$this->CSV_children_of[$child28]) $anaks = array_merge($anaks, $children29);
+                else continue;
+                foreach($children29 as $child29) {
+                    if($children30 = @$this->CSV_children_of[$child29]) $anaks = array_merge($anaks, $children30);
+                    else continue;
+                    foreach($children30 as $child30) {
+                        if($children31 = @$this->CSV_children_of[$child30]) $anaks = array_merge($anaks, $children31);
+                        else continue;
+                        foreach($children31 as $child31) {
+                            if($children32 = @$this->CSV_children_of[$child31]) $anaks = array_merge($anaks, $children32);
+                            else continue;
+                            foreach($children32 as $child32) {
+                                if($children33 = @$this->CSV_children_of[$child32]) $anaks = array_merge($anaks, $children33);
+                                else continue;
+                                foreach($children33 as $child33) {
+                                    if($children34 = @$this->CSV_children_of[$child33]) $anaks = array_merge($anaks, $children34);
+                                    else continue;
+                                    foreach($children34 as $child34) {
+                                        if($children35 = @$this->CSV_children_of[$child34]) $anaks = array_merge($anaks, $children35);
+                                        else continue;
+                                        foreach($children35 as $child35) {
+                                            if($children36 = @$this->CSV_children_of[$child35]) $anaks = array_merge($anaks, $children36);
+                                            else continue;
+                                            foreach($children36 as $child36) {
+                                                if($children37 = @$this->CSV_children_of[$child36]) $anaks = array_merge($anaks, $children37);
+                                                else continue;
+                                                foreach($children37 as $child37) {
+                                                    if($children38 = @$this->CSV_children_of[$child37]) $anaks = array_merge($anaks, $children38);
+                                                    else continue;
+                                                    foreach($children38 as $child38) {
+                                                        if($children39 = @$this->CSV_children_of[$child38]) $anaks = array_merge($anaks, $children39);
+                                                        else continue;
+                                                        foreach($children39 as $child39) {
+                                                            if($children40 = @$this->CSV_children_of[$child39]) $anaks = array_merge($anaks, $children40);
+                                                            else continue;
+                                                            foreach($children40 as $child40) {
+                                                                if($children41 = @$this->CSV_children_of[$child40]) $anaks = array_merge($anaks, $children41);
+                                                                else continue;
+                                                                foreach($children41 as $child41) {
+                                                                    if($children42 = @$this->CSV_children_of[$child41]) $anaks = array_merge($anaks, $children42);
+                                                                    else continue;
+                                                                    foreach($children42 as $child42) {
+                                                                        if($children43 = @$this->CSV_children_of[$child42]) $anaks = array_merge($anaks, $children43);
+                                                                        else continue;
+                                                                        foreach($children43 as $child43) {
+                                                                            if($children44 = @$this->CSV_children_of[$child43]) $anaks = array_merge($anaks, $children44);
+                                                                            else continue;
+                                                                            foreach($children44 as $child44) {
+                                                                                if($children45 = @$this->CSV_children_of[$child44]) $anaks = array_merge($anaks, $children45);
+                                                                                else continue;
+                                                                                foreach($children45 as $child45) {
+                                                                                    if($children46 = @$this->CSV_children_of[$child45]) $anaks = array_merge($anaks, $children46);
+                                                                                    else continue;
+                                                                                    foreach($children46 as $child46) {
+                                                                                        if($children47 = @$this->CSV_children_of[$child46]) $anaks = array_merge($anaks, $children47);
+                                                                                        else continue;
+                                                                                        foreach($children47 as $child47) {
+                                                                                            if($children48 = @$this->CSV_children_of[$child47]) $anaks = array_merge($anaks, $children48);
+                                                                                            else continue;
+
+    foreach($children48 as $child48) {
+        if($children49 = @$this->CSV_children_of[$child48]) $anaks = array_merge($anaks, $children49);
+        else continue;
+        foreach($children49 as $child49) {
+            if($children50 = @$this->CSV_children_of[$child49]) $anaks = array_merge($anaks, $children50);
+            else continue;
+            foreach($children50 as $child50) {
+                if($children51 = @$this->CSV_children_of[$child50]) $anaks = array_merge($anaks, $children51);
+                else continue;
+                foreach($children51 as $child51) {
+                    if($children52 = @$this->CSV_children_of[$child51]) $anaks = array_merge($anaks, $children52);
+                    else continue;
+                    foreach($children52 as $child52) {
+                        if($children53 = @$this->CSV_children_of[$child52]) $anaks = array_merge($anaks, $children53);
+                        else continue;
+                        $this->debug['reached L52'][$page_id][$predicate] = ''; return array();
+                    }
+                }
+            }
+        }
+    }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+                                                                                                            }
+                                                                                                        }
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        $anaks = array_unique($anaks);
+        "\nDone getting children of [$page_id] OK\n";
+        return $anaks;
+    }
+
     /* not used at the moment
     private function choose_term_type($predicate)
     {
