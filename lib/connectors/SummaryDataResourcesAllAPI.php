@@ -758,10 +758,11 @@ class SummaryDataResourcesAllAPI
             /* ******************************************* */
             
             if($children) {
-                $WRITE = fopen($txt_file, 'w');
-                fwrite($WRITE, json_encode($children)."\n");
-                fclose($WRITE);
+                $WRITE = fopen($txt_file, 'w'); fwrite($WRITE, json_encode($children)."\n"); fclose($WRITE);
                 return $children;
+            }
+            else {
+                $WRITE = fopen($txt_file, 'w'); fwrite($WRITE, json_encode(array())."\n"); fclose($WRITE);
             }
             return false;
         }
