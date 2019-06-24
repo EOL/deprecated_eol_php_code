@@ -248,7 +248,7 @@ class SummaryDataResourcesAllAPI
         /* un-comment in real operation
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
         */
-
+        
         // /* during caching only
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002454');
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002557', 'http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002445');
@@ -275,7 +275,8 @@ class SummaryDataResourcesAllAPI
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
 
-        $excluded['2908256'] = ''; //will eventually might have this as permanent.
+        // $excluded['2908256'] = ''; //will eventually might have this as permanent.
+        $excluded['2913056'] = ''; //Life - definitely excluded
         
         foreach($predicates as $predicate) {
             $cnt_predicate++; /* for indicator */
@@ -538,9 +539,9 @@ class SummaryDataResourcesAllAPI
         // $page_id = 46559217; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $input[] = array('page_id' => 46559118, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on
         // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
-        
+        // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         // $input[] = array('page_id' => 47054812, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //supposedly no records
+        $input[] = array('page_id' => 1020198, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jun 20, 2019 comment by Jen
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -763,13 +764,20 @@ class SummaryDataResourcesAllAPI
             
             if($children) {
                 $WRITE = fopen($txt_file, 'w'); fwrite($WRITE, json_encode($children)."\n"); fclose($WRITE);
+                if(!$WRITE) self::write_investigate_file($txt_file);
                 return $children;
             }
             else {
                 $WRITE = fopen($txt_file, 'w'); fwrite($WRITE, json_encode(array())."\n"); fclose($WRITE);
+                if(!$WRITE) self::write_investigate_file($txt_file);
             }
             return false;
         }
+    }
+    private function write_investigate_file($txt_file)
+    {
+        $file_write = $this->main_dir."/z_Eli/investigate_folder.txt"; 
+        $WRITE = fopen($file_write, "a"); fwrite($WRITE, $txt_file."\n"); fclose($WRITE);
     }
     private function start_write2DwCA($resource_id, $method)
     {
@@ -930,7 +938,7 @@ class SummaryDataResourcesAllAPI
         if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         elseif($parentYN == "parent") $recs = $this->taxon_summary_parent_recs;
         else exit("\nNot go here...\n");
-        
+        echo "\nHere 001...\n";
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
@@ -1198,7 +1206,7 @@ class SummaryDataResourcesAllAPI
         // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
         // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
         */
-        echo "\nExisting records: ".count($rows); //print_r($rows); //good debug
+        echo "\nExisting records: ".count($rows); print_r($rows); //good debug
         //step 1: get counts
         foreach($rows as $row) {
             @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
@@ -1623,7 +1631,7 @@ class SummaryDataResourcesAllAPI
         $str = implode(",", $eol_pks);
         $str = str_replace(",", "','", $str);
         $str = "'".$str."'";
-        $sql = "SELECT m.* from SDR.metadata_refs m WHERE m.trait_eol_pk IN (".$str.")";
+        $sql = "SELECT m.* from SDR.metadata_refs m WHERE m.trait_eol_pk IN (".$str.")"; echo "\n[$sql]\n";
         $result = $this->mysqli->query($sql);
         $final = array(); $final2 = array();
         while($result && $rec=$result->fetch_assoc()) $final[$rec['eol_pk']] = strip_tags($rec['literal']);
@@ -2011,7 +2019,6 @@ class SummaryDataResourcesAllAPI
             fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
             return false;
         }
-        
         
         exit("\nstop muna\n");
         
@@ -2482,7 +2489,22 @@ class SummaryDataResourcesAllAPI
         return $final2;
     }
     private function main_taxon_summary($page_id, $predicate)
-    {
+    {   /* latest comment: June 2019 by Jen
+        Basal values looks great! More in existing records and fewer de novo records than I expected, but that's the data. Values that I've looked at are all reasonable.
+
+        Taxon summary includes reasonable records overall, but I think some may be missing. example: records for 1020198 with predicate http://purl.obolibrary.org/obo/RO_0002470 (eats)
+
+        The results I see are 1 and 899325, which are both good, but there are a number of other DH-accepted taxa for "1020198 eats" which fall outside both groups. 
+        By my reckoning: 3686, 45297170, 45297071, 910371, 12010, 907115, 916934, 47078402, 11731, 11755, 47075911, 11963, 12082, 12316, 12741, 10478, 12706, 12005, 896262, 12739, 897003. 
+        I think I would expect some of these to provide a "de novo" record which would be REP and PRM, but when I looked in the taxon summary DwC-A, 
+        I can't find 1020198 under EOL_taxonID in taxon.tab
+
+        That was several manual steps, so I may have missed it. Before you believe me that something is missing, you may want to double check...
+
+        There may also be duplicate records in the taxon_summary DwC-A. For instance, for 149275 with predicate http://purl.obolibrary.org/obo/RO_0002470 (eats), 
+        I believe there are two identical records
+        */
+        
         /* working but seems not needed. Just bring it back when requested.
         $ancestry = self::get_ancestry_via_DH($page_id);
         echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
@@ -2492,8 +2514,13 @@ class SummaryDataResourcesAllAPI
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
-        echo "\nrecs: ".count($recs)."\n";
+        echo "\nAssembled recs: ".count($recs)."\n";
         // print_r($recs); exit;
+        
+        // /* debug only
+        echo "\n".implode("\t", array_keys($recs[0]));
+        foreach($recs as $rec) echo "\n".implode("\t", $rec);
+        // */
         
         if($this->parentModeYN) $this->taxon_summary_parent_recs = array_merge($this->taxon_summary_parent_recs, $recs); //to be in writing resource file
         
@@ -2567,7 +2594,7 @@ class SummaryDataResourcesAllAPI
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
-        echo "\n final array: ".count($final); print_r($final); 
+        echo "\n final array: ".count($final)."\n"; print_r($final);
         
         $this->ISVAT_TS = $this->ISVAT_TS + $final;
         

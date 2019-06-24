@@ -128,6 +128,7 @@ exit("\n");
 // }
 // exit("\nexit muna\n");
 
+ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
 $resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
@@ -189,7 +190,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // */
 
 
-// $func->test_taxon_summary('TS');         return;
+$func->test_taxon_summary('TS');         return;
 // $func->print_taxon_summary('TS');        //return;   //36.76 minutes
 // $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary('TSp'); return;
