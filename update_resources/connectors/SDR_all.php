@@ -7,6 +7,16 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
 
 /*
+$a[3] = 'three';
+$a[1] = 'one';
+$a[5] = 'five';
+print_r($a);
+ksort($a);
+print_r($a);
+exit("\n");
+*/
+
+/*
 $children_of[111]['01'] = 'species';
 $children_of[111]['02'] = 'species';
 $children_of[111]['03'] = 'species';
@@ -191,8 +201,6 @@ $page_ids = array(1);
 // $func->print_parent_taxon_summary('TSp', $page_ids, 'Carnivora'); return;
 // $func->print_parent_taxon_summary('TSp', $page_ids, 'Carnivora', true); return; //4th param true means it is debugMode true
 $func->print_parent_taxon_summary('TSp', false, false, true); return; //4th param true means it is debugMode true
-
-
 // */
 
 $func->test_lifeStage_statMeth('LSM');

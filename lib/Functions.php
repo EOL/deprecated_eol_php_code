@@ -2581,9 +2581,12 @@ class Functions
     public static function get_middle_record_from_array($arr)
     {   //print_r($arr);
         $total_rows = count($arr);
-        $num = $total_rows/2; //echo "\n[$num]\n";
+        $num = ($total_rows + 1)/2;
         $num = ceil($num); //echo "\n[$num]\n"; //to round up a decimal number to next greater integral value.
-        return array($arr[$num - 1]);
+        return array($arr[$num - 1]); //minus 1 bec. of array starts index 0
+        /* middle rec of 4 recs is: 3rd rec (total recs is even no.)
+           middle rec of 3 recs is: 2nd rec (total recs is odd no.)
+        */
     }
 
 }

@@ -250,9 +250,10 @@ class SummaryDataResourcesAllAPI
         */
 
         // /* during caching only
-        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002454');
-        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002557', 'http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0002445');
-        $predicates = array('http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002458', 'http://purl.obolibrary.org/obo/RO_0002439', 'http://purl.obolibrary.org/obo/RO_0002622');
+        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002454');
+        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002557', 'http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002445');
+        // $predicates = array('http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002458', 'http://purl.obolibrary.org/obo/RO_0002622');
+        $predicates = array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0002439');
         // */
         
         /* WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
@@ -274,6 +275,8 @@ class SummaryDataResourcesAllAPI
         /* for indicator */
         $total_predicates = count($predicates); $cnt_predicate = 0;
 
+        $excluded['2908256'] = ''; //will eventually might have this as permanent.
+        
         foreach($predicates as $predicate) {
             $cnt_predicate++; /* for indicator */
             $cnt_page_id = 0;
@@ -287,6 +290,7 @@ class SummaryDataResourcesAllAPI
                 //     [taxonRank] => order
                 //     [Landmark] => 2
                 // )
+                if(isset($excluded[$page_id])) continue;
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
@@ -2642,8 +2646,9 @@ class SummaryDataResourcesAllAPI
         if($val = @$ret['recs']) $ret['recs_total'] = count($val);
         if(count($ret['recs']) > 1) {
             print_r($ret);
-            $ret['recs'] = Functions::get_middle_record_from_array($ret['recs']);
+            $ret['recs'] = self::sort_value_then_get_mid_record($ret['recs']);
             $ret['recs_total'] = count($ret['recs']);
+            $ret['label'] = 'PRM and REP';
             print_r($ret);
             echo "\nMore than 1 record, do sort and picked middle record.\n"; //good debug
         }
@@ -2651,6 +2656,15 @@ class SummaryDataResourcesAllAPI
             // print_r($ret); exit("\nNormal operation. Debug only\n"); //debug only
         }
         return $ret;
+    }
+    private function sort_value_then_get_mid_record($arr)
+    {   /* Sorry, I missed your question June 11th about selecting PRM from multiple records.
+        Please sort by measurementValue and, if there are only two records, select the greater value for PRM. */
+        $new = array();
+        foreach($arr as $rec) $new[$rec['measurement']] = $rec;
+        ksort($new); $final = array();
+        foreach($new as $rec) $final[] = $rec; //so to have a fresh index from 0 then 1 and so on...
+        return Functions::get_middle_record_from_array($final);
     }
     private function lifestage_statMeth_Step0($recs)
     {
