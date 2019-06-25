@@ -1878,7 +1878,9 @@ class SummaryDataResourcesAllAPI
         */
         
         if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)) {
-            echo "\n*Children TBP of [$main_page_id]: ".count($children)."\n";
+            $children_count = count($children);
+            echo "\n*Children TBP of [$main_page_id]: ".$children_count."\n";
+            if($children_count > 1000) return array();
         }
         else {
             echo "\n*No children TBP found for [$main_page_id]\n";
@@ -2007,7 +2009,9 @@ class SummaryDataResourcesAllAPI
         */
         
         if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, 'traits_TSp')) {
-            echo "\n*Children TBP of [$main_page_id]: ".count($children)."\n";
+            $children_count = count($children);
+            echo "\n*Children TBP of [$main_page_id]: ".$children_count."\n";
+            if($children_count > 1000) return array();
         }
         else {
             echo "\n*No children TBP found for [$main_page_id]\n";
