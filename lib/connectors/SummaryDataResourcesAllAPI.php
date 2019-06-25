@@ -2521,10 +2521,10 @@ class SummaryDataResourcesAllAPI
         echo "\nAssembled recs: ".count($recs)."\n";
         // print_r($recs); exit;
         
-        // /* debug only
+        /* debug only - good debug - listing initial collection
         echo "\n".implode("\t", array_keys($recs[0]));
         foreach($recs as $rec) echo "\n".implode("\t", $rec);
-        // */
+        */
         
         if($this->parentModeYN) $this->taxon_summary_parent_recs = array_merge($this->taxon_summary_parent_recs, $recs); //to be in writing resource file
         
