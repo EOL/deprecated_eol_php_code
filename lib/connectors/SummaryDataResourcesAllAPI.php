@@ -2024,7 +2024,7 @@ class SummaryDataResourcesAllAPI
             return false;
         }
         
-        exit("\nstop muna\n");
+        // exit("\nstop muna\n");
         
         /* 2. get all values for each child from method = 'taxon summary' */
         // $children = array(328609); //debug
