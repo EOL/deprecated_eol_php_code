@@ -230,7 +230,7 @@ class SummaryDataResourcesAllAPI
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
-            if($ret = self::main_parents_taxon_summary($page_id, $predicate)) {
+            if($ret = self::main_parents_taxon_summary($page_id, $predicate, false)) { //3rd param false, means NOT debugModeYN
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
@@ -1982,10 +1982,16 @@ class SummaryDataResourcesAllAPI
         // (This is entirely because of the quality of the data. Basal value records, habitat and geography, include many questionable records at, for instance, the family level.
         // Interactions records include a lot of pretty reasonable records for the same taxa.)
         
+        // /* based on latest Jun 25, 2019: https://eol-jira.bibalex.org/browse/DATA-1775?focusedCommentId=63544&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63544
+        $children[] = $main_page_id; //INCLUDE the taxon in question in the contributing child taxa.
+        // */
+        
         // if($mga_anak = self::get_CSV_children_of($main_page_id)) $children = array_merge($children, $mga_anak); OBSOLETE. children is now cached to txt file.
         
         if($mga_anak = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
             $children = array_merge($children, $mga_anak);
+            $children = array_unique($children);
+            $children = array_values($children); //index the keys
             echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);    *Children of [xxx]: xxx
         }
         else {
@@ -2678,7 +2684,7 @@ class SummaryDataResourcesAllAPI
             print_r($ret);
             $ret['recs'] = self::sort_value_then_get_mid_record($ret['recs']);
             $ret['recs_total'] = count($ret['recs']);
-            $ret['label'] = 'PRM and REP';
+            $ret['label'] = 'REP';
             print_r($ret);
             echo "\nMore than 1 record, do sort and picked middle record.\n"; //good debug
         }

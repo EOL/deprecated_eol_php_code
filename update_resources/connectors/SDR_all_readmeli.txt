@@ -142,6 +142,14 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/non_p
 scp Carnivora_parent_methods.zip archive:~/temp/.
 https://editors.eol.org/eol_php_code/applications/content_server/resources/Carnivora_parent_methods.zip
 
+
+scp parent_basal_values.zip archive:~/temp/.
+https://editors.eol.org/other_files/SDR/parent_basal_values.zip
+
+
+scp lifeStage_statMeth_resource.txt.zip archive:~/temp/.
+https://editors.eol.org/other_files/SDR/lifeStage_statMeth_resource.txt.zip
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 2634370
   2634372

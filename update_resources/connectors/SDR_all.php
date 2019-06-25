@@ -192,8 +192,8 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 
 // $func->test_taxon_summary('TS');         return;
 // $func->print_taxon_summary('TS');        //return;   //36.76 minutes
-// $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
-$func->print_parent_taxon_summary('TSp'); //return; //main orig report
+$func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
+// $func->print_parent_taxon_summary('TSp'); //return; //main orig report
 // $func->print_parent_taxon_summary('TSp', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662'); return; //not used eventually
 
 /* for multiple page_ids: TS
@@ -205,7 +205,7 @@ $func->print_parent_taxon_summary('TSp', false, false, true); return; //4th para
 */
 
 // $func->test_lifeStage_statMeth('LSM');
-// $func->print_lifeStage_statMeth('LSM');   //return;
+$func->print_lifeStage_statMeth('LSM');   //return; //49.38 minutes
 
 // $func->start();
 // Functions::finalize_dwca_resource($resource_id);
