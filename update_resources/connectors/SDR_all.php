@@ -198,7 +198,7 @@ $func->print_parent_taxon_summary('TSp'); //return; //main orig report
 
 /* for multiple page_ids: TS
 $page_ids = array(7662, 4528789, 7675, 7669, 7672, 10647853, 7673, 7674, 4529519, 39311345, 7663, 4524096, 7665, 7677, 7676, 7664, 7670, 7671, 7666, 7667, 7668);
-$page_ids = array(1);
+$page_ids = array(7662);
 // $func->print_parent_taxon_summary('TSp', $page_ids, 'Carnivora'); return;
 // $func->print_parent_taxon_summary('TSp', $page_ids, 'Carnivora', true); return; //4th param true means it is debugMode true
 $func->print_parent_taxon_summary('TSp', false, false, true); return; //4th param true means it is debugMode true
