@@ -245,16 +245,16 @@ class SummaryDataResourcesAllAPI
         self::parse_DH(); self::initialize();
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         
-        /* un-comment in real operation
+        // /* un-comment in real operation
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
-        */
+        // */
         
-        // /* during caching only
+        /* during caching only
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002454');
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002557', 'http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002445');
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002458', 'http://purl.obolibrary.org/obo/RO_0002622');
         $predicates = array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0002439');
-        // */
+        */
         
         /* WRONG! Since page_id we want are parents. The parent might not have traits but its children might.
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
