@@ -172,28 +172,23 @@ $func->build_up_children_cache(); exit; //uses pages.csv - long long process... 
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
 */
 
-
 // $func->test_basal_values('BV');          //return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
 // $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
 // $func->print_parent_basal_values('BV');  //return; //main orig report
 // $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
-
 // /* for multiple page_ids: BV
 // $page_ids = array(7662, 4528789, 7675, 7669, 7672, 10647853, 7673, 7674, 4529519, 39311345, 7663, 4524096, 7665, 7677, 7676, 7664, 7670, 7671, 7666, 7667, 7668);
 // $func->print_parent_basal_values('BV', $page_ids, 'Carnivora'); return;
-
 // $page_ids = array(1); $func->print_parent_basal_values('BV', $page_ids, 'Metazoa'); //return;
-
 // foreach($page_ids as $page_id) $final[$page_id] = array('taxonRank' => 'not species', 'Landmark' => 1); //good but not used eventually
 // */
 
-
 // $func->test_taxon_summary('TS');         return;
 // $func->print_taxon_summary('TS');        //return;   //36.76 minutes
-$func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
-// $func->print_parent_taxon_summary('TSp'); //return; //main orig report
+// $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
+$func->print_parent_taxon_summary('TSp'); //return; //main orig report
 // $func->print_parent_taxon_summary('TSp', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662'); return; //not used eventually
 
 /* for multiple page_ids: TS
@@ -205,7 +200,7 @@ $func->print_parent_taxon_summary('TSp', false, false, true); return; //4th para
 */
 
 // $func->test_lifeStage_statMeth('LSM');
-$func->print_lifeStage_statMeth('LSM');   //return; //49.38 minutes
+// $func->print_lifeStage_statMeth('LSM');   //return; //49.38 minutes
 
 // $func->start();
 // Functions::finalize_dwca_resource($resource_id);
