@@ -628,14 +628,14 @@ class SummaryDataResourcesAllAPI
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV(); //this generates: $this->CSV_children_of
 
-        // /* good debug - proces only 1 page_id
+        /* good debug - proces only 1 page_id
         if(true) {
             $page_id = '39311345';
             $page_id = '7662';
             $page_id = '8880788';
             $page_id = '10459935';
 
-            // $page_id = '2913056';
+            // $page_id = '2913056'; //Life
             // $page_id = '2910700';
             // $page_id = '2908256';
             
@@ -654,7 +654,7 @@ class SummaryDataResourcesAllAPI
             unlink($txt_file);
         }
         exit("\nend muna\n");
-        // */
+        */
         
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
@@ -2113,7 +2113,7 @@ class SummaryDataResourcesAllAPI
         $hierarchies_of_taxon_values = array(); //to be used
         foreach($page_ids as $page_id) {
             echo "\n[$page_id] -> ";
-            $hierarchies_of_taxon_values[$page_id] = '';
+            $hierarchies_of_taxon_values[$page_id] = array(); //''; changed val from '' to array(). Just to be consistent with array treatment on later steps. Jun 25, 2019
             if($val = @$final[$page_id]) {
                 print_r($val);
                 $hierarchies_of_taxon_values[$page_id] = $val;
