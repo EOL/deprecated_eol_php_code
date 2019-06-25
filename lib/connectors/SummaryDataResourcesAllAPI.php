@@ -954,7 +954,7 @@ class SummaryDataResourcesAllAPI
         $eol_pks = array_keys($eol_pks);
         echo "\n [$parentYN] Original recs: ".count($recs)."\n";
         if($new_records = array_diff($info['Selected'], $found)) {
-            echo "\nTS - Not found in traits.csv. Create new record(s): "; print_r($new_records); //good debug
+            echo "\nTS - Not found in traits.csv. Create new record(s): included in DwCA"; print_r($new_records); //good debug
             /* ver 1
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive_TaxonSummary($new_records, $refs, $info);
@@ -1211,7 +1211,7 @@ class SummaryDataResourcesAllAPI
         foreach($rows as $row) {
             @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
         }
-        echo "\ncounts: "; print_r($counts);
+        echo "\ncounts: (included in resources.txt) "; print_r($counts);
         //step 2: get eol_pk if count > 1 -> meaning multiple records
         foreach($rows as $row) {
             $eol_pk = $row[1];
