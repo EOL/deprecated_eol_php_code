@@ -1853,7 +1853,6 @@ class SummaryDataResourcesAllAPI
         }
         else {
             echo "\n*No children found for [$main_page_id]\n";
-            // exit("\nelix stop basal\n"); //debug only
             return array();
         }
         // */
@@ -1926,7 +1925,7 @@ class SummaryDataResourcesAllAPI
         }
         if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {
             print_r($ret);
-            foreach($ret['Selected'] as $term) { //debug only
+            foreach($ret['Selected'] as $term) { //debug only - good debug - mainstay
                 echo "\n[$term]: ";
                 if($val = @$this->parents_of[$term]) print_r($val);
                 else echo " -- no parent";
