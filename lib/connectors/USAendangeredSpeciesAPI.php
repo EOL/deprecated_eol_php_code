@@ -51,6 +51,7 @@ class USAendangeredSpeciesAPI
     private function process_group($group)
     {
         if($html = Functions::lookup_with_cache($this->page[$group], $this->download_options)) {
+            $html = Functions::conv_to_utf8($html);
             if(preg_match("/\"resultTable\">(.*?)<\/table>/ims", $html, $arr)) {
                 $html = $arr[1];
                 if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $html, $arr)) {
@@ -130,6 +131,7 @@ class USAendangeredSpeciesAPI
         $ref_ids = array();
         $locality = ""; $institutionCode = "";
         if($html = Functions::lookup_with_cache($this->page['taxon'].$rec['taxon_id'], $this->download_options)) {
+            $html = Functions::conv_to_utf8($html);
             if($refs = self::parse_refs($html, $rec)) {
                 // print_r($refs);
                 $ref_ids = self::create_references($refs);
