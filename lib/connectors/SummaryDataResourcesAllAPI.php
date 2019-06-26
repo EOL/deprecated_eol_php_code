@@ -1550,6 +1550,39 @@ class SummaryDataResourcesAllAPI
         self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
         fclose($file); echo "\n\nMetadata_refs to MySQL DONE.\n\n";
     }
+    function investigate_metadata_csv()
+    {
+        self::initialize();
+        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if(($i % 500000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [eol_pk] => MetaTrait-124174152
+                    [trait_eol_pk] => R261-PK74813887
+                    [predicate] => http://rs.tdwg.org/dwc/terms/measurementUnit
+                    [value_uri] => http://purl.obolibrary.org/obo/UO_0000021
+                    [measurement] => 
+                    [units_uri] => 
+                    [literal] => 
+                )*/
+                /*
+                if($rec['eol_pk'] == 'R20-PK1541446' || $rec['trait_eol_pk'] == 'R20-PK1541446') {
+                    print_r($rec); exit;
+                }
+                */
+                if($rec['predicate'] == "http://eol.org/schema/reference/referenceID") print_r($rec);
+                // $debug[$rec['predicate']] = '';
+            }
+        }
+        // print_r($debug);
+    }
     function generate_refs_per_eol_pk() //total eol_pks 39,931 Carnivora | 11,233,522 metadata.csv | 985,159 metadata_refs in MySQL
     {   
         exit; /* just save it to MySQL table. BE SURE TO INDEX eol_pk, trait_eol_pk */
