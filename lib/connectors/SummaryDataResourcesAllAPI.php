@@ -528,7 +528,7 @@ class SummaryDataResourcesAllAPI
     {   $this->dbname = 'traits_'.$dbase;
         $this->parentModeYN = false;
         self::parse_DH(); self::initialize();
-        $resource_id = 'test_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
+        $resource_id = 'test_TS'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
@@ -558,7 +558,7 @@ class SummaryDataResourcesAllAPI
     function test_basal_values($dbase)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values();
-        $resource_id = 'test_basal_values'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
+        $resource_id = 'test_BV'; $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
         // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Present");
