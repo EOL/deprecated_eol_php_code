@@ -2748,7 +2748,8 @@ class SummaryDataResourcesAllAPI
                 elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
             }
         }
-        /* Step 6 , 7 , 8 */
+        
+        /* original Step 6 , 7 , 8 -- now separated below, with an additional step 6.5 --> now becomes 6,7 (6.5),8,9
         $stages = array("http://purl.obolibrary.org/obo/PO_0007134", "", "http://eol.org/schema/terms/subadult"); //in specific order
         $step = 5;
         foreach($stages as $stage) { $step++;
@@ -2761,7 +2762,49 @@ class SummaryDataResourcesAllAPI
                 elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
             }
         }
-        /* Step 9 */
+        */
+
+        /* Step 6 */
+        $stages = array("http://purl.obolibrary.org/obo/PO_0007134"); $step = 5;
+        foreach($stages as $stage) { $step++;
+            $final = array();
+            foreach($recs as $rec) {
+                if($rec['lifestage'] == $stage) $final[] = $rec;
+            }
+            if($final) {
+                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => $step);
+                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
+            }
+        }
+        /* Step 7 -- 6.5 */
+        $stages = array(""); $step = 6;
+        $statMethods = array('http://semanticscience.org/resource/SIO_001109', 'http://semanticscience.org/resource/SIO_001110', 'http://semanticscience.org/resource/SIO_001111', 
+                             'http://eol.org/schema/terms/average', 'http://semanticscience.org/resource/SIO_001114');
+        foreach($stages as $stage) { $step++;
+            $final = array();
+            foreach($recs as $rec) {
+                if($rec['lifestage'] == $stage && in_array($rec['statistical_method'], $statMethods)) $final[] = $rec;
+            }
+            if($final) {
+                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => $step);
+                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
+            }
+        }
+        /* Step 8 , 9 -- 7 , 8 */
+        $stages = array("", "http://eol.org/schema/terms/subadult"); //in specific order
+        $step = 7;
+        foreach($stages as $stage) { $step++;
+            $final = array();
+            foreach($recs as $rec) {
+                if($rec['lifestage'] == $stage) $final[] = $rec;
+            }
+            if($final) {
+                if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => $step);
+                elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
+            }
+        }
+        
+        /* Step 10 -- 9 */
         $final = array();
         foreach($recs as $rec) {
             $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult", "adult");
@@ -2772,8 +2815,8 @@ class SummaryDataResourcesAllAPI
         }
         if(!$final) return false;
         else {
-            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => 9);
-            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => 9);
+            if    (count($final) == 1) return array('label' => 'PRM and REP', 'recs' => $final, 'step' => 10);
+            elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => 10);
         }
         return false;
     }
