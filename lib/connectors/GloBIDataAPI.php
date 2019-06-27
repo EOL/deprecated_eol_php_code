@@ -14,11 +14,34 @@ class GloBIDataAPI
         $this->download_options = array(
             'resource_id'        => $this->resource_id,
             'expire_seconds'     => 60*60*24*30, //expires in 1 month
-            'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 2000000, 'timeout' => 60*10, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0;
+        $this->dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
+        $this->dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
     }
     /*================================================================= STARTS HERE ======================================================================*/
-    
+    function start()
+    {   
+        // $paths = self::extract_dwca(); //un-comment in real operation
+        // /* during development only:
+        $paths = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_58668/',
+                       'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_58668/');
+        // */
+        print_r($paths);
+        
+        exit("\nexit muna\n");
+        // remove temp dir
+        recursive_rmdir($paths['temp_dir']); echo ("\n temporary directory removed: " . $paths['temp_dir']);
+    }
+    private function extract_dwca()
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->dwca, "association.tsv", $this->download_options);
+        // $tables['taxa'] = 'taxa.txt';
+        // $paths['tables'] = $tables;
+        return $paths;
+    }
     /*================================================================= ENDS HERE ======================================================================*/
     function startx()
     {
