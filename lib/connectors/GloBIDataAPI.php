@@ -3,35 +3,102 @@ namespace php_active_record;
 /* connector: [globi_data.php] */
 class GloBIDataAPI
 {
-    function __construct($folder = NULL)
+    function __construct($archive_builder, $resource_id)
     {
-        if($folder) {
-            $this->resource_id = $folder;
-            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        }
+        $this->resource_id = $resource_id;
+        $this->archive_builder = $archive_builder;
         $this->debug = array();
-        $this->download_options = array(
-            'resource_id'        => $this->resource_id,
-            'expire_seconds'     => 60*60*24*30, //expires in 1 month
-            'download_wait_time' => 2000000, 'timeout' => 60*10, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
+        // $this->download_options = array(
+        //     'resource_id'        => $this->resource_id,
+        //     'expire_seconds'     => 60*60*24*30, //expires in 1 month
+        //     'download_wait_time' => 2000000, 'timeout' => 60*10, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0;
-        $this->dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
-        $this->dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
     }
     /*================================================================= STARTS HERE ======================================================================*/
-    function start()
+    function start($info)
+    {
+        $tables = $info['harvester']->tables; //print_r($tables['http://rs.tdwg.org/dwc/terms/occurrence']);
+        // exit("\nstopx muna\n");
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+    }
+    private function process_occurrence($meta)
+    {   //print_r($meta);
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => globi:occur:source:1-EOL:1000300-INTERACTS_WITH
+                [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:1000300
+                [http://rs.tdwg.org/dwc/terms/institutionCode] => 
+                [http://rs.tdwg.org/dwc/terms/collectionCode] => 
+                [http://rs.tdwg.org/dwc/terms/catalogNumber] => 
+                [http://rs.tdwg.org/dwc/terms/sex] => 
+                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                [http://rs.tdwg.org/dwc/terms/reproductiveCondition] => 
+                [http://rs.tdwg.org/dwc/terms/behavior] => 
+                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => 
+                [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/individualCount] => 
+                [http://rs.tdwg.org/dwc/terms/preparations] => 
+                [http://rs.tdwg.org/dwc/terms/fieldNotes] => 
+                [http://rs.tdwg.org/dwc/terms/basisOfRecord] => 
+                [http://rs.tdwg.org/dwc/terms/samplingProtocol] => 
+                [http://rs.tdwg.org/dwc/terms/samplingEffort] => 
+                [http://rs.tdwg.org/dwc/terms/identifiedBy] => 
+                [http://rs.tdwg.org/dwc/terms/dateIdentified] => 
+                [http://rs.tdwg.org/dwc/terms/eventDate] => 
+                [http://purl.org/dc/terms/modified] => 
+                [http://rs.tdwg.org/dwc/terms/locality] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
+                [http:/eol.org/globi/terms/physiologicalState] => 
+                [http:/eol.org/globi/terms/bodyPart] => 
+            )*/
+
+            $o = new \eol_schema\Occurrence_specific();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            if($i >= 10) break; //debug only
+        }
+    }
+    /*================================================================= ENDS HERE ======================================================================*/
+    /*
+    function start_test()
     {   
         // $paths = self::extract_dwca(); //un-comment in real operation
-        // /* during development only:
+        //during development only:
         $paths = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_58668/',
                        'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_58668/');
-        // */
         print_r($paths);
-        
+        self::get_meta($paths);
         exit("\nexit muna\n");
         // remove temp dir
         recursive_rmdir($paths['temp_dir']); echo ("\n temporary directory removed: " . $paths['temp_dir']);
+    }
+    
+    private function get_meta($paths)
+    {
+        require_library('connectors/DHSourceHierarchiesAPI_v2'); $this->func = new DHSourceHierarchiesAPI_v2('');
+        $meta = $this->func->get_meta('', false, $paths['archive_path'].'meta.xml'); //params 1 and 2 here are irrelevant.
+        return $meta;
     }
     private function extract_dwca()
     {
@@ -42,7 +109,7 @@ class GloBIDataAPI
         // $paths['tables'] = $tables;
         return $paths;
     }
-    /*================================================================= ENDS HERE ======================================================================*/
+    */
     function startx()
     {
         require_library('connectors/TraitGeneric');
