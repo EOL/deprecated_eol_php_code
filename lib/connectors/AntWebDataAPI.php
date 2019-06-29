@@ -110,13 +110,11 @@ class AntWebDataAPI
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                         self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
                     }
-                    elseif($val = @$habitat_map[$habitat])
-                    {
+                    elseif($val = @$habitat_map[$habitat]) {
                         // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
                         $habitat_uris = explode(";", $val);
                         $habitat_uris = array_map('trim', $habitat_uris);
-                        foreach($habitat_uris as $habitat_uri)
-                        {
+                        foreach($habitat_uris as $habitat_uri) {
                             if(!$habitat_uri) continue;
                             if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                             $rec['measurementRemarks'] = $habitat;
@@ -145,8 +143,7 @@ class AntWebDataAPI
             array_shift($choices);
             
             $i = -1;
-            foreach($temp['string'] as $s)
-            {
+            foreach($temp['string'] as $s) {
                 $i++;
                 if(!$s) continue;
                 if(preg_match("/\[(.*?)\]/ims", $s, $arr)) $s = trim($arr[1]); //removes the brackets
@@ -218,7 +215,6 @@ class AntWebDataAPI
         $this->taxon_ids[$taxon->taxonID] = '';
         $this->archive_builder->write_object_to_file($taxon);
     }
-    
     /* There is a special case for AntWeb. Multiple records with diff catnum have the same country information for a taxon.
     We need to exclude those redundant records. So we put here an additional script 'special' to handle that. */
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
@@ -324,7 +320,6 @@ class AntWebDataAPI
         return true;
         */
     }
-
     private function get_specimens_per_genus($genus)
     {
         $final = array();
@@ -347,7 +342,6 @@ class AntWebDataAPI
         }
         return $final;
     }
-
     private function get_all_genus_using_api()
     {
         $final = array();
@@ -363,7 +357,6 @@ class AntWebDataAPI
         }
         return array_unique($final);
     }
-    
     // /* working well but not used. Used API instead
     private function get_all_genus($records)
     {
@@ -378,7 +371,6 @@ class AntWebDataAPI
         return array_keys($genus_list);
     }
     // */
-    
     private function get_country_uri($country)
     {
         if($country_uri = @$this->uri_values[$country]) return $country_uri;
@@ -410,6 +402,5 @@ class AntWebDataAPI
         // https://www.antweb.org/description.do?genus=tetramorium&name=krishnani&rank=species
         return "";
     }
-    
 }
 ?>
