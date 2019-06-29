@@ -33,13 +33,14 @@ class DwCA_Utility
                                   //start of other row_types: check for NOTICES or WARNINGS, add here those undefined URIs
                                   "http://rs.gbif.org/terms/1.0/description"        => "document",
                                   "http://rs.gbif.org/terms/1.0/multimedia"         => "document",
-                                  "http://eol.org/schema/reference/reference"       => "reference",
+                                  "http://eol.org/schema/reference/reference"       => "reference"
                                   );
 
                                   /*
                                   [1] => http://rs.gbif.org/terms/1.0/speciesprofile
                                   [6] => http://rs.gbif.org/terms/1.0/typesandspecimen
                                   [7] => http://rs.gbif.org/terms/1.0/distribution
+                                  "http://eol.org/schema/association"               => "association"
                                   */
     
         if(@$this->resource_id == 24) {
@@ -109,18 +110,22 @@ class DwCA_Utility
             }
             if(@$this->extensions[$row_type]) { //process only defined row_types
                 // if(@$this->extensions[$row_type] == 'document') continue; //debug only
-                echo "\nprocessed: [$row_type]: ".@$this->extensions[$row_type]."\n";
+                echo "\nprocessing...: [$row_type]: ".@$this->extensions[$row_type]."...\n";
                 self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
             else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
         }
         
         // /* ================================= start of customization =================================
-        if($this->resource_id == 24)
-        {
+        if($this->resource_id == 24) {
             require_library('connectors/AntWebDataAPI');
             $func = new AntWebDataAPI($this->taxon_ids, $this->archive_builder, 24);
             $func->start($harvester, 'http://rs.tdwg.org/dwc/terms/taxon');
+        }
+        if($this->resource_id == 'globi') {
+            require_library('connectors/GloBIDataAPI');
+            $func = new GloBIDataAPI($this->archive_builder, 'globi');
+            $func->start($info); //didn't use like above bec. memory can't handle 'occurrence' and 'association' TSV files
         }
         // ================================= end of customization ================================= */ 
         
