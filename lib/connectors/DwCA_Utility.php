@@ -504,11 +504,9 @@ class DwCA_Utility
         } //main loop
         return $count;
     }
-
     private function build_id_name_array($records)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             // [http://rs.tdwg.org/dwc/terms/taxonID] => 6de0dc42e8f4fc2610cb4287a4505764
             // [http://rs.tdwg.org/dwc/terms/scientificName] => Accipiter cirrocephalus rosselianus Mayr, 1940
             $taxon_id = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
@@ -516,7 +514,6 @@ class DwCA_Utility
             $this->id_name[$taxon_id]['parentNameUsageID'] = (string) $rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
         }
     }
-    
     private function generate_higherClassification_field($records)
     {   /* e.g. $rec
         Array
@@ -525,23 +522,19 @@ class DwCA_Utility
             [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 49fc924007e33cc43908fed677d5499a
         */
         $i = 0;
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $higherClassification = self::get_higherClassification($rec);
             $records[$i]["higherClassification"] = $higherClassification; //assign value to main $records -> UNCOMMENT in real operation
             $i++;
         }
         return $records;
     }
-    
     private function get_higherClassification($rek)
     {
         $parent_id = $rek['http://rs.tdwg.org/dwc/terms/parentNameUsageID'];
         $str = "";
-        while($parent_id)
-        {
-            if($parent_id)
-            {
+        while($parent_id) {
+            if($parent_id) {
                 $str .= Functions::canonical_form(trim(@$this->id_name[$parent_id]['scientificName']))."|";
                 $parent_id = @$this->id_name[$parent_id]['parentNameUsageID'];
             }
@@ -554,7 +547,6 @@ class DwCA_Utility
         // echo "\n new: [$str]\n";
         return $str;
     }
-
     private function can_compute_higherClassification($records)
     {
         if(!isset($records[0]["http://rs.tdwg.org/dwc/terms/taxonID"])) return false;
