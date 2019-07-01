@@ -7,9 +7,9 @@ $timestart = time_elapsed();
 
 // /* //main operation
 require_library('connectors/DwCA_Utility');
-$resource_id = "globi";
+$resource_id = "globi_associations";
 $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
-$dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
+// $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
 
 $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/Taxon', 'http://eol.org/schema/reference/Reference'); //orig in partners meta XML. Overwritten below.
