@@ -123,7 +123,7 @@ class DwCA_Utility
             $func = new AntWebDataAPI($this->taxon_ids, $this->archive_builder, 24);
             $func->start($harvester, 'http://rs.tdwg.org/dwc/terms/taxon');
         }
-        if($this->resource_id == 'globi') {
+        if($this->resource_id == 'globi_associations') {
             require_library('connectors/GloBIDataAPI');
             $func = new GloBIDataAPI($this->archive_builder, 'globi');
             $func->start($info); //didn't use like above bec. memory can't handle 'occurrence' and 'association' TSV files
