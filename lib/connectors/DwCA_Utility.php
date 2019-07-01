@@ -104,6 +104,7 @@ class DwCA_Utility
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
+        // print_r($index); exit; //good debug to see the all-lower case URIs
         foreach($index as $row_type) {
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;

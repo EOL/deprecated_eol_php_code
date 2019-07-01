@@ -11,6 +11,7 @@ $connector->build_archive();
 
 class GlobiConnector
 {
+    exit("\nSeems a long time ago with PLeary.\n");
     const DUMP_URL = "/Users/pleary/Webroot/eol_php_code/temp/globi";
 
     public function __construct($resource_id)

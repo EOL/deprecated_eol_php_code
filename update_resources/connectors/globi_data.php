@@ -5,21 +5,16 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
-/*
-require_library('connectors/GloBIDataAPI');
-$resource_id = "globi";
-$func = new GloBIDataAPI($resource_id);
-$func->start();
-Functions::finalize_dwca_resource($resource_id, false, true);
-*/
-
 // /* //main operation
 require_library('connectors/DwCA_Utility');
 $resource_id = "globi";
 $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
-$preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/Taxon', 'http://eol.org/schema/reference/Reference');
+
+$preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/Taxon', 'http://eol.org/schema/reference/Reference'); //orig in partners meta XML. Overwritten below.
+$preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
+
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id);
 // */
