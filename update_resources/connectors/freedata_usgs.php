@@ -13,7 +13,7 @@ Todo: get remote raw file using script
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/FreeDataAPI');
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 $timestart = time_elapsed();
 
 
