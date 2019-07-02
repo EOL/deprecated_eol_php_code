@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* DATA-1812 */
+/* DATA-1812 
+
+globi_associations	Monday 2019-07-01 09:53:16 AM	{"association.tab":3097482,"occurrence_specific.tab":2288584,"reference.tab":327413,"taxon.tab":215828}
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
