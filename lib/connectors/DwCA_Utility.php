@@ -351,6 +351,7 @@ class DwCA_Utility
         $count = 0;
         foreach($records as $rec)
         {
+            // if($count >= 10) break; //debug only
             $count++;
             if    ($class == "vernacular")  $c = new \eol_schema\VernacularName();
             elseif($class == "agent")       $c = new \eol_schema\Agent();
