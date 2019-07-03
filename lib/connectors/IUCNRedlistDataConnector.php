@@ -24,7 +24,7 @@ class IUCNRedlistDataConnector
         /* direct download from IUCN server does not work:
         $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
         */
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*1); //orig expires quarterly
+        $this->download_options = array('resource_id' => $this->resource_id, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //orig expires quarterly
         // $this->download_options['expire_seconds'] = false; //debug only
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
@@ -40,18 +40,79 @@ class IUCNRedlistDataConnector
                                   "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
         $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
 
-        /*
+        // /*
         // stats only. Also use to generate names_no_entry_from_partner.txt, which happens maybe twice a year.
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
-        */
+        // */
         
         /* Below here is used to replace the CSV export file. Using API now */
         $this->api['species list'] = 'https://apiv3.iucnredlist.org/api/v3/species/page/PAGE_NO?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee'; //PAGE_NO starts with 0
         $this->api['species count'] = 'https://apiv3.iucnredlist.org/api/v3/speciescount?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee';
     }
-    function generate_IUCN_data()
+    /*==============================================NEW STARTS HERE===================================================*/
+    private function main()
     {
+        $total_page_no = self::get_total_page_no();
+        for($i = 0; $i <= $total_page_no; $i++) {
+            $url = str_replace('PAGE_NO', $i, $this->api['species list']);
+            echo "\n$url\n";
+            self::process_species_list_10k_batch($url);
+            break; //debug only
+        }
+        echo "\nnames_no_entry_from_partner_dump_file: $this->names_no_entry_from_partner_dump_file\n";
+    }
+    private function process_species_list_10k_batch($url)
+    {
+        require_library('connectors/IUCNRedlistAPI');
+        $func = new IUCNRedlistAPI();
+        
+        $json = Functions::lookup_with_cache($url, $this->download_options);
+        $obj = json_decode($json);
+        $i = 0;
+        foreach($obj->result as $rec) { $i++;
+            // print_r($rec); exit;
+            /*stdClass Object(
+                [taxonid] => 3
+                [kingdom_name] => ANIMALIA
+                [phylum_name] => MOLLUSCA
+                [class_name] => GASTROPODA
+                [order_name] => STYLOMMATOPHORA
+                [family_name] => ENDODONTIDAE
+                [genus_name] => Aaadonta
+                [scientific_name] => Aaadonta angaurana
+                [infra_rank] => 
+                [infra_name] => 
+                [population] => 
+                [category] => CR
+            )
+            */
+            if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue;
+            if($taxon = $func->get_taxa_for_species(null, $rec->taxonid)) {
+                $this->create_instances_from_taxon_object($taxon);
+                $this->process_profile_using_xml($taxon);
+            }
+            else {
+                debug("\n no result for: " . $rec["Species ID"] . "\n");
+                /* for stats only. See above reminder. Comment this line if there is no need to update text file.
+                self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); 
+                */
+            }
+            if($i >= 3) break; //debug only
+        }
+    }
+    private function get_total_page_no()
+    {
+        $json = Functions::lookup_with_cache($this->api['species count'], $this->download_options);
+        $obj = json_decode($json);
+        print_r($obj);
+        $num = ceil($obj->count / 10000); // 10k species per API call
+        echo "\nTotal page no. to download the species list: $num\n";
+        return $num - 1; //minus 1 bec. species list call starts at 0 zero. Per here: https://apiv3.iucnredlist.org/api/v3/docs#species
+    }
+    /*==============================================NEW ENDS HERE===================================================*/
+    function generate_IUCN_data()
+    {   /* old using CSV export -- we abandoned this route
         $basename = $this->export_basename;
         $download_options = $this->download_options;
         $download_options['expire_seconds'] = 60*60*24*25; //orig value is 60*60*24*25
@@ -67,21 +128,23 @@ class IUCNRedlistDataConnector
         $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
         recursive_rmdir($parts["dirname"]);
         echo "\n temporary directory removed: " . $parts["dirname"];
-        
+        print_r($this->debug);
+        */
+
+        /* new using API */
+        self::main();
+        $this->archive_builder->finalize(TRUE);
         print_r($this->debug);
     }
+    /* abandoned CSV export
     private function csv_to_array($csv_file)
     {
-        require_library('connectors/IUCNRedlistAPI');
-        $func = new IUCNRedlistAPI();
-        
+        require_library('connectors/IUCNRedlistAPI'); $func = new IUCNRedlistAPI();
         $names_no_entry_from_partner = $func->get_names_no_entry_from_partner();
-        
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
         while(!feof($file)) {
             $temp = fgetcsv($file);
-            
             $i++;
             if(($i % 1000) == 0) echo "\nbatch $i";
             if($i == 1) {
@@ -92,17 +155,17 @@ class IUCNRedlistDataConnector
                     continue;
                 }
             }
-            else
-            {
-                /* breakdown when caching
-                $cont = false;
+            else {
+                //  ----------------------------- start
+                // breakdown when caching
+                // $cont = false;
                 // if($i >= 1     && $i < 20000)    $cont = true;
                 // if($i >= 20000 && $i < 40000)    $cont = true;
                 // if($i >= 40000 && $i < 60000)    $cont = true;
                 // if($i >= 60000 && $i <= 80000)   $cont = true;
                 // if($i >= 80000 && $i <= 100000)   $cont = true;
-                if(!$cont) continue;
-                */
+                // if(!$cont) continue;
+                //  ----------------------------- end
 
                 $rec = array();
                 $k = 0;
@@ -132,10 +195,11 @@ class IUCNRedlistDataConnector
                 }
                 else {
                     debug("\n no result for: " . $rec["Species ID"] . "\n");
-                    
-                    /* for stats only. See above reminder. Comment this line if there is no need to update text file.
-                    self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); 
-                    */
+
+                    // ----------------------------
+                    // for stats only. See above reminder. Comment this line if there is no need to update text file.
+                    // self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); 
+                    // ----------------------------
                     
                     // self::process_profile_using_csv($rec);
                 }
@@ -174,6 +238,7 @@ class IUCNRedlistDataConnector
         }
         else $this->debug["not23"][$rec["Species ID"]] = 1;
     }
+    */
     private function save_to_dump($data, $filename)
     {
         if(!($WRITE = Functions::file_open($filename, "a"))) return;
