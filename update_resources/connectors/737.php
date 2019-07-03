@@ -22,8 +22,6 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 737	Thursday 2018-03-08 08:10:12 PM	{"measurement_or_fact.tab":591236,"occurrence.tab":240800,"taxon.tab":80823}
 */
 
-exit("\nObsolete. We are now using their API - IUCNRedlistUsingAPI.php\n");
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
