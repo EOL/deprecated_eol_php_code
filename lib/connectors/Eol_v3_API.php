@@ -83,7 +83,7 @@ class Eol_v3_API
                     $found++;
                     //==================
                     // /* right now this is manully being batched in Jenkins. I edit the code here, save, upload to eol-archive then run on Jenkins. Each of the 6 connectors are done that way.
-                    $m = 317780;
+                    $m = 317781; //1,906,685 diveded by 6
                     $cont = false;
                     if($found >=  1    && $found < $m)    $cont = true;
                     // if($found >=  $m   && $found < $m*2)  $cont = true;
@@ -95,10 +95,10 @@ class Eol_v3_API
                     // */
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
-                    $taxon_concept_id = 46564415; //debug only - force assign
+                    // $taxon_concept_id = 46564415; //debug only - force assign
                     self::api_using_tc_id($taxon_concept_id);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
-                    exit("\njust run 1 species\n");
+                    // exit("\njust run 1 species\n");
                 }
             }
             // if($i >= 5) break; //debug only
@@ -111,10 +111,11 @@ class Eol_v3_API
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
             $stats = self::compute_totals($arr, $taxon_concept_id);
+            return;
+
+            /* Not needed for current stats requirements: DATA-1807 - as of Jul 3, 2019
             $objects = @$arr['dataObjects'];
             // echo "\nobjects count = " . count($objects)."\n";
-            return; //debug
-            /* not needed for now
             foreach($objects as $o) {
                 echo "\n" . $o['dataObjectVersionID'];
                 if($o['dataType'] == "http://purl.org/dc/dcmitype/Text" && strlen($o['description']) >= 199) //cache if desc is long since in tsv descs are substring of 200 chars only
