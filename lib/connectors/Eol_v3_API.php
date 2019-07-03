@@ -85,8 +85,8 @@ class Eol_v3_API
                     // /* right now this is manully being batched in Jenkins. I edit the code here, save, upload to eol-archive then run on Jenkins. Each of the 6 connectors are done that way.
                     $m = 317781; //1,906,685 diveded by 6
                     $cont = false;
-                    // if($found >=  1    && $found < $m)    $cont = true;
-                    if($found >=  $m   && $found < $m*2)  $cont = true;
+                    if($found >=  1    && $found < $m)    $cont = true;
+                    // if($found >=  $m   && $found < $m*2)  $cont = true;
                     // if($found >=  $m*2 && $found < $m*3)  $cont = true;
                     // if($found >=  $m*3 && $found < $m*4)  $cont = true;
                     // if($found >=  $m*4 && $found < $m*5)  $cont = true;
