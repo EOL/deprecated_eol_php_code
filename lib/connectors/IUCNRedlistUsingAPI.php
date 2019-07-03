@@ -36,7 +36,7 @@ class IUCNRedlistUsingAPI
     function generate_IUCN_data()
     {
         self::main();
-        // $this->archive_builder->finalize(TRUE);
+        $this->archive_builder->finalize(TRUE);
         // print_r($this->debug);
     }
     private function main()
@@ -46,13 +46,18 @@ class IUCNRedlistUsingAPI
             $url = str_replace('PAGE_NO', $i, $this->api['species list']);
             echo "\n$url\n";
             self::process_species_list_10k_batch($url);
+            break; //debug only
         }
     }
     private function process_species_list_10k_batch($url)
     {
+        require_library('connectors/IUCNRedlistAPI');
+        $func = new IUCNRedlistAPI();
+        
         $json = Functions::lookup_with_cache($url, $this->download_options);
         $obj = json_decode($json);
-        foreach($obj->result as $rec) {
+        $i = 0;
+        foreach($obj->result as $rec) { $i++;
             // print_r($rec); exit;
             /*stdClass Object(
                 [taxonid] => 3
@@ -69,7 +74,22 @@ class IUCNRedlistUsingAPI
                 [category] => CR
             )
             */
-            
+            if($taxon = $func->get_taxa_for_species(null, $rec->taxonid))
+            {
+                $this->create_instances_from_taxon_object($taxon);
+                $this->process_profile_using_xml($taxon);
+            }
+            else
+            {
+                debug("\n no result for: " . $rec["Species ID"] . "\n");
+                
+                /* for stats only. See above reminder. Comment this line if there is no need to update text file.
+                self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); 
+                */
+                
+                // self::process_profile_using_csv($rec);
+            }
+            if($i >= 3) break; //debug only
         }
     }
     private function get_total_page_no()

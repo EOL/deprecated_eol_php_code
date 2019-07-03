@@ -9,7 +9,7 @@ class IUCNRedlistDataConnector
     const IUCN_EXPORT_DOWNLOAD_PAGE = "/search/saved?id=47427";
     
     function __construct($folder = null)
-    {   exit("\nObsolete. We are now using their API - IUCNRedlistUsingAPI.php\n");
+    {
         $this->resource_id = $folder;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
