@@ -23,10 +23,10 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-/*
+// /*
 $GLOBALS['ENV_DEBUG'] = false;
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
-*/
+// */
 require_library('connectors/IUCNRedlistDataConnector');
 $timestart = time_elapsed();
 $resource_id = 737;
@@ -35,7 +35,7 @@ $resource_id = 737;
 // /* NOTE: like 211.php a manual step is needed to update partner source file (export-74550.csv.zip)
 $func = new IUCNRedlistDataConnector($resource_id);
 $func->generate_IUCN_data();
-Functions::finalize_dwca_resource($resource_id, false, false); //3rd param orig value is true
+Functions::finalize_dwca_resource($resource_id, false, true); //3rd param orig value is true
 // */
 
 // Functions::set_resource_status_to_harvest_requested($resource_id); //obsolete

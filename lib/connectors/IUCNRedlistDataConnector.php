@@ -61,10 +61,11 @@ class IUCNRedlistDataConnector
     {
         $total_page_no = self::get_total_page_no();
         for($i = 0; $i <= $total_page_no; $i++) {
+            if(($i % 1000) == 0) echo "\nbatch $i\n";
             $url = str_replace('PAGE_NO', $i, $this->api['species list']);
             echo "\n$url\n";
             self::process_species_list_10k_batch($url);
-            break; //debug only
+            // break; //debug only
         }
         echo "\nnames_no_entry_from_partner_dump_file: $this->names_no_entry_from_partner_dump_file\n";
     }
@@ -104,7 +105,7 @@ class IUCNRedlistDataConnector
                 self::save_to_dump($rec->taxonid, $this->names_no_entry_from_partner_dump_file); 
                 // */
             }
-            if($i >= 5) break; //debug only
+            // if($i >= 8) break; //debug only
         }
     }
     private function get_total_page_no()
