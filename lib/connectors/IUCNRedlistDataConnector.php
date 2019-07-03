@@ -100,7 +100,7 @@ class IUCNRedlistDataConnector
                 $this->process_profile_using_xml($taxon);
             }
             else {
-                debug("\n no result for: " . $rec["Species ID"] . "\n");
+                debug("\n no result for: " . $rec->taxonid . "\n");
                 // /* for stats only. See above reminder. Comment this line if there is no need to update text file.
                 self::save_to_dump($rec->taxonid, $this->names_no_entry_from_partner_dump_file); 
                 // */
