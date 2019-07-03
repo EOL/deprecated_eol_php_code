@@ -90,10 +90,13 @@ class Eol_v3_API
                     // */
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
+                    // $taxon_concept_id = 46564415; //debug only - force assign
                     self::api_using_tc_id($taxon_concept_id);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
+                    // exit("\njust run 1 species\n");
                 }
             }
+            // if($i >= 5) break; //debug only
         }
         // exit("\n".count($debug)."\n");
         exit;
@@ -163,7 +166,7 @@ class Eol_v3_API
     {
         $filename = self::generate_path_filename($tc_id);
         if(file_exists($filename)) {
-            if($GLOBALS['ENV_DEBUG']) echo "\nCache already exists. [$filename]\n";
+            if($GLOBALS['ENV_DEBUG']) echo "\nCypher cache already exists. [$filename]\n";
             
             // $this->download_options['expire_seconds'] = 60; //debug only - force assign --- test success
             
@@ -244,7 +247,10 @@ class Eol_v3_API
             // [dataType] => http://purl.org/dc/dcmitype/Text
             // [dataType] => http://purl.org/dc/dcmitype/StillImage
             if($o['dataType'] == 'http://purl.org/dc/dcmitype/Text') @$final['Text']++;
-            elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') @$final['StillImage']++;
+            elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') {
+                @$final['StillImage']++;
+                if($o['mediumType'] == 'map') @$final['Map']++;
+            }
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/MovingImage') @$final['MovingImage']++;
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/Sound') @$final['Sound']++;
             else exit("\nInvestigate no dataType\n");
