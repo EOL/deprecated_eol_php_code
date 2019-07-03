@@ -762,10 +762,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }//end loop
         if($listOnly) return $list;
     }
-    private function map_data_file_already_been_generated($basename)
+    function map_data_file_already_been_generated($basename)
     {
         // return false; //debug
         $filename = self::get_map_data_path($basename).$basename.".json";
+        if($GLOBALS['ENV_DEBUG']) echo "\nmap file: [$filename]\n";
         if(file_exists($filename)) {
             if(filesize($filename) > 0) {
                 echo "[$basename] map data (.json) already generated OK [$filename]";

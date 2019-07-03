@@ -36,7 +36,12 @@ class Eol_v3_API
         $this->basename = "cypher_".date('YmdHis');
     }
     function start()
-    {
+    {   
+        // /* will use to check if EOL id has GBIF map
+        require_library('connectors/GBIFoccurrenceAPI_DwCA');
+        $this->gbif_func = new GBIFoccurrenceAPI_DwCA();
+        // */
+        
         /* normal operation OLD
         if(Functions::is_production()) $path = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab";
         else                           $path = "/Volumes/Thunderbolt4/z backup of AKiTiO4/z backup/eol_php_code_public_tmp/google_maps old/taxon_concept_names.tab";
@@ -90,10 +95,10 @@ class Eol_v3_API
                     // */
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
-                    // $taxon_concept_id = 46564415; //debug only - force assign
+                    $taxon_concept_id = 46564415; //debug only - force assign
                     self::api_using_tc_id($taxon_concept_id);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
-                    // exit("\njust run 1 species\n");
+                    exit("\njust run 1 species\n");
                 }
             }
             // if($i >= 5) break; //debug only
@@ -154,8 +159,14 @@ class Eol_v3_API
         $totals['unique_languages_of_vernaculars'] = self::get_unique_languages_of_vernaculars($arr['taxonConcept']['vernacularNames']);
         // */
         $totals['traits'] = self::get_trait_totals($taxon_concept_id);
+        $totals['GBIF_map'] = self::with_gbif_map_YN($taxon_concept_id);
         if($GLOBALS['ENV_DEBUG']) print_r($totals);
         // print_r($totals);
+    }
+    private function with_gbif_map_YN($tc_id)
+    {
+        if($this->gbif_func->map_data_file_already_been_generated($tc_id)) return true;
+        return false;
     }
     private function get_trait_totals($tc_id)
     {
