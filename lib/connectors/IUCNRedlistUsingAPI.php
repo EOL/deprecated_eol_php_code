@@ -1,15 +1,11 @@
 <?php
 namespace php_active_record;
 /* connector: [737] http://eol.org/content_partners/10/resources/737 
-Also see connector [211], related IUCNRedlistAPI().
 */
-class IUCNRedlistDataConnector
+class IUCNRedlistUsingAPI
 {
-    const IUCN_DOMAIN = "http://www.iucnredlist.org";
-    const IUCN_EXPORT_DOWNLOAD_PAGE = "/search/saved?id=47427";
-    
     function __construct($folder = null)
-    {   exit("\nObsolete. We are now using their API - IUCNRedlistUsingAPI.php\n");
+    {
         $this->resource_id = $folder;
         $this->taxa = array();
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
@@ -17,14 +13,7 @@ class IUCNRedlistDataConnector
         $this->occurrence_ids = array();
         $this->debug = array();
 
-        $this->export_basename = "export-74550"; //previously "export-47427"
-        // $this->species_list_export = "http://localhost/cp_new/IUCN/" . $this->export_basename . ".csv.zip";
-        $this->species_list_export = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/IUCN/" . $this->export_basename . ".csv.zip";
-        
-        /* direct download from IUCN server does not work:
-        $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
-        */
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*25); //expires in 25 days
+        $this->download_options = array('resource_id' => $this->resource_id, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //expires quarterly
         // $this->download_options['expire_seconds'] = false; //debug only
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
@@ -38,36 +27,61 @@ class IUCNRedlistDataConnector
                                   "LR/lc" => "Lower Risk/least concern (LR/lc)",
                                   "LR/nt" => "Lower Risk/near threatened (LR/nt)",
                                   "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
-        $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
-
-        /*
-        // stats only. Also use to generate names_no_entry_from_partner.txt, which happens maybe twice a year.
-        $this->TEMP_DIR = create_temp_dir() . "/";
-        $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
-        */
+        
+        $this->api['species list'] = 'https://apiv3.iucnredlist.org/api/v3/species/page/PAGE_NO?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee'; //PAGE_NO starts with 0
+        $this->api['species count'] = 'https://apiv3.iucnredlist.org/api/v3/speciescount?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee';
+        
+        // $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
     }
-
     function generate_IUCN_data()
     {
-        $basename = $this->export_basename;
-        $download_options = $this->download_options;
-        $download_options['expire_seconds'] = 60*60*24*25; //orig value is 60*60*24*25
-        $text_path = self::load_zip_contents($this->species_list_export, $download_options, array($basename), ".csv");
-        print_r($text_path);
-        
-        self::csv_to_array($text_path[$basename]);
-        $this->archive_builder->finalize(TRUE);
-        
-        // remove temp dir
-        $path = $text_path[$basename];
-        $parts = pathinfo($path);
-        $parts["dirname"] = str_ireplace($basename, "", $parts["dirname"]);
-        recursive_rmdir($parts["dirname"]);
-        echo "\n temporary directory removed: " . $parts["dirname"];
-        
-        print_r($this->debug);
+        self::main();
+        // $this->archive_builder->finalize(TRUE);
+        // print_r($this->debug);
     }
-
+    private function main()
+    {
+        $total_page_no = self::get_total_page_no();
+        for($i = 0; $i <= $total_page_no; $i++) {
+            $url = str_replace('PAGE_NO', $i, $this->api['species list']);
+            echo "\n$url\n";
+            self::process_species_list_10k_batch($url);
+        }
+    }
+    private function process_species_list_10k_batch($url)
+    {
+        $json = Functions::lookup_with_cache($url, $this->download_options);
+        $obj = json_decode($json);
+        foreach($obj->result as $rec) {
+            // print_r($rec); exit;
+            /*stdClass Object(
+                [taxonid] => 3
+                [kingdom_name] => ANIMALIA
+                [phylum_name] => MOLLUSCA
+                [class_name] => GASTROPODA
+                [order_name] => STYLOMMATOPHORA
+                [family_name] => ENDODONTIDAE
+                [genus_name] => Aaadonta
+                [scientific_name] => Aaadonta angaurana
+                [infra_rank] => 
+                [infra_name] => 
+                [population] => 
+                [category] => CR
+            )
+            */
+            
+        }
+    }
+    private function get_total_page_no()
+    {
+        $json = Functions::lookup_with_cache($this->api['species count'], $this->download_options);
+        $obj = json_decode($json);
+        print_r($obj);
+        $num = ceil($obj->count / 10000); // 10k species per API call
+        echo "\nTotal page no. to download the species list: $num\n";
+        return $num - 1; //minus 1 bec. species list call starts at 0 zero. Per here: https://apiv3.iucnredlist.org/api/v3/docs#species
+    }
+    /*==============================================ENDS HERE===================================================*/
     private function csv_to_array($csv_file)
     {
         require_library('connectors/IUCNRedlistAPI');
