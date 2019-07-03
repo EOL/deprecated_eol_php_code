@@ -44,9 +44,15 @@ class IUCNRedlistDataConnector
         // stats only. Also use to generate names_no_entry_from_partner.txt, which happens maybe twice a year.
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
+        $WRITE = Functions::file_open($this->names_no_entry_from_partner_dump_file, "w"); fclose($WRITE); //initialize
         // */
         
-        /* Below here is used to replace the CSV export file. Using API now */
+        /* Below here is used to replace the CSV export file. Using API now
+        https://eol-jira.bibalex.org/browse/DATA-1813
+        This is now making use of their API
+        Species list: https://apiv3.iucnredlist.org/api/v3/docs#species
+        Species count: https://apiv3.iucnredlist.org/api/v3/docs#species-count
+        */
         $this->api['species list'] = 'https://apiv3.iucnredlist.org/api/v3/species/page/PAGE_NO?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee'; //PAGE_NO starts with 0
         $this->api['species count'] = 'https://apiv3.iucnredlist.org/api/v3/speciescount?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee';
     }
@@ -64,8 +70,8 @@ class IUCNRedlistDataConnector
     }
     private function process_species_list_10k_batch($url)
     {
-        require_library('connectors/IUCNRedlistAPI');
-        $func = new IUCNRedlistAPI();
+        require_library('connectors/IUCNRedlistAPI'); $func = new IUCNRedlistAPI();
+        $names_no_entry_from_partner = $func->get_names_no_entry_from_partner();
         
         $json = Functions::lookup_with_cache($url, $this->download_options);
         $obj = json_decode($json);
@@ -87,18 +93,18 @@ class IUCNRedlistDataConnector
                 [category] => CR
             )
             */
-            if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue;
+            // if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue; //will un-comment after generating dump file
             if($taxon = $func->get_taxa_for_species(null, $rec->taxonid)) {
                 $this->create_instances_from_taxon_object($taxon);
                 $this->process_profile_using_xml($taxon);
             }
             else {
                 debug("\n no result for: " . $rec["Species ID"] . "\n");
-                /* for stats only. See above reminder. Comment this line if there is no need to update text file.
-                self::save_to_dump($rec["Species ID"], $this->names_no_entry_from_partner_dump_file); 
-                */
+                // /* for stats only. See above reminder. Comment this line if there is no need to update text file.
+                self::save_to_dump($rec->taxonid, $this->names_no_entry_from_partner_dump_file); 
+                // */
             }
-            if($i >= 3) break; //debug only
+            if($i >= 5) break; //debug only
         }
     }
     private function get_total_page_no()
