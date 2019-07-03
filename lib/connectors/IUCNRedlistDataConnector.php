@@ -77,7 +77,7 @@ class IUCNRedlistDataConnector
         $obj = json_decode($json);
         $i = 0;
         foreach($obj->result as $rec) { $i++;
-            if(($i % 250) == 0) echo "\nbatch $i [$msg]\n";
+            if(($i % 250) == 0) echo "\nbatch $i [$msg]";
             // print_r($rec); exit;
             /*stdClass Object(
                 [taxonid] => 3
