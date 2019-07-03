@@ -24,7 +24,7 @@ class IUCNRedlistDataConnector
         /* direct download from IUCN server does not work:
         $this->species_list_export = "http://www.iucnredlist.org/search/download/59026.csv"; -- this doesn't work
         */
-        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*25); //expires in 25 days
+        $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*1); //orig expires quarterly
         // $this->download_options['expire_seconds'] = false; //debug only
 
         $this->categories = array("CR" => "Critically Endangered (CR)",
@@ -45,8 +45,11 @@ class IUCNRedlistDataConnector
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
         */
+        
+        /* Below here is used to replace the CSV export file. Using API now */
+        $this->api['species list'] = 'https://apiv3.iucnredlist.org/api/v3/species/page/PAGE_NO?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee'; //PAGE_NO starts with 0
+        $this->api['species count'] = 'https://apiv3.iucnredlist.org/api/v3/speciescount?token=9bb4facb6d23f48efbf424bb05c0c1ef1cf6f468393bc745d42179ac4aca5fee';
     }
-
     function generate_IUCN_data()
     {
         $basename = $this->export_basename;
@@ -67,7 +70,6 @@ class IUCNRedlistDataConnector
         
         print_r($this->debug);
     }
-
     private function csv_to_array($csv_file)
     {
         require_library('connectors/IUCNRedlistAPI');
@@ -77,18 +79,15 @@ class IUCNRedlistDataConnector
         
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
-        while(!feof($file))
-        {
+        while(!feof($file)) {
             $temp = fgetcsv($file);
             
             $i++;
             if(($i % 1000) == 0) echo "\nbatch $i";
-            if($i == 1)
-            {
+            if($i == 1) {
                 $fields = $temp;
                 print_r($fields);
-                if(count($fields) != 23)
-                {
+                if(count($fields) != 23) {
                     $this->debug["not23"][$fields[0]] = 1;
                     continue;
                 }
@@ -109,20 +108,17 @@ class IUCNRedlistDataConnector
                 $k = 0;
                 // 2 checks if valid record
                 if(!$temp) continue;
-                if(count($temp) != 23)
-                {
+                if(count($temp) != 23) {
                     $this->debug["not23"][$temp[0]] = 1;
                     continue;
                 }
                 
-                foreach($temp as $t)
-                {
+                foreach($temp as $t) {
                     $rec[$fields[$k]] = $t;
                     $k++;
                 }
 
-                if(in_array($rec["Species ID"], $names_no_entry_from_partner))
-                {
+                if(in_array($rec["Species ID"], $names_no_entry_from_partner)) {
                     // self::process_profile_using_csv($rec);
                     continue;
                 }
@@ -130,13 +126,11 @@ class IUCNRedlistDataConnector
                 // http://api.iucnredlist.org/details/164845
                 // $rec["Species ID"] = "164845"; //debug only
                 
-                if($taxon = $func->get_taxa_for_species(null, $rec["Species ID"]))
-                {
+                if($taxon = $func->get_taxa_for_species(null, $rec["Species ID"])) {
                     $this->create_instances_from_taxon_object($taxon);
                     $this->process_profile_using_xml($taxon);
                 }
-                else
-                {
+                else {
                     debug("\n no result for: " . $rec["Species ID"] . "\n");
                     
                     /* for stats only. See above reminder. Comment this line if there is no need to update text file.
@@ -152,11 +146,9 @@ class IUCNRedlistDataConnector
         } // end while{}
         fclose($file);
     }
-
     private function process_profile_using_csv($rec)
     {
-        if(count($rec) == 23)
-        {
+        if(count($rec) == 23) {
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID                 = $rec["Species ID"];
             $taxon->scientificName          = trim($rec["Genus"] . " " . $rec["Species"] . " " . $rec["Authority"]);
@@ -182,7 +174,6 @@ class IUCNRedlistDataConnector
         }
         else $this->debug["not23"][$rec["Species ID"]] = 1;
     }
-    
     private function save_to_dump($data, $filename)
     {
         if(!($WRITE = Functions::file_open($filename, "a"))) return;
@@ -190,7 +181,6 @@ class IUCNRedlistDataConnector
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);
     }
-
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -205,7 +195,6 @@ class IUCNRedlistDataConnector
         debug(" - " . $taxon->scientificName . " [$taxon->taxonID]");
         $this->archive_builder->write_object_to_file($taxon);
     }
-
     private function process_profile_using_xml($record, $details = false)
     {
         if(!$details) $details = self::get_details($record);
@@ -213,38 +202,32 @@ class IUCNRedlistDataConnector
         $rec["taxon_id"] = $record->identifier;
         $rec["source"] = $record->source;
         
-        if($val = @$details["RedListCategory"])
-        {
+        if($val = @$details["RedListCategory"]) {
             $val = self::format_category($val);
             $remarks = self::get_remarks_for_old_designation($val);
             $rec["catnum"] = "_rlc";
             self::add_string_types("true", $rec, "Red List Category", $val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", $remarks);
         }
 
-        if($texts = @$details["texts"])
-        {
+        if($texts = @$details["texts"]) {
             $text["red_list_criteria"]["uri"] = "http://eol.org/schema/terms/RedListCriteria";
             $text["category_version"]["uri"] = "http://eol.org/schema/terms/Version";
             $text["modified_year"]["uri"] = "http://rs.tdwg.org/dwc/terms/measurementDeterminedDate"; //"http://eol.org/schema/terms/DateMeasured";
             $text["assessors"]["uri"] = "http://eol.org/schema/terms/Assessor";
             $text["reviewers"]["uri"] = "http://eol.org/schema/terms/Reviewer";
             $text["contributors"]["uri"] = "http://purl.org/dc/terms/contributor"; // similar to $m->contributor
-            foreach($texts as $key => $value)
-            {
+            foreach($texts as $key => $value) {
                 if(!$value) continue;
                 $rec["catnum"] = "_rlc"; // these fields will appear under "Data about this record".
                 self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"]);
             }
         }
         
-        if($habitats = @$details["habitats"])
-        {
-            foreach($habitats as $h)
-            {
+        if($habitats = @$details["habitats"]) {
+            foreach($habitats as $h) {
                 $this->debug["habitat"][$h] = 1;
                 
-                if($value_uri = self::format_habitat_value(strtolower($h)))
-                {
+                if($value_uri = self::format_habitat_value(strtolower($h))) {
                     $rec["catnum"] = "_" . $h;
                     self::add_string_types("true", $rec, $h, $value_uri, "http://rs.tdwg.org/dwc/terms/habitat");
                 }
@@ -252,8 +235,7 @@ class IUCNRedlistDataConnector
             }
         }
         
-        if($pop_trend = @$details["pop_trend"])
-        {
+        if($pop_trend = @$details["pop_trend"]) {
             $rec["catnum"] = "_pop_trend";
             self::add_string_types("true", $rec, "Population trend", $pop_trend, 'http://eol.org/schema/terms/population_trend');
         }
@@ -261,33 +243,28 @@ class IUCNRedlistDataConnector
     
     private function get_remarks_for_old_designation($category)
     {
-        switch($category)
-        {
+        switch($category) {
             case "http://eol.org/schema/terms/leastConcern":          return 'Older designation "Lower Risk/least concern (LR/lc)" indicates this species has not been reevaluated since 2000';
             case "http://eol.org/schema/terms/nearThreatened":        return 'Older designation "Lower Risk/near threatened (LR/nt)" indicates this species has not been reevaluated since 2000';
             case "http://eol.org/schema/terms/conservationDependent": return 'Older designation "Lower Risk/conservation dependent (LR/cd)" indicates this species has not been reevaluated since 2000. When last evaluated, had post 2001 criteria been applied, this species would have been classed as Near Threatened';
             default: return "";
         }
     }
-    
     private function format_habitat_value($habitat)
     {
-        switch($habitat)
-        {
+        switch($habitat) {
             case "marine":      return "http://purl.obolibrary.org/obo/ENVO_00000569";
             case "terrestrial": return "http://purl.obolibrary.org/obo/ENVO_00002009";
             case "freshwater":  return "http://purl.obolibrary.org/obo/ENVO_00002037";
             default:            return false;
         }
     }
-    
     private function format_category($cat)
     {
         /*
         http://eol.org/schema/terms/notEvaluated
         */
-        switch($cat)
-        {
+        switch($cat) {
             case "Critically Endangered (CR)":  return "http://eol.org/schema/terms/criticallyEndangered";
             case "Endangered (EN)":             return "http://eol.org/schema/terms/endangered";
             case "Vulnerable (VU)":             return "http://eol.org/schema/terms/vulnerable";
@@ -303,12 +280,10 @@ class IUCNRedlistDataConnector
         }
         return false;
     }
-    
     private function get_details($taxon)
     {
         $rec = array();
-        foreach($taxon->dataObjects as $o)
-        {
+        foreach($taxon->dataObjects as $o) {
             if($o->title == "IUCNConservationStatus")       $rec["RedListCategory"] = $o->description;
             elseif($o->title == "IUCN Red List Assessment") $rec["texts"]           = self::parse_assessment_info($o->description);
             elseif($o->title == "Habitat and Ecology")      $rec["habitats"]        = self::parse_habitat_info($o->description);
@@ -317,17 +292,14 @@ class IUCNRedlistDataConnector
         $this->debug[@$rec["RedListCategory"]] = 1;
         return $rec;
     }
-
     private function parse_population_trend($html)
     {
         if(preg_match("/<div id=\"population_trend\">(.*?)<\/div>/ims", $html, $arr)) return $arr[1];
     }
-
     private function parse_habitat_info($html)
     {
         if(preg_match_all("/<li class=\"system\">(.*?)<\/li>/ims", $html, $arr)) return $arr[1];
     }
-    
     private function parse_assessment_info($html)
     {
         $rec = array();
@@ -343,7 +315,6 @@ class IUCNRedlistDataConnector
         if(preg_match("/<div id=\"contributors\">(.*?)<\/div>/ims", $html, $arr))            $rec["contributors"] = trim($arr[1]);
         return $rec;
     }
-    
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $measurementRemarks = null)
     {
         // echo "\n [$label]:[$value]\n";
@@ -359,8 +330,7 @@ class IUCNRedlistDataConnector
         }
         $m->measurementValue = $value;
         if($val = $measurementOfTaxon) $m->measurementOfTaxon = $val;
-        if($measurementOfTaxon)
-        {
+        if($measurementOfTaxon) {
             $m->source = $rec["source"];
             $m->measurementRemarks = $measurementRemarks;
             // $m->contributor = '';
@@ -370,7 +340,6 @@ class IUCNRedlistDataConnector
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
-
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum;
@@ -385,7 +354,6 @@ class IUCNRedlistDataConnector
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
-
     function load_zip_contents($zip_path, $download_options, $files, $extension)
     {
         $text_path = array();
@@ -398,10 +366,8 @@ class IUCNRedlistDataConnector
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip -o $temp_file_path -d $temp_path");
-            if(file_exists($temp_path . "/" . $files[0] . $extension))
-            {
-                foreach($files as $file)
-                {
+            if(file_exists($temp_path . "/" . $files[0] . $extension)) {
+                foreach($files as $file) {
                     $text_path[$file] = $temp_path . "/" . $file . $extension;
                 }
             }
@@ -409,7 +375,6 @@ class IUCNRedlistDataConnector
         else echo "\n\n Connector terminated. Remote files are not ready.\n\n";
         return $text_path;
     }
-
     /*
     private function get_species_list_export_file() // not currently used
     {
@@ -440,7 +405,6 @@ class IUCNRedlistDataConnector
         }
         return false;
     }
-
     private function get_token()
     {
         $download_options = $this->download_options;
@@ -454,6 +418,5 @@ class IUCNRedlistDataConnector
         }
     }
     */
-
 }
 ?>
