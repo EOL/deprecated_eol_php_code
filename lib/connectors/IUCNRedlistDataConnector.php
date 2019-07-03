@@ -63,12 +63,12 @@ class IUCNRedlistDataConnector
         for($i = 0; $i <= $total_page_no; $i++) {
             $url = str_replace('PAGE_NO', $i, $this->api['species list']);
             echo "\n$url\n";
-            self::process_species_list_10k_batch($url);
+            self::process_species_list_10k_batch($url, "$i of $total_page_no");
             // break; //debug only
         }
         echo "\nnames_no_entry_from_partner_dump_file: $this->names_no_entry_from_partner_dump_file\n";
     }
-    private function process_species_list_10k_batch($url)
+    private function process_species_list_10k_batch($url, $msg)
     {
         require_library('connectors/IUCNRedlistAPI'); $func = new IUCNRedlistAPI();
         $names_no_entry_from_partner = $func->get_names_no_entry_from_partner();
@@ -77,7 +77,7 @@ class IUCNRedlistDataConnector
         $obj = json_decode($json);
         $i = 0;
         foreach($obj->result as $rec) { $i++;
-            if(($i % 100) == 0) echo "\nbatch $i\n";
+            if(($i % 250) == 0) echo "\nbatch $i [$msg]\n";
             // print_r($rec); exit;
             /*stdClass Object(
                 [taxonid] => 3
