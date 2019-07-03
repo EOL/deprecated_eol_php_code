@@ -61,7 +61,6 @@ class IUCNRedlistDataConnector
     {
         $total_page_no = self::get_total_page_no();
         for($i = 0; $i <= $total_page_no; $i++) {
-            if(($i % 1000) == 0) echo "\nbatch $i\n";
             $url = str_replace('PAGE_NO', $i, $this->api['species list']);
             echo "\n$url\n";
             self::process_species_list_10k_batch($url);
@@ -78,6 +77,7 @@ class IUCNRedlistDataConnector
         $obj = json_decode($json);
         $i = 0;
         foreach($obj->result as $rec) { $i++;
+            if(($i % 100) == 0) echo "\nbatch $i\n";
             // print_r($rec); exit;
             /*stdClass Object(
                 [taxonid] => 3
