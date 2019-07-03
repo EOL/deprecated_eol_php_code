@@ -89,8 +89,8 @@ class Eol_v3_API
                     // if($found >=  $m   && $found < $m*2)  $cont = true;
                     // if($found >=  $m*2 && $found < $m*3)  $cont = true;
                     // if($found >=  $m*3 && $found < $m*4)  $cont = true;
-                    if($found >=  $m*4 && $found < $m*5)  $cont = true;
-                    // if($found >=  $m*5 && $found < $m*6)  $cont = true;
+                    // if($found >=  $m*4 && $found < $m*5)  $cont = true;
+                    if($found >=  $m*5 && $found < $m*6)  $cont = true;
                     if(!$cont) continue;
                     // */
                     //==================
