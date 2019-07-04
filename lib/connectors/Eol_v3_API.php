@@ -82,7 +82,7 @@ class Eol_v3_API
                     // print_r($rek); exit;
                     $found++;
                     //==================
-                    // /* right now this is manully being batched in Jenkins. I edit the code here, save, upload to eol-archive then run on Jenkins. Each of the 6 connectors are done that way.
+                    /* right now this is manully being batched in Jenkins. I edit the code here, save, upload to eol-archive then run on Jenkins. Each of the 6 connectors are done that way.
                     $m = 317781; //1,906,685 diveded by 6
                     $cont = false;
                     // if($found >=  1    && $found < $m)    $cont = true;
@@ -92,25 +92,29 @@ class Eol_v3_API
                     // if($found >=  $m*4 && $found < $m*5)  $cont = true;
                     if($found >=  $m*5 && $found < $m*6)  $cont = true;
                     if(!$cont) continue;
-                    // */
+                    */
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
                     // $taxon_concept_id = 46564415; //debug only - force assign
-                    self::api_using_tc_id($taxon_concept_id);
+                    self::api_using_tc_id($taxon_concept_id, $rek['canonicalName']);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
                     // exit("\njust run 1 species\n");
+                    break; //debug only - run just 1 species
                 }
             }
             // if($i >= 5) break; //debug only
         }
         // exit("\n".count($debug)."\n");
-        exit;
     }
-    private function api_using_tc_id($taxon_concept_id)
+    private function api_using_tc_id($taxon_concept_id, $sciname)
     {
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
             $stats = self::compute_totals($arr, $taxon_concept_id);
+            $stats['richness_score'] = self::compute_richness_score($stats);
+            $stats['EOLid'] = $taxon_concept_id;
+            $stats['canonicalName'] = $sciname;
+            self::write_to_txt_file($stats);
             return;
 
             /* Not needed for current stats requirements: DATA-1807 - as of Jul 3, 2019
@@ -127,6 +131,50 @@ class Eol_v3_API
             }
             */
         }
+    }
+    private function compute_richness_score($s)
+    {   /*
+        A- number of non-map media
+        B- number of articles
+        C- number of different Subjects represented by the articles
+        D- number of languages represented by the articles
+        E- number of trait records
+        F- number of measurementTypes represented by the trait records
+        G- number of maps, including GBIF
+        H- number of languages represented among the common names
+        R=(A/20 with a max of 1)(C/8 with a max of 1)(D/10 with a max of 1)(G/2 with a max of 1)(H/10 with a max of 1)+5*(F/12 with a max of 1)
+        Array(
+            [media_counts] => Array(
+                    [Text] => 82
+                    [StillImage] => 76
+                    [MovingImage] => 4
+                    [Map] => 1
+                )
+            [unique_subjects_of_articles] => 18
+            [unique_languages_of_articles] => 21
+            [unique_languages_of_vernaculars] => 74
+            [traits] => Array(
+                    [total traits] => 3804
+                    [total mtypes] => 33
+                )
+            [GBIF_map] => 
+            [richness_score] => 
+            [EOLid] => 46564415
+            [canonicalName] => Eucoila siphonophorae
+        )
+        */
+        $A = $s['media_counts']['StillImage'] - $s['media_counts']['Map'];
+        $B = $s['media_counts']['Text'];
+        $C = $s['unique_subjects_of_articles'];
+        $D = $s['unique_languages_of_articles'];
+        $E = $s['traits']['total traits'];
+        $F = $s['traits']['total mtypes'];
+        $G = $s['media_counts']['Map'] + $s['GBIF_map'];
+        $H = $s['unique_languages_of_vernaculars'];
+    }
+    private function write_to_txt_file($stats)
+    {
+        if($GLOBALS['ENV_DEBUG']) print_r($stats);
     }
     private function compute_totals($arr, $taxon_concept_id)
     {   /*Array(
@@ -150,7 +198,19 @@ class Eol_v3_API
         R=(A/20 with a max of 1)(C/8 with a max of 1)(D/10 with a max of 1)(G/2 with a max of 1)(H/10 with a max of 1)+5*(F/12 with a max of 1)
         */
         // print_r($arr); exit;
-        // /*
+        $totals = Array( //initialize
+            'media_counts' => array(),
+            'unique_subjects_of_articles' => 0,
+            'unique_languages_of_articles' => 0,
+            'unique_languages_of_vernaculars' => 0,
+            'traits' => Array(
+                    'total traits' => 0,
+                    'total mtypes' => 0
+                ),
+            'GBIF_map' => 0,
+            'richness_score' => '',
+            'EOLid' => '',
+            'canonicalName' => '');
         if($objects = @$arr['taxonConcept']['dataObjects']) {
             $totals['media_counts'] = self::get_media_counts($objects, $taxon_concept_id);
             $ret = self::get_unique_subjects_and_languages_from_articles($objects, $taxon_concept_id);
@@ -158,16 +218,14 @@ class Eol_v3_API
             $totals['unique_languages_of_articles'] = $ret['languages'];
         }
         $totals['unique_languages_of_vernaculars'] = self::get_unique_languages_of_vernaculars($arr['taxonConcept']['vernacularNames']);
-        // */
         $totals['traits'] = self::get_trait_totals($taxon_concept_id);
         $totals['GBIF_map'] = self::with_gbif_map_YN($taxon_concept_id);
-        if($GLOBALS['ENV_DEBUG']) print_r($totals);
-        // print_r($totals);
+        return $totals;
     }
     private function with_gbif_map_YN($tc_id)
     {
-        if($this->gbif_func->map_data_file_already_been_generated($tc_id)) return true;
-        return false;
+        if($this->gbif_func->map_data_file_already_been_generated($tc_id)) return 1;
+        return 0;
     }
     private function get_trait_totals($tc_id)
     {
@@ -254,6 +312,11 @@ class Eol_v3_API
     }
     private function get_media_counts($objects, $taxon_concept_id)
     {
+        $final = Array( //initialize
+                'Text' => 0,
+                'StillImage' => 0,
+                'MovingImage' => 0,
+                'Map' => 0);
         foreach($objects as $o) {
             // print_r($o); //exit;
             // [dataType] => http://purl.org/dc/dcmitype/Text
