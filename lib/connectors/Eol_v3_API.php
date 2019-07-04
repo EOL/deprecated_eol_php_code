@@ -115,7 +115,7 @@ class Eol_v3_API
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['scientificName']."][tc_id = $taxon_concept_id]";
                     // exit("\njust run 1 species\n");
                     // break;
-                    if($found >= 100) break; //debug only - run just 1 species
+                    if($found >= 1000) break; //debug only - run just 1 species
                 }
             }
             // if($i >= 5) break; //debug only
