@@ -62,7 +62,7 @@ class Eol_v3_API
         fwrite($this->WRITE, 'F- number of measurementTypes represented by the trait records'."\n");
         fwrite($this->WRITE, 'G- number of maps, including GBIF'."\n");
         fwrite($this->WRITE, 'H- number of languages represented among the common names'."\n\n");
-        $arr = array('EOLid', 'canonicalName', 'Richness Score', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
+        $arr = array('EOLid', 'scientificName', 'Richness Score', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
         fwrite($this->WRITE, implode("\t", $arr)."\n");
         self::process_all_eol_taxa_using_DH($path); //make use of Katja's EOL DH with EOL Page IDs -- good choice
         fclose($this->WRITE);
@@ -111,8 +111,8 @@ class Eol_v3_API
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
                     // $taxon_concept_id = 46564415; //debug only - force assign
-                    self::api_using_tc_id($taxon_concept_id, $rek['canonicalName']);
-                    if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
+                    self::api_using_tc_id($taxon_concept_id, $rek['scientificName']);
+                    if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['scientificName']."][tc_id = $taxon_concept_id]";
                     // exit("\njust run 1 species\n");
                     // break;
                     if($found >= 100) break; //debug only - run just 1 species
@@ -130,7 +130,7 @@ class Eol_v3_API
             if($GLOBALS['ENV_DEBUG']) print_r($stats);
             $ret = self::compute_richness_score($stats);
             $ret['EOLid'] = $taxon_concept_id;
-            $ret['canonicalName'] = $sciname;
+            $ret['scientificName'] = $sciname;
             self::write_to_txt_file($ret);
             return;
 
@@ -204,7 +204,7 @@ class Eol_v3_API
     private function write_to_txt_file($s)
     {
         if($GLOBALS['ENV_DEBUG']) print_r($s);
-        $arr = array($s['EOLid'], $s['canonicalName'], $s['R'], $s['A'], $s['B'], $s['C'], $s['D'], $s['E'], $s['F'], $s['G'], $s['H']);
+        $arr = array($s['EOLid'], $s['scientificName'], $s['R'], $s['A'], $s['B'], $s['C'], $s['D'], $s['E'], $s['F'], $s['G'], $s['H']);
         fwrite($this->WRITE, implode("\t", $arr)."\n");
     }
     private function compute_totals($arr, $taxon_concept_id)
