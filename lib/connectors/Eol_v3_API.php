@@ -95,7 +95,7 @@ class Eol_v3_API
                     */
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
-                    $taxon_concept_id = 46564415; //debug only - force assign
+                    // $taxon_concept_id = 46564415; //debug only - force assign
                     self::api_using_tc_id($taxon_concept_id, $rek['canonicalName']);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
                     // exit("\njust run 1 species\n");
@@ -111,10 +111,11 @@ class Eol_v3_API
         if($json = Functions::lookup_with_cache($this->api['Pages'].$taxon_concept_id, $this->download_options)) {
             $arr = json_decode($json, true);
             $stats = self::compute_totals($arr, $taxon_concept_id);
-            $stats['richness_score'] = self::compute_richness_score($stats);
-            $stats['EOLid'] = $taxon_concept_id;
-            $stats['canonicalName'] = $sciname;
-            self::write_to_txt_file($stats);
+            if($GLOBALS['ENV_DEBUG']) print_r($stats);
+            $ret = self::compute_richness_score($stats);
+            $ret['EOLid'] = $taxon_concept_id;
+            $ret['canonicalName'] = $sciname;
+            self::write_to_txt_file($ret);
             return;
 
             /* Not needed for current stats requirements: DATA-1807 - as of Jul 3, 2019
@@ -171,24 +172,24 @@ class Eol_v3_API
         $G = $s['media_counts']['Map'] + $s['GBIF_map'];
         $H = $s['unique_languages_of_vernaculars'];
         // R=(A/20 with a max of 1)(C/8 with a max of 1)(D/10 with a max of 1)(G/2 with a max of 1)(H/10 with a max of 1)+5*(F/12 with a max of 1)
-        if($A >= 20) $A = 1;
-        else         $A = $A/20;
-        if($C >= 8) $C = 1;
-        else         $C = $C/8;
-        if($D >= 10) $D = 1;
-        else         $D = $D/10;
-        if($G >= 2) $G = 1;
-        else         $G = $G/2;
-        if($H >= 10) $H = 1;
-        else         $H = $H/10;
-        if($F >= 12) $F = 1;
-        else         $F = $F/12;
-        $R=($A)*($C)*($D)*($G)*($H)+(5*($F));
-        return $R;
+        if($A >= 20) $nA = 1;
+        else         $nA = $A/20;
+        if($C >= 8) $nC = 1;
+        else         $nC = $C/8;
+        if($D >= 10) $nD = 1;
+        else         $nD = $D/10;
+        if($G >= 2) $nG = 1;
+        else         $nG = $G/2;
+        if($H >= 10) $nH = 1;
+        else         $nH = $H/10;
+        if($F >= 12) $nF = 1;
+        else         $nF = $F/12;
+        $R=($nA)*($nC)*($nD)*($nG)*($nH)+(5*($nF));
+        return array('A' => $A, 'B' => $B, 'C' => $C, 'D' => $D, 'E' => $E, 'F' => $F, 'G' => $G, 'H' => $H, 'R' => $R);
     }
-    private function write_to_txt_file($stats)
+    private function write_to_txt_file($s)
     {
-        if($GLOBALS['ENV_DEBUG']) print_r($stats);
+        if($GLOBALS['ENV_DEBUG']) print_r($s);
     }
     private function compute_totals($arr, $taxon_concept_id)
     {   /*Array(
@@ -218,10 +219,7 @@ class Eol_v3_API
             'unique_languages_of_articles' => 0,
             'unique_languages_of_vernaculars' => 0,
             'traits' => array(),
-            'GBIF_map' => 0,
-            'richness_score' => '',
-            'EOLid' => '',
-            'canonicalName' => '');
+            'GBIF_map' => 0);
         if($objects = @$arr['taxonConcept']['dataObjects']) {
             $totals['media_counts'] = self::get_media_counts($objects, $taxon_concept_id);
             $ret = self::get_unique_subjects_and_languages_from_articles($objects, $taxon_concept_id);
