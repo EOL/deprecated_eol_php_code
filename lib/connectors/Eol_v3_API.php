@@ -51,7 +51,22 @@ class Eol_v3_API
         // /* normal operation NEW
         if(Functions::is_production()) $path = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
         else                           $path = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
-        self::process_all_eol_taxa_using_DH($path); return; //make use of Katja's EOL DH with EOL Page IDs -- good choice
+        
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score.txt';
+        $this->WRITE = Functions::file_open($filename, "w");
+        fwrite($this->WRITE, 'A- number of non-map media'."\n");
+        fwrite($this->WRITE, 'B- number of articles'."\n");
+        fwrite($this->WRITE, 'C- number of different Subjects represented by the articles'."\n");
+        fwrite($this->WRITE, 'D- number of languages represented by the articles'."\n");
+        fwrite($this->WRITE, 'E- number of trait records'."\n");
+        fwrite($this->WRITE, 'F- number of measurementTypes represented by the trait records'."\n");
+        fwrite($this->WRITE, 'G- number of maps, including GBIF'."\n");
+        fwrite($this->WRITE, 'H- number of languages represented among the common names'."\n\n");
+        $arr = array('EOLid', 'canonicalName', 'Richness Score', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
+        fwrite($this->WRITE, implode("\t", $arr)."\n");
+        self::process_all_eol_taxa_using_DH($path); //make use of Katja's EOL DH with EOL Page IDs -- good choice
+        fclose($this->WRITE);
+        return;
         // */                                               //https://opendata.eol.org/dataset/tram-580-581/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6                            
         
         /* tests
@@ -99,7 +114,8 @@ class Eol_v3_API
                     self::api_using_tc_id($taxon_concept_id, $rek['canonicalName']);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
                     // exit("\njust run 1 species\n");
-                    break; //debug only - run just 1 species
+                    // break;
+                    if($found >= 100) break; //debug only - run just 1 species
                 }
             }
             // if($i >= 5) break; //debug only
@@ -181,12 +197,15 @@ class Eol_v3_API
         else         $nH = $H/10;
         if($F >= 12) $nF = 1;
         else         $nF = $F/12;
-        $R=($nA)*($nC)*($nD)*($nG)*($nH)+(5*($nF));
+        $R = ($nA)*($nC)*($nD)*($nG)*($nH)+(5*($nF));
+        $R = number_format($R, 2);
         return array('A' => $A, 'B' => $B, 'C' => $C, 'D' => $D, 'E' => $E, 'F' => $F, 'G' => $G, 'H' => $H, 'R' => $R);
     }
     private function write_to_txt_file($s)
     {
         if($GLOBALS['ENV_DEBUG']) print_r($s);
+        $arr = array($s['EOLid'], $s['canonicalName'], $s['R'], $s['A'], $s['B'], $s['C'], $s['D'], $s['E'], $s['F'], $s['G'], $s['H']);
+        fwrite($this->WRITE, implode("\t", $arr)."\n");
     }
     private function compute_totals($arr, $taxon_concept_id)
     {   /*Array(
@@ -217,6 +236,11 @@ class Eol_v3_API
             'unique_languages_of_vernaculars' => 0,
             'traits' => array(),
             'GBIF_map' => 0);
+        $totals['media_counts'] = Array( //initialize
+            'Text' => 0,
+            'StillImage' => 0,
+            'MovingImage' => 0,
+            'Map' => 0);
         if($objects = @$arr['taxonConcept']['dataObjects']) {
             $totals['media_counts'] = self::get_media_counts($objects, $taxon_concept_id);
             $ret = self::get_unique_subjects_and_languages_from_articles($objects, $taxon_concept_id);
