@@ -158,9 +158,6 @@ class Eol_v3_API
                     [total mtypes] => 33
                 )
             [GBIF_map] => 
-            [richness_score] => 
-            [EOLid] => 46564415
-            [canonicalName] => Eucoila siphonophorae
         )
         */
         $A = $s['media_counts']['StillImage'] - $s['media_counts']['Map'];
