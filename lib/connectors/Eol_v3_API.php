@@ -142,7 +142,6 @@ class Eol_v3_API
         F- number of measurementTypes represented by the trait records
         G- number of maps, including GBIF
         H- number of languages represented among the common names
-        R=(A/20 with a max of 1)(C/8 with a max of 1)(D/10 with a max of 1)(G/2 with a max of 1)(H/10 with a max of 1)+5*(F/12 with a max of 1)
         Array(
             [media_counts] => Array(
                     [Text] => 82
@@ -171,6 +170,21 @@ class Eol_v3_API
         $F = $s['traits']['total mtypes'];
         $G = $s['media_counts']['Map'] + $s['GBIF_map'];
         $H = $s['unique_languages_of_vernaculars'];
+        // R=(A/20 with a max of 1)(C/8 with a max of 1)(D/10 with a max of 1)(G/2 with a max of 1)(H/10 with a max of 1)+5*(F/12 with a max of 1)
+        if($A >= 20) $A = 1;
+        else         $A = $A/20;
+        if($C >= 8) $C = 1;
+        else         $C = $C/8;
+        if($D >= 10) $D = 1;
+        else         $D = $D/10;
+        if($G >= 2) $G = 1;
+        else         $G = $G/2;
+        if($H >= 10) $H = 1;
+        else         $H = $H/10;
+        if($F >= 12) $F = 1;
+        else         $F = $F/12;
+        $R=($A)*($C)*($D)*($G)*($H)+(5*($F));
+        return $R;
     }
     private function write_to_txt_file($stats)
     {
