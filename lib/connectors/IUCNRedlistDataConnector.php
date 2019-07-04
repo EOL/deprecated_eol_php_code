@@ -40,12 +40,12 @@ class IUCNRedlistDataConnector
                                   "LR/cd" => "Lower Risk/conservation dependent (LR/cd)");
         $this->iucn_taxon_page = "http://www.iucnredlist.org/apps/redlist/details/";
 
-        // /*
+        /*
         // stats only. Also use to generate names_no_entry_from_partner.txt, which happens maybe twice a year.
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->names_no_entry_from_partner_dump_file = $this->TEMP_DIR . "names_no_entry_from_partner.txt";
         $WRITE = Functions::file_open($this->names_no_entry_from_partner_dump_file, "w"); fclose($WRITE); //initialize
-        // */
+        */
         
         /* Below here is used to replace the CSV export file. Using API now
         https://eol-jira.bibalex.org/browse/DATA-1813
@@ -66,7 +66,7 @@ class IUCNRedlistDataConnector
             self::process_species_list_10k_batch($url, "$i of $total_page_no");
             // break; //debug only
         }
-        echo "\nnames_no_entry_from_partner_dump_file: $this->names_no_entry_from_partner_dump_file\n";
+        if(isset($this->names_no_entry_from_partner_dump_file)) echo "\nnames_no_entry_from_partner_dump_file: $this->names_no_entry_from_partner_dump_file\n";
     }
     private function process_species_list_10k_batch($url, $msg)
     {
@@ -94,15 +94,15 @@ class IUCNRedlistDataConnector
                 [category] => CR
             )
             */
-            // if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue; //will un-comment after generating dump file
+            if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue; //will un-comment after generating dump file
             if($taxon = $func->get_taxa_for_species(null, $rec->taxonid)) {
                 $this->create_instances_from_taxon_object($taxon);
                 $this->process_profile_using_xml($taxon);
             }
             else {
                 debug("\n no result for: " . $rec->taxonid . "\n");
-                // /* for stats only. See above reminder. Comment this line if there is no need to update text file.
-                self::save_to_dump($rec->taxonid, $this->names_no_entry_from_partner_dump_file); 
+                // /* See above reminder about 'names_no_entry_from_partner'
+                if(isset($this->names_no_entry_from_partner_dump_file)) self::save_to_dump($rec->taxonid, $this->names_no_entry_from_partner_dump_file); 
                 // */
             }
             // if($i >= 8) break; //debug only
