@@ -95,7 +95,7 @@ class Eol_v3_API
                     */
                     //==================
                     $taxon_concept_id = $rek['EOLid'];
-                    // $taxon_concept_id = 46564415; //debug only - force assign
+                    $taxon_concept_id = 46564415; //debug only - force assign
                     self::api_using_tc_id($taxon_concept_id, $rek['canonicalName']);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['canonicalName']."][tc_id = $taxon_concept_id]";
                     // exit("\njust run 1 species\n");
@@ -203,10 +203,7 @@ class Eol_v3_API
             'unique_subjects_of_articles' => 0,
             'unique_languages_of_articles' => 0,
             'unique_languages_of_vernaculars' => 0,
-            'traits' => Array(
-                    'total traits' => 0,
-                    'total mtypes' => 0
-                ),
+            'traits' => array(),
             'GBIF_map' => 0,
             'richness_score' => '',
             'EOLid' => '',
