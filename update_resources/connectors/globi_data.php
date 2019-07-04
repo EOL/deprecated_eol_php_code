@@ -19,7 +19,7 @@ $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/Taxon', 'http://eol.or
 $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
 
 $func->convert_archive($preferred_rowtypes);
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, true, true);
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
