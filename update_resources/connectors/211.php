@@ -21,6 +21,8 @@ media_resource.tab                  506828
 reference.tab                       9804
 taxon.tab                           129835
 vernacular_name.tab                 71221
+
+211	Friday 2019-07-05 12:01:15 PM	{"agent.tab":12591,"media_resource.tab":506828,"reference.tab":9804,"taxon.tab":129834,"vernacular_name.tab":77416}
 */
 
 // create new _temp file
