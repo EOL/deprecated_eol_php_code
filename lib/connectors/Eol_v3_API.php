@@ -184,7 +184,7 @@ class Eol_v3_API
         $F = $s['traits']['total mtypes'];
         $G = $s['media_counts']['Map'] + $s['GBIF_map'];
         $H = $s['unique_languages_of_vernaculars'];
-        // R=(A/20 with a max of 1)(C/8 with a max of 1)(D/10 with a max of 1)(G/2 with a max of 1)(H/10 with a max of 1)+5*(F/12 with a max of 1)
+        // R=(A/20 with a max of 1) + (C/8 with a max of 1) + (D/10 with a max of 1) + (G/2 with a max of 1) + (H/10 with a max of 1)+5*(F/12 with a max of 1)
         if($A >= 20) $nA = 1;
         else         $nA = $A/20;
         if($C >= 8) $nC = 1;
@@ -197,7 +197,7 @@ class Eol_v3_API
         else         $nH = $H/10;
         if($F >= 12) $nF = 1;
         else         $nF = $F/12;
-        $R = ($nA)*($nC)*($nD)*($nG)*($nH)+(5*($nF));
+        $R = ($nA)+($nC)+($nD)+($nG)+($nH)+(5*($nF));
         $R = number_format($R, 2);
         return array('A' => $A, 'B' => $B, 'C' => $C, 'D' => $D, 'E' => $E, 'F' => $F, 'G' => $G, 'H' => $H, 'R' => $R);
     }
