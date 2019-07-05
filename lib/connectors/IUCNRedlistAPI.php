@@ -228,7 +228,7 @@ class IUCNRedlistAPI
         
         $taxon_parameters = array();
         $taxon_parameters['identifier'] = $species_id;
-        $taxon_parameters['source'] = "http://www.iucnredlist.org/apps/redlist/details/" . $species_id;
+        // $taxon_parameters['source'] = "http://www.iucnredlist.org/apps/redlist/details/" . $species_id; //obsolete. Replaced by one below
         
         $element = $xpath->query("//div[@id='x_taxonomy']//div[@id='kingdom']");
         $taxon_parameters['kingdom'] = @ucfirst(strtolower(trim($element->item(0)->nodeValue)));
@@ -247,6 +247,8 @@ class IUCNRedlistAPI
         
         $element = $xpath->query("//h1[@id='scientific_name']");
         $scientific_name = @$element->item(0)->nodeValue;
+        
+        $taxon_parameters['source'] = "http://apiv3.iucnredlist.org/api/v3/website/".$scientific_name; //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
         
         $element = $xpath->query("//div[@id='x_taxonomy']//div[@id='species_authority']");
         $species_authority = @$element->item(0)->nodeValue;
