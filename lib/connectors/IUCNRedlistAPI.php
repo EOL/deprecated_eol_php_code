@@ -44,7 +44,6 @@ class IUCNRedlistAPI
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //expires in 3 months - orig value. NO sched yet in harvest frequency
         // $this->download_options['expire_seconds'] = false; //debug only
     }
-    
     public function get_taxon_xml($resource_file = null, $type = null)
     {
         $GLOBALS['language_to_iso_code'] = Functions::language_to_iso_code();
@@ -52,7 +51,6 @@ class IUCNRedlistAPI
         else                                  $taxa = self::get_all_taxa($resource_file); //seems for birdlife only
         return $taxa;
     }
-    
     private function get_all_taxa_v2($resource_file = null) // this is using the IUCN CSV export
     {
         $names_no_entry_from_partner = self::get_names_no_entry_from_partner();
@@ -66,8 +64,7 @@ class IUCNRedlistAPI
         $taxon_ids = self::csv_to_array($text_path[$basename]);
         $all_taxa = array();
         $i = 0;
-        foreach($taxon_ids as $taxon_id)
-        {
+        foreach($taxon_ids as $taxon_id) {
             $i++;
             if(($i % 1000) == 0) echo "\nbatch $i";
             
@@ -98,18 +95,15 @@ class IUCNRedlistAPI
         echo "\n temporary directory removed: " . $parts["dirname"];
         return $all_taxa;
     }
-
     private function csv_to_array($csv_file)
     {
         $taxon_ids = array();
         $i = 0;
         if(!($file = Functions::file_open($csv_file, "r"))) return;
-        while(!feof($file))
-        {
+        while(!feof($file)) {
             $temp = fgetcsv($file);
             $i++;
-            if($i > 1)
-            {
+            if($i > 1) {
                 if(!$temp) continue;
                 if(count($temp) != 23) continue;
                 $taxon_ids[$temp[0]] = 1;
@@ -118,23 +112,19 @@ class IUCNRedlistAPI
         fclose($file);
         return array_keys($taxon_ids);
     }
-
     private function load_zip_contents($zip_path, $download_options, $files, $extension)
     {
         $text_path = array();
         $temp_path = create_temp_dir();
-        if($file_contents = Functions::lookup_with_cache($zip_path, $download_options))
-        {
+        if($file_contents = Functions::lookup_with_cache($zip_path, $download_options)) {
             $parts = pathinfo($zip_path);
             $temp_file_path = $temp_path . "/" . $parts["basename"];
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip -o $temp_file_path -d $temp_path");
-            if(file_exists($temp_path . "/" . $files[0] . $extension))
-            {
-                foreach($files as $file)
-                {
+            if(file_exists($temp_path . "/" . $files[0] . $extension)) {
+                foreach($files as $file) {
                     $text_path[$file] = $temp_path . "/" . $file . $extension;
                 }
             }
@@ -142,7 +132,6 @@ class IUCNRedlistAPI
         else echo "\n\n Connector terminated. Remote files are not ready.\n\n";
         return $text_path;
     }
-
     public static function get_all_taxa($resource_file = null)
     {
         $GLOBALS['birdlife_names'] = self::parse_birdlife_checklist();
@@ -154,13 +143,11 @@ class IUCNRedlistAPI
         
         $used = array();
         $all_taxa = array();
-        if(file_exists($species_list_path))
-        {
+        if(file_exists($species_list_path)) {
             $species_list = json_decode(file_get_contents($species_list_path));
             $i = 0;
             // shuffle($species_list);
-            foreach($species_list as $species_json)
-            {
+            foreach($species_list as $species_json) {
                 if(isset($used[$species_json->species_id])) continue;
                 $used[$species_json->species_id] = 1;
                 
@@ -178,12 +165,10 @@ class IUCNRedlistAPI
                 $taxon_xml = preg_replace("/\xE3\x80/", "À", $taxon_xml);
                 if($resource_file) fwrite($resource_file, $taxon_xml);
                 else $all_taxa[] = $taxon;
-                
             }
         }
         return $all_taxa;
     }
-    
     public function get_taxa_for_species($species_json, $species_id = NULL)
     {
         if($species_json) $species_id = $species_json->species_id;
@@ -207,8 +192,7 @@ class IUCNRedlistAPI
         $details_html = str_replace("& ", "&amp; ", $details_html);
         $details_html = preg_replace("/<([0-9])/", "&lt;\\1", $details_html);
         
-        if(preg_match("/^(.*<div id='citation'>)(.*?)(<\/div>.*)$/ims", $details_html, $arr))
-        {
+        if(preg_match("/^(.*<div id='citation'>)(.*?)(<\/div>.*)$/ims", $details_html, $arr)) {
             $arr[2] = str_replace("\n", " ", $arr[2]);
             $arr[2] = str_replace("\r", " ", $arr[2]);
             $arr[2] = str_replace("\t", " ", $arr[2]);
@@ -257,14 +241,12 @@ class IUCNRedlistAPI
         
         $taxon_parameters['commonNames'] = array();
         $common_name_languages = $xpath->query("//ul[@id='common_names']//div[@class='lang']");
-        foreach($common_name_languages as $language_list)
-        {
+        foreach($common_name_languages as $language_list) {
             $language = $language_list->nodeValue;
             $language_names = $xpath->query("//ul[@id='common_names']/li[@class='x_lang' and div = '$language']//li[@class='name']");
             
             if(isset($GLOBALS['language_to_iso_code'][$language])) $language = $GLOBALS['language_to_iso_code'][$language];
-            foreach($language_names as $language_name)
-            {
+            foreach($language_names as $language_name) {
                 $common_name = @ucfirst(strtolower(trim($language_name->nodeValue)));
                 $common_name = utf8_encode($common_name);
                 $common_name = utf8_decode($common_name);
@@ -274,18 +256,13 @@ class IUCNRedlistAPI
         
         $taxon_parameters['synonyms'] = array();
         $synonyms = $xpath->query("//ul[@id='synonyms']//li[@class='synonym']");
-        foreach($synonyms as $synonym_node)
-        {
+        foreach($synonyms as $synonym_node) {
             $synonym = trim($synonym_node->nodeValue);
             $taxon_parameters['synonyms'][] = new \SchemaSynonym(array('synonym' => $synonym, 'relationship' => 'synonym'));
         }
         
-        
-        
-        
         list($agents, $citation) = self::get_agents_and_citation($dom_doc, $xpath);
-        if(preg_match("/^(BirdLife International [12][0-9]{3}\. <i>(.*?)<\/i>)/", $citation, $arr))
-        {
+        if(preg_match("/^(BirdLife International [12][0-9]{3}\. <i>(.*?)<\/i>)/", $citation, $arr)) {
             $birdlife_url = self::get_birdlife_url($arr[2]);
             $reference_parameters = array();
             $reference_parameters['fullReference'] = $arr[1];
@@ -320,7 +297,6 @@ class IUCNRedlistAPI
         // echo $taxon->__toXML();
         return $taxon;
     }
-    
     public static function get_text_section($dom_doc, $xpath, $species_id, $div_id, $subject, $agents, $citation, $title = null)
     {
         $element = $xpath->query("//div[@id='$div_id']");
@@ -330,8 +306,7 @@ class IUCNRedlistAPI
         $section_title = $div_id;
         
         if(preg_match("/^<div.*?>(.*)<\/div>$/ims", $section_html, $arr)) $section_html = trim($arr[1]);
-        if(preg_match("/^<h2>(.*?)<\/h2>(.*)$/ims", $section_html, $arr))
-        {
+        if(preg_match("/^<h2>(.*?)<\/h2>(.*)$/ims", $section_html, $arr)) {
             $section_title = trim($arr[1]);
             $section_html = trim($arr[2]);
         }
@@ -347,13 +322,11 @@ class IUCNRedlistAPI
         $section_html = str_replace("<span style=\"background-color: black;\"/>", "", $section_html);
         $section_html = preg_replace("/^<p><br\/><\/p>/", "", $section_html);
         
-        if($section_html)
-        {
+        if($section_html) {
             $section_html = str_ireplace("background-color: yellow", "", $section_html); // will remove the weird yellow background
             $section_html = utf8_encode($section_html);
             $section_html = utf8_decode($section_html);
-            if(!Functions::is_utf8($section_html))
-            {
+            if(!Functions::is_utf8($section_html)) {
                 echo "\n\n[-not utf8-]";
                 echo "\n\n[$section_html]\n\n";
                 return null;
@@ -379,7 +352,6 @@ class IUCNRedlistAPI
         }
         return null;
     }
-    
     public static function get_redlist_status($dom_doc, $xpath, $species_id)
     {
         $element = $xpath->query("//div[@id='x_category_and_criteria']//div[@id='red_list_category_title']");
@@ -404,10 +376,8 @@ class IUCNRedlistAPI
         $object_parameters['rightsHolder'] = "International Union for Conservation of Nature and Natural Resources";
         $object_parameters['source'] = "http://www.iucnredlist.org/apps/redlist/details/" . $species_id;
         $object_parameters['subjects'] = array(new \SchemaSubject(array('label' => 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus')));
-        
         return new \SchemaDataObject($object_parameters);
     }
-    
     public static function get_agents_and_citation($dom_doc, $xpath)
     {
         $element = $xpath->query("//div[@id='x_citation']//div[@id='citation']");
@@ -416,8 +386,7 @@ class IUCNRedlistAPI
         if(preg_match("/^(.*)\. Downloaded on .*/ims", trim($citation), $arr)) $citation = $arr[1];
         
         $agents = array();
-        if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr))
-        {
+        if(preg_match("/^(.*?) [0-9]{4}\. +<i>/", $citation, $arr)) {
             $all_authors = $arr[1];
             $agents[] = new \SchemaAgent(array('fullName' => $all_authors, 'role' => 'author'));
         }
@@ -428,7 +397,6 @@ class IUCNRedlistAPI
         
         return array($agents, $citation);
     }
-    
     public function get_names_no_entry_from_partner()
     {
         $names = array();
@@ -442,16 +410,13 @@ class IUCNRedlistAPI
         unlink($local);
         return array_keys($names);
     }
-    
     public static function parse_birdlife_checklist()
     {
         $birdlife_checklist_path = DOC_ROOT . "update_resources/connectors/files/BirdLife_Checklist_Version_4.txt";
         $birdlife_names = array();
         $birdlife_synonyms = array();
-        if(file_exists($birdlife_checklist_path))
-        {
-            foreach(new FileIterator($birdlife_checklist_path) as $line_number => $line)
-            {
+        if(file_exists($birdlife_checklist_path)) {
+            foreach(new FileIterator($birdlife_checklist_path) as $line_number => $line) {
                 // echo "$line_number - $line\n";
                 if($line_number < 2) continue;
                 $columns = explode("\t", $line);
@@ -461,11 +426,9 @@ class IUCNRedlistAPI
                 if(!$id) continue;
                 $birdlife_names[strtolower($scientific_name)] = $id;
 
-                if($synonyms)
-                {
+                if($synonyms) {
                     $synonyms = explode(";", $synonyms);
-                    foreach($synonyms as $synonym)
-                    {
+                    foreach($synonyms as $synonym) {
                         $synonym = preg_replace("/\(.*?\)/", "", trim($synonym));
                         if(!$synonym) continue;
                         echo "$synonym : $id\n";
@@ -478,15 +441,13 @@ class IUCNRedlistAPI
         ksort($birdlife_synonyms);
         return array($birdlife_names, $birdlife_synonyms);
     }
-    
     public function get_birdlife_url($taxon_name)
     {
         $taxon_name = strtolower($taxon_name);
-        if(isset($GLOBALS['birdlife_names'][0][$taxon_name]))
-        {
+        if(isset($GLOBALS['birdlife_names'][0][$taxon_name])) {
             return "http://www.birdlife.org/datazone/speciesfactsheet.php?id=" . $GLOBALS['birdlife_names'][0][$taxon_name];
-        }elseif(isset($GLOBALS['birdlife_names'][1][$taxon_name]))
-        {
+        }
+        elseif(isset($GLOBALS['birdlife_names'][1][$taxon_name])) {
             return "http://www.birdlife.org/datazone/speciesfactsheet.php?id=" . $GLOBALS['birdlife_names'][1][$taxon_name];
         }
     }
