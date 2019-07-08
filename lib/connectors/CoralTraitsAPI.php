@@ -27,6 +27,7 @@ class CoralTraitsAPI
         //new
         $this->additional_mapping = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/18Apr2019/adjust_coraltraits_mapping.xlsx';
     }
+    /* ========================================= START additional task ======================================= */
     private function get_addtl_mapping()
     {
         $sheet_no = 'Sheet1';
@@ -111,7 +112,7 @@ class CoralTraitsAPI
         if($records = @$this->addtl[$rek['measurementType']]) {
             foreach($records as $record) {
                 $record = array_map('trim', $record);
-                /*
+                /* blank means CRITERIA IS VALUE SHOULD BE BLANK AS WELL
                 if($rek['measurementType'] == $record['measurementType'] && 
                    $rek['measurementMethod'] == $record['measurementMethod'] && 
                    $rek['measurementUnit'] == $record['measurementUnit']) {
@@ -123,16 +124,13 @@ class CoralTraitsAPI
                        return $rek;
                 }
                 */
-                
-                if($rek['measurementType'] == $record['measurementType']) {
-                    
+                if($rek['measurementType'] == $record['measurementType']) { //blank means CRITERIA IS ANY VALUE INCLUDING BLANK
                     if($val = $record['measurementMethod']) {
                         if($rek['measurementMethod'] != $val) continue;
                     }
                     if($val = $record['measurementUnit']) {
                         if($rek['measurementUnit'] != $val) continue;
                     }
-                    
                     if($val = $record['correct measurementType']) $rek['measurementType'] = $val;
                     if($val = $record['correct statisticalMethod']) $rek['statisticalMethod'] = $val;
                     if($val = $record['add lifeStage']) $rek['lifeStage'] = $val;
@@ -140,17 +138,15 @@ class CoralTraitsAPI
                     @$this->debug['addtl event']++;
                     return $rek;
                 }
-                
-            }
+            } //end foreach
         }
         return $rek;
     }
+    /* ========================================= END additional task ======================================= */
     function start()
     {
-        // /*
-        $this->addtl = self::get_addtl_mapping();
-        // print_r($addtl);
-        // exit("\nstop muna\n");
+        // /* From: https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=63392&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63392
+        $this->addtl = self::get_addtl_mapping(); // print_r($addtl);
         // */
         
         require_library('connectors/TraitGeneric');
