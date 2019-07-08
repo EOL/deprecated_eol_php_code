@@ -22,6 +22,8 @@ eol-archive
 24	Wednesday 2018-08-15 07:50:31 AM{"agent.tab":158,"measurement_or_fact.tab":1133522,"media_resource.tab":169091,"occurrence.tab":1108999,"taxon.tab":16722}
 24	Saturday 2018-09-15 01:28:20 AM	{"agent.tab":158,                                  "media_resource.tab":169091,                         "taxon.tab":16054}
 24	Monday 2018-10-15 01:28:17 AM	{"agent.tab":158,                                  "media_resource.tab":169091,                         "taxon.tab":16054}
+Tried it again after a few months, still API is down:
+24	Monday 2019-07-08 05:49:34 AM	{"agent.tab":158,                                  "media_resource.tab":169091,                         "taxon.tab":16054} their API is still down
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
