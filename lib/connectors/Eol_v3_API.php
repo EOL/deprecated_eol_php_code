@@ -68,6 +68,7 @@ class Eol_v3_API
         fclose($this->WRITE);
         $destination = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score_'.str_replace(' ', '_', date('Y-m-d', time())).'.txt'; //h:i:s a
         if(!copy($filename, $destination)) echo "\nFailed to copy $filename...\n";
+                                           echo "\nSaved: [$filename]\nTo: [$destination]\n";
         return;
         // */                                               //https://opendata.eol.org/dataset/tram-580-581/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6                            
         
