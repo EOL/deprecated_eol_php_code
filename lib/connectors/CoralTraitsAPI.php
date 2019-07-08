@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [coraltraits.php] */
+/* connector: [coral_traits.php] */
 class CoralTraitsAPI
 {
     function __construct($folder = NULL, $dwca_file = NULL)
@@ -24,9 +24,135 @@ class CoralTraitsAPI
         
         $this->source                = "https://coraltraits.org/species/";
         $this->bibliographicCitation = "Madin, Joshua (2016): Coral Trait Database 1.1.1. figshare. Dataset. https://doi.org/10.6084/m9.figshare.2067414.v1";
+        //new
+        $this->additional_mapping = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Coraltraits/18Apr2019/adjust_coraltraits_mapping.xlsx';
+    }
+    private function get_addtl_mapping()
+    {
+        $sheet_no = 'Sheet1';
+        $options = $this->download_options;
+        $options['file_extension'] = 'xlsx';
+        // $options['expire_seconds'] = 0; //debug only
+        $local_xls = Functions::save_remote_file_to_local($this->additional_mapping, $options);
+        require_library('XLSParser'); $parser = new XLSParser();
+        debug("\n reading: " . $local_xls . "\n");
+        $map = $parser->convert_sheet_to_array($local_xls);
+        $fields = array_keys($map);
+        // print_r($map); print_r($fields); exit;
+        // foreach($fields as $field) echo "\n$field: ".count($map[$field]); //debug only
+        $i = -1; $final = array();
+        foreach($map[$fields[0]] as $var) {
+            $i++; $rec = array();
+            foreach($fields as $fld) $rec[$fld] = $map[$fld][$i];
+            $final[$rec[$fields[0]]][] = $rec;
+        }
+        unlink($local_xls); // print_r($final); exit;
+        return $final;
+    }
+    private function implement_addtl_mapping($rek)
+    {
+        // print_r($rek);
+        /* $rek e.g. Array(
+            [taxon_id] => 1269
+            [catnum] => 
+            [occur] => Array(
+                    [occurrenceID] => 
+                )
+            [parentMeasurementID] => 4e2ebd9e94d0375cc658222379528e0a_cotr
+            [statisticalMethod] => http://www.ebi.ac.uk/efo/EFO_0001444
+            [measurementUnit] => 
+            [measurementRemarks] => 
+            [measurementMethod] => (raw_value)
+            [measurementType] => http://rs.tdwg.org/dwc/terms/eventDate
+            [measurementValue] => Jan-May
+        )
+        */
+        /* $rek e.g. Array(
+            [occur] => Array(
+                    [taxonID] => 274
+                    [occurrenceID] => 17667
+                    [locality] => Global estimate
+                    [decimalLatitude] => 
+                    [decimalLongitude] => 
+                )
+            [statisticalMethod] => 
+            [lifeStage] => 
+            [bodyPart] => 
+            [measurementRemarks] => 
+            [locality] => 
+            [GO_0007626] => 
+            [NCIT_C70589] => 
+            [measurementUnit] => 
+            [SampleSize] => 
+            [taxon_id] => 274
+            [catnum] => _http://www.wikidata.org/entity/Q50621879
+            [measurementMethod] => Derived from textual description (expert_opinion)
+            [referenceID] => 40
+            [measurementType] => http://eol.org/schema/terms/TrophicGuild
+            [measurementValue] => http://www.wikidata.org/entity/Q50621879
+            [source] => https://coraltraits.org/species/274
+            [bibliographicCitation] => Madin, Joshua (2016): Coral Trait Database 1.1.1. figshare. Dataset. https://doi.org/10.6084/m9.figshare.2067414.v1
+        )
+        e.g. $this->addtl[measurementType]
+        Array(
+            [http://eol.org/schema/terms/coralliteWidth] => Array(
+                    [0] => Array(
+                            [measurementType] => http://eol.org/schema/terms/coralliteWidth
+                            [measurementMethod] => 
+                            [measurementUnit] => 
+                            [THEN] => THEN
+                            [correct measurementType] => 
+                            [correct statisticalMethod] => 
+                            [add lifeStage] => 
+                            [add bodyPart] => https://www.wikidata.org/entity/Q689884
+                        )
+                )
+        */
+        if($records = @$this->addtl[$rek['measurementType']]) {
+            foreach($records as $record) {
+                $record = array_map('trim', $record);
+                /*
+                if($rek['measurementType'] == $record['measurementType'] && 
+                   $rek['measurementMethod'] == $record['measurementMethod'] && 
+                   $rek['measurementUnit'] == $record['measurementUnit']) {
+                       if($val = $record['correct measurementType']) $rek['measurementType'] = $val;
+                       if($val = $record['correct statisticalMethod']) $rek['statisticalMethod'] = $val;
+                       if($val = $record['add lifeStage']) $rek['lifeStage'] = $val;
+                       if($val = $record['add bodyPart']) $rek['bodyPart'] = $val;
+                       @$this->debug['addtl event']++;
+                       return $rek;
+                }
+                */
+                
+                if($rek['measurementType'] == $record['measurementType']) {
+                    
+                    if($val = $record['measurementMethod']) {
+                        if($rek['measurementMethod'] != $val) continue;
+                    }
+                    if($val = $record['measurementUnit']) {
+                        if($rek['measurementUnit'] != $val) continue;
+                    }
+                    
+                    if($val = $record['correct measurementType']) $rek['measurementType'] = $val;
+                    if($val = $record['correct statisticalMethod']) $rek['statisticalMethod'] = $val;
+                    if($val = $record['add lifeStage']) $rek['lifeStage'] = $val;
+                    if($val = $record['add bodyPart']) $rek['bodyPart'] = $val;
+                    @$this->debug['addtl event']++;
+                    return $rek;
+                }
+                
+            }
+        }
+        return $rek;
     }
     function start()
     {
+        // /*
+        $this->addtl = self::get_addtl_mapping();
+        // print_r($addtl);
+        // exit("\nstop muna\n");
+        // */
+        
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::load_zip_contents();
@@ -199,6 +325,10 @@ class CoralTraitsAPI
                 if(!@$this->meta['standard_unit'][$rec['standard_unit']]) $this->debug['undef unit']['C'][$rec['standard_unit']] = '';   //debug only - all 4 found are expected to have blank units
                 // */
                 
+                // /* NEW: additional mapping task from here: https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=63392&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63392
+                $rek = self::implement_addtl_mapping($rek);
+                // */
+                
                 $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], "child"); //for child measurement
             }
         }
@@ -320,6 +450,10 @@ class CoralTraitsAPI
 
         $rek['source'] = $this->source . $rec['specie_id'];
         $rek['bibliographicCitation'] = $this->bibliographicCitation;
+
+        // /* NEW: additional mapping task from here: https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=63392&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63392
+        $rek = self::implement_addtl_mapping($rek);
+        // */
 
         $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon); //main add trait
         $occurrenceID = $ret_MoT_true['occurrenceID'];
