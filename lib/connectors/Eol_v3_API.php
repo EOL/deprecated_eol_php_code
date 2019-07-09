@@ -35,7 +35,7 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
     }
-    function start()
+    function generate_stats()
     {   
         // /* will use to check if EOL id has GBIF map
         require_library('connectors/GBIFoccurrenceAPI_DwCA');
@@ -82,7 +82,7 @@ class Eol_v3_API
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         */
     }
-    private function process_all_eol_taxa_using_DH($path) //rows = 1,906,685 -> rank 'species' and with EOLid
+    function process_all_eol_taxa_using_DH($path, $purpose = 'main') //rows = 1,906,685 -> rank 'species' and with EOLid
     {
         $i = 0; $found = 0;
         foreach(new FileIterator($path) as $line => $row) {
@@ -99,6 +99,7 @@ class Eol_v3_API
                     // $debug[$rek['EOLid']] = '';
                     // print_r($rek); exit;
                     $found++;
+                    if($purpose == 'count only') continue;
                     //==================
                     /* right now this is manully being batched in Jenkins. I edit the code here, save, upload to eol-archive then run on Jenkins. Each of the 6 connectors are done that way.
                     $m = 317781; //1,906,685 diveded by 6
@@ -124,6 +125,7 @@ class Eol_v3_API
             // if($i >= 5) break; //debug only
         }
         // exit("\n".count($debug)."\n");
+        if($purpose == 'count only') return $found;
     }
     private function api_using_tc_id($taxon_concept_id, $sciname)
     {

@@ -8,7 +8,7 @@ $GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false ... especially in
 require_library('connectors/Eol_v3_API');
 $resource_id = 'eol';
 $func = new Eol_v3_API($resource_id);
-$func->start(); //normal operation
+$func->generate_stats(); //normal operation
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
