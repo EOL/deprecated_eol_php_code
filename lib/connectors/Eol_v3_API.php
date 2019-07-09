@@ -188,6 +188,7 @@ class Eol_v3_API
         $G = $s['media_counts']['Map'] + $s['GBIF_map'];
         $H = $s['unique_languages_of_vernaculars'];
         // R=(A/20 with a max of 1) + (C/8 with a max of 1) + (D/10 with a max of 1) + (G/2 with a max of 1) + (H/10 with a max of 1)+5*(F/12 with a max of 1)
+        // R=(A/20 with a max of 1) + (C/8 with a max of 1) + (D/10 with a max of 1) + (G/2 with a max of 1) + (H/10 with a max of 1)+3*(F/12 with a max of 1) +2 IF the page has at least one of each: map, non-map media, article and data record
         if($A >= 20) $nA = 1;
         else         $nA = $A/20;
         if($C >= 8) $nC = 1;
@@ -200,9 +201,22 @@ class Eol_v3_API
         else         $nH = $H/10;
         if($F >= 12) $nF = 1;
         else         $nF = $F/12;
-        $R = ($nA)+($nC)+($nD)+($nG)+($nH)+(5*($nF));
+        $R = ($nA)+($nC)+($nD)+($nG)+($nH)+(3*($nF));
+        if(self::page_has_at_least_one_of_each($G, $A, $B, $E)) $R = $R + 2;
         $R = number_format($R, 2);
         return array('A' => $A, 'B' => $B, 'C' => $C, 'D' => $D, 'E' => $E, 'F' => $F, 'G' => $G, 'H' => $H, 'R' => $R);
+    }
+    private function page_has_at_least_one_of_each($G, $A, $B, $E) // +2 IF the page has at least one of each: map, non-map media, article and data record
+    {
+        if($G >= 1) {}      //map
+        else return false;
+        if($A >= 1) {}      //non-map media
+        else return false;
+        if($B >= 1) {}      //article
+        else return false;
+        if($E >= 1) {}      //data record
+        else return false;
+        return true;
     }
     private function write_to_txt_file($s)
     {
