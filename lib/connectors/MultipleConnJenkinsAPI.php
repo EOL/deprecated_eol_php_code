@@ -28,7 +28,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
 
         $ctrler = new \freshdata_controller(array());
         ini_set('memory_limit','4096M');
-        $postfix = "_map_data";
+        $postfix = "_run";
 
         /* was never used here
         $server_http_host = $_SERVER['HTTP_HOST'];
@@ -44,7 +44,6 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             $ctr++;
             print_r($batch);
             $param = array();
-            $param['group'] = $group;
             $param['range'] = $batch;
             $param['ctr'] = $ctr;
             
@@ -52,8 +51,8 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             $json = json_encode($param, true);
             $params['uuid'] = time();
 
-            if    ($connector_task == "breakdown_GBIF_DwCA_file")               $cmd = PHP_PATH.' breakdown_GBIF_DwCA_file.php jenkins ' . "'" . $json . "'";
-            elseif($connector_task == "generate_map_data_using_GBIF_csv_files") $cmd = PHP_PATH.' generate_map_data_using_GBIF_csv_files.php jenkins ' . "'" . $json . "'";
+            if    ($connector == "eol_v3_api.php")  $cmd = PHP_PATH.' eol_v3_api.php jenkins ' . "'" . $json . "'";
+            elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
             // echo "\n$cmd\n";
             
