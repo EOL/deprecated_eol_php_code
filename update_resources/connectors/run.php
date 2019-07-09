@@ -11,7 +11,9 @@ $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
 /*
-php5.6 run.php _ '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
+php5.6                          run.php _ '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
+php update_resources/connectors/run.php _ '{"connector":"eol_v3_api.php", "divisor":3, "task":"initial"}'
+
 
 
 php5.6 run.php jenkins '{"task":'task_x',"range":[1,25952],"ctr":1}'
@@ -43,11 +45,13 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         */
         $total_count = 1906685;
         echo "\ntotal_count: $total_count\n";
-        $batches = $func->get_range_batches($total_count, $arr['divisor']);
+        
+        if($arr['divisor']) $batches = $func->get_range_batches($total_count, $arr['divisor']);
+        else                $batches[] = array(1, $total_count);
         print_r($batches);
         
         //start create temp group indicator files
-        for ($x = 1; $x <= $divisor; $x++) {
+        for ($x = 1; $x <= $arr['divisor']; $x++) {
             $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "part_EOL_stats_".$x.".txt", "w"); fclose($fhandle);
         }
         //end
