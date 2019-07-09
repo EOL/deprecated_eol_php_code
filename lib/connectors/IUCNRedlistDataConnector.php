@@ -96,7 +96,7 @@ class IUCNRedlistDataConnector
             */
             if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue; //will un-comment after generating dump file
             if($taxon = $func->get_taxa_for_species(null, $rec->taxonid)) {
-                $taxon->source = "http://apiv3.iucnredlist.org/api/v3/website/".urlencode($rec->scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
+                $taxon->source = "http://apiv3.iucnredlist.org/api/v3/website/".str_replace(' ', '%20', $rec->scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
                 $this->create_instances_from_taxon_object($taxon);
                 $this->process_profile_using_xml($taxon);
             }
