@@ -279,23 +279,24 @@ class IUCNRedlistDataConnector
             $val = self::format_category($val);
             $remarks = self::get_remarks_for_old_designation($val);
             $rec["catnum"] = "_rlc";
-            self::add_string_types("true", $rec, "Red List Category", $val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", $remarks);
+            $parentMeasurementID = self::add_string_types("true", $rec, "Red List Category", $val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", $remarks);
+
+            if($texts = @$details["texts"]) {
+                $text["red_list_criteria"]["uri"] = "http://eol.org/schema/terms/RedListCriteria";
+                $text["category_version"]["uri"] = "http://eol.org/schema/terms/Version";
+                $text["modified_year"]["uri"] = "http://rs.tdwg.org/dwc/terms/measurementDeterminedDate"; //"http://eol.org/schema/terms/DateMeasured";
+                $text["assessors"]["uri"] = "http://eol.org/schema/terms/Assessor";
+                $text["reviewers"]["uri"] = "http://eol.org/schema/terms/Reviewer";
+                $text["contributors"]["uri"] = "http://purl.org/dc/terms/contributor"; // similar to $m->contributor
+                foreach($texts as $key => $value) {
+                    if(!$value) continue;
+                    $rec["catnum"] = "_rlc"; // these fields will appear under "Data about this record".
+                    self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"], '', $parentMeasurementID);
+                }
+            }
+
         }
 
-        if($texts = @$details["texts"]) {
-            $text["red_list_criteria"]["uri"] = "http://eol.org/schema/terms/RedListCriteria";
-            $text["category_version"]["uri"] = "http://eol.org/schema/terms/Version";
-            $text["modified_year"]["uri"] = "http://rs.tdwg.org/dwc/terms/measurementDeterminedDate"; //"http://eol.org/schema/terms/DateMeasured";
-            $text["assessors"]["uri"] = "http://eol.org/schema/terms/Assessor";
-            $text["reviewers"]["uri"] = "http://eol.org/schema/terms/Reviewer";
-            $text["contributors"]["uri"] = "http://purl.org/dc/terms/contributor"; // similar to $m->contributor
-            foreach($texts as $key => $value) {
-                if(!$value) continue;
-                $rec["catnum"] = "_rlc"; // these fields will appear under "Data about this record".
-                self::add_string_types(NULL, $rec, $key, $value, $text[$key]["uri"]);
-            }
-        }
-        
         if($habitats = @$details["habitats"]) {
             foreach($habitats as $h) {
                 $this->debug["habitat"][$h] = 1;
@@ -388,16 +389,21 @@ class IUCNRedlistDataConnector
         if(preg_match("/<div id=\"contributors\">(.*?)<\/div>/ims", $html, $arr))            $rec["contributors"] = trim($arr[1]);
         return $rec;
     }
-    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $measurementRemarks = null)
+    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype, $measurementRemarks = null, $parentMeasurementID = '')
     {
         // echo "\n [$label]:[$value]\n";
         $taxon_id = $rec["taxon_id"];
         $catnum = $rec["catnum"];
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence_id;
+        
+        if($measurementOfTaxon == "true") {
+            $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+            $m->occurrenceID = $occurrence_id;
+        }
+        else $m->parentMeasurementID = $parentMeasurementID;
+        
         if($mtype)  $m->measurementType = $mtype;
-        else {
+        else { //doesn't go here anymore
             $m->measurementType = "http://iucn.org/". SparqlClient::to_underscore($label);
             echo "\n*Need to add URI for this [$label] [$value]\n";
         }
@@ -412,6 +418,7 @@ class IUCNRedlistDataConnector
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
+        return $m->measurementID;
     }
     private function add_occurrence($taxon_id, $catnum)
     {
