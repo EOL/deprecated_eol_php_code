@@ -282,15 +282,17 @@ class IUCNRedlistDataConnector
             
             // print_r($rec); //exit("\nstop muna\n");
 
+            /* abandoned Eli's idea - putting these 2 fields in parent record
             if($texts = @$details["texts"]) {
                 // print_r($texts); exit;
-                /* $ texts Array(
+                $texts Array(
                     [red_list_criteria] => B1ab(iii)+2ab(iii)
                     [category_version] => 3.1
                     [modified_year] => 2012
                     [assessors] => Rundell, R.J.
                     [reviewers] => Barker, G., Cowie, R., Triantis, K., García, N. & Seddon, M.
-                )*/
+                )
+                
                 if($val = @$texts['modified_year']) {
                     $rec['measurementDeterminedDate'] = $val;
                     unset($details["texts"]['modified_year']);
@@ -300,23 +302,26 @@ class IUCNRedlistDataConnector
                     unset($details["texts"]['contributors']);
                 }
             }
+            */
             
             $parentMeasurementID = self::add_string_types("true", $rec, "Red List Category", $val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", $remarks);
 
+            /* abandoned Eli's idea
             //set to blank since they were alredy added in parent record
             $rec['measurementDeterminedDate'] = '';
             $rec['contributor'] = '';
-
+            */
+            
             if($texts = @$details["texts"]) {
                 $text["red_list_criteria"]["uri"] = "http://eol.org/schema/terms/RedListCriteria";
                 $text["category_version"]["uri"] = "http://eol.org/schema/terms/Version";
                 $text["assessors"]["uri"] = "http://eol.org/schema/terms/Assessor";
                 $text["reviewers"]["uri"] = "http://eol.org/schema/terms/Reviewer";
 
-                /* moved above - added in parent record
+                // /* remained here, not added in parent record
                 $text["modified_year"]["uri"] = "http://rs.tdwg.org/dwc/terms/measurementDeterminedDate"; //"http://eol.org/schema/terms/DateMeasured";
                 $text["contributors"]["uri"] = "http://purl.org/dc/terms/contributor"; // similar to $m->contributor
-                */
+                // */
                 foreach($texts as $key => $value) {
                     if(!$value) continue;
                     $rec["catnum"] = "_rlc"; // these fields will appear under "Data about this record".
