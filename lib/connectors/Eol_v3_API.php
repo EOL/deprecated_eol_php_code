@@ -35,8 +35,17 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
     }
-    function generate_stats()
-    {   
+    function generate_stats($params) //$params came from run.php
+    {
+        /*$params e.g. Array(
+            [range] => Array(
+                    [0] => 1271125
+                    [1] => 1906687
+                )
+            [ctr] => 3
+        )
+        */
+        
         // /* will use to check if EOL id has GBIF map
         require_library('connectors/GBIFoccurrenceAPI_DwCA');
         $this->gbif_func = new GBIFoccurrenceAPI_DwCA();
@@ -64,11 +73,14 @@ class Eol_v3_API
         fwrite($this->WRITE, 'H- number of languages represented among the common names'."\n\n");
         $arr = array('EOLid', 'scientificName', 'Richness Score', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
         fwrite($this->WRITE, implode("\t", $arr)."\n");
-        self::process_all_eol_taxa_using_DH($path); //make use of Katja's EOL DH with EOL Page IDs -- good choice
+        self::process_all_eol_taxa_using_DH($path, 'main', $params['range']); //make use of Katja's EOL DH with EOL Page IDs -- good choice
         fclose($this->WRITE);
         $destination = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score_'.str_replace(' ', '_', date('Y-m-d', time())).'.txt'; //h:i:s a
         if(!copy($filename, $destination)) echo "\nFailed to copy $filename...\n";
                                            echo "\nSaved: [$filename]\nTo: [$destination]\n";
+        
+        /* ctr becomes zero 0 when finalizing the report */
+        if($params['ctr']) unlink(CONTENT_RESOURCE_LOCAL_PATH . "part_EOL_stats_".$params['ctr'].".txt"); //this file was generated in run.php
         return;
         // */                                               //https://opendata.eol.org/dataset/tram-580-581/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6                            
         
@@ -82,11 +94,12 @@ class Eol_v3_API
         foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
         */
     }
-    function process_all_eol_taxa_using_DH($path, $purpose = 'main') //rows = 1,906,685 -> rank 'species' and with EOLid
+    function process_all_eol_taxa_using_DH($path, $purpose = 'main', $range = array()) //rows = 1,906,685 -> rank 'species' and with EOLid
     {
         $i = 0; $found = 0;
         foreach(new FileIterator($path) as $line => $row) {
             $i++;
+            // if(($i % 5000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = explode("\t", $row);
             else {
                 $rec = explode("\t", $row);
@@ -113,13 +126,19 @@ class Eol_v3_API
                     if(!$cont) continue;
                     */
                     //==================
+                    
+                    if($range) {
+                        $cont = false;
+                        if($found >= $range[0] && $found < $range[1]) $cont = true;
+                        if(!$cont) continue;
+                    }
+                    
                     $taxon_concept_id = $rek['EOLid'];
                     // $taxon_concept_id = 46564415; //debug only - force assign
                     self::api_using_tc_id($taxon_concept_id, $rek['scientificName']);
                     if(($found % 1000) == 0) echo "\n".number_format($found).". [".$rek['scientificName']."][tc_id = $taxon_concept_id]";
-                    // exit("\njust run 1 species\n");
-                    // break;
-                    if($found >= 1000) break; //debug only - run just 1 species
+                    // break; //debug only
+                    // if($found >= 1000) break; //debug only - run first 1000 species for review
                 }
             }
             // if($i >= 5) break; //debug only
@@ -320,7 +339,7 @@ class Eol_v3_API
         // print_r($saved); exit;
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, json_encode($saved)); fclose($WRITE);
-        if($GLOBALS['ENV_DEBUG']) echo "\nSaved OK\n";
+        if($GLOBALS['ENV_DEBUG']) echo "\nSaved OK [$filename]\n";
     }
     private function run_query($qry)
     {
@@ -328,7 +347,13 @@ class Eol_v3_API
         $WRITE = Functions::file_open($in_file, "w");
         fwrite($WRITE, $qry); fclose($WRITE);
         $destination = DOC_ROOT."temp/".$this->basename.".out.json";
+        /* worked in eol-archive but may need to add: /bin/cat instead of just 'cat'
         $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`cat '.$in_file.'`"';
+        */
+        $cmd = 'wget -O '.$destination.' --header "Authorization: JWT `/bin/cat '.DOC_ROOT.'temp/api.token`" https://eol.org/service/cypher?query="`/bin/cat '.$in_file.'`"';
+        
+        
+        
         $cmd .= ' 2>/dev/null'; //this will throw away the output
         $output = shell_exec($cmd); //$output here is blank since we ended command with '2>/dev/null' --> https://askubuntu.com/questions/350208/what-does-2-dev-null-mean
         $json = file_get_contents($destination);
