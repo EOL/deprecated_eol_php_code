@@ -52,7 +52,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             $param['divisor'] = $divisor;
             $param['total_count'] = $total_count;
             
-            $task = $ctrler->get_available_job("map_data_job");
+            $task = $ctrler->get_available_job("eol_stats_job");
             $json = json_encode($param, true);
             $params['uuid'] = time();
 
