@@ -8,7 +8,34 @@ $GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false ... especially in
 require_library('connectors/Eol_v3_API');
 $resource_id = 'eol';
 $func = new Eol_v3_API($resource_id);
-$func->generate_stats(); //normal operation
+
+// print_r($argv);
+$params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
+$params['json']              = @$argv[2]; //useful here
+$arr = json_decode($params['json'], true);
+print_r($arr);
+/*Array(
+    [range] => Array(
+            [0] => 1271125
+            [1] => 1906687
+        )
+    [ctr] => 3
+)
+*/
+$func->generate_stats($arr); //normal operation
+
+/* continue lifeline of Jenkins event */
+require_library('connectors/MultipleConnJenkinsAPI');
+$funcj = new MultipleConnJenkinsAPI();
+$filename = CONTENT_RESOURCE_LOCAL_PATH."part_EOL_stats_COUNTER.txt";
+if($funcj->check_indicator_files_if_ready_2finalize_YN($filename, $arr['divisor'])) {
+    echo "\nfinalizing now...\n";
+    $arr['range'] = array(1, $arr['total_count']);
+    $arr['ctr'] = 0;
+    $func->generate_stats($arr); //finalize report
+}
+else echo "\ncannot finalize yet\n";
+
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
