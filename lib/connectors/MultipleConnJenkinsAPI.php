@@ -18,8 +18,13 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         else {}
         $this->debug = array();
     }
-    function jenkins_call($connector, $batches, $connector_task)
+    function jenkins_call($arr_info, $connector_task)
     {
+        $connector = $arr_info['connector'];
+        $batches = $arr_info['batches'];
+        $divisor = $arr_info['divisor'];
+        $total_count = $arr_info['total_count'];
+        
         echo "\nCACHE_PATH 01 is ".CACHE_PATH."\n";
         require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
         require_once(DOC_ROOT."../FreshData/controllers/other.php");
@@ -46,6 +51,8 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             $param = array();
             $param['range'] = $batch;
             $param['ctr'] = $ctr;
+            $param['divisor'] = $divisor;
+            $param['total_count'] = $total_count;
             
             $task = $ctrler->get_available_job("map_data_job");
             $json = json_encode($param, true);
@@ -87,6 +94,20 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         $batch = ceil($batch);
         for ($x = 1; $x <= $total; $x=$x+$batch) $final[] = array($x, $x+$batch);
         return $final;
+    }
+    function check_indicator_files_if_ready_2finalize_YN($filename, $divisor)
+    {
+        for ($x = 1; $x <= $divisor; $x++) {
+            $search = str_replace('COUNTER', $x, $filename);
+            echo "\nTesting indicator file [$search]...";
+            if(file_exists($search)) {
+                echo "still exists. Cannot finalize.\n";
+                return false;
+            }
+            else echo "done OK.\n";
+        }
+        echo "\nCan finalize now!\n";
+        return true;
     }
 }
 ?>

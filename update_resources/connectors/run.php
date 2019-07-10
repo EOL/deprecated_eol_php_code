@@ -44,18 +44,22 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         $total_count = $func->process_all_eol_taxa_using_DH($path, $purpose = 'count only');
         */
         $total_count = 1906685;
+        $arr['total_count'] = $total_count;
         echo "\ntotal_count: $total_count\n";
         
         if($arr['divisor']) $batches = $func->get_range_batches($total_count, $arr['divisor']);
         else                $batches[] = array(1, $total_count);
         print_r($batches);
+        $arr['batches'] = $batches;
         
         //start create temp group indicator files
         for ($x = 1; $x <= $arr['divisor']; $x++) {
-            $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "part_EOL_stats_".$x.".txt", "w"); fclose($fhandle);
+            $filename = "part_EOL_stats_".$x.".txt";
+            $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $filename, "w"); fclose($fhandle);
+            echo "\ncreate indicator file: [$filename]";
         }
         //end
-        $func->jenkins_call($arr['connector'], $batches, "generate_stats");
+        $func->jenkins_call($arr, "generate_stats");
         
         
     }
