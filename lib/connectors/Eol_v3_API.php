@@ -82,24 +82,14 @@ class Eol_v3_API
         /* ctr becomes zero 0 when finalizing the report */
         if($params['ctr']) unlink(CONTENT_RESOURCE_LOCAL_PATH . "part_EOL_stats_".$params['ctr'].".txt"); //this file was generated in run.php
         return;
-        // */                                               //https://opendata.eol.org/dataset/tram-580-581/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6                            
-        
-        /* tests
-        $scinames = array();                                        //make use of manual taxon list
-        $scinames["baby Isaiah"] = 526227; //919224;
-        // $scinames["baby Isaiah"] = 37663;
-        // $scinames["Camellia sinensis (L.) Kuntze"] = 482447;
-        // $scinames["Gadus morhua"] = 46564415; //206692;
-        // $scinames["Gadus morhua"] = 206692;
-        foreach($scinames as $sciname => $taxon_concept_id) self::main_loop($sciname, $taxon_concept_id);
-        */
+        // */                                               
     }
     function process_all_eol_taxa_using_DH($path, $purpose = 'main', $range = array()) //rows = 1,906,685 -> rank 'species' and with EOLid
     {
         $i = 0; $found = 0;
         foreach(new FileIterator($path) as $line => $row) {
             $i++;
-            // if(($i % 5000) == 0) echo "\n".number_format($i);
+            // if(($i % 5000) == 0) echo "\n".number_format($i); //debug only
             if($i == 1) $fields = explode("\t", $row);
             else {
                 $rec = explode("\t", $row);
@@ -113,8 +103,9 @@ class Eol_v3_API
                     // print_r($rek); exit;
                     $found++;
                     if($purpose == 'count only') continue;
+                    
                     //==================
-                    /* right now this is manully being batched in Jenkins. I edit the code here, save, upload to eol-archive then run on Jenkins. Each of the 6 connectors are done that way.
+                    /* this was the legacy way of breakdown caching. No longer needed.
                     $m = 317781; //1,906,685 diveded by 6
                     $cont = false;
                     // if($found >=  1    && $found < $m)    $cont = true;
