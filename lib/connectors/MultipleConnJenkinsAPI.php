@@ -9,8 +9,6 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         $this->download_options = array(
             'expire_seconds'     => false, //60*60*24*30*3, //ideally 3 months to expire
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        // $this->download_options['expire_seconds'] = false; //debug | true -- expires now
-
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_gbif/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_gbif/";
 
@@ -43,7 +41,6 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
         */
         
-        // echo "<pre>"; print_r($parameters); echo "</pre>"; exit;
         $ctr = 0;
         foreach($batches as $batch) {
             $ctr++;
@@ -61,9 +58,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             if    ($connector == "eol_v3_api.php")  $cmd = PHP_PATH.' eol_v3_api.php jenkins ' . "'" . $json . "'";
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
-            // echo "\n$cmd\n";
-            
-            // /* works well locally but bit problematic in eol-archive, will abandon for a while. Works OK now, as of Apr 25, 2019.
+            // /* works well locally Jul 10, 2019, but will still check if it will work in eol-archive - fingers crossed
             $cmd .= " 2>&1";
             $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
             $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
