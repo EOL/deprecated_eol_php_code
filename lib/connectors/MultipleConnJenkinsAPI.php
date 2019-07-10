@@ -6,12 +6,13 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
     function __construct()
     {
         /* add: 'resource_id' => "gbif" ;if you want to add cache inside a folder [gbif] inside [eol_cache_gbif] */
+        /* not needed so far
         $this->download_options = array(
             'expire_seconds'     => false, //60*60*24*30*3, //ideally 3 months to expire
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_gbif/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_gbif/";
-
+        */
         if(Functions::is_production()) {}
         else {}
         $this->debug = array();
