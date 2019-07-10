@@ -15,7 +15,7 @@ php5.6                    run.php jenkins '{"connector":"eol_v3_api.php", "divis
 php update_resources/connectors/run.php _ '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
 */
 
-$func = new MultipleConnJenkinsAPI();
+$funcj = new MultipleConnJenkinsAPI();
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
@@ -37,7 +37,7 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         $arr['total_count'] = $total_count;
         echo "\ntotal_count: $total_count\n";
         
-        if($arr['divisor']) $batches = $func->get_range_batches($total_count, $arr['divisor']);
+        if($arr['divisor']) $batches = $funcj->get_range_batches($total_count, $arr['divisor']);
         else                $batches[] = array(1, $total_count);
         print_r($batches);
         $arr['batches'] = $batches;
@@ -49,7 +49,7 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
             echo "\ncreate indicator file: [$filename]";
         }
         //end
-        $func->jenkins_call($arr, "generate_stats"); //finally make the call
+        $funcj->jenkins_call($arr, "generate_stats"); //finally make the call
     }
     elseif($arr['connector'] == 'xxx.php') { //customization part
     }
