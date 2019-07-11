@@ -22,6 +22,7 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 737	Wednesday 2018-03-07 07:04:07 PM{"measurement_or_fact.tab":591236,"occurrence.tab":240800,"taxon.tab":80823} all-hash measurementID
 737	Thursday 2018-03-08 08:10:12 PM	{"measurement_or_fact.tab":591236,"occurrence.tab":240800,"taxon.tab":80823}
 737	Wednesday 2019-07-03 11:19:27 PM{"measurement_or_fact.tab":591411,"occurrence.tab":240851,"taxon.tab":80818} latest for quite sometime, still looks consistent
+737	Wednesday 2019-07-10 01:56:00 PM{"measurement_or_fact.tab":591411,"occurrence.tab":240851,"taxon.tab":80818} updated: six metadata now as child records
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
