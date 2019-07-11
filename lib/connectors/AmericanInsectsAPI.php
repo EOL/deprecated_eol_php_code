@@ -23,7 +23,6 @@ class AmericanInsectsAPI
         $this->current_offline_urls_dump_file = $this->TEMP_DIR . "offline_urls.txt";
         $this->current_offline_urls_dump_file2 = $this->TEMP_DIR . "offline_urls_unique.txt";
     }
-
     function get_all_taxa()
     {
         $this->stored_offline_urls = $this->get_rows_from_dump_file($this->stored_offline_urls_dump_file);
@@ -35,13 +34,11 @@ class AmericanInsectsAPI
         recursive_rmdir($this->TEMP_DIR); // comment this line to check offline_urls.txt
         debug("\n temporary directory removed: " . $this->TEMP_DIR);
     }
-
     private function process_urls($urls)
     {
         $i = 0;
         $total = count($urls);
-        foreach($urls as $url)
-        {
+        foreach($urls as $url) {
             $i++;
             echo "\n - $i of $total [$url]\n";
             if(isset($this->stored_offline_urls[$url])) continue;
@@ -55,11 +52,9 @@ class AmericanInsectsAPI
             if(!$cont) continue;
             */
             
-            if($html = Functions::lookup_with_cache($url, $this->download_options))
-            {
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                 $html = trim(str_ireplace(array(' align="center"', ' class="style1"', ' class="style2"'), "", $html));
-                if(preg_match("/>Family: (.*?)xxx/ims", $html . "xxx", $arr))
-                {
+                if(preg_match("/>Family: (.*?)xxx/ims", $html . "xxx", $arr)) {
                     $rec["source"] = $url;
                     if(preg_match("/<h1>(.*?)<\/h1>/ims", $html, $arr) ||
                        preg_match("/<FONT FACE=\"Arial\">(.*?)<\/FONT>/ims", $html, $arr) ||
@@ -74,8 +69,7 @@ class AmericanInsectsAPI
                         $sciname = trim($sciname);
                         $to_exclude = array("cf.", "sp.", "Unidentified Stonefly", "Family");
                         $include = true;
-                        foreach($to_exclude as $exclude)
-                        {
+                        foreach($to_exclude as $exclude) {
                             if(is_numeric(stripos($sciname, $exclude))) $include = false;
                         }
                         if(!$include) continue;
@@ -90,8 +84,7 @@ class AmericanInsectsAPI
                         $lengths = @$info["lengths"];
                         $wingspan = @$info["wingspan"];
                         
-                        if($images || $lengths)
-                        {
+                        if($images || $lengths) {
                             $r = array();
                             $r["sciname"] = $sciname;
                             $r["taxon_id"] = str_replace(" ", "_", $r["sciname"]);
@@ -112,15 +105,13 @@ class AmericanInsectsAPI
         // print_r($this->debug);
         print "\n count:" . count($this->debug) . "\n";
     }
-
     private function manuall_add_taxon()
     {
         $records[] = array("sciname" => "Cordulegaster diastatops", "length" => "60-65", "url" => "http://www.americaninsects.net/d/cordulegaster-diastatops.html");
         $records[] = array("sciname" => "Cordulegaster bilineata", "length" => "60-65", "url" => "http://www.americaninsects.net/d/cordulegaster-diastatops.html");
         $records[] = array("sciname" => "Enallagma cyathigerum", "length" => "29-40", "url" => "http://americaninsects.net//d/enallagma-cyathigerum.html");
         $records[] = array("sciname" => "Enallagma boreale", "length" => "28-36", "url" => "http://americaninsects.net//d/enallagma-cyathigerum.html");
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $r = array();
             $r["sciname"] = Functions::canonical_form($rec["sciname"]);
             $r["taxon_id"] = str_replace(" ", "_", $r["sciname"]);
@@ -130,7 +121,6 @@ class AmericanInsectsAPI
             self::prepare_length_structured_data($r);
         }
     }
-
     private function create_reference()
     {
         $r = new \eol_schema\Reference();
@@ -139,25 +129,20 @@ class AmericanInsectsAPI
         $this->reference_id = $r->identifier;
         $this->archive_builder->write_object_to_file($r);
     }
-    
     private function parse_texts($html, $url)
     {
         $texts = array();
         $length = "";
         $wingspan = false;
-        if(preg_match("/>Wingspan: (.*?)</ims", $html, $arr))
-        {
+        if(preg_match("/>Wingspan: (.*?)</ims", $html, $arr)) {
             $wingspan = true;
             $html = str_replace("Wingspan: ", "Length: ", $html);
         }
-        if(preg_match("/>Length: (.*?)</ims", $html, $arr))
-        {
-            if($length = $arr[1])
-            {
+        if(preg_match("/>Length: (.*?)</ims", $html, $arr)) {
+            if($length = $arr[1]) {
                 $to_exclude = array("in image", "top photo", "first photo", "lower photo", "upper photo", "the photo", "in photo", "pictured", 
                 "Cantharini", "the right");
-                foreach($to_exclude as $exclude)
-                {
+                foreach($to_exclude as $exclude) {
                     if(is_numeric(stripos($length, $exclude))) return array();
                 }
                 
@@ -176,8 +161,7 @@ class AmericanInsectsAPI
                 $length = str_replace("7 - 9. In genus, 5 - 13", "7 - 9", $length);
                 
                 $chars = array(".", ",", ";");
-                foreach($chars as $char)
-                {
+                foreach($chars as $char) {
                     if(substr($length, -1) == $char) $length = substr($length, 0, strlen($length)-1);
                 }
                 echo "\n[$length]\n";
@@ -186,30 +170,24 @@ class AmericanInsectsAPI
         }
         return array("lengths" => $texts, "wingspan" => $wingspan);
     }
-    
     private function parse_images($html, $url)
     {
         $images = array();
         $to_exclude = array("button");
-        if(preg_match_all("/<img (.*?)>/ims", $html, $arr))
-        {
-            foreach($arr[1] as $img)
-            {
+        if(preg_match_all("/<img (.*?)>/ims", $html, $arr)) {
+            foreach($arr[1] as $img) {
                 $include = true;
-                foreach($to_exclude as $exclude)
-                {
+                foreach($to_exclude as $exclude) {
                     if(strpos($img, $exclude) === false) {}
                     else $include = false;
                 }
-                if($include)
-                {
+                if($include) {
                     $src = "";
                     $caption = "";
                     $image_path = "";
                     if(preg_match("/src=\"(.*?)\"/ims", $img, $arr2)) $src = $arr2[1];
                     if(preg_match("/alt=\"(.*?)\"/ims", $img, $arr2)) $caption = $arr2[1];
-                    if($src)
-                    {
+                    if($src) {
                         if($val = self::get_directory_name($url)) $image_path = $val . "/" . $src;
                         if($image_path) $images[] = array("title" => $caption, "image" => $image_path);
                     }
@@ -218,7 +196,6 @@ class AmericanInsectsAPI
         }
         return $images;
     }
-
     private function get_directory_name($url)
     {
         $info = pathinfo($url);
@@ -226,7 +203,6 @@ class AmericanInsectsAPI
         else                            return $info["dirname"];
         return false;
     }
-
     private function get_urls_to_process()
     {
         $urls = array();
@@ -239,10 +215,8 @@ class AmericanInsectsAPI
         $temp = array_merge($urls[1], $urls[2], $urls[3], $urls[4], $urls[5]);
         $urls = array_values(array_unique($temp));
         $i = 0;
-        foreach($urls as $url)
-        {
-            foreach($this->to_exclude as $exclude)
-            {
+        foreach($urls as $url) {
+            foreach($this->to_exclude as $exclude) {
                 if(strpos($url, $exclude) === false) {}
                 else unset($urls[$i]);
             }
@@ -252,22 +226,19 @@ class AmericanInsectsAPI
         $urls = array_values(array_unique($urls));
         return $urls;
     }
-
     private function get_deep_level_urls($urls_to_process)
     {
         $temp = array();
         $total = count($urls_to_process);
         $i = 0;
-        foreach($urls_to_process as $url)
-        {
+        foreach($urls_to_process as $url) {
             $i++;
             echo "\n $i of $total - ";
             $temp = array_merge($temp, self::get_urls_from_page($url));
         }
         $temp = array_values(array_unique($temp));
         $final = array();
-        foreach($temp as $url)
-        {
+        foreach($temp as $url) {
             $info = pathinfo($url);
             $basename = $info["basename"];
             if(isset($this->basenames[$basename])) continue;
@@ -276,18 +247,15 @@ class AmericanInsectsAPI
         }
         return $final;
     }
-
     private function get_urls_from_page($url)
     {
         if(isset($this->stored_offline_urls[$url])) return array();
-        foreach($this->to_exclude as $exclude)
-        {
+        foreach($this->to_exclude as $exclude) {
             if(is_numeric(stripos($url, $exclude))) return array();
         }
         echo "\n processing [$url]\n";
         $temp = array();
-        if($html = Functions::lookup_with_cache($url, $this->download_options))
-        {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             $html = str_ireplace(array(' class="style1"', ' class="style2"', ' class="style3"', ' class="style4"', ' class="style5"', 
                                        ' class="style6"', ' class="style7"', ' class="style8"', ' class="style9"', ' class="style10"',
                                        ' class="navbar"', ' class="style20"', ' class="style13"'), "", $html);
@@ -299,14 +267,11 @@ class AmericanInsectsAPI
         else self::save_to_dump($url, $this->current_offline_urls_dump_file);
         // generate url
         $final = array();
-        if($temp)
-        {
+        if($temp) {
             $dirname = self::get_directory_name($url);
-            foreach($temp as $url)
-            {
+            foreach($temp as $url) {
                 $include = true;
-                foreach($this->to_exclude as $exclude)
-                {
+                foreach($this->to_exclude as $exclude) {
                     if(strpos($url, $exclude) === false) {}
                     else $include = false;
                 }
@@ -315,11 +280,9 @@ class AmericanInsectsAPI
         }
         return $final;
     }
-
     private function save_to_dump($data, $filename)
     {
-        if(!($WRITE = fopen($filename, "a")))
-        {
+        if(!($WRITE = fopen($filename, "a"))) {
           debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " . $filename);
           return;
         }
@@ -327,19 +290,16 @@ class AmericanInsectsAPI
         else                         fwrite($WRITE, $data . "\n");
         fclose($WRITE);
     }
-
     private function get_rows_from_dump_file($url) // utility
     {
         $path = Functions::save_remote_file_to_local($url, $this->download_options);
         $urls = array();
-        foreach(new FileIterator($path) as $line_number => $line)
-        {
+        foreach(new FileIterator($path) as $line_number => $line) {
             if($line) $urls[$line] = "";
         }
         unlink($path);
         return $urls;
     }
-
     // private function prepare_text_objects($rec)
     // {
     //     $articles = array();
@@ -361,15 +321,12 @@ class AmericanInsectsAPI
     //         }
     //     }
     // }
-
     private function prepare_image_objects($rec)
     {
-        if($imagez = @$rec["images"])
-        {
+        if($imagez = @$rec["images"]) {
             foreach($imagez as $image) self::save_image_object($image, $rec);
         }
     }
-    
     private function save_image_object($image, $rec)
     {
         $obj = array();
@@ -382,18 +339,15 @@ class AmericanInsectsAPI
         $obj["accessURI"]   = $image["image"];
         self::get_objects($obj);
     }
-    
     private function get_objects($rec)
     {
         $mr = new \eol_schema\MediaResource();
-        if($rec["type"] == "text")
-        {
+        if($rec["type"] == "text") {
             $mr->type               = 'http://purl.org/dc/dcmitype/Text';
             $mr->format             = 'text/html';
             $mr->CVterm             = $rec["subject"];
         }
-        elseif($rec["type"] == "image")
-        {
+        elseif($rec["type"] == "image") {
             $mr->type               = 'http://purl.org/dc/dcmitype/StillImage';
             $mr->format             = 'image/jpeg';
             $mr->accessURI          = $rec["accessURI"];
@@ -406,38 +360,31 @@ class AmericanInsectsAPI
         $mr->description            = $rec["description"];
         $mr->UsageTerms             = 'http://creativecommons.org/licenses/by/3.0/';
         $mr->Owner                  = '';
-        if(!isset($this->object_ids[$mr->identifier]))
-        {
+        if(!isset($this->object_ids[$mr->identifier])) {
             $this->object_ids[$mr->identifier] = 1;
             $this->archive_builder->write_object_to_file($mr);
         }
     }
-
     private function prepare_length_structured_data($rec)
     {
-        foreach($rec["lengths"] as $len)
-        {
-            if($len)
-            {
+        foreach($rec["lengths"] as $len) {
+            if($len) {
                 $length = self::clean_length_value($len);
                 $lengths = explode(";", $length);
                 $lengths = array_map('trim', $lengths);
                 $ctr = 0;
-                foreach($lengths as $length)
-                {
+                foreach($lengths as $length) {
                     $rec["remark"] = $length;
                     $length_no = trim(str_replace(array("female", "male", "worker", "queen", "drone", "mm", "to apex of abdomen", "greater than"), "", $length));
                     if(!$length_no) continue;
                     if($val = self::is_range($length_no)) $length_no = $val; // "3.50 to 4.0"
                     $arr = explode("-", $length_no);
                     $arr = array_map('trim', $arr);
-                    if(count($arr) == 1)
-                    {
+                    if(count($arr) == 1) {
                         $final = $length_no;
                         if(count(explode(" ", $length_no)) > 1) $rec["measurementRemarks"] = trim($length) . " (mm)";
                     }
-                    else
-                    {
+                    else {
                         $final = self::get_average($arr[0], $arr[1]);
                         $rec["measurementRemarks"] = "Source data are expressed as a range: " . trim($length) . " mm.";
                     }
@@ -457,7 +404,6 @@ class AmericanInsectsAPI
             }
         }
     }
-    
     private function clean_length_value($length)
     {
         $length = strtolower($length);
@@ -469,37 +415,31 @@ class AmericanInsectsAPI
         $length = str_replace(". work", "; work", $length);
         return $length;
     }
-    
     private function get_average($num1, $num2)
     {
         if(preg_match('!\d+\.*\d*!', $num1, $match)) $num1 = $match[0]; //remove letters
         if(preg_match('!\d+\.*\d*!', $num2, $match)) $num2 = $match[0];
         return round(($num1+$num2)/2, 1);
     }
-    
     private function is_range($str)
     {
         $arr = explode(" to ", $str);
-        if(count($arr) == 2)
-        {
+        if(count($arr) == 2) {
             if(is_numeric($arr[0]) && is_numeric($arr[1])) return str_replace(" to ", "-", $str);
         }
         return false;
     }
-
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $rec["taxon_id"];
         $taxon->scientificName              = $rec["sciname"];
         $taxon->furtherInformationURL       = $rec["source"];
-        if(!isset($this->taxon_ids[$taxon->taxonID]))
-        {
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = 1;
             $this->archive_builder->write_object_to_file($taxon);
         }
     }
-
     private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype)
     {
         $taxon_id = $rec["taxon_id"];
@@ -517,7 +457,6 @@ class AmericanInsectsAPI
         if($val = @$rec["measurementRemarks"]) $m->measurementRemarks = $val;
         $this->archive_builder->write_object_to_file($m);
     }
-    
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . '_' . $catnum;
@@ -529,13 +468,11 @@ class AmericanInsectsAPI
         $this->occurrence_ids[$occurrence_id] = $o;
         return $o;
     }
-
     private function make_offline_urls_unique()
     {
         $stored_offline_urls = self::get_rows_from_dump_file($this->stored_offline_urls_dump_file);
         $temp = array_keys($stored_offline_urls);
         foreach($temp as $url) self::save_to_dump($url, $this->current_offline_urls_dump_file2);
     }
-
 }
 ?>
