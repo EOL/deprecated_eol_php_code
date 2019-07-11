@@ -55,7 +55,7 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             $task = $ctrler->get_available_job("eol_stats_job");
             $json = json_encode($param, true);
             $params['uuid'] = time();
-
+            echo "\njson param: [$json]\n";
             if    ($connector == "eol_v3_api.php")  $cmd = PHP_PATH.' eol_v3_api.php jenkins ' . "'" . $json . "'";
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
