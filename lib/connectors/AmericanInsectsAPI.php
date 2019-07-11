@@ -5,6 +5,7 @@ class AmericanInsectsAPI
 {
     function __construct($folder)
     {
+        $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->taxon_ids = array();
@@ -25,6 +26,9 @@ class AmericanInsectsAPI
     }
     function get_all_taxa()
     {
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
         $this->stored_offline_urls = $this->get_rows_from_dump_file($this->stored_offline_urls_dump_file);
         $this->create_reference();
         $urls = self::get_urls_to_process();
@@ -394,13 +398,76 @@ class AmericanInsectsAPI
                     $rec["measurementUnit"] = "http://purl.obolibrary.org/obo/UO_0000016";
                     $length_measurement = "http://purl.obolibrary.org/obo/CMO_0000013";
                     if(is_numeric(stripos($length, "wingspan")) || @$rec["wingspan"]) $length_measurement = "http://www.owl-ontologies.com/unnamed.owl#Wingspan";
+
+                    // print_r($rec);
+                    /*Array(
+                        [sciname] => Euchroma gigantea
+                        [taxon_id] => Euchroma_gigantea
+                        [source] => http://americaninsects.net//b/euchroma-gigantea.html
+                        [images] => Array()
+                        [lengths] => Array(
+                                [0] => 50 - 60
+                            )
+                        [wingspan] => 
+                        [remark] => 50 - 60
+                        [measurementRemarks] => Source data are expressed as a range: 50 - 60 mm. (55 mm. average).
+                        [catnum] => length
+                        [statistical_method] => http://eol.org/schema/terms/average
+                        [measurementUnit] => http://purl.obolibrary.org/obo/UO_0000016
+                    )
+                    proposed: template from another resource
+                    $rec = array();
+                    *$rec["taxon_id"] = $taxon_id;
+                    *$rec["catnum"] = $taxon_id.$d->id;
+                    *$rec['measurementRemarks'] = $d->annotation;
+                    *$rec['source'] = "https://www.speciesplus.net/#/taxon_concepts/$taxon_id/legal";
+                    */
+                    $rec['statisticalMethod'] = $rec['statistical_method'];
+                    $rec['referenceID'] = $this->reference_id;
+                    $mtype = $length_measurement;
+                    $rec['lifeStage'] = 'http://www.ebi.ac.uk/efo/EFO_0001272'; //new DATA-1808 - Jul 2019
+                    
+                    /* orig. Not using TraitGeneric yet at this point.
                     self::add_string_types("true", $rec, "length", $final, $length_measurement);
+                    */
+                    $this->func->add_string_types($rec, $final, $mtype, "true"); //using TraitGeneric
+                    
                     $this->debug[$final] = @$rec["measurementRemarks"];
                     $ctr++;
                 }
             }
         }
     }
+    /* we're using TraitGeneric now
+    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype)
+    {
+        $taxon_id = $rec["taxon_id"];
+        $catnum = $rec["catnum"];
+        $m = new \eol_schema\MeasurementOrFact();
+        $occurrence = $this->add_occurrence($taxon_id, $catnum);
+        $m->occurrenceID = $occurrence->occurrenceID;
+        $m->measurementOfTaxon = $measurementOfTaxon;
+        $m->source = $rec["source"];
+        $m->measurementType = $mtype;
+        $m->measurementValue = $value;
+        $m->referenceID = $this->reference_id;
+        if($val = @$rec["statistical_method"]) $m->statisticalMethod = $val;
+        if($val = @$rec["measurementUnit"]) $m->measurementUnit = $val;
+        if($val = @$rec["measurementRemarks"]) $m->measurementRemarks = $val;
+        $this->archive_builder->write_object_to_file($m);
+    }
+    private function add_occurrence($taxon_id, $catnum)
+    {
+        $occurrence_id = $taxon_id . '_' . $catnum;
+        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = $o;
+        return $o;
+    }
+    */
     private function clean_length_value($length)
     {
         $length = strtolower($length);
@@ -436,34 +503,6 @@ class AmericanInsectsAPI
             $this->taxon_ids[$taxon->taxonID] = 1;
             $this->archive_builder->write_object_to_file($taxon);
         }
-    }
-    private function add_string_types($measurementOfTaxon, $rec, $label, $value, $mtype)
-    {
-        $taxon_id = $rec["taxon_id"];
-        $catnum = $rec["catnum"];
-        $m = new \eol_schema\MeasurementOrFact();
-        $occurrence = $this->add_occurrence($taxon_id, $catnum);
-        $m->occurrenceID = $occurrence->occurrenceID;
-        $m->measurementOfTaxon = $measurementOfTaxon;
-        $m->source = $rec["source"];
-        $m->measurementType = $mtype;
-        $m->measurementValue = $value;
-        $m->referenceID = $this->reference_id;
-        if($val = @$rec["statistical_method"]) $m->statisticalMethod = $val;
-        if($val = @$rec["measurementUnit"]) $m->measurementUnit = $val;
-        if($val = @$rec["measurementRemarks"]) $m->measurementRemarks = $val;
-        $this->archive_builder->write_object_to_file($m);
-    }
-    private function add_occurrence($taxon_id, $catnum)
-    {
-        $occurrence_id = $taxon_id . '_' . $catnum;
-        if(isset($this->occurrence_ids[$occurrence_id])) return $this->occurrence_ids[$occurrence_id];
-        $o = new \eol_schema\Occurrence();
-        $o->occurrenceID = $occurrence_id;
-        $o->taxonID = $taxon_id;
-        $this->archive_builder->write_object_to_file($o);
-        $this->occurrence_ids[$occurrence_id] = $o;
-        return $o;
     }
     private function make_offline_urls_unique()
     {
