@@ -14,6 +14,9 @@ class Eol_v3_API
             'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
 
+        $this->expire_seconds_4cypher_query = 60*60*24; //1 day expires. Used when resource(s) get re-harvested to get latest score based on Trait records.
+        $this->expire_seconds_4cypher_query = $this->download_options['expire_seconds'];
+
         if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_php_cache/";
         else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";      //used in Functions.php for all general cache
         $this->main_path = $this->download_options['cache_path'].$this->download_options['resource_id']."/";
@@ -300,8 +303,8 @@ class Eol_v3_API
             // $this->download_options['expire_seconds'] = 60; //debug only - force assign --- test success
             
             $file_age_in_seconds = time() - filemtime($filename);
-            if($file_age_in_seconds < $this->download_options['expire_seconds']) return self::retrieve_json($filename); //not yet expired
-            if($this->download_options['expire_seconds'] === false)              return self::retrieve_json($filename); //doesn't expire
+            if($file_age_in_seconds < $this->expire_seconds_4cypher_query) return self::retrieve_json($filename); //not yet expired
+            if($this->expire_seconds_4cypher_query === false)              return self::retrieve_json($filename); //doesn't expire
             
             if($GLOBALS['ENV_DEBUG']) echo "\nCache expired. Will run cypher now...\n";
             self::run_cypher_query($tc_id, $filename);
