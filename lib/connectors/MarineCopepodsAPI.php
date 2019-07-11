@@ -417,7 +417,7 @@ class MarineCopepodsAPI
         */
         
         $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
-        $m = new \eol_schema\MeasurementOrFact();
+        $m = new \eol_schema\MeasurementOrFact_specific();
         $m->occurrenceID       = $occurrence_id;
         $m->measurementOfTaxon = $measurementOfTaxon;
         if($measurementOfTaxon == "true") {
