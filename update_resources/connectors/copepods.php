@@ -6,6 +6,7 @@ copepods	Tuesday 2018-02-13 11:14:09 PM	{"measurement_or_fact.tab":21345,"occurr
 copepods	Saturday 2018-03-10 07:46:22 PM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":931,"taxon.tab":2644}
 copepods	Monday 2018-10-22 10:24:35 AM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":925,"taxon.tab":2644}
 copepods	Thursday 2019-07-11 08:04:53 AM	{"measurement_or_fact.tab":21345,"occurrence.tab":18259,"reference.tab":925,"taxon.tab":2644}
+copepods	Thursday 2019-07-11 08:30:46 AM	{"measurement_or_fact_specific.tab":21345,"occurrence.tab":18259,"reference.tab":925,"taxon.tab":2644} added lifeStage in MoF
 */
 // return;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
