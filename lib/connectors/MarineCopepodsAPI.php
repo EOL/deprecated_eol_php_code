@@ -435,6 +435,9 @@ class MarineCopepodsAPI
         if($val = @$rec['statisticalMethod'])   $m->statisticalMethod = $val;
         if($val = @$rec['measurementAccuracy'])   $m->measurementAccuracy = $val;
         if($val = @$rec['measurementRemarks'])  $m->measurementRemarks = $val;
+        
+        /* Adjustment Jul 11, 2019 */ //based here: https://eol-jira.bibalex.org/browse/DATA-1734?focusedCommentId=63397&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63397
+        if($m->measurementType == 'http://purl.obolibrary.org/obo/CMO_0000013') $m->lifeStage = 'http://www.ebi.ac.uk/efo/EFO_0001272';
 
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
