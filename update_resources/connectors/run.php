@@ -25,6 +25,7 @@ print_r($arr);
 
 if($arr['task'] == 'initial') { //this is where to get e.g. the total number of rows/records/taxa to which we will divide. Customized for every connector.
     if($arr['connector'] == 'eol_v3_api.php') { //customization part
+        /* execution time: 7 days using 6 connectors */
         require_library('connectors/Eol_v3_API');
         $resource_id = '';
         // /* working OK - uncomment in real operation
