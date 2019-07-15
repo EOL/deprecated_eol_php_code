@@ -552,11 +552,54 @@ class PaleoDBAPI_v2
         $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID = $occurrence_id;
         foreach($rec as $key => $value) $m->$key = $value;
+        
+        // /* from DATA-1814
+        $m = adjustments_per_Jen_Katja($m);
+        if(!$m) return;
+        // */
+        
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->measurementID] = '';
         }
+    }
+    private function adjustments_per_Jen_Katja($m)
+    {
+        if($m['measurementType'] == 'http://eol.org/schema/terms/skeletalComp2') {
+            $m['measurementType'] = 'http://purl.obolibrary.org/obo/OBA_1000106';
+            if($m['measurementRemarks']) $m['measurementRemarks'] .= ". secondary component";
+            else                         $m['measurementRemarks'] = "secondary component";
+        }
+        /*
+        where measurementType=http://eol.org/schema/terms/skeletalComp2
+        change it to http://purl.obolibrary.org/obo/OBA_1000106, and add the text string "secondary component" to measurementRemarks, concatenating if needed.
+        */
+        
+        $mValues = array('http://purl.obolibrary.org/obo/CHEBI_52239', 'http://purl.obolibrary.org/obo/CHEBI_52255', 'http://eol.org/schema/terms/lowMgCalcite', 
+                         'http://purl.obolibrary.org/obo/CHEBI_64389', 'http://eol.org/schema/terms/highMgCalcite', 'http://eol.org/schema/terms/intermediateMgCalcite', 
+                         'http://purl.obolibrary.org/obo/CHEBI_26020');
+        if($m['measurementType'] == 'http://purl.obolibrary.org/obo/OBA_1000106' && in_array($m['measurementValue'], $mValues)) return false;
+        /*
+        Where measurementType=http://purl.obolibrary.org/obo/OBA_1000106
+        and measurementValue= one of these:
+        http://purl.obolibrary.org/obo/CHEBI_52239      http://purl.obolibrary.org/obo/CHEBI_52255
+        http://eol.org/schema/terms/lowMgCalcite        http://purl.obolibrary.org/obo/CHEBI_64389
+        http://eol.org/schema/terms/highMgCalcite       http://eol.org/schema/terms/intermediateMgCalcite
+        http://purl.obolibrary.org/obo/CHEBI_26020
+        remove the record (they duplicate a better curated source)
+        */
+        
+        if($m['measurementType'] == 'http://purl.obolibrary.org/obo/OBA_1000106' && $m['measurementValue'] == 'http://purl.obolibrary.org/obo/PORO_0000108') {
+            $m['measurementType'] = 'http://eol.org/schema/terms/SkeletalReinforcement';
+        }
+        /*
+        Where measurementType=http://purl.obolibrary.org/obo/OBA_1000106
+        and measurementValue=http://purl.obolibrary.org/obo/PORO_0000108
+        change measurementType to
+        http://eol.org/schema/terms/SkeletalReinforcement
+        */
+        $return $m;
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
