@@ -53,8 +53,13 @@ class AmphibiansOfTheWorldAPI
             }
             // print_r($rec); exit;
             $rec = self::parse_rec($rec);
-            $debug['usage'][$rec['usage']] = '';
-            $debug['unacceptability_reason'][$rec['unacceptability_reason']] = '';
+
+            // $debug['usage'][$rec['usage']] = '';
+            // $debug['unacceptability_reason'][$rec['unacceptability_reason']] = '';
+            
+            @$debug['usage'][$rec['usage']]['count']++;
+            @$debug['unacceptability_reason'][$rec['unacceptability_reason']]['count']++;
+            
         }
         unlink($csv_file);
         print_r($debug);
@@ -62,14 +67,14 @@ class AmphibiansOfTheWorldAPI
     private function parse_rec($rec)
     {
         /*Array(
-            [usage] => Array(
-                    [valid] => 
-                    [invalid] => 
-            [unacceptability_reason] => Array(
-                    [] => 
-                    [synonymous original name] => 
-                    [new combination or misspelling] => 
-        )
+            [usage] => Array
+                    [valid] => [count] => 8751
+                    [invalid] => [count] => 23162
+            [unacceptability_reason] => Array
+                    [] => [count] => 8751
+                    [synonymous original name] => [count] => 9479
+                    [new combination or misspelling] => [count] => 13683
+        
         unit_name1, unit_name2, unit_name3, taxon_author --> scientificName; concatenate the values of these fields, separated by blank spaces. Please check for whitespace irregularities, i.e., there should not be any leading or trailing spaces and there should always be only a single space between name components. Also, some taxon_author values need to be pre-processed, see 4. below.
         taxon_author --> reference, see 4. below.
         rank_name --> taxonRank; use lowercase strings for the rank names, e.g., Class should be class; omit hyphens, e.g., Sub-species should be subspecies.
@@ -90,7 +95,47 @@ class AmphibiansOfTheWorldAPI
             [accepted_name] => 
         )
         */
+        $final['taxon_author'] = self::generate_taxon_author($rec);
         return $rec;
+    }
+    private function generate_taxon_author($rec)
+    {
+        /*4. Clean up taxon_author data. The taxon_author values for valid taxa are fine and can be used verbatim, so you only need to worry about the ones that have usage:invalid. 
+        Most invalid taxa have the whole reference citation in the taxon_author field. Also, the taxon_author values represent authority data only for invalid taxa 
+        where the unacceptability_reason value is "synonymous original name." If the value is "new combination or misspelling" the author data are apparently problematic, 
+        so we want to omit them. In those cases, the scientificName would then consist only of the "unit_name1 unit_name2 unit_name3" string. */
+        
+        if($rec['usage'] == 'valid') return $rec['taxon_author'];
+        else { //invalid
+            if($rec['unacceptability_reason'] == 'new combination or misspelling') return '';
+            elseif($rec['unacceptability_reason'] == 'synonymous original name') {
+                
+            }
+        }
+        
+        /*
+        For the "synonymous original name" taxa, we need to extract the authors & year from the full taxon_author text so we append this as the authority to 
+        the unit_name1 unit_name2 unit_name3 string. It looks like they never use parentheses around the year in the taxon_author strings for invalid taxa, 
+        so we can extract the author & year simply by using the beginning of the taxon_author string up to and including the 4 digit year number. Examples:
+
+        original taxon_author value >>> extracted for scientificName
+        Bolkay, 1912 , Mitt. Jahrb. K. Ungar. Geol. Anst., 19 >>> Bolkay, 1912
+        Pillai and Chanda, 1973, Proc. Indian Acad. Sci., Ser. B, 78 >>> Pillai and Chanda, 1973
+        Sarkar and Ray, 2006, In Alfred (ed.), Fauna of Arunachal Pradesh, Part 1 >>> Sarkar and Ray, 2006
+        Vijayakumar, Dinesh, Prabhu, and Shanker, 2014, Zootaxa, 3893 >>> Vijayakumar, Dinesh, Prabhu, and Shanker, 2014
+        Boettger, 1880, Ber. Senckenb. Naturforsch. Ges., 1879–80 >>> Boettger, 1880
+
+        Also, for all taxa with usage:invalid (regardless of unacceptability_reason value), please create are record for a reference and put the full value of taxon_author in the 
+        full_reference field.
+
+        Please note that they have some parts of names in quotes, e.g., "Hylarana" latouchii:
+        """Hylarana"""|"latouchii"|""|"(Boulenger, 1899)"|"Species"|"valid"|"Ranidae Batsch, 1796"|""|""
+
+        They use this to indicate names that are currently valid but that are known to be wrong and that will be changed with the next revision of the group. 
+        For example, in the case of "Hylarana" latouchii, they know that this species does not really belong to the genus Hylarana, but it has not yet been formally moved to another genus. 
+        Ideally, we would preserve the spelling with the quotes on EOL, but I don't know if we can get this to work. The harvester may choke on it. 
+        I suggest that we try it and see what happens.
+        */
     }
     /* =================== ends here =========================*/
     function get_all_taxa()
