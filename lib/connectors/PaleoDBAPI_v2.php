@@ -558,24 +558,19 @@ class PaleoDBAPI_v2
             $this->measurement_ids[$m->measurementID] = '';
         }
     }
-
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $catnum;
-
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         if($val = @$rec['lifestage']) $o->lifeStage = $val;
         $o->taxonID = $taxon_id;
-
         $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
-        
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
-    
     private function create_vernacular_archive($a, $taxon_id)
     {
         if($vernacular = @$a[$this->map['vernacularName']]) {
