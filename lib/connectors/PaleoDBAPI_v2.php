@@ -566,10 +566,10 @@ class PaleoDBAPI_v2
     }
     private function adjustments_per_Jen_Katja($m)
     {
-        if($m['measurementType'] == 'http://eol.org/schema/terms/skeletalComp2') {
-            $m['measurementType'] = 'http://purl.obolibrary.org/obo/OBA_1000106';
-            if($m['measurementRemarks']) $m['measurementRemarks'] .= ". secondary component";
-            else                         $m['measurementRemarks'] = "secondary component";
+        if($m->measurementType == 'http://eol.org/schema/terms/skeletalComp2') {
+            $m->measurementType = 'http://purl.obolibrary.org/obo/OBA_1000106';
+            if($m->measurementRemarks) $m->measurementRemarks .= ". secondary component";
+            else                         $m->measurementRemarks = "secondary component";
         }
         /*
         where measurementType=http://eol.org/schema/terms/skeletalComp2
@@ -579,7 +579,7 @@ class PaleoDBAPI_v2
         $mValues = array('http://purl.obolibrary.org/obo/CHEBI_52239', 'http://purl.obolibrary.org/obo/CHEBI_52255', 'http://eol.org/schema/terms/lowMgCalcite', 
                          'http://purl.obolibrary.org/obo/CHEBI_64389', 'http://eol.org/schema/terms/highMgCalcite', 'http://eol.org/schema/terms/intermediateMgCalcite', 
                          'http://purl.obolibrary.org/obo/CHEBI_26020');
-        if($m['measurementType'] == 'http://purl.obolibrary.org/obo/OBA_1000106' && in_array($m['measurementValue'], $mValues)) return false;
+        if($m->measurementType == 'http://purl.obolibrary.org/obo/OBA_1000106' && in_array($m->measurementValue, $mValues)) return false;
         /*
         Where measurementType=http://purl.obolibrary.org/obo/OBA_1000106
         and measurementValue= one of these:
@@ -590,8 +590,8 @@ class PaleoDBAPI_v2
         remove the record (they duplicate a better curated source)
         */
         
-        if($m['measurementType'] == 'http://purl.obolibrary.org/obo/OBA_1000106' && $m['measurementValue'] == 'http://purl.obolibrary.org/obo/PORO_0000108') {
-            $m['measurementType'] = 'http://eol.org/schema/terms/SkeletalReinforcement';
+        if($m->measurementType == 'http://purl.obolibrary.org/obo/OBA_1000106' && $m->measurementValue == 'http://purl.obolibrary.org/obo/PORO_0000108') {
+            $m->measurementType = 'http://eol.org/schema/terms/SkeletalReinforcement';
         }
         /*
         Where measurementType=http://purl.obolibrary.org/obo/OBA_1000106
