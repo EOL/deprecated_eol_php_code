@@ -108,12 +108,13 @@ class AmphibiansOfTheWorldAPI
         if($rec['usage'] == 'valid') return $rec['taxon_author'];
         else { //invalid
             if($rec['unacceptability_reason'] == 'new combination or misspelling') return '';
-            elseif($rec['unacceptability_reason'] == 'synonymous original name') {
-                
+            elseif($rec['unacceptability_reason'] == '') return '';
+            elseif($rec['unacceptability_reason'] == 'synonymous original name') { //will do the processing here...
+                $final = self::get_authority_from_str($rec['taxon_author']);
             }
         }
         
-        /*
+        /* this block was solved by this func: get_authority_from_str()
         For the "synonymous original name" taxa, we need to extract the authors & year from the full taxon_author text so we append this as the authority to 
         the unit_name1 unit_name2 unit_name3 string. It looks like they never use parentheses around the year in the taxon_author strings for invalid taxa, 
         so we can extract the author & year simply by using the beginning of the taxon_author string up to and including the 4 digit year number. Examples:
@@ -124,10 +125,14 @@ class AmphibiansOfTheWorldAPI
         Sarkar and Ray, 2006, In Alfred (ed.), Fauna of Arunachal Pradesh, Part 1 >>> Sarkar and Ray, 2006
         Vijayakumar, Dinesh, Prabhu, and Shanker, 2014, Zootaxa, 3893 >>> Vijayakumar, Dinesh, Prabhu, and Shanker, 2014
         Boettger, 1880, Ber. Senckenb. Naturforsch. Ges., 1879–80 >>> Boettger, 1880
+        */
 
+        /*
         Also, for all taxa with usage:invalid (regardless of unacceptability_reason value), please create are record for a reference and put the full value of taxon_author in the 
         full_reference field.
+        */
 
+        /*
         Please note that they have some parts of names in quotes, e.g., "Hylarana" latouchii:
         """Hylarana"""|"latouchii"|""|"(Boulenger, 1899)"|"Species"|"valid"|"Ranidae Batsch, 1796"|""|""
 
@@ -136,6 +141,19 @@ class AmphibiansOfTheWorldAPI
         Ideally, we would preserve the spelling with the quotes on EOL, but I don't know if we can get this to work. The harvester may choke on it. 
         I suggest that we try it and see what happens.
         */
+    }
+    private function get_authority_from_str($str)
+    {
+        $str = str_replace(" ", "_", $str);
+        for($i = 0; $i <= strlen($str); $i++) {
+            $sub = substr($str, $i, 4); // echo "\n[$sub]";
+            if(is_numeric($sub)) { // echo "\nnumeric [$sub]\n";
+                $str = str_replace("_", " ", $str);
+                return substr($str, 0, $i+4);
+            }
+        }
+        $str = str_replace("_", " ", $str);
+        return $str;
     }
     /* =================== ends here =========================*/
     function get_all_taxa()
