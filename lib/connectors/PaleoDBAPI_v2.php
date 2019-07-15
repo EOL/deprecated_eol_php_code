@@ -599,7 +599,7 @@ class PaleoDBAPI_v2
         change measurementType to
         http://eol.org/schema/terms/SkeletalReinforcement
         */
-        $return $m;
+        return $m;
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
