@@ -554,7 +554,7 @@ class PaleoDBAPI_v2
         foreach($rec as $key => $value) $m->$key = $value;
         
         // /* from DATA-1814
-        $m = adjustments_per_Jen_Katja($m);
+        $m = self::adjustments_per_Jen_Katja($m);
         if(!$m) return;
         // */
         
