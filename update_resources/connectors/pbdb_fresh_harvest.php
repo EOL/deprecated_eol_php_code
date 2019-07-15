@@ -20,10 +20,13 @@ estimated execution time:
 368	Thursday 2019-05-30 05:14:58 AM	{"measurement_or_fact.tab":2484786,"occurrence.tab":519707,"taxon.tab":378357,"vernacular_name.tab":6225}
 368	Thursday 2019-05-30 05:44:07 AM	{"measurement_or_fact.tab":2472370,"occurrence.tab":516802,"taxon.tab":376228,"vernacular_name.tab":6213}
 
+this one is BEFORE the DATA-1814
 368	Monday 2019-07-15 09:06:17 AM	{"measurement_or_fact.tab":2497294,"occurrence.tab":522040,"taxon.tab":379961,"vernacular_name.tab":6234}
 368	Monday 2019-07-15 09:35:11 AM	{"measurement_or_fact.tab":2484781,"occurrence.tab":519113,"taxon.tab":377821,"vernacular_name.tab":6222}
 368	Monday 2019-07-15 10:01:25 AM	{"measurement_or_fact.tab":2497294,"occurrence.tab":522040,"taxon.tab":379961,"vernacular_name.tab":6234}
-368	Monday 2019-07-15 10:30:06 AM	{"measurement_or_fact.tab":2484739,"occurrence.tab":519106,"taxon.tab":377814,"vernacular_name.tab":6222}
+368	Monday 2019-07-15 10:30:06 AM	{"measurement_or_fact.tab":2484739,"occurrence.tab":519106,"taxon.tab":377814,"vernacular_name.tab":6222} - consistent OK
+
+this one is AFTER DATA-1814, changes were made already:
 
 */
 
