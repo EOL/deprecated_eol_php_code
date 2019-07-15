@@ -105,14 +105,18 @@ class AmphibiansOfTheWorldAPI
         where the unacceptability_reason value is "synonymous original name." If the value is "new combination or misspelling" the author data are apparently problematic, 
         so we want to omit them. In those cases, the scientificName would then consist only of the "unit_name1 unit_name2 unit_name3" string. */
         
-        if($rec['usage'] == 'valid') return $rec['taxon_author'];
+        $final = array('taxon_author' => '', 'reference_id' => '');
+        if($rec['usage'] == 'valid') return $final['taxon_author'] = $rec['taxon_author'];
         else { //invalid
-            if($rec['unacceptability_reason'] == 'new combination or misspelling') return '';
-            elseif($rec['unacceptability_reason'] == '') return '';
+            $final['reference_id'] = self::create_reference_from_invalid_taxa_using_taxon_author($rec['taxon_author'])
+            
+            if($rec['unacceptability_reason'] == 'new combination or misspelling') {}
+            elseif($rec['unacceptability_reason'] == '') {}
             elseif($rec['unacceptability_reason'] == 'synonymous original name') { //will do the processing here...
-                $final = self::get_authority_from_str($rec['taxon_author']);
+                $final['taxon_author'] = self::get_authority_from_str($rec['taxon_author']);
             }
         }
+        return $final;
         
         /* this block was solved by this func: get_authority_from_str()
         For the "synonymous original name" taxa, we need to extract the authors & year from the full taxon_author text so we append this as the authority to 
@@ -154,6 +158,17 @@ class AmphibiansOfTheWorldAPI
         }
         $str = str_replace("_", " ", $str);
         return $str;
+    }
+    private function create_reference_from_invalid_taxa_using_taxon_author($taxon_author)
+    {
+        $r = new \eol_schema\Reference();
+        $r->full_reference = $taxon_author;
+        $r->identifier = md5($r->full_reference);
+        if(!isset($this->reference_ids[$r->identifier])) {
+            $this->reference_ids[$r->identifier] = '';
+            $this->archive_builder->write_object_to_file($r);
+        }
+        return $r->identifier;
     }
     /* =================== ends here =========================*/
     function get_all_taxa()
@@ -256,14 +271,6 @@ class AmphibiansOfTheWorldAPI
             $r["lengths"] = array($rec["length"]);
             self::prepare_length_structured_data($r);
         }
-    }
-    private function create_reference()
-    {
-        $r = new \eol_schema\Reference();
-        $r->full_reference = "Cresswell, S. 2010-2014. American Insects. http://www.americaninsects.net";
-        $r->identifier = md5($r->full_reference);
-        $this->reference_id = $r->identifier;
-        $this->archive_builder->write_object_to_file($r);
     }
     private function parse_texts($html, $url)
     {

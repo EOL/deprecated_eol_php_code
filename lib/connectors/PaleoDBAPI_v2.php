@@ -541,9 +541,14 @@ class PaleoDBAPI_v2
         if(!@$rec['measurementType']) {
             print_r($rec);
             print_r($a);
-            exit;
+            exit("\nMight need to investigate.\n");
         }
-        
+
+        // /* from DATA-1814
+        $rec = self::adjustments_per_Jen_Katja($rec);
+        if(!$rec) return;
+        // */
+
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
@@ -552,24 +557,18 @@ class PaleoDBAPI_v2
         $m = new \eol_schema\MeasurementOrFact();
         $m->occurrenceID = $occurrence_id;
         foreach($rec as $key => $value) $m->$key = $value;
-        
-        // /* from DATA-1814
-        $m = self::adjustments_per_Jen_Katja($m);
-        if(!$m) return;
-        // */
-        
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->measurementID] = '';
         }
     }
-    private function adjustments_per_Jen_Katja($m)
+    private function adjustments_per_Jen_Katja($rec)
     {
-        if($m->measurementType == 'http://eol.org/schema/terms/skeletalComp2') {
-            $m->measurementType = 'http://purl.obolibrary.org/obo/OBA_1000106';
-            if($m->measurementRemarks) $m->measurementRemarks .= ". secondary component";
-            else                         $m->measurementRemarks = "secondary component";
+        if($rec['measurementType'] == 'http://eol.org/schema/terms/skeletalComp2') {
+            $rec['measurementType'] = 'http://purl.obolibrary.org/obo/OBA_1000106';
+            if($rec['measurementRemarks']) $rec['measurementRemarks'] .= ". secondary component";
+            else                         $rec['measurementRemarks'] = "secondary component";
         }
         /*
         where measurementType=http://eol.org/schema/terms/skeletalComp2
@@ -579,7 +578,7 @@ class PaleoDBAPI_v2
         $mValues = array('http://purl.obolibrary.org/obo/CHEBI_52239', 'http://purl.obolibrary.org/obo/CHEBI_52255', 'http://eol.org/schema/terms/lowMgCalcite', 
                          'http://purl.obolibrary.org/obo/CHEBI_64389', 'http://eol.org/schema/terms/highMgCalcite', 'http://eol.org/schema/terms/intermediateMgCalcite', 
                          'http://purl.obolibrary.org/obo/CHEBI_26020');
-        if($m->measurementType == 'http://purl.obolibrary.org/obo/OBA_1000106' && in_array($m->measurementValue, $mValues)) return false;
+        if($rec['measurementType'] == 'http://purl.obolibrary.org/obo/OBA_1000106' && in_array($rec['measurementValue'], $mValues)) return false;
         /*
         Where measurementType=http://purl.obolibrary.org/obo/OBA_1000106
         and measurementValue= one of these:
@@ -590,8 +589,8 @@ class PaleoDBAPI_v2
         remove the record (they duplicate a better curated source)
         */
         
-        if($m->measurementType == 'http://purl.obolibrary.org/obo/OBA_1000106' && $m->measurementValue == 'http://purl.obolibrary.org/obo/PORO_0000108') {
-            $m->measurementType = 'http://eol.org/schema/terms/SkeletalReinforcement';
+        if($rec['measurementType'] == 'http://purl.obolibrary.org/obo/OBA_1000106' && $rec['measurementValue'] == 'http://purl.obolibrary.org/obo/PORO_0000108') {
+            $rec['measurementType'] = 'http://eol.org/schema/terms/SkeletalReinforcement';
         }
         /*
         Where measurementType=http://purl.obolibrary.org/obo/OBA_1000106
@@ -599,7 +598,7 @@ class PaleoDBAPI_v2
         change measurementType to
         http://eol.org/schema/terms/SkeletalReinforcement
         */
-        return $m;
+        return $rec;
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
