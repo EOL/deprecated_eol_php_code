@@ -22,14 +22,15 @@ class AmphibiansOfTheWorldAPI
     }
     function start()
     {
-        $csv_file = Functions::save_remote_file_to_local($this->export_file, $this->download_options)
+        $csv_file = Functions::save_remote_file_to_local($this->export_file, $this->download_options);
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
         while(!feof($file)) {
-            $temp = fgetcsv($file);
+            $temp = fgetcsv($file, 0, "|", '"');
             $i++;
             if(($i % 1000) == 0) echo "\nbatch $i";
             if($i == 1) {
+                $temp = str_replace(array("[", "]"), "", $temp);
                 $fields = $temp;
                 print_r($fields);
                 continue;
