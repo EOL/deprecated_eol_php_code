@@ -51,12 +51,19 @@ class AmphibiansOfTheWorldAPI
                     $k++;
                 }
             }
-            // print_r($rec); exit;
-            $rec = self::parse_rec($rec);
-
-            // $debug['usage'][$rec['usage']] = '';
-            // $debug['unacceptability_reason'][$rec['unacceptability_reason']] = '';
             
+            if(stripos($rec['unit_name1'], "Hylarana") !== false) //string is found
+            {
+                if(stripos($rec['unit_name2'], "montivaga") !== false) //string is found
+                {
+                    print_r($rec); exit;
+                }
+            }
+            
+            
+            // print_r($rec); exit;
+            // $rec = self::parse_rec($rec);
+
             @$debug['usage'][$rec['usage']]['count']++;
             @$debug['unacceptability_reason'][$rec['unacceptability_reason']]['count']++;
             
@@ -95,7 +102,7 @@ class AmphibiansOfTheWorldAPI
             [accepted_name] => 
         )
         */
-        $final['taxon_author'] = self::generate_taxon_author($rec);
+        $info_taxon_author_and_ref_id = self::generate_taxon_author($rec);
         return $rec;
     }
     private function generate_taxon_author($rec)
@@ -108,7 +115,7 @@ class AmphibiansOfTheWorldAPI
         $final = array('taxon_author' => '', 'reference_id' => '');
         if($rec['usage'] == 'valid') return $final['taxon_author'] = $rec['taxon_author'];
         else { //invalid
-            $final['reference_id'] = self::create_reference_from_invalid_taxa_using_taxon_author($rec['taxon_author'])
+            $final['reference_id'] = self::create_reference_from_invalid_taxa_using_taxon_author($rec['taxon_author']);
             
             if($rec['unacceptability_reason'] == 'new combination or misspelling') {}
             elseif($rec['unacceptability_reason'] == '') {}
@@ -131,7 +138,7 @@ class AmphibiansOfTheWorldAPI
         Boettger, 1880, Ber. Senckenb. Naturforsch. Ges., 1879–80 >>> Boettger, 1880
         */
 
-        /*
+        /* this block was solved by func: create_reference_from_invalid_taxa_using_taxon_author()
         Also, for all taxa with usage:invalid (regardless of unacceptability_reason value), please create are record for a reference and put the full value of taxon_author in the 
         full_reference field.
         */
