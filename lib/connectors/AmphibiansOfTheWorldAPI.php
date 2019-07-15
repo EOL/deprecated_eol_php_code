@@ -27,6 +27,12 @@ class AmphibiansOfTheWorldAPI
         if(!$file = Functions::file_open($csv_file, "r")) return;
         while(!feof($file)) {
             $temp = fgetcsv($file, 0, "|", '"');
+            if(!$temp) continue;
+            $json = json_encode($temp);
+            $json = Functions::conv_to_utf8($json);
+            $temp = json_decode($json, true);
+            
+            $temp = array_map('trim', $temp);
             $i++;
             if(($i % 1000) == 0) echo "\nbatch $i";
             if($i == 1) {
@@ -45,9 +51,46 @@ class AmphibiansOfTheWorldAPI
                     $k++;
                 }
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            $rec = self::parse_rec($rec);
+            $debug['usage'][$rec['usage']] = '';
+            $debug['unacceptability_reason'][$rec['unacceptability_reason']] = '';
         }
         unlink($csv_file);
+        print_r($debug);
+    }
+    private function parse_rec($rec)
+    {
+        /*Array(
+            [usage] => Array(
+                    [valid] => 
+                    [invalid] => 
+            [unacceptability_reason] => Array(
+                    [] => 
+                    [synonymous original name] => 
+                    [new combination or misspelling] => 
+        )
+        unit_name1, unit_name2, unit_name3, taxon_author --> scientificName; concatenate the values of these fields, separated by blank spaces. Please check for whitespace irregularities, i.e., there should not be any leading or trailing spaces and there should always be only a single space between name components. Also, some taxon_author values need to be pre-processed, see 4. below.
+        taxon_author --> reference, see 4. below.
+        rank_name --> taxonRank; use lowercase strings for the rank names, e.g., Class should be class; omit hyphens, e.g., Sub-species should be subspecies.
+        usage --> taxonomicStatus, values verbatim
+        parent_name --> convert to parentNameUsageID
+        unacceptability_reason --> taxonRemarks, values verbatim
+        accepted_name --> convert to acceptedNameUsageID
+
+        Array(
+            [unit_name1] => Amphibia
+            [unit_name2] => 
+            [unit_name3] => 
+            [taxon_author] => 
+            [rank_name] => Class
+            [usage] => valid
+            [parent_name] => 
+            [unacceptability_reason] => 
+            [accepted_name] => 
+        )
+        */
+        return $rec;
     }
     /* =================== ends here =========================*/
     function get_all_taxa()

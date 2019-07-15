@@ -14,10 +14,17 @@ estimated execution time:
 368	Thursday 2018-10-18 01:59:53 PM	    {"measurement_or_fact.tab":2413255,"occurrence.tab":506032,"taxon.tab":367421,"vernacular_name.tab":6142}
 368	Tuesday 2018-11-06 11:58:23 PM	    {"measurement_or_fact.tab":2419162,"occurrence.tab":506549,"taxon.tab":367928,"vernacular_name.tab":6143}
 368	Sunday 2018-11-11 12:50:28 AM	    {"measurement_or_fact.tab":2419162,"occurrence.tab":506549,"taxon.tab":367927,"vernacular_name.tab":6143}
+
 368	Thursday 2019-05-30 04:19:26 AM	{"measurement_or_fact.tab":2484786,"occurrence.tab":519707,"taxon.tab":378357,"vernacular_name.tab":6225}
 368	Thursday 2019-05-30 04:48:18 AM	{"measurement_or_fact.tab":2472412,"occurrence.tab":516809,"taxon.tab":376235,"vernacular_name.tab":6213}
 368	Thursday 2019-05-30 05:14:58 AM	{"measurement_or_fact.tab":2484786,"occurrence.tab":519707,"taxon.tab":378357,"vernacular_name.tab":6225}
 368	Thursday 2019-05-30 05:44:07 AM	{"measurement_or_fact.tab":2472370,"occurrence.tab":516802,"taxon.tab":376228,"vernacular_name.tab":6213}
+
+368	Monday 2019-07-15 09:06:17 AM	{"measurement_or_fact.tab":2497294,"occurrence.tab":522040,"taxon.tab":379961,"vernacular_name.tab":6234}
+368	Monday 2019-07-15 09:35:11 AM	{"measurement_or_fact.tab":2484781,"occurrence.tab":519113,"taxon.tab":377821,"vernacular_name.tab":6222}
+368	Monday 2019-07-15 10:01:25 AM	{"measurement_or_fact.tab":2497294,"occurrence.tab":522040,"taxon.tab":379961,"vernacular_name.tab":6234}
+368	Monday 2019-07-15 10:30:06 AM	{"measurement_or_fact.tab":2484739,"occurrence.tab":519106,"taxon.tab":377814,"vernacular_name.tab":6222}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
