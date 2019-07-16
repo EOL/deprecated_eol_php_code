@@ -27,7 +27,9 @@ this one is BEFORE the DATA-1814
 368	Monday 2019-07-15 10:30:06 AM	{"measurement_or_fact.tab":2484739,"occurrence.tab":519106,"taxon.tab":377814,"vernacular_name.tab":6222} - consistent OK
 
 this one is AFTER DATA-1814, changes were made already:
-
+368	Monday 2019-07-15 02:03:07 PM	{"measurement_or_fact.tab":2292095,"occurrence.tab":518515,"taxon.tab":377821,"vernacular_name.tab":6222}
+368	Monday 2019-07-15 02:28:18 PM	{"measurement_or_fact.tab":2304006,"occurrence.tab":521441,"taxon.tab":379961,"vernacular_name.tab":6234}
+368	Monday 2019-07-15 02:55:44 PM	{"measurement_or_fact.tab":2292053,"occurrence.tab":518508,"taxon.tab":377814,"vernacular_name.tab":6222} - expected lesser MoF & occurrence count. Still consistent.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

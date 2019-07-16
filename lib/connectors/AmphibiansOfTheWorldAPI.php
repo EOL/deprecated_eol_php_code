@@ -47,26 +47,23 @@ class AmphibiansOfTheWorldAPI
                 // 2 checks if valid record
                 if(!$temp) continue;
                 foreach($temp as $t) {
-                    $rec[$fields[$k]] = $t;
+                    $rec[$fields[$k]] = Functions::remove_whitespace($t);
                     $k++;
                 }
             }
-            
-            if(stripos($rec['unit_name1'], "Hylarana") !== false) //string is found
-            {
-                if(stripos($rec['unit_name2'], "montivaga") !== false) //string is found
-                {
+            // /* good debug
+            if(stripos($rec['unit_name1'], "Hylarana") !== false) { //string is found
+                if(stripos($rec['unit_name2'], "montivaga") !== false) { //string is found
                     print_r($rec); exit;
                 }
             }
-            
-            
+            // */
             // print_r($rec); exit;
-            // $rec = self::parse_rec($rec);
-
+            $dwca_rec = self::parse_rec($rec);
+            /* good debug
             @$debug['usage'][$rec['usage']]['count']++;
             @$debug['unacceptability_reason'][$rec['unacceptability_reason']]['count']++;
-            
+            */
         }
         unlink($csv_file);
         print_r($debug);
@@ -82,7 +79,9 @@ class AmphibiansOfTheWorldAPI
                     [synonymous original name] => [count] => 9479
                     [new combination or misspelling] => [count] => 13683
         
-        unit_name1, unit_name2, unit_name3, taxon_author --> scientificName; concatenate the values of these fields, separated by blank spaces. Please check for whitespace irregularities, i.e., there should not be any leading or trailing spaces and there should always be only a single space between name components. Also, some taxon_author values need to be pre-processed, see 4. below.
+        unit_name1, unit_name2, unit_name3, taxon_author --> scientificName; concatenate the values of these fields, separated by blank spaces. 
+            Please check for whitespace irregularities, i.e., there should not be any leading or trailing spaces and there should always be only a single space between name components. 
+            Also, some taxon_author values need to be pre-processed, see 4. below.
         taxon_author --> reference, see 4. below.
         rank_name --> taxonRank; use lowercase strings for the rank names, e.g., Class should be class; omit hyphens, e.g., Sub-species should be subspecies.
         usage --> taxonomicStatus, values verbatim
@@ -102,8 +101,27 @@ class AmphibiansOfTheWorldAPI
             [accepted_name] => 
         )
         */
+        $final = array();
         $info_taxon_author_and_ref_id = self::generate_taxon_author($rec);
-        return $rec;
+        $taxon_author = $info_taxon_author_and_ref_id['taxon_author'];
+        $final['scientificName'] = self::concatenate_strings(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3'], $taxon_author));
+        $final['reference_id'] = $info_taxon_author_and_ref_id['reference_id'];
+        $final['taxonRank'] = $rec['rank_name'];
+        $final['taxonomicStatus'] = $rec['usage'];
+        $final['parentNameUsageID'] = $rec['parent_name'];
+        $final['taxonRemarks'] = $rec['unacceptability_reason'];
+        $final['acceptedNameUsageID'] = $rec['accepted_name'];
+        print_r($final); //exit;
+        return $final;
+    }
+    private function concatenate_strings($strings)
+    {
+        $final = '';
+        $strings = array_map('trim', $strings);
+        foreach($strings as $str) {
+            if($str) $final .= " $str";
+        }
+        return Functions::remove_whitespace(trim($final));
     }
     private function generate_taxon_author($rec)
     {
@@ -112,8 +130,8 @@ class AmphibiansOfTheWorldAPI
         where the unacceptability_reason value is "synonymous original name." If the value is "new combination or misspelling" the author data are apparently problematic, 
         so we want to omit them. In those cases, the scientificName would then consist only of the "unit_name1 unit_name2 unit_name3" string. */
         
-        $final = array('taxon_author' => '', 'reference_id' => '');
-        if($rec['usage'] == 'valid') return $final['taxon_author'] = $rec['taxon_author'];
+        $final = array('taxon_author' => '', 'reference_id' => ''); //initialize
+        if($rec['usage'] == 'valid') $final['taxon_author'] = $rec['taxon_author'];
         else { //invalid
             $final['reference_id'] = self::create_reference_from_invalid_taxa_using_taxon_author($rec['taxon_author']);
             
@@ -125,7 +143,7 @@ class AmphibiansOfTheWorldAPI
         }
         return $final;
         
-        /* this block was solved by this func: get_authority_from_str()
+        /* ELI: this block was solved by this func: get_authority_from_str()
         For the "synonymous original name" taxa, we need to extract the authors & year from the full taxon_author text so we append this as the authority to 
         the unit_name1 unit_name2 unit_name3 string. It looks like they never use parentheses around the year in the taxon_author strings for invalid taxa, 
         so we can extract the author & year simply by using the beginning of the taxon_author string up to and including the 4 digit year number. Examples:
@@ -138,12 +156,12 @@ class AmphibiansOfTheWorldAPI
         Boettger, 1880, Ber. Senckenb. Naturforsch. Ges., 1879–80 >>> Boettger, 1880
         */
 
-        /* this block was solved by func: create_reference_from_invalid_taxa_using_taxon_author()
+        /* ELI: this block was solved by func: create_reference_from_invalid_taxa_using_taxon_author()
         Also, for all taxa with usage:invalid (regardless of unacceptability_reason value), please create are record for a reference and put the full value of taxon_author in the 
         full_reference field.
         */
 
-        /*
+        /* ELI: by default fgetcsv maintains the double quotes. So this one is also covered.
         Please note that they have some parts of names in quotes, e.g., "Hylarana" latouchii:
         """Hylarana"""|"latouchii"|""|"(Boulenger, 1899)"|"Species"|"valid"|"Ranidae Batsch, 1796"|""|""
 
