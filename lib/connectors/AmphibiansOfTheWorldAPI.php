@@ -53,7 +53,7 @@ class AmphibiansOfTheWorldAPI
                  // print_r($arr[1]); exit;
                  $i = 0;
                  foreach($arr[1] as $url1) { $i++; //exit("\n$url1\n");
-                     echo " $i ";
+                     echo "\n$i -> ";
                      if($info1 = self::search_more($url1)) {
                          /*Array(
                              [0] => Array(
