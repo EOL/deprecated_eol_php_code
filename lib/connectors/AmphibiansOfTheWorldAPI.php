@@ -66,8 +66,9 @@ class AmphibiansOfTheWorldAPI
             */
             // print_r($rec); //exit;
             if(self::has_question_mark(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3']))) continue; //@$debug['has ?']++;
-            if(self::species_but_not_binomials($rec)) print_r($rec); //continue;
+            if(self::species_but_not_binomials($rec)) continue; //print_r($rec); //continue;
             $dwca_rec = self::parse_rec($rec);
+            self::write_dwca($dwca_rec);
             /* good debug
             @$debug['usage'][$rec['usage']]['count']++;
             @$debug['unacceptability_reason'][$rec['unacceptability_reason']]['count']++;
@@ -75,6 +76,7 @@ class AmphibiansOfTheWorldAPI
         }
         unlink($csv_file);
         print_r($debug);
+        $this->archive_builder->finalize(TRUE);
     }
     private function parse_rec($rec)
     {
@@ -262,6 +264,34 @@ class AmphibiansOfTheWorldAPI
         }
         
         return false;
+    }
+    private function write_dwca($rec)
+    {   /*Array
+            [scientificName] => Phyllonastes lynchi Duellman, 1991
+            [reference_id] => f29b97a995fd216253295320f2c4670d
+            [taxonRank] => species
+            [taxonomicStatus] => invalid
+            [parentNameUsageID] => 
+            [taxonRemarks] => synonymous original name
+            [acceptedNameUsageID] => Noblella lynchi (Duellman, 1991)
+        */
+        // print_r($rec);
+        
+        $rec['taxonID'] = $rec['scientificName'];
+
+        // if($val = $rec['taxonID']) $rec['taxonID'] = md5($val);
+        // if($val = $rec['parentNameUsageID']) $rec['parentNameUsageID'] = md5($val);
+        // if($val = $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = md5($val);
+        
+        unset($rec['reference_id']);
+        $taxon = new \eol_schema\Taxon();
+        foreach($rec as $key => $value) {
+            $taxon->$key = $value;
+        }
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
     }
     /* =================== ends here =========================*/
     function get_all_taxa()
@@ -724,17 +754,6 @@ class AmphibiansOfTheWorldAPI
             if(is_numeric($arr[0]) && is_numeric($arr[1])) return str_replace(" to ", "-", $str);
         }
         return false;
-    }
-    private function create_instances_from_taxon_object($rec)
-    {
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                     = $rec["taxon_id"];
-        $taxon->scientificName              = $rec["sciname"];
-        $taxon->furtherInformationURL       = $rec["source"];
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->taxon_ids[$taxon->taxonID] = 1;
-            $this->archive_builder->write_object_to_file($taxon);
-        }
     }
     private function make_offline_urls_unique()
     {
