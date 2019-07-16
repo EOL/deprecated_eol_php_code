@@ -88,26 +88,20 @@ class AmphibiansOfTheWorldAPI
 
                                                                             }
                                                                         }
-                                                                        
                                                                     }
                                                                 }
-                                                                
                                                             }
                                                         }
-                                                        
                                                      }
                                                  }
-                                                 
                                              }
                                          }
-                                         
                                      }
                                  }
-                                 
                              }
                          }
                      }
-                     exit("\nstop muna\n");
+                     // exit("\nstop muna\n");
                  }
              }
         }
