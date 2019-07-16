@@ -13,6 +13,7 @@ class AmphibiansOfTheWorldAPI
         $this->debug = array();
 
         $this->export_file = 'http://prod-asw-001.amnh.org/vz/herpetology/amphibia/var/ezwebin_site/storage/export_itis.csv';
+        $this->export_file = 'http://localhost/cp/Amphibian%20Species%20of%20the%20World/export_itis.csv';
         /*
         //for stats
         $this->TEMP_DIR = create_temp_dir() . "/";
@@ -34,29 +35,7 @@ class AmphibiansOfTheWorldAPI
             if(isset($unique_rows[$json_md5])) continue; //exit("\nencountered duplicate row\n");
             else $unique_rows[$json_md5] = '';
             //---------------------------------
-            //$json = Functions::conv_to_utf8($json);
-            $json = utf8_encode($json);
-            // /* fix weird char
-            $json = str_replace("\ ", " ", $json); //weird char that looks like a space ' ';
-            $json = str_replace(' ', " ", $json); //weird char that looks like a space ' ';
-            
-            //Leptolalax mangshanensis
-            //Leptolalax mangshanensis
-            //Leptolalax mangshanensis
-            
-            
-            $json = str_replace("\xA0", "&nbsp;", $json);
-            $json = str_replace("\x0A", "&nbsp;", $json);
-            
-            //Leptolalax mangshanensis
-            
-            if(stripos($json, " ") !== false)  //string is found
-            {
-                print_r($temp);
-                exit("\nfound weird char\n");
-            }
-            // */
-
+            $json = Functions::conv_to_utf8($json);
             $temp = json_decode($json, true);
             
             $temp = array_map('trim', $temp);

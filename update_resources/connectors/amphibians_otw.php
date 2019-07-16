@@ -20,6 +20,10 @@ exit("\nend muna\n");
 */
 
 
+/* VERY IMPORTANT:
+There is a manual step. Open the export_list.csv using TextEdit and replace this weird character   with space ' '.
+*/
+
 // /* normal operation
 $resource_id = "aotw"; //amphibians of the world
 $func = new AmphibiansOfTheWorldAPI($resource_id);
