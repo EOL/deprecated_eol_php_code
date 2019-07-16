@@ -64,6 +64,7 @@ class AmphibiansOfTheWorldAPI
             }
             */
             // print_r($rec); exit;
+            if(self::has_question_mark(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3']))) continue; //@$debug['has ?']++;
             $dwca_rec = self::parse_rec($rec);
             /* good debug
             @$debug['usage'][$rec['usage']]['count']++;
@@ -203,6 +204,13 @@ class AmphibiansOfTheWorldAPI
             $this->archive_builder->write_object_to_file($r);
         }
         return $r->identifier;
+    }
+    private function has_question_mark($strings)
+    {
+        foreach($strings as $str) {
+            if(stripos($str, "?") !== false) return true; //string is found
+        }
+        return false;
     }
     /* =================== ends here =========================*/
     function get_all_taxa()
