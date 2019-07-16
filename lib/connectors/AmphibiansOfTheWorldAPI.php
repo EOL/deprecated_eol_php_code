@@ -151,7 +151,7 @@ class AmphibiansOfTheWorldAPI
         $sciname = self::concatenate_strings(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3']));
         $final['furtherInformationURL'] = $this->furtherInfoURL;
         $final['scientificName'] = self::concatenate_strings(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3'], $taxon_author));
-        $final['reference_id'] = $info_taxon_author_and_ref_id['reference_id'];
+        $final['referenceID'] = $info_taxon_author_and_ref_id['reference_id'];
         $final['taxonRank'] = self::format_rank($rec['rank_name']);
         $final['taxonomicStatus'] = $rec['usage'];
         $final['parentNameUsageID'] = $rec['parent_name'];
@@ -183,7 +183,7 @@ class AmphibiansOfTheWorldAPI
         $final = array('taxon_author' => '', 'reference_id' => ''); //initialize
         if($rec['usage'] == 'valid') $final['taxon_author'] = $rec['taxon_author'];
         else { //invalid
-            $final['reference_id'] = self::create_reference_from_invalid_taxa_using_taxon_author($rec['taxon_author']);
+            if($val = $rec['taxon_author']) $final['reference_id'] = self::create_reference_from_invalid_taxa_using_taxon_author($val);
             
             if($rec['unacceptability_reason'] == 'new combination or misspelling') {}
             elseif($rec['unacceptability_reason'] == '') {}
@@ -304,7 +304,7 @@ class AmphibiansOfTheWorldAPI
     private function write_dwca($rec)
     {   /*Array
             [scientificName] => Phyllonastes lynchi Duellman, 1991
-            [reference_id] => f29b97a995fd216253295320f2c4670d
+            [referenceID] => f29b97a995fd216253295320f2c4670d
             [taxonRank] => species
             [taxonomicStatus] => invalid
             [parentNameUsageID] => 
@@ -321,7 +321,6 @@ class AmphibiansOfTheWorldAPI
         if($val = $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = md5($val);
         // */
         
-        unset($rec['reference_id']);
         $taxon = new \eol_schema\Taxon();
         foreach($rec as $key => $value) {
             $taxon->$key = $value;
