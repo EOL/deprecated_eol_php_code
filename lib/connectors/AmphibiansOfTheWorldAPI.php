@@ -9,11 +9,19 @@ class AmphibiansOfTheWorldAPI
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
-        $this->download_options = array("download_wait_time" => 1000000, "timeout" => 1800, "download_attempts" => 1, "cache" => 1, "expire_seconds" => 60*60*24*30); //expires in 30 days
+        $this->download_options = array("resource_id" => $this->resource_id, "download_wait_time" => 1000000, "timeout" => 1800, 
+                                        "download_attempts" => 1, "cache" => 1, "expire_seconds" => 60*60*24*30*3); //expires in 3 months (quarterly)
         $this->debug = array();
 
         $this->export_file = 'http://prod-asw-001.amnh.org/vz/herpetology/amphibia/var/ezwebin_site/storage/export_itis.csv';
         $this->export_file = 'http://localhost/cp/Amphibian%20Species%20of%20the%20World/export_itis.csv';
+        
+        $this->fiURL = 'http://research.amnh.org/vz/herpetology/amphibia/index.php//content/search?taxon=';
+                     // http://research.amnh.org/vz/herpetology/amphibia/amphib/basic_search?basic_query=
+                        
+        $this->starting_page = 'http://research.amnh.org/vz/herpetology/amphibia/index.php';
+                        
+        $this->aotw_undefined_acceptedName_ids = CONTENT_RESOURCE_LOCAL_PATH . 'aotw_undefined_acceptedName_ids.txt';
         /*
         //for stats
         $this->TEMP_DIR = create_temp_dir() . "/";
@@ -21,8 +29,29 @@ class AmphibiansOfTheWorldAPI
         $this->current_offline_urls_dump_file2 = $this->TEMP_DIR . "offline_urls_unique.txt";
         */
     }
+    private function get_undefined_acceptedName_ids()
+    {
+        if(file_exists($this->aotw_undefined_acceptedName_ids)) {
+            $arr = file($this->aotw_undefined_acceptedName_ids);
+            $arr = array_map('trim', $arr);
+            print_r($arr);
+            return $arr;
+        }
+        return array();
+    }
+    private function cache_furtherInformationURLs()
+    {
+        if($html = Functions::lookup_with_cache($this->starting_page, $this->download_options)) {
+             <a href="/vz/herpetology/amphibia/index.php//Amphibia/Anura">
+             if(preg_match("/>Family: (.*?)xxx/ims", $html . "xxx", $arr)) {
+             
+        }
+        exit("\nfinished caching\n");
+    }
     function start()
     {
+        self::cache_furtherInformationURLs();
+        $this->undefined_acceptedName_ids = self::get_undefined_acceptedName_ids();
         $csv_file = Functions::save_remote_file_to_local($this->export_file, $this->download_options);
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
@@ -67,6 +96,11 @@ class AmphibiansOfTheWorldAPI
             // print_r($rec); //exit;
             if(self::has_question_mark(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3']))) continue; //@$debug['has ?']++;
             if(self::species_but_not_binomials($rec)) continue; //print_r($rec); //continue;
+            if($this->undefined_acceptedName_ids) {
+                if(in_array($rec['accepted_name'], $this->undefined_acceptedName_ids)) continue;
+                if(in_array(md5($rec['accepted_name']), $this->undefined_acceptedName_ids)) continue;
+                
+            }
             $dwca_rec = self::parse_rec($rec);
             self::write_dwca($dwca_rec);
             /* good debug
@@ -75,7 +109,7 @@ class AmphibiansOfTheWorldAPI
             */
         }
         unlink($csv_file);
-        print_r($debug);
+        if(isset($debug)) print_r($debug);
         $this->archive_builder->finalize(TRUE);
     }
     private function parse_rec($rec)
@@ -114,6 +148,10 @@ class AmphibiansOfTheWorldAPI
         $final = array();
         $info_taxon_author_and_ref_id = self::generate_taxon_author($rec);
         $taxon_author = $info_taxon_author_and_ref_id['taxon_author'];
+        
+        $sciname = self::concatenate_strings(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3']));
+        $final['furtherInformationURL'] = $this->fiURL . urlencode($sciname);
+        
         $final['scientificName'] = self::concatenate_strings(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3'], $taxon_author));
         $final['reference_id'] = $info_taxon_author_and_ref_id['reference_id'];
         $final['taxonRank'] = self::format_rank($rec['rank_name']);
@@ -278,10 +316,12 @@ class AmphibiansOfTheWorldAPI
         // print_r($rec);
         
         $rec['taxonID'] = $rec['scientificName'];
-
-        // if($val = $rec['taxonID']) $rec['taxonID'] = md5($val);
-        // if($val = $rec['parentNameUsageID']) $rec['parentNameUsageID'] = md5($val);
-        // if($val = $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = md5($val);
+        
+        // /* to md5 the IDs
+        if($val = $rec['taxonID']) $rec['taxonID'] = md5($val);
+        if($val = $rec['parentNameUsageID']) $rec['parentNameUsageID'] = md5($val);
+        if($val = $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = md5($val);
+        // */
         
         unset($rec['reference_id']);
         $taxon = new \eol_schema\Taxon();

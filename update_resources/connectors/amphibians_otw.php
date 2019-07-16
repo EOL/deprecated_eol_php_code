@@ -30,26 +30,34 @@ $func = new AmphibiansOfTheWorldAPI($resource_id);
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id);
+if(run_diagnostics($resource_id)) { //2nd try
+    $func = new AmphibiansOfTheWorldAPI($resource_id);
+    $func->start();
+    unset($func);
+    Functions::finalize_dwca_resource($resource_id);
+    if(run_diagnostics($resource_id)) { //2nd try
+    }
+}
 // */
-
-$func = new DWCADiagnoseAPI();
-if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
-    echo "\nparents without entries: ".count($parents_without_entries)."\n"; 
-}
-else echo "\nAll parents have entries OK\n";
-
-if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'acceptedNameUsageID')) { //2nd param True means write to text file
-    echo "\nacceptedNameUsageID without entries: ".count($parents_without_entries)."\n"; 
-}
-else echo "\nAll acceptedNameUsageIDs have entries OK\n";
-
-
-
-
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+
+function run_diagnostics($resource_id)
+{
+    $func = new DWCADiagnoseAPI();
+    if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true)) { //2nd param True means write to text file
+        echo "\nparents without entries: ".count($parents_without_entries)."\n"; 
+    }
+    else echo "\nAll parents have entries OK\n";
+
+    if($parents_without_entries = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'acceptedNameUsageID')) { //2nd param True means write to text file
+        echo "\nacceptedNameUsageID without entries: ".count($parents_without_entries)."\n";
+        return true;
+    }
+    else echo "\nAll acceptedNameUsageIDs have entries OK\n";
+}
 ?>
