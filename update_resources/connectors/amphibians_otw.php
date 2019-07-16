@@ -6,6 +6,7 @@ estimated execution time:
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/AmphibiansOfTheWorldAPI');
 $timestart = time_elapsed();
+$GLOBALS['ENV_DEBUG'] = false;
 
 /* testing
 $str = "Bolkay, 1912 , Mitt. Jahrb. K. Ungar. Geol. Anst., 19"; // >>> Bolkay, 1912

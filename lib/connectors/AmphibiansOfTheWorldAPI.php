@@ -51,7 +51,9 @@ class AmphibiansOfTheWorldAPI
 
                  $arr[1] = array_filter($arr[1]);
                  // print_r($arr[1]); exit;
-                 foreach($arr[1] as $url1) { //exit("\n$url1\n");
+                 $i = 0;
+                 foreach($arr[1] as $url1) { $i++; //exit("\n$url1\n");
+                     echo " $i ";
                      if($info1 = self::search_more($url1)) {
                          /*Array(
                              [0] => Array(
@@ -117,7 +119,9 @@ class AmphibiansOfTheWorldAPI
                     [2] => <a href="/vz/herpetology/amphibia/index.php//Amphibia/Gymnophiona">Gymnophiona</a>
                     (212 sp.)
                 )*/
-                foreach($temp as $a) {
+                $i = 0;
+                foreach($temp as $a) { $i++;
+                    echo " [$i]";
                     $final = array();
                     if(preg_match("/<a href=\"(.*?)\"/ims", $a, $arr)) $final['url'] = $arr[1];
                     if(preg_match("/\">(.*?)<\/a>/ims", $a, $arr)) $final['sci'] = $arr[1];
