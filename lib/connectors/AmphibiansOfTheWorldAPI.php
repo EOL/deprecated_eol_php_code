@@ -29,6 +29,11 @@ class AmphibiansOfTheWorldAPI
             $temp = fgetcsv($file, 0, "|", '"');
             if(!$temp) continue;
             $json = json_encode($temp);
+            //--------------------------------- to have unique rows
+            $json_md5 = md5($json);
+            if(isset($unique_rows[$json_md5])) continue; //exit("\nencountered duplicate row\n");
+            else $unique_rows[$json_md5] = '';
+            //---------------------------------
             $json = Functions::conv_to_utf8($json);
             $temp = json_decode($json, true);
             
@@ -51,13 +56,13 @@ class AmphibiansOfTheWorldAPI
                     $k++;
                 }
             }
-            // /* good debug
+            /* good debug
             if(stripos($rec['unit_name1'], "Hylarana") !== false) { //string is found
                 if(stripos($rec['unit_name2'], "montivaga") !== false) { //string is found
                     print_r($rec); exit;
                 }
             }
-            // */
+            */
             // print_r($rec); exit;
             $dwca_rec = self::parse_rec($rec);
             /* good debug
@@ -106,13 +111,17 @@ class AmphibiansOfTheWorldAPI
         $taxon_author = $info_taxon_author_and_ref_id['taxon_author'];
         $final['scientificName'] = self::concatenate_strings(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3'], $taxon_author));
         $final['reference_id'] = $info_taxon_author_and_ref_id['reference_id'];
-        $final['taxonRank'] = $rec['rank_name'];
+        $final['taxonRank'] = self::format_rank($rec['rank_name']);
         $final['taxonomicStatus'] = $rec['usage'];
         $final['parentNameUsageID'] = $rec['parent_name'];
         $final['taxonRemarks'] = $rec['unacceptability_reason'];
         $final['acceptedNameUsageID'] = $rec['accepted_name'];
-        print_r($final); //exit;
+        // print_r($final); //exit;
         return $final;
+    }
+    private function format_rank($str)
+    {
+        return trim(strtolower(str_replace("-", "", $str)));
     }
     private function concatenate_strings($strings)
     {
