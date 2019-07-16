@@ -35,7 +35,7 @@ if(run_diagnostics($resource_id)) { //2nd try
     $func = new AmphibiansOfTheWorldAPI($resource_id);
     $func->start();
     unset($func);
-    Functions::finalize_dwca_resource($resource_id, false, true); //2nd false means NOT a big file //3rd true means will delete folder.
+    Functions::finalize_dwca_resource($resource_id);
     if(run_diagnostics($resource_id)) { //2nd try
     }
 }
