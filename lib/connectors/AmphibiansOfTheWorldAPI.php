@@ -14,7 +14,8 @@ class AmphibiansOfTheWorldAPI
         $this->debug = array();
 
         $this->export_file = 'http://prod-asw-001.amnh.org/vz/herpetology/amphibia/var/ezwebin_site/storage/export_itis.csv';
-        $this->export_file = 'http://localhost/cp/Amphibian%20Species%20of%20the%20World/export_itis.csv';
+        $this->export_file = 'http://localhost/cp/Amphibian Species of the World/export_itis.csv';
+        $this->export_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Amphibian Species of the World/export_itis.csv';
         
         $this->fiURL = 'http://research.amnh.org/vz/herpetology/amphibia/index.php//content/search?taxon=';
                      // http://research.amnh.org/vz/herpetology/amphibia/amphib/basic_search?basic_query=
