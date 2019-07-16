@@ -75,7 +75,26 @@ class AmphibiansOfTheWorldAPI
                                                  foreach($info4 as $info) {
                                                      if(!@$info['count']) continue;
                                                      if($info5 = self::search_more($info['url'])) {
-                                                        exit("\nreached level 5\n");
+                                                        foreach($info5 as $info) {
+                                                            if(!@$info['count']) continue;
+                                                            if($info6 = self::search_more($info['url'])) {
+                                                                foreach($info6 as $info) {
+                                                                    if(!@$info['count']) continue;
+                                                                    if($info7 = self::search_more($info['url'])) {
+                                                                        foreach($info7 as $info) {
+                                                                            if(!@$info['count']) continue;
+                                                                            if($info8 = self::search_more($info['url'])) {
+                                                                                exit("\nreached level 8\n");
+
+                                                                            }
+                                                                        }
+                                                                        
+                                                                    }
+                                                                }
+                                                                
+                                                            }
+                                                        }
+                                                        
                                                      }
                                                  }
                                                  
