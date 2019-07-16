@@ -34,7 +34,29 @@ class AmphibiansOfTheWorldAPI
             if(isset($unique_rows[$json_md5])) continue; //exit("\nencountered duplicate row\n");
             else $unique_rows[$json_md5] = '';
             //---------------------------------
-            $json = Functions::conv_to_utf8($json);
+            //$json = Functions::conv_to_utf8($json);
+            $json = utf8_encode($json);
+            // /* fix weird char
+            $json = str_replace("\ ", " ", $json); //weird char that looks like a space ' ';
+            $json = str_replace(' ', " ", $json); //weird char that looks like a space ' ';
+            
+            //Leptolalax mangshanensis
+            //Leptolalax mangshanensis
+            //Leptolalax mangshanensis
+            
+            
+            $json = str_replace("\xA0", "&nbsp;", $json);
+            $json = str_replace("\x0A", "&nbsp;", $json);
+            
+            //Leptolalax mangshanensis
+            
+            if(stripos($json, " ") !== false)  //string is found
+            {
+                print_r($temp);
+                exit("\nfound weird char\n");
+            }
+            // */
+
             $temp = json_decode($json, true);
             
             $temp = array_map('trim', $temp);
@@ -63,8 +85,9 @@ class AmphibiansOfTheWorldAPI
                 }
             }
             */
-            // print_r($rec); exit;
+            // print_r($rec); //exit;
             if(self::has_question_mark(array($rec['unit_name1'], $rec['unit_name2'], $rec['unit_name3']))) continue; //@$debug['has ?']++;
+            if(self::species_but_not_binomials($rec)) print_r($rec); //continue;
             $dwca_rec = self::parse_rec($rec);
             /* good debug
             @$debug['usage'][$rec['usage']]['count']++;
@@ -210,6 +233,55 @@ class AmphibiansOfTheWorldAPI
         foreach($strings as $str) {
             if(stripos($str, "?") !== false) return true; //string is found
         }
+        return false;
+    }
+    private function species_but_not_binomials($rec)
+    {
+        /*Array(
+            [unit_name1] => Amphibia
+            [unit_name2] => 
+            [unit_name3] => 
+            [taxon_author] => 
+            [rank_name] => Class
+            [usage] => valid
+            [parent_name] => 
+            [unacceptability_reason] => 
+            [accepted_name] => 
+        )
+        3. Remove species that are not binomials:
+        (a) taxa of rank species that dont have a unit_name2 entry
+        (b) taxa of rank species where the unit_name2 entry has parentheses and there is no unit_name3 value
+        */
+        /* I've added this 1st block bec. there are invalid species with ' ' space in name1 but blank in name2 and name3
+        e.g. Array
+            [unit_name1] => Cornufer (Ceratobatrachus) guentheri
+            [unit_name2] => 
+            [unit_name3] => 
+            [rank_name] => Species
+            [usage] => invalid
+        batch 31000Array
+            [unit_name1] => Leptolalax mangshanensis
+            [unit_name2] => 
+            [unit_name3] => 
+            [rank_name] => Species
+            [usage] => invalid
+        */
+        if($rec['rank_name'] == 'Species' && $rec['usage'] == 'invalid') {
+            if(stripos($rec['unit_name1'], " ") !== false) return false; //string is found
+            if(!$rec['unit_name2']) return true;
+            if(stripos($rec['unit_name2'], "(") !== false) { //string is found
+                if(!$rec['unit_name3']) return true;
+            }
+        }
+
+        /* this is the original block. Based on verbatim Katja's instructions. I just put in the distintion here where species is 'valid' */
+        if($rec['rank_name'] == 'Species' && $rec['usage'] == 'valid') {
+            if(!$rec['unit_name2']) return true;
+            if(stripos($rec['unit_name2'], "(") !== false) { //string is found
+                if(!$rec['unit_name3']) return true;
+            }
+        }
+        
         return false;
     }
     /* =================== ends here =========================*/
