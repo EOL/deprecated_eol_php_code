@@ -19,7 +19,10 @@ class AmphibiansOfTheWorldAPI
         $this->fiURL = 'http://research.amnh.org/vz/herpetology/amphibia/index.php//content/search?taxon=';
                      // http://research.amnh.org/vz/herpetology/amphibia/amphib/basic_search?basic_query=
                         
-        $this->starting_page = 'http://research.amnh.org/vz/herpetology/amphibia/index.php';
+
+        $this->domain        = 'http://research.amnh.org';
+        $this->starting_page = $this->domain.'/vz/herpetology/amphibia/index.php';
+        $this->next_page     = $this->domain.'/vz/herpetology/amphibia/index.php//Amphibia';
                         
         $this->aotw_undefined_acceptedName_ids = CONTENT_RESOURCE_LOCAL_PATH . 'aotw_undefined_acceptedName_ids.txt';
         /*
@@ -42,11 +45,89 @@ class AmphibiansOfTheWorldAPI
     private function cache_furtherInformationURLs()
     {
         if($html = Functions::lookup_with_cache($this->starting_page, $this->download_options)) {
-             <a href="/vz/herpetology/amphibia/index.php//Amphibia/Anura">
-             if(preg_match("/>Family: (.*?)xxx/ims", $html . "xxx", $arr)) {
-             
+             // <a href="/vz/herpetology/amphibia/index.php//Amphibia/Anura">
+             if(preg_match_all("/\/vz\/herpetology\/amphibia\/index.php\/\/Amphibia(.*?)\"/ims", $html, $arr)) {
+
+                 $arr[1] = array_filter($arr[1]);
+                 // print_r($arr[1]); exit;
+                 foreach($arr[1] as $url1) { //exit("\n$url1\n");
+                     if($info1 = self::search_more($url1)) {
+                         /*Array(
+                             [0] => Array(
+                                     [url] => /vz/herpetology/amphibia/index.php//Amphibia/Anura/Allophrynidae
+                                     [sci] => Allophrynidae Savage, 1973
+                                     [count] => 3 sp.
+                                 )
+                         */
+                         
+                         foreach($info1 as $info) {
+                             if(!@$info['count']) continue;
+                             if($info2 = self::search_more($info['url'])) {
+                                 foreach($info2 as $info) {
+                                     if(!@$info['count']) continue;
+                                     if($info3 = self::search_more($info['url'])) {
+                                         foreach($info3 as $info) {
+                                             if(!@$info['count']) continue;
+                                             if($info4 = self::search_more($info['url'])) {
+                                                 foreach($info4 as $info) {
+                                                     if(!@$info['count']) continue;
+                                                     if($info5 = self::search_more($info['url'])) {
+                                                        exit("\nreached level 5\n");
+                                                     }
+                                                 }
+                                                 
+                                             }
+                                         }
+                                         
+                                     }
+                                 }
+                                 
+                             }
+                         }
+                     }
+                     exit("\nstop muna\n");
+                 }
+             }
         }
         exit("\nfinished caching\n");
+    }
+    private function search_more($url)
+    {
+        // /Anura
+        // /vz/herpetology/amphibia/index.php//Amphibia/Anura/Allophrynidae
+        if(stripos($url, "index.php") !== false) $url = $this->domain.$url; //string is found
+        else                                     $url = $this->next_page.$url;
+        
+        
+        /*
+        <div class="taxa">
+            <a href="/vz/herpetology/amphibia/index.php//Amphibia/Anura/Allophrynidae">Allophrynidae Savage, 1973</a>
+            (3 sp.)</div>
+        */
+        $ret = array();
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match_all("/<div class=\"taxa\">(.*?)<\/div>/ims", $html, $arr)) {
+                $temp = array_map('trim', $arr[1]); // print_r($temp);
+                /*Array(
+                    [0] => <a href="/vz/herpetology/amphibia/index.php//Amphibia/Anura">Anura</a>
+                    (7099 sp.)
+                    [1] => <a href="/vz/herpetology/amphibia/index.php//Amphibia/Caudata">Caudata</a>
+                    (738 sp.)
+                    [2] => <a href="/vz/herpetology/amphibia/index.php//Amphibia/Gymnophiona">Gymnophiona</a>
+                    (212 sp.)
+                )*/
+                foreach($temp as $a) {
+                    $final = array();
+                    if(preg_match("/<a href=\"(.*?)\"/ims", $a, $arr)) $final['url'] = $arr[1];
+                    if(preg_match("/\">(.*?)<\/a>/ims", $a, $arr)) $final['sci'] = $arr[1];
+                    if(preg_match("/\((.*?) sp\.\)/ims", $a, $arr)) $final['count'] = $arr[1];
+                    if(@$final['url']) $ret[] = $final;
+                }
+                // print_r($ret);
+                // exit;
+            }
+        }
+        return $ret;
     }
     function start()
     {
