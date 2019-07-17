@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
 /* [SDR.php] */
+/* this is for the Carnivora dataset only */
 class SummaryDataResourcesAPI
 {
     public function __construct($folder)

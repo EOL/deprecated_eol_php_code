@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/*
-*/
+/* this is for the Carnivora dataset only */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAPI');
 
