@@ -172,9 +172,9 @@ $func->build_up_children_cache(); exit; //uses pages.csv - long long process... 
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
 */
 
-$func->investigate_metadata_csv(); exit;
+// $func->investigate_metadata_csv(); exit;
 
-$func->test_basal_values('BV');          return;
+// $func->test_basal_values('BV');          return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
 // $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
 // $func->print_parent_basal_values('BV');  //return; //main orig report

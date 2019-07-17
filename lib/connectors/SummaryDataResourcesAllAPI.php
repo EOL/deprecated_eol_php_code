@@ -541,7 +541,10 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328609, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         // $input[] = array('page_id' => 47054812, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //supposedly no records
-        $input[] = array('page_id' => 1020198, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jun 20, 2019 comment by Jen
+        // $input[] = array('page_id' => 1020198, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jun 20, 2019 comment by Jen
+        
+        $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jul 16, 2019 comment by Jen
+        
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
