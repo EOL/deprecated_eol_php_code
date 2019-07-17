@@ -12,8 +12,7 @@ $timestart = time_elapsed();
 //############################################################ start main
 $resource_id = "1";
 $func = new DHConnLib($resource_id);
-
-
+$func->generate_children_of_taxa_from_DH();
 
 //############################################################ end main
 

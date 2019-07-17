@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [dwh_postproc_TRAM_807.php] - TRAM-807
-*/
+/* connector: [DHconn.php] */
 class DHConnLib
 {
     function __construct($folder)
@@ -25,18 +24,18 @@ class DHConnLib
         }
     }
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
-    function start()
+    function generate_children_of_taxa_from_DH()
     {
-        self::get_taxID_nodes_info(); //un-comment in real operation
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab');
         
-        // /* tests only
-        $uid = 'f4aab039-3ecc-4fb0-a7c0-e125da16b0ff'; //Life
-        $ancestry = self::get_ancestry_of_taxID($uid); print_r($ancestry); exit; //working OK but not used yet
-        // $uid = '-6989';
-        // $children = self::get_descendants_of_taxID($uid); print_r($children); //exit;
+        /* tests only
+        $eol_id = '46564414'; //Gadus
+        $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); exit; //working OK but not used yet
+        // $eol_id = '-6989';
+        // $children = self::get_descendants_of_taxID($eol_id); print_r($children); //exit;
         // echo "\ncount: ".count($this->taxID_info)."\n";
         exit("\n-end tests-\n");
-        // */
+        */
 
         /*
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
@@ -62,15 +61,14 @@ class DHConnLib
         }
         */
     }
-    private function get_taxID_nodes_info($txtfile = false)
+    private function get_taxID_nodes_info($txtfile)
     {
         $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
-        if(!$txtfile) $txtfile = $this->main_path.'/taxonomy.tsv';
         $i = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t|\t", $line); // print_r($row);
+            // if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
                 $fields = array_filter($fields); print_r($fields);
@@ -85,16 +83,26 @@ class DHConnLib
                 }
             }
             $rec = array_map('trim', $rec);
-            // print_r($rec); exit("\nstopx\n");
-            /*Array(
-                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
-                [parent_uid] => 
-                [name] => Life
-                [rank] => clade
-                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
-                [uniqname] => 
-                [flags] => 
-            )*/
+            print_r($rec); exit("\nstopx\n");
+            /*Array
+            (
+                [taxonID] => EOL-000000000001
+                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                [furtherInformationURL] => 
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 
+                [scientificName] => Life
+                [higherClassification] => 
+                [taxonRank] => clade
+                [taxonomicStatus] => valid
+                [taxonRemarks] => 
+                [datasetID] => trunk
+                [canonicalName] => Life
+                [EOLid] => 2913056
+                [EOLidAnnotations] => 
+                [Landmark] => 3
+            )
+            */
             $this->taxID_info[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
             $this->descendants[$rec['parent_uid']][$rec['uid']] = ''; //used for descendants (children)
         }
@@ -117,187 +125,6 @@ class DHConnLib
         return $final;
     }
     /*========================================================================================Ends here. Below here is remnants from a copied template */ 
-    function test2() //good debug
-    {
-        self::get_taxID_nodes_info($this->main_path.'/taxonomy1.txt'); //un-comment in real operation
-        // -11510   |   -8266   |   Borziaceae  |   family  |   NCBI:1892250,WOR:146657 |       |   barren  |   
-        // $uid = '-11510';
-        // $info['pID'] = '-8266';
-        // $info['r'] = 'family';
-        // $info['n'] = 'Borziaceae';
-        // $info['s'] = 'NCBI:1892250,WOR:146657';
-        // $info['f'] = 'barren';
-        
-        // -6989    |   unc-P00089  |   Desmocapsales   |   order   |   WOR:109388  |       |   incertae_sedis,barren   |   
-        $uid = '-6989';
-        $info['pID'] = 'unc-P00089';
-        $info['r'] = 'order';
-        $info['n'] = 'Desmocapsales';
-        $info['s'] = 'WOR:109388';
-        $info['f'] = 'incertae_sedis,barren';
-        
-        if(stripos($info['f'], "barren") !== false) { //string is found
-            $sources = self::get_all_sources($info['s']); print_r($sources);
-            if(in_array('trunk', $sources)) echo "\nyes 1\n";
-            else echo "\nhere 001\n";
-            if($info['r'] == 'genus') echo "\nyes 2\n";
-            else echo "\nhere 002\n";
-            if(self::taxon_has_descendants_whose_rank_is_genus($uid)) echo "\nyes 3\n";
-            else echo "\nhere 003\n";
-            // unset($this->taxID_info[$uid]);
-        }
-        exit("\n-----\n");
-    }
-    //===================================================start minting
-    private function get_max_minted_id()
-    {
-        $sql = "SELECT max(m.minted_id) as max_id from DWH.minted_records m;";
-        $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['max_id'];
-        return false;
-    }
-    private function search_minted_record($uid, $parent_uid, $sciname, $rank)
-    {
-        $sciname = str_replace("'", "\'", $sciname);
-        $sql = "SELECT m.minted_id from DWH.minted_records m WHERE m.uid = '$uid' and m.sciname = '$sciname' and m.rank = '$rank' and m.parent_uid = '$parent_uid';";
-        $result = $this->mysqli->query($sql);
-        while($result && $row=$result->fetch_assoc()) return $row['minted_id'];
-        return false;
-    }
-    private function format_minted_id()
-    {
-        return "EOL-".Functions::format_number_with_leading_zeros($this->incremental, 12);
-    }
-    function step_5_minting()
-    {   
-        $file_append = $this->main_path."/append_minted_2mysql.txt"; $WRITE = fopen($file_append, "w"); //will overwrite existing
-        
-        $this->mysqli =& $GLOBALS['db_connection'];
-        /* step 1: get max minted_id value */
-        $max_id = self::get_max_minted_id();
-        if(!$max_id) $max_id = 'EOL-000000000000';
-        $incremental = str_replace('EOL-','',$max_id);
-        $this->incremental = intval($incremental);
-        echo("\nmax minted ID: [$max_id]\n");
-        echo("\nincrement starts with: [$this->incremental]\n");
-        
-        /* step 2: loop taxonomy file, check if each name exists already. If yes, get minted_id from table. If no, increment id and assign. */
-        $txtfile = $this->main_path.'/taxonomy3.txt';
-        $i = 0;
-        foreach(new FileIterator($txtfile) as $line_number => $line) {
-            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t|\t", $line); // print_r($row);
-            if($i == 1) {
-                $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
-                continue;
-            }
-            else {
-                if(!@$row[0]) continue;
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = @$row[$k];
-                    $k++;
-                }
-            }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); //exit("\nstopx\n");
-            if(substr($rec['uid'],0,5) == 'unc-P') continue; //no need to mint 'unclassified ???'
-            /*Array(
-                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
-                [parent_uid] => 
-                [name] => Life
-                [rank] => clade
-                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
-                [uniqname] => 
-                [flags] => 
-            */
-            $minted_id = self::search_minted_record($rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
-            if(!$minted_id) { //new name --- will be assigned with newly minted ID
-                $this->incremental++;
-                $minted_id = self::format_minted_id();
-                $arr = array($minted_id, $rec['uid'], $rec['parent_uid'], $rec['name'], $rec['rank']);
-                fwrite($WRITE, implode("\t", $arr)."\n");
-            }
-            // else echo "\nRecord already exists [$minted_id]\n";
-            
-            $old_id_minted_id_info[$rec['uid']] = $minted_id; //to be used below
-            
-            // if($i > 15) break; //debug only
-        }
-        fclose($WRITE);
-        
-        /* step 3: append to MySQL table */
-        echo "\nSaving minted records to MySQL...\n";
-        if(filesize($file_append)) {
-            $sql = "LOAD data local infile '".$file_append."' into table DWH.minted_records;";
-            if($result = $this->mysqli->query($sql)) echo "\nSaved OK to MySQL\n";
-        }
-        else echo "\nNothing to save.\n";
-        
-        /*step 4: loop again taxonomy3.txt and generate taxonomy_4dwca.txt, now using minted_id for uid and parent_uid */
-        $file_taxonomy = $this->main_path."/taxonomy_4dwca.txt"; $WRITE2 = fopen($file_taxonomy, "w"); //will overwrite existing
-        $fields = array('uid','parent_uid','name','rank','sourceinfo','uniqname','flags');
-        fwrite($WRITE2, implode("\t|\t", $fields)."\t|\t"."\n");
-        echo "\nGenerating $file_taxonomy\n";
-        
-        $txtfile = $this->main_path.'/taxonomy3.txt';
-        $i = 0;
-        foreach(new FileIterator($txtfile) as $line_number => $line) {
-            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
-            if($i == 1) $line = strtolower($line);
-            $row = explode("\t|\t", $line); // print_r($row);
-            if($i == 1) {
-                $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
-                continue;
-            }
-            else {
-                if(!@$row[0]) continue;
-                $k = 0; $rec = array();
-                foreach($fields as $fld) {
-                    $rec[$fld] = @$row[$k];
-                    $k++;
-                }
-            }
-            $rec = array_map('trim', $rec);
-            // print_r($rec); //exit("\nstopx\n");
-            /*Array(
-                [uid] => f4aab039-3ecc-4fb0-a7c0-e125da16b0ff
-                [parent_uid] => 
-                [name] => Life
-                [rank] => clade
-                [sourceinfo] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
-                [uniqname] => 
-                [flags] => 
-            */
-            
-            // /* for taxonomy file for DwCA
-            if(substr($rec['uid'],0,5) == 'unc-P') $minted_id = $rec['uid']; //no need to mint 'unclassified ???'
-            else {
-                if($minted_id = $old_id_minted_id_info[$rec['uid']]) {}
-                else exit("\nInvestigate no minted uid...\n");
-            }
-
-            if(substr($rec['parent_uid'],0,5) == 'unc-P') $parent_id = $rec['parent_uid']; //no need to mint 'unclassified ???'
-            else {
-                if($val = $rec['parent_uid']) {
-                    if($parent_id = $old_id_minted_id_info[$val]) {}
-                    else exit("\nInvestigate no minted parent_uid...\n");
-                }
-                else $parent_id = '';
-            }
-            
-            $arr = array($minted_id, $parent_id, $rec['name'], $rec['rank'], $rec['sourceinfo'], '', $rec['flags']);
-            fwrite($WRITE2, implode("\t|\t", $arr)."\t|\t"."\n");
-            // */
-            
-            // if($i > 15) break; //debug only
-        }
-        fclose($WRITE2);
-    }
-    //=====================================================end minting
     //=====================================================start post step 4
     function post_step_4()
     {   /*That's no big deal, we just have to add a step after "4. Clean up deadend branches" to clean up empty containers. If we end up with a lot of containers with only one 
