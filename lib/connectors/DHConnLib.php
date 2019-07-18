@@ -93,12 +93,10 @@ class DHConnLib
             }
             elseif($purpose == 'save children of genus and family') {
                 if(in_array($rec['taxonRank'], array('family', 'genus'))) {
-                    // $rec['EOLid'] = '46564414'; //debug only - force assign
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
                         $children = json_decode($json, true);
                         print_r($children);
-                        // break; //debug only
                         if($found >= 5) break; //debug only
                     }
                 }
@@ -134,7 +132,7 @@ class DHConnLib
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$name"."_ch".".json";
         if(file_exists($cache_path)) {
-            echo "\nRetrieving cache ($name)...\n"; //good debug
+            // echo "\nRetrieving cache ($name)...\n"; //good debug
             $file_contents = file_get_contents($cache_path);
             $cache_is_valid = true;
             if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid)) {
@@ -145,11 +143,8 @@ class DHConnLib
             @unlink($cache_path);
         }
         //generate json
-        echo "\nGenerating cache json for the first time ($name)...\n";
-        $children = self::get_descendants_of_taxID($name);
-        // echo "\nchildren: "; print_r($children);
-        // echo "\ncount: ".count($this->taxID_info)."\n";
-        // echo "\ncount: ".count($this->descendants)."\n";
+        // echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
+        $children = self::get_descendants_of_taxID($name); // echo "\nchildren: "; print_r($children);
         $json = json_encode($children);
         if($json) {
             if($FILE = Functions::file_open($cache_path, 'w')) {
@@ -347,7 +342,13 @@ if($val = @$this->descendants[$child17]) {
                 }
             }
         }
-        if($final) return array_keys($final);
+        if($final) {
+            $final = array_keys($final);
+            $final = array_filter($final); //remove null arrays
+            $final = array_unique($final); //make unique --- not actually needed here, but just put it anyway.
+            $final = array_values($final); //reindex key
+            return $final;
+        }
         return array();
     }
     /*========================================================================================Ends here. Below here is remnants from a copied template */ 
