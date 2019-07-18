@@ -70,7 +70,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['multimedia_gbifID'] = "/extra/other_files/GBIF_occurrence/multimedia_gbifID/";
             $this->save_path['map_data']          = "/extra/map_data_dwca/";
             // $this->eol_taxon_concept_names_tab    = "/extra/eol_php_code_public_tmp/google_maps/taxon_concept_names.tab"; obsolete
-            $this->eol_taxon_concept_names_tab    = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
+            // $this->eol_taxon_concept_names_tab    = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt"; //working but old DH ver.
+            $this->eol_taxon_concept_names_tab    = "/extra/other_files/DWH/TRAM-809/DH_v1_1/taxon.tab";    //latest active DH ver.
             
             $this->occurrence_txt_path['Animalia']     = "/extra/other_files/GBIF_occurrence/DwCA_Animalia/occurrence.txt";
             $this->occurrence_txt_path['Plantae']      = "/extra/other_files/GBIF_occurrence/DwCA_Plantae/occurrence.txt";
@@ -81,7 +82,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $this->save_path['multimedia_gbifID'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/multimedia_gbifID/";
             $this->save_path['map_data']          = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/map_data_dwca/";
             // $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/JRice_tc_ids/taxon_concept_names.tab"; obsolete
-            $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt";
+            // $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt"; //working but old DH ver.
+            $this->eol_taxon_concept_names_tab = "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/taxon.tab"; //latest active DH ver.
 
             $this->occurrence_txt_path['Gadus morhua'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Gadus morhua/occurrence.txt";
             $this->occurrence_txt_path['Lates niloticus'] = "/Volumes/AKiTiO4/eol_pub_tmp/google_maps/occurrence_downloads/DwCA/Lates niloticus/occurrence.txt";
@@ -708,6 +710,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // exit("\n".count($debug)."\n"); //debug just for counting
         if($listOnly) return $list;
     }
+    /* obsolete since the JRice text file is very old, old tc_ids
     private function process_all_eol_taxa($path = false, $listOnly = false)
     {
         if(!$path) $path = $this->eol_taxon_concept_names_tab;
@@ -728,30 +731,26 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if(true) { //all taxa
                 echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
                 //==================
-                /*
-                285. [Geraniaceae][tc_id = 285]
-                [Geraniaceae]
 
-                Total:[1212423]
-                [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
-                [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
-                [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
-                 -- will use API as source 01 -- 411 > 50000 
-                */
-                /*
-                $m = 100000;
-                $cont = false;
-                // if($i >=  1    && $i < $m)    $cont = true;
-                // if($i >=  $m   && $i < $m*2)  $cont = true;
-                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+                // 285. [Geraniaceae][tc_id = 285]
+                // [Geraniaceae]
+                // Total:[1212423]
+                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
+                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
+                // [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
+                //  -- will use API as source 01 -- 411 > 50000 
 
-                if($i >=  $m*4 && $i < $m*6)  $cont = true;
+                // $m = 100000;
+                // $cont = false;
+                // // if($i >=  1    && $i < $m)    $cont = true;
+                // // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+                // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+                // if($i >=  $m*4 && $i < $m*6)  $cont = true;
+                // if(!$cont) continue;
 
-                if(!$cont) continue;
-                */
                 //==================
                 self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
                 if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
@@ -762,6 +761,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }//end loop
         if($listOnly) return $list;
     }
+    */
     function map_data_file_already_been_generated($basename)
     {
         // return false; //debug
