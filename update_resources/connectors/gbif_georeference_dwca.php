@@ -85,6 +85,25 @@ if($task = @$arr['task']) {
     }
     elseif($task == "breakdown_multimedia_to_gbifID_files") $func->breakdown_multimedia_to_gbifID_files();
     elseif($task == "save_ids_to_text_from_many_folders")   $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
+
+    elseif($task == "gen_map_data_forTaxa_with_children") {
+        if    (($sciname = @$arr['sciname'])       && ($tc_id = @$arr['tc_id']))       $func->gen_map_data_forTaxa_with_children($sciname, $tc_id);
+        elseif($divisor = @$arr['divisor']) {
+            $batches = $func->get_range_batches(false, $divisor, 178519); //2nd param is divisor; 3rd is total rows in listOf_order_family_genus.txt
+            print_r($batches);
+            //start create temp group indicator files
+            for ($x = 1; $x <= $divisor; $x++) {
+                $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "map_generate_".$x.".txt", "w"); fclose($fhandle);
+            }
+            //end
+            echo "\nCACHE_PATH xx 02 is ".CACHE_PATH."\n";
+            $func->jenkins_call(false, $batches, $task);
+            echo "\nCACHE_PATH xx 03 is ".CACHE_PATH."\n";
+        }
+        else $func->gen_map_data_forTaxa_with_children();
+    }
+
+
 }
 // */
 

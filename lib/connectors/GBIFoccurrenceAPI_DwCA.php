@@ -95,6 +95,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->limit_20k = 20000; //20000;
         $this->api['dataset'] = "http://api.gbif.org/v1/dataset/";
         $this->debug = array();
+        
+        // For DATA-1818
+        $this->listOf_order_family_genus = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_family_genus.txt';
     }
     function jenkins_call($group, $batches, $connector_task)
     {
@@ -132,6 +135,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
 
             if    ($connector_task == "breakdown_GBIF_DwCA_file")               $cmd = PHP_PATH.' breakdown_GBIF_DwCA_file.php jenkins ' . "'" . $json . "'";
             elseif($connector_task == "generate_map_data_using_GBIF_csv_files") $cmd = PHP_PATH.' generate_map_data_using_GBIF_csv_files.php jenkins ' . "'" . $json . "'";
+            elseif($connector_task == "gen_map_data_forTaxa_with_children")     $cmd = PHP_PATH.' gen_map_data_forTaxa_with_children.php jenkins ' . "'" . $json . "'";
             
             // echo "\n$cmd\n";
             
@@ -412,9 +416,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Aichi virus"] = 540501;
         */
 
-        $paths = $this->csv_paths;
-        $i = 0;
-        $m = count($eol_taxon_id_list)/3;
+        $paths = $this->csv_paths; $i = 0;
+        /* $m = count($eol_taxon_id_list)/3; */
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
             // /* new ranges ---------------------------------------------
