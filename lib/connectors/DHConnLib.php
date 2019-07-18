@@ -51,7 +51,7 @@ class DHConnLib
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
                 $fields = $row;
-                $fields = array_filter($fields); print_r($fields);
+                $fields = array_filter($fields); //print_r($fields);
                 continue;
             }
             else {
@@ -96,9 +96,8 @@ class DHConnLib
                 if(in_array($rec['taxonRank'], array('order', 'family', 'genus'))) {
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
-                        $children = json_decode($json, true);
-                        print_r($children);
-                        if($found >= 5) break; //debug only
+                        $children = json_decode($json, true); // print_r($children);
+                        // if($found >= 5) break; //debug only
                     }
                 }
             }
@@ -133,7 +132,7 @@ class DHConnLib
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$name"."_ch".".json";
         if(file_exists($cache_path)) {
-            echo "\nRetrieving cache ($name)...\n"; //good debug
+            // echo "\nRetrieving cache ($name)...\n"; //good debug
             $file_contents = file_get_contents($cache_path);
             $cache_is_valid = true;
             if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid)) {
@@ -144,7 +143,7 @@ class DHConnLib
             @unlink($cache_path);
         }
         //generate json
-        echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
+        // echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
         $children = self::get_descendants_of_taxID($name); // echo "\nchildren: "; print_r($children);
         $json = json_encode($children);
         if($json) {
