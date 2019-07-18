@@ -670,6 +670,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if($listOnly) $list = array();
         $i = 0;
         foreach(new FileIterator($path) as $line => $row) {
+            if(!$row) continue;
             $i++;
             if($i == 1) $fields = explode("\t", $row);
             else {
