@@ -417,24 +417,20 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $m = count($eol_taxon_id_list)/3;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
-            
-            // /* new ranges ----------------------------------------------------
+            // /* new ranges ---------------------------------------------
             if($range_from && $range_to) {
                 $cont = false;
                 if($i >= $range_from && $i < $range_to) $cont = true;
                 if(!$cont) continue;
             }
-            // */ ----------------------------------------------------
-            
-            // ==============================
-            /*
+            // */ --------------------------------------------------------
+            /* breakdown cache - not used anymore since breakdown happens in jenkins
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
             // if($i >=  $m   && $i < $m*2)  $cont = true;
             if($i >=  $m*2 && $i < $m*3)  $cont = true;
             if(!$cont) continue;
             */
-            // ==============================
             echo "\n$i. [$sciname][$taxon_concept_id]";
             self::create_map_data($sciname, $taxon_concept_id, $paths);
         } //end main foreach()
