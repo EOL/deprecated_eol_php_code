@@ -31,10 +31,10 @@ class DHConnLib
         
         // /* tests only
         $eol_id = '46564414'; //Gadus
-        $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); exit; //working OK but not used yet
+        $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); //exit; //working OK but not used yet
         // $eol_id = '-6989';
-        // $children = self::get_descendants_of_taxID($eol_id); print_r($children); //exit;
-        // echo "\ncount: ".count($this->taxID_info)."\n";
+        $children = self::get_descendants_of_taxID($eol_id); print_r($children); //exit;
+        echo "\ncount: ".count($this->taxID_info)."\n";
         exit("\n-end tests-\n");
         // */
 
@@ -112,8 +112,8 @@ class DHConnLib
                     $this->descendants[$parent_id][$rec['EOLid']] = ''; //used for descendants (children)
                 }
                 else {
-                    print_r($rec);
-                    echo "\nInvestigate: this parentNameUsageID [".$rec['parentNameUsageID']."] [$parent_id] doesn't have an EOLid \n";
+                    // print_r($rec);
+                    // echo "\nInvestigate: this parentNameUsageID [".$rec['parentNameUsageID']."] [$parent_id] doesn't have an EOLid \n";
                 }
             }
         }
