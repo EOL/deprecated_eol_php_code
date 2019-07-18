@@ -47,7 +47,10 @@ class DHConnLib
         if($purpose == 'initialize') $this->mint2EOLid = array();
         elseif($purpose == 'buildup ancestry and children') { $this->taxID_info = array(); $this->descendants = array(); }
 
-        if($purpose == 'save children of genus and family') $FILE = Functions::file_open($this->listOf_order_family_genus, 'w'); //this file will be used DATA-1818
+        if($purpose == 'save children of genus and family') {
+            $FILE = Functions::file_open($this->listOf_order_family_genus, 'w'); //this file will be used DATA-1818
+            fwrite($FILE, implode("\t", array('canonicalName', 'EOLid', 'taxonRank', 'taxonomicStatus'))."\n");
+        }
         
         $i = 0; $found = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
