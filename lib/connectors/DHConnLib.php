@@ -40,6 +40,7 @@ class DHConnLib
     }
     private function get_taxID_nodes_info($txtfile, $purpose)
     {
+        echo "\nPurpose: $purpose...\n";
         if($purpose == 'initialize') $this->mint2EOLid = array();
         elseif($purpose == 'buildup ancestry and children') { $this->taxID_info = array(); $this->descendants = array(); }
         
@@ -92,12 +93,11 @@ class DHConnLib
                 }
             }
             elseif($purpose == 'save children of genus and family') {
-                if(in_array($rec['taxonRank'], array('family', 'genus'))) {
+                if(in_array($rec['taxonRank'], array('order', 'family', 'genus'))) {
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
-                        $children = json_decode($json, true);
-                        print_r($children);
-                        if($found >= 5) break; //debug only
+                        $children = json_decode($json, true); // print_r($children);
+                        // if($found >= 5) break; //debug only
                     }
                 }
             }
