@@ -110,7 +110,7 @@ class DHConnLib
                         fwrite($FILE, implode("\t", $save)."\n");
                         // */
                         
-                        if($found >= 5) break; //debug only
+                        // if($found >= 5) break; //debug only
                     }
                 }
             }
