@@ -46,7 +46,7 @@ class DHConnLib
         
         $i = 0; $found = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
-            $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i)." ";
             // if($i == 1) $line = strtolower($line);
             $row = explode("\t", $line); // print_r($row);
             if($i == 1) {
@@ -133,7 +133,7 @@ class DHConnLib
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$name"."_ch".".json";
         if(file_exists($cache_path)) {
-            // echo "\nRetrieving cache ($name)...\n"; //good debug
+            echo "\nRetrieving cache ($name)...\n"; //good debug
             $file_contents = file_get_contents($cache_path);
             $cache_is_valid = true;
             if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid)) {
@@ -144,7 +144,7 @@ class DHConnLib
             @unlink($cache_path);
         }
         //generate json
-        // echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
+        echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
         $children = self::get_descendants_of_taxID($name); // echo "\nchildren: "; print_r($children);
         $json = json_encode($children);
         if($json) {
