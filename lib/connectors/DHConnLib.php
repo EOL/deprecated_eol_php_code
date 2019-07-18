@@ -40,7 +40,9 @@ class DHConnLib
     }
     private function get_taxID_nodes_info($txtfile, $purpose)
     {
-        $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
+        if($purpose == 'initialize') $this->mint2EOLid = array();
+        elseif($purpose == 'buildup ancestry and children') { $this->taxID_info = array(); $this->descendants = array(); }
+        
         $i = 0; $found = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
             $i++; if(($i % 200000) == 0) echo "\n".number_format($i)." ";
@@ -91,12 +93,12 @@ class DHConnLib
             }
             elseif($purpose == 'save children of genus and family') {
                 if(in_array($rec['taxonRank'], array('family', 'genus'))) {
-                    $rec['EOLid'] = '46564414'; //debug only - force assign
+                    // $rec['EOLid'] = '46564414'; //debug only - force assign
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
                         $children = json_decode($json, true);
                         print_r($children);
-                        break; //debug only
+                        // break; //debug only
                         if($found >= 5) break; //debug only
                     }
                 }
@@ -145,9 +147,9 @@ class DHConnLib
         //generate json
         echo "\nGenerating cache json for the first time ($name)...\n";
         $children = self::get_descendants_of_taxID($name);
-        echo "\nchildren: "; print_r($children);
-        echo "\ncount: ".count($this->taxID_info)."\n";
-        echo "\ncount: ".count($this->descendants)."\n";
+        // echo "\nchildren: "; print_r($children);
+        // echo "\ncount: ".count($this->taxID_info)."\n";
+        // echo "\ncount: ".count($this->descendants)."\n";
         $json = json_encode($children);
         if($json) {
             if($FILE = Functions::file_open($cache_path, 'w')) {
