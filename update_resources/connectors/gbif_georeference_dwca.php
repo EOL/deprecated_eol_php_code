@@ -69,7 +69,7 @@ if($task = @$arr['task']) {
     if($task == "generate_map_data_using_GBIF_csv_files") {
         if    (($sciname = @$arr['sciname'])       && ($tc_id = @$arr['tc_id']))       $func->generate_map_data_using_GBIF_csv_files($sciname, $tc_id);
         elseif($divisor = @$arr['divisor']) {
-            $batches = $func->get_range_batches(false, $divisor, 4011067); //2nd param is divisor; 3rd is total tc_ids from DH file (2237550 old value).
+            $batches = $func->get_range_batches(false, $divisor, 1845884); //2nd param is divisor; 3rd is total tc_ids from DH file (2237550 old value).
             print_r($batches);
             //start create temp group indicator files
             for ($x = 1; $x <= $divisor; $x++) {
