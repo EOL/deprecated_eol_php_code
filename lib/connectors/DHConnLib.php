@@ -96,8 +96,9 @@ class DHConnLib
                 if(in_array($rec['taxonRank'], array('order', 'family', 'genus'))) {
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
-                        $children = json_decode($json, true); // print_r($children);
-                        // if($found >= 5) break; //debug only
+                        $children = json_decode($json, true);
+                        print_r($children);
+                        if($found >= 5) break; //debug only
                     }
                 }
             }
