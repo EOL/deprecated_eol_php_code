@@ -31,7 +31,7 @@ class DHConnLib
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family');
         /* tests only - OK
         $eol_id = '46564414'; //Gadus
-        $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); //worked OK
+        // $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); //worked OK
         $children = self::get_descendants_of_taxID($eol_id); print_r($children); //worked OK
         echo "\ncount: ".count($this->taxID_info)."\n";
         exit("\n-end tests-\n");
@@ -91,10 +91,12 @@ class DHConnLib
             }
             elseif($purpose == 'save children of genus and family') {
                 if(in_array($rec['taxonRank'], array('family', 'genus'))) {
+                    $rec['EOLid'] = '46564414'; //debug only - force assign
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
                         $children = json_decode($json, true);
                         print_r($children);
+                        break; //debug only
                         if($found >= 5) break; //debug only
                     }
                 }
@@ -143,6 +145,9 @@ class DHConnLib
         //generate json
         echo "\nGenerating cache json for the first time ($name)...\n";
         $children = self::get_descendants_of_taxID($name);
+        echo "\nchildren: "; print_r($children);
+        echo "\ncount: ".count($this->taxID_info)."\n";
+        echo "\ncount: ".count($this->descendants)."\n";
         $json = json_encode($children);
         if($json) {
             if($FILE = Functions::file_open($cache_path, 'w')) {
