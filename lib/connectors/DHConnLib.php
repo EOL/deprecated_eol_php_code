@@ -26,16 +26,17 @@ class DHConnLib
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
     function generate_children_of_taxa_from_DH()
     {
-        self::get_taxID_nodes_info($this->main_path.'/taxon.tab');
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'initialize');
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'buildup ancestry and children');
         
-        /* tests only
+        // /* tests only
         $eol_id = '46564414'; //Gadus
         $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); exit; //working OK but not used yet
         // $eol_id = '-6989';
         // $children = self::get_descendants_of_taxID($eol_id); print_r($children); //exit;
         // echo "\ncount: ".count($this->taxID_info)."\n";
         exit("\n-end tests-\n");
-        */
+        // */
 
         /*
         $txtfile = $this->main_path.'/taxonomy.tsv'; $i = 0;
@@ -60,8 +61,9 @@ class DHConnLib
             // if($i > 10) break; //debug only
         }
         */
+        exit("\nend muna\n");
     }
-    private function get_taxID_nodes_info($txtfile)
+    private function get_taxID_nodes_info($txtfile, $purpose)
     {
         $this->taxID_info = array(); $this->descendants = array(); //initialize global vars
         $i = 0;
@@ -83,28 +85,37 @@ class DHConnLib
                 }
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit("\nstopx\n");
-            /*Array
-            (
-                [taxonID] => EOL-000000000001
-                [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
-                [furtherInformationURL] => 
+            // print_r($rec); //exit("\nstopx\n");
+            /*Array(
+                [taxonID] => EOL-000000285725
+                [source] => COL:9aaa4a27dfd2a6bedfb6f58f737de541
+                [furtherInformationURL] => http://www.catalogueoflife.org/col/details/species/id/9aaa4a27dfd2a6bedfb6f58f737de541
                 [acceptedNameUsageID] => 
-                [parentNameUsageID] => 
-                [scientificName] => Life
-                [higherClassification] => 
-                [taxonRank] => clade
-                [taxonomicStatus] => valid
+                [parentNameUsageID] => EOL-000000285680
+                [scientificName] => Mandevilla foliosa (Müll. Arg.) Hemsl.
+                [higherClassification] => Life|Cellular|Eukaryota|Archaeplastida|Chloroplastida|Streptophyta|Embryophytes|Tracheophyta|Spermatophytes|Angiosperms|Eudicots|Superasterids|Asterids|Gentianales|Apocynaceae|Mandevilla
+                [taxonRank] => species
+                [taxonomicStatus] => accepted
                 [taxonRemarks] => 
-                [datasetID] => trunk
-                [canonicalName] => Life
-                [EOLid] => 2913056
+                [datasetID] => COL-141
+                [canonicalName] => Mandevilla foliosa
+                [EOLid] => 6847986
                 [EOLidAnnotations] => 
-                [Landmark] => 3
-            )
-            */
-            $this->taxID_info[$rec['uid']] = array("pID" => $rec['parent_uid'], 'r' => $rec['rank'], 'n' => $rec['name'], 's' => $rec['sourceinfo'], 'f' => $rec['flags']); //used for ancesty and more
-            $this->descendants[$rec['parent_uid']][$rec['uid']] = ''; //used for descendants (children)
+                [Landmark] => 
+            )*/
+            if($purpose == 'initialize') {
+                $this->mint2EOLid[$rec['taxonID']] = $rec['EOLid'];
+            }
+            elseif($purpose == 'buildup ancestry and children') {
+                if($parent_id = @$this->mint2EOLid[$rec['parentNameUsageID']]) {
+                    $this->taxID_info[$rec['EOLid']] = array("pID" => $parent_id, 'r' => $rec['taxonRank'], 'n' => $rec['scientificName']); //used for ancesty and more
+                    $this->descendants[$parent_id][$rec['EOLid']] = ''; //used for descendants (children)
+                }
+                else {
+                    print_r($rec);
+                    echo "\nInvestigate: this parentNameUsageID [".$rec['parentNameUsageID']."] [$parent_id] doesn't have an EOLid \n";
+                }
+            }
         }
     }
     private function get_ancestry_of_taxID($tax_id)

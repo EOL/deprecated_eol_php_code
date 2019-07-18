@@ -9,6 +9,17 @@ require_library('connectors/DHConnLib');
 // $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
+/*
+$a['aa']['bb'] = '';
+$b['aa'] = 'bb';
+
+print_r($a);
+$a = array_keys($a)
+print_r($b);
+exit("\n-end test-\n");
+*/
+
+
 //############################################################ start main
 $resource_id = "1";
 $func = new DHConnLib($resource_id);
