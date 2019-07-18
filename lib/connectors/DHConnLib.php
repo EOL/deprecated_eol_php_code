@@ -14,7 +14,7 @@ class DHConnLib
             $this->download_options = array(
                 'cache_path'         => '/extra/active_DH_cache/',
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
-            $this->main_path = "/extra/other_files/DWH/EOL Dynamic Hierarchy Active Version/DH_v1_1/";
+            $this->main_path = "/extra/other_files/DWH/TRAM-809/DH_v1_1/";
         }
         else {
             $this->download_options = array(
