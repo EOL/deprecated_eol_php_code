@@ -10,15 +10,13 @@ require_library('connectors/DHConnLib');
 $timestart = time_elapsed();
 
 /*
-$a['aa']['bb'] = '';
-$b['aa'] = 'bb';
-
-print_r($a);
-$a = array_keys($a)
-print_r($b);
+$a[0] = array('a' => 'aa','b','c');
+$a[1] = array('d','e');
+$b[3] = array('f','g' => 'gg','h');
+$c = array_merge($a, $b);
+print_r($c);
 exit("\n-end test-\n");
 */
-
 
 //############################################################ start main
 $resource_id = "1";

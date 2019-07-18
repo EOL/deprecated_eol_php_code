@@ -22,6 +22,9 @@ class DHConnLib
                 'download_wait_time' => 250000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/";
         }
+        
+        $this->listOf_order_family_genus = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_family_genus.txt';
+        
     }
     // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
     function generate_children_of_taxa_from_DH()
@@ -43,6 +46,8 @@ class DHConnLib
         echo "\nPurpose: $purpose...\n";
         if($purpose == 'initialize') $this->mint2EOLid = array();
         elseif($purpose == 'buildup ancestry and children') { $this->taxID_info = array(); $this->descendants = array(); }
+
+        if($purpose == 'save children of genus and family') $FILE = Functions::file_open($this->listOf_order_family_genus, 'w'); //this file will be used DATA-1818
         
         $i = 0; $found = 0;
         foreach(new FileIterator($txtfile) as $line_number => $line) {
@@ -96,12 +101,21 @@ class DHConnLib
                 if(in_array($rec['taxonRank'], array('order', 'family', 'genus'))) {
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
-                        $children = json_decode($json, true); // print_r($children);
-                        // if($found >= 5) break; //debug only
+                        // $children = json_decode($json, true); // print_r($children); //debug only
+
+                        // /* text file here will be used in generating map data for taxa with descendants/children (DATA-1818)
+                        if($val = $rec['canonicalName']) $sciname = $val;
+                        else                             $sciname = Functions::canonical_form($rec['scientificName']);
+                        $save = array($sciname, $eol_id, $rec['taxonRank'], $rec['taxonomicStatus']);
+                        fwrite($FILE, implode("\t", $save)."\n");
+                        // */
+                        
+                        if($found >= 5) break; //debug only
                     }
                 }
             }
         }
+        if($purpose == 'save children of genus and family') fclose($FILE);
     }
     private function get_ancestry_of_taxID($tax_id)
     {
