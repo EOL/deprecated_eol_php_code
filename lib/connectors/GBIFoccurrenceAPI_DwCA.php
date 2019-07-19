@@ -98,6 +98,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         // For DATA-1818
         $this->listOf_order_family_genus = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_family_genus.txt';
+        $this->auto_refresh_mapYN = false;
     }
     function jenkins_call($group, $batches, $connector_task)
     {
@@ -423,6 +424,21 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             self::create_map_data_include_descendants($sciname, $taxon_concept_id, $paths, $func); //result of refactoring
         } //end main foreach()
     }
+    private function get_json_map_data($basename)
+    {
+        $filename = self::get_map_data_path($basename).$basename.".json";
+        // echo "\n$filename\n";
+        // if($GLOBALS['ENV_DEBUG']) echo "\nmap file: [$filename]\n";
+        if(file_exists($filename)) {
+            if(filesize($filename) > 0) {
+                // if($GLOBALS['ENV_DEBUG']) echo "[$basename] has map data (.json) [$filename]";
+                $json = file_get_contents($filename);
+                $json = str_replace('var data = ', "", $json);
+                return $json;
+            }
+        }
+        return false;
+    }
     private function create_map_data_include_descendants($sciname, $taxon_concept_id, $paths, $func)
     {
         // echo "\n$sciname - $taxon_concept_id\n";
@@ -430,23 +446,30 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $json = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
         $children = json_decode($json, true);
         print_r($children);
-        /* step 2: loop to all children (include taxon in question), consolidate map data. Then save to json file. */
+        
+        /* step 2: refresh map data of $taxon_concept_id */
+        $this->auto_refresh_mapYN = true;
+        self::generate_map_data_using_GBIF_csv_files($sciname, $taxon_concept_id);
+        $this->auto_refresh_mapYN = false;
+        
+        /* step 3: loop to all children (include taxon in question), consolidate map data. Then save to json file. */
         $children[] = $taxon_concept_id;
         $final = array();
         foreach($children as $child) {
             if($json = self::get_json_map_data($child)) {
-                $arr = json_decode($json, true);
+                $arr = json_decode($json, true); // print_r($arr);
                 echo "\n[$child] - ".count(@$arr['records'])."\n";
                 if($val = @$arr['records']) $final = array_merge($final, $val);
             }
+            else echo "\n[$child] - no mad data\n";
         }
         if($final) {
             $final2 = array();
             $final2['records'] = $final;
             $final2['count'] = count($final);
             $final2['actual'] = count($final);
-            self::save_json_file($taxon_concept_id, $finals);
-            echo "\n[$taxon_concept_id] - ".count(@$final2['records'])."\n";
+            self::save_json_file($taxon_concept_id, $final2);
+            echo "\nFinal [$taxon_concept_id] - ".count(@$final2['records'])."\n";
         }
         return;
         /*
@@ -479,7 +502,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         */
     }
-    function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
+    function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false, $range_from = false, $range_to = false, $autoRefreshYN = false)
     {
         if($sciname && $tc_id) {
             $eol_taxon_id_list[$sciname] = $tc_id;
@@ -535,7 +558,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         if($usageKey = self::get_usage_key($sciname)) {
             echo "\nOK GBIF key [$usageKey]\n";
-            if(self::map_data_file_already_been_generated($taxon_concept_id)) return; //continue; //before 'continue' was used since it is inside the loop above
+            
+            if(!$this->auto_refresh_mapYN) {
+                if(self::map_data_file_already_been_generated($taxon_concept_id)) return; //continue; //before 'continue' was used since it is inside the loop above
+            }
             
             if($final = self::prepare_csv_data($usageKey, $paths)) {
                 echo "\n Records from CSV: " . $final['count'] . "";
