@@ -142,7 +142,7 @@ class DHConnLib
             }
             @unlink($cache_path);
         }
-        else echo "\njson not yet saved for this taxon.\n"; //almost not seen, since all concerned taxa will have a json file. Even for those without children will have '[]' json value
+        else echo "\nAlert: json not yet saved for this taxon ($name).\n"; //almost not seen, since all concerned taxa will have a json file. Even for those without children will have '[]' json value
         if($gen_descendants_ifNot_availableYN) {
             //generate json
             // echo "\nGenerating cache json for the first time ($name)...\n"; //good debug

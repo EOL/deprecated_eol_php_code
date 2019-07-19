@@ -427,9 +427,27 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         // echo "\n$sciname - $taxon_concept_id\n";
         /* step 1: get children of taxon_concept_id */
-        $children = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
+        $json = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
+        $children = json_decode($json, true);
         print_r($children);
-        
+        /* step 2: loop to all children (include taxon in question), consolidate map data. Then save to json file. */
+        $children[] = $taxon_concept_id;
+        $final = array();
+        foreach($children as $child) {
+            if($json = self::get_json_map_data($child)) {
+                $arr = json_decode($json, true);
+                echo "\n[$child] - ".count(@$arr['records'])."\n";
+                if($val = @$arr['records']) $final = array_merge($final, $val);
+            }
+        }
+        if($final) {
+            $final2 = array();
+            $final2['records'] = $final;
+            $final2['count'] = count($final);
+            $final2['actual'] = count($final);
+            self::save_json_file($taxon_concept_id, $finals);
+            echo "\n[$taxon_concept_id] - ".count(@$final2['records'])."\n";
+        }
         return;
         /*
         if($usageKey = self::get_usage_key($sciname)) {
