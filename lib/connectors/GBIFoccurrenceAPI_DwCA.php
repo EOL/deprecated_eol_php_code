@@ -435,12 +435,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if(!$cont) continue;
             */
             echo "\n$i. [$sciname][$taxon_concept_id]";
-            self::create_map_data($sciname, $taxon_concept_id, $paths);
+            self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
         } //end main foreach()
     }
     private function create_map_data($sciname, $taxon_concept_id, $paths)
     {
-        // /*
         if($usageKey = self::get_usage_key($sciname)) {
             echo "\nOK GBIF key [$usageKey]\n";
             if(self::map_data_file_already_been_generated($taxon_concept_id)) return; //continue; //before 'continue' was used since it is inside the loop above
@@ -468,7 +467,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             echo "\n usageKey not found! [$sciname][$taxon_concept_id]\n";
             $this->debug['usageKey not found']["[$sciname][$taxon_concept_id]"] = '';
         }
-        // */
     }
     private function gen_map_data_using_api($sciname, $taxon_concept_id) //NEW Aug 24, 2018
     {
