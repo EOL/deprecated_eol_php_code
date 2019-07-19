@@ -468,8 +468,18 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $final2['records'] = $final;
             $final2['count'] = count($final);
             $final2['actual'] = count($final);
-            self::save_json_file($taxon_concept_id, $final2);
             echo "\nFinal [$taxon_concept_id] - ".count(@$final2['records'])."\n";
+            
+            $final = $final2;
+                if($final['count'] > $this->limit_20k) {
+                    echo " --- > 20K\n";
+                    self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
+                }
+                elseif($final['count'] <= $this->limit_20k) {
+                    echo " --- <= 20K\n";
+                    $final['actual'] = $final['count'];
+                    self::save_json_file($taxon_concept_id, $final);
+                }
         }
         return;
         /*
@@ -601,6 +611,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $final['records'] = array();
         while($continue) {
             if($offset > $this->rec_limit) break; //working... uncomment if u want to limit to 100,000
+            // if($offset > 50000) break; //debug only --- during development only - COMMENT IN REAL OPERATION
             $url = $this->gbif_occurrence_data . $taxonKey . "&limit=$limit";
             if($offset) $url .= "&offset=$offset";
             if($json = Functions::lookup_with_cache($url, $this->download_options)) {
