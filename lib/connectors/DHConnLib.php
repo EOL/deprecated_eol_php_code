@@ -137,7 +137,7 @@ class DHConnLib
         }
         return $final;
     }
-    private function get_children_from_json_cache($name, $options = array())
+    function get_children_from_json_cache($name, $options = array(), $gen_descendants_ifNot_availableYN = true)
     {
         // download_wait_time
         if(!isset($options['expire_seconds'])) $options['expire_seconds'] = false;
@@ -159,17 +159,19 @@ class DHConnLib
             }
             @unlink($cache_path);
         }
-        //generate json
-        // echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
-        $children = self::get_descendants_of_taxID($name); // echo "\nchildren: "; print_r($children);
-        $json = json_encode($children);
-        if($json) {
-            if($FILE = Functions::file_open($cache_path, 'w')) {
-                fwrite($FILE, $json);
-                fclose($FILE);
+        if($gen_descendants_ifNot_availableYN) {
+            //generate json
+            // echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
+            $children = self::get_descendants_of_taxID($name); // echo "\nchildren: "; print_r($children);
+            $json = json_encode($children);
+            if($json) {
+                if($FILE = Functions::file_open($cache_path, 'w')) {
+                    fwrite($FILE, $json);
+                    fclose($FILE);
+                }
             }
+            return $json;
         }
-        return $json;
     }
     function get_descendants_of_taxID($uid, $direct_descendants_only_YN = false, $this_descendants = array())
     {
