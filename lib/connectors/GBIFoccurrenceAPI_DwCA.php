@@ -425,7 +425,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function create_map_data_include_descendants($sciname, $taxon_concept_id, $paths, $func)
     {
-        echo "\n$sciname - $taxon_concept_id\n";
+        // echo "\n$sciname - $taxon_concept_id\n";
         /* step 1: get children of taxon_concept_id */
         $children = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
         print_r($children);
