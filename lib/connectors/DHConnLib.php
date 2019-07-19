@@ -35,7 +35,7 @@ class DHConnLib
         /* tests only - OK
         $eol_id = '46564414'; //Gadus
         // $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); //worked OK
-        $children = self::get_descendants_of_taxID($eol_id); print_r($children); //worked OK
+        $children = self::get_children_from_json_cache($eol_id, array(), true); print_r($children); //worked OK
         echo "\ncount: ".count($this->taxID_info)."\n";
         exit("\n-end tests-\n");
         */
@@ -120,23 +120,6 @@ class DHConnLib
         }
         if($purpose == 'save children of genus and family') fclose($FILE);
     }
-    private function get_ancestry_of_taxID($tax_id)
-    {
-        $final = array();
-        $final[] = $tax_id;
-        while($parent_id = @$this->taxID_info[$tax_id]['pID']) {
-            if(!in_array($parent_id, $final)) $final[] = $parent_id;
-            else {
-                if($parent_id == 1) return $final;
-                else {
-                    print_r($final);
-                    exit("\nInvestigate $parent_id already in array.\n");
-                }
-            }
-            $tax_id = $parent_id;
-        }
-        return $final;
-    }
     function get_children_from_json_cache($name, $options = array(), $gen_descendants_ifNot_availableYN = true)
     {
         // download_wait_time
@@ -159,6 +142,7 @@ class DHConnLib
             }
             @unlink($cache_path);
         }
+        else echo "\njson not yet saved for this taxon.\n"; //almost not seen, since all concerned taxa will have a json file. Even for those without children will have '[]' json value
         if($gen_descendants_ifNot_availableYN) {
             //generate json
             // echo "\nGenerating cache json for the first time ($name)...\n"; //good debug
@@ -369,6 +353,23 @@ if($val = @$this->descendants[$child17]) {
             return $final;
         }
         return array();
+    }
+    private function get_ancestry_of_taxID($tax_id)
+    {
+        $final = array();
+        $final[] = $tax_id;
+        while($parent_id = @$this->taxID_info[$tax_id]['pID']) {
+            if(!in_array($parent_id, $final)) $final[] = $parent_id;
+            else {
+                if($parent_id == 1) return $final;
+                else {
+                    print_r($final);
+                    exit("\nInvestigate $parent_id already in array.\n");
+                }
+            }
+            $tax_id = $parent_id;
+        }
+        return $final;
     }
     /*========================================================================================Ends here. Below here is remnants from a copied template */ 
     /*
