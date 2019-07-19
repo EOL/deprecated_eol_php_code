@@ -387,6 +387,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
     {
+        require_library('connectors/DHConnLib'); $func = new DHConnLib('');
+        
         if($sciname && $tc_id) {
             $eol_taxon_id_list[$sciname] = $tc_id;
             print_r($eol_taxon_id_list); 
@@ -418,8 +420,46 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             }
             // */ --------------------------------------------------------
             echo "\n$i. [$sciname][$taxon_concept_id]";
-            self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
+            self::create_map_data_include_descendants($sciname, $taxon_concept_id, $paths, $func); //result of refactoring
         } //end main foreach()
+    }
+    private function create_map_data_include_descendants($sciname, $taxon_concept_id, $paths, $func)
+    {
+        echo "\n$sciname - $taxon_concept_id\n";
+        /* step 1: get children of taxon_concept_id */
+        $children = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
+        print_r($children);
+        
+        return;
+        /*
+        if($usageKey = self::get_usage_key($sciname)) {
+            echo "\nOK GBIF key [$usageKey]\n";
+            if(self::map_data_file_already_been_generated($taxon_concept_id)) return; //continue; //before 'continue' was used since it is inside the loop above
+            
+            if($final = self::prepare_csv_data($usageKey, $paths)) {
+                echo "\n Records from CSV: " . $final['count'] . "";
+                if($final['count'] > $this->limit_20k) {
+                    echo " --- > 20K\n";
+                    self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
+                }
+                elseif($final['count'] <= $this->limit_20k) {
+                    echo " --- <= 20K\n";
+                    $final['actual'] = $final['count'];
+                    self::save_json_file($taxon_concept_id, $final);
+                }
+                else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
+            }
+            else {
+                echo "\nCSV map data not available [$sciname][$taxon_concept_id]... will use API instead...\n";
+                $this->debug['CSV map data not available']["[$sciname][$taxon_concept_id]"] = '';
+                self::gen_map_data_using_api($sciname, $taxon_concept_id);
+            }
+        }
+        else {
+            echo "\n usageKey not found! [$sciname][$taxon_concept_id]\n";
+            $this->debug['usageKey not found']["[$sciname][$taxon_concept_id]"] = '';
+        }
+        */
     }
     function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
     {
