@@ -385,15 +385,50 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
+    function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
+    {
+        if($sciname && $tc_id) {
+            $eol_taxon_id_list[$sciname] = $tc_id;
+            print_r($eol_taxon_id_list); 
+        }
+        else $eol_taxon_id_list = self::process_all_eol_taxa_using_DH(false, true); //listOnly = true
+        echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
+        
+        // $eol_taxon_id_list["Xenidae"] = 8965;
+        // $eol_taxon_id_list["Soleidae"] = 5169;
+        // $eol_taxon_id_list["Plantae"] = 281;
+        // $eol_taxon_id_list["Chaetoceros"] = 12010;
+        // $eol_taxon_id_list["Chenonetta"] = 104248;
+        /* for testing 1 taxon
+        $eol_taxon_id_list = array();
+        $eol_taxon_id_list["Gadidae"] = 5503;
+        $eol_taxon_id_list["Hyperiidae"] = 1180;
+        $eol_taxon_id_list["Decapoda"] = 1183;
+        $eol_taxon_id_list["Aichi virus"] = 540501;
+        */
+
+        $paths = $this->csv_paths; $i = 0;
+        foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
+            $i++;
+            // /* new ranges ---------------------------------------------
+            if($range_from && $range_to) {
+                $cont = false;
+                if($i >= $range_from && $i < $range_to) $cont = true;
+                if(!$cont) continue;
+            }
+            // */ --------------------------------------------------------
+            echo "\n$i. [$sciname][$taxon_concept_id]";
+            self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
+        } //end main foreach()
+    }
     function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
     {
-        if($sciname && $tc_id) $eol_taxon_id_list[$sciname] = $tc_id;
-        else {
-            $eol_taxon_id_list = self::process_all_eol_taxa_using_DH(false, true); //listOnly = true
-            echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
+        if($sciname && $tc_id) {
+            $eol_taxon_id_list[$sciname] = $tc_id;
+            print_r($eol_taxon_id_list);
         }
-        
-        // print_r($eol_taxon_id_list); echo "\n" . count($eol_taxon_id_list) . "\n"; return; //[Triticum aestivum virus] => 540152
+        else $eol_taxon_id_list = self::process_all_eol_taxa_using_DH(false, true); //listOnly = true
+        echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
         
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Achillea millefolium L."] = 45850244;
