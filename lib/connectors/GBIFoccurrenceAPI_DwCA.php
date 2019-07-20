@@ -469,17 +469,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $final2['count'] = count($final);
             $final2['actual'] = count($final);
             echo "\nFinal [$taxon_concept_id] - ".count(@$final2['records'])."\n";
-            
-            $final = $final2;
-                if($final['count'] > $this->limit_20k) {
-                    echo " --- > 20K\n";
-                    self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
-                }
-                elseif($final['count'] <= $this->limit_20k) {
-                    echo " --- <= 20K\n";
-                    $final['actual'] = $final['count'];
-                    self::save_json_file($taxon_concept_id, $final);
-                }
+            self::if_needed_2cluster_orSave($final2, $taxon_concept_id, $sciname);
         }
         return;
         /*
@@ -564,6 +554,19 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
         } //end main foreach()
     }
+    private function if_needed_2cluster_orSave($final, $taxon_concept_id, $sciname)
+    {
+        if($final['count'] > $this->limit_20k) {
+            echo " --- > 20K\n";
+            self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
+        }
+        elseif($final['count'] <= $this->limit_20k) {
+            echo " --- <= 20K\n";
+            $final['actual'] = $final['count'];
+            self::save_json_file($taxon_concept_id, $final);
+        }
+        else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
+    }
     private function create_map_data($sciname, $taxon_concept_id, $paths)
     {
         if($usageKey = self::get_usage_key($sciname)) {
@@ -575,16 +578,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             
             if($final = self::prepare_csv_data($usageKey, $paths)) {
                 echo "\n Records from CSV: " . $final['count'] . "";
-                if($final['count'] > $this->limit_20k) {
-                    echo " --- > 20K\n";
-                    self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
-                }
-                elseif($final['count'] <= $this->limit_20k) {
-                    echo " --- <= 20K\n";
-                    $final['actual'] = $final['count'];
-                    self::save_json_file($taxon_concept_id, $final);
-                }
-                else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
+                self::if_needed_2cluster_orSave($final, $taxon_concept_id, $sciname);
             }
             else {
                 echo "\nCSV map data not available [$sciname][$taxon_concept_id]... will use API instead...\n";
