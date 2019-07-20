@@ -386,33 +386,72 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
-    private function get_order_family_genus_fromDH()
-    {
-        
-    }
     function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
     {
         require_library('connectors/DHConnLib'); $func = new DHConnLib('');
-        if($sciname && $tc_id) {
-            $eol_taxon_id_list[$sciname] = $tc_id;
-            print_r($eol_taxon_id_list); 
-        }
-        else $eol_taxon_id_list = self::get_order_family_genus_fromDH();
-        echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
+        $paths = $this->csv_paths; 
         
-        $paths = $this->csv_paths; $i = 0;
+        if($sciname && $tc_id) {
+            $eol_taxon_id_list[$sciname] = $tc_id; print_r($eol_taxon_id_list); 
+            self::create_map_data_include_descendants($sciname, $tc_id, $paths, $func); //result of refactoring
+            return;
+        }
+        
+        /*
+        $i = 0;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
-            // /* new ranges ---------------------------------------------
+            //  new ranges ---------------------------------------------
             if($range_from && $range_to) {
                 $cont = false;
                 if($i >= $range_from && $i < $range_to) $cont = true;
                 if(!$cont) continue;
             }
-            // */ --------------------------------------------------------
+            //  --------------------------------------------------------
             echo "\n$i. [$sciname][$taxon_concept_id]";
             self::create_map_data_include_descendants($sciname, $taxon_concept_id, $paths, $func); //result of refactoring
         } //end main foreach()
+        */
+        
+        $local = Functions::save_remote_file_to_local($this->listOf_order_family_genus, $this->download_options);
+        $i = 0; $found = 0;
+        foreach(new FileIterator($local) as $line_number => $line) {
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [canonicalName] => Oscillatoriales
+                [EOLid] => 3255
+                [taxonRank] => order
+                [taxonomicStatus] => accepted
+            )*/
+            
+            //  new ranges ---------------------------------------------
+            if($range_from && $range_to) {
+                $cont = false;
+                if($i >= $range_from && $i < $range_to) $cont = true;
+                if(!$cont) continue;
+            }
+            //  --------------------------------------------------------
+            echo "\n$i. [".$rec['canonicalName']."][".$rec['EOLid']."]";
+            self::create_map_data_include_descendants($rec['canonicalName'], $rec['EOLid'], $paths, $func); //result of refactoring
+            
+        }
+        unlink($local);
     }
     private function get_json_map_data($basename)
     {

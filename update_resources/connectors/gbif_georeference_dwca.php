@@ -43,9 +43,10 @@ php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"generate_
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Gadus","tc_id":46564414}'
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Gadus macrocephalus","tc_id":46564417}'
 
+Better to use Jenkins here. Not command-line.
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"gen_map_data_forTaxa_with_children","sciname":"Gadus","tc_id":46564414}'
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"gen_map_data_forTaxa_with_children","sciname":"Desertifilum","tc_id":35798554}'
-
+php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":1}'
 
 For eol-archive:
 php gbif_georeference_dwca.php jenkins '{"group":"Animalia","divisor":6}'           //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
