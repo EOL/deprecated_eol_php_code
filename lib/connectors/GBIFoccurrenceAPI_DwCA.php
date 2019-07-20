@@ -397,7 +397,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             return;
         }
         
-        /*
+        /* used FileIterator below instead, to save on memory
         $i = 0;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
@@ -508,7 +508,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             print_r($eol_taxon_id_list);
         }
         else $eol_taxon_id_list = self::process_all_eol_taxa_using_DH(false, true); //listOnly = true
-        echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
+        // echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
         
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Achillea millefolium L."] = 45850244;
