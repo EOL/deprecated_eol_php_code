@@ -489,7 +489,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 echo "\n[$child] - ".count(@$arr['records']);
                 if($val = @$arr['records']) {
                     $final = array_merge($final, $val);
-                    if(count($final) > 100000) $final = self::process_revised_cluster(array('actual' => count($final), 'records' => $final), $child, true); //3rd param true means 'early cluster'
+                    if(count($final) > 100000) $final = self::process_revised_cluster(array('count' => count($final), 'records' => $final), $child, true); //3rd param true means 'early cluster'
                 }
             }
             else echo "\n[$child] - no mad data\n";
