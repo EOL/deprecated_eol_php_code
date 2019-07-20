@@ -473,7 +473,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         /* step 1: get children of taxon_concept_id */
         $json = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
         $children = json_decode($json, true);
-        print_r($children);
+        // print_r($children);
+        echo "\nNo. of children: ".count($children)."\n";
         
         /* step 2: refresh map data of $taxon_concept_id. Important: since the current ver. is the cumulated-from-children version. */
         $this->auto_refresh_mapYN = true;
