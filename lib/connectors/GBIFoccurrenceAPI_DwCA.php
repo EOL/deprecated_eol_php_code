@@ -673,14 +673,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
             if(!$early_cluster) self::save_json_file($basename, $to_be_saved);
-            else return $to_be_saved['records']
+            else return $to_be_saved['records'];
         }
         else {
             echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
             if(!$early_cluster) self::save_json_file($basename, $to_be_saved);
-            else return $to_be_saved['records']
+            else return $to_be_saved['records'];
         }
     }
     private function save_json_file($tc_id, $rec)
