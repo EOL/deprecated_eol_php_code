@@ -486,13 +486,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         foreach($children as $child) {
             if($json = self::get_json_map_data($child)) {
                 $arr = json_decode($json, true); // print_r($arr);
-                echo "\n[$child] - ".count(@$arr['records']);
+                // echo "\n[$child] - ".count(@$arr['records']); //good debug
                 if($val = @$arr['records']) {
                     $final = array_merge($final, $val);
                     if(count($final) > 100000) $final = self::process_revised_cluster(array('count' => count($final), 'records' => $final), $child, true); //3rd param true means 'early cluster'
                 }
             }
-            else echo "\n[$child] - no map data";
+            // else echo "\n[$child] - no map data";
         }
         if($final) {
             $final2 = array();
