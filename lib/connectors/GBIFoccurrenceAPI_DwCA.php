@@ -454,7 +454,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $final2['count'] = count($final);
             $final2['actual'] = count($final);
             echo "\nFinal [$taxon_concept_id] - ".count(@$final2['records'])."\n";
-            self::if_needed_2cluster_orSave($final2, $taxon_concept_id, $sciname);
+            self::if_needed_2cluster_orSave($final2, $taxon_concept_id);
         }
         return;
         /*
@@ -539,7 +539,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
         } //end main foreach()
     }
-    private function if_needed_2cluster_orSave($final, $taxon_concept_id, $sciname)
+    private function if_needed_2cluster_orSave($final, $taxon_concept_id)
     {
         if($final['count'] > $this->limit_20k) {
             echo " --- > 20K\n";
@@ -550,7 +550,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $final['actual'] = $final['count'];
             self::save_json_file($taxon_concept_id, $final);
         }
-        else exit("\nShould not go here 001 [$sciname][$taxon_concept_id]\n");
     }
     private function create_map_data($sciname, $taxon_concept_id, $paths)
     {
@@ -563,7 +562,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             
             if($final = self::prepare_csv_data($usageKey, $paths)) {
                 echo "\n Records from CSV: " . $final['count'] . "";
-                self::if_needed_2cluster_orSave($final, $taxon_concept_id, $sciname);
+                self::if_needed_2cluster_orSave($final, $taxon_concept_id);
             }
             else {
                 echo "\nCSV map data not available [$sciname][$taxon_concept_id]... will use API instead...\n";
@@ -584,7 +583,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             self::get_georeference_data_via_api($rec['usageKey'], $taxon_concept_id);
         }
     }
-    private function get_georeference_data_via_api($taxonKey, $basename) //updated from original version
+    private function get_georeference_data_via_api($taxonKey, $taxon_concept_id) //updated from original version
     {
         $offset = 0; $limit = 300; $continue = true; $final = array(); echo "\n";
         $final['records'] = array();
@@ -610,15 +609,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         $final['count']  = count($final['records']);
         $final['actual'] = count($final['records']);
-        $final_count = $final['count'];
-        echo "\n: " . $final_count . " -- ";
-
-        if($final_count > $this->limit_20k) {
-            self::process_revised_cluster($final, $basename); //done after main demo using screenshots
-        }
-        else {
-            self::save_json_file($basename, $final);
-        }
+        echo "\n: " . $final['count'] . " -- ";
+        self::if_needed_2cluster_orSave($final, $taxon_concept_id);
     }
     private function process_revised_cluster($final, $basename)
     {
