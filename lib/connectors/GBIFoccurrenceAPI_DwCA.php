@@ -389,7 +389,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
     {
         require_library('connectors/DHConnLib'); $func = new DHConnLib('');
-        
         if($sciname && $tc_id) {
             $eol_taxon_id_list[$sciname] = $tc_id;
             print_r($eol_taxon_id_list); 
@@ -397,19 +396,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         else $eol_taxon_id_list = self::process_all_eol_taxa_using_DH(false, true); //listOnly = true
         echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
         
-        // $eol_taxon_id_list["Xenidae"] = 8965;
-        // $eol_taxon_id_list["Soleidae"] = 5169;
-        // $eol_taxon_id_list["Plantae"] = 281;
-        // $eol_taxon_id_list["Chaetoceros"] = 12010;
-        // $eol_taxon_id_list["Chenonetta"] = 104248;
-        /* for testing 1 taxon
-        $eol_taxon_id_list = array();
-        $eol_taxon_id_list["Gadidae"] = 5503;
-        $eol_taxon_id_list["Hyperiidae"] = 1180;
-        $eol_taxon_id_list["Decapoda"] = 1183;
-        $eol_taxon_id_list["Aichi virus"] = 540501;
-        */
-
         $paths = $this->csv_paths; $i = 0;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
@@ -441,13 +427,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function create_map_data_include_descendants($sciname, $taxon_concept_id, $paths, $func)
     {
-        // echo "\n$sciname - $taxon_concept_id\n";
         /* step 1: get children of taxon_concept_id */
         $json = $func->get_children_from_json_cache($taxon_concept_id, array(), false); //3rd param false means it will not generate children if it doesn't exist. Generation happens in DHConnLib.php
         $children = json_decode($json, true);
         print_r($children);
         
-        /* step 2: refresh map data of $taxon_concept_id */
+        /* step 2: refresh map data of $taxon_concept_id. Important: since the current ver. is the cumulated-from-children version. */
         $this->auto_refresh_mapYN = true;
         self::generate_map_data_using_GBIF_csv_files($sciname, $taxon_concept_id);
         $this->auto_refresh_mapYN = false;
