@@ -492,7 +492,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     if(count($final) > 100000) $final = self::process_revised_cluster(array('count' => count($final), 'records' => $final), $child, true); //3rd param true means 'early cluster'
                 }
             }
-            else echo "\n[$child] - no mad data\n";
+            else echo "\n[$child] - no map data";
         }
         if($final) {
             $final2 = array();
