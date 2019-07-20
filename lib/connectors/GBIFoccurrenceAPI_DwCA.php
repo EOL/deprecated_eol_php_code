@@ -486,8 +486,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         foreach($children as $child) {
             if($json = self::get_json_map_data($child)) {
                 $arr = json_decode($json, true); // print_r($arr);
-                echo "\n[$child] - ".count(@$arr['records'])."\n";
-                if($val = @$arr['records']) $final = array_merge($final, $val);
+                echo "\n[$child] - ".count(@$arr['records']);
+                if($val = @$arr['records']) {
+                    $final = array_merge($final, $val);
+                    if(count($final) > 100000) $final = self::process_revised_cluster(array('actual' => count($final), 'records' => $final), $child, true); //3rd param true means 'early cluster'
+                }
             }
             else echo "\n[$child] - no mad data\n";
         }
@@ -626,7 +629,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         echo "\n: " . $final['count'] . " -- ";
         self::if_needed_2cluster_orSave($final, $taxon_concept_id);
     }
-    private function process_revised_cluster($final, $basename)
+    private function process_revised_cluster($final, $basename, $early_cluster = false)
     {
         echo "\nStart with revised cluster";
         $to_be_saved = array();
@@ -656,7 +659,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         //flag if after revised cluster is still unsuccessful
         if(count($unique) > $limit_to_break) {
-            exit("\ntaxon_concept_ID [$basename] revised cluster unsuccessful\n");
+            exit("\ntaxon_concept_ID [$basename] revised cluster unsuccessful [$early_cluster]\n");
             if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
             fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
             fclose($fhandle);
@@ -669,13 +672,15 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
 
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
-            self::save_json_file($basename, $to_be_saved);
+            if(!$early_cluster) self::save_json_file($basename, $to_be_saved);
+            else return $to_be_saved['records']
         }
         else {
             echo "\n Final total [$decimal_places]: " . count($unique) . "\n";
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
             $to_be_saved['actual'] = $final['count'];
-            self::save_json_file($basename, $to_be_saved);
+            if(!$early_cluster) self::save_json_file($basename, $to_be_saved);
+            else return $to_be_saved['records']
         }
     }
     private function save_json_file($tc_id, $rec)
