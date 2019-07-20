@@ -26,7 +26,7 @@ class DHConnLib
         $this->listOf_order_family_genus = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_family_genus.txt';
         
     }
-    // ----------------------------------------------------------------- start TRAM-807 -----------------------------------------------------------------
+    // ----------------------------------------------------------------- start -----------------------------------------------------------------
     function generate_children_of_taxa_from_DH()
     {
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'initialize');
