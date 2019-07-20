@@ -632,7 +632,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function process_revised_cluster($final, $basename, $early_cluster = false)
     {
-        echo "\nStart with revised cluster";
+        if($early_cluster) echo "\nStart of early cluster...";
+        else               echo "\nStart with revised cluster";
         $to_be_saved = array();
         $to_be_saved['records'] = array();
         $unique = array();
