@@ -661,15 +661,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         //flag if after revised cluster is still unsuccessful
         if(count($unique) > $limit_to_break) {
-            echo "\ntaxon_concept_ID [$basename] revised cluster unsuccessful [$early_cluster]\n";
-            if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
-            fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
-            fclose($fhandle);
-            // exit("\neli exits here...\n");
+            echo "\ntaxon_concept_ID [$basename] revised cluster unsuccessful [$early_cluster YN] [".count($unique)."]\n";
+            $fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "/revised_cluster_unsuccessful.txt", "a");
+            fwrite($fhandle, "$basename" . "\t" . count($unique) ."\t". date('Y-m-d') . "\n"); fclose($fhandle);
             
             //start force-get only the first 20k records
             $to_be_saved = self::force_reduce_records($to_be_saved);
-
             echo "\n Final total after force_reduce_records() [$decimal_places]: " . count($to_be_saved['records']) . "\n";
 
             $to_be_saved['count'] = count($to_be_saved['records']); //the smaller value; the bigger one is $to_be_saved['actual']
@@ -943,7 +940,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
     }
     function force_reduce_records($to_be_saved)
-    {
+    {   /* ver 1 - had an error.
         $i = -1;
         foreach($to_be_saved['records'] as $r) {
             $i++;
@@ -951,6 +948,17 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         $to_be_saved['records'] = array_filter($to_be_saved['records']); //remove null arrays
         $to_be_saved['records'] = array_values($to_be_saved['records']); //reindex key
+        return $to_be_saved;
+        */
+        $divisor = count($to_be_saved['records'])/$this->limit_20k;
+        $divisor = intval($divisor);
+        $final = array(); $i = 0;
+        foreach($to_be_saved['records'] as $r) {
+            $i++;
+            if(($i % $divisor) == 0) $final[] = $r; //skip method e.g. 40,000 recs. only recs 2,4,6,8,etc. will be saved to get only 20K recs.
+            if(count($final) >= $this->limit_20k) break;
+        }
+        $to_be_saved['records'] = $final;
         return $to_be_saved;
     }
     function save_ids_to_text_from_many_folders() //a utility
