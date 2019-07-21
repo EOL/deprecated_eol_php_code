@@ -14,13 +14,14 @@ $params['info']              = @$argv[2]; //useful here
 $info = json_decode($params['info'], true);
 $range = $info['range'];
 $ctr = $info['ctr'];
+$rank = $info['rank'];
 
 print_r($range);
 $range_from = $range[0];
 $range_to = $range[1];
 
 $func = new GBIFoccurrenceAPI_DwCA();
-$func->gen_map_data_forTaxa_with_children(false, false, $range_from, $range_to);
+$func->gen_map_data_forTaxa_with_children(false, false, $range_from, $range_to, $rank);
 unlink(CONTENT_RESOURCE_LOCAL_PATH . "map_generate_".$ctr.".txt");
 
 $elapsed_time_sec = time_elapsed() - $timestart;

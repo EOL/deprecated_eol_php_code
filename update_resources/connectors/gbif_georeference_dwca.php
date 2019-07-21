@@ -46,7 +46,10 @@ php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"generate_
 Better to use Jenkins here. Not command-line.
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"gen_map_data_forTaxa_with_children","sciname":"Gadus","tc_id":46564414}'
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"gen_map_data_forTaxa_with_children","sciname":"Desertifilum","tc_id":35798554}'
-php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":1}'
+
+php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":1,"rank":"order"}'
+php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":1,"rank":"family"}'
+php update_resources/connectors/gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":1,"rank":"genus"}'
 
 For eol-archive:
 php gbif_georeference_dwca.php jenkins '{"group":"Animalia","divisor":6}'           //~717 million - Took 3 days 15 hr (when API calls are not yet cached)
@@ -96,7 +99,12 @@ if($task = @$arr['task']) {
     elseif($task == "gen_map_data_forTaxa_with_children") {
         if    (($sciname = @$arr['sciname'])       && ($tc_id = @$arr['tc_id']))       $func->gen_map_data_forTaxa_with_children($sciname, $tc_id);
         elseif($divisor = @$arr['divisor']) {
-            $batches = $func->get_range_batches(false, $divisor, 178519); //2nd param is divisor; 3rd is total rows in listOf_order_family_genus.txt
+            
+            $total = shell_exec("wc -l < ".escapeshellarg(CONTENT_RESOURCE_LOCAL_PATH . '/listOf_'.$arr['rank'].'_4maps.txt'));
+            $total = trim($total);
+            $total = $total - 1; //less header row
+            
+            $batches = $func->get_range_batches(false, $divisor, $total); //2nd param is divisor; 3rd is total rows in listOf_XXXXX_4maps.txt
             print_r($batches);
             //start create temp group indicator files
             for ($x = 1; $x <= $divisor; $x++) {
@@ -104,7 +112,7 @@ if($task = @$arr['task']) {
             }
             //end
             echo "\nCACHE_PATH xx 02 is ".CACHE_PATH."\n";
-            $func->jenkins_call(false, $batches, $task);
+            $func->jenkins_call(false, $batches, $task, $arr['rank']);
             echo "\nCACHE_PATH xx 03 is ".CACHE_PATH."\n";
         }
         else $func->gen_map_data_forTaxa_with_children();

@@ -97,10 +97,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->debug = array();
         
         // For DATA-1818
-        $this->listOf_order_family_genus = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_family_genus.txt';
+        $this->listOf_order_family_genus['order'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_4maps.txt';
+        $this->listOf_order_family_genus['family'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_family_4maps.txt';
+        $this->listOf_order_family_genus['genus'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_genus_4maps.txt';
         $this->auto_refresh_mapYN = false;
     }
-    function jenkins_call($group, $batches, $connector_task)
+    function jenkins_call($group, $batches, $connector_task, $filter_rank = '') //4th param $filter_rank is for gen_map_data_forTaxa_with_children() only
     {
         echo "\nCACHE_PATH 01 is ".CACHE_PATH."\n";
         require_once(DOC_ROOT."../LiteratureEditor/Custom/lib/Functions.php");
@@ -129,6 +131,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $param['group'] = $group;
             $param['range'] = $batch;
             $param['ctr'] = $ctr;
+            $param['rank'] = $filter_rank;
             
             $task = $ctrler->get_available_job("map_data_job");
             $json = json_encode($param, true);
@@ -386,7 +389,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
-    function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false)
+    function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false, $filter_rank)
     {
         require_library('connectors/DHConnLib'); $func = new DHConnLib('');
         $paths = $this->csv_paths; 
@@ -413,7 +416,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         } //end main foreach()
         */
         
-        $local = Functions::save_remote_file_to_local($this->listOf_order_family_genus, $this->download_options);
+        $local = Functions::save_remote_file_to_local($this->listOf_order_family_genus[$filter_rank], $this->download_options);
         $i = 0; $found = 0;
         foreach(new FileIterator($local) as $line_number => $line) {
             $i++; if(($i % 500000) == 0) echo "\n".number_format($i)." ";
