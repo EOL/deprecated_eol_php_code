@@ -23,15 +23,21 @@ class DHConnLib
             $this->main_path = "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/";
         }
         
-        $this->listOf_order_family_genus = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_family_genus.txt';
-        
+        $this->listOf_order_family_genus['order'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_4maps.txt';
+        $this->listOf_order_family_genus['family'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_family_4maps.txt';
+        $this->listOf_order_family_genus['genus'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_genus_4maps.txt';
+
     }
     // ----------------------------------------------------------------- start -----------------------------------------------------------------
     function generate_children_of_taxa_from_DH()
     {
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'initialize');
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'buildup ancestry and children');
-        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family');
+
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family', 'order');
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family', 'family');
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family', 'genus');
+
         /* tests only - OK
         $eol_id = '46564414'; //Gadus
         // $ancestry = self::get_ancestry_of_taxID($eol_id); print_r($ancestry); //worked OK
@@ -41,14 +47,14 @@ class DHConnLib
         */
         exit("\nend muna\n");
     }
-    private function get_taxID_nodes_info($txtfile, $purpose)
+    private function get_taxID_nodes_info($txtfile, $purpose, $filter_rank = '');
     {
         echo "\nPurpose: $purpose...\n";
         if($purpose == 'initialize') $this->mint2EOLid = array();
         elseif($purpose == 'buildup ancestry and children') { $this->taxID_info = array(); $this->descendants = array(); }
 
         if($purpose == 'save children of genus and family') {
-            $FILE = Functions::file_open($this->listOf_order_family_genus, 'w'); //this file will be used DATA-1818
+            $FILE = Functions::file_open($this->listOf_order_family_genus[$filter_rank], 'w'); //this file will be used DATA-1818
             fwrite($FILE, implode("\t", array('canonicalName', 'EOLid', 'taxonRank', 'taxonomicStatus'))."\n");
         }
         
@@ -101,7 +107,8 @@ class DHConnLib
                 }
             }
             elseif($purpose == 'save children of genus and family') {
-                if(in_array($rec['taxonRank'], array('order', 'family', 'genus'))) {
+                // if(in_array($rec['taxonRank'], array('order', 'family', 'genus'))) { //old scheme - abandoned
+                if($rec['taxonRank'] == $filter_rank) {
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
                         // $children = json_decode($json, true); // print_r($children); //debug only
