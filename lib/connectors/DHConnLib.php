@@ -47,7 +47,7 @@ class DHConnLib
         */
         exit("\nend muna\n");
     }
-    private function get_taxID_nodes_info($txtfile, $purpose, $filter_rank = '');
+    private function get_taxID_nodes_info($txtfile, $purpose, $filter_rank = '')
     {
         echo "\nPurpose: $purpose...\n";
         if($purpose == 'initialize') $this->mint2EOLid = array();
