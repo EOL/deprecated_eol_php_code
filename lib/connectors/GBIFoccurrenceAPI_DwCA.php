@@ -661,7 +661,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         
         //flag if after revised cluster is still unsuccessful
         if(count($unique) > $limit_to_break) {
-            exit("\ntaxon_concept_ID [$basename] revised cluster unsuccessful [$early_cluster]\n");
+            echo "\ntaxon_concept_ID [$basename] revised cluster unsuccessful [$early_cluster]\n";
             if(!($fhandle = Functions::file_open(DOC_ROOT . "public/tmp/google_maps/alert.txt", "a"))) return;
             fwrite($fhandle, "$basename" . "\t" . count($unique) . "\n");
             fclose($fhandle);
