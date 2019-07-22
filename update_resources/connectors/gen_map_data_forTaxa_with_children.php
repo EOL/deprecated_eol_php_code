@@ -36,7 +36,6 @@ else {
     exit(1);
 }
 
-
 function are_all_indicator_files_deletedYN($rank)
 {
     $filename = CONTENT_RESOURCE_LOCAL_PATH . "map_generate_".$rank."_"."COUNTER".".txt";
