@@ -453,7 +453,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 if(!$cont) continue;
             }
             //  --------------------------------------------------------
-            echo "\n$i. [".$rec['canonicalName']."][".$rec['EOLid']."]";
+            echo "\n$i of $range_to. [".$rec['canonicalName']."][".$rec['EOLid']."]";
             self::create_map_data_include_descendants($rec['canonicalName'], $rec['EOLid'], $paths, $func); //result of refactoring
             
         }
