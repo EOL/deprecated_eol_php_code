@@ -29,7 +29,7 @@ class DHConnLib
 
     }
     // ----------------------------------------------------------------- start -----------------------------------------------------------------
-    function generate_children_of_taxa_from_DH()
+    function generate_children_of_taxa_from_DH() /* This generates cache of children of order, family & genus. Also generates respective list txt files. */
     {
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'initialize');
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'buildup ancestry and children');
