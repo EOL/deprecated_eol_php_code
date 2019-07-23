@@ -394,7 +394,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
-    function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false, $filter_rank)
+    function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false, $filter_rank = '')
     {
         require_library('connectors/DHConnLib'); $func = new DHConnLib('');
         $paths = $this->csv_paths; 
