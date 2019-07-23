@@ -538,7 +538,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $paths = $this->csv_paths; 
         if($sciname && $tc_id) {
             $eol_taxon_id_list[$sciname] = $tc_id; print_r($eol_taxon_id_list);
-            self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
+            self::create_map_data($sciname, $tc_id, $paths); //result of refactoring
             return;
         }
 
