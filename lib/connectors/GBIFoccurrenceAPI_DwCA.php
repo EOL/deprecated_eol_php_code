@@ -97,9 +97,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->debug = array();
         
         // For DATA-1818
-        $this->listOf_order_family_genus['order'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_4maps.txt';
-        $this->listOf_order_family_genus['family'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_family_4maps.txt';
-        $this->listOf_order_family_genus['genus'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_genus_4maps.txt';
+        $this->listOf_taxa['order']  = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_order_4maps.txt';
+        $this->listOf_taxa['family'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_family_4maps.txt';
+        $this->listOf_taxa['genus']  = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_genus_4maps.txt';
+        $this->listOf_taxa['all']    = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_all_4maps.txt';
         $this->auto_refresh_mapYN = false;
     }
     function jenkins_call($group, $batches, $connector_task, $filter_rank = '') //4th param $filter_rank is for gen_map_data_forTaxa_with_children() only
@@ -419,7 +420,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         } //end main foreach()
         */
         
-        $local = Functions::save_remote_file_to_local($this->listOf_order_family_genus[$filter_rank], $this->download_options);
+        $local = Functions::save_remote_file_to_local($this->listOf_taxa[$filter_rank], $this->download_options);
         $i = 0; $found = 0;
         foreach(new FileIterator($local) as $line_number => $line) {
             $i++; if(($i % 500000) == 0) echo "\n".number_format($i)." ";
@@ -513,13 +514,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function generate_map_data_using_GBIF_csv_files($sciname = false, $tc_id = false, $range_from = false, $range_to = false, $autoRefreshYN = false)
     {
-        if($sciname && $tc_id) {
-            $eol_taxon_id_list[$sciname] = $tc_id;
-            print_r($eol_taxon_id_list);
-        }
-        else $eol_taxon_id_list = self::process_all_eol_taxa_using_DH(false, true); //listOnly = true
-        // echo "\n eol_taxon_id_list total: ".count($eol_taxon_id_list)."\n";
-        
         // $eol_taxon_id_list["Gadus morhua"] = 206692;
         // $eol_taxon_id_list["Achillea millefolium L."] = 45850244;
         // $eol_taxon_id_list["Francolinus levaillantoides"] = 1; //5227890
@@ -530,7 +524,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Plantae"] = 281;
         // $eol_taxon_id_list["Chaetoceros"] = 12010;
         // $eol_taxon_id_list["Chenonetta"] = 104248;
-        
         /* for testing 1 taxon
         $eol_taxon_id_list = array();
         $eol_taxon_id_list["Gadus morhua"] = 206692;
@@ -540,28 +533,67 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // $eol_taxon_id_list["Proterebia keymaea"] = 137680; //csv map data not available from DwCA download
         // $eol_taxon_id_list["Aichi virus"] = 540501;
         */
+        
+        $paths = $this->csv_paths; 
+        if($sciname && $tc_id) {
+            $eol_taxon_id_list[$sciname] = $tc_id; print_r($eol_taxon_id_list);
+            self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
+            return;
+        }
 
-        $paths = $this->csv_paths; $i = 0;
-        /* $m = count($eol_taxon_id_list)/3; */
+        /* used FileIterator below instead, to save on memory
+        $i = 0;
         foreach($eol_taxon_id_list as $sciname => $taxon_concept_id) {
             $i++;
-            // /* new ranges ---------------------------------------------
+            // new ranges ---------------------------------------------
             if($range_from && $range_to) {
                 $cont = false;
                 if($i >= $range_from && $i < $range_to) $cont = true;
                 if(!$cont) continue;
             }
-            // */ --------------------------------------------------------
-            /* breakdown cache - not used anymore since breakdown happens in jenkins
-            $cont = false;
-            // if($i >=  1    && $i < $m)    $cont = true;
-            // if($i >=  $m   && $i < $m*2)  $cont = true;
-            if($i >=  $m*2 && $i < $m*3)  $cont = true;
-            if(!$cont) continue;
-            */
+            // --------------------------------------------------------
             echo "\n$i. [$sciname][$taxon_concept_id]";
             self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
-        } //end main foreach()
+        }
+        */
+        
+        $local = Functions::save_remote_file_to_local($this->listOf_taxa['all'], $this->download_options);
+        $i = 0;
+        foreach(new FileIterator($local) as $line_number => $line) {
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i)." ";
+            $row = explode("\t", $line); // print_r($row);
+            if($i == 1) {
+                $fields = $row;
+                $fields = array_filter($fields); //print_r($fields);
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue;
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = @$row[$k];
+                    $k++;
+                }
+            }
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit("\nstopx\n");
+            /*Array(
+                [canonicalName] => Oscillatoriales
+                [EOLid] => 3255
+                [taxonRank] => order
+                [taxonomicStatus] => accepted
+            )*/
+            //  new ranges ---------------------------------------------
+            if($range_from && $range_to) {
+                $cont = false;
+                if($i >= $range_from && $i < $range_to) $cont = true;
+                if(!$cont) continue;
+            }
+            //  --------------------------------------------------------
+            echo "\n$i of $range_to. [".$rec['canonicalName']."][".$rec['EOLid']."]";
+            self::create_map_data($rec['canonicalName'], $rec['EOLid'], $paths); //result of refactoring
+        }
+        unlink($local);
     }
     private function if_needed_2cluster_orSave($final, $taxon_concept_id)
     {
