@@ -81,7 +81,12 @@ if($task = @$arr['task']) {
     if($task == "generate_map_data_using_GBIF_csv_files") {
         if    (($sciname = @$arr['sciname'])       && ($tc_id = @$arr['tc_id']))       $func->generate_map_data_using_GBIF_csv_files($sciname, $tc_id);
         elseif($divisor = @$arr['divisor']) {
-            $batches = $func->get_range_batches(false, $divisor, 1845884); //2nd param is divisor; 3rd is total tc_ids from DH file (2237550 old value).
+            
+            $total = shell_exec("wc -l < ".escapeshellarg(CONTENT_RESOURCE_LOCAL_PATH . '/listOf_all_4maps.txt'));
+            $total = trim($total);
+            $total = $total - 1; //less header row
+            
+            $batches = $func->get_range_batches(false, $divisor, $total); //2nd param is divisor; 3rd is total tc_ids from DH file where EOLid is not blank
             print_r($batches);
             //start create temp group indicator files
             for ($x = 1; $x <= $divisor; $x++) {
