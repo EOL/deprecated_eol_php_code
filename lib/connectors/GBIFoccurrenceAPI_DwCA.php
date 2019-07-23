@@ -134,8 +134,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $param['ctr'] = $ctr;
             $param['rank'] = $filter_rank;
             
-            if($connector_task == "generate_map_data_using_GBIF_csv_files") $job_str = "map_data_job";
-            elseif($connector_task == "gen_map_data_forTaxa_with_children") $job_str = "map_data_ch_".substr($param['rank'],0,3)."_job"; //map_data_ch_gen_job_4
+            if($connector_task == "breakdown_GBIF_DwCA_file")                   $job_str = "map_data_break_".substr($group,0,3)."_job"; // 'Ani' 'Pla' 'Oth'
+            elseif($connector_task == "generate_map_data_using_GBIF_csv_files") $job_str = "map_data_job";
+            elseif($connector_task == "gen_map_data_forTaxa_with_children")     $job_str = "map_data_ch_".substr($param['rank'],0,3)."_job"; //map_data_ch_gen_job_4
             
             $task = $ctrler->get_available_job($job_str);
             $json = json_encode($param, true);
