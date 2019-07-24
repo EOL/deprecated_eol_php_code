@@ -5,13 +5,23 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
+/* test
+exit("\nend test\n");
+*/
+
+
 // /* //main operation
 require_library('connectors/DwCA_Utility');
 
 $dwca_file = 'http://localhost/cp/DATA-1817/indianocean.zip';
 $dwca_file = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/f6f7145c-bc58-4182-ac23-e5a80cf0edcc/download/indianocean.zip';
+$dwca_file = 'https://opendata.eol.org/dataset/6c70b436-5503-431f-8bf3-680fea5e1b05/resource/6207f9ba-3c93-4a22-9a18-7ae4fc47df56/download/afganistan.zip';
 $resource_id = 'SC_'.get_basename($dwca_file);
 $func = new DwCA_Utility($resource_id, $dwca_file);
+
+$url = 'http://gimmefreshdata.github.io/?limit=5000000&taxonSelector=Enhydra lutris&traitSelector=&wktString=GEOMETRYCOLLECTION%28POLYGON%20%28%28-65.022%2063.392%2C%20-74.232%2064.672%2C%20-84.915%2071.353%2C%20-68.482%2068.795%2C%20-67.685%2066.286%2C%20-65.022%2063.392%29%29%2CPOLYGON%20%28%28-123.126%2049.079%2C%20-129.911%2053.771%2C%20-125.34%2069.52%2C%20-97.874%2068.532%2C%20-85.754%2068.217%2C%20-91.525%2063.582%2C%20-77.684%2060.542%2C%20-64.072%2059.817%2C%20-55.85%2053.249%2C%20-64.912%2043.79%2C%20-123.126%2049.079%29%29%29';
+$new = $func->convert_2gbif_url($url);
+exit("\n$new\n");
 
 /* No preferred. Will get all.
 $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference');

@@ -114,6 +114,21 @@ class SpeciesChecklistAPI
             // if($i >= 10) break; //debug only
         }
     }
+    function convert_2gbif_url($url)
+    {   /*
+        change old % 28 -->> (
+        change old % 29 -->> )
+        change both % 20 -->> space
+        change both % 2C -->> comma
+        */
+        $url = str_replace("%28", "(", $url);
+        $url = str_replace("%29", ")", $url);
+        $url = str_replace("%20", " ", $url);
+        $url = str_replace("%2C", ",", $url);
+        
+        
+        
+    }
     /*================================================================= ENDS HERE ======================================================================*/
     /* this is just to copy the extension as is. No customization.
     private function process_generic($meta)
