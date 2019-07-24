@@ -37,16 +37,19 @@ class SpeciesChecklistAPI
             $tmp = explode("\t", $row);
             
             // print_r($dwca_short_fields); print_r($tmp); exit;
-            if(in_array($tmp[0], $dwca_short_fields)) continue; //since meta.xml is not reflective of the actual dwca. DwCA seems manually created.
+
+            if(in_array($tmp[0], $dwca_short_fields)) continue; //this means if first row is the header fields then ignore
 
             // echo "\n".count($meta->fields);
             // echo "\n".count($tmp); exit("\n");
-            if(count($meta->fields != count($tmp))) continue;
+            /* commented since child records have lesser columns, but should be accepted.
+            if(count($meta->fields) != count($tmp)) continue;
+            */
             
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
                 if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
+                $rec[$field['term']] = @$tmp[$k];
                 $k++;
             }
             // print_r($rec); exit;
@@ -61,6 +64,26 @@ class SpeciesChecklistAPI
             elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
             elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
             else exit("\nUndefined class\n");
+            
+            if($class == 'measurementorfact') { // print_r($rec); exit;
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => measurementID
+                    [http://rs.tdwg.org/dwc/terms/occurrenceID] => occurrenceID
+                    [http://eol.org/schema/parentMeasurementID] => parentMeasurementID
+                    [http://eol.org/schema/measurementOfTaxon] => measurementOfTaxon
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => measurementType
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => measurementValue
+                    [http://eol.org/schema/reference/referenceID] => referenceID
+                    [http://purl.org/dc/terms/contributor] => contributor
+                    [http://purl.org/dc/terms/source] => source
+                )*/
+                if(!$rec['http://rs.tdwg.org/dwc/terms/measurementID']) {
+                    if(!$rec['http://eol.org/schema/parentMeasurementID']) {
+                        print_r($rec); exit("\nThis child record has to have a parentMeasurementID\n");
+                    }
+                    else $rec['http://rs.tdwg.org/dwc/terms/measurementID'] = $rec['http://eol.org/schema/parentMeasurementID']."_".pathinfo($rec['http://rs.tdwg.org/dwc/terms/measurementType'], PATHINFO_BASENAME);
+                }
+            }
             
             $uris = array_keys($rec);
             foreach($uris as $uri) {
