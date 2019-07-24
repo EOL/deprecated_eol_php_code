@@ -50,13 +50,13 @@ class DwCA_Utility
         $this->public_domains = array("http://creativecommons.org/licenses/publicdomain/", "https://creativecommons.org/share-your-work/public-domain/", "https://creativecommons.org/share-your-work/public-domain/cc0/");
     }
 
-    private function start($dwca_file = false)
+    private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)) //default expires in a month
     {
         if($dwca_file) $this->dwca_file = $dwca_file; //used by /conncectors/lifedesk_eol_export.php
         
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
+        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -106,6 +106,9 @@ class DwCA_Utility
         */
         // print_r($index); exit; //good debug to see the all-lower case URIs
         foreach($index as $row_type) {
+            /* ----------customized start------------ */
+            if(substr($this->resource_id,0,3) == 'SC_') break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
+            /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
             }
@@ -127,6 +130,11 @@ class DwCA_Utility
             require_library('connectors/GloBIDataAPI');
             $func = new GloBIDataAPI($this->archive_builder, 'globi');
             $func->start($info); //didn't use like above bec. memory can't handle 'occurrence' and 'association' TSV files
+        }
+        if(substr($this->resource_id,0,3) == 'SC_') {
+            require_library('connectors/SpeciesChecklistAPI');
+            $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
+            $func->start($info);
         }
         // ================================= end of customization ================================= */ 
         
