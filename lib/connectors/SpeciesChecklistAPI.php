@@ -68,7 +68,10 @@ class SpeciesChecklistAPI
             elseif($class == "document")            $o = new \eol_schema\MediaResource();
             elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
             elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
-            else exit("\nUndefined class\n");
+            else {
+                print_r($meta);
+                exit("\nUndefined class [$class]\n");
+            }
 
             if($class == 'taxon') { //print_r($rec); exit;
                 /*Array(
