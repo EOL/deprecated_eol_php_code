@@ -77,7 +77,8 @@ class SpeciesChecklistAPI
                     [http://purl.org/dc/terms/contributor] => contributor
                     [http://purl.org/dc/terms/source] => source
                 )*/
-                if(!$rec['http://rs.tdwg.org/dwc/terms/measurementID']) {
+                /* This means children record should be presented correctly. */
+                if(!$rec['http://rs.tdwg.org/dwc/terms/measurementID'] || !$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']) { //means probably a child record
                     if(!$rec['http://eol.org/schema/parentMeasurementID']) {
                         print_r($rec); exit("\nThis child record has to have a parentMeasurementID\n");
                     }
