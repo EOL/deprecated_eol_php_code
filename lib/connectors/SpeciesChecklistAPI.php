@@ -26,6 +26,12 @@ class SpeciesChecklistAPI
     {   //print_r($meta->fields); //exit;
         echo "\nProcesing $meta->row_type ...\n";
         $dwca_short_fields = self::get_dwca_short_fields($meta->fields);
+        $class = strtolower(pathinfo($meta->row_type, PATHINFO_FILENAME));
+        
+        if($class != "taxon") {
+            if(isset($this->unique_taxon_ids)) $this->unique_taxon_ids = ''; //just remove from memory
+        }
+        
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -55,7 +61,6 @@ class SpeciesChecklistAPI
             // print_r($rec); exit;
             /**/
 
-            $class = strtolower(pathinfo($meta->row_type, PATHINFO_FILENAME));
             if    ($class == "vernacular")          $o = new \eol_schema\VernacularName();
             elseif($class == "agent")               $o = new \eol_schema\Agent();
             elseif($class == "reference")           $o = new \eol_schema\Reference();
@@ -64,6 +69,17 @@ class SpeciesChecklistAPI
             elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
             elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
             else exit("\nUndefined class\n");
+
+            if($class == 'taxon') { //print_r($rec); exit;
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => T100000
+                    [http://rs.tdwg.org/dwc/terms/scientificName] => Argyrosomus inodorus
+                    [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => T100001
+                    [http://rs.tdwg.org/dwc/terms/taxonRank] => species
+                )*/
+                if(isset($this->unique_taxon_ids[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) continue; //will cause duplicate taxonID
+                else $this->unique_taxon_ids[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+            }
             
             if($class == 'measurementorfact') { // print_r($rec); exit;
                 /*Array(
