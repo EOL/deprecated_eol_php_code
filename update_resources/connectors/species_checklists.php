@@ -20,12 +20,15 @@ require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 
 $datasets = array('nationalchecklists', 'water-body-checklists');
+$datasets = array('nationalchecklists');
+// $datasets = array('water-body-checklists');
+
 foreach($datasets as $dataset) {
     $urls = $func->get_opendata_resources($dataset); // print_r($urls);
     $i = 0;
     foreach($urls as $url) { $i++;
         process_resource_url($url);
-        if($i >= 2) break;
+        // if($i >= 2) break;
     }
 }
 unset($func);
