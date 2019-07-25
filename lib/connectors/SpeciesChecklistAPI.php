@@ -125,8 +125,30 @@ class SpeciesChecklistAPI
         $url = str_replace("%29", ")", $url);
         $url = str_replace("%20", " ", $url);
         $url = str_replace("%2C", ",", $url);
+/*        
+http://gimmefreshdata.github.io/?limit=5000000&taxonSelector=Enhydra lutris&traitSelector=&wktString
+=GEOMETRYCOLLECTION(POLYGON ((-65.022 63.392, -74.232 64.672, -84.915 71.353, -68.482 68.795, -67.685 66.286, -65.022 63.392)),
+                    POLYGON ((-123.126 49.079, -129.911 53.771, -125.34 69.52, -97.874 68.532, -85.754 68.217, -91.525 63.582, -77.684 60.542, -64.072 59.817, -55.85 53.249, -64.912 43.79, -123.126 49.079))
+                   )
+
+https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64.672, -84.915 71.353, -68.482 68.795, -67.685 66.286, -65.022 63.392))
+                                   &geometry=POLYGON((-123.126 49.079, -129.911 53.771, -125.34 69.52, -97.874 68.532, -85.754 68.217, -91.525 63.582, -77.684 60.542, -64.072 59.817, -55.85 53.249, -64.912 43.79, -123.126 49.079))
+*/
+
+        if(preg_match_all("/POLYGON \(\((.*?)\)\)/ims", $url, $arr))    print_r($arr[1]);
+        elseif(preg_match_all("/POLYGON\(\((.*?)\)\)/ims", $url, $arr)) print_r($arr[1]);
+        else exit("\n========================\n[$url]\n========================\nInvestigate url format\n");
         
+        $this->pre_gbif_url = 'https://www.gbif.org/occurrence/map?taxon_key=TAXONKEY&';
+        foreach($arr[1] as $str) $parts[] = 'geometry=POLYGON(('.$str.'))';
         
+        // print_r($parts);
+        $final = $this->pre_gbif_url . implode("&", $parts);
+        $final = str_replace('TAXONKEY', '2433670', $final);
+        $final = str_replace(" ", "%20", $final);
+        $final = str_replace(",", "%2C", $final);
+        
+        echo "\n$final\n";
         
     }
     /*================================================================= ENDS HERE ======================================================================*/
