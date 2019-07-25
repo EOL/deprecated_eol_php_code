@@ -1256,7 +1256,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             exit("\nCannot get usage_key for ($sciname)\n");
         }
     }
-    private function get_usage_key($sciname)
+    function get_usage_key($sciname)
     {
         $options = $this->download_options;
         $options['expire_seconds'] = false;

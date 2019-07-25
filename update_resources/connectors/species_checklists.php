@@ -5,14 +5,14 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 
-// /* test
+/* test
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 $url = 'http://gimmefreshdata.github.io/?limit=5000000&taxonSelector=Enhydra lutris&traitSelector=&wktString=GEOMETRYCOLLECTION%28POLYGON%20%28%28-65.022%2063.392%2C%20-74.232%2064.672%2C%20-84.915%2071.353%2C%20-68.482%2068.795%2C%20-67.685%2066.286%2C%20-65.022%2063.392%29%29%2CPOLYGON%20%28%28-123.126%2049.079%2C%20-129.911%2053.771%2C%20-125.34%2069.52%2C%20-97.874%2068.532%2C%20-85.754%2068.217%2C%20-91.525%2063.582%2C%20-77.684%2060.542%2C%20-64.072%2059.817%2C%20-55.85%2053.249%2C%20-64.912%2043.79%2C%20-123.126%2049.079%29%29%29';
 $new = $func->convert_2gbif_url($url);
 exit("\n$new\n");
 exit("\nend test\n");
-// */
+*/
 
 
 // /* //main operation
