@@ -4,6 +4,7 @@ namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+$GLOBALS['ENV_DEBUG'] = true;
 
 /* test
 require_library('connectors/SpeciesChecklistAPI');
