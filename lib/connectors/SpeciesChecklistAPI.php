@@ -37,7 +37,7 @@ class SpeciesChecklistAPI
         
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 25000) == 0) echo "\n".number_format($i);
             /* not followed since meta.xml is not reflective of the actual dwca. DwCA seems manually created.
             if($meta->ignore_header_lines && $i == 1) continue;
             */
@@ -157,7 +157,7 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
         $final = str_replace('TAXONKEY', $taxon_key, $final);
         $final = str_replace(" ", "%20", $final);
         $final = str_replace(",", "%2C", $final);
-        echo "\n[$sciname]\n$final\n";
+        // echo "\n[$sciname]\n$final\n";
         return $final;
     }
     /*================================================================= ENDS HERE ======================================================================*/
