@@ -7,6 +7,11 @@ class SpeciesChecklistAPI
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        $this->opendata_dataset_api = 'https://opendata.eol.org/api/3/action/package_show?id=';
+        $this->download_options = array(
+            'resource_id'        => 'SCR', //species checklist resources
+            'expire_seconds'     => 60*60*24*30*3, //ideally 3 months to expire
+            'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -159,6 +164,14 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
         $final = str_replace(",", "%2C", $final);
         // echo "\n[$sciname]\n$final\n";
         return $final;
+    }
+    function get_opendata_resources($dataset)
+    {
+        if($json = Functions::lookup_with_cache($this->opendata_dataset_api.$dataset, $this->download_options)) {
+            $o = json_decode($json);
+            foreach($o->result->resources as $res) $final[$res->url] = '';
+        }
+        return array_keys($final);
     }
     /*================================================================= ENDS HERE ======================================================================*/
     /* this is just to copy the extension as is. No customization.

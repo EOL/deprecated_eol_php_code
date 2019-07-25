@@ -15,22 +15,20 @@ exit("\n$new\n");
 exit("\nend test\n");
 */
 
+// /* Get all resources from OpenData
+require_library('connectors/SpeciesChecklistAPI');
+$func = new SpeciesChecklistAPI(false, false);
 
-// /* //main operation
-require_library('connectors/DwCA_Utility');
-
-$dwca_file = 'http://localhost/cp/DATA-1817/indianocean.zip';
-// $dwca_file = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/f6f7145c-bc58-4182-ac23-e5a80cf0edcc/download/indianocean.zip';
-$dwca_file = 'https://opendata.eol.org/dataset/6c70b436-5503-431f-8bf3-680fea5e1b05/resource/6207f9ba-3c93-4a22-9a18-7ae4fc47df56/download/afganistan.zip';
-$resource_id = 'SC_'.get_basename($dwca_file);
-$func = new DwCA_Utility($resource_id, $dwca_file);
-
-/* No preferred. Will get all.
-$preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference');
-*/
-
-$func->convert_archive();
-Functions::finalize_dwca_resource($resource_id);
+$datasets = array('nationalchecklists', 'water-body-checklists');
+foreach($datasets as $dataset) {
+    $urls = $func->get_opendata_resources($dataset); // print_r($urls);
+    $i = 0;
+    foreach($urls as $url) { $i++;
+        process_resource_url($url);
+        if($i >= 2) break;
+    }
+}
+unset($func);
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -39,6 +37,21 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
+
+function process_resource_url($dwca_file)
+{
+    require_library('connectors/DwCA_Utility');
+    // $dwca_file = 'http://localhost/cp/DATA-1817/indianocean.zip';
+    // $dwca_file = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/f6f7145c-bc58-4182-ac23-e5a80cf0edcc/download/indianocean.zip';
+    // $dwca_file = 'https://opendata.eol.org/dataset/6c70b436-5503-431f-8bf3-680fea5e1b05/resource/6207f9ba-3c93-4a22-9a18-7ae4fc47df56/download/afganistan.zip';
+    $resource_id = 'SC_'.get_basename($dwca_file);
+    $func = new DwCA_Utility($resource_id, $dwca_file);
+    /* No preferred. Will get all.
+    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference');
+    */
+    $func->convert_archive();
+    Functions::finalize_dwca_resource($resource_id);
+}
 function get_basename($url)
 {
     return pathinfo($url, PATHINFO_FILENAME);
