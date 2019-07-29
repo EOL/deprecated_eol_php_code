@@ -19,32 +19,8 @@ exit("\nend test\n");
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 
-$datasets = array('nationalchecklists', 'water-body-checklists');
-$datasets = array('nationalchecklists');
-// $datasets = array('water-body-checklists');
+generate_new_dwca($func);
 
-foreach($datasets as $dataset) {
-    $urls = $func->get_opendata_resources($dataset); // print_r($urls);
-    $i = 0;
-    foreach($urls as $url) { $i++;
-        echo "\n[$i]";
-
-        /* breakdown
-        $s = 195; $m = 10;
-        $cont = false;
-        // if($i >=  $s    && $i < $s+$m)    $cont = true; running
-        // if($i >=  $s+$m   && $i < $s+($m*2))  $cont = true; running
-        // if($i >=  $s+($m*2)   && $i < $s+($m*3))  $cont = true; running
-        // if($i >=  $s+($m*3)   && $i < $s+($m*4))  $cont = true; running
-        // if($i >=  $s+($m*4)   && $i < $s+($m*5))  $cont = true; running
-        // if($i >=  $s+($m*5)   && $i < $s+($m*6))  $cont = true;
-        if(!$cont) continue;
-        */
-        
-        process_resource_url($url);
-        // if($i >= 2) break;
-    }
-}
 unset($func);
 // */
 
@@ -54,7 +30,35 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
+function generate_new_dwca($func)
+{
+    $datasets = array('nationalchecklists', 'water-body-checklists');
+    $datasets = array('nationalchecklists');
+    // $datasets = array('water-body-checklists');
 
+    foreach($datasets as $dataset) {
+        $urls = $func->get_opendata_resources($dataset); // print_r($urls);
+        $i = 0;
+        foreach($urls as $url) { $i++;
+            echo "\n[$i]";
+
+            /* breakdown
+            $s = 195; $m = 10;
+            $cont = false;
+            // if($i >=  $s    && $i < $s+$m)    $cont = true; running
+            // if($i >=  $s+$m   && $i < $s+($m*2))  $cont = true; running
+            // if($i >=  $s+($m*2)   && $i < $s+($m*3))  $cont = true; running
+            // if($i >=  $s+($m*3)   && $i < $s+($m*4))  $cont = true; running
+            // if($i >=  $s+($m*4)   && $i < $s+($m*5))  $cont = true; running
+            // if($i >=  $s+($m*5)   && $i < $s+($m*6))  $cont = true;
+            if(!$cont) continue;
+            */
+
+            process_resource_url($url);
+            // if($i >= 2) break;
+        }
+    }
+}
 function process_resource_url($dwca_file)
 {
     require_library('connectors/DwCA_Utility');
