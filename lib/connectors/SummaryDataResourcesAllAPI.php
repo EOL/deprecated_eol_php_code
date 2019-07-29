@@ -2948,9 +2948,16 @@ class SummaryDataResourcesAllAPI
         foreach($tips as $tip) echo "\n$tip";
         echo "\n-end tips-\n"; //exit;
         
-        xxx
+        if($this->parent_basal_values_YesNo) { //parent mode
+            $lessthanORequal5 = 15;
+            $lessthanORequal4 = 15;
+        }
+        else { //non-parent mode
+            $lessthanORequal5 = 5;
+            $lessthanORequal4 = 4;
+        }
         
-        if(count($tips) <= 5 ) $selected = $tips;
+        if(count($tips) <= $lessthanORequal5 ) $selected = $tips;
         else { // > 5
             // /* Two new steps from Jen & Katja                                               UNCOMMENT IN REAL OPERATION...
             $ret_from_2new_steps = self::two_new_steps($ISVAT, $roots, $tips);
@@ -2963,15 +2970,15 @@ class SummaryDataResourcesAllAPI
             echo "\n\nroots after deletion-steps: ".count($roots)."\n"; print_r($roots);
             
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
-            if(count($step_1) <= 4) $selected = $step_1; //select set 1
+            if(count($step_1) <= $lessthanORequal4) $selected = $step_1; //select set 1
             else {
                 $step_2 = self::get_step_1($ISVAT, $roots, $step_1, 2);
-                if(count($step_2) <= 4) $selected = $step_2; //select set 2
+                if(count($step_2) <= $lessthanORequal4) $selected = $step_2; //select set 2
                 else {
                     $step_3 = self::get_step_1($ISVAT, $roots, $step_2, 3);
                     if($step_2 == $step_3) {
                         echo "\nSteps 2 and 3 are identical.\n";
-                        if(count($step_3) <= 4) $selected = $step_3; //select set 3
+                        if(count($step_3) <= $lessthanORequal4) $selected = $step_3; //select set 3
                         else {
                             echo "\nSelect root ancestors\n";
                             $selected = $roots;
@@ -2982,7 +2989,7 @@ class SummaryDataResourcesAllAPI
                         $step_4 = self::get_step_1($ISVAT, $roots, $step_3, 4);
                         if($step_3 == $step_4) {
                             echo "\nSteps 3 and 4 are identical.\n";
-                            if(count($step_4) <= 4) $selected = $step_4; //select set 4
+                            if(count($step_4) <= $lessthanORequal4) $selected = $step_4; //select set 4
                             else {
                                 echo "\nSelect root ancestors\n";
                                 $selected = $roots;
@@ -2994,7 +3001,7 @@ class SummaryDataResourcesAllAPI
                             $step_5 = self::get_step_1($ISVAT, $roots, $step_4, 5);
                             if($step_4 == $step_5) {
                                 echo "\nSteps 4 and 5 are identical.\n";
-                                if(count($step_5) <= 4) $selected = $step_5; //select set 5
+                                if(count($step_5) <= $lessthanORequal4) $selected = $step_5; //select set 5
                                 else {
                                     echo "\nSelect root ancestors\n";
                                     $selected = $roots;
@@ -3006,7 +3013,7 @@ class SummaryDataResourcesAllAPI
                                 $step_6 = self::get_step_1($ISVAT, $roots, $step_5, 6);
                                 if($step_5 == $step_6) {
                                     echo "\nSteps 5 and 6 are identical.\n";
-                                    if(count($step_6) <= 4) $selected = $step_6; //select set 6
+                                    if(count($step_6) <= $lessthanORequal4) $selected = $step_6; //select set 6
                                     else {
                                         echo "\nSelect root ancestors\n";
                                         $selected = $roots;
@@ -3018,7 +3025,7 @@ class SummaryDataResourcesAllAPI
                                     $step_7 = self::get_step_1($ISVAT, $roots, $step_6, 7);
                                     if($step_6 == $step_7) {
                                         echo "\nSteps 6 and 7 are identical.\n";
-                                        if(count($step_7) <= 4) $selected = $step_7; //select set 7
+                                        if(count($step_7) <= $lessthanORequal4) $selected = $step_7; //select set 7
                                         else {
                                             echo "\nSelect root ancestors\n";
                                             $selected = $roots;
@@ -3026,7 +3033,7 @@ class SummaryDataResourcesAllAPI
                                     }
                                     elseif($step_5 == $step_7 && $step_4 == $step_6) {
                                         echo "\nSteps 5 and 7 are identical; Steps 4 and 6 are identical.\n";
-                                        if(count($step_7) <= 4) $selected = $step_7; //select set 7
+                                        if(count($step_7) <= $lessthanORequal4) $selected = $step_7; //select set 7
                                         else {
                                             echo "\nSelect root ancestors\n";
                                             $selected = $roots;
