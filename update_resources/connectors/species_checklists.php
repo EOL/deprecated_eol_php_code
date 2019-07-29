@@ -4,7 +4,7 @@ namespace php_active_record;
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true;
+// $GLOBALS['ENV_DEBUG'] = true;
 
 /* test
 require_library('connectors/SpeciesChecklistAPI');
@@ -19,7 +19,8 @@ exit("\nend test\n");
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 
-generate_new_dwca($func);
+generate_new_dwca($func);                   //main script to generate DwCA
+create_new_resources_in_opendata($func);    //script to create resources in two pre-defined datasets in opendata.eol.org.
 
 unset($func);
 // */
@@ -30,6 +31,53 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
+function create_new_resources_in_opendata($func)
+{
+    /*
+    description 	"A list of species from G…a and geonames polygons"
+    format      	"Darwin Core Archive"
+    url_type    	"upload"
+    name        	"Guatemala Species List"
+    */
+    /* worked OK. Using a test dataset.
+    ~$ curl https://opendata.eol.org/api/3/action/resource_create \
+    -d '{"package_id": "eli-test-dataset", "clear_upload": "true", "url": "https://editors.eol.org/eol_php_code/applications/content_server/resources/EOL_FreshData_connectors.txt", "name": "7th api-uploaded resource"}' \
+    -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"
+    */
+    $datasets['nationalchecklists'] = 'national-checklists-2019';
+    $datasets['water-body-checklists'] = 'water-body-checklists-2019';
+    foreach($datasets as $dataset => $destination_dataset) {
+        $resources = $func->get_opendata_resources($dataset, true); //2nd param true means get all records (resources)
+        $i = 0;
+        foreach($resources as $r) { $i++;
+            echo "\n[$i]";
+            /*stdClass Object(
+                [description] => A list of species from Afghanistan collected using effechecka and geonames polygons
+                [format] => Darwin Core Archive
+                [name] => Afghanistan Species List
+            )*/
+            $basename = 'SC_'.get_basename($r->url);
+            
+            $rec = array();
+            $rec['package_id'] = $destination_dataset;
+            $rec['clear_upload'] = "true";
+            $rec['url'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$basename.'.tar.gz';
+            $rec['name'] = $r->name;
+            $rec['description'] = $r->description;
+            $rec['format'] = $r->format;
+            $json = json_encode($rec);
+            
+            $cmd = 'curl https://opendata.eol.org/api/3/action/resource_create';
+            $cmd .= " -d '".$json."'";
+            $cmd .= ' -H "Authorization: b9187eeb-0819-4ca5-a1f7-2ed97641bbd4"';
+            
+            sleep(2);
+            $output = shell_exec($cmd);
+            echo "\n$output\n";
+            // if($i >= 2) break; //debug only
+        }
+    }
+}
 function generate_new_dwca($func)
 {
     $datasets = array('nationalchecklists', 'water-body-checklists');
