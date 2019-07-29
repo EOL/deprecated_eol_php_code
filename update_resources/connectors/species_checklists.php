@@ -29,17 +29,17 @@ foreach($datasets as $dataset) {
     foreach($urls as $url) { $i++;
         echo "\n[$i]";
 
-        // /* breakdown
+        /* breakdown
         $s = 195; $m = 10;
         $cont = false;
         // if($i >=  $s    && $i < $s+$m)    $cont = true; running
         // if($i >=  $s+$m   && $i < $s+($m*2))  $cont = true; running
-        if($i >=  $s+($m*2)   && $i < $s+($m*3))  $cont = true;
+        // if($i >=  $s+($m*2)   && $i < $s+($m*3))  $cont = true; running
         // if($i >=  $s+($m*3)   && $i < $s+($m*4))  $cont = true; running
         // if($i >=  $s+($m*4)   && $i < $s+($m*5))  $cont = true; running
         // if($i >=  $s+($m*5)   && $i < $s+($m*6))  $cont = true;
         if(!$cont) continue;
-        // */
+        */
         
         process_resource_url($url);
         // if($i >= 2) break;
