@@ -34,7 +34,7 @@ function generate_new_dwca($func)
 {
     $datasets = array('nationalchecklists', 'water-body-checklists');
     $datasets = array('nationalchecklists');
-    // $datasets = array('water-body-checklists');
+    $datasets = array('water-body-checklists');
     foreach($datasets as $dataset) {
         $urls = $func->get_opendata_resources($dataset); // print_r($urls);
         $i = 0;
