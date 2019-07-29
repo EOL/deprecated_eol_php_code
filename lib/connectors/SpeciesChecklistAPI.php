@@ -165,10 +165,11 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
         // echo "\n[$sciname]\n$final\n";
         return $final;
     }
-    function get_opendata_resources($dataset)
+    function get_opendata_resources($dataset, $all_fields = false)
     {
         if($json = Functions::lookup_with_cache($this->opendata_dataset_api.$dataset, $this->download_options)) {
             $o = json_decode($json);
+            if($all_fields) return $o->result->resources;
             foreach($o->result->resources as $res) $final[$res->url] = '';
         }
         return array_keys($final);
