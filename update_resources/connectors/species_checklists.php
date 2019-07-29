@@ -33,15 +33,13 @@ echo "\nDone processing.\n";
 function generate_new_dwca($func)
 {
     $datasets = array('nationalchecklists', 'water-body-checklists');
-    $datasets = array('nationalchecklists');
+    // $datasets = array('nationalchecklists');
     // $datasets = array('water-body-checklists');
-
     foreach($datasets as $dataset) {
         $urls = $func->get_opendata_resources($dataset); // print_r($urls);
         $i = 0;
         foreach($urls as $url) { $i++;
             echo "\n[$i]";
-
             /* breakdown
             $s = 195; $m = 10;
             $cont = false;
@@ -53,9 +51,7 @@ function generate_new_dwca($func)
             // if($i >=  $s+($m*5)   && $i < $s+($m*6))  $cont = true;
             if(!$cont) continue;
             */
-
             process_resource_url($url);
-            // if($i >= 2) break;
         }
     }
 }
