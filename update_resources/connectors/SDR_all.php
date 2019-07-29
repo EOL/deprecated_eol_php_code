@@ -176,7 +176,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 
 // $func->test_basal_values('BV');          return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
-// $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
+$func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
 // $func->print_parent_basal_values('BV');  //return; //main orig report
 // $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
@@ -187,7 +187,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // foreach($page_ids as $page_id) $final[$page_id] = array('taxonRank' => 'not species', 'Landmark' => 1); //good but not used eventually
 // */
 
-$func->test_taxon_summary('TS');         return;
+// $func->test_taxon_summary('TS');         return;
 // $func->print_taxon_summary('TS');        //return;   //36.30 minutes
 // $func->test_parent_taxon_summary('TSp');  return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary('TSp'); //return; //main orig report - 4.23 hours
