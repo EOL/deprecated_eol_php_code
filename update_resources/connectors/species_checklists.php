@@ -32,8 +32,8 @@ foreach($datasets as $dataset) {
         // /* breakdown
         $s = 195; $m = 10;
         $cont = false;
-        if($i >=  $s    && $i < $s+$m)    $cont = true;
-        // if($i >=  $s+$m   && $i < $s+($m*2))  $cont = true;
+        // if($i >=  $s    && $i < $s+$m)    $cont = true; running
+        if($i >=  $s+$m   && $i < $s+($m*2))  $cont = true;
         // if($i >=  $s+($m*2)   && $i < $s+($m*3))  $cont = true;
         // if($i >=  $s+($m*3)   && $i < $s+($m*4))  $cont = true;
         // if($i >=  $s+($m*4)   && $i < $s+($m*5))  $cont = true;
