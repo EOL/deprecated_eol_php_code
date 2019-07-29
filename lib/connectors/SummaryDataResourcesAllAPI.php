@@ -978,7 +978,7 @@ class SummaryDataResourcesAllAPI
             $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs_TS($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
             $refs_of[$new] = self::get_refs_from_metadata_csv($eol_pks_of[$new]);                           //3. get refs using eol_pks
         }
-        print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of); //good debug
+        // print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of); //good debug - Jul 29 commented
         return $refs_of;
     }
     private function get_from_ISVAT_descendants_of_TS($term) //working well
@@ -1151,7 +1151,7 @@ class SummaryDataResourcesAllAPI
             $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
             $refs_of[$new] = self::get_refs_from_metadata_csv($eol_pks_of[$new]);                           //3. get refs using eol_pks
         }
-        print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of); //good debug
+        // print_r($descendants_of); print_r($eol_pks_of); print_r($refs_of); //good debug - Jul 29 commented
         // foreach($refs_of as $key => $arr) echo "\n".count($arr)."\n"; //good debug for counting refs
         return $refs_of;
     }
@@ -1209,7 +1209,20 @@ class SummaryDataResourcesAllAPI
         // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
         // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
         */
-        echo "\nExisting records: ".count($rows); print_r($rows); //good debug
+        echo "\nExisting records: ".count($rows); //print_r($rows); //good debug - Jul 29 commented
+        /*[1169] => Array(
+                    [0] => 7662
+                    [1] => R512-PK71414812
+                    [2] => http://purl.obolibrary.org/obo/ENVO_00000090
+                    [3] => REP
+                )
+            [1170] => Array(
+                    [0] => 7662
+                    [1] => R512-PK71559177
+                    [2] => http://purl.obolibrary.org/obo/ENVO_00000090
+                    [3] => REP
+                )
+        */
         //step 1: get counts
         foreach($rows as $row) {
             @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
@@ -1230,7 +1243,7 @@ class SummaryDataResourcesAllAPI
             //get refs for each eol_pk
             $total = count($eol_pks); $i = 0;
             foreach($eol_pks as $eol_pk) {
-                $i++; echo "\n[$i of $total] for ref count";
+                $i++; //echo "\n[$i of $total] for ref count";
                 $refs_of_eol_pk[$eol_pk][] = self::get_refs_from_metadata_csv(array($eol_pk)); //just for ref counts
             }
         }
@@ -1667,7 +1680,7 @@ class SummaryDataResourcesAllAPI
         $str = implode(",", $eol_pks);
         $str = str_replace(",", "','", $str);
         $str = "'".$str."'";
-        $sql = "SELECT m.* from SDR.metadata_refs m WHERE m.trait_eol_pk IN (".$str.")"; echo "\n[$sql]\n";
+        $sql = "SELECT m.* from SDR.metadata_refs m WHERE m.trait_eol_pk IN (".$str.")"; //echo "\n[$sql]\n";
         $result = $this->mysqli->query($sql);
         $final = array(); $final2 = array();
         while($result && $rec=$result->fetch_assoc()) $final[$rec['eol_pk']] = strip_tags($rec['literal']);
@@ -2934,6 +2947,8 @@ class SummaryDataResourcesAllAPI
         echo "\n tips: ".count($tips);
         foreach($tips as $tip) echo "\n$tip";
         echo "\n-end tips-\n"; //exit;
+        
+        xxx
         
         if(count($tips) <= 5 ) $selected = $tips;
         else { // > 5
