@@ -3582,7 +3582,7 @@ class SummaryDataResourcesAllAPI
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
         $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
-        echo "\nAssemble recs start [$sql]\n";
+        // echo "\nAssemble recs start [$sql]\n";
         $result = $this->mysqli->query($sql);
         $recs = array();
         while($result && $rec=$result->fetch_assoc()) {
@@ -3616,7 +3616,7 @@ class SummaryDataResourcesAllAPI
             $this->original_nodes[$rec['value_uri']] = '';
             $this->original_nodes_parent[$rec['value_uri']] = '';
         }
-        echo "\nAssemble recs end.\n";
+        // echo "\nAssemble recs end.\n";
         return $recs;
     }
     private function assemble_recs_for_page_id_from_text_file_OLD($page_id, $predicate, $required_fields = array())
