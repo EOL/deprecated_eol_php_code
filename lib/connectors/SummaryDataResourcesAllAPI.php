@@ -464,7 +464,8 @@ class SummaryDataResourcesAllAPI
         }
     }
     function test_parent_basal_values($dbase, $debugModeYN = false)
-    {   /* this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
+    {   //self::parse_DH(); //this was needed for $this->report_SampleSize
+        /* this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
         INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
         INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
         INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
@@ -497,6 +498,9 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA();
         if($this->debug) print_r($this->debug);
         echo("\n-- end method: parents: basal values --\n");
+        // print_r($this->report_SampleSize);
+        // print_r($this->report_SampleSize['http://www.wikidata.org/entity/Q106447']);
+        // print_r($this->report_SampleSize['http://www.geonames.org/10861432']); exit;
     }
     function test_lifeStage_statMeth($dbase)
     {   $this->dbname = 'traits_'.$dbase;
@@ -1890,6 +1894,15 @@ class SummaryDataResourcesAllAPI
         */
     }
     //############################################################################################ start method = 'parents basal values'
+    private function get_all_recs_for_each_pageID($children, $predicate)
+    {
+        $recs = array(); $children_total = count($children); $i = 0;
+        foreach($children as $page_id) { $i++; echo "\n$i of $children_total [$page_id][$predicate]\n";
+            $child_recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); // echo "\n".count($child_recs)."\n";
+            if($child_recs) $recs = array_merge($recs, $child_recs);
+        }
+        return $recs;
+    }
     private function main_parents_basal_values($main_page_id, $predicate, $debugModeYN = false)
     {   echo "\n#####################################################################\n";echo "\nMethod: parents basal values | Page ID: $main_page_id | Predicate: $predicate\n";
         /* 1. get all children of page_id with rank = species */
@@ -1942,12 +1955,10 @@ class SummaryDataResourcesAllAPI
         }
         
         /* 2. get all recs for each child */
-        $recs = array(); $children_total = count($children); $i = 0;
-        foreach($children as $page_id) { $i++; echo "\n$i of $children_total [$main_page_id][$predicate]\n";
-            $child_recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); // echo "\n".count($child_recs)."\n";
-            if($child_recs) $recs = array_merge($recs, $child_recs);
-        }
-        // echo "\n".count($recs)."\n";
+        // /* prev script here was refactored to get_all_recs_for_each_pageID()
+        $recs = self::get_all_recs_for_each_pageID($children, $predicate);
+        // echo "\n".count($recs)."\n"; exit("\nxxx\n");
+        // */
 
         /* version 1 - didn't use
         $original_records = $page_ids;
@@ -1972,6 +1983,11 @@ class SummaryDataResourcesAllAPI
             echo "\nNo recs for any of the children for predicate [$predicate]\n";
             return false;
         }
+        
+        // /* to get SampleSize count from: https://eol-jira.bibalex.org/browse/DATA-1773?focusedCommentId=63621&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63621
+        // self::buildup_SampleSize_data($recs, $predicate); //was semi-abandoned bec. it is very slow
+        // */
+        
         if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {
             print_r($ret);
             foreach($ret['Selected'] as $term) { //debug only - good debug - mainstay
@@ -1993,6 +2009,29 @@ class SummaryDataResourcesAllAPI
         return $final;
     }
     */
+    private function buildup_SampleSize_data($recs, $predicate)
+    { /* each record should have a SampleSize= the number of descendant taxa with records with that value in their ancestry (or as their record value). */
+        /* Array(
+            [0] => Array( -- many fields removed here...
+                    [page_id] => 347438
+                    [predicate] => http://eol.org/schema/terms/Habitat
+                    [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
+                )
+        */
+        echo "\n".count($this->EOL_2_DH)."\n";
+        echo "\n".count($this->DH_2_EOL)."\n"; //exit;
+        foreach($recs as $rec) {
+            if($anc = self::get_ancestry_via_DH($rec['page_id'], false)) { // print_r($anc);
+                echo("\n[".$rec['page_id']."]has ancestry [".count($anc)."]\n");
+                echo "\ndoing this now...\n";
+                $recs_of_ancestry = self::get_all_recs_for_each_pageID($anc, $predicate);
+                echo "\n".count($recs_of_ancestry)."\n"; 
+                if(count($recs_of_ancestry)) exit("\nyyy\n");
+            }
+            $this->report_SampleSize[$rec['value_uri']][$rec['page_id']] = ''; //(or as their record value)
+        }
+        // print_r($this->report_SampleSize['http://www.marineregions.org/mrgid/14289']); exit;
+    }
     private function page_id_has_trait_for_this_predicate($page_id, $predicate, $table = '') //3rd param $table is for 'parent taxon summary'
     {
         if($predicate == 'http://eol.org/schema/terms/Present') $table = 'page_ids_Present';
@@ -2911,12 +2950,13 @@ class SummaryDataResourcesAllAPI
         self::set_ancestor_ranking_from_set_of_uris($uris);
         // print_r($this->ancestor_ranking_preferred); exit;
         $ISVAT = self::get_initial_shared_values_ancestry_tree($recs); //initial "shared values ancestry tree" ---> parent left, term right
-
+        // print_r($ISVAT); exit;
         $ISVAT = self::sort_ISVAT($ISVAT, 1);
         if(!$ISVAT) return false;
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];
         echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        // print_r($new_nodes); exit;
         
         $info['new_nodes'] = self::sort_ISVAT($new_nodes, 2);
         $new_nodes = $info['new_nodes'];
@@ -2951,6 +2991,10 @@ class SummaryDataResourcesAllAPI
         if($this->parent_basal_values_YesNo) { //parent mode
             $lessthanORequal5 = 15;
             $lessthanORequal4 = 15;
+            
+            // $lessthanORequal5 = 5;
+            // $lessthanORequal4 = 4;
+            
         }
         else { //non-parent mode
             $lessthanORequal5 = 5;
