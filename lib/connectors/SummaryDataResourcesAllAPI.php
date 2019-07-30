@@ -2379,7 +2379,7 @@ class SummaryDataResourcesAllAPI
     }
     private function adjust_2913056($hierarchies_of_taxon_values) //If the common root of the dataset is anything else, you can leave it. Only remove it if it is 2913056 
     {
-        /* Rules:
+        /* Rules: magic five (46702381, 2910700, 6061725, 2908256, 2913056)
         - If the root node is any of these five, and if it is common to all 'hierarchies_of_taxon_values', then I'll remove that root node from all hierarchies.
         - If there are multiple root nodes, but all are included in the magic five -> remove all
         - if there are multiple root nodes, some are outside of the magic five -> remove magic 5 roots, leave the others
