@@ -97,8 +97,11 @@ class IUCNRedlistDataConnector
             if(in_array($rec->taxonid, $names_no_entry_from_partner)) continue; //will un-comment after generating dump file
             if($taxon = $func->get_taxa_for_species(null, $rec->taxonid)) {
                 $taxon->source = "http://apiv3.iucnredlist.org/api/v3/website/".str_replace(' ', '%20', $rec->scientific_name); //e.g. http://apiv3.iucnredlist.org/api/v3/website/Panthera%20leo
+                $taxon->source = "http://apiv3.iucnredlist.org/api/v3/taxonredirect/".$rec->taxonid; //seems better than above
+                $taxon = self::fix_sciname_and_add_locality_if_needed($taxon); //Jul 30, 2019 per Katja: https://eol-jira.bibalex.org/browse/DATA-1815?focusedCommentId=63645&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63645
                 $this->create_instances_from_taxon_object($taxon);
                 $this->process_profile_using_xml($taxon);
+                // break; //debug only
             }
             else {
                 debug("\n no result for: " . $rec->taxonid . "\n");
@@ -108,6 +111,31 @@ class IUCNRedlistDataConnector
             }
             // if($i >= 8) break; //debug only
         }
+    }
+    private function fix_sciname_and_add_locality_if_needed($taxon)
+    {
+        // print_r($taxon); exit;
+        /*SchemaTaxon Object(
+            [identifier] => 3
+            [source] => http://apiv3.iucnredlist.org/api/v3/taxonredirect/3
+            [kingdom] => Animalia
+            [phylum] => Mollusca
+            [class] => Gastropoda
+            [order] => Stylommatophora
+            [family] => Endodontidae
+            [scientificName] => Aaadonta angaurana Solem, 1976
+            ...many more fields below
+        */
+        $taxon->scientificName = 'Pristis pristis (Eastern Atlantic subpopulation) (Linnaeus, 1758)'; //debug only - force assign
+        // $taxon->scientificName = 'Balaena mysticetus (Svalbard-Barents Sea (Spitsbergen) subpopulation) Linnaeus, 1758';
+        $sci = $taxon->scientificName;
+        if(preg_match("/\((.*?)population\)/ims", $sci, $arr)) {
+            $taxon->locality = "(".$arr[1]."population)";
+            $sci = trim(str_replace($taxon->locality, "", $sci));
+            $taxon->scientificName = Functions::remove_whitespace($sci);
+        }
+        // print_r($taxon); echo "\n[$taxon->locality] [$taxon->scientificName]\n"; exit;
+        return $taxon;
     }
     private function get_total_page_no()
     {
@@ -303,7 +331,7 @@ class IUCNRedlistDataConnector
                 }
             }
             */
-            
+            $rec['locality'] = @$record->locality;
             $parentMeasurementID = self::add_string_types("true", $rec, "Red List Category", $val, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus", $remarks);
 
             /* abandoned Eli's idea
@@ -431,7 +459,9 @@ class IUCNRedlistDataConnector
         $m = new \eol_schema\MeasurementOrFact();
         
         if($measurementOfTaxon == "true") {
-            $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
+            $locality = '';
+            if($mtype == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#ConservationStatus') $locality = $rec['locality'];
+            $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $locality);
             $m->occurrenceID = $occurrence_id;
         }
         else $m->parentMeasurementID = $parentMeasurementID;
@@ -458,12 +488,13 @@ class IUCNRedlistDataConnector
         $this->archive_builder->write_object_to_file($m);
         return $m->measurementID;
     }
-    private function add_occurrence($taxon_id, $catnum)
+    private function add_occurrence($taxon_id, $catnum, $locality)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+        $o->locality = $locality;
 
         $o->occurrenceID = Functions::generate_measurementID($o, $this->resource_id, 'occurrence');
         if(isset($this->occurrence_ids[$o->occurrenceID])) return $o->occurrenceID;
