@@ -35,6 +35,7 @@ class EnvironmentsEOLDataConnector
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
         $this->debug = array();
+        exit("\n\nObsolete. See 708.php for more details.\n\n");
     }
     /*
     Array(
