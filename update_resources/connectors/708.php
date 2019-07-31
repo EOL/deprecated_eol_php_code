@@ -27,7 +27,8 @@ from eol-archive:
 
 NOTE: started running this eol-archive in Aug 6, 2018
 */
-exit("\nThis is now obsolete.\nThe last version of the DwCA is here:\nhttps://editors.eol.org/eol_php_code/applications/content_server/resources/708_25Nov2018.tar.gz\n");
+
+exit("\nThis is now obsolete.\nThe last version of the DwCA is here:\nhttps://editors.eol.org/eol_php_code/applications/content_server/resources/708_25Nov2018.tar.gz\nSee 708.php for more details.\n\n");
 /*
 A new connector was created to parse above DwCA per adjustments here:
 https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=63624&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63624
