@@ -22,9 +22,10 @@ class New_EnvironmentsEOLDataConnector
     function start($info)
     {
         $tables = $info['harvester']->tables; 
+        self::get_all_phylum_in_DH();
         // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //main operation in DATA-1812: For every record, create an additional record in reverse.
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
+        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -172,6 +173,42 @@ class New_EnvironmentsEOLDataConnector
             if($o->taxonID == 'EOL:11584278') continue; //exclude scientificName = '(undescribed)'
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
+        }
+    }
+    private function get_all_phylum_in_DH($path = false, $listOnly = false) //total rows = 2,724,672 | rows where EOLid is not blank = 2,237,550
+    {
+        if(!$path) $path = $this->eol_taxon_concept_names_tab;
+        $i = 0;
+        foreach(new FileIterator($path) as $line => $row) {
+            if(!$row) continue;
+            $i++;
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                $rec = explode("\t", $row);
+                $k = -1; $rek = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rek[$field] = $rec[$k];
+                }
+                // print_r($rek); exit;
+                /*Array(
+                    [taxonID] => EOL-000000000001
+                    [source] => trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1
+                    [furtherInformationURL] => 
+                    [acceptedNameUsageID] => 
+                    [parentNameUsageID] => 
+                    [scientificName] => Life
+                    [higherClassification] => 
+                    [taxonRank] => clade
+                    [taxonomicStatus] => valid
+                    [taxonRemarks] => 
+                    [datasetID] => trunk
+                    [canonicalName] => Life
+                    [EOLid] => 2913056
+                    [EOLidAnnotations] => 
+                    [Landmark] => 3
+                )*/
+            }
         }
     }
     /*================================================================= ENDS HERE ======================================================================*/
