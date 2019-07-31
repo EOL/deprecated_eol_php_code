@@ -39,8 +39,9 @@ function process_resource_url($dwca_file, $resource_id)
     rowType="http://eol.org/schema/reference/Reference"
     */
 
-    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://eol.org/schema/reference/reference');
-    /* These 2 will be processed in New_EnvironmentsEOLDataConnector.php which will be called from DwCA_Utility.php
+    $preferred_rowtypes = array('http://eol.org/schema/reference/reference');
+    /* These 3 will be processed in New_EnvironmentsEOLDataConnector.php which will be called from DwCA_Utility.php
+    http://rs.tdwg.org/dwc/terms/occurrence
     http://rs.tdwg.org/dwc/terms/measurementorfact
     http://rs.tdwg.org/dwc/terms/taxon
     */
