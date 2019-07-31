@@ -126,8 +126,8 @@ class IUCNRedlistDataConnector
             [scientificName] => Aaadonta angaurana Solem, 1976
             ...many more fields below
         */
-        $taxon->scientificName = 'Pristis pristis (Eastern Atlantic subpopulation) (Linnaeus, 1758)'; //debug only - force assign
-        // $taxon->scientificName = 'Balaena mysticetus (Svalbard-Barents Sea (Spitsbergen) subpopulation) Linnaeus, 1758';
+        // $taxon->scientificName = 'Pristis pristis (Eastern Atlantic subpopulation) (Linnaeus, 1758)'; //debug only - force assign
+        // $taxon->scientificName = 'Balaena mysticetus (Svalbard-Barents Sea (Spitsbergen) subpopulation) Linnaeus, 1758'; //debug - force assign
         $sci = $taxon->scientificName;
         if(preg_match("/\((.*?)population\)/ims", $sci, $arr)) {
             $taxon->locality = "(".$arr[1]."population)";
