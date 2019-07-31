@@ -23,6 +23,7 @@ To be harvestd quarterly: https://jira.eol.org/browse/WEB-5427
 737	Thursday 2018-03-08 08:10:12 PM	{"measurement_or_fact.tab":591236,"occurrence.tab":240800,"taxon.tab":80823}
 737	Wednesday 2019-07-03 11:19:27 PM{"measurement_or_fact.tab":591411,"occurrence.tab":240851,"taxon.tab":80818} latest for quite sometime, still looks consistent
 737	Wednesday 2019-07-10 01:56:00 PM{"measurement_or_fact.tab":591411,"occurrence.tab":240851,"taxon.tab":80818} updated: six metadata now as child records
+737	Tuesday 2019-07-30 11:56:36 PM	{"measurement_or_fact.tab":591411,"occurrence.tab":240851,"taxon.tab":80818} fixed sciname string with subpopulation, add locality
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
