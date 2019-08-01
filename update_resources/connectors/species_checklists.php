@@ -128,7 +128,8 @@ function generate_new_dwca($func)
             // if($i >=  $s+($m*4)   && $i < $s+($m*5))  $cont = true; running
             // if($i >=  $s+($m*5)   && $i < $s+($m*6))  $cont = true;
 
-            if($i >= 244 && $i <= 249) $cont = true;
+            // if($i >= 244 && $i <= 249) $cont = true;
+            if($i >= 244 && $i <= 244) $cont = true;
             
             if(!$cont) continue;
             // */
