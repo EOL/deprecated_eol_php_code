@@ -56,6 +56,7 @@ function utility_rep1($func)
                 more fields below and above...
             )*/
             $func->parse_dwca_for_report($resource, $dataset);
+            if(($i % 100) == 0) sleep(30);
             // if($i >= 3) break; //debug only
         }
     }
