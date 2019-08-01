@@ -135,8 +135,9 @@ class SummaryDataResourcesAllAPI
         */
         self::gen_children_of_taxon_usingDH_New();
     }
-    function gen_SampleSize_4parent_BV($dbase)
-    {   $this->dbname = 'traits_'.$dbase;
+    function gen_SampleSize_4parent_BV($dbase, $page_ids_param)
+    {   self::parse_DH(); //this was needed for $this->report_SampleSize
+        $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         echo "\nGet page_ids for parent (BV)...\n";
@@ -207,31 +208,33 @@ class SummaryDataResourcesAllAPI
             return false;
         }
         // /* to get SampleSize count from: https://eol-jira.bibalex.org/browse/DATA-1773?focusedCommentId=63621&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63621
-        self::buildup_SampleSize_data($recs, $predicate); //was semi-abandoned bec. it is very slow
+        self::buildup_SampleSize_data($main_page_id, $recs, $predicate, $children); //was semi-abandoned bec. it is very slow
         // */
-        
-        // if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {} //from template
     }
-    private function buildup_SampleSize_data($recs, $predicate)
+    private function buildup_SampleSize_data($main_page_id, $recs_from_descendants, $predicate, $children)
     { /* each record should have a SampleSize= the number of descendant taxa with records with that value in their ancestry (or as their record value). */
         /* Array(
             [0] => Array( -- many fields removed here...
-                    [page_id] => 347438
+                    [page_id] => 347438 --> this is the descendant taxon
                     [predicate] => http://eol.org/schema/terms/Habitat
                     [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
                 )
         */
-        echo "\n".count($this->EOL_2_DH)."\n";
-        echo "\n".count($this->DH_2_EOL)."\n"; //exit;
-        foreach($recs as $rec) {
-            if($anc = self::get_ancestry_via_DH($rec['page_id'], false)) { // print_r($anc);
-                echo("\n[".$rec['page_id']."]has ancestry [".count($anc)."]\n");
+        echo "\n".count($this->EOL_2_DH)."\n"; echo "\n".count($this->DH_2_EOL)."\n"; //exit;
+        foreach($recs_from_descendants as $rec) { $page_id = $rec['page_id'];
+            $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //(or as their record value)
+        }
+        foreach($children as $page_id) {
+            if($anc = self::get_ancestry_via_DH($page_id, false)) { // print_r($anc);
+                echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
                 echo "\ndoing this now...\n";
-                $recs_of_ancestry = self::get_all_recs_for_each_pageID($anc, $predicate);
-                echo "\n".count($recs_of_ancestry)."\n"; 
-                if(count($recs_of_ancestry)) exit("\nyyy\n");
+                if($recs_from_ancestry = self::get_all_recs_for_each_pageID($anc, $predicate)) {
+                    echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n"; //exit("\nstop munax\n");
+                    foreach($recs_from_ancestry as $rek) {
+                        $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //the number of descendant taxa with records with that value in their ancestry
+                    }
+                }
             }
-            $this->report_SampleSize[$rec['value_uri']][$rec['page_id']] = ''; //(or as their record value)
         }
         // print_r($this->report_SampleSize['http://www.marineregions.org/mrgid/14289']); exit;
     }
@@ -1997,7 +2000,7 @@ class SummaryDataResourcesAllAPI
     private function get_all_recs_for_each_pageID($children, $predicate)
     {
         $recs = array(); $children_total = count($children); $i = 0;
-        foreach($children as $page_id) { $i++; echo "\n$i of $children_total [$page_id][$predicate]\n";
+        foreach($children as $page_id) { $i++; //echo "\n$i of $children_total [$page_id][$predicate]\n"; //good debug
             $child_recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); // echo "\n".count($child_recs)."\n";
             if($child_recs) $recs = array_merge($recs, $child_recs);
         }
