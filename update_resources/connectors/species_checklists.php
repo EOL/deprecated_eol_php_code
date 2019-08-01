@@ -39,7 +39,7 @@ echo "\nDone processing.\n";
 function utility_rep1($func)
 {
     $datasets = array('national-checklists-2019', 'water-body-checklists-2019');
-    $datasets = array('national-checklists-2019');
+    // $datasets = array('national-checklists-2019');
     // $datasets = array('water-body-checklists-2019');
     foreach($datasets as $dataset) {
         unlink(CONTENT_RESOURCE_LOCAL_PATH."/$dataset".".txt");
