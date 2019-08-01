@@ -160,7 +160,6 @@ class SummaryDataResourcesAllAPI
                 $cnt_page_id++;
                 echo "\nPredicates $cnt_predicate of $total_predicates";
                 echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
-
                 /* breakdown when caching:
                 $cont = false;
                 if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
@@ -168,23 +167,38 @@ class SummaryDataResourcesAllAPI
                 // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
                 if(!$cont) continue;
                 */
-                
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
-                    /* from template
-                    if($ret = self::main_parents_basal_values($page_id, $predicate, $debugModeYN)) {
-                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
-                    }
-                    */
                     self::main_gen_SampleSize_4parent_BV($page_id, $predicate);
                 }
             }
         }
-        // fclose($WRITE); print_r($this->debug);
         print_r($this->report_SampleSize);
+        self::write_SampleSize_2txt();
         echo("\n-- end gen_SampleSize_for_parent_BV --\n");
+    }
+    private function write_SampleSize_2txt()
+    {   /*
+        [7662] => Array (
+        [https://www.wikidata.org/entity/Q648799] => Array(
+                    [46559130] => 
+                    [46559154] => 
+                    [46559162] => 
+                    [46559170] => 
+                    [46559206] => 
+                    [46559208] => 
+                )
+        )*/
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt', 'w');
+        foreach($this->report_SampleSize as $page_id => $rek) {
+            foreach($rek as $uri => $page_ids) {
+                $page_ids = array_keys($page_ids);
+                $arr = array($page_id, $uri, implode(";", $page_ids));
+                fwrite($WRITE, implode("\t", $arr)."\n");
+            }
+        }
+        fclose($WRITE);
     }
     private function main_gen_SampleSize_4parent_BV($main_page_id, $predicate)
     {   /* 1. get all children of page_id with rank = species */
@@ -216,7 +230,7 @@ class SummaryDataResourcesAllAPI
     { /* each record should have a SampleSize= the number of descendant taxa with records with that value in their ancestry (or as their record value). */
         /* Array(
         [0] => Array( -- many fields removed here...
-                [page_id] => 347438 --> this is the descendant taxon
+                [page_id] => 347438 --> this is the descendant/child taxon
                 [predicate] => http://eol.org/schema/terms/Habitat
                 [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
         )*/
@@ -227,10 +241,19 @@ class SummaryDataResourcesAllAPI
         foreach($children as $page_id) {
             if($anc = self::get_ancestry_via_DH($page_id, false)) { // print_r($anc);
                 echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
-                echo "\ndoing this now...\n";
+                // echo "\ndoing this now...\n";
                 if($recs_from_ancestry = self::get_all_recs_for_each_pageID($anc, $predicate)) {
-                    echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n"; //exit("\nstop munax\n");
-                    foreach($recs_from_ancestry as $rek) {
+                    // echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n";     //debug
+                    // echo "\nfirst rec in recs_from_ancestry: ".$recs_from_ancestry[0]['page_id']."\n";           //debug
+                    foreach($recs_from_ancestry as $rec) {
+                        // print_r($rec); exit;
+                        /*Array(
+                            [page_id] => 44709
+                            [scientific_name] => Cryptoprocta
+                            [predicate] => http://eol.org/schema/terms/Habitat
+                            [value_uri] => http://purl.obolibrary.org/obo/ENVO_00002009
+                            many other fields...
+                        )*/
                         $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //the number of descendant taxa with records with that value in their ancestry
                     }
                 }
