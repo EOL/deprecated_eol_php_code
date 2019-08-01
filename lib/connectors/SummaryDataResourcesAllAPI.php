@@ -135,6 +135,92 @@ class SummaryDataResourcesAllAPI
         */
         self::gen_children_of_taxon_usingDH_New();
     }
+    function gen_SampleSize_for_parent_BV($dbase)
+    {   $this->dbname = 'traits_'.$dbase;
+        self::initialize_basal_values(); 
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
+        echo "\nGet page_ids for parent (BV)...\n";
+        if($page_ids_param) {
+            $page_ids = self::get_page_ids_andInfo_fromDH($page_ids_param);
+            $resource_id = 'parent_basal_values_'.$page_id_value;
+        }
+        else {
+            $page_ids = self::get_page_ids_andInfo_fromDH();
+            $resource_id = 'parent_basal_values';
+        }
+        $total_page_ids = count($page_ids);
+        /* for indicator */ $total_predicates = count($predicates); $cnt_predicate = 0;
+        foreach($predicates as $predicate) {
+            $cnt_predicate++; /* for indicator */
+            $cnt_page_id = 0;
+            $m = 2237554/3; //for breakdown when caching...
+            foreach($page_ids as $page_id => $taxon) {
+                /* for indicator */
+                $cnt_page_id++;
+                echo "\nPredicates $cnt_predicate of $total_predicates";
+                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+
+                /* breakdown when caching:
+                $cont = false;
+                if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
+                // if($cnt_page_id >= $m && $cnt_page_id < $m*2) $cont = true;
+                // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
+                if(!$cont) continue;
+                */
+                
+                if(!$page_id) continue;
+                if(!@$taxon['taxonRank']) continue;
+                if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
+                    /* samplesize
+                    if($ret = self::main_parents_basal_values($page_id, $predicate, $debugModeYN)) {
+                        $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
+                        self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
+                    }
+                    */
+                }
+            }
+        }
+        fclose($WRITE);
+        print_r($this->debug);
+        echo("\n-- end gen_SampleSize_for_parent_BV --\n");
+    }
+    private function
+    {
+        /* 1. get all children of page_id with rank = species */
+        // /*
+        if($children = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
+            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);    *Children of [164]: 1433142
+        }
+        else {
+            echo "\n*No children found for [$main_page_id]\n";
+            return array();
+        }
+        // */
+        
+        if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)) {
+            $children_count = count($children);
+            echo "\n*Children TBP of [$main_page_id]: ".$children_count."\n";
+            if($children_count > 1000) return array();
+        }
+        else {
+            echo "\n*No children TBP found for [$main_page_id]\n";
+            return array();
+        }
+        
+        /* 2. get all recs for each child */
+        $recs = self::get_all_recs_for_each_pageID($children, $predicate); // echo "\n".count($recs)."\n"; exit("\nxxx\n");
+
+        if(!$recs) {
+            echo "\nNo recs for any of the children for predicate [$predicate]\n";
+            return false;
+        }
+        
+        // /* to get SampleSize count from: https://eol-jira.bibalex.org/browse/DATA-1773?focusedCommentId=63621&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63621
+        self::buildup_SampleSize_data($recs, $predicate); //was semi-abandoned bec. it is very slow
+        // */
+        
+        // if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {} //from template
+    }
     function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
