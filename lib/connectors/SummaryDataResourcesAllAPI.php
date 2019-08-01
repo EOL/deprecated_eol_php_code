@@ -2991,10 +2991,8 @@ class SummaryDataResourcesAllAPI
         if($this->parent_basal_values_YesNo) { //parent mode
             $lessthanORequal5 = 15;
             $lessthanORequal4 = 15;
-            
             // $lessthanORequal5 = 5;
             // $lessthanORequal4 = 4;
-            
         }
         else { //non-parent mode
             $lessthanORequal5 = 5;
