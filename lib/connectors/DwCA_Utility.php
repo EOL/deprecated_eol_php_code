@@ -92,14 +92,8 @@ class DwCA_Utility
     function convert_archive($preferred_rowtypes = false) //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA. 1st client was DATA-1770 */
         echo "\nConverting archive to EOL DwCA...\n";
-        
-        /* orig - uncomment in real operation
         if($this->resource_id == 'test_eli') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //placeholder for customized resources with respective download_options
         else                                 $info = self::start(); //default
-        */
-        
-        $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires in 1 day //debug only
-        
         
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
