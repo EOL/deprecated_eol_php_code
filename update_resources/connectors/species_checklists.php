@@ -15,14 +15,19 @@ exit("\n$new\n");
 exit("\nend test\n");
 */
 
-// /* Get all resources from OpenData
+/* main operation
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
-
 generate_new_dwca($func);                   //main script to generate DwCA
 create_new_resources_in_opendata($func);    //script to create resources in two pre-defined datasets in opendata.eol.org.
-
 unset($func);
+*/
+
+// /* utility report for: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63653&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63653
+                       // https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63654&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63654
+require_library('connectors/SpeciesChecklistAPI');
+$func = new SpeciesChecklistAPI(false, false);
+utility_rep1($func);
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -31,6 +36,30 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
+function utility_rep1($func)
+{
+    $datasets = array('national-checklists-2019', 'water-body-checklists-2019');
+    $datasets = array('national-checklists-2019');
+    // $datasets = array('water-body-checklists-2019');
+    foreach($datasets as $dataset) {
+        unlink(CONTENT_RESOURCE_LOCAL_PATH."/$dataset".".txt");
+        $resources = $func->get_opendata_resources($dataset, true); //2nd param true means get all records (resources)
+        $i = 0;
+        foreach($resources as $resource) { $i++; echo "\n[$i]";
+            // print_r($resource); exit;
+            /*stdClass Object(
+                [state] => active
+                [description] => A list of species from Afghanistan collected using effechecka and geonames polygons
+                [format] => Darwin Core Archive
+                [name] => Afghanistan Species List
+                [url] => https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_afganistan.tar.gz
+                more fields below and above...
+            )*/
+            $func->parse_dwca_for_report($resource, $dataset);
+            // if($i >= 3) break; //debug only
+        }
+    }
+}
 function create_new_resources_in_opendata($func)
 {
     /*

@@ -175,6 +175,79 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
         return array_keys($final);
     }
     /*================================================================= ENDS HERE ======================================================================*/
+    
+    /*================================================================= for report utility START ======================================================================*/
+    function parse_dwca_for_report($resource, $dataset)
+    {
+        $file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/$dataset".".txt", "a");
+        /*sample $resource value = stdClass Object(
+            [state] => active
+            [description] => A list of species from Afghanistan collected using effechecka and geonames polygons
+            [format] => Darwin Core Archive
+            [name] => Afghanistan Species List
+            [url] => https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_afganistan.tar.gz
+            more fields below and above...
+        )*/
+        $dwca_file = $resource->url;
+        $info = self::prepare_archive_for_access($dwca_file);
+        $meta = $info['harvester']->tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
+        $sample_source_url = self::parse_MoF($meta);
+
+        $arr = array($resource->name, $resource->url, $sample_source_url);
+        fwrite($file, implode("\t", $arr)."\n");
+        fclose($file);
+
+        // remove temp dir
+        recursive_rmdir($info['temp_dir']); echo ("\n temporary directory removed: " . $info['temp_dir']);
+    }
+    private function parse_MoF($meta)
+    {
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => M100000
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => CT100000
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://eol.org/schema/parentMeasurementID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Present
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://www.geonames.org/1149361
+                [http://purl.org/dc/terms/source] => https://www.gbif.org/occurrence/map?taxon_key=2495659&geometry=POLYGON((60.879%2029.862%2C%2061.713%2031.376%2C%2060.586%2033.143%2C%2060.901%2033.537%2C%2060.478%2034.079%2C%2060.998%2034.633%2C%2061.191%2035.29%2C%2061.387%2035.562%2C%2062.302%2035.141%2C%2063.011%2035.428%2C%2063.141%2035.776%2C%2063.935%2036.04%2C%2064.615%2036.423%2C%2065.102%2037.236%2C%2065.766%2037.545%2C%2067.496%2037.272%2C%2067.899%2037.064%2C%2068.303%2037.106%2C%2068.813%2037.244%2C%2069.008%2037.301%2C%2069.367%2037.405%2C%2069.954%2037.564%2C%2070.183%2037.862%2C%2070.498%2038.118%2C%2070.873%2038.464%2C%2071.136%2038.4%2C%2071.332%2037.883%2C%2071.561%2036.757%2C%2072.67%2037.021%2C%2073.309%2037.462%2C%2073.746%2037.222%2C%2074.683%2037.404%2C%2074.747%2037.275%2C%2074.572%2037.034%2C%2074.152%2036.91%2C%2073.144%2036.894%2C%2072.214%2036.664%2C%2071.569%2036.329%2C%2071.485%2035.754%2C%2071.593%2035.498%2C%2071.536%2035.09%2C%2071.219%2034.748%2C%2071.007%2034.461%2C%2070.502%2033.944%2C%2069.992%2033.74%2C%2070.298%2033.426%2C%2069.876%2033.096%2C%2069.535%2032.866%2C%2069.323%2031.941%2C%2068.57%2031.828%2C%2068.287%2031.757%2C%2067.713%2031.521%2C%2067.763%2031.328%2C%2066.969%2031.313%2C%2066.387%2030.934%2C%2066.362%2029.968%2C%2064.353%2029.545%2C%2063.56%2029.489%2C%2060.879%2029.862))
+                [http://purl.org/dc/terms/contributor] => Compiler: Anne E Thessen
+                [http://eol.org/schema/reference/referenceID] => R01|R02
+            )*/
+            return $rec['http://purl.org/dc/terms/source']; //a sample of the contents of one record in the furtherInformationURL field
+        }
+    }
+    private function prepare_archive_for_access($dwca_file)
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => false)); //won't expire anymore
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        $tables = $harvester->tables;
+        $index = array_keys($tables);
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
+            debug("Invalid archive file. Program will terminate.");
+            return false;
+        }
+        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
+    }
+    /*================================================================= for report utility END ========================================================================*/
+    
     /* this is just to copy the extension as is. No customization.
     private function process_generic($meta)
     {   //print_r($meta);
@@ -202,6 +275,5 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
         }
     }
     */
-    
 }
 ?>
