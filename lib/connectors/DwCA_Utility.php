@@ -98,7 +98,7 @@ class DwCA_Utility
         else                                 $info = self::start(); //default
         */
         
-        $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24)); //expires in 1 day //debug only
+        $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires in 1 day //debug only
         
         
         $temp_dir = $info['temp_dir'];
