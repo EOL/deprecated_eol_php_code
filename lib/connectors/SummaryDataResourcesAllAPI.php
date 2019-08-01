@@ -182,7 +182,8 @@ class SummaryDataResourcesAllAPI
                 }
             }
         }
-        fclose($WRITE); print_r($this->debug);
+        // fclose($WRITE); print_r($this->debug);
+        print_r($this->report_SampleSize);
         echo("\n-- end gen_SampleSize_for_parent_BV --\n");
     }
     private function main_gen_SampleSize_4parent_BV($main_page_id, $predicate)
@@ -214,12 +215,11 @@ class SummaryDataResourcesAllAPI
     private function buildup_SampleSize_data($main_page_id, $recs_from_descendants, $predicate, $children)
     { /* each record should have a SampleSize= the number of descendant taxa with records with that value in their ancestry (or as their record value). */
         /* Array(
-            [0] => Array( -- many fields removed here...
-                    [page_id] => 347438 --> this is the descendant taxon
-                    [predicate] => http://eol.org/schema/terms/Habitat
-                    [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
-                )
-        */
+        [0] => Array( -- many fields removed here...
+                [page_id] => 347438 --> this is the descendant taxon
+                [predicate] => http://eol.org/schema/terms/Habitat
+                [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
+        )*/
         echo "\n".count($this->EOL_2_DH)."\n"; echo "\n".count($this->DH_2_EOL)."\n"; //exit;
         foreach($recs_from_descendants as $rec) { $page_id = $rec['page_id'];
             $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //(or as their record value)
