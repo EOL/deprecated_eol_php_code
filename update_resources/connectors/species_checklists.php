@@ -15,20 +15,20 @@ exit("\n$new\n");
 exit("\nend test\n");
 */
 
-/* main operation
+// /* main operation
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 generate_new_dwca($func);                   //main script to generate DwCA
-create_new_resources_in_opendata($func);    //script to create resources in two pre-defined datasets in opendata.eol.org.
+// create_new_resources_in_opendata($func);    //script to create resources in two pre-defined datasets in opendata.eol.org.
 unset($func);
-*/
+// */
 
-// /* utility report for: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63653&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63653
+/* utility report for: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63653&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63653
                        // https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63654&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63654
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 utility_rep1($func);
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -56,7 +56,7 @@ function utility_rep1($func)
                 more fields below and above...
             )*/
             $func->parse_dwca_for_report($resource, $dataset);
-            if(($i % 100) == 0) sleep(30);
+            if(($i % 100) == 0) sleep(10);
             // if($i >= 3) break; //debug only
         }
     }
@@ -112,13 +112,13 @@ function generate_new_dwca($func)
 {
     $datasets = array('nationalchecklists', 'water-body-checklists');
     $datasets = array('nationalchecklists');
-    $datasets = array('water-body-checklists');
+    // $datasets = array('water-body-checklists');
     foreach($datasets as $dataset) {
         $urls = $func->get_opendata_resources($dataset); // print_r($urls);
         $i = 0;
         foreach($urls as $url) { $i++;
             echo "\n[$i]";
-            /* breakdown
+            // /* breakdown
             $s = 195; $m = 10;
             $cont = false;
             // if($i >=  $s    && $i < $s+$m)    $cont = true; running
@@ -127,8 +127,11 @@ function generate_new_dwca($func)
             // if($i >=  $s+($m*3)   && $i < $s+($m*4))  $cont = true; running
             // if($i >=  $s+($m*4)   && $i < $s+($m*5))  $cont = true; running
             // if($i >=  $s+($m*5)   && $i < $s+($m*6))  $cont = true;
+
+            if($i >= 240 && $i < 260) $cont = true;
+            
             if(!$cont) continue;
-            */
+            // */
             process_resource_url($url);
         }
     }
