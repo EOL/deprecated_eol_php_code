@@ -135,7 +135,7 @@ class SummaryDataResourcesAllAPI
         */
         self::gen_children_of_taxon_usingDH_New();
     }
-    function gen_SampleSize_for_parent_BV($dbase)
+    function gen_SampleSize_4parent_BV($dbase)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
@@ -171,31 +171,25 @@ class SummaryDataResourcesAllAPI
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
-                    /* samplesize
+                    /* from template
                     if($ret = self::main_parents_basal_values($page_id, $predicate, $debugModeYN)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                         self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
                     }
                     */
+                    self::main_gen_SampleSize_4parent_BV($page_id, $predicate);
                 }
             }
         }
-        fclose($WRITE);
-        print_r($this->debug);
+        fclose($WRITE); print_r($this->debug);
         echo("\n-- end gen_SampleSize_for_parent_BV --\n");
     }
-    private function
-    {
-        /* 1. get all children of page_id with rank = species */
-        // /*
+    private function main_gen_SampleSize_4parent_BV($main_page_id, $predicate)
+    {   /* 1. get all children of page_id with rank = species */
         if($children = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
-            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);    *Children of [164]: 1433142
+            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children); *Children of [164]: 1433142
         }
-        else {
-            echo "\n*No children found for [$main_page_id]\n";
-            return array();
-        }
-        // */
+        else { echo "\n*No children found for [$main_page_id]\n"; return array(); }
         
         if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)) {
             $children_count = count($children);
@@ -206,20 +200,40 @@ class SummaryDataResourcesAllAPI
             echo "\n*No children TBP found for [$main_page_id]\n";
             return array();
         }
-        
         /* 2. get all recs for each child */
         $recs = self::get_all_recs_for_each_pageID($children, $predicate); // echo "\n".count($recs)."\n"; exit("\nxxx\n");
-
         if(!$recs) {
             echo "\nNo recs for any of the children for predicate [$predicate]\n";
             return false;
         }
-        
         // /* to get SampleSize count from: https://eol-jira.bibalex.org/browse/DATA-1773?focusedCommentId=63621&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63621
         self::buildup_SampleSize_data($recs, $predicate); //was semi-abandoned bec. it is very slow
         // */
         
         // if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {} //from template
+    }
+    private function buildup_SampleSize_data($recs, $predicate)
+    { /* each record should have a SampleSize= the number of descendant taxa with records with that value in their ancestry (or as their record value). */
+        /* Array(
+            [0] => Array( -- many fields removed here...
+                    [page_id] => 347438
+                    [predicate] => http://eol.org/schema/terms/Habitat
+                    [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
+                )
+        */
+        echo "\n".count($this->EOL_2_DH)."\n";
+        echo "\n".count($this->DH_2_EOL)."\n"; //exit;
+        foreach($recs as $rec) {
+            if($anc = self::get_ancestry_via_DH($rec['page_id'], false)) { // print_r($anc);
+                echo("\n[".$rec['page_id']."]has ancestry [".count($anc)."]\n");
+                echo "\ndoing this now...\n";
+                $recs_of_ancestry = self::get_all_recs_for_each_pageID($anc, $predicate);
+                echo "\n".count($recs_of_ancestry)."\n"; 
+                if(count($recs_of_ancestry)) exit("\nyyy\n");
+            }
+            $this->report_SampleSize[$rec['value_uri']][$rec['page_id']] = ''; //(or as their record value)
+        }
+        // print_r($this->report_SampleSize['http://www.marineregions.org/mrgid/14289']); exit;
     }
     function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
     {   $this->dbname = 'traits_'.$dbase;
@@ -2095,29 +2109,6 @@ class SummaryDataResourcesAllAPI
         return $final;
     }
     */
-    private function buildup_SampleSize_data($recs, $predicate)
-    { /* each record should have a SampleSize= the number of descendant taxa with records with that value in their ancestry (or as their record value). */
-        /* Array(
-            [0] => Array( -- many fields removed here...
-                    [page_id] => 347438
-                    [predicate] => http://eol.org/schema/terms/Habitat
-                    [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
-                )
-        */
-        echo "\n".count($this->EOL_2_DH)."\n";
-        echo "\n".count($this->DH_2_EOL)."\n"; //exit;
-        foreach($recs as $rec) {
-            if($anc = self::get_ancestry_via_DH($rec['page_id'], false)) { // print_r($anc);
-                echo("\n[".$rec['page_id']."]has ancestry [".count($anc)."]\n");
-                echo "\ndoing this now...\n";
-                $recs_of_ancestry = self::get_all_recs_for_each_pageID($anc, $predicate);
-                echo "\n".count($recs_of_ancestry)."\n"; 
-                if(count($recs_of_ancestry)) exit("\nyyy\n");
-            }
-            $this->report_SampleSize[$rec['value_uri']][$rec['page_id']] = ''; //(or as their record value)
-        }
-        // print_r($this->report_SampleSize['http://www.marineregions.org/mrgid/14289']); exit;
-    }
     private function page_id_has_trait_for_this_predicate($page_id, $predicate, $table = '') //3rd param $table is for 'parent taxon summary'
     {
         if($predicate == 'http://eol.org/schema/terms/Present') $table = 'page_ids_Present';
