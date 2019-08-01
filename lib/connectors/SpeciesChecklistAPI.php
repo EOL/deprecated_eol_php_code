@@ -41,6 +41,12 @@ class SpeciesChecklistAPI
         }
         
         $i = 0;
+        
+        print_r($meta);
+        if(file_exists($meta->file_uri)) echo "\nexists: [$meta->file_uri]\n";
+        else echo "\ndoes not exist: [$meta->file_uri]\n";
+        exit;
+        
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 25000) == 0) echo "\n".number_format($i);
             /* not followed since meta.xml is not reflective of the actual dwca. DwCA seems manually created.
