@@ -131,8 +131,13 @@ if(@$params['task'] == "create_all_taxon_dump") {
 }
 elseif(@$params['task'] == "save_all_media_filenames") {
     $status = $func->save_all_media_filenames($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 2 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
+    debug("\n111\n");
     if($status) echo "\n---Can now proceed to next step...---\n\n";
-    else        exit(1);
+    else {
+        debug("\n222\n");
+        exit(1);
+        debug("\n333\n");
+    }
 }
 elseif(@$params['task'] == "create_then_fill_commons_data")                                     //step 3 (ran 1 connector)
 {
