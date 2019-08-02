@@ -96,16 +96,20 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/genus] => 
             )*/
             
-            $rangk = 'phylum';
-            
-            if($val = $rec['http://rs.tdwg.org/dwc/terms/'.$rangk]) {
-                $val = Functions::canonical_form($val);
-                if(!isset($ret['ancestry'][$rangk][$val])) {
-                    $this->debug["not $rangk"][$val] = '';
-                    $rec['http://rs.tdwg.org/dwc/terms/'.$rangk] = ''; //discarded
-                    if($correct_rank = @$ret['taxa'][$val]) {
-                        $rec['http://rs.tdwg.org/dwc/terms/'.$correct_rank] = $val;
-                        $this->debug['moved to'][$val] = $correct_rank;
+            $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+            foreach($ranks as $rangk) {
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/'.$rangk]) {
+                    $val = Functions::canonical_form($val);
+                    if(!isset($ret['ancestry'][$rangk][$val])) {
+                        // $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." in DH";
+                        $rec['http://rs.tdwg.org/dwc/terms/'.$rangk] = ''; //discarded
+                        if($correct_rank = @$ret['taxa'][$val]) {
+                            $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." - $correct_rank in DH";
+                            $rec['http://rs.tdwg.org/dwc/terms/'.$correct_rank] = $val;
+                            $this->debug['moved to'][$val] = $correct_rank;
+                        }
+                        else $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." - not found in DH";
+                        
                     }
                 }
             }
