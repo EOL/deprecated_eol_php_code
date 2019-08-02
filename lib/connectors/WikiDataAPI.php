@@ -470,7 +470,6 @@ class WikiDataAPI
         $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
-            debug("\n$k. size: ".strlen($row)."\n"); continue;
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
@@ -510,7 +509,10 @@ class WikiDataAPI
             if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
+
+                debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $arr = json_decode($row);
+                echo "\n".count($arr)."\n"; continue; //elixAug2
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
                 $arr = self::get_object('Q6707390');
