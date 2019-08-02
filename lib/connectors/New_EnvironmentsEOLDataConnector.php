@@ -97,6 +97,7 @@ class New_EnvironmentsEOLDataConnector
             )*/
             
             $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
+            $ranks = array('phylum');
             foreach($ranks as $rangk) {
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/'.$rangk]) {
                     $val = Functions::canonical_form($val);
@@ -104,11 +105,11 @@ class New_EnvironmentsEOLDataConnector
                         // $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." in DH";
                         $rec['http://rs.tdwg.org/dwc/terms/'.$rangk] = ''; //discarded
                         if($correct_rank = @$ret['taxa'][$val]) {
-                            $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." - $correct_rank in DH";
+                            $this->debug["not $rangk in DH"][$val] = " - $correct_rank in DH. Moved.";
                             $rec['http://rs.tdwg.org/dwc/terms/'.$correct_rank] = $val;
                             $this->debug['moved to'][$val] = $correct_rank;
                         }
-                        else $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." - not found in DH";
+                        else $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." - not found in DH. Discarded.";
                         
                     }
                 }
@@ -245,6 +246,7 @@ class New_EnvironmentsEOLDataConnector
                     if($val = $rek['canonicalName']) $ancestry[$rank][$val] = '';
                     else {
                         $val = Functions::canonical_form($rek['scientificName']);
+                        // $val = $rek['scientificName'];
                         $ancestry[$rank][$val] = '';
                     }
                 }
@@ -254,12 +256,17 @@ class New_EnvironmentsEOLDataConnector
                     if($val = $rek['canonicalName']) $taxa[$val] = $rek['taxonRank'];
                     else {
                         $val = Functions::canonical_form($rek['scientificName']);
+                        // $val = $rek['scientificName'];
                         $taxa[$val] = $rek['taxonRank'];
                     }
                 }
             }
         }
         return array('ancestry' => $ancestry, 'taxa' => $taxa);
+    }
+    private function canonical_or_sciname($str)
+    {
+        
     }
     /*================================================================= ENDS HERE ======================================================================*/
 }
