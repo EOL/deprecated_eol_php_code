@@ -99,7 +99,9 @@ class WikiDataAPI
         $this->excluded_pageids = array('75038714');
     }
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
-    {   //initialize:
+    {   
+        $GLOBALS['ENV_DEBUG'] = true; //debug only --- Aug 2 troubleshooting a problem.
+        //initialize:
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
         if(!($f = Functions::file_open($txtfile, "w"))) return;
         fclose($f);
