@@ -580,8 +580,11 @@ class WikiDataAPI
                              
                              if($rek['taxon_id']) {
                                  $ret = self::create_archive($rek);
-                                 if($ret) self::save_ancestry_to_temp($rek['parent']);
-                                 
+                                 debug("\n444\n");
+                                 if($ret) {
+                                     self::save_ancestry_to_temp($rek['parent']);
+                                     debug("\n555\n");
+                                 }
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  // print_r($rek);
                                  // break;              //debug - process just 1 rec
