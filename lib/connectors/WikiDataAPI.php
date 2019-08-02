@@ -551,6 +551,8 @@ class WikiDataAPI
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
                              
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
+                             if($rek['taxon_id'] == 'Q28431675') continue;
+                             
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
