@@ -476,6 +476,8 @@ class WikiDataAPI
                 if(!$cont) continue;
             }
 
+            if($k == 921905) continue; //elixAug2
+
             /* good way to limit foreach loop
             if($k >= 1 && $k < 10) $cont = true;
             else break;
