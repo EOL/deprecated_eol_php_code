@@ -101,7 +101,7 @@ class WikiDataAPI
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
     {   
         // define('MAX_FILE_SIZE', 600000);
-        $GLOBALS['ENV_DEBUG'] = true; //debug only --- Aug 2 troubleshooting a problem.
+        // $GLOBALS['ENV_DEBUG'] = true; //debug only --- Aug 2 troubleshooting a problem.
         //initialize:
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
         if(!($f = Functions::file_open($txtfile, "w"))) return;
