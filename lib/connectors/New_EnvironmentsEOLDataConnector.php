@@ -63,10 +63,9 @@ class New_EnvironmentsEOLDataConnector
 
             /* fix source link */
             $taxonID = $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']];
+            if($taxonID == "EOL:11584278") continue; //exclude
             $sciname = $this->linkage_tID_sName[$taxonID];
             $rec['http://purl.org/dc/terms/source'] = "https://eol.org/search?q=".str_replace(" ", "%20", $sciname);
-            
-            if($taxonID == "EOL:11584278") continue; //exclude
             
             $o = new \eol_schema\MeasurementOrFact();
             $uris = array_keys($rec);

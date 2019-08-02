@@ -8,7 +8,7 @@ from old 708.php
 708	Sunday 2018-11-25 04:26:42 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":198537,"taxon.tab":196193}
 
 started using 708_new.php - Aug 2, 2019
-708	Friday 2019-08-02 11:06:04 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645483,"taxon.tab":196192}
+708	Friday 2019-08-02 11:19:20 AM	{"measurement_or_fact.tab":742379,"occurrence.tab":645483,"reference.tab":198537,"taxon.tab":196192}
 
 */
 
@@ -17,7 +17,8 @@ $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 
 $resource_id = 708;
-$dwca_file = 'http://localhost/cp/Environments/legacy/708_25Nov2018.tar.gz';
+if(Functions::is_production())  $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/708_25Nov2018.tar.gz';
+else                            $dwca_file = 'http://localhost/cp/Environments/legacy/708_25Nov2018.tar.gz';
 process_resource_url($dwca_file, $resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
