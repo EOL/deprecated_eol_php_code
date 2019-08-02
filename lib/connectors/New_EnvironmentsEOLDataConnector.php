@@ -21,9 +21,12 @@ class New_EnvironmentsEOLDataConnector
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
-        $tables = $info['harvester']->tables; 
-        self::get_all_phylum_in_DH();
-        // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        $tables = $info['harvester']->tables;
+        $ret = self::get_all_phylum_in_DH(); //print_r($ret['ancestry']);
+        // print_r($ret['taxa']); exit;
+        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
+        unset($ret);
+        print_r($this->debug);
         // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //main operation in DATA-1812: For every record, create an additional record in reverse.
         // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
     }
@@ -63,11 +66,10 @@ class New_EnvironmentsEOLDataConnector
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
-            
             // if($i >= 10) break; //debug only
         }
     }
-    private function process_taxon($meta)
+    private function process_taxon($meta, $ret)
     {   //print_r($meta);
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -93,6 +95,21 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/order] => 
                 [http://rs.tdwg.org/dwc/terms/genus] => 
             )*/
+            
+            $rangk = 'phylum';
+            
+            if($val = $rec['http://rs.tdwg.org/dwc/terms/'.$rangk]) {
+                $val = Functions::canonical_form($val);
+                if(!isset($ret['ancestry'][$rangk][$val])) {
+                    $this->debug["not $rangk"][$val] = '';
+                    $rec['http://rs.tdwg.org/dwc/terms/'.$rangk] = ''; //discarded
+                    if($correct_rank = @$ret['taxa'][$val]) {
+                        $rec['http://rs.tdwg.org/dwc/terms/'.$correct_rank] = $val;
+                        $this->debug['moved to'][$val] = $correct_rank;
+                    }
+                }
+            }
+            
             $o = new \eol_schema\Taxon();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
@@ -143,6 +160,7 @@ class New_EnvironmentsEOLDataConnector
                 }
             }
         }
+        return $sci;
     }
     private function process_occurrence($meta)
     {   //print_r($meta);
@@ -208,8 +226,36 @@ class New_EnvironmentsEOLDataConnector
                     [EOLidAnnotations] => 
                     [Landmark] => 3
                 )*/
+                
+                /* worked but only fixes Phylums. Below will fix all ancestry.
+                if($rek['taxonRank'] == 'phylum') {
+                    if($val = $rek['canonicalName']) $phylums[$val] = '';
+                    else {
+                        $val = Functions::canonical_form($rek['scientificName']);
+                        $phylums[$val] = '';
+                    }
+                }
+                */
+                if(in_array($rek['taxonRank'], array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) {
+                    $rank = $rek['taxonRank'];
+                    if($val = $rek['canonicalName']) $ancestry[$rank][$val] = '';
+                    else {
+                        $val = Functions::canonical_form($rek['scientificName']);
+                        $ancestry[$rank][$val] = '';
+                    }
+                }
+                
+                /* this gets all higher-level taxa and its ranks */
+                if(in_array($rek['taxonRank'], array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) {
+                    if($val = $rek['canonicalName']) $taxa[$val] = $rek['taxonRank'];
+                    else {
+                        $val = Functions::canonical_form($rek['scientificName']);
+                        $taxa[$val] = $rek['taxonRank'];
+                    }
+                }
             }
         }
+        return array('ancestry' => $ancestry, 'taxa' => $taxa);
     }
     /*================================================================= ENDS HERE ======================================================================*/
 }
