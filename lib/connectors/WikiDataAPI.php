@@ -470,6 +470,7 @@ class WikiDataAPI
         $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
+            debug("\n$k. size: ".strlen($row)."\n"); continue;
             if(in_array($task, array("save_all_media_filenames", "generate_resource")) && $range_from && $range_to) {
                 $cont = false;
                 if($k >= $range_from && $k < $range_to) $cont = true;
