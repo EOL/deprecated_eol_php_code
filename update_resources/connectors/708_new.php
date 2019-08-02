@@ -8,8 +8,8 @@ from old 708.php
 708	Sunday 2018-11-25 04:26:42 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":198537,"taxon.tab":196193}
 
 started using 708_new.php - Aug 2, 2019
-708	Friday 2019-08-02 11:19:20 AM	{"measurement_or_fact.tab":742379,"occurrence.tab":645483,"reference.tab":198537,"taxon.tab":196192}
-
+708	Friday 2019-08-02 11:19:20 AM	{"measurement_or_fact.tab":742379,"occurrence.tab":645483,"reference.tab":198537,"taxon.tab":196192} - consistent OK
+708	Friday 2019-08-02 11:38:34 AM	{"measurement_or_fact.tab":742379,"occurrence.tab":645483,"reference.tab":198537,"taxon.tab":196192} - 1st in eol->archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
