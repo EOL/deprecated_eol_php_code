@@ -476,8 +476,14 @@ class WikiDataAPI
                 if(!$cont) continue;
             }
 
-            // if($k == 921905) continue; //elixAug2
-            if($k >= 921904 && $k <= 921910) continue; //elixAug2
+            if($k >= 921904 && $k <= 921910) continue; //elixAug2 fixed the problem below:
+            /* the problem was this one:
+            921904. size: 2173
+             :: [update_resources/connectors/wikidata.php [133]]<br>
+            Segmentation fault (core dumped)
+            Build step 'Execute shell' marked build as failure
+            Finished: FAILURE
+            */
 
             /* good way to limit foreach loop
             if($k >= 1 && $k < 10) $cont = true;
@@ -515,7 +521,6 @@ class WikiDataAPI
 
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $arr = json_decode($row);
-                // echo "\n".count($arr)."\n"; continue; //elixAug2
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
                 $arr = self::get_object('Q6707390');
@@ -556,8 +561,7 @@ class WikiDataAPI
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
                              
-                             debug("\n $this->language_code ".$rek['taxon_id']." - "); //continue; //elixAug2
-                             // if($rek['taxon_id'] == 'Q28431675') continue; //elixAug2
+                             debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia") {
@@ -641,7 +645,6 @@ class WikiDataAPI
         } //main loop
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
-        // exit(1); //elixAug2
     }
     private function save_ancestry_to_temp($ancestry)
     {
