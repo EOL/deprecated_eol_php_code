@@ -2,20 +2,19 @@
 namespace php_active_record;
 /* From this adjustment request by Jen:
 https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=63624&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63624
+
+from old 708.php
+708	Saturday 2018-11-24 02:48:32 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":198537,"taxon.tab":196193}
+708	Sunday 2018-11-25 04:26:42 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":198537,"taxon.tab":196193}
+
+Starting Aug 2, 2019
+708	Friday 2019-08-02 11:06:04 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645483,"taxon.tab":196192}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
-
-
-/* Get all resources from OpenData
-require_library('connectors/New_EnvironmentsEOLDataConnector');
-$func = new New_EnvironmentsEOLDataConnector(false, false);
-generate_new_dwca($func);                   //main script to generate DwCA
-create_new_resources_in_opendata($func);    //script to create resources in two pre-defined datasets in opendata.eol.org.
-unset($func);
-*/
 
 $resource_id = 708;
 $dwca_file = 'http://localhost/cp/Environments/legacy/708_25Nov2018.tar.gz';
