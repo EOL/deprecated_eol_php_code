@@ -22,13 +22,15 @@ class New_EnvironmentsEOLDataConnector
     function start($info)
     {
         $tables = $info['harvester']->tables;
-        $ret = self::get_all_phylum_in_DH(); //print_r($ret['ancestry']);
-        // print_r($ret['taxa']); exit;
+        
+        $ret = self::get_all_phylum_in_DH();
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
         unset($ret);
         print_r($this->debug);
-        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //main operation in DATA-1812: For every record, create an additional record in reverse.
-        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
+
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
+        
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //fix source links bec. of obsolete taxonIDs
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -58,6 +60,13 @@ class New_EnvironmentsEOLDataConnector
                 [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
+
+            /* fix source link */
+            $taxonID = $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']];
+            $sciname = $this->linkage_tID_sName[$taxonID];
+            $rec['http://purl.org/dc/terms/source'] = "https://eol.org/search?q=".str_replace(" ", "%20", $sciname);
+            
+            if($taxonID == "EOL:11584278") continue; //exclude
             
             $o = new \eol_schema\MeasurementOrFact();
             $uris = array_keys($rec);
@@ -95,6 +104,10 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/order] => 
                 [http://rs.tdwg.org/dwc/terms/genus] => 
             )*/
+            
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'EOL:11584278') continue;
+            
+            $this->linkage_tID_sName[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
             
             $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
             $ranks = array('phylum');
@@ -165,6 +178,13 @@ class New_EnvironmentsEOLDataConnector
                 }
             }
         }
+        
+        /* Cases were: one word, and starts with small letter
+        EOL:62196	collomia	Plantae	Tracheophyta				
+        EOL:62197	colubrina	Plantae	Tracheophyta				
+        */
+        if(ctype_lower(substr($sci,0,1))) $sci = ucfirst($sci);
+        
         return $sci;
     }
     private function process_occurrence($meta)
@@ -187,6 +207,9 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
                 [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:2
             )*/
+            
+            $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            
             $o = new \eol_schema\Occurrence();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
