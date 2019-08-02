@@ -7,7 +7,7 @@ from old 708.php
 708	Saturday 2018-11-24 02:48:32 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":198537,"taxon.tab":196193}
 708	Sunday 2018-11-25 04:26:42 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645486,"reference.tab":198537,"taxon.tab":196193}
 
-Starting Aug 2, 2019
+started using 708_new.php - Aug 2, 2019
 708	Friday 2019-08-02 11:06:04 AM	{"measurement_or_fact.tab":742382,"occurrence.tab":645483,"taxon.tab":196192}
 
 */
