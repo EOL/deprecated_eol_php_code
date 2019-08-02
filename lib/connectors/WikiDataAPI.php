@@ -582,9 +582,11 @@ class WikiDataAPI
                                  $ret = self::create_archive($rek);
                                  debug("\n444\n");
                                  if($ret) {
+                                     debug("\naaa\n");
                                      self::save_ancestry_to_temp($rek['parent']);
                                      debug("\n555\n");
                                  }
+                                 else debug("\nbbb\n");
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  // print_r($rek);
                                  // break;              //debug - process just 1 rec
