@@ -422,8 +422,7 @@ class WikiDataAPI
         echo "\n\nStart add parent entries...\n\n";
         foreach(new FileIterator($this->TEMP_FILE_PATH) as $line_number => $row) {
             $arr = json_decode($row, true);
-            $i = 0; //eli debug troubleshoot
-            while(@$arr['parent']) { $i++; echo " [x $i y]";
+            while(@$arr['parent']) {
                 //first record
                 $rec = array();
                 $rec['id']          = $arr['id'];
@@ -555,7 +554,9 @@ class WikiDataAPI
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
+                                 debug("\n111\n");
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
+                                 debug("\n222\n");
                                  
                                  // print_r($rek['obj_gallery']); exit;
                                  
@@ -563,6 +564,7 @@ class WikiDataAPI
                                      if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
                                      else                     $rek['obj_gallery'] = $range_maps;
                                  }
+                                 debug("\n333\n");
                                  
                                  /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
