@@ -512,7 +512,7 @@ class WikiDataAPI
 
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $arr = json_decode($row);
-                echo "\n".count($arr)."\n"; continue; //elixAug2
+                // echo "\n".count($arr)."\n"; continue; //elixAug2
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
                 $arr = self::get_object('Q6707390');
@@ -553,7 +553,7 @@ class WikiDataAPI
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
                              
-                             debug("\n $this->language_code ".$rek['taxon_id']." - "); continue; //elixAug2
+                             debug("\n $this->language_code ".$rek['taxon_id']." - "); //continue; //elixAug2
                              // if($rek['taxon_id'] == 'Q28431675') continue; //elixAug2
                              
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
@@ -638,7 +638,7 @@ class WikiDataAPI
         } //main loop
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
-        exit(1); //elixAug2
+        // exit(1); //elixAug2
     }
     private function save_ancestry_to_temp($ancestry)
     {
