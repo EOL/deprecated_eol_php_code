@@ -16,7 +16,6 @@ class New_EnvironmentsEOLDataConnector
             // $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt"; //working but old DH ver.
             $this->eol_taxon_concept_names_tab = "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/taxon.tab"; //latest active DH ver.
         }
-        
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -27,10 +26,10 @@ class New_EnvironmentsEOLDataConnector
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
         unset($ret);
         print_r($this->debug);
-
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
-        
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //fix source links bec. of obsolete taxonIDs
+        unset($this->linkage_oID_tID);
+        unset($this->linkage_tID_sName);
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -122,7 +121,6 @@ class New_EnvironmentsEOLDataConnector
                             $this->debug['moved to'][$val] = $correct_rank;
                         }
                         else $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." - not found in DH. Discarded.";
-                        
                     }
                 }
             }
@@ -268,7 +266,6 @@ class New_EnvironmentsEOLDataConnector
                     if($val = $rek['canonicalName']) $ancestry[$rank][$val] = '';
                     else {
                         $val = Functions::canonical_form($rek['scientificName']);
-                        // $val = $rek['scientificName'];
                         $ancestry[$rank][$val] = '';
                     }
                 }
@@ -278,17 +275,12 @@ class New_EnvironmentsEOLDataConnector
                     if($val = $rek['canonicalName']) $taxa[$val] = $rek['taxonRank'];
                     else {
                         $val = Functions::canonical_form($rek['scientificName']);
-                        // $val = $rek['scientificName'];
                         $taxa[$val] = $rek['taxonRank'];
                     }
                 }
             }
         }
         return array('ancestry' => $ancestry, 'taxa' => $taxa);
-    }
-    private function canonical_or_sciname($str)
-    {
-        
     }
     /*================================================================= ENDS HERE ======================================================================*/
 }
