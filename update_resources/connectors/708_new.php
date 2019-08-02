@@ -32,7 +32,7 @@ function process_resource_url($dwca_file, $resource_id)
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
 
-    /* Orig in meta.xml has capital letters.
+    /* Orig in meta.xml has capital letters. Just a note reminder.
     rowType="http://rs.tdwg.org/dwc/terms/Occurrence"
     rowType="http://rs.tdwg.org/dwc/terms/MeasurementOrFact"
     rowType="http://rs.tdwg.org/dwc/terms/Taxon"
