@@ -535,21 +535,15 @@ class WikiDataAPI
             if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
-
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
-                
                 if($k >= 921904 && $k <= 921910) { //investigate the problem $row
                     $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/$k".".json", "w");
-                    fwrite($f, $row); fclose($f);
-                    continue;
+                    fwrite($f, $row); fclose($f); continue;
                 }
                 else continue;
-                
             } //end of taxon wiki
             else $j++; //non-taxon wiki
         } //main loop
-        echo "\ntotal taxon wikis = [$i]\n";
-        echo "\ntotal non-taxon wikis = [$j]\n";
     }
     private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
     {
