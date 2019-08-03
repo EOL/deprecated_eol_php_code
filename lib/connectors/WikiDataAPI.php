@@ -481,7 +481,7 @@ class WikiDataAPI
                              $rek['rank'] = self::get_taxon_rank($arr->claims); echo " 444 ";
                              $rek['author'] = self::get_authorship($arr->claims); echo " 555 ";
                              $rek['author_yr'] = self::get_authorship_date($arr->claims); echo " 777 ";
-                             $rek['parent'] = self::get_taxon_parent($arr->claims); echo " 888 ";
+                             $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']); echo " 888 ";
                              
                              print_r($rek);
                              continue;
@@ -574,66 +574,11 @@ class WikiDataAPI
                 }
                 else continue;
                 
-                $arr = json_decode($row);
-
-                
-                if(is_object($arr)) {
-                    $rek = array();
-                     $rek['taxon_id'] = trim((string) $arr->id);
-                     if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
-                         if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
-                             // print_r($rek['sitelinks']); exit; good debug
-                             $i++; 
-                             $rek['rank'] = self::get_taxon_rank($arr->claims);
-                             $rek['author'] = self::get_authorship($arr->claims);
-                             $rek['author_yr'] = self::get_authorship_date($arr->claims);
-                             $rek['parent'] = self::get_taxon_parent($arr->claims);
-                             
-                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
-
-                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
-                             $rek['com_category'] = self::get_commons_category($arr->claims); //P373
-                             
-                             debug("\n $this->language_code ".$rek['taxon_id']." - ");
-                             
-                             if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
-                             if($this->what == "wikimedia") {
-                                 if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
-                                 debug("\n111\n");
-                                 if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
-                                 debug("\n222\n");
-                                 
-                                 if($range_maps = self::get_range_map($arr->claims)) {
-                                     if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
-                                     else                     $rek['obj_gallery'] = $range_maps;
-                                 }
-                                 debug("\n333\n");
-                             }
-                             
-                             if($rek['taxon_id']) {
-                                 $ret = self::create_archive($rek);
-                                 debug("\n444\n");
-                                 if($ret) {
-                                     debug("\naaa\n");
-                                     self::save_ancestry_to_temp($rek['parent']);
-                                     debug("\n555\n");
-                                 }
-                                 else debug("\nbbb\n");
-                             }
-                         }
-                     }
-                     else $j++;
-                }
-                else {
-                    echo "\n[$row]\n";
-                    echo("\n --Investigate not ok-- \n"); //previously this is exit()
-                }
             } //end of taxon wiki
             else $j++; //non-taxon wiki
         } //main loop
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
-        
     }
     private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
     {
@@ -727,7 +672,7 @@ class WikiDataAPI
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
                              $rek['author_yr'] = self::get_authorship_date($arr->claims);
-                             $rek['parent'] = self::get_taxon_parent($arr->claims);
+                             $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']);
                              
                              if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
 
@@ -3511,6 +3456,7 @@ class WikiDataAPI
         }
         return $final;
     }
+    /* old - obsolete
     private function get_taxon_parent($claims)
     {
         $parent = array();
@@ -3524,6 +3470,26 @@ class WikiDataAPI
                 $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
                 if($val = @$obj->entities->$id->claims) {
                     if($val != $claims) $parent['parent'] = self::get_taxon_parent($val);
+                }
+            }
+            return $parent;
+        }
+        return false;
+    }*/
+    private function get_taxon_parent($claims, $main_id)
+    {
+        $parent = array();
+        if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) {
+            $id = self::replace_id_if_redirected($id);
+            if($main_id == $id) return false; //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
+            $parent['id'] = $id;
+            $parent['name'] = self::lookup_value($id);
+            //start get rank
+            if($obj = self::get_object($id)) {
+                $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
+                $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
+                if($val = @$obj->entities->$id->claims) {
+                    if($val != $claims) $parent['parent'] = self::get_taxon_parent($val, $id);
                 }
             }
             return $parent;
