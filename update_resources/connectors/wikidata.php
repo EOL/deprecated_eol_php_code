@@ -117,11 +117,7 @@ $resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
-/* new utility for investigation:
-// $func->investigate_latest_all_taxon_json();
-$func->open_json_files_generated_above();
-exit("\n-end investigate_latest_all_taxon_json()-\n");
-*/
+/* new utility for investigation -> moved to wikidata_test.php */
 
 if($params['task'] == 'debug') { /* if you want to debug or test something: php update_resources/connectors/wikidata.php _ debug */
     $filename = @$params['range_from'];
@@ -137,13 +133,8 @@ if(@$params['task'] == "create_all_taxon_dump") {
 }
 elseif(@$params['task'] == "save_all_media_filenames") {
     $status = $func->save_all_media_filenames($params['task'], $params['range_from'], $params['range_to'], $params['actual']);  //step 2 (ran 6 connectors bec of lookup caching. Then ran 1 connector to finalize.)
-    debug("\n111\n");
     if($status) echo "\n---Can now proceed to next step...---\n\n";
-    else {
-        debug("\n222\n");
-        exit(1);
-        debug("\n333\n");
-    }
+    else exit(1);
 }
 elseif(@$params['task'] == "create_then_fill_commons_data")                                     //step 3 (ran 1 connector)
 {
