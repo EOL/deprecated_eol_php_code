@@ -462,7 +462,7 @@ class WikiDataAPI
         [parent_id] => Q130942
         */
     }
-    function open_json_files_generated_above()
+    function open_json_files_generated_above() //called from wikidata_test.php
     {
         for($z = 921904; $z <= 921910; $z++) { echo "\nprocessing $z ";
             $json_file = CONTENT_RESOURCE_LOCAL_PATH."/$z".".json";
@@ -492,8 +492,8 @@ class WikiDataAPI
             }
         }
     }
-    function investigate_latest_all_taxon_json() //copied from a template - below
-    {
+    function investigate_latest_all_taxon_json() //called from wikidata_test.php
+    { //copied from a template - below 
         $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
@@ -512,8 +512,7 @@ class WikiDataAPI
     private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
     {
         $exit_now = false; //only used during debug
-        $actual = 0;
-        $i = 0; $j = 0;
+        $actual = 0; $i = 0; $j = 0;
         $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
