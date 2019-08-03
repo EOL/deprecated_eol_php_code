@@ -524,7 +524,7 @@ class WikiDataAPI
             }
         }
     }
-    function investigate_latest_all_taxon_json()
+    function investigate_latest_all_taxon_json() //copied from a template - below
     {
         $exit_now = false; //only used during debug
         $actual = 0;
@@ -532,35 +532,6 @@ class WikiDataAPI
         $k = 0; $m = 250000; //only for breakdown when caching
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
-            
-            // if($k >= 921904 && $k <= 921910) continue; //elixAug2 fixed the problem below:
-            /* the problem was this one:
-            921904. size: 2173
-             :: [update_resources/connectors/wikidata.php [133]]<br>
-            Segmentation fault (core dumped)
-            Build step 'Execute shell' marked build as failure
-            Finished: FAILURE
-            */
-
-            /* good way to limit foreach loop
-            if($k >= 1 && $k < 10) $cont = true;
-            else break;
-            */
-
-            /* breakdown when caching:
-            $cont = false;
-            // if($k >=  1    && $k < $m) $cont = true;
-            // if($k >=  $m   && $k < $m*2) $cont = true;
-            // if($k >=  $m*2 && $k < $m*3) $cont = true;
-            // if($k >=  $m*3 && $k < $m*4) $cont = true;
-            // if($k >=  $m*4 && $k < $m*5) $cont = true;
-            // if($k >=  $m*5 && $k < $m*6) $cont = true;
-            // if($k >=  $m*6 && $k < $m*7) $cont = true;
-            // if($k >=  $m*7 && $k < $m*8) $cont = true;
-            // if($k >=  $m*8 && $k < $m*9) $cont = true;
-            if(!$cont) continue;
-            */
-
             if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
@@ -594,10 +565,9 @@ class WikiDataAPI
                 if(!$cont) continue;
             }
 
-            if($k >= 921904 && $k <= 921910) continue; //elixAug2 fixed the problem below:
+            // if($k >= 921904 && $k <= 921910) continue; //elixAug2 fixed the problem below: ---> the actual fix is the infinite loop in get_taxon_parent()
             /* the problem was this one:
             921904. size: 2173
-             :: [update_resources/connectors/wikidata.php [133]]<br>
             Segmentation fault (core dumped)
             Build step 'Execute shell' marked build as failure
             Finished: FAILURE
