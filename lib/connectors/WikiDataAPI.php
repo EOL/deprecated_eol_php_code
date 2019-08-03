@@ -522,7 +522,9 @@ class WikiDataAPI
                 if(!$cont) continue;
             }
 
-            // if($k >= 921904 && $k <= 921910) continue; //elixAug2 fixed the problem below: ---> the actual fix is the infinite loop in get_taxon_parent()
+            /* this can be used to investigate rows OR this case exclude rows
+            if($k >= 921904 && $k <= 921910) continue; //elixAug2 ---> the actual fix is the infinite loop in get_taxon_parent()
+            */
             /* the problem was this one:
             921904. size: 2173
             Segmentation fault (core dumped)
@@ -605,24 +607,16 @@ class WikiDataAPI
 
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
-                             
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
-                             
                              if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
-                                 debug("\n111\n");
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
-                                 debug("\n222\n");
-                                 
                                  // print_r($rek['obj_gallery']); exit;
-                                 
                                  if($range_maps = self::get_range_map($arr->claims)) {
                                      if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
                                      else                     $rek['obj_gallery'] = $range_maps;
                                  }
-                                 debug("\n333\n");
-                                 
                                  /* eli's debug
                                  if($a = @$rek['obj_category']) {}//print_r($a);
                                  if($b = @$rek['obj_gallery']) {}//print_r($b);
@@ -637,34 +631,28 @@ class WikiDataAPI
                              
                              if($rek['taxon_id']) {
                                  $ret = self::create_archive($rek);
-                                 debug("\n444\n");
                                  if($ret) {
-                                     debug("\naaa\n");
                                      self::save_ancestry_to_temp($rek['parent']);
-                                     debug("\n555\n");
                                  }
-                                 else debug("\nbbb\n");
                                  // if(!@$rek['other']['comprehensive_desc']) { print_r($rek); exit("\ninvestigate\n"); }
                                  // print_r($rek);
-                                 // break;              //debug - process just 1 rec
+                                 // break; //debug - process just 1 rec
                                  
                                  /*
                                  $actual++; echo " [$actual] ";
                                  if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                                  */
-                                 
                              }
                          }
                          // else echo "\nNo sitelinks\n"; //debug only
                          // print_r($rek); //exit("\nstop muna\n");
-                         // if($i >= 20) break;   //debug
+                         // if($i >= 20) break; //debug
                          // ===============================*/ //end normal operation
                          
                          /* utility: this is to count how many articles per language ==============
                          if($arr = self::get_taxon_sitelinks($arr->sitelinks)) {
                              foreach($arr as $a) {
                                  $str = str_replace("wiki", "", $a->site);
-                                 // echo " ".$str;
                                  $this->debug[$str]++;
                              }
                              // if($j > 100) break; //debug
