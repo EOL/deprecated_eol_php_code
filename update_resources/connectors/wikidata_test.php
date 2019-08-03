@@ -117,11 +117,11 @@ $resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
-/* new utility for investigation:
-// $func->investigate_latest_all_taxon_json();
-$func->open_json_files_generated_above();
+// /* new utility for investigation:
+$func->investigate_latest_all_taxon_json();
+// $func->open_json_files_generated_above();
 exit("\n-end investigate_latest_all_taxon_json()-\n");
-*/
+// */
 
 if($params['task'] == 'debug') { /* if you want to debug or test something: php update_resources/connectors/wikidata.php _ debug */
     $filename = @$params['range_from'];

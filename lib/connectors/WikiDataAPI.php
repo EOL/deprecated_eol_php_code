@@ -101,7 +101,7 @@ class WikiDataAPI
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
     {   
         // define('MAX_FILE_SIZE', 600000);
-        // $GLOBALS['ENV_DEBUG'] = true; //debug only --- Aug 2 troubleshooting a problem.
+        // $GLOBALS['ENV_DEBUG'] = true; //debug only --- elixAug2 troubleshooting a problem.
         //initialize:
         $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "wikimedia_filenames_" . date("Y_m") . ".txt";
         if(!($f = Functions::file_open($txtfile, "w"))) return;
@@ -461,6 +461,128 @@ class WikiDataAPI
         [rank] => infraclass
         [parent_id] => Q130942
         */
+    }
+    function open_json_files_generated_above()
+    {
+        for($i = 921904; $i <= 921910; $i++) { echo "\nprocessing $i\n";
+            $json_file = CONTENT_RESOURCE_LOCAL_PATH."/$i".".json";
+            if(file_exists($json_file)) {
+                $json = file_get_contents($json_file);
+                $arr = json_decode($json);
+                // print_r($arr);
+            }
+        }
+    }
+    function investigate_latest_all_taxon_json()
+    {
+        $exit_now = false; //only used during debug
+        $actual = 0;
+        $i = 0; $j = 0;
+        $k = 0; $m = 250000; //only for breakdown when caching
+        foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
+            $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
+            
+            // if($k >= 921904 && $k <= 921910) continue; //elixAug2 fixed the problem below:
+            /* the problem was this one:
+            921904. size: 2173
+             :: [update_resources/connectors/wikidata.php [133]]<br>
+            Segmentation fault (core dumped)
+            Build step 'Execute shell' marked build as failure
+            Finished: FAILURE
+            */
+
+            /* good way to limit foreach loop
+            if($k >= 1 && $k < 10) $cont = true;
+            else break;
+            */
+
+            /* breakdown when caching:
+            $cont = false;
+            // if($k >=  1    && $k < $m) $cont = true;
+            // if($k >=  $m   && $k < $m*2) $cont = true;
+            // if($k >=  $m*2 && $k < $m*3) $cont = true;
+            // if($k >=  $m*3 && $k < $m*4) $cont = true;
+            // if($k >=  $m*4 && $k < $m*5) $cont = true;
+            // if($k >=  $m*5 && $k < $m*6) $cont = true;
+            // if($k >=  $m*6 && $k < $m*7) $cont = true;
+            // if($k >=  $m*7 && $k < $m*8) $cont = true;
+            // if($k >=  $m*8 && $k < $m*9) $cont = true;
+            if(!$cont) continue;
+            */
+
+            if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
+                /* remove the last char which is "," a comma */
+                $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
+
+                debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
+                
+                if($k >= 921904 && $k <= 921910) { //investigate the problem $row
+                    $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/$k".".json", "w");
+                    fwrite($f, $row); fclose($f);
+                    continue;
+                }
+                else continue;
+                
+                $arr = json_decode($row);
+
+                
+                if(is_object($arr)) {
+                    $rek = array();
+                     $rek['taxon_id'] = trim((string) $arr->id);
+                     if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
+                         if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
+                             // print_r($rek['sitelinks']); exit; good debug
+                             $i++; 
+                             $rek['rank'] = self::get_taxon_rank($arr->claims);
+                             $rek['author'] = self::get_authorship($arr->claims);
+                             $rek['author_yr'] = self::get_authorship_date($arr->claims);
+                             $rek['parent'] = self::get_taxon_parent($arr->claims);
+                             
+                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
+
+                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
+                             $rek['com_category'] = self::get_commons_category($arr->claims); //P373
+                             
+                             debug("\n $this->language_code ".$rek['taxon_id']." - ");
+                             
+                             if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
+                             if($this->what == "wikimedia") {
+                                 if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
+                                 debug("\n111\n");
+                                 if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
+                                 debug("\n222\n");
+                                 
+                                 if($range_maps = self::get_range_map($arr->claims)) {
+                                     if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
+                                     else                     $rek['obj_gallery'] = $range_maps;
+                                 }
+                                 debug("\n333\n");
+                             }
+                             
+                             if($rek['taxon_id']) {
+                                 $ret = self::create_archive($rek);
+                                 debug("\n444\n");
+                                 if($ret) {
+                                     debug("\naaa\n");
+                                     self::save_ancestry_to_temp($rek['parent']);
+                                     debug("\n555\n");
+                                 }
+                                 else debug("\nbbb\n");
+                             }
+                         }
+                     }
+                     else $j++;
+                }
+                else {
+                    echo "\n[$row]\n";
+                    echo("\n --Investigate not ok-- \n"); //previously this is exit()
+                }
+            } //end of taxon wiki
+            else $j++; //non-taxon wiki
+        } //main loop
+        echo "\ntotal taxon wikis = [$i]\n";
+        echo "\ntotal non-taxon wikis = [$j]\n";
+        
     }
     private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
     {
@@ -3251,7 +3373,7 @@ class WikiDataAPI
         foreach(@$recs as $rec) {
             if($imported_from = @$rec->snaks->P143) { if($id = $imported_from[0]->datavalue->value->id) $ids[$id] = ''; }
             if($stated_in = @$rec->snaks->P248)     { if($id = $stated_in[0]->datavalue->value->id)     $ids[$id] = ''; }
-            if($retrieved = @$rec->snaks->P813)     { if($val = $retrieved[0]->datavalue->value->time)  $final['retrieved'] = $val; }
+            if($retrieved = @$rec->snaks->P813)     { if($val = @$retrieved[0]->datavalue->value->time)  $final['retrieved'] = $val; }
             /* debug only -- good debug
             if(@$final['retrieved']) { 
                 print_r($final); exit("\nelix1\n");
