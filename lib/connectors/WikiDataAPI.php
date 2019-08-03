@@ -468,8 +468,7 @@ class WikiDataAPI
             $json_file = CONTENT_RESOURCE_LOCAL_PATH."/$z".".json";
             if(file_exists($json_file)) { echo " exists...";
                 $json = file_get_contents($json_file);
-                $arr = json_decode($json);
-                // print_r($arr);
+                $arr = json_decode($json); // print_r($arr);
                 if(is_object($arr)) { echo " 111 ";
                     $rek = array();
                      $rek['taxon_id'] = trim((string) $arr->id);
@@ -482,40 +481,9 @@ class WikiDataAPI
                              $rek['author'] = self::get_authorship($arr->claims); echo " 555 ";
                              $rek['author_yr'] = self::get_authorship_date($arr->claims); echo " 777 ";
                              $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']); echo " 888 ";
-                             
                              print_r($rek);
                              continue;
-                             if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
-
-                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
-                             $rek['com_category'] = self::get_commons_category($arr->claims); //P373
-                             
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
-                             
-                             if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
-                             if($this->what == "wikimedia") {
-                                 if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
-                                 debug("\n111\n");
-                                 if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
-                                 debug("\n222\n");
-                                 
-                                 if($range_maps = self::get_range_map($arr->claims)) {
-                                     if(@$rek['obj_gallery']) $rek['obj_gallery'] = array_merge($range_maps, $rek['obj_gallery']);
-                                     else                     $rek['obj_gallery'] = $range_maps;
-                                 }
-                                 debug("\n333\n");
-                             }
-                             
-                             if($rek['taxon_id']) {
-                                 $ret = self::create_archive($rek);
-                                 debug("\n444\n");
-                                 if($ret) {
-                                     debug("\naaa\n");
-                                     self::save_ancestry_to_temp($rek['parent']);
-                                     debug("\n555\n");
-                                 }
-                                 else debug("\nbbb\n");
-                             }
                          }
                      }
                      else $j++;
@@ -526,10 +494,7 @@ class WikiDataAPI
     }
     function investigate_latest_all_taxon_json() //copied from a template - below
     {
-        $exit_now = false; //only used during debug
-        $actual = 0;
-        $i = 0; $j = 0;
-        $k = 0; $m = 250000; //only for breakdown when caching
+        $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
             if(stripos($row, "Q16521") !== false) { //string is found -- "taxon"
@@ -537,12 +502,11 @@ class WikiDataAPI
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 if($k >= 921904 && $k <= 921910) { //investigate the problem $row
-                    $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/$k".".json", "w");
+                    $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/$k".".json", "w"); //creates json files for further investigation - open_json_files_generated_above()
                     fwrite($f, $row); fclose($f); continue;
                 }
                 else continue;
             } //end of taxon wiki
-            else $j++; //non-taxon wiki
         } //main loop
     }
     private function parse_wiki_data_json($task = false, $range_from = false, $range_to = false)
