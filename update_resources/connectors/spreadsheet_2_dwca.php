@@ -17,8 +17,10 @@ $cmdline_params['spreadsheet']                      = @$argv[3]; //first used by
 $resource_id = false;
 if( ($val = $cmdline_params['resource_id']) && ($cmdline_params['resource_id'] != "_"))
 {
+    if($resource_id == 727) exit("\nThis is moved to 727.php\n");
+    
     $resource_id = $val;
-    if    ($resource_id == 727)  $params['spreadsheet'] = "http://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/88e09288-0578-43b9-a618-b6e08f70fa47/download/usda-plants.xlsx.zip";
+    if    ($resource_id == 727)  $params['spreadsheet'] = "https://opendata.eol.org/dataset/42fd51a0-e31a-4b2a-9f18-6e4f08242d42/resource/88e09288-0578-43b9-a618-b6e08f70fa47/download/usda-plants.xlsx.zip";
     elseif($resource_id == 991) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/7e44255d-8350-4229-aaad-ead941420ab2/download/arctic-amphibians-and-reptiles.xls";
     elseif($resource_id == 992) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/b4a34e11-3ff8-4207-8cea-523a35b1241b/download/arctic-birds.xls";
     elseif($resource_id == 993) $params['spreadsheet'] = "http://opendata.eol.org/dataset/bd2b0922-950a-4e7b-bf21-fbc7f734a4d7/resource/86c775f0-2808-47cf-875a-f1a2b560299e/download/arctic-freshwater-fishes.xls";
