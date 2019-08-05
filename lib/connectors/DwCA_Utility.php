@@ -110,7 +110,7 @@ class DwCA_Utility
         foreach($index as $row_type) {
             /* ----------customized start------------ */
             if(substr($this->resource_id,0,3) == 'SC_') break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
-            // if($this->resource_id == 708) break; //debug only - comment or remove in real operation. Use this line only during development.
+            if($this->resource_id == 727) break; //debug only - comment or remove in real operation. Use this line only during development.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -140,6 +140,11 @@ class DwCA_Utility
             $func->start($info);
         }
         if($this->resource_id == '708') {
+            require_library('connectors/New_EnvironmentsEOLDataConnector');
+            $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if($this->resource_id == '727') {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
