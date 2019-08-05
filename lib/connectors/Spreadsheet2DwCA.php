@@ -8,7 +8,6 @@ class Spreadsheet2DwCA
     {
         $this->params = $params;
     }
-    
     public function convert_spreadsheet_2_dwca()
     {
         print_r($this->params);
@@ -22,10 +21,8 @@ class Spreadsheet2DwCA
             $errors[] = "No file was provided";
             return;
         }
-
         //============
-        if(pathinfo($url, PATHINFO_EXTENSION) == "zip") //e.g. usda-plants.xlsx.zip of resource_id = 727
-        {
+        if(pathinfo($url, PATHINFO_EXTENSION) == "zip") { //e.g. usda-plants.xlsx.zip of resource_id = 727
             $zipYN = true;
             $test_temp_dir = create_temp_dir();
             $local = Functions::save_remote_file_to_local($url);
@@ -44,13 +41,12 @@ class Spreadsheet2DwCA
         }
         else $zipYN = false;
         //============
-
         // echo("<hr>elix [$url]<hr>");
 
         if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix, 'timeout' => 900))) //15 minutes timeout (900 seconds)
         {
-            if($zipYN)
-            {   //remove these 3 that were used above if URL is a zip file
+            if($zipYN) {
+                //remove these 3 that were used above if URL is a zip file
                 unlink($local);
                 unlink($new_local); //$new_local is inside $test_temp_dir
                 recursive_rmdir($test_temp_dir);
@@ -113,7 +109,6 @@ class Spreadsheet2DwCA
         else $errors[] = "There was a problem with the uploaded [$suffix] file.";
         if($errors) print_r($errors);
     }
-
     private function optional_diagnostics($resource_id)
     {
         $arr = Functions::count_resource_tab_files($resource_id, ".txt");
@@ -127,7 +122,6 @@ class Spreadsheet2DwCA
             $func->check_unique_ids($resource_id);
         }
     }
-
     /*
     private function get_real_extension_of_zip_file($zip_file)
     {
@@ -136,7 +130,6 @@ class Spreadsheet2DwCA
         return $fn;
     }
     */
-    
     private function get_file_inside_dir_with_this_extension($files)
     {
         $arr = glob($files);
@@ -146,6 +139,5 @@ class Spreadsheet2DwCA
         //     echo "\n- $filename\n";
         // }
     }
-
 }
 ?>
