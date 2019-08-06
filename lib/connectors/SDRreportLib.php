@@ -59,7 +59,13 @@ class SDRreportLib
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 $rec = array_map('trim', $rec);
-                print_r($rec); exit;
+                // print_r($rec); exit;
+                /* Array(
+                    [parent_id] => 7662
+                    [value_term] => http://www.geonames.org/1062947
+                    [children_ids] => 347438;347436;999164;127498;128480;289555;347437;1037781;1053877;328607
+                )*/
+                $this->parent_children_ids[$rec['parent_id']] = $rec['children_ids'];
             }
         }
     }
@@ -107,7 +113,7 @@ class SDRreportLib
                 }
             }
         }
-        print_r($this->report_SampleSize);
+        // print_r($this->report_SampleSize); //good debug
         self::write_SampleSize_2txt();
         echo("\n-- end gen_SampleSize_for_parent_BV --\n");
     }
