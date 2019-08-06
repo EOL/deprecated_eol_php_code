@@ -84,11 +84,9 @@ class SDR_report
         echo "\nGet page_ids for parent (BV)...\n";
         if($page_ids_param) {
             $page_ids = $this->func->get_page_ids_andInfo_fromDH($page_ids_param);
-            $resource_id = 'parent_basal_values_'.$page_id_value;
         }
         else {
             $page_ids = $this->func->get_page_ids_andInfo_fromDH();
-            $resource_id = 'parent_basal_values';
         }
         $total_page_ids = count($page_ids);
         /* for indicator */ $total_predicates = count($predicates); $cnt_predicate = 0;
@@ -174,12 +172,12 @@ class SDR_report
                 [predicate] => http://eol.org/schema/terms/Habitat
                 [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
         )*/
-        echo "\n".count($this->EOL_2_DH)."\n"; echo "\n".count($this->DH_2_EOL)."\n"; //exit;
+        // echo "\n".count($this->EOL_2_DH)."\n"; echo "\n".count($this->DH_2_EOL)."\n"; //exit;
         foreach($recs_from_descendants as $rec) { $page_id = $rec['page_id'];
             $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //(or as their record value)
         }
         foreach($children as $page_id) {
-            if($anc = self::get_ancestry_via_DH($page_id, false)) { // print_r($anc);
+            if($anc = $this->func->get_ancestry_via_DH($page_id, false)) { // print_r($anc);
                 echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
                 // echo "\ndoing this now...\n";
                 if($recs_from_ancestry = $this->func->get_all_recs_for_each_pageID($anc, $predicate, $this->dbname)) {
