@@ -127,7 +127,6 @@ class SDRreportLib
                 $arr = array_filter($arr); //remove null arrays
                 $arr = array_unique($arr); //make unique
                 $arr = array_values($arr); //reindex key
-                print_r($arr);
                 if($val = count($arr)) return $val;
             }
         }
