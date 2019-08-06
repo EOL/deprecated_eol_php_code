@@ -373,6 +373,9 @@ class SDRreportLib
         foreach($recs_from_descendants as $rec) { $page_id = $rec['page_id'];
             $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //(or as their record value)
         }
+        return; //ends here - below works but seems not needed - Aug 6, 2019
+
+        /* step 4 maybe redundant
         foreach($children as $page_id) {
             if($anc = $this->func->get_ancestry_via_DH($page_id, false)) { // print_r($anc);
                 // echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
@@ -380,7 +383,6 @@ class SDRreportLib
                 if($recs_from_ancestry = $this->func->get_all_recs_for_each_pageID($anc, $predicate, $this->dbname)) {
                     // echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n";     //debug
                     // echo "\nfirst rec in recs_from_ancestry: ".$recs_from_ancestry[0]['page_id']."\n";           //debug
-                    /* step 4 maybe redundant
                     foreach($recs_from_ancestry as $rec) {
                         // print_r($rec); exit;
                         // Array(
@@ -392,10 +394,10 @@ class SDRreportLib
                         // )
                         $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //the number of descendant taxa with records with that value in their ancestry
                     }
-                    */
                 }
             }
         }
+        */
         // print_r($this->report_SampleSize['http://www.marineregions.org/mrgid/14289']); exit;
     }
 
