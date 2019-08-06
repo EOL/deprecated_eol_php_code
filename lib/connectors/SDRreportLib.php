@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* [.php] */
-class SDR_report
+class SDRreportLib
 {
     public function __construct($folder)
     {

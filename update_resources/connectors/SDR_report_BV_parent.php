@@ -4,12 +4,12 @@ namespace php_active_record;
     https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=63478&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63478
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/SDR_report');
+require_library('connectors/SDRreportLib');
 
 // ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
 $resource_id = 'SDR_all';
-$func = new SDR_report($resource_id);
+$func = new SDRreportLib($resource_id);
 
 // $func->test_basal_values('BV');          return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
