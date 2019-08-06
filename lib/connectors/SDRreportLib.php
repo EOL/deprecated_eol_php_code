@@ -44,7 +44,8 @@ class SDRreportLib
     }
     function update_parentBV_reports()
     {
-        $SampleSize_lookup = self::build_lookup_table();
+        self::build_lookup_table();
+        self::add_SampleSize_4parent_BV_resource_txt(); //e.g. parent_basal_values_Carnivora_resource.txt
     }
     private function build_lookup_table()
     {
@@ -183,17 +184,19 @@ class SDRreportLib
                 if($recs_from_ancestry = $this->func->get_all_recs_for_each_pageID($anc, $predicate, $this->dbname)) {
                     // echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n";     //debug
                     // echo "\nfirst rec in recs_from_ancestry: ".$recs_from_ancestry[0]['page_id']."\n";           //debug
+                    /* step 4 maybe redundant
                     foreach($recs_from_ancestry as $rec) {
                         // print_r($rec); exit;
-                        /*Array(
-                            [page_id] => 44709
-                            [scientific_name] => Cryptoprocta
-                            [predicate] => http://eol.org/schema/terms/Habitat
-                            [value_uri] => http://purl.obolibrary.org/obo/ENVO_00002009
-                            many other fields...
-                        )*/
+                        // Array(
+                        //     [page_id] => 44709
+                        //     [scientific_name] => Cryptoprocta
+                        //     [predicate] => http://eol.org/schema/terms/Habitat
+                        //     [value_uri] => http://purl.obolibrary.org/obo/ENVO_00002009
+                        //     many other fields...
+                        // )
                         $this->report_SampleSize[$main_page_id][$rec['value_uri']][$page_id] = ''; //the number of descendant taxa with records with that value in their ancestry
                     }
+                    */
                 }
             }
         }
