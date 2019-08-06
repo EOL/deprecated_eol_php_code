@@ -189,7 +189,6 @@ class SummaryDataResourcesAllAPI
                     [46559170] => 
                     [46559206] => 
                     [46559208] => 
-                )
         )*/
         $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt', 'w');
         foreach($this->report_SampleSize as $page_id => $rek) {
