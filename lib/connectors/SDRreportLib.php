@@ -167,11 +167,10 @@ class SDRreportLib
     }
     private function add_SampleSize_4parent_BV_MoF()
     {
-        $resource_id = 'parent_basal_values_SS';
         $dwca_file = $this->parent_BH_DwCA;
         
         require_library('connectors/DwCA_Utility');
-        $func = new DwCA_Utility($resource_id, $dwca_file);
+        $func = new DwCA_Utility($this->resource_id, $dwca_file);
 
         /* Orig in meta.xml has capital letters. Just a note reminder.
         rowType="http://rs.tdwg.org/dwc/terms/Taxon">
@@ -181,7 +180,7 @@ class SDRreportLib
         */
 
         $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/occurrence', 'http://eol.org/schema/reference/reference');
-        /* These 1 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
+        /* This 1 will be processed in SDRreportLib.php which will be called from DwCA_Utility.php
         http://rs.tdwg.org/dwc/terms/measurementorfact
         */
         $func->convert_archive($preferred_rowtypes);

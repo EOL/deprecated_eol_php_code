@@ -149,7 +149,7 @@ class DwCA_Utility
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if($this->resource_id == 'parent_basal_values_SS') {
+        if(in_array($this->resource_id, array('parent_basal_values_Carnivora', 'parent_basal_values'))) {
             require_library('connectors/SDRreportLib');
             $func = new SDRreportLib($this->archive_builder, $this->resource_id);
             $func->start($info);
@@ -387,7 +387,7 @@ class DwCA_Utility
             elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
             elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
             
-            if($this->resource_id == 'parent_basal_values_SS') { //this actually works. But only goes here during dev. if needed, since MoF is customized in /lib/SDRreportLib.php in real operation
+            if($this->resource_id == 'parent_basal_values_Carnivora') { //this actually works. But only goes here during dev. if needed, since MoF is customized in /lib/SDRreportLib.php in real operation
                 if($class == "measurementorfact") $c = new \eol_schema\MeasurementOrFact_specific();
             }
             

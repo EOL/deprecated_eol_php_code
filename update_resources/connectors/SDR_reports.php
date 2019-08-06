@@ -8,7 +8,10 @@ require_library('connectors/SDRreportLib');
 
 // ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
-$resource_id = 'SDR_all';
+
+$resource_id = 'parent_basal_values_Carnivora';
+$resource_id = 'parent_basal_values';
+
 $func = new SDRreportLib(false, $resource_id);
 
 /* parent BV report utilities */
