@@ -10,6 +10,8 @@ class SDRreportLib
         $this->debug = array();
         
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
+        /* from template
+
         $this->file['parent child']['fields'] = array('parent', 'child'); //used more simple words instead of: array('parent_term_URI', 'subclass_term_URI');
         
         $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
@@ -25,12 +27,10 @@ class SDRreportLib
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child-1.csv";
         $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
         
-        // $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->dwca_file = "http://localhost/cp/summary_data_resources/traits_all_201905.zip";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
 
-        /* from template
         //for taxon summary
         if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
         else                            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
@@ -41,11 +41,58 @@ class SDRreportLib
         $this->parentModeYN = false;
         $this->fullref = array();
         */
+        
+        $this->parent_BH_resourct_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_Carnivora_resource.txt';
     }
     function update_parentBV_reports()
     {
         self::build_lookup_table();
-        self::add_SampleSize_4parent_BV_resource_txt(); //e.g. parent_basal_values_Carnivora_resource.txt
+        self::add_SampleSize_4parent_BV_resource_txt();
+    }
+    private function add_SampleSize_4parent_BV_resource_txt()
+    {
+        $temp_txt = CONTENT_RESOURCE_LOCAL_PATH . '/SDR_tmp.txt';
+        copy($this->parent_BH_resourct_txt, $temp_txt);
+        
+        $WRITE = Functions::file_open($this->parent_BH_resourct_txt, 'w');
+        
+        $i = 0;
+        foreach(new FileIterator($temp_txt) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) {
+                $fields = $line;
+                $line[] = 'SampleSize';
+                fwrite($WRITE, implode("\t", $line)."\n");
+            }
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                $rec = array_map('trim', $rec);
+                // print_r($rec); exit;
+                /*Array(
+                    [Page ID] => 7662
+                    [eol_pk] => R512-PK71589851
+                    [Value URI] => http://purl.obolibrary.org/obo/ENVO_00000067
+                    [Label] => REP
+                )*/
+                $save = array($rec['Page ID'], $rec['eol_pk'], $rec['Value URI'], $rec['Label'], self::compute_samplesize($rec['Page ID'], $rec['Value URI']));
+                fwrite($WRITE, implode("\t", $save)."\n");
+            }
+        }
+        fclose($WRITE);
+    }
+    private function compute_samplesize($page_id, $value_uri)
+    {
+        if($page_ids = @$this->parent_children_ids[$page_id][$value_uri]) {
+            $arr = explode(";", $page_ids);
+            if($arr) return count($arr);
+        }
+        else {
+            exit("\nInvestigate no match in SampleSize lookup [$page_id] [$value_url]\n");
+        }
     }
     private function build_lookup_table()
     {
@@ -66,7 +113,7 @@ class SDRreportLib
                     [value_term] => http://www.geonames.org/1062947
                     [children_ids] => 347438;347436;999164;127498;128480;289555;347437;1037781;1053877;328607
                 )*/
-                $this->parent_children_ids[$rec['parent_id']] = $rec['children_ids'];
+                $this->parent_children_ids[$rec['parent_id']][$rec['value_term']] = $rec['children_ids'];
             }
         }
     }
