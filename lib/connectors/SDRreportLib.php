@@ -192,7 +192,7 @@ class SDRreportLib
         http://rs.tdwg.org/dwc/terms/measurementorfact
         */
         $func->convert_archive($preferred_rowtypes);
-        Functions::finalize_dwca_resource($resource_id);
+        Functions::finalize_dwca_resource($this->resource_id);
     }
     private function add_SampleSize_4parent_BV_resource_txt()
     {
