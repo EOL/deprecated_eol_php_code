@@ -3,9 +3,13 @@ namespace php_active_record;
 /* [.php] */
 class SDRreportLib
 {
-    public function __construct($folder)
+    // public function __construct($folder)
+    function __construct($archive_builder = false, $resource_id = false)
     {
-        $this->resource_id = $folder;
+        $this->resource_id = $resource_id;
+        $this->archive_builder = $archive_builder;
+        
+        // $this->resource_id = $folder;
         $this->download_options = array('resource_id' => 'SDR_all', 'timeout' => 60*5, 'expire_seconds' => 60*60*24, 'cache' => 1, 'download_wait_time' => 1000000);
         $this->debug = array();
         
@@ -45,6 +49,114 @@ class SDRreportLib
         $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_Carnivora_resource.txt';
         $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values_Carnivora.tar.gz';
     }
+    function start($info) //this is called from DwCA_Utility.php
+    {
+        self::build_lookup_table(); //to initialize $this->parent_children_ids
+        
+        $tables = $info['harvester']->tables;
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to lookup taxonID from occurrenceID
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //we need to add SampleSize
+    }
+    private function process_measurementorfact($meta)
+    {   //print_r($meta);
+        self::initialize();
+        $this->func->initialize_basal_values(); // this will let you access $this->children_of via $this->func->children_of
+                                                // or                       $this->parents_of via $this->func->parents_of
+        // print_r($this->func->children_of); exit;
+        
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 784b567e27b92085e014fa14c58b8608_parent_basal_values_Carnivora
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 400f0fb56ea4a6a052c5a79cec19e2c9_parent_basal_values_Carnivora
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Present
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://eol.org/schema/terms/Australasia
+                [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 2018-Oct-10
+                [http://rs.tdwg.org/dwc/terms/measurementMethod] => summary of records available in EOL
+                [http://purl.org/dc/terms/source] => https://eol.org/terms/search_results?utf8=✓&term_query[clade_id]=7662&term_query[filters_attributes][0][pred_uri]=http://eol.org/schema/terms/Present&term_query[filters_attributes][0][op]=is_any&term_query[result_type]=record&commit=Search
+                [http://purl.obolibrary.org/obo/IAO_0000009] => REP
+                [http://eol.org/schema/reference/referenceID] => 
+            )*/
+
+            $taxonID = $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']];
+            $rec['SampleSize'] = self::get_SampleSize_for_MoF($taxonID, $rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+
+            $o = new \eol_schema\MeasurementOrFact_specific();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
+        }
+    }
+    private function get_SampleSize_for_MoF($taxonID, $value_uri)
+    {
+        /* 1st option */
+        if($children_terms = @$this->func->children_of[$value_uri]) {
+            // print_r($children_terms); exit("\n$value_uri\n");
+            foreach($children_terms as $child_term) {
+                // print_r($this->parent_children_ids[$taxonID]); exit; //
+                if($page_ids = @$this->parent_children_ids[$taxonID][$child_term]) {
+                    $arr = explode(";", $page_ids);
+                    if($arr) return count($arr);
+                }
+            }
+        }
+        /* 2nd option */
+        if($val = self::compute_samplesize($taxonID, $value_uri)) return $val;
+        
+        echo("\nInvestigate no match in SampleSize lookup in MoF [$taxonID] [$value_uri]\n");
+    }
+    private function process_occurrence($meta)
+    {   //print_r($meta);
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 400f0fb56ea4a6a052c5a79cec19e2c9_parent_basal_values_Carnivora
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 7662
+            )*/
+            $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+
+            /* no need to create 
+            $o = new \eol_schema\Occurrence();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            */
+        }
+    }
+    
+    //========================================================================================
     function update_parentBV_reports()
     {
         self::build_lookup_table();
@@ -66,7 +178,7 @@ class SDRreportLib
         rowType="http://eol.org/schema/reference/Reference">
         */
 
-        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/occurrence', 'http://eol.org/schema/reference/reference', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/occurrence', 'http://eol.org/schema/reference/reference');
         /* These 1 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
         http://rs.tdwg.org/dwc/terms/measurementorfact
         */
@@ -116,7 +228,7 @@ class SDRreportLib
             if($arr) return count($arr);
         }
         else {
-            exit("\nInvestigate no match in SampleSize lookup [$page_id] [$value_url]\n");
+            echo("\nInvestigate no match in SampleSize lookup [$page_id] [$value_uri]\n");
         }
     }
     private function build_lookup_table()

@@ -149,6 +149,11 @@ class DwCA_Utility
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if($this->resource_id == 'parent_basal_values_SS') {
+            require_library('connectors/SDRreportLib');
+            $func = new SDRreportLib($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
         // ================================= end of customization ================================= */ 
         
         $this->archive_builder->finalize(TRUE);

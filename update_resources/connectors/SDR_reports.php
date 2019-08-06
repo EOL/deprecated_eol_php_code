@@ -9,7 +9,7 @@ require_library('connectors/SDRreportLib');
 // ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
 $resource_id = 'SDR_all';
-$func = new SDRreportLib($resource_id);
+$func = new SDRreportLib(false, $resource_id);
 
 /* parent BV report utilities */
 // $func->gen_SampleSize_4parent_BV('BV', array('7662')); //generate SampleSize lookup table
