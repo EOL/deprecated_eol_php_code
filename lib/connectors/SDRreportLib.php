@@ -42,19 +42,43 @@ class SDRreportLib
         $this->fullref = array();
         */
         
-        $this->parent_BH_resourct_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_Carnivora_resource.txt';
+        $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_Carnivora_resource.txt';
+        $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values_Carnivora.tar.gz';
     }
     function update_parentBV_reports()
     {
         self::build_lookup_table();
         self::add_SampleSize_4parent_BV_resource_txt();
+        self::add_SampleSize_4parent_BV_MoF();
+    }
+    private function add_SampleSize_4parent_BV_MoF()
+    {
+        $resource_id = 'parent_basal_values_SS';
+        $dwca_file = $this->parent_BH_DwCA;
+        
+        require_library('connectors/DwCA_Utility');
+        $func = new DwCA_Utility($resource_id, $dwca_file);
+
+        /* Orig in meta.xml has capital letters. Just a note reminder.
+        rowType="http://rs.tdwg.org/dwc/terms/Taxon">
+        rowType="http://rs.tdwg.org/dwc/terms/Occurrence">
+        rowType="http://rs.tdwg.org/dwc/terms/MeasurementOrFact">
+        rowType="http://eol.org/schema/reference/Reference">
+        */
+
+        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/occurrence', 'http://eol.org/schema/reference/reference', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        /* These 1 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
+        http://rs.tdwg.org/dwc/terms/measurementorfact
+        */
+        $func->convert_archive($preferred_rowtypes);
+        Functions::finalize_dwca_resource($resource_id);
     }
     private function add_SampleSize_4parent_BV_resource_txt()
     {
         $temp_txt = CONTENT_RESOURCE_LOCAL_PATH . '/SDR_tmp.txt';
-        copy($this->parent_BH_resourct_txt, $temp_txt);
+        copy($this->parent_BH_resource_txt, $temp_txt);
         
-        $WRITE = Functions::file_open($this->parent_BH_resourct_txt, 'w');
+        $WRITE = Functions::file_open($this->parent_BH_resource_txt, 'w');
         
         $i = 0;
         foreach(new FileIterator($temp_txt) as $line_number => $line) {
@@ -83,6 +107,7 @@ class SDRreportLib
             }
         }
         fclose($WRITE);
+        unlink($temp_txt);
     }
     private function compute_samplesize($page_id, $value_uri)
     {

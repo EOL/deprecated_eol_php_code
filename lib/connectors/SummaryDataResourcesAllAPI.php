@@ -1347,7 +1347,7 @@ class SummaryDataResourcesAllAPI
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
 
         $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
-        $m->label               = $rec['label'];
+        $m->IAO_0000009         = $rec['label'];
         $m->occurrenceID        = $occurrence_id;
         $m->measurementOfTaxon  = 'true';
         $m->measurementType     = $rec['measurementType'];

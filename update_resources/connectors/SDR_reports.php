@@ -12,7 +12,7 @@ $resource_id = 'SDR_all';
 $func = new SDRreportLib($resource_id);
 
 /* parent BV report utilities */
-$func->gen_SampleSize_4parent_BV('BV', array('7662')); //generate SampleSize lookup table
+// $func->gen_SampleSize_4parent_BV('BV', array('7662')); //generate SampleSize lookup table
 $func->update_parentBV_reports();
 
 $elapsed_time_sec = time_elapsed() - $timestart;
