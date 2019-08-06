@@ -117,15 +117,19 @@ class SDRreportLib
         /* 1st option */
         if($children_terms = @$this->func->children_of[$value_uri]) {
             // print_r($children_terms); exit("\n$value_uri\n");
-            $total = 0;
+            $total_str = "";
             foreach($children_terms as $child_term) {
                 // print_r($this->parent_children_ids[$taxonID]); exit; //
-                if($page_ids = @$this->parent_children_ids[$taxonID][$child_term]) {
-                    $arr = explode(";", $page_ids);
-                    if($arr) $total = $total + count($arr);
-                }
+                if($page_ids = @$this->parent_children_ids[$taxonID][$child_term]) $total_str = $total_str . ";" . $page_ids;
             }
-            if($total) return $total;
+            if($total_str) {
+                $arr = explode(";", $total_str);
+                $arr = array_filter($arr); //remove null arrays
+                $arr = array_unique($arr); //make unique
+                $arr = array_values($arr); //reindex key
+                print_r($arr);
+                if($val = count($arr)) return $val;
+            }
         }
         /* 2nd option */
         if($val = self::compute_samplesize($taxonID, $value_uri)) return $val;
