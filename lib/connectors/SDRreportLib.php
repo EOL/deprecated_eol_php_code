@@ -46,15 +46,15 @@ class SDRreportLib
         $this->fullref = array();
         */
 
-        // /* testing
+        /* testing
         $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_Carnivora_resource.txt';
         $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values_Carnivora.tar.gz';
-        // */
+        */
         
-        /* actual operation
+        // /* actual operation
         $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_resource.txt';
         $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values.tar.gz';
-        */
+        // */
         
     }
     function start($info) //this is called from DwCA_Utility.php
@@ -268,16 +268,16 @@ class SDRreportLib
     }
     private function initialize()
     {
-        $filename = CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt';
-        $WRITE = Functions::file_open($filename, 'w');
-        fwrite($WRITE, implode("\t", array('parent_id', 'value_term', 'children_ids'))."\n");
-        fclose($WRITE);
-        
         require_library('connectors/SummaryDataResourcesAllAPI');
         $this->func = new SummaryDataResourcesAllAPI('');
     }
     function gen_SampleSize_4parent_BV($dbase, $page_ids_param)
     {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt';
+        $WRITE = Functions::file_open($filename, 'w');
+        fwrite($WRITE, implode("\t", array('parent_id', 'value_term', 'children_ids'))."\n");
+        fclose($WRITE);
+        
         self::initialize();
         $this->func->parse_DH(); //this was needed for $this->report_SampleSize
         $this->dbname = 'traits_'.$dbase;
