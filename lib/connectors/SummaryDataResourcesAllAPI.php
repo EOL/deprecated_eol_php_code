@@ -920,7 +920,7 @@ class SummaryDataResourcesAllAPI
             // echo "\nNEW: writing json [$page_id] [$json_file] [".count($children)."]";
         }
     }
-    private function get_summ_process_type_given_pred($order = "normal", $range = 'predicates!A2:F1000', $item_index_no = 5, $filter) //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
+    function get_summ_process_type_given_pred($order = "normal", $range = 'predicates!A2:F1000', $item_index_no = 5, $filter) //sheet found here: https://docs.google.com/spreadsheets/u/1/d/1Er57xyxT_-EZud3mNkTBn0fZ9yZi_01qtbwwdDkEsA0/edit?usp=sharing
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
@@ -1762,7 +1762,7 @@ class SummaryDataResourcesAllAPI
         foreach($recs as $rec) $final[$rec[$field]] = '';
         return array_keys($final);
     }
-    private function get_page_ids_andInfo_fromDH($page_ids_param = array())
+    function get_page_ids_andInfo_fromDH($page_ids_param = array())
     {   
         //step 2 get desired info from DH
         $info = self::prep_DH(); $i = 0;
@@ -2458,8 +2458,8 @@ class SummaryDataResourcesAllAPI
         }
         return $info;
     }
-    private function parse_DH()
-    {
+    function parse_DH()
+    {   echo "\nparsing DH...\n";
         $info = self::prep_DH();
         $i = 0;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
@@ -3659,7 +3659,7 @@ class SummaryDataResourcesAllAPI
     {
         self::working_dir();
     }
-    private function initialize_basal_values()
+    function initialize_basal_values()
     {
         self::working_dir();
         self::generate_terms_values_child_parent_list($this->file['parent child']['path_habitat']);
