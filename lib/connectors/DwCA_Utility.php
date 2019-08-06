@@ -382,6 +382,10 @@ class DwCA_Utility
             elseif($class == "occurrence")  $c = new \eol_schema\Occurrence();
             elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
             
+            if($this->resource_id == 'parent_basal_values_SS') { //this actually works. But only goes here during dev. since MoF is customized in /lib/SDRreportLib.php in real operation
+                if($class == "measurementorfact") $c = new \eol_schema\MeasurementOrFact_specific();
+            }
+            
             // if($class == "taxon") print_r($rec);
             
             $keys = array_keys($rec);
