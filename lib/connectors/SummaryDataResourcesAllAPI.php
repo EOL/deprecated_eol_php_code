@@ -191,6 +191,7 @@ class SummaryDataResourcesAllAPI
                     [46559208] => 
         )*/
         $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt', 'w');
+        fwrite($WRITE, implode("\t", array('parent_id', 'value_term', 'children_ids'))."\n");
         foreach($this->report_SampleSize as $page_id => $rek) {
             foreach($rek as $uri => $page_ids) {
                 $page_ids = array_keys($page_ids);
