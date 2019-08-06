@@ -1895,8 +1895,9 @@ class SummaryDataResourcesAllAPI
         */
     }
     //############################################################################################ start method = 'parents basal values'
-    function get_all_recs_for_each_pageID($children, $predicate)
+    function get_all_recs_for_each_pageID($children, $predicate, $dbname = false) //3rd param $dbname came from /lib/SDR_report.php
     {
+        if($dbname) $this->dbname = $dbname;
         $recs = array(); $children_total = count($children); $i = 0;
         foreach($children as $page_id) { $i++; //echo "\n$i of $children_total [$page_id][$predicate]\n"; //good debug
             $child_recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); // echo "\n".count($child_recs)."\n";

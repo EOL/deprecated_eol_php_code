@@ -157,7 +157,7 @@ class SDR_report
             return array();
         }
         /* 2. get all recs for each child */
-        $recs = $this->func->get_all_recs_for_each_pageID($children, $predicate); // echo "\n".count($recs)."\n"; exit("\nxxx\n");
+        $recs = $this->func->get_all_recs_for_each_pageID($children, $predicate, $this->dbname); // echo "\n".count($recs)."\n"; exit("\nxxx\n");
         if(!$recs) {
             echo "\nNo recs for any of the children for predicate [$predicate]\n";
             return false;
@@ -182,7 +182,7 @@ class SDR_report
             if($anc = self::get_ancestry_via_DH($page_id, false)) { // print_r($anc);
                 echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
                 // echo "\ndoing this now...\n";
-                if($recs_from_ancestry = $this->func->get_all_recs_for_each_pageID($anc, $predicate)) {
+                if($recs_from_ancestry = $this->func->get_all_recs_for_each_pageID($anc, $predicate, $this->dbname)) {
                     // echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n";     //debug
                     // echo "\nfirst rec in recs_from_ancestry: ".$recs_from_ancestry[0]['page_id']."\n";           //debug
                     foreach($recs_from_ancestry as $rec) {
