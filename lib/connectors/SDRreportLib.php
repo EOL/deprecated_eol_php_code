@@ -268,11 +268,16 @@ class SDRreportLib
     }
     private function initialize()
     {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt';
+        $WRITE = Functions::file_open($filename, 'w');
+        fwrite($WRITE, implode("\t", array('parent_id', 'value_term', 'children_ids'))."\n");
+        fclose($WRITE);
+        
         require_library('connectors/SummaryDataResourcesAllAPI');
         $this->func = new SummaryDataResourcesAllAPI('');
     }
     function gen_SampleSize_4parent_BV($dbase, $page_ids_param)
-    {   
+    {
         self::initialize();
         $this->func->parse_DH(); //this was needed for $this->report_SampleSize
         $this->dbname = 'traits_'.$dbase;
@@ -292,6 +297,7 @@ class SDRreportLib
             $cnt_page_id = 0;
             $m = 2237554/3; //for breakdown when caching...
             foreach($page_ids as $page_id => $taxon) {
+                $this->report_SampleSize = array();
                 /* for indicator */
                 $cnt_page_id++;
                 echo "\nPredicates $cnt_predicate of $total_predicates";
@@ -308,10 +314,10 @@ class SDRreportLib
                 if(@$taxon['taxonRank'] != "species" && $taxon['Landmark'] || @$taxon['taxonRank'] == "family") {
                     self::main_gen_SampleSize_4parent_BV($page_id, $predicate);
                 }
+                // print_r($this->report_SampleSize); //good debug
+                self::write_SampleSize_2txt();
             }
         }
-        // print_r($this->report_SampleSize); //good debug
-        self::write_SampleSize_2txt();
         echo("\n-- end gen_SampleSize_for_parent_BV --\n");
     }
     private function write_SampleSize_2txt()
@@ -324,8 +330,7 @@ class SDRreportLib
                     [46559206] => 
                     [46559208] => 
         )*/
-        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt', 'w');
-        fwrite($WRITE, implode("\t", array('parent_id', 'value_term', 'children_ids'))."\n");
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH.'/SampleSize_table.txt', 'a');
         foreach($this->report_SampleSize as $page_id => $rek) {
             foreach($rek as $uri => $page_ids) {
                 $page_ids = array_keys($page_ids);
@@ -398,7 +403,6 @@ class SDRreportLib
             }
         }
         */
-        // print_r($this->report_SampleSize['http://www.marineregions.org/mrgid/14289']); exit;
     }
 
 }
