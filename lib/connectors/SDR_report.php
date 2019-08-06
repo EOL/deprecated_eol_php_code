@@ -69,18 +69,25 @@ class SDR_report
         $this->fullref = array();
         
     }
+    private function initialize()
+    {
+        require_library('connectors/SummaryDataResourcesAllAPI');
+        $this->func = new SummaryDataResourcesAllAPI('');
+    }
     function gen_SampleSize_4parent_BV($dbase, $page_ids_param)
-    {   self::parse_DH(); //this was needed for $this->report_SampleSize
+    {   
+        self::initialize();
+        $this->func->parse_DH(); //this was needed for $this->report_SampleSize
         $this->dbname = 'traits_'.$dbase;
-        self::initialize_basal_values(); 
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
+        $this->func->initialize_basal_values(); 
+        $predicates = $this->func->get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
         echo "\nGet page_ids for parent (BV)...\n";
         if($page_ids_param) {
-            $page_ids = self::get_page_ids_andInfo_fromDH($page_ids_param);
+            $page_ids = $this->func->get_page_ids_andInfo_fromDH($page_ids_param);
             $resource_id = 'parent_basal_values_'.$page_id_value;
         }
         else {
-            $page_ids = self::get_page_ids_andInfo_fromDH();
+            $page_ids = $this->func->get_page_ids_andInfo_fromDH();
             $resource_id = 'parent_basal_values';
         }
         $total_page_ids = count($page_ids);

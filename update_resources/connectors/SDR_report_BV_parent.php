@@ -8,7 +8,7 @@ require_library('connectors/SDR_report');
 
 // ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
-// $resource_id = 'SDR_all';
+$resource_id = 'SDR_all';
 $func = new SDR_report($resource_id);
 
 // $func->test_basal_values('BV');          return;
