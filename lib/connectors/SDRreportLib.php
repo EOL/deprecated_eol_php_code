@@ -6,18 +6,10 @@ class SDRreportLib
     public function __construct($folder)
     {
         $this->resource_id = $folder;
-        /*
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        */
         $this->download_options = array('resource_id' => 'SDR_all', 'timeout' => 60*5, 'expire_seconds' => 60*60*24, 'cache' => 1, 'download_wait_time' => 1000000);
         $this->debug = array();
         
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
-        /* not used at the moment:
-        $this->file['parent child']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/f8036c30-f4ab-4796-8705-f3ccd20eb7e9/download/parent-child-aug-16-2.csv";
-        $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2.csv";
-        */
         $this->file['parent child']['fields'] = array('parent', 'child'); //used more simple words instead of: array('parent_term_URI', 'subclass_term_URI');
         
         $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
@@ -37,28 +29,9 @@ class SDRreportLib
         $this->dwca_file = "http://localhost/cp/summary_data_resources/traits_all_201905.zip";
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
-        
-        /* ------------------ NEW June 4, 2019 ------------------ */
-        $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
-        // $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
-        $this->mysqli =& $GLOBALS['db_connection'];
-        /* ------------------ NEW June 4, 2019 ------------------ */
-        
-        if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
-        else{
-                                        // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
-                                        $this->working_dir = $this->main_dir."page_ids/";
-                                        $this->working_dir = $this->main_dir."page_ids_20190613/";
-        }
-        /* seems not used as all
-        $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
-        */
-        
+
+        /* from template
         //for taxon summary
-        /*
-        if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
-        else                            $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
-        */
         if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
         else                            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
         
@@ -67,7 +40,28 @@ class SDRreportLib
         
         $this->parentModeYN = false;
         $this->fullref = array();
-        
+        */
+    }
+    function update_parentBV_reports()
+    {
+        $SampleSize_lookup = self::build_lookup_table();
+    }
+    private function build_lookup_table()
+    {
+        $i = 0; $txt_file = CONTENT_RESOURCE_LOCAL_PATH . '/SampleSize_table.txt';
+        foreach(new FileIterator($txt_file) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                $rec = array_map('trim', $rec);
+                print_r($rec); exit;
+            }
+        }
     }
     private function initialize()
     {

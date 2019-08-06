@@ -2533,7 +2533,7 @@ class SummaryDataResourcesAllAPI
         // recursive_rmdir($info['temp_dir']);
         // echo ("\n temporary directory removed: " . $info['temp_dir']);
     }
-    private function get_ancestry_via_DH($page_id, $landmark_only = true)
+    function get_ancestry_via_DH($page_id, $landmark_only = true)
     {
         $final = array(); $final2 = array();
         $taxonID = @$this->EOL_2_DH[$page_id];
