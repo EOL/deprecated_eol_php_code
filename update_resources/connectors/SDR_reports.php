@@ -10,7 +10,7 @@ require_library('connectors/SDRreportLib');
 $timestart = time_elapsed();
 
 $resource_id = 'parent_basal_values_Carnivora';
-$resource_id = 'parent_basal_values';
+// $resource_id = 'parent_basal_values';
 
 $func = new SDRreportLib(false, $resource_id);
 

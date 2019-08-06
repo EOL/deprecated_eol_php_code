@@ -45,9 +45,17 @@ class SDRreportLib
         $this->parentModeYN = false;
         $this->fullref = array();
         */
-        
+
+        // /* testing
         $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_Carnivora_resource.txt';
         $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values_Carnivora.tar.gz';
+        // */
+        
+        /* actual operation
+        $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_resource.txt';
+        $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values.tar.gz';
+        */
+        
     }
     function start($info) //this is called from DwCA_Utility.php
     {
