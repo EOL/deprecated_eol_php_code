@@ -26,10 +26,11 @@ class SummaryDataResourcesAllAPI
         $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated'); //used simple words instead of: array('preferred_term_URI', 'deprecated_term_URI');
 
         $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv"; 
-        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv"; 
+        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv";
         $this->file['parent child']['path_habitat'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/c5ff5c62-a2ef-44be-9f59-88cd99bc8af2/download/habitat-parent-child-6-1.csv";
         
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
+        $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child-1.csv";
         $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
         
         // $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
