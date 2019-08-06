@@ -142,12 +142,12 @@ class SDR_report
     }
     private function main_gen_SampleSize_4parent_BV($main_page_id, $predicate)
     {   /* 1. get all children of page_id with rank = species */
-        if($children = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
+        if($children = $this->func->get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
             echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children); *Children of [164]: 1433142
         }
         else { echo "\n*No children found for [$main_page_id]\n"; return array(); }
         
-        if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)) {
+        if($children = $this->func->get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)) {
             $children_count = count($children);
             echo "\n*Children TBP of [$main_page_id]: ".$children_count."\n";
             if($children_count > 1000) return array();
@@ -157,7 +157,7 @@ class SDR_report
             return array();
         }
         /* 2. get all recs for each child */
-        $recs = self::get_all_recs_for_each_pageID($children, $predicate); // echo "\n".count($recs)."\n"; exit("\nxxx\n");
+        $recs = $this->func->get_all_recs_for_each_pageID($children, $predicate); // echo "\n".count($recs)."\n"; exit("\nxxx\n");
         if(!$recs) {
             echo "\nNo recs for any of the children for predicate [$predicate]\n";
             return false;
@@ -182,7 +182,7 @@ class SDR_report
             if($anc = self::get_ancestry_via_DH($page_id, false)) { // print_r($anc);
                 echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
                 // echo "\ndoing this now...\n";
-                if($recs_from_ancestry = self::get_all_recs_for_each_pageID($anc, $predicate)) {
+                if($recs_from_ancestry = $this->func->get_all_recs_for_each_pageID($anc, $predicate)) {
                     // echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n";     //debug
                     // echo "\nfirst rec in recs_from_ancestry: ".$recs_from_ancestry[0]['page_id']."\n";           //debug
                     foreach($recs_from_ancestry as $rec) {

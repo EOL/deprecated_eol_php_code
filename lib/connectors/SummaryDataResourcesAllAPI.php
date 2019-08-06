@@ -707,7 +707,7 @@ class SummaryDataResourcesAllAPI
         self::investigate_traits_csv(); exit;
         */
     }
-    private function get_children_from_txt_file($page_id, $withCreateYN = true)
+    function get_children_from_txt_file($page_id, $withCreateYN = true)
     {
         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/"; //debug only force assign
         $txt_file = self::get_txt_path_by_page_id($page_id, "_ch.txt"); //echo "\n$txt_file\n";
@@ -733,7 +733,7 @@ class SummaryDataResourcesAllAPI
             }
         }
     }
-    private function get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, $table = '') //4th param $table is for parent TS
+    function get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, $table = '') //4th param $table is for parent TS
     {
         $txt_file = self::get_txt_path_by_page_id($main_page_id, "_chTBP_".pathinfo($predicate, PATHINFO_FILENAME).".txt"); //echo "\n$txt_file\n";
         if(file_exists($txt_file)) {
@@ -1895,7 +1895,7 @@ class SummaryDataResourcesAllAPI
         */
     }
     //############################################################################################ start method = 'parents basal values'
-    private function get_all_recs_for_each_pageID($children, $predicate)
+    function get_all_recs_for_each_pageID($children, $predicate)
     {
         $recs = array(); $children_total = count($children); $i = 0;
         foreach($children as $page_id) { $i++; //echo "\n$i of $children_total [$page_id][$predicate]\n"; //good debug
