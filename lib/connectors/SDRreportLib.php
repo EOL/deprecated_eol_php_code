@@ -375,7 +375,7 @@ class SDRreportLib
         }
         foreach($children as $page_id) {
             if($anc = $this->func->get_ancestry_via_DH($page_id, false)) { // print_r($anc);
-                echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
+                // echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
                 // echo "\ndoing this now...\n";
                 if($recs_from_ancestry = $this->func->get_all_recs_for_each_pageID($anc, $predicate, $this->dbname)) {
                     // echo "\n recs_from_ancestry of descendant [$page_id]: ".count($recs_from_ancestry)."\n";     //debug
