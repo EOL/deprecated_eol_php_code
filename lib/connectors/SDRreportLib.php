@@ -140,7 +140,7 @@ class SDRreportLib
         /* 2nd option */
         if($val = self::compute_samplesize($taxonID, $value_uri)) return $val;
         
-        echo("\nInvestigate no match in SampleSize lookup in MoF [$taxonID] [$value_uri]\n");
+        // echo("\nInvestigate no match in SampleSize lookup in MoF [$taxonID] [$value_uri]\n");
     }
     private function process_occurrence($meta)
     {   //print_r($meta);
@@ -251,9 +251,7 @@ class SDRreportLib
             $arr = explode(";", $page_ids);
             if($arr) return count($arr);
         }
-        else {
-            echo("\nInvestigate no match in SampleSize lookup [$page_id] [$value_uri]\n");
-        }
+        // else echo("\nInvestigate no match in SampleSize lookup [$page_id] [$value_uri]\n");
     }
     private function build_lookup_table()
     {
