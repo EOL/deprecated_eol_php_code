@@ -31,10 +31,17 @@ class SummaryDataResourcesAllAPI
         
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child-1.csv";
+        //these next 2 versions are exactly the same as of Aug 7, 2019
+        // geoterms-parent-child-1.csv
+        // geoterms-parent-child-feb19.csv
         $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
+        $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-feb19.csv";
         
+        /* not being used ATM. Will be used in production environment.
         // $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
         $this->dwca_file = "http://localhost/cp/summary_data_resources/traits_all_201905.zip";
+        */
+        
         $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
         
@@ -2442,14 +2449,20 @@ class SummaryDataResourcesAllAPI
             /*
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
-                          'tables' => Array('taxa' => 'taxa.txt')); */
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',                         //for eoldynamichierarchywithlandmarks.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
+            */
             
             $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
+
+            /* Aug 7, 2019 - cannot use latest DH yet, since I used the older version during caching steps. 
+            "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/taxon.tab"; //latest active DH ver.
+            $info = Array('archive_path' => '/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/',
+                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/xxx/',
+                          'tables' => Array('taxa' => 'taxon.tab'));
+            */
+            
             /*
             // for MacBook
             $info = Array('archive_path' => '/Users/eagbayani/Sites/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
@@ -2523,6 +2536,18 @@ class SummaryDataResourcesAllAPI
                 $this->parent_of_taxonID[$rec['taxonID']] = $rec['parentNameUsageID'];
                 $this->landmark_value_of[$rec['EOLid']] = $rec['Landmark'];
                 if($rec['taxonRank'] == 'family') $this->is_family[$rec['EOLid']] = '';
+                
+/*
+taxonID	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	source	taxonomicStatus	canonicalName	scientificNameAuthorship	scientificNameID	taxonRemarks	namePublishedIn	furtherInformationURL	datasetID	EOLid	EOLidAnnotations	Landmark
+-100000	-100000	-79407	Frescocyathus nagagreboensis Barta-Calmus, 1969	species	gbif:4943435	accepted	Frescocyathus nagagreboensis	Barta-Calmus, 1969				https://www.gbif-uat.org/species/4943435	6cfd67d6-4f9b-400b-8549-1933ac27936f			
+-100001	-100001	-79407	Frescocyathus tessieri Barta-Calmus, 1969	species	gbif:8640616	accepted	Frescocyathus tessieri	Barta-Calmus, 1969				https://www.gbif-uat.org/species/8640616	6cfd67d6-4f9b-400b-8549-1933ac27936f			
+-100002	-100002	-79409	Diphhelia raristella Haime & Milne-Edwards	species	gbif:4879811	accepted	Diphhelia raristella	Haime & Milne-Edwards				https://www.gbif-uat.org/species/4879811	0938172b-2086-439c-a1dd-c21cb0109ed5			
+
+taxonID	source	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificName	higherClassification	taxonRank	taxonomicStatus	taxonRemarks	datasetID	canonicalName	EOLid	EOLidAnnotations	Landmark
+EOL-000000000001	trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1				Life		clade	valid		trunk	Life	2913056		3
+EOL-000000000002	trunk:a0af9616-4500-4402-987d-3dcf4dec5794,NCBI:131567			EOL-000000000001	Cellular Organisms	Life	clade	valid		trunk	Cellular Organisms	6061725		
+EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-000000000002	Bacteria	Life|Cellular	domain	valid		trunk	Bacteria	288		1
+*/
             }
         }
         /* may not want to force assign this:
