@@ -55,7 +55,10 @@ class SDRreportLib
         $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_resource.txt';
         $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values.tar.gz';
         // */
-        
+
+        //for stats:
+        $this->no_samplesize_MoF = CONTENT_RESOURCE_LOCAL_PATH . 'no_samplesize_MoF.txt';
+        $this->no_samplesize_resource = CONTENT_RESOURCE_LOCAL_PATH . 'no_samplesize_resource.txt';
     }
     function start($info) //this is called from DwCA_Utility.php
     {
@@ -67,6 +70,8 @@ class SDRreportLib
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
+        $WRITEss = Functions::file_open($this->no_samplesize_MoF, 'w');
+        
         self::initialize();
         $this->func->initialize_basal_values(); // this will let you access $this->children_of via $this->func->children_of
                                                 // or                       $this->parents_of via $this->func->parents_of
@@ -101,6 +106,7 @@ class SDRreportLib
 
             $taxonID = $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']];
             $rec['SampleSize'] = self::get_SampleSize_for_MoF($taxonID, $rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+            if(!$rec['SampleSize']) fwrite($WRITEss, implode("\t", array($taxonID, $rec['http://rs.tdwg.org/dwc/terms/measurementValue']))."\n");
 
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
@@ -111,6 +117,7 @@ class SDRreportLib
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
+        fclose($WRITEss);
     }
     private function get_SampleSize_for_MoF($taxonID, $value_uri)
     {
@@ -199,6 +206,8 @@ class SDRreportLib
     }
     private function add_SampleSize_4parent_BV_resource_txt()
     {
+        $WRITEss = Functions::file_open($this->no_samplesize_resource, 'w');
+        
         $temp_txt = CONTENT_RESOURCE_LOCAL_PATH . '/SDR_tmp.txt';
         copy($this->parent_BH_resource_txt, $temp_txt);
         
@@ -226,11 +235,14 @@ class SDRreportLib
                     [Value URI] => http://purl.obolibrary.org/obo/ENVO_00000067
                     [Label] => REP
                 )*/
-                $save = array($rec['Page ID'], $rec['eol_pk'], $rec['Value URI'], $rec['Label'], self::compute_samplesize($rec['Page ID'], $rec['Value URI']));
+                $ss = self::compute_samplesize($rec['Page ID'], $rec['Value URI']);
+                if(!$ss) fwrite($WRITEss, implode("\t", array($rec['Page ID'], $rec['Value URI']))."\n");
+                
+                $save = array($rec['Page ID'], $rec['eol_pk'], $rec['Value URI'], $rec['Label'], $ss);
                 fwrite($WRITE, implode("\t", $save)."\n");
             }
         }
-        fclose($WRITE);
+        fclose($WRITE); fclose($WRITEss);
         unlink($temp_txt);
     }
     private function compute_samplesize($page_id, $value_uri)
