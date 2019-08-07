@@ -22,7 +22,7 @@ $page_ids = array(); //normal operation //67.89 minutes
 $func->gen_SampleSize_4parent_BV('BV', $page_ids); //generate SampleSize lookup table
 */
 // /* main program to update reports
-$func->update_parentBV_reports();
+$func->update_parentBV_reports(); //1.23 minutes
 // */
 /* ============================================================================================== */
 
