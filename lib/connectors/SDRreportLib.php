@@ -1,54 +1,16 @@
 <?php
 namespace php_active_record;
-/* [.php] */
+/* [SDR_reports.php] */
 class SDRreportLib
 {
-    // public function __construct($folder)
     function __construct($archive_builder = false, $resource_id = false)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         
-        // $this->resource_id = $folder;
+        /* not used
         $this->download_options = array('resource_id' => 'SDR_all', 'timeout' => 60*5, 'expire_seconds' => 60*60*24, 'cache' => 1, 'download_wait_time' => 1000000);
         $this->debug = array();
-        
-        /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
-        /* from template
-
-        $this->file['parent child']['fields'] = array('parent', 'child'); //used more simple words instead of: array('parent_term_URI', 'subclass_term_URI');
-        
-        $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
-        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2-3.csv";
-        $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-sept-27.csv";
-        $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated'); //used simple words instead of: array('preferred_term_URI', 'deprecated_term_URI');
-
-        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv"; 
-        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv";
-        $this->file['parent child']['path_habitat'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/c5ff5c62-a2ef-44be-9f59-88cd99bc8af2/download/habitat-parent-child-6-1.csv";
-        
-        $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
-        $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child-1.csv";
-        $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
-        
-        $this->dwca_file = "http://localhost/cp/summary_data_resources/traits_all_201905.zip";
-        $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . '/sample.txt';
-        $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
-
-        //for taxon summary
-        if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
-        else                            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
-        
-        $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
-        $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
-        
-        $this->parentModeYN = false;
-        $this->fullref = array();
-        */
-
-        /* testing
-        $this->parent_BH_resource_txt = CONTENT_RESOURCE_LOCAL_PATH . '/parent_basal_values_Carnivora_resource.txt';
-        $this->parent_BH_DwCA = CONTENT_RESOURCE_LOCAL_PATH . 'parent_basal_values_Carnivora.tar.gz';
         */
         
         // /* actual operation
