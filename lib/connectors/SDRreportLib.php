@@ -57,8 +57,8 @@ class SDRreportLib
         // */
 
         //for stats:
-        $this->no_samplesize_MoF = CONTENT_RESOURCE_LOCAL_PATH . 'no_samplesize_MoF.txt';
-        $this->no_samplesize_resource = CONTENT_RESOURCE_LOCAL_PATH . 'no_samplesize_resource.txt';
+        $this->no_samplesize_MoF = CONTENT_RESOURCE_LOCAL_PATH . 'no_samplesize_in_MoF.txt';
+        $this->no_samplesize_resource = CONTENT_RESOURCE_LOCAL_PATH . 'no_samplesize_in_resource.txt';
     }
     function start($info) //this is called from DwCA_Utility.php
     {
