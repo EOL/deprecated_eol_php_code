@@ -390,7 +390,7 @@ class SDRreportLib
         }
         return; //ends here - below works but seems not needed - Aug 6, 2019
 
-        /* step 4 maybe redundant
+        /* step 4 just redundant - It did not change how many value terms matched with SampleSize lookup table. Better remain commented.
         foreach($children as $page_id) {
             if($anc = $this->func->get_ancestry_via_DH($page_id, false)) { // print_r($anc);
                 // echo("\n[".$page_id."]has ancestry [".count($anc)."]\n");
