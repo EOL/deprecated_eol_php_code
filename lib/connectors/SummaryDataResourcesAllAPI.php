@@ -691,6 +691,8 @@ class SummaryDataResourcesAllAPI
         }
         exit("\nend muna\n");
         */
+        //New Aug 8, 2019 - new now that we're going to use DH v1.1. Didn't have $exclude in last DH ver.
+        $exclude = array(1, 2913056, 6061725, 2908256, 2910700, 51939910, 52126308, 49306824, 281); //above Animalia and Plantae, inclusive
         
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
@@ -698,6 +700,14 @@ class SummaryDataResourcesAllAPI
 
             // if($k < 2205100) continue; //debug only - force to skip many records
             // if($page_id == 2634370) continue; //force to ignore a page_id
+
+            if(in_array($page_id, $exclude)) {
+                // /* temporary just to delete e.g. 1_processing.txt
+                $txt_file = self::get_txt_path_by_page_id($page_id, "_processing.txt");
+                if(file_exists($txt_file)) unlink($txt_file);
+                // */
+                continue;
+            }
 
             //================ FOR PARENT BASAL VALUES ================ 
             if(!$page_id) continue;
