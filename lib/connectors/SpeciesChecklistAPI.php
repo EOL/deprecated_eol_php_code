@@ -12,15 +12,24 @@ class SpeciesChecklistAPI
             'resource_id'        => 'SCR', //species checklist resources
             'expire_seconds'     => 60*60*24*30*3, //ideally 3 months to expire
             'download_wait_time' => 1000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        
+        /* addtl adjustments per Jen: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63662&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63662 */
+        $this->mapping['nationalchecklists'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/DATA-1817/national-checklists-sourcefixes.tsv';
+        $this->mapping['water-body-checklists'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/DATA-1817/water-body-checklists-sourcefixes.tsv';
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
+        // /* buildup lookup table for adjustment mapping here: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63662&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63662
+        
+        // */
+        
         require_library('connectors/GBIFoccurrenceAPI_DwCA');
         $this->gbif_func = new GBIFoccurrenceAPI_DwCA();
         
         $tables = $info['harvester']->tables;
         $tbls = array_keys($tables); print_r($tbls);
+        // $tbls = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only - forced -- comment in real operation
         foreach($tbls as $tbl) {
             self::process_extension($tables[$tbl][0]); //this is just to copy extension but with customization as described in DATA-1817
         }
@@ -173,7 +182,9 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
     }
     function get_opendata_resources($dataset, $all_fields = false)
     {
-        if($json = Functions::lookup_with_cache($this->opendata_dataset_api.$dataset, $this->download_options)) {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*5; //60*60*24; //1 day expires //debug only - during dev only
+        if($json = Functions::lookup_with_cache($this->opendata_dataset_api.$dataset, $options)) {
             $o = json_decode($json);
             if($all_fields) return $o->result->resources;
             foreach($o->result->resources as $res) $final[$res->url] = '';
