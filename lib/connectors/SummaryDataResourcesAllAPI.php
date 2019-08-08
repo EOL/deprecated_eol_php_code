@@ -55,7 +55,8 @@ class SummaryDataResourcesAllAPI
         else{
                                         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
                                         $this->working_dir = $this->main_dir."page_ids/";
-                                        $this->working_dir = $this->main_dir."page_ids_20190613/";
+                                        $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH
+                                        $this->working_dir = $this->main_dir."page_ids_DHv11/";     //to pertain using DHv1.1
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
@@ -2538,11 +2539,13 @@ class SummaryDataResourcesAllAPI
                 if($rec['taxonRank'] == 'family') $this->is_family[$rec['EOLid']] = '';
                 
 /*
+From eoldynamichierarchywithlandmarks.zip:
 taxonID	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	source	taxonomicStatus	canonicalName	scientificNameAuthorship	scientificNameID	taxonRemarks	namePublishedIn	furtherInformationURL	datasetID	EOLid	EOLidAnnotations	Landmark
 -100000	-100000	-79407	Frescocyathus nagagreboensis Barta-Calmus, 1969	species	gbif:4943435	accepted	Frescocyathus nagagreboensis	Barta-Calmus, 1969				https://www.gbif-uat.org/species/4943435	6cfd67d6-4f9b-400b-8549-1933ac27936f			
 -100001	-100001	-79407	Frescocyathus tessieri Barta-Calmus, 1969	species	gbif:8640616	accepted	Frescocyathus tessieri	Barta-Calmus, 1969				https://www.gbif-uat.org/species/8640616	6cfd67d6-4f9b-400b-8549-1933ac27936f			
 -100002	-100002	-79409	Diphhelia raristella Haime & Milne-Edwards	species	gbif:4879811	accepted	Diphhelia raristella	Haime & Milne-Edwards				https://www.gbif-uat.org/species/4879811	0938172b-2086-439c-a1dd-c21cb0109ed5			
 
+From DH v1.1:
 taxonID	source	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificName	higherClassification	taxonRank	taxonomicStatus	taxonRemarks	datasetID	canonicalName	EOLid	EOLidAnnotations	Landmark
 EOL-000000000001	trunk:1bfce974-c660-4cf1-874a-bdffbf358c19,NCBI:1				Life		clade	valid		trunk	Life	2913056		3
 EOL-000000000002	trunk:a0af9616-4500-4402-987d-3dcf4dec5794,NCBI:131567			EOL-000000000001	Cellular Organisms	Life	clade	valid		trunk	Cellular Organisms	6061725		
@@ -4161,7 +4164,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         if($val = @$rec['value_uri']) return $val;
         if($val = @$rec['literal']) return $val;
     }
-    private function setup_working_dir()
+    private function setup_working_dir() //for production env only
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
