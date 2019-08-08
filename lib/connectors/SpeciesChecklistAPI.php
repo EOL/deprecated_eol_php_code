@@ -41,7 +41,7 @@ class SpeciesChecklistAPI
     }
     private function process_extension($meta)
     {   //print_r($meta->fields); //exit;
-        echo "\nProcesing $meta->row_type ...\n";
+        echo "\nProcessing $meta->row_type ...\n";
         $dwca_short_fields = self::get_dwca_short_fields($meta->fields);
         $class = strtolower(pathinfo($meta->row_type, PATHINFO_FILENAME));
         

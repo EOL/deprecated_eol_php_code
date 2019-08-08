@@ -20,7 +20,7 @@ echo "\nBoth main operation and utility report were already run.\n\n";
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 generate_new_dwca($func);                   //main script to generate DwCA
-create_new_resources_in_opendata($func);    //script to create resources (using CKAN API) in two pre-defined datasets in opendata.eol.org. Basically run-once. Done OK.
+// create_new_resources_in_opendata($func);    //script to create resources (using CKAN API) in two pre-defined datasets in opendata.eol.org. Basically run-once. Done OK.
 unset($func);
 // */
 
@@ -113,21 +113,28 @@ function generate_new_dwca($func)
 {
     $datasets = array('nationalchecklists', 'water-body-checklists');
     // $datasets = array('nationalchecklists');
-    $datasets = array('water-body-checklists');
+    // $datasets = array('water-body-checklists');
     foreach($datasets as $dataset) {
         $urls = $func->get_opendata_resources($dataset); 
         
-        // /* customized adjustments
+        /* customized adjustments
         $urls = array();
         $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/3821e6c0-236b-4e4c-8b5f-3a432f7ac466/download/northatlantic.zip';
         $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/77e24bac-419d-4d21-9f57-93e39faef83b/download/southatlantic.zip';
         $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/d8c8ab05-b1c2-46da-af07-3efb34f05bad/download/southpacific.zip';
-        // */
+        */
         
         print_r($urls); //exit;
         $i = 0;
         foreach($urls as $url) { $i++;
             echo "\n[$i]";
+            
+            /* test only -- uncomment in real operation
+            $id = get_basename($url);
+            if(isset($ids[$id])) echo "\nduplicate id [$id]\n";
+            else $ids[$id] = '';
+            continue;
+            */
             
             /* customized, run 1 rec only per: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63663&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63663
             //comment this block in real operation
