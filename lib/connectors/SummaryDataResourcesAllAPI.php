@@ -77,17 +77,34 @@ class SummaryDataResourcesAllAPI
         $this->fullref = array();
         
     }
-    /*
-    basal values
-    parent basal values
-    *write resource file: basal values
-    write resource file: parent basal values
-    
-    taxon summary
-    *parent taxon summary
-    write resource file: taxon summary
-    write resource file: parent taxon summary
-    */
+    /*  basal values                                    taxon summary
+        parent basal values                             parent taxon summary
+        write resource file: basal values               write resource file: taxon summary
+        write resource file: parent basal values        write resource file: parent taxon summary   */
+    private function setup_working_dir() //for production env only
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->dwca_file, "traits.csv", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        return $paths;
+    }
+    private function working_dir()
+    {
+        if(Functions::is_production()) {
+            if(!($info = self::setup_working_dir())) return;
+            $this->main_paths = $info;
+        }
+        else { //local development only
+            /*
+            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
+                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
+            */
+            $info = Array('archive_path' => $this->main_dir.'trait_bank_2019Jun13',
+                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
+            $this->main_paths = $info;
+        }
+    }
+    //==================================================================================================
     private function generate_children_of_taxa_using_parentsCSV()
     {
         $file = fopen($this->main_paths['archive_path'].'/pages.csv', 'r'); $i = 0;
@@ -4163,29 +4180,6 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     {
         if($val = @$rec['value_uri']) return $val;
         if($val = @$rec['literal']) return $val;
-    }
-    private function setup_working_dir() //for production env only
-    {
-        require_library('connectors/INBioAPI');
-        $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "traits.csv", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
-        return $paths;
-    }
-    private function working_dir()
-    {
-        if(Functions::is_production()) {
-            if(!($info = self::setup_working_dir())) return;
-            $this->main_paths = $info;
-        }
-        else { //local development only
-            /*
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
-                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
-            */
-            $info = Array('archive_path' => $this->main_dir.'trait_bank_2019Jun13',
-                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
-            $this->main_paths = $info;
-        }
     }
     private function given_predicate_get_similar_terms($pred) //used during initial report to Jen
     {
