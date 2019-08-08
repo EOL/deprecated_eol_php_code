@@ -157,16 +157,16 @@ $func->generate_page_id_txt_files_MySQL('LSM'); return;
 
 
 /* replaced by: generate_page_id_txt_files_MySQL()
-$func->generate_page_id_txt_files(); return; //important initial step
+$func->generate_page_id_txt_files(); return; //important initial step -- OBSOLETE NOW!
 */
 
 /* hasn't ran this yet for All Trait Export
 // $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
 */
 
-/*
-$func->build_up_children_cache(); exit; //uses pages.csv - long long process... STILL RUNNING... seems not being used anymore
-*/
+// /*
+$func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run multiple connectors. auto-breakdown installed. IMPORTANT STEP
+// */
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk

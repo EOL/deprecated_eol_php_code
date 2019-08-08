@@ -70,8 +70,10 @@ class SummaryDataResourcesAllAPI
             $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
         }
         else {
+            /* not being used
             $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
             $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
+            */
         }
         $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
         
@@ -2449,7 +2451,7 @@ class SummaryDataResourcesAllAPI
         */
     }
     //############################################################################################ end method = 'parents'
-    private function extract_DH()
+    private function extract_DH() //for production env only
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -2475,12 +2477,11 @@ class SummaryDataResourcesAllAPI
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
 
-            /* Aug 7, 2019 - cannot use latest DH yet, since I used the older version during caching steps. 
-            "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/taxon.tab"; //latest active DH ver.
+            // /* Aug 7, 2019 - cannot use latest DH yet, since I used the older version during caching steps. "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/taxon.tab"; //latest active DH ver.
             $info = Array('archive_path' => '/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/',
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/xxx/',
                           'tables' => Array('taxa' => 'taxon.tab'));
-            */
+            // */
             
             /*
             // for MacBook
@@ -3529,7 +3530,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         foreach($fields as $f) $arr[] = @$save_rec[$f];
         fwrite($fileH, implode("\t", $arr)."\n");
     }
-    function generate_page_id_txt_files() /* you MUST just save this to MySQL table. Index fields: page_id, predicate */
+    /* obsolete not being used anymore
+    function generate_page_id_txt_files() //you MUST just save this to MySQL table. Index fields: page_id, predicate
     {   exit;
         self::working_dir();
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv
@@ -3543,29 +3545,28 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
-                /*Array(
-                    [eol_pk] => R96-PK42724728
-                    [page_id] => 328673
-                    [scientific_name] => <i>Panthera pardus</i>
-                    [resource_pk] => M_00238837
-                    [predicate] => http://eol.org/schema/terms/Present
-                    [sex] => 
-                    [lifestage] => 
-                    [statistical_method] => 
-                    [source] => http://www.worldwildlife.org/publications/wildfinder-database
-                    [object_page_id] => 
-                    [target_scientific_name] => 
-                    [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                    [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                    [measurement] => 
-                    [units] => 
-                    [normal_measurement] => 
-                    [normal_units_uri] => 
-                    [resource_id] => 20
-                    )
-                */
+                // Array(
+                //     [eol_pk] => R96-PK42724728
+                //     [page_id] => 328673
+                //     [scientific_name] => <i>Panthera pardus</i>
+                //     [resource_pk] => M_00238837
+                //     [predicate] => http://eol.org/schema/terms/Present
+                //     [sex] => 
+                //     [lifestage] => 
+                //     [statistical_method] => 
+                //     [source] => http://www.worldwildlife.org/publications/wildfinder-database
+                //     [object_page_id] => 
+                //     [target_scientific_name] => 
+                //     [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                //     [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
+                //     [measurement] => 
+                //     [units] => 
+                //     [normal_measurement] => 
+                //     [normal_units_uri] => 
+                //     [resource_id] => 20
+                //     )
                 $txt_file = self::get_txt_path_by_page_id($rec['page_id']);
-                // /* normal operation ----------------------------------------------------------------------- working OK
+                // normal operation ----------------------------------------------------------------------- working OK
                 if(file_exists($txt_file)) {
                     // echo "\nAppend [$txt_file] ";
                     $WRITE = fopen($txt_file, 'a');
@@ -3579,20 +3580,21 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                     fwrite($WRITE, implode("\t", $line)."\n");
                     fclose($WRITE);
                 }
-                // */
+                // end normal operation
 
-                /* use if u want to delete txt files ----------------------------------------------------------------------- working OK
-                if(file_exists($txt_file)) {
-                    echo "\nFound [$txt_file] ";
-                    if(unlink($txt_file)) echo "- deleted";
-                    else                  echo "- not deleted";
-                }
-                */
+                // use if u want to delete txt files ----------------------------------------------------------------------- working OK
+                // if(file_exists($txt_file)) {
+                //     echo "\nFound [$txt_file] ";
+                //     if(unlink($txt_file)) echo "- deleted";
+                //     else                  echo "- not deleted";
+                // }
+                // end
+                
                 // if($i >= 1000) break; //debug only
             }
         }
         fclose($file); exit("\n\nText file generation DONE.\n\n");
-    }
+    }*/
     private function get_md5_path($path, $taxonkey)
     {
         $md5 = md5($taxonkey);
