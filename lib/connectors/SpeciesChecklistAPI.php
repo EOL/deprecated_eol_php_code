@@ -21,7 +21,7 @@ class SpeciesChecklistAPI
     function start($info)
     {
         // /* buildup lookup table for adjustment mapping here: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63662&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63662
-        
+        self::build_lookup_adjustment_tbl();
         // */
         
         require_library('connectors/GBIFoccurrenceAPI_DwCA');
@@ -32,6 +32,34 @@ class SpeciesChecklistAPI
         // $tbls = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //debug only - forced -- comment in real operation
         foreach($tbls as $tbl) {
             self::process_extension($tables[$tbl][0]); //this is just to copy extension but with customization as described in DATA-1817
+        }
+    }
+    private function build_lookup_adjustment_tbl()
+    {
+        $files = array($this->mapping['nationalchecklists'], $this->mapping['water-body-checklists']);
+        foreach($files as $file) {
+            $local = Functions::save_remote_file_to_local($file);
+            $i = 0;
+            foreach(new FileIterator($local) as $line => $row) { $i++;
+                if(!$row) continue;
+                if($i == 1) $fields = explode("\t", $row);
+                else {
+                    $rec = explode("\t", $row);
+                    $k = -1; $rek = array();
+                    foreach($fields as $field) {
+                        $k++;
+                        $rek[$field] = $rec[$k];
+                    }
+                    // print_r($rek); exit;
+                    /*Array(
+                        [resource name] => Ireland Species List
+                        [resource url] => https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_ireland.tar.gz
+                        [new source ending] => &country=IE
+                    )*/
+                    
+                }
+            }
+            unlink($local);
         }
     }
     private function get_dwca_short_fields($meta_fields)
@@ -183,7 +211,7 @@ https://www.gbif.org/occurrence/map?geometry=POLYGON((-65.022 63.392, -74.232 64
     function get_opendata_resources($dataset, $all_fields = false)
     {
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*5; //60*60*24; //1 day expires //debug only - during dev only
+        // $options['expire_seconds'] = 60*5; //60*60*24; //1 day expires //debug only - during dev only
         if($json = Functions::lookup_with_cache($this->opendata_dataset_api.$dataset, $options)) {
             $o = json_decode($json);
             if($all_fields) return $o->result->resources;
