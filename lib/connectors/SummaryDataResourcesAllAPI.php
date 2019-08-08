@@ -51,31 +51,32 @@ class SummaryDataResourcesAllAPI
         $this->mysqli =& $GLOBALS['db_connection'];
         /* ------------------ NEW June 4, 2019 ------------------ */
         
-        if(Functions::is_production())  $this->working_dir = "/extra/summary data resources/page_ids/";
-        else{
-                                        // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
+        if(Functions::is_production()) { $this->working_dir = "/extra/summary data resources/page_ids/";
+                                         $this->trait_bank_folder = 'has not come to this yet';
+        }
+        else {                          // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
                                         $this->working_dir = $this->main_dir."page_ids/";
                                         $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH
                                         $this->working_dir = $this->main_dir."page_ids_DHv11/";     //to pertain using DHv1.1
+                                        $this->trait_bank_folder = 'trait_bank_2019Jun13';
         }
         /* seems not used as all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
         */
         
         //for taxon summary
-        /*
-        if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
-        else                            $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
-        */
-        if(Functions::is_production())  $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
-        else                            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
-        
-        $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
+        if(Functions::is_production()) {
+            $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
+            $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
+        }
+        else {
+            $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
+            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
+        }
         $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
         
         $this->parentModeYN = false;
         $this->fullref = array();
-        
     }
     /*  basal values                                    taxon summary
         parent basal values                             parent taxon summary
@@ -99,7 +100,7 @@ class SummaryDataResourcesAllAPI
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             */
-            $info = Array('archive_path' => $this->main_dir.'trait_bank_2019Jun13',
+            $info = Array('archive_path' => $this->main_dir.$this->trait_bank_folder,
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
             $this->main_paths = $info;
         }
