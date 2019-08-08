@@ -16,13 +16,13 @@ exit("\nend test\n");
 */
 
 echo "\nBoth main operation and utility report were already run.\n\n";
-/* main operation
+// /* main operation
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 generate_new_dwca($func);                   //main script to generate DwCA
-create_new_resources_in_opendata($func);    //script to create resources (using CKAN API) in two pre-defined datasets in opendata.eol.org.
+// create_new_resources_in_opendata($func);    //script to create resources (using CKAN API) in two pre-defined datasets in opendata.eol.org. Basically run-once. Done OK.
 unset($func);
-*/
+// */
 
 /* utility report for: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63653&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63653
                     // https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63654&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63654
@@ -112,13 +112,21 @@ function create_new_resources_in_opendata($func)
 function generate_new_dwca($func)
 {
     $datasets = array('nationalchecklists', 'water-body-checklists');
-    // $datasets = array('nationalchecklists');
+    $datasets = array('nationalchecklists');
     // $datasets = array('water-body-checklists');
     foreach($datasets as $dataset) {
         $urls = $func->get_opendata_resources($dataset); // print_r($urls);
         $i = 0;
         foreach($urls as $url) { $i++;
             echo "\n[$i]";
+            
+            // /* customized, run 1 rec only per: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63663&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63663
+            //comment this block in real operation
+            $url = 'https://opendata.eol.org/dataset/6c70b436-5503-431f-8bf3-680fea5e1b05/resource/491738b7-570c-4234-92eb-23490335a18d/download/burundi.zip';
+            process_resource_url($url);
+            return;
+            // */
+            
             /* breakdown
             $s = 195; $m = 10;
             $cont = false;
