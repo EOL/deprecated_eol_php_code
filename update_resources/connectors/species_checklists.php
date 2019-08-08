@@ -113,16 +113,16 @@ function generate_new_dwca($func)
 {
     $datasets = array('nationalchecklists', 'water-body-checklists');
     // $datasets = array('nationalchecklists');
-    // $datasets = array('water-body-checklists');
+    $datasets = array('water-body-checklists');
     foreach($datasets as $dataset) {
         $urls = $func->get_opendata_resources($dataset); 
         
-        /* customized adjustments
+        // /* customized adjustments
         $urls = array();
-        $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/3821e6c0-236b-4e4c-8b5f-3a432f7ac466/download/northatlantic.zip';
-        $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/77e24bac-419d-4d21-9f57-93e39faef83b/download/southatlantic.zip';
+        // $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/3821e6c0-236b-4e4c-8b5f-3a432f7ac466/download/northatlantic.zip';
+        // $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/77e24bac-419d-4d21-9f57-93e39faef83b/download/southatlantic.zip';
         $urls[] = 'https://opendata.eol.org/dataset/c99917cf-7790-4608-a7c2-5532fb47da32/resource/d8c8ab05-b1c2-46da-af07-3efb34f05bad/download/southpacific.zip';
-        */
+        // */
         
         print_r($urls); //exit;
         $i = 0;
