@@ -25,10 +25,10 @@ unset($func);
 */
 
 /* utility report for: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63653&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63653
-                       // https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63654&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63654
+                    // https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63654&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63654
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
-utility_rep1($func);
+utility_report($func);
 */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -37,7 +37,7 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
-function utility_rep1($func)
+function utility_report($func)
 {
     $datasets = array('national-checklists-2019', 'water-body-checklists-2019');
     // $datasets = array('national-checklists-2019');
