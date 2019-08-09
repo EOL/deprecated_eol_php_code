@@ -692,7 +692,7 @@ class SummaryDataResourcesAllAPI
         exit("\nend muna\n");
         */
         //New Aug 8, 2019 - new now that we're going to use DH v1.1. Didn't have $exclude in last DH ver.
-        $exclude = array(1, 2913056, 6061725, 2908256, 2910700, 51939910, 52126308, 49306824, 281); //above Animalia and Plantae, inclusive
+        $exclude = array(1, 281, 42430800, 2913056, 6061725, 2908256, 2910700, 51939910, 52126308, 49306824); //above Animalia and Plantae, inclusive
         
         $page_ids = self::get_page_ids_andInfo_fromDH();
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
