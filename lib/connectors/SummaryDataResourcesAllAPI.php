@@ -854,51 +854,41 @@ class SummaryDataResourcesAllAPI
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
     }
     //############################################################################################ start write resource file - method = 'parent taxon summary'
-    private function gen_children_of_taxon_usingDH() //started as investigate_DH(). DH total recs 2,724,941
+    /* was never used in All Trait Export
+    private function gen_children_of_taxon_usingDH()
     {
-        /*
-        $EOLid = 298458; $EOLid = 110698;
-        $EOLid = 103449;
-        echo " - EOLid: [$EOLid] "; 
-        if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
-            array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
-            
-            // print_r($anc);
-            // foreach($anc as $page_id) {
-            //     $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
-            //     echo "\n[$page_id] $json_file";
-            // }
-            
-            self::gen_children_of_taxon_given_ancestry($anc);
-        }
-        else echo "\nNo ancestry [$val]\n";
-        exit("\nstop muna\n");
-        */
+        // test
+        // $EOLid = 298458; $EOLid = 110698;
+        // $EOLid = 103449;
+        // echo " - EOLid: [$EOLid] "; 
+        // if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
+        //     array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
+        //     
+        //     // print_r($anc);
+        //     // foreach($anc as $page_id) {
+        //     //     $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
+        //     //     echo "\n[$page_id] $json_file";
+        //     // }
+        //     
+        //     self::gen_children_of_taxon_given_ancestry($anc);
+        // }
+        // else echo "\nNo ancestry [$val]\n";
+        // exit("\nstop muna\n");
         
         $info = self::prep_DH(); $i = 0; $m = 2724950/5;
         foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
             $line = explode("\t", $line); $i++;
-            // if($i == 487377) exit; //debug when developing...
             if($i == 1) $fields = $line;
             else {
                 
-                // /* breakdown when caching:
-                $v = 416466;
-                $cont = false;
-                if($i >= 1 && $i < $m) $cont = true;
-                // if($i >= $m && $i < $m*2) $cont = true;
-                // if($i >= $m*2 && $i < $m*3) $cont = true;
-                // if($i >= $m*3 && $i < $m*4) $cont = true;
-                // if($i >= $m*4 && $i < $m*5) $cont = true;
-
-                // if($i >= 642620 && $i < 642620+$v) $cont = true;
-                // if($i >= 642620+$v && $i < 642620+($v*2)) $cont = true;
-                // if($i >= 642620+($v*2) && $i < 642620+($v*3)) $cont = true;
-                // if($i >= 642620+($v*3) && $i < 642620+($v*4)) $cont = true;
-                // if($i >= 642620+($v*4) && $i < 642620+($v*5)) $cont = true;
-                
-                if(!$cont) continue;
-                // */
+                // breakdown when caching:
+                // $cont = false;
+                // if($i >= 1 && $i < $m) $cont = true;
+                // // if($i >= $m && $i < $m*2) $cont = true;
+                // // if($i >= $m*2 && $i < $m*3) $cont = true;
+                // // if($i >= $m*3 && $i < $m*4) $cont = true;
+                // // if($i >= $m*4 && $i < $m*5) $cont = true;
+                // if(!$cont) continue;
                 
                 if(!$line[0]) break;
                 $rec = array(); $k = 0;
@@ -906,25 +896,21 @@ class SummaryDataResourcesAllAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); //exit;
-                // /*
-                // $rec['EOLid'] = 298458; //debug force assign
                 if($EOLid = $rec['EOLid']) {
                     echo "\n".number_format($i);
                     echo " - EOLid: [$EOLid] "; 
                     if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
                         array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
                         self::gen_children_of_taxon_given_ancestry($anc);
-                        // return; //debug
                     }
                     else echo "\nNo ancestry [$val]\n";
                 }
                 else echo "\nNo EOLid\n";
-                // */
                 if(($i % 1000) == 0) echo "\n".number_format($i);
             }
-            // if($i > 400000) break; //debug
         }
     }
+    */
     private function gen_children_of_taxon_given_ancestry($anc)
     {
         $anc = array_reverse($anc);
