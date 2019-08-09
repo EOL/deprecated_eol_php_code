@@ -59,6 +59,7 @@ class New_EnvironmentsEOLDataConnector
                 [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
+            if(isset($this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
 
             /* fix source link */
             $taxonID = $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']];
@@ -131,7 +132,14 @@ class New_EnvironmentsEOLDataConnector
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            if($o->taxonID == 'EOL:11584278') continue; //exclude scientificName = '(undescribed)'
+            if(!$o->scientificName) { //e.g. taxonID 'EOL:10646115'
+                $this->exclude['taxonID'][$o->taxonID] = '';
+                continue;
+            }
+            if($o->taxonID == 'EOL:11584278') { //exclude scientificName = '(undescribed)'
+                $this->exclude['taxonID'][$o->taxonID] = '';
+                continue;
+            }
             
             //start of adjustments: https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=63624&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63624
             $o->scientificName = self::fix_sciname($o->scientificName);
@@ -204,6 +212,10 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
                 [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:2
             )*/
+            if(isset($this->exclude['taxonID'][$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) {
+                $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                continue;
+            }
             
             $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             
