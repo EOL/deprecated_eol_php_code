@@ -134,7 +134,7 @@ $resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
 
 /* build data files - MySQL tables */
-// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. DONE.
+// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
 
 // $func->generate_refs_per_eol_pk_MySQL(); return;
 // $func->build_MySQL_table_from_csv('metadata_LSM'); //return; //used for method: lifestage and statMeth(); DONE
