@@ -145,8 +145,8 @@ class DwCA_Utility
             $func->start($info);
         }
         if($this->resource_id == '727') {
-            require_library('connectors/New_EnvironmentsEOLDataConnector');
-            $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
+            require_library('connectors/USDAPlants2019');
+            $func = new USDAPlants2019($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         if(in_array($this->resource_id, array('parent_basal_values_Carnivora', 'parent_basal_values'))) {

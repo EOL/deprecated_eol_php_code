@@ -35,16 +35,43 @@ class USDAPlants2019
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
-            /*
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => M1
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://eol.org/schema/associationID] => 
+                [http://eol.org/schema/parentMeasurementID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/TO_0002725
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://eol.org/schema/terms/perennial
+                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
+                [http://eol.org/schema/terms/statisticalMethod] => 
+                [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
+                [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
+                [http://rs.tdwg.org/dwc/terms/measurementMethod] => 
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => Source term: Duration. Some plants have different Durations depending on environment or location, so a plant can have more than one value.  These data have been gathered from the scientific literature, gray literature, agency documents, and the knowledge of plant specialists. Characteristics\ndata values are best viewed as approximations since they are primarily based on field observations and estimates from the literature, not precise\nmeasurements or experiments. Characteristics for the many conservation plant species native to the U.S. were typically provided by experts familiar with\nthe species in its natural setting. Most values given apply to plants nationwide. Many values are relative to other species since absolute figures are not\navailable.
+                [http://purl.org/dc/terms/source] => http://plants.usda.gov/core/profile?symbol=ABGR4
+                [http://purl.org/dc/terms/bibliographicCitation] => The PLANTS Database, United States Department of Agriculture, National Resources Conservation Service. http://plants.usda.gov/
+                [http://purl.org/dc/terms/contributor] => 
+                [http://eol.org/schema/reference/referenceID] => 
             )*/
 
-            /* fix source link */
-            $taxonID = $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']];
-            if($taxonID == "EOL:11584278") continue; //exclude
-            $sciname = $this->linkage_tID_sName[$taxonID];
-            $rec['http://purl.org/dc/terms/source'] = "https://eol.org/search?q=".str_replace(" ", "%20", $sciname);
-            
+            /*
+            Metadata: For records with measurementType=A, please add lifeStage=B
+            A B
+            http://eol.org/schema/terms/SeedlingSurvival    http://purl.obolibrary.org/obo/PPO_0001007
+            http://purl.obolibrary.org/obo/FLOPO_0015519    http://purl.obolibrary.org/obo/PO_0009010
+            http://purl.obolibrary.org/obo/TO_0000207       http://purl.obolibrary.org/obo/PATO_0001701
+
+            and for records with measurementType=C, please add bodyPart=D
+            C D
+            http://purl.obolibrary.org/obo/PATO_0001729     http://purl.obolibrary.org/obo/PO_0025034
+            http://purl.obolibrary.org/obo/FLOPO_0015519    http://purl.obolibrary.org/obo/PO_0009010
+            http://purl.obolibrary.org/obo/TO_0000207       http://purl.obolibrary.org/obo/UBERON_0000468
+            */
+
+
             $o = new \eol_schema\MeasurementOrFact();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
@@ -71,38 +98,7 @@ class USDAPlants2019
                 $k++;
             }
             // print_r($rec); exit;
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:2
-                [http://rs.tdwg.org/dwc/terms/scientificName] => Acanthocephala
-                [http://rs.tdwg.org/dwc/terms/kingdom] => Animalia
-                [http://rs.tdwg.org/dwc/terms/phylum] => 
-                [http://rs.tdwg.org/dwc/terms/class] => 
-                [http://rs.tdwg.org/dwc/terms/family] => 
-                [http://rs.tdwg.org/dwc/terms/order] => 
-                [http://rs.tdwg.org/dwc/terms/genus] => 
-            )*/
-            
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'EOL:11584278') continue;
-            
-            $this->linkage_tID_sName[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
-            
-            $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
-            $ranks = array('phylum');
-            foreach($ranks as $rangk) {
-                if($val = $rec['http://rs.tdwg.org/dwc/terms/'.$rangk]) {
-                    $val = Functions::canonical_form($val);
-                    if(!isset($ret['ancestry'][$rangk][$val])) {
-                        // $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." in DH";
-                        $rec['http://rs.tdwg.org/dwc/terms/'.$rangk] = ''; //discarded
-                        if($correct_rank = @$ret['taxa'][$val]) {
-                            $this->debug["not $rangk in DH"][$val] = " - $correct_rank in DH. Moved.";
-                            $rec['http://rs.tdwg.org/dwc/terms/'.$correct_rank] = $val;
-                            $this->debug['moved to'][$val] = $correct_rank;
-                        }
-                        else $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." - not found in DH. Discarded.";
-                    }
-                }
-            }
+            /**/
             
             $o = new \eol_schema\Taxon();
             $uris = array_keys($rec);
@@ -110,58 +106,10 @@ class USDAPlants2019
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            if($o->taxonID == 'EOL:11584278') continue; //exclude scientificName = '(undescribed)'
-            
-            //start of adjustments: https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=63624&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63624
-            $o->scientificName = self::fix_sciname($o->scientificName);
-            $o = self::remove_authority_in_ancestry_fields($o);
             
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
-    }
-    private function remove_authority_in_ancestry_fields($o)
-    {   /* From Jen: 
-        ancestry columns: I think authority strings may cause problems here- they vary for the same taxon, and I'm not sure what that does to the ancestry tree. 
-        I'm going to suggest the crude solution of truncating the values in all 6 ancestry columns after the first word. 
-        */
-        $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
-        foreach($ranks as $rank) {
-            if($str = trim($o->$rank)) {
-                $arr = explode(" ", $str);
-                $o->$rank = $arr[0];
-            }
-        }
-        return $o;
-    }
-    private function fix_sciname($sci)
-    {   /* From Jen: scientificName: If the first word in the namestring is in (), remove them- the parentheses, not the namestring */
-        // EOL:10652191 (tribe) Borophagini G. G. Simpson, 1945
-        // EOL:11584278 (undescribed)
-        // EOL:37671125 (Multipeniata) sp. Ax & Schmidt-Rhaesa, 1992
-        if(substr($sci,0,1) == '(') {
-            if(preg_match("/\((.*?)\)/ims", $sci, $arr)) {
-                $inside = $arr[1]; //str inside the parenthesis
-                if(ctype_lower(substr($inside,0,1))) { //if first letter of str inside parenthesis is LOWER case
-                    $sci = str_replace("($inside)", "", $sci);
-                    $sci = Functions::remove_whitespace($sci);
-                    return trim($sci);
-                }
-                else { //if first letter of str inside parenthesis is UPPER case
-                    $sci = str_replace("($inside)", "$inside", $sci);
-                    $sci = Functions::remove_whitespace($sci);
-                    return trim($sci);
-                }
-            }
-        }
-        
-        /* Cases were: one word, and starts with small letter
-        EOL:62196	collomia	Plantae	Tracheophyta				
-        EOL:62197	colubrina	Plantae	Tracheophyta				
-        */
-        if(ctype_lower(substr($sci,0,1))) $sci = ucfirst($sci);
-        
-        return $sci;
     }
     private function process_occurrence($meta)
     {   //print_r($meta);
@@ -179,12 +127,7 @@ class USDAPlants2019
                 $k++;
             }
             // print_r($rec); exit;
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
-                [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:2
-            )*/
-            
-            $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            /**/
             
             $o = new \eol_schema\Occurrence();
             $uris = array_keys($rec);
@@ -192,7 +135,6 @@ class USDAPlants2019
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            if($o->taxonID == 'EOL:11584278') continue; //exclude scientificName = '(undescribed)'
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
