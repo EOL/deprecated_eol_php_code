@@ -40,8 +40,8 @@ echo "\nDone processing.\n";
 function utility_report($func)
 {
     $datasets = array('national-checklists-2019', 'water-body-checklists-2019');
-    $datasets = array('national-checklists-2019');
-    // $datasets = array('water-body-checklists-2019');
+    // $datasets = array('national-checklists-2019');
+    $datasets = array('water-body-checklists-2019');
     foreach($datasets as $dataset) {
         unlink(CONTENT_RESOURCE_LOCAL_PATH."/$dataset".".txt");
         $resources = $func->get_opendata_resources($dataset, true); //2nd param true means get all records (resources)
