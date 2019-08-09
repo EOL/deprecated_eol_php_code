@@ -13,11 +13,10 @@ class USDAPlants2019
     {
         $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
 
         /*
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
-        print_r($this->debug);
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         */
     }
     private function process_measurementorfact($meta)
@@ -50,29 +49,40 @@ class USDAPlants2019
                 [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
                 [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
                 [http://rs.tdwg.org/dwc/terms/measurementMethod] => 
-                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => Source term: Duration. Some plants have different Durations depending on environment or location, so a plant can have more than one value.  These data have been gathered from the scientific literature, gray literature, agency documents, and the knowledge of plant specialists. Characteristics\ndata values are best viewed as approximations since they are primarily based on field observations and estimates from the literature, not precise\nmeasurements or experiments. Characteristics for the many conservation plant species native to the U.S. were typically provided by experts familiar with\nthe species in its natural setting. Most values given apply to plants nationwide. Many values are relative to other species since absolute figures are not\navailable.
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => Source term: Duration. Some plants have different Durations...
                 [http://purl.org/dc/terms/source] => http://plants.usda.gov/core/profile?symbol=ABGR4
-                [http://purl.org/dc/terms/bibliographicCitation] => The PLANTS Database, United States Department of Agriculture, National Resources Conservation Service. http://plants.usda.gov/
+                [http://purl.org/dc/terms/bibliographicCitation] => The PLANTS Database, United States Department of Agriculture,...
                 [http://purl.org/dc/terms/contributor] => 
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
 
-            /*
-            Metadata: For records with measurementType=A, please add lifeStage=B
+            /* Metadata: For records with measurementType=A, please add lifeStage=B
             A B
             http://eol.org/schema/terms/SeedlingSurvival    http://purl.obolibrary.org/obo/PPO_0001007
             http://purl.obolibrary.org/obo/FLOPO_0015519    http://purl.obolibrary.org/obo/PO_0009010
             http://purl.obolibrary.org/obo/TO_0000207       http://purl.obolibrary.org/obo/PATO_0001701
+            */
+            $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+            $lifeStage = '';
+            if($mtype == 'http://eol.org/schema/terms/SeedlingSurvival') $lifeStage = 'http://purl.obolibrary.org/obo/PPO_0001007';
+            // elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $lifeStage = '';
+            elseif($mtype == 'http://purl.obolibrary.org/obo/TO_0000207') $lifeStage = 'http://purl.obolibrary.org/obo/PATO_0001701';
 
-            and for records with measurementType=C, please add bodyPart=D
+            /* and for records with measurementType=C, please add bodyPart=D
             C D
             http://purl.obolibrary.org/obo/PATO_0001729     http://purl.obolibrary.org/obo/PO_0025034
             http://purl.obolibrary.org/obo/FLOPO_0015519    http://purl.obolibrary.org/obo/PO_0009010
             http://purl.obolibrary.org/obo/TO_0000207       http://purl.obolibrary.org/obo/UBERON_0000468
             */
+            $bodyPart = '';
+            if($mtype == 'http://purl.obolibrary.org/obo/PATO_0001729') $bodyPart = 'http://purl.obolibrary.org/obo/PO_0025034';
+            // elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $bodyPart = '';
+            elseif($mtype == 'http://purl.obolibrary.org/obo/TO_0000207') $bodyPart = 'http://purl.obolibrary.org/obo/UBERON_0000468';
+            
+            $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $lifeStage;
+            $this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $bodyPart;
 
-
-            $o = new \eol_schema\MeasurementOrFact();
+            $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
@@ -126,8 +136,10 @@ class USDAPlants2019
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            // print_r($rec); exit;
+            print_r($rec); exit;
             /**/
+            
+            if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart
             
             $o = new \eol_schema\Occurrence();
             $uris = array_keys($rec);
