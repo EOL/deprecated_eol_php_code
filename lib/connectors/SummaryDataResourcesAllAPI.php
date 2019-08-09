@@ -156,14 +156,14 @@ class SummaryDataResourcesAllAPI
         $this->CSV_children_of = $final;
     }
     */
-    function generate_children_of_taxa_usingDH() //the big long program from SDR_all.php
-    {
-        self::parse_DH(); self::initialize();
-        /* obsolete for All Trait Export
-        self::gen_children_of_taxon_usingDH();
-        */
-        self::gen_children_of_taxon_usingDH_New();
-    }
+    // function generate_children_of_taxa_usingDH() //the big long program from SDR_all.php --- was never used for All Trait Export
+    // {
+    //     self::parse_DH(); self::initialize();
+    //     /* obsolete for All Trait Export
+    //     self::gen_children_of_taxon_usingDH();
+    //     */
+    //     self::gen_children_of_taxon_usingDH_New();
+    // }
     function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
@@ -189,6 +189,7 @@ class SummaryDataResourcesAllAPI
             $resource_id = 'parent_basal_values';
         }
         $total_page_ids = count($page_ids);
+        $m = $total_page_ids/3; //for breakdown when caching...
 
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
@@ -206,7 +207,6 @@ class SummaryDataResourcesAllAPI
             $total_page_ids = count($page_ids); $cnt_page_id = 0;
             */
             $cnt_page_id = 0;
-            $m = 2237554/3; //for breakdown when caching...
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
@@ -299,6 +299,7 @@ class SummaryDataResourcesAllAPI
             $resource_id = 'parent_taxon_summary';
         }
         $total_page_ids = count($page_ids);
+        $m = $total_page_ids/3; //for breakdown when caching...
 
         $WRITE = self::start_write2DwCA($resource_id, 'TS');
         /* for indicator */
@@ -320,6 +321,15 @@ class SummaryDataResourcesAllAPI
                 //     [taxonRank] => order
                 //     [Landmark] => 2
                 // )
+
+                /* breakdown when caching:
+                $cont = false;
+                if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
+                // if($cnt_page_id >= $m && $cnt_page_id < $m*2) $cont = true;
+                // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
+                if(!$cont) continue;
+                */
+
                 if(isset($excluded[$page_id])) continue;
                 if(!$page_id) continue;
                 if(!@$taxon['taxonRank']) continue;
