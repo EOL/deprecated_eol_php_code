@@ -161,7 +161,7 @@ $func->generate_page_id_txt_files(); return; //important initial step -- OBSOLET
 */
 
 /* hasn't ran this yet for All Trait Export
-// $func->generate_children_of_taxa_usingDH(); return; //the big long program                  _ids/56/97/10594877 - check this later  _ids/85/70/2634372_c.t
+// $func->generate_children_of_taxa_usingDH(); return; //the big long program
 */
 
 /* IMPORTANT STEP - for parent BV and parent TS
