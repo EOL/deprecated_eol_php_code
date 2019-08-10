@@ -785,6 +785,9 @@ class SummaryDataResourcesAllAPI
     {
         $txt_file = self::get_txt_path_by_page_id($main_page_id, "_chTBP_".pathinfo($predicate, PATHINFO_FILENAME).".txt"); //echo "\n$txt_file\n";
         if(file_exists($txt_file)) {
+            /* Special utility - use if u want to DELETE children TBP txt file. e.g. 2948715_chTBP_Habitat.txt
+            unlink($txt_file); return; //elixAug9
+            */
             echo "\nExists: [$main_page_id] $txt_file\n";
             $json = trim(file_get_contents($txt_file));
             $arr = json_decode($json, true);
