@@ -20,6 +20,7 @@ wikimedia_comnames	Sunday 2019-03-03 03:52:33 PM	{"taxon.tab":128348,"vernacular
 wikimedia_comnames	Thursday 2019-03-07 10:15:08 AM	{"taxon.tab":128348,"vernacular_name.tab":330906}
 wikimedia_comnames	Friday 2019-04-12 08:36:52 PM	{"taxon.tab":128676,"vernacular_name.tab":729662} expected big increase in vernaculars, per DATA-1803
 wikimedia_comnames	Thursday 2019-06-06 04:34:08 AM	{"taxon.tab":129200,"vernacular_name.tab":734354} consistent OK
+wikimedia_comnames	Friday 2019-08-09 01:59:25 AM	{"taxon.tab":129200,"vernacular_name.tab":734354} ?? why same as last run? cause for investigation todo
 */
 
 // ini_set('error_reporting', E_ALL);
@@ -38,6 +39,7 @@ $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, false, true); //2nd param false means not a big file, 3rd param true means delete working folder in CONTENT_RESOURCE_LOCAL_PATH
 $func = '';
 
+if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . "71_new.tar.gz")) unlink(CONTENT_RESOURCE_LOCAL_PATH . "71_new.tar.gz");
 $resource_id = '71_new';
 $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . "71" . ".tar.gz");
 $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/agent/agent', 'http://eol.org/schema/media/document');
@@ -45,8 +47,7 @@ $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, false, true);
 
 if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . "71_new.tar.gz")) {
-    if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz")) unlink(CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz");
-    Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "71.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . "71_orig.tar.gz");
+    Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "71.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . "71_".date("Y-m-d").".tar.gz");
     Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . "71_new.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . "71.tar.gz");
 }
 
