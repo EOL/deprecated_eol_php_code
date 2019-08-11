@@ -177,7 +177,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // $func->test_basal_values('BV');          return;
 // $func->print_basal_values('BV');         //return;   //3.91 hours
 // $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
-$func->print_parent_basal_values('BV');  //return; //main orig report //92.75 minutes
+$func->print_parent_basal_values('BV');  //return; //main orig report -- 92.75 minutes | 1.25 hours
 // $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
 // $func->gen_SampleSize_4parent_BV('BV', array('7662')); //generate SampleSize lookup table
