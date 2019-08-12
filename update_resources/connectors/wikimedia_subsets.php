@@ -20,7 +20,7 @@ wikimedia_comnames	Sunday 2019-03-03 03:52:33 PM	{"taxon.tab":128348,"vernacular
 wikimedia_comnames	Thursday 2019-03-07 10:15:08 AM	{"taxon.tab":128348,"vernacular_name.tab":330906}
 wikimedia_comnames	Friday 2019-04-12 08:36:52 PM	{"taxon.tab":128676,"vernacular_name.tab":729662} expected big increase in vernaculars, per DATA-1803
 wikimedia_comnames	Thursday 2019-06-06 04:34:08 AM	{"taxon.tab":129200,"vernacular_name.tab":734354} consistent OK
-wikimedia_comnames	Friday 2019-08-09 01:59:25 AM	{"taxon.tab":129200,"vernacular_name.tab":734354} ?? why same as last run? cause for investigation todo
+wikimedia_comnames	Monday 2019-08-12 04:19:15 AM	{"taxon.tab":129802,"vernacular_name.tab":748550} consistent OK - after fixing in DwCA_Utility the expire_seconds to zero 0
 */
 
 // ini_set('error_reporting', E_ALL);
