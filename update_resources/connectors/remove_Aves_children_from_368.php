@@ -12,8 +12,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 $resource_id = 368;
-$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/368.tar.gz';
-$dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/368_orig.tar.gz'; //during development only
+$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/368.tar.gz'; //the DwCA to adjust.
+// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/368_orig.tar.gz'; //during development only
 process_resource_url($dwca_file, $resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
