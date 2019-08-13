@@ -21,6 +21,7 @@ class RemoveAvesChildrenAPI
     }
     function start($info)
     {
+        $this->children_of_Aves = array();
         $children = self::get_children_of_Aves();
         foreach($children as $child) $this->children_of_Aves[$child] = '';
         unset($children);
