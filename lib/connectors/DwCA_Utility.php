@@ -112,6 +112,7 @@ class DwCA_Utility
         foreach($index as $row_type) {
             /* ----------customized start------------ */
             if(substr($this->resource_id,0,3) == 'SC_') break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
+            elseif($this->resource_id == 368) break; //all extensions will be processed elsewhere.
             if($this->resource_id == 727) break; //debug only - comment or remove in real operation. Use this line only during development.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
@@ -154,6 +155,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array('parent_basal_values_Carnivora', 'parent_basal_values'))) {
             require_library('connectors/SDRreportLib');
             $func = new SDRreportLib($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if($this->resource_id == '368') {
+            require_library('connectors/RemoveAvesChildrenAPI');
+            $func = new RemoveAvesChildrenAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         // ================================= end of customization ================================= */ 
