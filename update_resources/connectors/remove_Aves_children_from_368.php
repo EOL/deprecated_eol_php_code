@@ -9,6 +9,7 @@ This script is run after pbdb_fresh_harvest.php.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 $resource_id = 368;
