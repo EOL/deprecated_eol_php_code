@@ -36,6 +36,7 @@ function process_resource_url($dwca_file, $resource_id)
 
     $preferred_rowtypes = array(); //no prefered. All will be customized
     $func->convert_archive($preferred_rowtypes);
-    Functions::finalize_dwca_resource($resource_id);
+    unset($func);
+    Functions::finalize_dwca_resource($resource_id, false, true); //, true, true
 }
 ?>
