@@ -250,10 +250,11 @@ class SummaryDataResourcesAllAPI
         self::parse_DH(); self::initialize(); 
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
 
-        $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
+        // $input[] = array('page_id' => 7662, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats -> orig test case
         // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
+        $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //latest prob reported by Jen: https://eol-jira.bibalex.org/browse/DATA-1774?focusedCommentId=63616&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63616
 
         $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
         foreach($input as $i) {
@@ -2238,6 +2239,7 @@ class SummaryDataResourcesAllAPI
 
         // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
         $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
+        if(!$hierarchies_of_taxon_values) return array(); //new Aug 12'19
         // */
         echo "\n==========================================================\nHierarchies after removal of the 5 deletable taxa:"; print_r($hierarchies_of_taxon_values);
         $final = $hierarchies_of_taxon_values; //needed assignment
@@ -2338,6 +2340,7 @@ class SummaryDataResourcesAllAPI
             echo "\nREP records: "; print_r($ret_roots['roots']);
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $ret_roots['roots'], 'Label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
+        return array(); //new Aug 12'19
         exit("\nexit muna\n");
     }
     private function roots_lessthan_15percent_removal_step($original_records, $all_roots, $final_from_main)
@@ -2405,9 +2408,25 @@ class SummaryDataResourcesAllAPI
         - If there are multiple root nodes, but all are included in the magic five -> remove all
         - if there are multiple root nodes, some are outside of the magic five -> remove magic 5 roots, leave the others
         */
+        
+        /* Jennifer Hammock added a comment - 06/Aug/19 10:59 PM
+        Ah, thanks, Eli- I left this task for so long I've forgotten important pieces of it. Hang in there. I think the following would make sense to try:
+        1. select all values which are taxa known to the Dynamic Hierarchy
+        2. retrieve DH ancestry for all values, using landmarks taxa (including Family taxa) only
+        3. construct a hierarchy of all values and nearest shared ancestors (not all shared ancestors, only those necessary to connect the values)
+        4. remove the magic 5 wherever they appear. (this may leave you with multiple roots; that's OK)
+        5. if multiple roots, label all roots as REP, and the one that appears in the most hierarchies PRM
+        6. if single root, label all immediate children REP, and the one that appears in the most hierarchies PRM
+
+        I'm not sure how much that differs from what you have now. I think it might simplify the magic 5 rules, if nothing else. Let's try it on the regular taxon summary process 
+        (not yet on parents taxon summary) and see how it goes.
+        I suppose this one was inevitably going to be iterative/experimental, but I think we're getting close!
+        */
         $root_nodes_to_remove = array(46702381, 2910700, 6061725, 2908256, 2913056);
         $cont_for_more = false;
+        $final = array();
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
+            if(in_array($page_id, $root_nodes_to_remove)) continue; //new Aug 12'19
             if(!is_array($anc)) {
                 $final[$page_id] = $anc;
                 continue;
