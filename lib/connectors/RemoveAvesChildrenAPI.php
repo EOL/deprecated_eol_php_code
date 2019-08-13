@@ -1,36 +1,36 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from 727.php for DATA-1819] */
-class USDAPlants2019
+/* connector: [called from DwCA_Utility.php, which is called from remove_Aves_children_from_268.php from https://eol-jira.bibalex.org/browse/DATA-1814?focusedCommentId=63686&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63686] */
+class RemoveAvesChildrenAPI
 {
     function __construct($archive_builder, $resource_id)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
-        
-        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        // $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
 
-        $this->area['L48'] = "Lower 48 United States of America";
-        $this->area['AK'] = "Alaska, USA";
-        $this->area['HI'] = "Hawaii, USA";
-        $this->area['PR'] = "Puerto Rico";
-        $this->area['VI'] = "U. S. Virgin Islands";
-        $this->area['CAN'] = "Canada";
-        $this->area['GL'] = "Greenland (Denmark)";
-        $this->area['SPM'] = "St. Pierre and Miquelon (France)";
-        $this->area['NA'] = "North America";
-        $this->area['NAV'] = "Navassa Island";
-        $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
     }
     /*================================================================= STARTS HERE ======================================================================*/
+    private function get_children_of_Aves()
+    {
+        require_library('connectors/PaleoDBAPI_v2');
+        $func = new PaleoDBAPI_v2("");
+        $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "368".".tar.gz";
+        $descendant_taxon_ids = $func->get_descendants_given_parent_ids($dwca_file, array(36616)); //Aves taxon_id is 36616
+        return $descendant_taxon_ids;
+    }
     function start($info)
     {
-        $tables = $info['harvester']->tables;
-        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
+        $children = self::get_children_of_Aves();
+        foreach($children as $child) $this->children_of_Aves[$child] = '';
+        unset($children);
+        echo "\nChildren of Aves: ".count($this->children_of_Aves)."\n";
         
-        print_r($this->debug); exit;
+        $tables = $info['harvester']->tables;
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
+        self::process_generic_table($tables['http://rs.gbif.org/terms/1.0/vernacularname'][0], 'vernacular');
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'MoF');
     }
     private function process_generic_table($meta, $what)
     {   //print_r($meta);
@@ -47,13 +47,29 @@ class USDAPlants2019
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
             /**/
             
-            if($what == 'taxon')            $o = new \eol_schema\Taxon();
-            elseif($what == 'MoF')          $o = new \eol_schema\MeasurementOrFact_specific();
-            elseif($what == 'occurrence')   $o = new \eol_schema\Occurrence();
-            
+            if($what == 'taxon') {
+                if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) continue;
+                $o = new \eol_schema\Taxon();
+            }
+            elseif($what == 'vernacular') {
+                if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) continue;
+                $o = new \eol_schema\VernacularName();
+            }
+            elseif($what == 'occurrence') {
+                if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) {
+                    $this->remove_occurrence_id[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                    continue;
+                }
+                $o = new \eol_schema\Occurrence();
+            }
+            elseif($what == 'MoF') {
+                if(isset($this->remove_occurrence_id[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
+                $o = new \eol_schema\MeasurementOrFact_specific();
+            }
+            else exit("\nInvestigate [$what]\n");
             
             $uris = array_keys($rec);
             foreach($uris as $uri) {
