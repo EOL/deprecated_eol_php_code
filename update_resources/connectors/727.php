@@ -51,7 +51,7 @@ function test()
     $func->parse_profile_page($url);
     */
 
-    $func->parse_state_list_page();
+    $state_list = $func->parse_state_list_page();
     
 }
 
