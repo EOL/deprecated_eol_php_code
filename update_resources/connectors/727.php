@@ -29,6 +29,8 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 
+test(); exit;
+
 $resource_id = 727;
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/727_24Oct2017.tar.gz';
 process_resource_url($dwca_file, $resource_id);
@@ -38,6 +40,20 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+
+function test()
+{
+    require_library('connectors/USDAPlants2019');
+    $func = new USDAPlants2019("", "");
+    /* worked OK
+    $url = 'https://plants.sc.egov.usda.gov/core/profile?symbol=ABBA';
+    // $url = 'https://plants.sc.egov.usda.gov/core/profile?symbol=ABAL3';
+    $func->parse_profile_page($url);
+    */
+
+    $func->parse_state_list_page();
+    
+}
 
 function process_resource_url($dwca_file, $resource_id)
 {

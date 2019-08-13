@@ -7,21 +7,97 @@ class USDAPlants2019
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        
+        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+
+        $this->area['L48'] = "Lower 48 United States of America";
+        $this->area['AK'] = "Alaska, USA";
+        $this->area['HI'] = "Hawaii, USA";
+        $this->area['PR'] = "Puerto Rico";
+        $this->area['VI'] = "U. S. Virgin Islands";
+        $this->area['CAN'] = "Canada";
+        $this->area['GL'] = "Greenland (Denmark)";
+        $this->area['SPM'] = "St. Pierre and Miquelon (France)";
+        $this->area['NA'] = "North America";
+        $this->area['NAV'] = "Navassa Island";
+        $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
     }
     /*================================================================= STARTS HERE ======================================================================*/
+    function parse_state_list_page()
+    {
+        if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
+            if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
+                $a = $arr[1];
+                $a = array_map('strip_tags', $a);
+                // print_r($a);
+                /*Array(
+                    [0] => U.S. States
+                    [1] => U.S. Territories and Protectorates
+                    [2] => Canada
+                    [3] => Denmark
+                    [4] => France
+                )*/
+                $i = -1;
+                foreach($a as $area) { $i++;
+                    if($area == 'France') {
+                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)<\/table>/ims", $html, $arr)) {
+                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) {
+                                $final[$area] = $arr2[1];
+                            }
+                        }
+                    }
+                    else {
+                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)class=\"BodyTextBlackBold\">".$a[$i+1]."/ims", $html, $arr)) {
+                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) {
+                                $final[$area] = $arr2[1];
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        print_r($final);
+        return $final;
+    }
+    function parse_profile_page($url)
+    {
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match("/Status<\/strong>(.*?)<\/tr>/ims", $html, $arr)) {
+                $str = $arr[1];
+                $str = str_ireplace(' valign="top"', '', $str); // echo "\n$str\n";
+                if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr2)) {
+                    $str = str_replace(array("\t", "\n", "&nbsp;"), "", $arr2[1]);
+                    $str = Functions::remove_whitespace($str); // echo "\n[$str]\n";
+                    $arr = explode("<br>", $str);
+                    $arr = array_filter($arr); //remove null array
+                    // print_r($arr);
+                    /*Array(
+                        [0] => CAN N
+                        [1] => L48 N
+                        [2] => SPM N
+                    )*/
+                    foreach($arr as $a) $final[] = explode(" ", $a);
+                }
+            }
+            else exit("\nInvestigate $url status not found!\n");
+        }
+        print_r($final);
+        return $final;
+    }
     function start($info)
     {
         $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
 
         /*
-        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
+        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         */
+        print_r($this->debug); exit;
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
-        $i = 0;
+        echo "\nprocess_measurementorfact...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -81,6 +157,27 @@ class USDAPlants2019
             
             $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $lifeStage;
             $this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $bodyPart;
+            
+            /* Value term to re-map. I think the source's text string is "Subshrub". 
+            It's a value for http://purl.obolibrary.org/obo/FLOPO_0900032, eg: for https://plants.usda.gov/core/profile?symbol=VEBR2
+            It's currently mapped to http://purl.obolibrary.org/obo/FLOPO_0900034. It should be re-mapped to http://eol.org/schema/terms/subshrub
+            ELI: it seems this has now been corrected. Current data uses http://eol.org/schema/terms/subshrub already. No need to code this requirement.
+            */
+
+            /* Data to remove: Katja has heard that records for several of the predicates are suspect. Please remove anything with the predicates below:
+            */
+            $pred_2remove = array('http://eol.org/schema/terms/NativeIntroducedRange', 'http://eol.org/schema/terms/NativeProbablyIntroducedRange', 
+                'http://eol.org/schema/terms/ProbablyIntroducedRange', 'http://eol.org/schema/terms/ProbablyNativeRange', 
+                'http://eol.org/schema/terms/ProbablyWaifRange', 'http://eol.org/schema/terms/WaifRange', 'http://eol.org/schema/terms/InvasiveNoxiousStatus');
+            if(in_array($rec['http://rs.tdwg.org/dwc/terms/measurementType'], $pred_2remove)) continue;
+            
+            
+            /* Additional data: */
+            if($mtype == 'http://eol.org/schema/terms/NativeRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
+            if($mtype == 'http://eol.org/schema/terms/IntroducedRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
+            
+
+            $this->debug['mtype'][$mtype] = '';
 
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
@@ -123,7 +220,7 @@ class USDAPlants2019
     }
     private function process_occurrence($meta)
     {   //print_r($meta);
-        $i = 0;
+        echo "\nprocess_occurrence...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -136,10 +233,39 @@ class USDAPlants2019
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
-            /**/
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
+                [http://rs.tdwg.org/dwc/terms/taxonID] => ABGR4
+                [http://rs.tdwg.org/dwc/terms/eventID] => http://plants.usda.gov/core/profile?symbol=ABGR4
+                [http://rs.tdwg.org/dwc/terms/institutionCode] => 
+                [http://rs.tdwg.org/dwc/terms/collectionCode] => 
+                [http://rs.tdwg.org/dwc/terms/catalogNumber] => 
+                [http://rs.tdwg.org/dwc/terms/sex] => 
+                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                [http://rs.tdwg.org/dwc/terms/reproductiveCondition] => 
+                [http://rs.tdwg.org/dwc/terms/behavior] => 
+                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => 
+                [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/individualCount] => 
+                [http://rs.tdwg.org/dwc/terms/preparations] => 
+                [http://rs.tdwg.org/dwc/terms/fieldNotes] => 
+                [http://rs.tdwg.org/dwc/terms/samplingProtocol] => 
+                [http://rs.tdwg.org/dwc/terms/samplingEffort] => 
+                [http://rs.tdwg.org/dwc/terms/recordedBy] => 
+                [http://rs.tdwg.org/dwc/terms/identifiedBy] => 
+                [http://rs.tdwg.org/dwc/terms/dateIdentified] => 
+                [http://rs.tdwg.org/dwc/terms/eventDate] => 
+                [http://purl.org/dc/terms/modified] => 
+                [http://rs.tdwg.org/dwc/terms/locality] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/decimalLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLatitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
+            )*/
             
-            if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart
+            if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
             
             $o = new \eol_schema\Occurrence();
             $uris = array_keys($rec);
