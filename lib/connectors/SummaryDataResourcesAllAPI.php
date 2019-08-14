@@ -1075,7 +1075,6 @@ class SummaryDataResourcesAllAPI
             $a = new \eol_schema\Association_specific(); //take note used with '_specific'
             $a->label = self::get_assoc_label($ret, $taxon_name_id);
             $a->occurrenceID = $occurrence_id;
-            $a->associationType = $ret['predicate'];
             $a->associationType = self::new_assocType_basedOn_EATS_or_IsEatenBy($ret['predicate']);
             $a->targetOccurrenceID = $related_occurrence_id;
             
@@ -2475,9 +2474,7 @@ class SummaryDataResourcesAllAPI
             }
             return self::last_round_2del_magic5($final2, $root_nodes_to_remove);
         }
-        else {
-            return self::last_round_2del_magic5($final, $root_nodes_to_remove);
-        }
+        else return self::last_round_2del_magic5($final, $root_nodes_to_remove);
         
         /* version 1 obsolete
         $life = 2913056;
