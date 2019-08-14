@@ -79,6 +79,7 @@ class SummaryDataResourcesAllAPI
         
         $this->parentModeYN = false;
         $this->fullref = array();
+        $this->EATS_or_IsEatenBy_modeYN = false;
     }
     /*  basal values                                    taxon summary
         parent basal values                             parent taxon summary
@@ -1075,6 +1076,7 @@ class SummaryDataResourcesAllAPI
             $a->label = self::get_assoc_label($ret, $taxon_name_id);
             $a->occurrenceID = $occurrence_id;
             $a->associationType = $ret['predicate'];
+            $a->associationType = self::new_assocType_basedOn_EATS_or_IsEatenBy($ret['predicate']);
             $a->targetOccurrenceID = $related_occurrence_id;
             
             // $a->referenceID = $reference_ids; --> ver 1
@@ -1089,6 +1091,21 @@ class SummaryDataResourcesAllAPI
             $a->associationID = Functions::generate_measurementID($a, $this->resource_id, 'association');
             $this->archive_builder->write_object_to_file($a);
         }
+    }
+    private function new_assocType_basedOn_EATS_or_IsEatenBy($predicate)
+    {   /* Let's not do this for all association types. Let's have two sets of values for each source taxon. One set will be 
+        http://purl.obolibrary.org/obo/RO_0002470, http://purl.obolibrary.org/obo/RO_0002439 and http://purl.obolibrary.org/obo/RO_0002444.
+        Records for all three can all be combined into one tree for the hierarchy construction. When making new records for this set, 
+        the predicate should be http://purl.obolibrary.org/obo/RO_0002470, but when labelling existing records, they can be any of the three
+        AND, similarly,
+        http://purl.obolibrary.org/obo/RO_0002471, http://purl.obolibrary.org/obo/RO_0002458 and http://purl.obolibrary.org/obo/RO_0002445
+        with http://purl.obolibrary.org/obo/RO_0002471 being the predicate for any newly created records
+        */
+        if($this->EATS_or_IsEatenBy_modeYN) {
+            if(in_array($predicate, array("http://purl.obolibrary.org/obo/RO_0002470", "http://purl.obolibrary.org/obo/RO_0002439", "http://purl.obolibrary.org/obo/RO_0002444"))) return "http://purl.obolibrary.org/obo/RO_0002470";
+            if(in_array($predicate, array("http://purl.obolibrary.org/obo/RO_0002471", "http://purl.obolibrary.org/obo/RO_0002458", "http://purl.obolibrary.org/obo/RO_0002445"))) return "http://purl.obolibrary.org/obo/RO_0002471";
+        }
+        else return $predicate;
     }
     /*
     private function write_resource_file_TaxonSummary_v1($ret)
@@ -2426,7 +2443,6 @@ class SummaryDataResourcesAllAPI
         $cont_for_more = false;
         $final = array();
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
-            if(in_array($page_id, $root_nodes_to_remove)) continue; //new Aug 12'19
             if(!is_array($anc)) {
                 $final[$page_id] = $anc;
                 continue;
@@ -2457,9 +2473,11 @@ class SummaryDataResourcesAllAPI
                 }
                 else break; //break from while true
             }
-            return $final2;
+            return self::last_round_2del_magic5($final2, $root_nodes_to_remove);
         }
-        else return $final;
+        else {
+            return self::last_round_2del_magic5($final, $root_nodes_to_remove);
+        }
         
         /* version 1 obsolete
         $life = 2913056;
@@ -2482,6 +2500,14 @@ class SummaryDataResourcesAllAPI
         }
         else return $hierarchies_of_taxon_values;
         */
+    }
+    private function last_round_2del_magic5($final, $root_nodes_to_remove) //makes a difference test pTS 1018 - RO_0002470 without 2908256_1018_RO_0002470 2913056_1018_RO_0002470 rightfully so.
+    {   $final2 = array();
+        foreach($final as $page_id => $anc) {
+            if(in_array($page_id, $root_nodes_to_remove) && !$anc) continue; //new Aug 13'19
+            else $final2[$page_id] = $anc;
+        }
+        return $final2;
     }
     //############################################################################################ end method = 'parents'
     private function extract_DH() //for production env only
