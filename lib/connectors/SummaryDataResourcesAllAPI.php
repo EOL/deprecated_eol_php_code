@@ -2532,6 +2532,7 @@ class SummaryDataResourcesAllAPI
         I suppose this one was inevitably going to be iterative/experimental, but I think we're getting close!
         */
         $root_nodes_to_remove = array(46702381, 2910700, 6061725, 2908256, 2913056);
+        $root_nodes_to_remove = array_merge($root_nodes_to_remove, array(8814528, 3014411, 10459935)); //makes it a magic 8
         $cont_for_more = false;
         $final = array();
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
