@@ -422,7 +422,9 @@ class SummaryDataResourcesAllAPI
                 $predicates[$i] = NULL;
                 $add_group_RO_0002471_YN = true;
             }
+            /* per Jen - discard all other predicates
             else $final[] = $pred; //comment this line if you want to get only the "combined predicates"
+            */
         }
         if($add_group_RO_0002470_YN) $final[] = implode(",", $group_RO_0002470);
         if($add_group_RO_0002471_YN) $final[] = implode(",", $group_RO_0002471);
