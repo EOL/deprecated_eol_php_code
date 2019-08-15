@@ -80,6 +80,12 @@ class SummaryDataResourcesAllAPI
         $this->parentModeYN = false;
         $this->fullref = array();
         $this->EATS_or_IsEatenBy_modeYN = false;
+        $this->synonyms_EATS = array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439', 'http://purl.obolibrary.org/obo/RO_0002444');
+        $this->synonyms_IsEatenBy = array('http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002458', 'http://purl.obolibrary.org/obo/RO_0002445');
+        /* Notes:
+        With new records. Will write to DwCA.
+        With existiing records. Will write to resource.txt.
+        */
     }
     /*  basal values                                    taxon summary
         parent basal values                             parent taxon summary
@@ -255,7 +261,10 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 4528789, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
-        $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //latest prob reported by Jen: https://eol-jira.bibalex.org/browse/DATA-1774?focusedCommentId=63616&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63616
+        // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //latest prob reported by Jen: https://eol-jira.bibalex.org/browse/DATA-1774?focusedCommentId=63616&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63616
+        $input[] = array('page_id' => 1018, 'predicate' => implode(",", $this->synonyms_EATS));
+        $input[] = array('page_id' => 42208, 'predicate' => implode(",", $this->synonyms_IsEatenBy));
+        // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439");
 
         $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
         foreach($input as $i) {
@@ -278,9 +287,10 @@ class SummaryDataResourcesAllAPI
         
         // /* un-comment in real operation
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
+        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); exit;
         // */
         
-        /* during caching only
+        /* during caching only - before 'combined predicates' scheme.
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002454');
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002557', 'http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002445');
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002458', 'http://purl.obolibrary.org/obo/RO_0002622');
@@ -398,11 +408,32 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
         echo("\n-end print resource files (Basal values)-\n");
     }
+    private function group_predicates_if_needed($predicates)
+    {   $add_group_RO_0002470_YN = false; $add_group_RO_0002471_YN = false;
+        $group_RO_0002470 = $this->synonyms_EATS;
+        $group_RO_0002471 = $this->synonyms_IsEatenBy;
+        $i = -1;
+        foreach($predicates as $pred) { $i++;
+            if(in_array($pred, $group_RO_0002470)) {
+                $predicates[$i] = NULL;
+                $add_group_RO_0002470_YN = true;
+            }
+            elseif(in_array($pred, $group_RO_0002471)) {
+                $predicates[$i] = NULL;
+                $add_group_RO_0002471_YN = true;
+            }
+            else $final[] = $pred; //comment this line if you want to get only the "combined predicates"
+        }
+        if($add_group_RO_0002470_YN) $final[] = implode(",", $group_RO_0002470);
+        if($add_group_RO_0002471_YN) $final[] = implode(",", $group_RO_0002471);
+        return $final;
+    }
     function print_taxon_summary($dbase)
     {   $this->dbname = 'traits_'.$dbase;
         $this->parentModeYN = false;
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); echo "\nPredicates: ".count($predicates)."\n";
+        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); //exit;
         self::initialize(); 
         /* removed bec it is getting page_ids without predicate in question. Moved below.
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates);
@@ -418,7 +449,7 @@ class SummaryDataResourcesAllAPI
         foreach($predicates as $predicate) {
             $cnt_predicate++; $cnt_page_id = 0; /* for indicator */
             
-            echo "\nGet page_ids for...[$predicate]\n";
+            echo "\nGet page_ids for...[$predicate][$this->dbname]\n";
             $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH(array($predicate));
             $total_page_ids = count($page_ids); $cnt_page_id = 0;
             
@@ -577,7 +608,6 @@ class SummaryDataResourcesAllAPI
 
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on - no record
         // $page_id = 7673; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
-        // $page_id = 7662; $predicate = "http://purl.obolibrary.org/obo/RO_0002458"; //preyed upon by
         // $page_id = 46559118; $predicate = "http://purl.obolibrary.org/obo/RO_0002439"; //preys on
         // $page_id = 328607; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
         // $page_id = 46559162; $predicate = "http://purl.obolibrary.org/obo/RO_0002470"; //eats
@@ -587,10 +617,11 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case when writing to DwCA
         // $input[] = array('page_id' => 47054812, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //supposedly no records
         // $input[] = array('page_id' => 1020198, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jun 20, 2019 comment by Jen
-        
-        $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jul 16, 2019 comment by Jen
-        
-        
+        // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jul 16, 2019 comment by Jen - No records as of Aug 14'19
+        // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
+        // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on - with rec but no DwCA as of Aug 14'19
+        $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444"); //preys on - with DwCA
+
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->ISVAT_TS = array();
@@ -783,8 +814,33 @@ class SummaryDataResourcesAllAPI
             }
         }
     }
+    private function get_childrenTBP_from_txt_file_multiple($predicates, $param) //get childrenTBP from multiple predicates
+    {   /*Array(
+            [0] => http://purl.obolibrary.org/obo/RO_0002470
+            [1] => http://purl.obolibrary.org/obo/RO_0002439
+            [2] => http://purl.obolibrary.org/obo/RO_0002444
+        )*/
+        $final = array();
+        foreach($predicates as $predicate) {
+            $arr = self::get_childrenTBP_from_txt_file($param['main_page_id'], $param['children'], $predicate, $param['table']); // print_r($arr);
+            if($arr) $final = array_merge($final, $arr);
+        }
+        $final = array_filter($final); //remove null arrays
+        $final = array_unique($final); //make unique
+        $final = array_values($final); //reindex key
+        return $final;
+    }
     function get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, $table = '') //4th param $table is for parent TS
     {
+        // /* new Aug 14'19
+        $ret = self::format_value_for_sql($predicate);
+        if($ret['count'] == 'single')       {} //proceed below - orig
+        elseif($ret['count'] == 'multiple') {
+            $predicates = explode(",", str_replace("'","",$ret['value'])); print_r($predicates);
+            return self::get_childrenTBP_from_txt_file_multiple($predicates, array('main_page_id' => $main_page_id, 'children' => $children, 'table' => $table));
+        }
+        // */
+        
         $txt_file = self::get_txt_path_by_page_id($main_page_id, "_chTBP_".pathinfo($predicate, PATHINFO_FILENAME).".txt"); //echo "\n$txt_file\n";
         if(file_exists($txt_file)) {
             /* Special utility - use if u want to DELETE children TBP txt file. e.g. 2948715_chTBP_Habitat.txt
@@ -1045,6 +1101,19 @@ class SummaryDataResourcesAllAPI
         return array_keys($eol_pks);
     }
     //================================================================================================================================= end new scheme
+    private function get_basename_from_multiple_predicates($csv) //e.g. http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444
+    {   $type = "";
+        $arr = explode(",", $csv);
+        foreach($arr as $url) {
+            $basename = pathinfo($url, PATHINFO_BASENAME);
+            if($type) $type .= "_".$basename;
+            else      $type = $basename;
+        }
+        if($type     == 'RO_0002470_RO_0002439_RO_0002444') return "group_EATS";
+        elseif($type == 'RO_0002471_RO_0002458_RO_0002445') return "group_IsEatenBy";
+        else exit("\nUndefined group!\n");
+        return $type; //simple implementation if desired.
+    }
     private function create_archive_TaxonSummary($new_records, $new_records_refs, $ret)
     {   /*Array(
         [root] => 46557930
@@ -1059,7 +1128,14 @@ class SummaryDataResourcesAllAPI
         )*/
         $taxon_id = $ret['page_id'];
         $taxon = $this->add_taxon(array('page_id' => $taxon_id));
-        $type = pathinfo($ret['predicate'], PATHINFO_BASENAME);
+
+        // /* new Aug 14'19
+        // predicate can be http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444
+        $ret2 = self::format_value_for_sql($ret['predicate']);
+        if($ret2['count'] == 'single')       $type = pathinfo($ret['predicate'], PATHINFO_BASENAME); //orig - single predicate value
+        elseif($ret2['count'] == 'multiple') $type = self::get_basename_from_multiple_predicates($ret['predicate']);
+        // print_r($ret); exit("\nprint_r ret\n[$type]\n"); //debug only
+        // */
 
         /* ver 1
         $reference_ids = '';
@@ -1100,11 +1176,17 @@ class SummaryDataResourcesAllAPI
         http://purl.obolibrary.org/obo/RO_0002471, http://purl.obolibrary.org/obo/RO_0002458 and http://purl.obolibrary.org/obo/RO_0002445
         with http://purl.obolibrary.org/obo/RO_0002471 being the predicate for any newly created records
         */
-        if($this->EATS_or_IsEatenBy_modeYN) {
-            if(in_array($predicate, array("http://purl.obolibrary.org/obo/RO_0002470", "http://purl.obolibrary.org/obo/RO_0002439", "http://purl.obolibrary.org/obo/RO_0002444"))) return "http://purl.obolibrary.org/obo/RO_0002470";
-            if(in_array($predicate, array("http://purl.obolibrary.org/obo/RO_0002471", "http://purl.obolibrary.org/obo/RO_0002458", "http://purl.obolibrary.org/obo/RO_0002445"))) return "http://purl.obolibrary.org/obo/RO_0002471";
+        
+        // if($this->EATS_or_IsEatenBy_modeYN) {
+        if(true) { //e.g. $predicate = "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444"
+            foreach($this->synonyms_EATS as $p) {
+                if(stripos($predicate, $p) !== false) return "http://purl.obolibrary.org/obo/RO_0002470"; //string is found
+            }
+            foreach($this->synonyms_IsEatenBy as $p) {
+                if(stripos($predicate, $p) !== false) return "http://purl.obolibrary.org/obo/RO_0002471"; //string is found
+            }
         }
-        else return $predicate;
+        return $predicate;
     }
     /*
     private function write_resource_file_TaxonSummary_v1($ret)
@@ -1905,9 +1987,19 @@ class SummaryDataResourcesAllAPI
         }
         return $page_ids;
     }
+    private function format_value_for_sql($value)
+    {   $arr = explode(",", $value);
+        $arr = array_map("trim", $arr);
+        if(count($arr) == 1) return array('count' => 'single', 'value' => $arr[0]); //e.g. http://eol.org/schema/terms/IsDispersalVectorFor
+        if(count($arr) > 1)  return array('count' => 'multiple', 'value' => "'".str_replace(",", "','", $value)."'"); //e.g. 'http://purl.obolibrary.org/obo/RO_0002470','http://purl.obolibrary.org/obo/RO_0002439','http://purl.obolibrary.org/obo/RO_0002444'
+    }
     private function get_fields_from_file($headers, $filename, $predicates)
     {
-        $sql = "SELECT DISTINCT(t.page_id) from SDR.".$this->dbname." t WHERE t.predicate = '".$predicates[0]."'";
+        $pred = $predicates[0];
+        $ret = self::format_value_for_sql($pred);
+        if($ret['count'] == 'single')       $sql = "SELECT DISTINCT(t.page_id) from SDR.".$this->dbname." t WHERE t.predicate = '".$ret['value']."'";
+        elseif($ret['count'] == 'multiple') $sql = "SELECT DISTINCT(t.page_id) from SDR.".$this->dbname." t WHERE t.predicate IN (".$ret['value'].")";
+        
         echo "\nQuery start: [$sql]\n";
         $result = $this->mysqli->query($sql);
         $final = array();
@@ -2139,7 +2231,7 @@ class SummaryDataResourcesAllAPI
         ******************************************* end IMPORTANT NEW STEP
         */
         
-        if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, 'traits_TSp')) {
+        if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, 'traits_TSp')) { //has script to handle multiple predicates ALREADY
             $children_count = count($children);
             echo "\n*Children TBP of [$main_page_id]: ".$children_count."\n";
             if($children_count > 1000) return array();
@@ -2161,7 +2253,7 @@ class SummaryDataResourcesAllAPI
         // $children = array(328609); //debug
         $records = array();
         foreach($children as $page_id) {
-            if($val = self::main_taxon_summary($page_id, $predicate)) {
+            if($val = self::main_taxon_summary($page_id, $predicate)) { //has script to handle multiple predicates ALREADY
                 echo "\nFinal result: taxon summary: "; print_r($val);
                 $records[] = $val;
                 $this->debug['parent taxon summary'][$main_page_id."_".$predicate][] = $page_id; //the parent taxa and corresponding predicate, with children that have records. Not all children under this parent but only those with records.
@@ -2358,6 +2450,7 @@ class SummaryDataResourcesAllAPI
         } //end if > 1 roots remain ------------------------------------------------------------
         return array(); //new Aug 12'19
         exit("\nexit muna\n");
+        //$predicate
     }
     private function roots_lessthan_15percent_removal_step($original_records, $all_roots, $final_from_main)
     {
@@ -2691,7 +2784,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         */
         echo "\n================================================================Method: taxon summary\npage_id: $page_id | predicate: [$predicate]\n";
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
-        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate); //has script to handle multiple predicates ALREADY
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nAssembled recs: ".count($recs)."\n";
         // print_r($recs); exit;
@@ -2814,6 +2907,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return array('root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Label' => 'REP', 'refs' => $refs);
         //'tree' => $final, 'orig_counts_with_left' => $orig_counts_with_left
     }
+    //$predicate
     private function get_immediate_children_of_root_info($final)
     {
         foreach($final as $tip => $ancestors) {
@@ -3662,8 +3756,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
     {
-        $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
-        // echo "\nAssemble recs start [$sql]\n";
+        $ret = self::format_value_for_sql($predicate);
+        if($ret['count'] == 'single')       $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
+        elseif($ret['count'] == 'multiple') $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate in (".$ret['value'].")";
+        
+        echo "\nAssemble recs start [$sql]\n";
         $result = $this->mysqli->query($sql);
         $recs = array();
         while($result && $rec=$result->fetch_assoc()) {
