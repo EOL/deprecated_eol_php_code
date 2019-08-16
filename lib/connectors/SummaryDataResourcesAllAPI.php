@@ -266,9 +266,10 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 7672, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats //test case by Jen during dev. https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=62848&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62848
         // $input[] = array('page_id' => 7665, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats
         // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //latest prob reported by Jen: https://eol-jira.bibalex.org/browse/DATA-1774?focusedCommentId=63616&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63616
-        $input[] = array('page_id' => 1018, 'predicate' => implode(",", $this->synonyms_EATS));
-        $input[] = array('page_id' => 42208, 'predicate' => implode(",", $this->synonyms_IsEatenBy));
+        // $input[] = array('page_id' => 1018, 'predicate' => implode(",", $this->synonyms_EATS));
+        // $input[] = array('page_id' => 42208, 'predicate' => implode(",", $this->synonyms_IsEatenBy));
         // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439");
+        $input[] = array('page_id' => 1131, 'predicate' => implode(",", $this->synonyms_EATS));
 
         $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
         foreach($input as $i) {
@@ -627,8 +628,12 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jul 16, 2019 comment by Jen - No records as of Aug 14'19
         // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
         // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on - with rec but no DwCA as of Aug 14'19
-        // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444"); //preys on - with DwCA
-        $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444"); //preys on - with DwCA
+        // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
+
+        $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
+        // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002471,http://purl.obolibrary.org/obo/RO_0002458,http://purl.obolibrary.org/obo/RO_0002445");
+        // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002453");
+        // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454");
 
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -2875,9 +2880,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
-        echo "\n TS final 01 array: ".count($final)."\n"; print_r($final);
-        $final = self::adjust_2913056($final); //apply magic 5 for taxon_summary
-        echo "\n TS final 02 array after magic 5: ".count($final)."\n"; print_r($final);
+        echo "\n TS final hierarchies: ".count($final)."\n"; print_r($final);
+        if(!$this->parentModeYN) {
+            $final = self::adjust_2913056($final); //apply magic 5 for taxon_summary
+            echo "\n TS final hierarchies, after magic 8: ".count($final)."\n"; print_r($final);
+        }
         
         $this->ISVAT_TS = $this->ISVAT_TS + $final;
         
