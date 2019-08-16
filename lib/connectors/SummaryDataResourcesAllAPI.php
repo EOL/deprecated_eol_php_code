@@ -627,7 +627,8 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470"); //eats - latest Jul 16, 2019 comment by Jen - No records as of Aug 14'19
         // $input[] = array('page_id' => 328598, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
         // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on - with rec but no DwCA as of Aug 14'19
-        $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444"); //preys on - with DwCA
+        // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444"); //preys on - with DwCA
+        $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444"); //preys on - with DwCA
 
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -2742,7 +2743,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $final = array(); $final2 = array();
         $taxonID = @$this->EOL_2_DH[$page_id];
         if(!$taxonID) {
-            echo "\nThis page_id [$page_id] is not found in DH.\n";
+            echo "\nThis page_id [$page_id] is not found in DH.";
             return array();
         }
         while(true) {
@@ -2874,7 +2875,9 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
-        echo "\n final array: ".count($final)."\n"; print_r($final);
+        echo "\n TS final 01 array: ".count($final)."\n"; print_r($final);
+        $final = self::adjust_2913056($final); //apply magic 5 for taxon_summary
+        echo "\n TS final 02 array after magic 5: ".count($final)."\n"; print_r($final);
         
         $this->ISVAT_TS = $this->ISVAT_TS + $final;
         
