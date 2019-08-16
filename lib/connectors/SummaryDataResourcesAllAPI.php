@@ -1049,7 +1049,7 @@ class SummaryDataResourcesAllAPI
         if($parentYN == "non-parent") $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         elseif($parentYN == "parent") $recs = $this->taxon_summary_parent_recs;
         else exit("\nNot go here...\n");
-        echo "\nHere 001...\n";
+        // echo "\nHere 001...\n";
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
