@@ -291,7 +291,7 @@ class SummaryDataResourcesAllAPI
         
         // /* un-comment in real operation
         $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
-        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); exit;
+        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); //exit;
         // */
         
         /* during caching only - before 'combined predicates' scheme.
@@ -440,7 +440,7 @@ class SummaryDataResourcesAllAPI
         $this->parentModeYN = false;
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); echo "\nPredicates: ".count($predicates)."\n";
-        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); exit;
+        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); //exit;
         self::initialize(); 
         /* removed bec it is getting page_ids without predicate in question. Moved below.
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates);
@@ -2909,7 +2909,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     }
     //$predicate
     private function get_immediate_children_of_root_info($final)
-    {
+    {   $immediate_children_of_root = array();
+        $immediate_children_of_root_count = array();
         foreach($final as $tip => $ancestors) {
             if($ancestors) {
                 $root_ancestor[] = end($ancestors);
@@ -2924,7 +2925,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return array('immediate_children_of_root' => $immediate_children_of_root, 'immediate_children_of_root_count' => $immediate_children_of_root_count);
     }
     private function get_key_of_arr_with_biggest_value($arr)
-    {   $val = 0;
+    {   $val = 0; $ret = '';
         foreach($arr as $key => $value) {
             if($value > $val) $ret = $key;
             $val = $value;
