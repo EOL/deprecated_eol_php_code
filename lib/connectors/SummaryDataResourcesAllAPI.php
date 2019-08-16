@@ -2924,8 +2924,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return array('immediate_children_of_root' => $immediate_children_of_root, 'immediate_children_of_root_count' => $immediate_children_of_root_count);
     }
     private function get_key_of_arr_with_biggest_value($arr)
-    {
-        $val = 0;
+    {   $val = 0;
         foreach($arr as $key => $value) {
             if($value > $val) $ret = $key;
             $val = $value;
@@ -2972,8 +2971,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         else return false;
     }
     private function lifestage_statMeth_Step1($recs)
-    {
-        $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
+    {   $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
         $final = array();
         foreach($recs as $rec) {
             /* print_r($rec); exit;
@@ -2995,8 +2993,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         }
     }
     private function lifestage_statMeth_Step23456789($recs) //steps 2,3,4,5 & 6 7 8 & 9
-    {
-        /* Step 2,3,4,5 */
+    {   /* Step 2,3,4,5 */
         $possible_adult_lifestage = array("http://www.ebi.ac.uk/efo/EFO_0001272", "http://purl.obolibrary.org/obo/PATO_0001701", "http://eol.org/schema/terms/parasiticAdult", "http://eol.org/schema/terms/freelivingAdult", "http://eol.org/schema/terms/ovigerous", "http://purl.obolibrary.org/obo/UBERON_0007222", "http://eol.org/schema/terms/youngAdult");
         $statMethods = array("http://eol.org/schema/terms/average", "http://semanticscience.org/resource/SIO_001114", "http://www.ebi.ac.uk/efo/EFO_0001444", ""); //in specific order
         $step = 1;
@@ -3085,8 +3082,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return false;
     }
     private function get_txt_path_by_page_id($page_id, $ext = ".txt")
-    {
-        $path = self::get_md5_path($this->working_dir, $page_id);
+    {   $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . $ext;
     }
     // private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes = array()) //version 1 - didn't use
@@ -3409,16 +3405,14 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return array('roots' => $roots, 'tips' => self::get_tips($new_isvat_2), 'ISVAT' => $new_isvat_2);
     }
     private function get_one_side_of_tree($tree, $side)
-    {
-        foreach($tree as $a) {
+    {   foreach($tree as $a) {
             if    ($side == 'left') $final[$a[0]] = '';
             elseif($side == 'right') $final[$a[1]] = '';
         }
         return array_keys($final);
     }
     private function get_roots_inside_the_list($roots, $list)
-    {
-        $roots_inside_the_list = array();
+    {   $roots_inside_the_list = array();
         foreach($roots as $root) {
             if(in_array($root, $list)) $roots_inside_the_list[] = $root;
         }
@@ -3469,8 +3463,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $final;
     }
     private function remove_undesirable_roots($roots, $delete_list = array())
-    {
-        $temp = array();
+    {   $temp = array();
         foreach($roots as $root) {
             if($parents = @$this->parents_of[$root]) {
                 $parents = array_diff($parents, $delete_list);
@@ -3482,8 +3475,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return array_keys($temp);
     }
     private function merge_nodes($info, $ISVAT)
-    {
-        $new_nodes = $info['new_nodes'];
+    {   $new_nodes = $info['new_nodes'];
         $roots     = $info['roots'];
         $roots     = self::remove_undesirable_roots($roots); //new step to remove un-desirable roots
         
@@ -3537,8 +3529,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $final;
     }
     private function sort_ISVAT($arr, $num) //also remove parent nodes where there is only one child. Make child an orphan.
-    {
-        if(!$arr) return array();
+    {   if(!$arr) return array();
         rsort($arr);
         foreach($arr as $a) {
             @$temp[$a[0]][$a[1]] = ''; //to be used in $totals
@@ -3591,8 +3582,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $predicates;
     }
     function generate_page_id_txt_files_MySQL($method)
-    {
-        $table = 'traits_'.$method;
+    {   $table = 'traits_'.$method;
         //truncate first
         $sql = "TRUNCATE TABLE SDR.".$table.";";
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
@@ -3675,79 +3665,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return '';
     }
     private function write_report($save_rec, $fields, $fileH)
-    {
-        $arr = array();
+    {   $arr = array();
         foreach($fields as $f) $arr[] = @$save_rec[$f];
         fwrite($fileH, implode("\t", $arr)."\n");
     }
-    /* obsolete not being used anymore
-    function generate_page_id_txt_files() //you MUST just save this to MySQL table. Index fields: page_id, predicate
-    {   exit;
-        self::working_dir();
-        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv
-        $i = 0;
-        while(($line = fgetcsv($file)) !== FALSE) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
-            if($i == 1) $fields = $line;
-            else {
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); exit;
-                // Array(
-                //     [eol_pk] => R96-PK42724728
-                //     [page_id] => 328673
-                //     [scientific_name] => <i>Panthera pardus</i>
-                //     [resource_pk] => M_00238837
-                //     [predicate] => http://eol.org/schema/terms/Present
-                //     [sex] => 
-                //     [lifestage] => 
-                //     [statistical_method] => 
-                //     [source] => http://www.worldwildlife.org/publications/wildfinder-database
-                //     [object_page_id] => 
-                //     [target_scientific_name] => 
-                //     [value_uri] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                //     [literal] => http://eol.org/schema/terms/Southern_Zanzibar-Inhambane_coastal_forest_mosaic
-                //     [measurement] => 
-                //     [units] => 
-                //     [normal_measurement] => 
-                //     [normal_units_uri] => 
-                //     [resource_id] => 20
-                //     )
-                $txt_file = self::get_txt_path_by_page_id($rec['page_id']);
-                // normal operation ----------------------------------------------------------------------- working OK
-                if(file_exists($txt_file)) {
-                    // echo "\nAppend [$txt_file] ";
-                    $WRITE = fopen($txt_file, 'a');
-                    fwrite($WRITE, implode("\t", $line)."\n");
-                    fclose($WRITE);
-                }
-                else {
-                    // echo "\nCreated [$txt_file] ";
-                    $WRITE = fopen($txt_file, 'w');
-                    fwrite($WRITE, implode("\t", $fields)."\n");
-                    fwrite($WRITE, implode("\t", $line)."\n");
-                    fclose($WRITE);
-                }
-                // end normal operation
-
-                // use if u want to delete txt files ----------------------------------------------------------------------- working OK
-                // if(file_exists($txt_file)) {
-                //     echo "\nFound [$txt_file] ";
-                //     if(unlink($txt_file)) echo "- deleted";
-                //     else                  echo "- not deleted";
-                // }
-                // end
-                
-                // if($i >= 1000) break; //debug only
-            }
-        }
-        fclose($file); exit("\n\nText file generation DONE.\n\n");
-    }*/
     private function get_md5_path($path, $taxonkey)
-    {
-        $md5 = md5($taxonkey);
+    {   $md5 = md5($taxonkey);
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         if(!file_exists($path . $cache1)) mkdir($path . $cache1);
@@ -3798,8 +3721,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $recs;
     }
     private function assemble_recs_for_page_id_from_text_file_OLD($page_id, $predicate, $required_fields = array())
-    {
-        $recs = array();
+    {   $recs = array();
         $txt_file = self::get_txt_path_by_page_id($page_id); // echo "\n$txt_file\n";
         if(!file_exists($txt_file)) { // echo "\nFile does not exist.\n";
             return false;
@@ -3858,12 +3780,10 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $recs;
     }
     private function initialize()
-    {
-        self::working_dir();
+    {   self::working_dir();
     }
     function initialize_basal_values()
-    {
-        self::working_dir();
+    {   self::working_dir();
         self::generate_terms_values_child_parent_list($this->file['parent child']['path_habitat']);
         self::generate_terms_values_child_parent_list($this->file['parent child']['path_geoterms']);
         self::generate_preferred_child_parent_list();
@@ -3891,14 +3811,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return array('roots' => $roots, 'new_nodes' => $recs);
     }
     private function get_valueUris_from_recs($recs)
-    {
-        $uris = array();
+    {   $uris = array();
         foreach($recs as $rec) $uris[] = $rec['value_uri'];
         return $uris;
     }
     private function get_initial_shared_values_ancestry_tree($recs)
-    {
-        $final = array(); $i = 0;
+    {   $final = array(); $i = 0;
         // $WRITE = fopen($this->temp_file, 'w'); fclose($WRITE); //used initially for debugging. Not used anymore.
         foreach($recs as $rec) { $i++;
             $term = $rec['value_uri'];
@@ -3933,18 +3851,14 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         exit("\nend 01\n");
     }*/
     private function set_ancestor_ranking_from_set_of_uris($uris)
-    {
-        $final = array(); $final_preferred = array();
+    {   $final = array(); $final_preferred = array();
         foreach($uris as $term) {
             if(!$term) continue;
             if($preferred_terms = @$this->preferred_names_of[$term]) {
-                // echo "\nThere are preferred term(s):\n";
-                // print_r($preferred_terms);
+                // echo "\nThere are preferred term(s):\n"; // print_r($preferred_terms);
                 foreach($preferred_terms as $pterm) {
-                    @$final_preferred[$pterm]++;
-                    // echo "\nparent(s) of $pterm:";
-                    if($parents = @$this->parents_of[$pterm]) {
-                        // print_r($parents);
+                    @$final_preferred[$pterm]++; // echo "\nparent(s) of $pterm:";
+                    if($parents = @$this->parents_of[$pterm]) { // print_r($parents);
                         foreach($parents as $parent) @$final[$parent]++;
                     }
                     // else echo " -- NO parent";
@@ -3969,10 +3883,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $this->ancestor_ranking_preferred = $final_preferred;
     }
     private function get_rank_most_parent($parents, $preferred_terms = array())
-    {
-        if(!$preferred_terms) {
+    {   if(!$preferred_terms) {
             echo "\nancestor_ranking_preferred: "; print_r($this->ancestor_ranking_preferred_withCounts);
-            
             //1st option: if any is a preferred name then choose that
             foreach($this->ancestor_ranking_preferred as $parent) {
                 if(in_array($parent, $parents)) {
@@ -4022,8 +3934,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         exit("\n===============\n");
     }
     private function create_pairs_from_this_term($term, $num) //this will replace get_parent_of_term()
-    {
-        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
+    {   echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
         $pairs = array();
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
@@ -4057,14 +3968,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     }
     private function is_pair_OK($parent_orig, $child_orig)
     {
-        
         $parent = self::remove_protocol($parent_orig);
         $child = self::remove_protocol($child_orig);
 
         // causes infinite loop
         // $parent = $parent_orig;
         // $child = $child_orig;
-        
         
         if($parent == $child) {
             if($parent_orig != $child_orig) $this->debug[] = "Investigate: [$parent_orig] [$child_orig] meaning diff protocol";
@@ -4073,14 +3982,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return array($parent_orig, $child_orig);
     }
     private function remove_protocol($url)
-    {
-        $arr = explode("://", $url);
+    {   $arr = explode("://", $url);
         return $arr[1];
     }
     /*
     private function get_parent_of_term($term, $num) -- replaced by create_pairs_from_this_term()
-    {
-        echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
+    {   echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
         if($preferred_terms = @$this->preferred_names_of[$term]) {
             echo "\nThere are preferred term(s):\n";
             print_r($preferred_terms);
@@ -4134,8 +4041,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         fclose($file); unlink($temp_file);
     }
     private function get_ancestry_of_term($page_id)
-    {
-        $final = array(); $final2 = array();
+    {   $final = array(); $final2 = array();
         if($parent_ids = @$this->terms_values_child_parent_list[$page_id]) {
             foreach($parent_ids as $temp_id) {
                 while(true) {
@@ -4204,32 +4110,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         }
         fclose($file); unlink($temp_file);
     }
-    /*
-    function start_v1()
-    {
-        self::working_dir();
-        $this->child_parent_list = self::generate_child_parent_list();
-        // start tests...
-        $predicate = "http://reeffish.org/occursIn";
-        $predicate = "http://eol.org/schema/terms/Present";
-        $similar_terms = self::given_predicate_get_similar_terms($predicate);
-        // print_r($similar_terms); exit;
-        
-        self::print_taxon_and_ancestry($similar_terms);
-        self::given_predicates_get_values_from_traits_csv($similar_terms);
-        exit("\n-end tests-\n");
-        // end tests
-        if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
-        // remove temp dir
-        // un-comment in real operation
-        recursive_rmdir($this->main_paths['temp_dir']);
-        echo ("\n temporary directory removed: " . $this->main_paths['temp_dir']);
-        //
-    }
-    */
     private function generate_child_parent_list()
-    {
-        $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r');
+    {   $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
             $i++;
@@ -4252,8 +4134,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $final;
     }
     private function print_taxon_and_ancestry($preds)
-    {
-        $WRITE = fopen($this->report_file, 'a');
+    {   $WRITE = fopen($this->report_file, 'a');
         fwrite($WRITE, "Taxa (with ancestry) having data for predicate in question and similar terms: \n\n");
         fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "ancestry"))."\n");
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
@@ -4287,8 +4168,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         fclose($WRITE);
     }
     private function given_predicates_get_values_from_traits_csv($preds)
-    {
-        $WRITE = fopen($this->report_file, 'a');
+    {   $WRITE = fopen($this->report_file, 'a');
         fwrite($WRITE, "Records from traits.csv having data for predicate in question and similar terms: \n\n");
         fwrite($WRITE, implode("\t", array("page_id", "scientific_name", "predicate", "value_uri OR literal"))."\n");
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
@@ -4321,8 +4201,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         fclose($file);
     }
     private function get_ancestry_using_page_id($page_id)
-    {
-        $final = array(); $temp_id = $page_id;
+    {   $final = array(); $temp_id = $page_id;
         while(true) {
             if($parent_id = @$this->child_parent_list[$temp_id]) {
                 $final[] = $parent_id;
@@ -4338,8 +4217,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         if($val = @$rec['literal']) return $val;
     }
     private function given_predicate_get_similar_terms($pred) //used during initial report to Jen
-    {
-        $final = array();
+    {   $final = array();
         $final[$pred] = ''; //processed predicate is included
         //from 'parent child':
         $temp_file = Functions::save_remote_file_to_local($this->file['parent child'], $this->download_options);
@@ -4368,8 +4246,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $final;
     }
     private function investigate_traits_csv()
-    {
-        $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
+    {   $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
             $i++; 
@@ -4392,8 +4269,6 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             }
         }
     }
-
-
     private function get_CSV_children_of($page_id, $predicate = '') //$predicate param here is just for debug
     {   echo "\nGetting children of [$page_id]...\n";
         $anaks = array();
@@ -4613,21 +4488,6 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         "\nDone getting children of [$page_id] OK\n";
         return $anaks;
     }
-
-    /* not used at the moment
-    private function choose_term_type($predicate)
-    {
-        switch ($predicate) {
-            case "http://eol.org/schema/terms/Habitat":
-                return 'path_habitat'; //break;
-            case "http://eol.org/schema/terms/Present":
-                return 'path_geoterms'; //break;
-            default:
-                exit("\nPredicate [$predicate] not yet assigned to what term_type.\n");
-        }
-    }
-    */
-
     /* report for Jen
     self::parse_DH();
     $WRITE = fopen($this->report_file, 'w');
