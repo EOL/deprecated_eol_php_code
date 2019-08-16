@@ -79,9 +79,13 @@ class SummaryDataResourcesAllAPI
         
         $this->parentModeYN = false;
         $this->fullref = array();
-        $this->EATS_or_IsEatenBy_modeYN = false;
+        // $this->EATS_or_IsEatenBy_modeYN = false; //not implemented
         $this->synonyms_EATS = array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439', 'http://purl.obolibrary.org/obo/RO_0002444');
         $this->synonyms_IsEatenBy = array('http://purl.obolibrary.org/obo/RO_0002471', 'http://purl.obolibrary.org/obo/RO_0002458', 'http://purl.obolibrary.org/obo/RO_0002445');
+
+        /* Aug 15'19: In addition to the two clusters, let's keep two more predicates, un-clustered: RO_0002453 (host of) RO_0002454 (has host) */
+        $this->added_predicates = array('http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002454');
+        
         /* Notes:
         With new records. Will write to DwCA.
         With existiing records. Will write to resource.txt.
@@ -422,6 +426,7 @@ class SummaryDataResourcesAllAPI
                 $predicates[$i] = NULL;
                 $add_group_RO_0002471_YN = true;
             }
+            elseif(in_array($pred, $this->added_predicates)) $final[] = $pred; //those additional predicates. Outside of all other discarded predicates.
             /* per Jen - discard all other predicates
             else $final[] = $pred; //comment this line if you want to get only the "combined predicates"
             */
@@ -435,7 +440,7 @@ class SummaryDataResourcesAllAPI
         $this->parentModeYN = false;
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); echo "\nPredicates: ".count($predicates)."\n";
-        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); //exit;
+        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); exit;
         self::initialize(); 
         /* removed bec it is getting page_ids without predicate in question. Moved below.
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates);
