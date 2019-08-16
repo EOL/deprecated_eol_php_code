@@ -44,6 +44,7 @@ Historical:
 26	Thursday 2018-03-08 08:14:32 PM	{"agent.tab":1434,"measurement_or_fact.tab":433025,"media_resource.tab":170476,"occurrence.tab":430498,"reference.tab":671182,"taxon.tab":608250,"vernacular_name.tab":74116}
 26	Thursday 2018-10-18 02:32:29 AM	{"agent.tab":1533,"measurement_or_fact.tab":539555,"media_resource.tab":92033,"occurrence.tab":535762,"reference.tab":691566,"taxon.tab":625782,"vernacular_name.tab":74148}
 26	Thursday 2018-10-18 09:38:17 PM	{"agent.tab":1533,"measurement_or_fact.tab":539555,"media_resource.tab":85041,"occurrence.tab":535762,"reference.tab":691566,"taxon.tab":625782,"vernacular_name.tab":74148}
+26	Saturday 2019-08-10 12:25:16 AM	{"agent.tab":1592,"measurement_or_fact.tab":553562,"media_resource.tab":85088,"occurrence.tab":549786,"reference.tab":604956,"taxon.tab":579191,"vernacular_name.tab":79059}
 
 exec time: ~30 minutes
 */
