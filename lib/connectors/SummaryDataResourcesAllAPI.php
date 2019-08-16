@@ -2882,17 +2882,6 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $this->ISVAT_TS = $this->ISVAT_TS + $final;
         
         if(!$final) return false;
-        /* WORKING WELL but was made into a function -> get_immediate_children_of_root_info($final)
-        foreach($final as $tip => $ancestors) {
-            $root_ancestor[] = end($ancestors);
-            $no_of_rows = count($ancestors);
-            if($no_of_rows > 1) $idx = $ancestors[$no_of_rows-2]; // rows should be > 1 bec if only 1 then there is no child for that root.
-            elseif($no_of_rows == 1) $idx = $tip; 
-            else exit("\nInvestigate: won't go here...\n");
-            $immediate_children_of_root[$idx] = '';
-            @$immediate_children_of_root_count[$idx]++;
-        }
-        */
         $ret = self::get_immediate_children_of_root_info($final);
         $immediate_children_of_root         = $ret['immediate_children_of_root'];
         $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
