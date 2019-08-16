@@ -3678,8 +3678,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $path . "$cache1/$cache2/";
     }
     private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
-    {
-        $ret = self::format_value_for_sql($predicate);
+    {   $ret = self::format_value_for_sql($predicate);
         if($ret['count'] == 'single')       $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
         elseif($ret['count'] == 'multiple') $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate in (".$ret['value'].")";
         
