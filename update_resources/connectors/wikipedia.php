@@ -309,20 +309,38 @@ wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab
 
 langs_with_multiple_connectors: "nl", "pl", "sv", "vi"
 wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
+wikipedia-nl	Sunday 2019-08-11 02:03:22 PM	{"media_resource.tab":975588,"taxon.tab":950697} OK
+
 wikipedia-pl	Thursday 2019-04-18 07:30:05 PM	{"media_resource.tab":92390,"taxon.tab":56112}
+wikipedia-pl	Sunday 2019-08-11 07:14:48 PM	{"media_resource.tab":93531,"taxon.tab":56711} OK
+
 wikipedia-vi	Saturday 2019-04-27 01:40:44 AM	{"media_resource.tab":1582933,"taxon.tab":826812}
+wikipedia-vi	Wednesday 2019-08-14 07:34:50 PM{"media_resource.tab":1584541,"taxon.tab":827634} OK
+
 wikipedia-sv	Tuesday 2019-04-30 09:04:30 PM	{"media_resource.tab":80151,"taxon.tab":51485}
+wikipedia-sv	Friday 2019-08-16 04:32:53 PM	{"media_resource.tab":80428,"taxon.tab":51666} OK
  
 Not yet with multiple connectors: "no", "fi", "ca", "uk", "tr", "ro", "cs"
 wikipedia-cs	Saturday 2019-04-27 06:30:40 AM	{"media_resource.tab":23413,"taxon.tab":17991}
+wikipedia-cs	Thursday 2019-08-15 12:27:48 AM	{"media_resource.tab":23627,"taxon.tab":18160} OK
+
 wikipedia-tr	Saturday 2019-04-27 07:39:05 AM	{"media_resource.tab":11114,"taxon.tab":9113}
+wikipedia-tr	Wednesday 2019-08-14 10:02:10 PM{"media_resource.tab":11146,"taxon.tab":9139} OK
+
 wikipedia-fi	Saturday 2019-04-27 09:26:44 AM	{"media_resource.tab":39542,"taxon.tab":26545}
+wikipedia-fi	Thursday 2019-08-15 03:29:14 AM	{"media_resource.tab":40149,"taxon.tab":27013} OK
 
 wikipedia-no	Saturday 2019-04-27 02:04:01 PM	{"media_resource.tab":61203,"taxon.tab":37024}
-wikipedia-ro	Saturday 2019-04-27 02:09:48 PM	{"media_resource.tab":60752,"taxon.tab":34846}
-wikipedia-uk	Saturday 2019-04-27 03:30:05 PM	{"media_resource.tab":33509,"taxon.tab":30899}
-wikipedia-ca	Sunday 2019-04-28 03:07:45 AM	{"media_resource.tab":124020,"taxon.tab":70790}
+wikipedia-no	Thursday 2019-08-15 07:56:33 AM	{"media_resource.tab":62169,"taxon.tab":37534} OK
 
+wikipedia-ro	Saturday 2019-04-27 02:09:48 PM	{"media_resource.tab":60752,"taxon.tab":34846}
+wikipedia-ro	Thursday 2019-08-15 07:49:25 AM	{"media_resource.tab":60891,"taxon.tab":34936} OK
+
+wikipedia-uk	Saturday 2019-04-27 03:30:05 PM	{"media_resource.tab":33509,"taxon.tab":30899}
+wikipedia-uk	Thursday 2019-08-15 06:32:40 AM	{"media_resource.tab":37569,"taxon.tab":33991} OK
+
+wikipedia-ca	Sunday 2019-04-28 03:07:45 AM	{"media_resource.tab":124020,"taxon.tab":70790}
+wikipedia-ca	Thursday 2019-08-15 08:52:01 PM	{"media_resource.tab":124621,"taxon.tab":71136} OK
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
