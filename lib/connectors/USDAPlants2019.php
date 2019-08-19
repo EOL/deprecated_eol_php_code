@@ -8,8 +8,7 @@ class USDAPlants2019
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         
-        $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-
+        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->area['L48'] = "Lower 48 United States of America";
         $this->area['AK'] = "Alaska, USA";
         $this->area['HI'] = "Hawaii, USA";
@@ -22,9 +21,54 @@ class USDAPlants2019
         $this->area['NAV'] = "Navassa Island";
         $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
         $this->service['taxon_page'] = 'https://plants.usda.gov/core/profile?symbol=';
+        $this->service['per_state_page'] = 'https://plants.sc.egov.usda.gov/java/stateDownload?statefips=';
     }
     /*================================================================= STARTS HERE ======================================================================*/
-    function parse_state_list_page()
+    function process_per_state()
+    {
+        $state_list = self::parse_state_list_page();
+        foreach($state_list as $territory => $states) {
+            echo "\n[$territory]\n";
+            // print_r($states); exit;
+            foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
+                if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) {
+                    if($local = Functions::save_remote_file_to_local($this->service['per_state_page'].$arr[1], $this->download_options)) {
+                        self::parse_state_list($local);
+                        unlink($local);
+                    }
+                }
+            }
+        }
+    }
+    private function parse_state_list($local)
+    {
+        echo "\nprocessing [$local]\n";
+        $file = fopen($local, 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) {
+            $i++;
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [Symbol] => DIBR2
+                    [Synonym Symbol] => 
+                    [Scientific Name with Author] => Dicliptera brachiata (Pursh) Spreng.
+                    [National Common Name] => branched foldwing
+                    [Family] => Acanthaceae
+                )
+                */
+                if(!$rec['Synonym Symbol']) {
+                    self::parse_profile_page($this->service['taxon_page'].$rec['Symbol']); //exit;
+                }
+            }
+        }
+    }
+    private function parse_state_list_page()
     {
         if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
             if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
@@ -90,7 +134,7 @@ class USDAPlants2019
         $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        /*
+        /* may just use the per-state pages to build up taxa.tab
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         */
         // print_r($this->debug); exit;

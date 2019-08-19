@@ -51,8 +51,7 @@ function test()
     $func->parse_profile_page($url);
     */
 
-    $state_list = $func->parse_state_list_page();
-    
+    $func->process_per_state();
 }
 
 function process_resource_url($dwca_file, $resource_id)
@@ -68,11 +67,14 @@ function process_resource_url($dwca_file, $resource_id)
       rowType="http://eol.org/schema/agent/Agent"
       rowType="http://rs.tdwg.org/dwc/terms/Occurrence"
       rowType="http://rs.tdwg.org/dwc/terms/MeasurementOrFact"
-      rowType="http://eol.org/schema/Association"
-      rowType="http://rs.tdwg.org/dwc/terms/Event"
+      rowType="http://eol.org/schema/Association"                       --- seems to be not intended to be created
+      rowType="http://rs.tdwg.org/dwc/terms/Event"                      --- seems not needed
     */
 
-    $preferred_rowtypes = array('http://eol.org/schema/reference/reference');
+    $preferred_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.gbif.org/terms/1.0/vernacularname', 
+                                'http://eol.org/schema/reference/reference', 'http://eol.org/schema/agent/agent');
+
+    $preferred_rowtypes = array();
     /* These 3 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
     http://rs.tdwg.org/dwc/terms/occurrence
     http://rs.tdwg.org/dwc/terms/measurementorfact
