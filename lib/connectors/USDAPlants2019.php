@@ -21,6 +21,7 @@ class USDAPlants2019
         $this->area['NA'] = "North America";
         $this->area['NAV'] = "Navassa Island";
         $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
+        $this->service['taxon_page'] = 'https://plants.usda.gov/core/profile?symbol=';
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function parse_state_list_page()
@@ -88,12 +89,11 @@ class USDAPlants2019
     {
         $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         /*
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         */
-        print_r($this->debug); exit;
+        // print_r($this->debug); exit;
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -131,7 +131,13 @@ class USDAPlants2019
                 [http://purl.org/dc/terms/contributor] => 
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
-
+            //===========================================================================================================================================================
+            /* Data to remove: Katja has heard that records for several of the predicates are suspect. Please remove anything with the predicates below: */
+            $pred_2remove = array('http://eol.org/schema/terms/NativeIntroducedRange', 'http://eol.org/schema/terms/NativeProbablyIntroducedRange', 
+                'http://eol.org/schema/terms/ProbablyIntroducedRange', 'http://eol.org/schema/terms/ProbablyNativeRange', 
+                'http://eol.org/schema/terms/ProbablyWaifRange', 'http://eol.org/schema/terms/WaifRange', 'http://eol.org/schema/terms/InvasiveNoxiousStatus');
+            if(in_array($rec['http://rs.tdwg.org/dwc/terms/measurementType'], $pred_2remove)) continue;
+            //===========================================================================================================================================================
             /* Metadata: For records with measurementType=A, please add lifeStage=B
             A B
             http://eol.org/schema/terms/SeedlingSurvival    http://purl.obolibrary.org/obo/PPO_0001007
@@ -141,7 +147,7 @@ class USDAPlants2019
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             $lifeStage = '';
             if($mtype == 'http://eol.org/schema/terms/SeedlingSurvival') $lifeStage = 'http://purl.obolibrary.org/obo/PPO_0001007';
-            // elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $lifeStage = '';
+            elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $lifeStage = 'http://purl.obolibrary.org/obo/PO_0009010';
             elseif($mtype == 'http://purl.obolibrary.org/obo/TO_0000207') $lifeStage = 'http://purl.obolibrary.org/obo/PATO_0001701';
 
             /* and for records with measurementType=C, please add bodyPart=D
@@ -152,33 +158,23 @@ class USDAPlants2019
             */
             $bodyPart = '';
             if($mtype == 'http://purl.obolibrary.org/obo/PATO_0001729') $bodyPart = 'http://purl.obolibrary.org/obo/PO_0025034';
-            // elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $bodyPart = '';
+            elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $bodyPart = 'http://purl.obolibrary.org/obo/PO_0009010';
             elseif($mtype == 'http://purl.obolibrary.org/obo/TO_0000207') $bodyPart = 'http://purl.obolibrary.org/obo/UBERON_0000468';
             
             $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $lifeStage;
             $this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $bodyPart;
-            
+            //===========================================================================================================================================================
             /* Value term to re-map. I think the source's text string is "Subshrub". 
             It's a value for http://purl.obolibrary.org/obo/FLOPO_0900032, eg: for https://plants.usda.gov/core/profile?symbol=VEBR2
             It's currently mapped to http://purl.obolibrary.org/obo/FLOPO_0900034. It should be re-mapped to http://eol.org/schema/terms/subshrub
             ELI: it seems this has now been corrected. Current data uses http://eol.org/schema/terms/subshrub already. No need to code this requirement.
             */
-
-            /* Data to remove: Katja has heard that records for several of the predicates are suspect. Please remove anything with the predicates below:
-            */
-            $pred_2remove = array('http://eol.org/schema/terms/NativeIntroducedRange', 'http://eol.org/schema/terms/NativeProbablyIntroducedRange', 
-                'http://eol.org/schema/terms/ProbablyIntroducedRange', 'http://eol.org/schema/terms/ProbablyNativeRange', 
-                'http://eol.org/schema/terms/ProbablyWaifRange', 'http://eol.org/schema/terms/WaifRange', 'http://eol.org/schema/terms/InvasiveNoxiousStatus');
-            if(in_array($rec['http://rs.tdwg.org/dwc/terms/measurementType'], $pred_2remove)) continue;
-            
-            
+            //===========================================================================================================================================================
             /* Additional data: */
             if($mtype == 'http://eol.org/schema/terms/NativeRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
             if($mtype == 'http://eol.org/schema/terms/IntroducedRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
-            
-
             $this->debug['mtype'][$mtype] = '';
-
+            //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
@@ -267,7 +263,7 @@ class USDAPlants2019
             
             if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
             
-            $o = new \eol_schema\Occurrence();
+            $o = new \eol_schema\Occurrence_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
