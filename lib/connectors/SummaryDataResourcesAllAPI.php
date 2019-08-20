@@ -12,7 +12,8 @@ class SummaryDataResourcesAllAPI
         */
         $this->download_options = array('resource_id' => 'SDR_all', 'timeout' => 60*5, 'expire_seconds' => 60*60*24, 'cache' => 1, 'download_wait_time' => 1000000);
         $this->debug = array();
-        
+
+        $opendata_paths = self::get_opendata_paths();
         /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
         /* not used at the moment:
         $this->file['parent child']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/f8036c30-f4ab-4796-8705-f3ccd20eb7e9/download/parent-child-aug-16-2.csv";
@@ -20,22 +21,11 @@ class SummaryDataResourcesAllAPI
         */
         $this->file['parent child']['fields'] = array('parent', 'child'); //used more simple words instead of: array('parent_term_URI', 'subclass_term_URI');
         
-        $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-aug-16-1-2.csv";
-        $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2-3.csv";
-        $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-sept-27.csv";
+        $this->file['preferred synonym']['path'] = $opendata_paths['preferred synonym'];
         $this->file['preferred synonym']['fields'] = array('preferred', 'deprecated'); //used simple words instead of: array('preferred_term_URI', 'deprecated_term_URI');
 
-        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv"; 
-        $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv";
-        $this->file['parent child']['path_habitat'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/c5ff5c62-a2ef-44be-9f59-88cd99bc8af2/download/habitat-parent-child-6-1.csv";
-        
-        $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
-        $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child-1.csv";
-        //these next 2 versions are exactly the same as of Aug 7, 2019
-        // geoterms-parent-child-1.csv
-        // geoterms-parent-child-feb19.csv
-        $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
-        $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-feb19.csv";
+        $this->file['parent child']['path_habitat'] = $opendata_paths['terms relationships for habitat values'];
+        $this->file['parent child']['path_geoterms'] = $opendata_paths['terms relationships for geographic values'];
         
         /* not being used ATM. Will be used in production environment.
         // $this->dwca_file = "http://localhost/cp/summary data resources/carnivora_sample.tgz";
@@ -86,6 +76,9 @@ class SummaryDataResourcesAllAPI
         /* Aug 15'19: In addition to the two clusters, let's keep two more predicates, un-clustered: RO_0002453 (host of) RO_0002454 (has host) */
         $this->added_predicates = array('http://purl.obolibrary.org/obo/RO_0002453', 'http://purl.obolibrary.org/obo/RO_0002454');
         
+        $this->magic8 = array(46702381, 2910700, 6061725, 2908256, 2913056);
+        $this->magic8 = array_merge($this->magic8, array(8814528, 3014411, 10459935)); //makes it a magic 8
+
         /* Notes:
         With new records. Will write to DwCA.
         With existiing records. Will write to resource.txt.
@@ -95,6 +88,28 @@ class SummaryDataResourcesAllAPI
         parent basal values                             parent taxon summary
         write resource file: basal values               write resource file: taxon summary
         write resource file: parent basal values        write resource file: parent taxon summary   */
+    private function get_opendata_paths()
+    {   $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //1 day expires
+        if($json = Functions::lookup_with_cache('https://opendata.eol.org/api/3/action/package_show?id=terms-relationships', $options)) {
+            $o = json_decode($json);
+            foreach($o->result->resources as $res) $final[$res->name] = $res->url;
+        }
+        /* print_r(array_keys($final)); exit;
+        Array(
+            [0] => parent child
+            [1] => preferred synonym
+            [2] => trait defaultUnit
+            [3] => terms relationships for habitat values
+            [4] => terms relationships for geographic values
+            [5] => values terms
+            [6] => all relationships
+        )*/
+        if(!isset($final['preferred synonym']))                         exit("\n[preferred synonym] name not found\n");
+        if(!isset($final['terms relationships for habitat values']))    exit("\n[terms relationships for habitat values] name not found\n");
+        if(!isset($final['terms relationships for geographic values'])) exit("\n[terms relationships for geographic values] name not found\n");
+        return $final;
+    }
     private function setup_working_dir() //for production env only
     {
         require_library('connectors/INBioAPI');
@@ -630,11 +645,13 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on - with rec but no DwCA as of Aug 14'19
         // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
 
-        $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
+        // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
         // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002471,http://purl.obolibrary.org/obo/RO_0002458,http://purl.obolibrary.org/obo/RO_0002445");
         // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002453");
-        // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454");
-
+        // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454"); no records OK
+        
+        $input[] = array('page_id' => 972688, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454");
+        
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->ISVAT_TS = array();
@@ -1071,6 +1088,12 @@ class SummaryDataResourcesAllAPI
         echo "\n [$parentYN] Original recs: ".count($recs)."\n";
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nTS - Not found in traits.csv. Create new record(s): included in DwCA"; print_r($new_records); //good debug
+            
+            // maybe apply it here as well the magic 8 
+            // but show jen which is better remove the magic 8 above and place it here
+            // or have magic 8 both above and here...
+            
+            
             /* ver 1
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive_TaxonSummary($new_records, $refs, $info);
@@ -2544,8 +2567,7 @@ class SummaryDataResourcesAllAPI
         (not yet on parents taxon summary) and see how it goes.
         I suppose this one was inevitably going to be iterative/experimental, but I think we're getting close!
         */
-        $root_nodes_to_remove = array(46702381, 2910700, 6061725, 2908256, 2913056);
-        $root_nodes_to_remove = array_merge($root_nodes_to_remove, array(8814528, 3014411, 10459935)); //makes it a magic 8
+        $root_nodes_to_remove = $this->magic8;
         $cont_for_more = false;
         $final = array();
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
@@ -2798,7 +2820,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         */
         echo "\n================================================================Method: taxon summary\npage_id: $page_id | predicate: [$predicate]\n";
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
-        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate); //has script to handle multiple predicates ALREADY
+        $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array(), 'TS'); //has script to handle multiple predicates ALREADY
+                                                                                                     // 3rd param here is irrelevant, 4th param is important.
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
         echo "\nAssembled recs: ".count($recs)."\n";
         // print_r($recs); exit;
@@ -3685,10 +3708,15 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         if(!file_exists($path . "$cache1/$cache2")) mkdir($path . "$cache1/$cache2");
         return $path . "$cache1/$cache2/";
     }
-    private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array())
+    private function assemble_recs_for_page_id_from_text_file($page_id, $predicate, $required_fields = array(), $method = '') //4th param is used by TS only so far
     {   $ret = self::format_value_for_sql($predicate);
         if($ret['count'] == 'single')       $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
         elseif($ret['count'] == 'multiple') $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate in (".$ret['value'].")";
+        
+        if($method == 'TS') { //has to have unique page_id + object_page_id
+            if($ret['count'] == 'single')       $sql = "SELECT DISTINCT t.page_id, t.object_page_id, t.value_uri from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
+            elseif($ret['count'] == 'multiple') $sql = "SELECT DISTINCT t.page_id, t.object_page_id, t.value_uri from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate in (".$ret['value'].")";
+        }
         
         echo "\nAssemble recs start [$sql]\n";
         $result = $this->mysqli->query($sql);
