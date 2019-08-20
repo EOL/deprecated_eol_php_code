@@ -96,7 +96,6 @@ class SummaryDataResourcesAllAPI
             foreach($o->result->resources as $res) $final[$res->name] = $res->url;
         }
         /* print_r(array_keys($final)); exit;
-        Array(
             [0] => parent child
             [1] => preferred synonym
             [2] => trait defaultUnit
@@ -2874,7 +2873,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                 $arr = array_unique($arr);
                                 if(count($arr) > 1) {
                                     $final[$page_id][] = $id; //meaning child is not the same for all recs
-                                    $eol_pks[$rec['eol_pk']] = ''; // probably where we get the refs, at least for this single test case it was right on
+                                    // $eol_pks[$rec['eol_pk']] = ''; //abandoned already
                                 }
                             }
                         }
