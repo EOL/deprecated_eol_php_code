@@ -1109,7 +1109,7 @@ class SummaryDataResourcesAllAPI
     }
     //================================================================================================================================= start new scheme
     private function assemble_refs_for_new_recs_TS($new_records, $orig_recs)
-    {
+    {   $refs_of = array();
         foreach($new_records as $new) {
             $descendants_of[$new] = self::get_from_ISVAT_descendants_of_TS($new);                              //1. get from $this->ISVAT which are descendants of $new
             $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs_TS($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
