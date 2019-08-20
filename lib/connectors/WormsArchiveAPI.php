@@ -125,11 +125,18 @@ class WormsArchiveAPI
         exit("\n[$str]\n");
         */
         
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
+        */
+        // /* for development only
+        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
+        // */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
+
+        // print_r($paths); //exit;
 
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
@@ -154,6 +161,9 @@ class WormsArchiveAPI
             
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
+
+        echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        exit("\nstop munax\n");
 
         echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
@@ -602,7 +612,76 @@ class WormsArchiveAPI
         }
         return false;
     }
-    
+    private function get_measurements($meta)
+    {   //print_r($meta);
+        echo "\nprocess_measurementorfact...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 292968
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 415015_292968
+                [parentMeasurementID] => 415014_292968
+                [http://rs.tdwg.org/dwc/terms/measurementType] => Feedingtype > Host
+                [http://rs.tdwg.org/dwc/terms/measurementValueID] => urn:lsid:marinespecies.org:taxname:217662
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => Saurida gracilis (Quoy & Gaimard, 1824)
+                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
+            )
+            */
+            if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') {
+                // print_r($rec); exit;
+                /*
+                source is: 292968
+                target is: 217662
+                e.g. MoF
+                occurrenceID , associationType , targetOccurrenceID
+                292968_RO_0002454 , http://purl.obolibrary.org/obo/RO_0002454 , 217662_292968_RO_0002454
+                */
+                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'];
+                $occurrenceID = $this->add_occurrence_assoc($taxon_id, 'RO_0002454');
+                $related_taxonID = $this->add_taxon($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementValueID']));
+                $related_occurrenceID = $this->add_occurrence_assoc($related_taxonID, $taxon_id.'_RO_0002454');
+                $a = new \eol_schema\Association();
+                $a->occurrenceID = $occurrenceID;
+                $a->associationType = "http://purl.obolibrary.org/obo/RO_0002454";
+                $a->targetOccurrenceID = $related_occurrenceID;
+                $this->archive_builder->write_object_to_file($a);
+                exit("\nxxx\n");
+            }
+        }
+    }
+    private function add_taxon($taxon_name, $taxon_id)
+    {
+        if(isset($this->taxon_ids[$taxon_id])) return $taxon_id;
+        $t = new \eol_schema\Taxon();
+        $t->taxonID = $taxon_id;
+        $t->scientificName = $taxon_name;
+        $this->archive_builder->write_object_to_file($t);
+        $this->taxon_ids[$taxon_id] = '';
+        return $taxon_id;
+    }
+    private function add_occurrence_assoc($taxon_id, $identification_string)
+    {
+        $occurrence_id = $taxon_id.'_'.$identification_string;
+        if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
+        $o = new \eol_schema\Occurrence();
+        $o->occurrenceID = $occurrence_id;
+        $o->taxonID = $taxon_id;
+        $this->archive_builder->write_object_to_file($o);
+        $this->occurrence_ids[$occurrence_id] = '';
+        return $occurrence_id;
+    }
     private function get_objects($records)
     {
         foreach($records as $rec) {
