@@ -1087,11 +1087,13 @@ class SummaryDataResourcesAllAPI
         echo "\n [$parentYN] Original recs: ".count($recs)."\n";
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nTS - Not found in traits.csv. Create new record(s): included in DwCA"; print_r($new_records); //good debug
-            
-            // maybe apply it here as well the magic 8 
-            // but show jen which is better remove the magic 8 above and place it here
-            // or have magic 8 both above and here...
-            
+
+            // /* magic 8 now applied above (orig) and now here as well
+            if($parentYN == "non-parent") {
+                $new_records = array_diff($new_records, $this->magic8);
+                echo "\n after magic 8: "; print_r($new_records);
+            }
+            // */
             
             /* ver 1
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
