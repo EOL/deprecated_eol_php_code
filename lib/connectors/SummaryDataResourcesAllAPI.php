@@ -1323,7 +1323,7 @@ class SummaryDataResourcesAllAPI
         else echo "\nNo new records. Will not write to DwCA.\n";
     }
     private function assemble_refs_for_new_recs($new_records, $orig_recs)
-    {
+    {   $refs_of = array();
         foreach($new_records as $new) {
             $descendants_of[$new] = self::get_from_ISVAT_descendants_of($new);                              //1. get from $this->ISVAT which are descendants of $new
             $eol_pks_of[$new] = self::get_eol_pks_of_new_from_origRecs($orig_recs, $descendants_of[$new]);  //2. get eol_pks from orig recs
@@ -1334,8 +1334,7 @@ class SummaryDataResourcesAllAPI
         return $refs_of;
     }
     private function get_eol_pks_of_new_from_origRecs($recs, $descendants)
-    {
-        $eol_pks = array();
+    {   $eol_pks = array();
         foreach($recs as $rec) {
             if(in_array($rec['value_uri'], $descendants)) {
                 $eol_pks[$rec['eol_pk']] = '';
@@ -1345,8 +1344,7 @@ class SummaryDataResourcesAllAPI
         return array_keys($eol_pks);
     }
     private function get_from_ISVAT_descendants_of($term) //working well
-    {
-        // echo "\nSTART: get_from_ISVAT_descendants_of($term)\n";
+    {   // echo "\nSTART: get_from_ISVAT_descendants_of($term)\n";
         $desc_x = array($term);
         $preserve_unique_desc_x = array(); //prevent infinite loop e.g. page_id: 1004183 | predicate: [http://eol.org/schema/terms/Present]
         while($desc_x) {
