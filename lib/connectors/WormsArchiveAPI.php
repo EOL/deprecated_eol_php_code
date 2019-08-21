@@ -655,8 +655,10 @@ class WormsArchiveAPI
                 else {
                     print_r($rec); exit("\nsciname not found with id from measurementAccuracy\n");
                 }
-                print_r($save); exit;
+                // print_r($save); exit;
             }
+            //========================================================================================================next task --- "Body size > Dimension"
+            
         }
     }
     private function csv2array($url, $type)
