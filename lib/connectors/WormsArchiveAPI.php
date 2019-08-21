@@ -149,20 +149,18 @@ class WormsArchiveAPI
             Based on latest: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60756&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60756
             */
             $this->children_of_synonyms = self::get_all_children_of_synonyms($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon')); //then we will exclude this in the main operation
-
             // /* uncomment in real operation
             //add ids to prune for those to be excluded: https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
             echo "\nBuilding up IDs to prune...\n"; $ids = self::get_all_ids_to_prune();
             $this->children_of_synonyms = array_merge($this->children_of_synonyms, $ids);
             $this->children_of_synonyms = array_unique($this->children_of_synonyms);
             // */
-            
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
         echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
 
         // /* block for DATA-1827 tasks
-        $this->match2map = self::csv2array($this->match2mapping, 'match2map');
+        $this->match2map = self::csv2array($this->match2mapping, 'match2map'); //mapping csv to array
         echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         exit("\nstop munax\n");
         // */
