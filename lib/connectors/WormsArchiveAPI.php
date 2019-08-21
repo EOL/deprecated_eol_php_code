@@ -642,25 +642,10 @@ class WormsArchiveAPI
             if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') {
                 // print_r($rec); exit;
                 /*
-                source is: 292968
-                target is: 217662
+                source is: 292968   target is: 217662
                 e.g. MoF
                 occurrenceID , associationType , targetOccurrenceID
                 292968_RO_0002454 , http://purl.obolibrary.org/obo/RO_0002454 , 217662_292968_RO_0002454
-                */
-                
-                
-                /* working re-factored
-                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'];
-                $occurrenceID = $this->add_occurrence_assoc($taxon_id, 'RO_0002454');
-                $related_taxonID = $this->add_taxon($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementValueID']));
-                $related_occurrenceID = $this->add_occurrence_assoc($related_taxonID, $taxon_id.'_RO_0002454');
-                $a = new \eol_schema\Association();
-                $a->occurrenceID = $occurrenceID;
-                $a->associationType = "http://purl.obolibrary.org/obo/RO_0002454";
-                $a->targetOccurrenceID = $related_occurrenceID;
-                $a->source = 'http://www.marinespecies.org/aphia.php?p=taxdetails&id='.$taxon_id.'#attributes';
-                $this->archive_builder->write_object_to_file($a);
                 */
                 $param = array('source_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 'predicate' => 'http://purl.obolibrary.org/obo/RO_0002454', 
                                'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/measurementValueID'], 
@@ -680,7 +665,7 @@ class WormsArchiveAPI
         $basename = pathinfo($param['predicate'], PATHINFO_BASENAME); //e.g. RO_0002454
         $taxon_id = $param['source_taxon_id'];
         $occurrenceID = $this->add_occurrence_assoc($taxon_id, $basename);
-        $related_taxonID = $this->add_taxon($param['target_taxon_name'], self::get_worms_taxon_id($param['target_taxon_id']));
+        $related_taxonID = $this->add_taxon_assoc($param['target_taxon_name'], self::get_worms_taxon_id($param['target_taxon_id']));
         $related_occurrenceID = $this->add_occurrence_assoc($related_taxonID, $taxon_id.'_'.$basename);
         $a = new \eol_schema\Association();
         $a->occurrenceID = $occurrenceID;
@@ -689,7 +674,7 @@ class WormsArchiveAPI
         $a->source = 'http://www.marinespecies.org/aphia.php?p=taxdetails&id='.$taxon_id.'#attributes';
         $this->archive_builder->write_object_to_file($a);
     }
-    private function add_taxon($taxon_name, $taxon_id)
+    private function add_taxon_assoc($taxon_name, $taxon_id)
     {
         if(isset($this->taxon_ids[$taxon_id])) return $taxon_id;
         $t = new \eol_schema\Taxon();
