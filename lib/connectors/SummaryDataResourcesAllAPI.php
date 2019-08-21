@@ -2840,8 +2840,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         - get all ancestors that exist also in other recs.
         - among these ancestors, select those where it has > 1 children. Don't include those with the same child in its occurrence in other recs.
         */
+        $unique_page_ids = array();
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
+                if(isset($unique_page_ids[$page_id])) continue;
+                else $unique_page_ids[$page_id] = '';
+                
                 $anc = self::get_ancestry_via_DH($page_id);
                 // /* initial report for Jen
                 // echo "\nAncestry [$page_id]: "; print_r($anc); //orig initial report
@@ -2863,8 +2867,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         }
         // print_r($counts); print_r($children_of); //good debug
         $final = array(); $eol_pks = array(); //$eol_pks here is for getting the refs
+        $unique_page_ids = array();
         foreach($recs as $rec) {
             if($page_id = @$rec['object_page_id']) {
+                if(isset($unique_page_ids[$page_id])) continue;
+                else $unique_page_ids[$page_id] = '';
+
                 $anc = self::get_ancestry_via_DH($page_id);
                 foreach($anc as $id) {
                     if($count = @$counts[$id]) {
@@ -3711,12 +3719,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     {   $ret = self::format_value_for_sql($predicate);
         if($ret['count'] == 'single')       $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
         elseif($ret['count'] == 'multiple') $sql = "SELECT t.* from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate in (".$ret['value'].")";
-        
+        /* this caused probs with pTS - eol_pk missing in existing records report. Have abandoned totally. Implemented $unique_page_ids instead - worked OK
         if($method == 'TS') { //has to have unique page_id + object_page_id
             if($ret['count'] == 'single')       $sql = "SELECT DISTINCT t.page_id, t.object_page_id, t.value_uri from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate = '".$predicate."'";
             elseif($ret['count'] == 'multiple') $sql = "SELECT DISTINCT t.page_id, t.object_page_id, t.value_uri from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate in (".$ret['value'].")";
         }
-        
+        */
         echo "\nAssemble recs start [$sql]\n";
         $result = $this->mysqli->query($sql);
         $recs = array();
