@@ -283,7 +283,8 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 1018, 'predicate' => implode(",", $this->synonyms_EATS));
         // $input[] = array('page_id' => 42208, 'predicate' => implode(",", $this->synonyms_IsEatenBy));
         // $input[] = array('page_id' => 1018, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439");
-        $input[] = array('page_id' => 1131, 'predicate' => implode(",", $this->synonyms_EATS));
+        // $input[] = array('page_id' => 1131, 'predicate' => implode(",", $this->synonyms_EATS));
+        $input[] = array('page_id' => 7759, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454");
 
         $resource_id = 'test_parent_taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
         foreach($input as $i) {
@@ -1088,11 +1089,9 @@ class SummaryDataResourcesAllAPI
         if($new_records = array_diff($info['Selected'], $found)) {
             echo "\nTS - Not found in traits.csv. Create new record(s): included in DwCA"; print_r($new_records); //good debug
 
-            // /* magic 8 now applied above (orig) and now here as well
-            if($parentYN == "non-parent") {
-                $new_records = array_diff($new_records, $this->magic8);
-                echo "\n after magic 8: "; print_r($new_records);
-            }
+            // /* magic 8 now applied above (orig) and now here as well. Also now for both 'parent' and 'non-parent'
+            $new_records = array_diff($new_records, $this->magic8);
+            echo "\n after magic 8: "; print_r($new_records);
             // */
             
             /* ver 1
