@@ -190,7 +190,7 @@ class WormsArchiveAPI
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24; //1 day expires
         $local = Functions::save_remote_file_to_local($url, $options);
-        $file = fopen($local, 'r'); 
+        $file = fopen($local, 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if(($i % 1000000) == 0) echo "\n".number_format($i);
@@ -211,12 +211,9 @@ class WormsArchiveAPI
                 if($type == 'match2map') {
                     $final[$rec['measurementType']][$rec['measurementValue']] = array('mTypeURL' => $rec['measurementTypeURL'], 'mValueURL' => $rec['measurementValueURL']);
                 }
-                
             }
         }
-        unlink($local); fclose($file);
-        print_r($final);
-        // exit("\nsss\n");
+        unlink($local); fclose($file); // print_r($final);
         return $final;
     }
     private function process_fields($records, $class)
