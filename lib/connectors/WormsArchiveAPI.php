@@ -650,6 +650,9 @@ class WormsArchiveAPI
                 if($sciname = $this->taxa_rank[self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])]['n']) {
                     $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
                 }
+                else {
+                    print_r($rec); exit("\nsciname not found with id from measurementAccuracy\n");
+                }
                 print_r($save); exit;
             }
         }
