@@ -46,7 +46,7 @@ class WormsArchiveAPI
         $this->webservice['AphiaRecordByAphiaID']         = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         $this->webservice['AphiaChildrenByAphiaID']       = "http://www.marinespecies.org/rest/AphiaChildrenByAphiaID/";
         
-        $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'resource_id' => 26);
+        $this->download_options = array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'resource_id' => 26);
         $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
         $this->debug = array();
         
@@ -57,7 +57,7 @@ class WormsArchiveAPI
             'download_wait_time' => 500000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
         */
         /* start DATA-1827 below */
-        $match2mapping = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
+        $this->match2mapping = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
     }
     private function get_valid_parent_id($id)
     {
@@ -160,6 +160,7 @@ class WormsArchiveAPI
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
 
+        $this->match2map = self::csv2array($this->match2mapping);
         echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         exit("\nstop munax\n");
 
@@ -181,6 +182,28 @@ class WormsArchiveAPI
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         print_r($this->debug);
+    }
+    private function csv2array($url)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //1 day expires
+        $local = Functions::save_remote_file_to_local($url, $options);
+        $file = fopen($local, 'r'); 
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if(($i % 1000000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                print_r($rec); exit("\nstopx\n");
+            }
+        }
+        unlink($local);
+        fclose($file);
+        exit("\nsss\n");
     }
     private function process_fields($records, $class)
     {
