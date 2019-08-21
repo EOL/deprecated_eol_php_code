@@ -62,7 +62,7 @@ class USDAPlants2019
                     [Family] => Acanthaceae
                 )
                 */
-                if(!$rec['Synonym Symbol']) { echo " ".$rec['Symbol'];
+                if(!$rec['Synonym Symbol'] && @$rec['Symbol']) { //echo " ".$rec['Symbol'];
                     self::parse_profile_page($this->service['taxon_page'].$rec['Symbol']); //exit;
                 }
             }
