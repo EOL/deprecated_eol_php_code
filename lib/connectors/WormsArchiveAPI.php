@@ -160,7 +160,7 @@ class WormsArchiveAPI
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
 
-        $this->match2map = self::csv2array($this->match2mapping);
+        $this->match2map = self::csv2array($this->match2mapping, 'match2map');
         echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         exit("\nstop munax\n");
 
@@ -183,7 +183,7 @@ class WormsArchiveAPI
         echo ("\n temporary directory removed: " . $temp_dir);
         print_r($this->debug);
     }
-    private function csv2array($url)
+    private function csv2array($url, $type)
     {
         $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24; //1 day expires
@@ -198,12 +198,24 @@ class WormsArchiveAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                print_r($rec); exit("\nstopx\n");
+                // print_r($rec); exit("\nstopx\n");
+                /*Array( type = 'match2map'
+                    [measurementType] => Feedingtype
+                    [measurementTypeURL] => http://www.wikidata.org/entity/Q1053008
+                    [measurementValue] => carnivore
+                    [measurementValueURL] => https://www.wikidata.org/entity/Q81875
+                    [measurementRemarks] => 
+                )*/
+                if($type == 'match2map') {
+                    $final[$rec['measurementType']][$rec['measurementValue']] = array('mTypeURL' => $rec['measurementTypeURL'], 'mValueURL' => $rec['measurementValueURL']);
+                }
+                
             }
         }
-        unlink($local);
-        fclose($file);
-        exit("\nsss\n");
+        unlink($local); fclose($file);
+        print_r($final);
+        // exit("\nsss\n");
+        return $final;
     }
     private function process_fields($records, $class)
     {
@@ -633,8 +645,39 @@ class WormsArchiveAPI
                 exit("\nxxx\n");
             }
             //========================================================================================================next task --- worms_mapping1.csv
-            $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
-            $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            /*Array( $this->match2map
+                [Feedingtype] => Array(
+                        [carnivore] => Array(
+                                [mTypeURL] => http://www.wikidata.org/entity/Q1053008
+                                [mValueURL] => https://www.wikidata.org/entity/Q81875
+                            )
+            */
+            $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];      //e.g. 'Functional group'
+            $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];    //e.g. 'benthos'
+            
+            if($info = $this->match2map[$mtype][$mvalue]) {
+                // print_r($info); print_r($rec); exit;
+                /*Array( $info
+                    [mTypeURL] => http://rs.tdwg.org/dwc/terms/habitat
+                    [mValueURL] => http://purl.obolibrary.org/obo/ENVO_01000024
+                Array( $rec
+                    [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 1054700
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 286376_1054700
+                    [parentMeasurementID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => Functional group
+                    [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => benthos
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
+                )*/
+                $save = array();
+                $save['taxonID'] = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
+                $save['measurementType'] = $info['mTypeURL']
+                $save['measurementValue'] = $info['mValueURL']
+                
+            }
+            
+            
             if($mtype == 'Feedingtype' && $mvalue == 'carnivore') { // print_r($rec); exit("\nnext task\n");
                 /*Array(
                     [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 880402
