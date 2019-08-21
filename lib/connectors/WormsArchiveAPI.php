@@ -647,6 +647,8 @@ class WormsArchiveAPI
                 $save['taxonID'] = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
                 $save['measurementType'] = $info['mTypeURL'];
                 $save['measurementValue'] = $info['mValueURL'];
+                $save['measurementRemarks'] = $info['mRemarks'];
+                $save['source'] = $this->taxon_page.$save['taxonID'];
                 if($sciname = $this->taxa_rank[self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])]['n']) {
                     $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
                 }
@@ -705,7 +707,7 @@ class WormsArchiveAPI
         $a->occurrenceID = $occurrenceID;
         $a->associationType = $param['predicate'];
         $a->targetOccurrenceID = $related_occurrenceID;
-        $a->source = 'http://www.marinespecies.org/aphia.php?p=taxdetails&id='.$taxon_id.'#attributes';
+        $a->source = $this->taxon_page.$taxon_id.'#attributes';
         $this->archive_builder->write_object_to_file($a);
     }
     private function add_taxon_assoc($taxon_name, $taxon_id)
