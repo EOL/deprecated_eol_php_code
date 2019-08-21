@@ -641,9 +641,15 @@ class WormsArchiveAPI
                                'target_taxon_name' => $rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
                 self::add_association($param);
                 /*Now do the reverse*/
+                $sciname = 'will look up or create';
+                if($sciname = $this->taxa_rank[self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'])]['n']) {}
+                else {
+                    print_r($rec);
+                    exit("\nWill need to add taxon first\n");
+                }
                 $param = array('source_taxon_id' => self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementValueID']), 'predicate' => 'http://purl.obolibrary.org/obo/RO_0002453', 
                                'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
-                               'target_taxon_name' => 'will lookup');
+                               'target_taxon_name' => $sciname);
                 self::add_association($param);
                 exit("\nxxx\n");
             }
@@ -677,14 +683,17 @@ class WormsArchiveAPI
                 $save['taxonID'] = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
                 $save['measurementType'] = $info['mTypeURL'];
                 $save['measurementValue'] = $info['mValueURL'];
-                if($sciname = $this->taxa_rank[self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])]['n']) {
+                if($sciname = $this->taxa_rank[self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])]['n']) {
                     $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
                 }
                 print_r($save); exit;
             }
-            
-            
         }
+    }
+    private function get_id_from_measurementAccuracy($str)
+    {
+        $arr = explode(":", $str);
+        return array_pop($arr);
     }
     private function add_association($param)
     {
