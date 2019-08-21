@@ -33,16 +33,16 @@ class USDAPlants2019
             foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
                 if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) {
                     if($local = Functions::save_remote_file_to_local($this->service['per_state_page'].$arr[1], $this->download_options)) {
-                        self::parse_state_list($local);
+                        self::parse_state_list($local, $arr[1]);
                         unlink($local);
                     }
                 }
             }
         }
     }
-    private function parse_state_list($local)
+    private function parse_state_list($local, $state_id)
     {
-        echo "\nprocessing [$local]\n";
+        echo "\nprocessing [$state_id]\n";
         $file = fopen($local, 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
