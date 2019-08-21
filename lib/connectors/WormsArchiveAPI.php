@@ -157,8 +157,8 @@ class WormsArchiveAPI
             // */
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
-        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        // echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        // echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         if($this->what == "taxonomy") {
             echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
         }
@@ -598,7 +598,7 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
                 )*/
-                // continue; //debug only
+                continue; //debug only
                 /* source is: 292968   target is: 217662
                 e.g. MoF
                 occurrenceID , associationType , targetOccurrenceID
@@ -674,7 +674,19 @@ class WormsArchiveAPI
                 break;
             }
             //========================================================================================================next task --- "Body size > Dimension"
-
+            if($mtype == 'Body size > Dimension') {
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 768436
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 528458_768436
+                    [parentMeasurementID] => 528454_768436
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => Body size > Dimension
+                    [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => length
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:155944
+                )*/
+                print_r($rec); exit("\nBody size > Dimension\n");
+            }
             //========================================================================================================end tasks
         }
     }
