@@ -59,20 +59,16 @@ class WormsArchiveAPI
         /* start DATA-1827 below */
         $match2mapping = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
     }
-
     private function get_valid_parent_id($id)
     {
         $taxa = self::AphiaClassificationByAphiaID($id);
         $last_rec = end($taxa);
         return $last_rec['parent_id'];
     }
-
     function get_all_taxa($what)
-    {
-        /* tests
+    {   /* tests
         $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
         */
-        
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
         if(!file_exists($temp)) mkdir($temp);
         $this->what = $what; //either 'taxonomy' or 'media_objects'
@@ -186,7 +182,6 @@ class WormsArchiveAPI
         echo ("\n temporary directory removed: " . $temp_dir);
         print_r($this->debug);
     }
-
     private function process_fields($records, $class)
     {
         foreach($records as $rec) {
@@ -210,7 +205,6 @@ class WormsArchiveAPI
             $this->archive_builder->write_object_to_file($c);
         }
     }
-
     /*
     synonym ->  379702	WoRMS:citation:379702	255040	Leptasterias epichlora (Brandt, 1835)
     child ->    934667	WoRMS:citation:934667		Leptasterias epichlora alaskensis Verrill, 1914	Verrill, A.E. (1914).
@@ -283,7 +277,6 @@ class WormsArchiveAPI
         [147698] =>
         */
     }
-    
     private function get_children_of_taxon($taxon_id)
     {
         $taxo_tmp = array();
@@ -292,136 +285,101 @@ class WormsArchiveAPI
         $taxo_tmp = array_merge($taxo_tmp, $temp);
 
         //start 2nd loop -> process children of children
-        foreach($temp as $id)
-        {
+        foreach($temp as $id) {
             $temp2 = self::get_children_of_synonym($id);
             $taxo_tmp = array_merge($taxo_tmp, $temp2);
             //start 3rd loop -> process children of children of children
-            foreach($temp2 as $id)
-            {
+            foreach($temp2 as $id) {
                 $temp3 = self::get_children_of_synonym($id);
                 $taxo_tmp = array_merge($taxo_tmp, $temp3);
                 //start 4th loop -> process children of children of children
-                foreach($temp3 as $id)
-                {
+                foreach($temp3 as $id) {
                     $temp4 = self::get_children_of_synonym($id);
                     $taxo_tmp = array_merge($taxo_tmp, $temp4);
                     //start 5th loop -> process children of children of children
-                    foreach($temp4 as $id)
-                    {
+                    foreach($temp4 as $id) {
                         $temp5 = self::get_children_of_synonym($id);
                         $taxo_tmp = array_merge($taxo_tmp, $temp5);
                         //start 6th loop -> process children of children of children
-                        foreach($temp5 as $id)
-                        {
+                        foreach($temp5 as $id) {
                             $temp6 = self::get_children_of_synonym($id);
                             $taxo_tmp = array_merge($taxo_tmp, $temp6);
                             //start 7th loop -> process children of children of children
-                            foreach($temp6 as $id)
-                            {
+                            foreach($temp6 as $id) {
                                 $temp7 = self::get_children_of_synonym($id);
                                 $taxo_tmp = array_merge($taxo_tmp, $temp7);
                                 //start 8th loop -> process children of children of children
-                                foreach($temp7 as $id)
-                                {
+                                foreach($temp7 as $id) {
                                     $temp8 = self::get_children_of_synonym($id);
                                     $taxo_tmp = array_merge($taxo_tmp, $temp8);
                                     //start 9th loop -> process children of children of children
-                                    foreach($temp8 as $id)
-                                    {
+                                    foreach($temp8 as $id) {
                                         $temp9 = self::get_children_of_synonym($id);
                                         $taxo_tmp = array_merge($taxo_tmp, $temp9);
                                         //start 10th loop -> process children of children of children
-                                        foreach($temp9 as $id)
-                                        {
+                                        foreach($temp9 as $id) {
                                             $temp10 = self::get_children_of_synonym($id);
                                             $taxo_tmp = array_merge($taxo_tmp, $temp10);
                                             //start 11th loop -> process children of children of children
-                                            foreach($temp10 as $id)
-                                            {
+                                            foreach($temp10 as $id) {
                                                 $temp11 = self::get_children_of_synonym($id);
                                                 $taxo_tmp = array_merge($taxo_tmp, $temp11);
                                                 //start 12th loop -> process children of children of children
-                                                foreach($temp11 as $id)
-                                                {
+                                                foreach($temp11 as $id) {
                                                     $temp12 = self::get_children_of_synonym($id);
                                                     $taxo_tmp = array_merge($taxo_tmp, $temp12);
                                                     //start 13th loop -> process children of children of children
-                                                    foreach($temp12 as $id)
-                                                    {
+                                                    foreach($temp12 as $id) {
                                                         // print("\nreaches 13th loop\n");
                                                         $temp13 = self::get_children_of_synonym($id);
                                                         $taxo_tmp = array_merge($taxo_tmp, $temp13);
                                                         //start 14th loop -> process children of children of children
-                                                        foreach($temp13 as $id)
-                                                        {
+                                                        foreach($temp13 as $id) {
                                                             print("\nreaches 14th loop\n");
                                                             $temp14 = self::get_children_of_synonym($id);
                                                             $taxo_tmp = array_merge($taxo_tmp, $temp14);
                                                             //start 15th loop -> process children of children of children
-                                                            foreach($temp14 as $id)
-                                                            {
+                                                            foreach($temp14 as $id) {
                                                                 print("\nreaches 15th loop\n");
                                                                 $temp15 = self::get_children_of_synonym($id);
                                                                 $taxo_tmp = array_merge($taxo_tmp, $temp15);
                                                                 //start 16th loop -> process children of children of children
-                                                                foreach($temp15 as $id)
-                                                                {
+                                                                foreach($temp15 as $id) {
                                                                     print("\nreaches 16th loop\n");
                                                                     $temp16 = self::get_children_of_synonym($id);
                                                                     $taxo_tmp = array_merge($taxo_tmp, $temp16);
                                                                     //start 17th loop -> process children of children of children
-                                                                    foreach($temp16 as $id)
-                                                                    {
+                                                                    foreach($temp16 as $id) {
                                                                         print("\nreaches 17th loop\n");
                                                                         $temp17 = self::get_children_of_synonym($id);
                                                                         $taxo_tmp = array_merge($taxo_tmp, $temp17);
                                                                         //start 18th loop -> process children of children of children
-                                                                        foreach($temp17 as $id)
-                                                                        {
+                                                                        foreach($temp17 as $id) {
                                                                             exit("\nreaches 18th loop\n");
                                                                             $temp18 = self::get_children_of_synonym($id);
                                                                             $taxo_tmp = array_merge($taxo_tmp, $temp18);
-                                                                        }
-                                                                        //end 18th loop
-                                                                    }
-                                                                    //end 17th loop
-                                                                }
-                                                                //end 16th loop
-                                                            }
-                                                            //end 15th loop
-                                                        }
-                                                        //end 14th loop
-                                                    }
-                                                    //end 13th loop
-                                                }
-                                                //end 12th loop
-                                            }
-                                            //end 11th loop
-                                        }
-                                        //end 10th loop
-                                    }
-                                    //end 9th loop
-                                }
-                                //end 8th loop
-                            }
-                            //end 7th loop
-                        }
-                        //end 6th loop
-                    }
-                    //end 5th loop
-                }
-                //end 4th loop
-            }
-            //end 3rd loop
-        }
-        //end 2nd loop
+                                                                        }//end 18th loop
+                                                                    }//end 17th loop
+                                                                }//end 16th loop
+                                                            }//end 15th loop
+                                                        }//end 14th loop
+                                                    }//end 13th loop
+                                                }//end 12th loop
+                                            }//end 11th loop
+                                        }//end 10th loop
+                                    }//end 9th loop
+                                }//end 8th loop
+                            }//end 7th loop
+                        }//end 6th loop
+                    }//end 5th loop
+                }//end 4th loop
+            }//end 3rd loop
+        }//end 2nd loop
         $taxo_tmp = array_unique($taxo_tmp);
         $taxo_tmp = array_filter($taxo_tmp);
         //end ====
         return $taxo_tmp;
     }
-    
     private function get_children_of_synonym($taxon_id)
     {
         if(in_array($taxon_id, $this->synonyms_without_children)) return array();
@@ -458,18 +416,14 @@ class WormsArchiveAPI
         }
         return $final;
     }
-    
     private function save_2text_synonyms_without_children($taxon_id)
-    {
-        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_synonyms_without_children.txt";
+    {   $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_synonyms_without_children.txt";
         $WRITE = fopen($filename, "a");
         fwrite($WRITE, $taxon_id . "\n");
         fclose($WRITE);
     }
-    
     private function get_synonyms_without_children()
-    {
-        $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_synonyms_without_children.txt";
+    {   $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_synonyms_without_children.txt";
         if(file_exists($filename)) {
             $txt = file_get_contents($filename);
             $AphiaIDs = explode("\n", $txt);
@@ -479,21 +433,17 @@ class WormsArchiveAPI
         }
         return array();
     }
-    
     private function get_worms_taxon_id($worms_id)
     {
         return str_ireplace("urn:lsid:marinespecies.org:taxname:", "", (string) $worms_id);
     }
-    
     private function build_taxa_rank_array($records)
-    {
-        foreach($records as $rec) {
+    {   foreach($records as $rec) {
             $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $this->taxa_rank[$taxon_id]['r'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $this->taxa_rank[$taxon_id]['s'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
         }
     }
-    
     private function create_instances_from_taxon_object($records)
     {
         if($this->what == "taxonomy") $undeclared_ids = self::get_undeclared_parent_ids(); //uses a historical text file - undeclared parents. If not to use this, then there will be alot of API calls needed.
@@ -716,8 +666,7 @@ class WormsArchiveAPI
         return $occurrence_id;
     }
     private function get_objects($records)
-    {
-        foreach($records as $rec) {
+    {   foreach($records as $rec) {
             $identifier = (string) $rec["http://purl.org/dc/terms/identifier"];
             $type       = (string) $rec["http://purl.org/dc/terms/type"];
 
@@ -818,7 +767,6 @@ class WormsArchiveAPI
         $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
         self::add_string_types($rec, "true", $mval, $mtype);
     }
-    
     private function complete_url($path)
     {
         // http://www.marinespecies.org/aphia.php?p=sourcedetails&id=154106
@@ -826,10 +774,8 @@ class WormsArchiveAPI
         if(substr($path, 0, 10) == "aphia.php?") return "http://www.marinespecies.org/" . $path;
         else return $path;
     }
-    
     private function get_branch_ids_to_prune()
-    {
-        require_library('connectors/GoogleClientAPI');
+    {   require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
         $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
         $params['range']         = 'Sheet1!A2:A2000'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
@@ -839,10 +785,8 @@ class WormsArchiveAPI
         $final = array_keys($final);
         return $final;
     }
-    
     private function get_all_ids_to_prune()
-    {
-        $final = array();
+    {   $final = array();
         $ids = self::get_branch_ids_to_prune(); //supposedly comes from a google spreadsheet
         foreach($ids as $id) {
             $arr = self::get_children_of_taxon($id);
@@ -854,7 +798,6 @@ class WormsArchiveAPI
         $final = array_filter($final);
         return $final;
     }
-    
     private function format_incertae_sedis($str)
     {
         /*
@@ -883,7 +826,6 @@ class WormsArchiveAPI
         }
         else return $str;
     }
-
     /*
     private function process_distribution($rec) // structured data
     {
@@ -934,10 +876,8 @@ class WormsArchiveAPI
         }
     }
     */
-
     private function process_establishmentMeans_occurrenceStatus($rec) // structured data
-    {
-        $location = $rec["http://purl.org/dc/terms/description"];
+    {   $location = $rec["http://purl.org/dc/terms/description"];
         if(!$location) return;
         $establishmentMeans = trim((string) @$rec["http://rs.tdwg.org/dwc/terms/establishmentMeans"]);
         $occurrenceStatus = trim((string) @$rec["http://rs.tdwg.org/dwc/terms/occurrenceStatus"]);
@@ -1030,7 +970,6 @@ class WormsArchiveAPI
         }
         return false;
     }
-
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
@@ -1053,10 +992,8 @@ class WormsArchiveAPI
         return $occurrence_id;
         */
     }
-
     private function get_vernaculars($records)
-    {
-        self::process_fields($records, "vernacular");
+    {   self::process_fields($records, "vernacular");
         // foreach($records as $rec)
         // {
         //     $v = new \eol_schema\VernacularName();
@@ -1069,10 +1006,8 @@ class WormsArchiveAPI
         //     $this->archive_builder->write_object_to_file($v);
         // }
     }
-
     private function get_agents($records)
-    {
-        self::process_fields($records, "agent");
+    {   self::process_fields($records, "agent");
         // foreach($records as $rec)
         // {
         //     $r = new \eol_schema\Agent();
@@ -1091,10 +1026,8 @@ class WormsArchiveAPI
         //     $this->archive_builder->write_object_to_file($r);
         // }
     }
-    
     private function get_references($records)
-    {
-        self::process_fields($records, "reference");
+    {   self::process_fields($records, "reference");
         // foreach($records as $rec)
         // {
         //     $r = new \eol_schema\Reference();
@@ -1129,8 +1062,7 @@ class WormsArchiveAPI
     // ===================================================================================
     // /*
     private function add_taxa_from_undeclared_parent_ids() //text file here is generated by utility check_if_all_parents_have_entries() in 26.php
-    {
-        $file = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_undefined_parent_ids_archive.txt";
+    {   $file = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_undefined_parent_ids_archive.txt";
         if(file_exists($file)) {
             $i = 0;
             foreach(new FileIterator($file) as $line_number => $id) {
@@ -1150,8 +1082,7 @@ class WormsArchiveAPI
         return $taxa;
     }
     private function get_ancestry_by_id($id)
-    {
-        $taxa = array();
+    {   $taxa = array();
         if(!$id) return array();
         if($json = Functions::lookup_with_cache($this->webservice['AphiaClassificationByAphiaID'].$id, $this->download_options)) {
             $arr = json_decode($json, true);
@@ -1170,10 +1101,8 @@ class WormsArchiveAPI
         return $taxa;
     }
     private function add_authorship($taxa) //and other metadata
-    {
-        $i = 0;
-        foreach($taxa as $taxon)
-        {   
+    {   $i = 0;
+        foreach($taxa as $taxon) {
             // [AphiaID] => 7
             // [rank] => Kingdom
             // [scientificname] => Chromista
@@ -1195,7 +1124,7 @@ class WormsArchiveAPI
         return $taxa;
     }
     private function create_taxa($taxa) //for dynamic hierarchy only
-    {
+    {   
         foreach($taxa as $t)
         {   // [AphiaID] => 24
             // [rank] => Class
