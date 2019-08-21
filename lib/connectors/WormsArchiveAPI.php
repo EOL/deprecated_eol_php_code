@@ -159,12 +159,14 @@ class WormsArchiveAPI
             
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
+        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
 
+        // /* block for DATA-1827 tasks
         $this->match2map = self::csv2array($this->match2mapping, 'match2map');
         echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         exit("\nstop munax\n");
-
-        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        // */
+        
         echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         if($this->what == "taxonomy") {
             echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
@@ -477,6 +479,7 @@ class WormsArchiveAPI
             $taxon_id = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             $this->taxa_rank[$taxon_id]['r'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
             $this->taxa_rank[$taxon_id]['s'] = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonomicStatus"];
+            $this->taxa_rank[$taxon_id]['n'] = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
         }
     }
     private function create_instances_from_taxon_object($records)
@@ -672,26 +675,13 @@ class WormsArchiveAPI
                 )*/
                 $save = array();
                 $save['taxonID'] = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
-                $save['measurementType'] = $info['mTypeURL']
-                $save['measurementValue'] = $info['mValueURL']
-                
+                $save['measurementType'] = $info['mTypeURL'];
+                $save['measurementValue'] = $info['mValueURL'];
+                if($sciname = $this->taxa_rank[self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])]['n']) {
+                    $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
+                }
+                print_r($save); exit;
             }
-            
-            
-            if($mtype == 'Feedingtype' && $mvalue == 'carnivore') { // print_r($rec); exit("\nnext task\n");
-                /*Array(
-                    [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 880402
-                    [http://rs.tdwg.org/dwc/terms/measurementID] => 408068_880402
-                    [parentMeasurementID] => 
-                    [http://rs.tdwg.org/dwc/terms/measurementType] => Feedingtype
-                    [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
-                    [http://rs.tdwg.org/dwc/terms/measurementValue] => carnivore
-                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
-                    [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:123082
-                )*/
-            }
-            // measurementType,measurementTypeURL,measurementValue,measurementValueURL,measurementRemarks
-            // Feedingtype,http://www.wikidata.org/entity/Q1053008,carnivore,https://www.wikidata.org/entity/Q81875,
             
             
         }
