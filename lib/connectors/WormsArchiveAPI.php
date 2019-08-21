@@ -57,7 +57,7 @@ class WormsArchiveAPI
             'download_wait_time' => 500000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
         */
         /* start DATA-1827 below */
-        $this->match2mapping = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
+        $this->match2mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
     }
     private function get_valid_parent_id($id)
     {
@@ -160,9 +160,13 @@ class WormsArchiveAPI
         echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
 
         // /* block for DATA-1827 tasks
-        $this->match2map = self::csv2array($this->match2mapping, 'match2map'); //mapping csv to array
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
+        $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         exit("\nstop munax\n");
+        unset($this->func);
         // */
         
         echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
@@ -628,7 +632,7 @@ class WormsArchiveAPI
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];      //e.g. 'Functional group'
             $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];    //e.g. 'benthos'
             
-            if($info = $this->match2map[$mtype][$mvalue]) {
+            if($info = @$this->match2map[$mtype][$mvalue]) { //$this->match2map came from a CSV mapping file
                 // print_r($info); print_r($rec); exit;
                 /*Array( $info
                     [mTypeURL] => http://rs.tdwg.org/dwc/terms/habitat
@@ -655,10 +659,12 @@ class WormsArchiveAPI
                 else {
                     print_r($rec); exit("\nsciname not found with id from measurementAccuracy\n");
                 }
+                
                 // print_r($save); exit;
             }
             //========================================================================================================next task --- "Body size > Dimension"
-            
+
+            //========================================================================================================end tasks
         }
     }
     private function csv2array($url, $type)
