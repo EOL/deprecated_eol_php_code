@@ -165,6 +165,7 @@ class WormsArchiveAPI
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        print_r($this->debug);
         exit("\nstop munax\n");
         unset($this->func);
         // */
@@ -654,18 +655,20 @@ class WormsArchiveAPI
                 // $save['measurementType'] = $info['mTypeURL'];        not needed for TraitGeneric
                 // $save['measurementValue'] = $info['mValueURL'];      not needed for TraitGeneric
                 $save['measurementRemarks'] = $info['mRemarks'];
-                $save['source'] = $this->taxon_page.$save['taxonID'];
+                $save['source'] = $this->taxon_page.$taxon_id;
                 
                 if($vtaxon_id = self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])) {
-                    if($sciname = $this->taxa_rank[$vtaxon_id]['n']) {
+                    if($sciname = @$this->taxa_rank[$vtaxon_id]['n']) {
                         $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
                     }
                     else {
-                        print_r($rec); exit("\nsciname not found with id from measurementAccuracy\n");
+                        print_r($rec);
+                        $this->debug['sciname not found with id from measurementAccuracy'][$vtaxon_id] = '';
+                        print("\nsciname not found with id from measurementAccuracy\n");
                     }
                 }
                 $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
-                // print_r($save); exit;
+                print_r($save); exit;
             }
             //========================================================================================================next task --- "Body size > Dimension"
 
