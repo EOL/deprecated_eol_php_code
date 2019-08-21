@@ -166,8 +166,9 @@ class WormsArchiveAPI
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
-        exit("\nstop munax\n");
         unset($this->func);
+        // exit("\nstop munax\n");
+        $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
         // */
         
         echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
@@ -599,7 +600,7 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
                 )*/
-                continue; //debug only
+                // continue; //debug only
                 /* source is: 292968   target is: 217662
                 e.g. MoF
                 occurrenceID , associationType , targetOccurrenceID
@@ -620,7 +621,7 @@ class WormsArchiveAPI
                                'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
                                'target_taxon_name' => $sciname);
                 self::add_association($param);
-                exit("\nxxx\n");
+                // exit("\nxxx\n");
             }
             //========================================================================================================next task --- worms_mapping1.csv
             /*Array( $this->match2map
@@ -634,6 +635,7 @@ class WormsArchiveAPI
             $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];    //e.g. 'benthos'
             
             if($info = @$this->match2map[$mtype][$mvalue]) { //$this->match2map came from a CSV mapping file
+                continue;
                 // print_r($info); print_r($rec); exit;
                 /*Array( $info
                     [mTypeURL] => http://rs.tdwg.org/dwc/terms/habitat
@@ -672,7 +674,8 @@ class WormsArchiveAPI
                     }
                 }
                 $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
-                print_r($save); exit;
+                print_r($save); //exit;
+                break;
             }
             //========================================================================================================next task --- "Body size > Dimension"
 
