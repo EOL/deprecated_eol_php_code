@@ -158,8 +158,12 @@ class WormsArchiveAPI
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
         echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        if($this->what == "taxonomy") {
+            echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
+        }
 
-        // /* block for DATA-1827 tasks
+        // /* block for DATA-1827 tasks ===========================================================================================
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
@@ -169,12 +173,8 @@ class WormsArchiveAPI
         unset($this->func);
         // exit("\nstop munax\n");
         $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
-        // */
+        // */ =====================================================================================================================
         
-        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        if($this->what == "taxonomy") {
-            echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
-        }
         if($this->what == "media_objects") {
             echo "\n4 of 8\n";  self::get_objects($harvester->process_row_type('http://eol.org/schema/media/Document'));
             echo "\n5 of 8\n";  self::get_references($harvester->process_row_type('http://rs.gbif.org/terms/1.0/Reference'));
@@ -633,7 +633,6 @@ class WormsArchiveAPI
             */
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];      //e.g. 'Functional group'
             $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];    //e.g. 'benthos'
-            
             if($info = @$this->match2map[$mtype][$mvalue]) { //$this->match2map came from a CSV mapping file
                 continue;
                 // print_r($info); print_r($rec); exit;
