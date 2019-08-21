@@ -662,9 +662,13 @@ class WormsArchiveAPI
                         $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
                     }
                     else {
-                        print_r($rec);
-                        $this->debug['sciname not found with id from measurementAccuracy'][$vtaxon_id] = '';
-                        print("\nsciname not found with id from measurementAccuracy\n");
+                        // print_r($rec);
+                        // print("\nsciname not found with id from measurementAccuracy -- ");
+                        if($sciname = self::lookup_worms_name($vtaxon_id)) {
+                            $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
+                            // echo "\nfound [$sciname]";
+                        }
+                        else $this->debug['sciname not found with id from measurementAccuracy'][$vtaxon_id] = '';
                     }
                 }
                 $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
@@ -674,6 +678,16 @@ class WormsArchiveAPI
 
             //========================================================================================================end tasks
         }
+    }
+    private function lookup_worms_name($vtaxon_id)
+    {   $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($this->webservice['AphiaRecordByAphiaID'].$vtaxon_id, $options)) {
+            $arr = json_decode($json, true); // print_r($arr); exit;
+            return trim($arr['scientificname']." ".$arr['authority']);
+        }
+        exit("\nid not found [$vtaxon_id]\n");
+        return false;
     }
     private function csv2array($url, $type)
     {
