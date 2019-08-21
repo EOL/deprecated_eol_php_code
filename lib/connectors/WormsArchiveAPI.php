@@ -56,6 +56,8 @@ class WormsArchiveAPI
             'cache_path'         => '/Volumes/AKiTiO4/eol_cache_smasher/',
             'download_wait_time' => 500000, 'timeout' => 600, 'download_attempts' => 1, 'delay_in_minutes' => 0, 'expire_seconds' => false);
         */
+        /* start DATA-1827 below */
+        $match2mapping = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
     }
 
     private function get_valid_parent_id($id)
@@ -628,21 +630,20 @@ class WormsArchiveAPI
                 $k++;
             }
             // print_r($rec); exit;
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 292968
-                [http://rs.tdwg.org/dwc/terms/measurementID] => 415015_292968
-                [parentMeasurementID] => 415014_292968
-                [http://rs.tdwg.org/dwc/terms/measurementType] => Feedingtype > Host
-                [http://rs.tdwg.org/dwc/terms/measurementValueID] => urn:lsid:marinespecies.org:taxname:217662
-                [http://rs.tdwg.org/dwc/terms/measurementValue] => Saurida gracilis (Quoy & Gaimard, 1824)
-                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
-                [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
-            )
-            */
-            if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') {
-                // print_r($rec); exit;
-                /*
-                source is: 292968   target is: 217662
+            //========================================================================================================first task
+            if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') { // print_r($rec); exit;
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 292968
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 415015_292968
+                    [parentMeasurementID] => 415014_292968
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => Feedingtype > Host
+                    [http://rs.tdwg.org/dwc/terms/measurementValueID] => urn:lsid:marinespecies.org:taxname:217662
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => Saurida gracilis (Quoy & Gaimard, 1824)
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
+                )*/
+                continue; //debug only
+                /* source is: 292968   target is: 217662
                 e.g. MoF
                 occurrenceID , associationType , targetOccurrenceID
                 292968_RO_0002454 , http://purl.obolibrary.org/obo/RO_0002454 , 217662_292968_RO_0002454
@@ -658,6 +659,25 @@ class WormsArchiveAPI
                 self::add_association($param);
                 exit("\nxxx\n");
             }
+            //========================================================================================================next task --- worms_mapping1.csv
+            $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+            $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            if($mtype == 'Feedingtype' && $mvalue == 'carnivore') { // print_r($rec); exit("\nnext task\n");
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 880402
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 408068_880402
+                    [parentMeasurementID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => Feedingtype
+                    [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => carnivore
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:123082
+                )*/
+            }
+            // measurementType,measurementTypeURL,measurementValue,measurementValueURL,measurementRemarks
+            // Feedingtype,http://www.wikidata.org/entity/Q1053008,carnivore,https://www.wikidata.org/entity/Q81875,
+            
+            
         }
     }
     private function add_association($param)
