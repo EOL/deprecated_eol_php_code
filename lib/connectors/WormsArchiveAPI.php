@@ -183,37 +183,6 @@ class WormsArchiveAPI
         echo ("\n temporary directory removed: " . $temp_dir);
         print_r($this->debug);
     }
-    private function csv2array($url, $type)
-    {
-        $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //1 day expires
-        $local = Functions::save_remote_file_to_local($url, $options);
-        $file = fopen($local, 'r');
-        $i = 0;
-        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
-            if(($i % 1000000) == 0) echo "\n".number_format($i);
-            if($i == 1) $fields = $line;
-            else {
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); exit("\nstopx\n");
-                /*Array( type = 'match2map'
-                    [measurementType] => Feedingtype
-                    [measurementTypeURL] => http://www.wikidata.org/entity/Q1053008
-                    [measurementValue] => carnivore
-                    [measurementValueURL] => https://www.wikidata.org/entity/Q81875
-                    [measurementRemarks] => 
-                )*/
-                if($type == 'match2map') {
-                    $final[$rec['measurementType']][$rec['measurementValue']] = array('mTypeURL' => $rec['measurementTypeURL'], 'mValueURL' => $rec['measurementValueURL']);
-                }
-            }
-        }
-        unlink($local); fclose($file); // print_r($final);
-        return $final;
-    }
     private function process_fields($records, $class)
     {
         foreach($records as $rec) {
@@ -684,6 +653,38 @@ class WormsArchiveAPI
                 print_r($save); exit;
             }
         }
+    }
+    private function csv2array($url, $type)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //1 day expires
+        $local = Functions::save_remote_file_to_local($url, $options);
+        $file = fopen($local, 'r');
+        $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if(($i % 1000000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit("\nstopx\n");
+                /*Array( type = 'match2map'
+                    [measurementType] => Feedingtype
+                    [measurementTypeURL] => http://www.wikidata.org/entity/Q1053008
+                    [measurementValue] => carnivore
+                    [measurementValueURL] => https://www.wikidata.org/entity/Q81875
+                    [measurementRemarks] => 
+                )*/
+                if($type == 'match2map') {
+                    $final[$rec['measurementType']][$rec['measurementValue']] = array('mTypeURL' => $rec['measurementTypeURL'], 'mValueURL' => $rec['measurementValueURL'], 
+                                                                                      'mRemarks' => $rec['measurementRemarks']);
+                }
+            }
+        }
+        unlink($local); fclose($file); // print_r($final);
+        return $final;
     }
     private function get_id_from_measurementAccuracy($str)
     {
