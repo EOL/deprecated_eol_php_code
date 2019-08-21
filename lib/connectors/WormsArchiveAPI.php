@@ -647,19 +647,24 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
                 )*/
+                $taxon_id = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
                 $save = array();
-                $save['taxonID'] = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
-                $save['measurementType'] = $info['mTypeURL'];
-                $save['measurementValue'] = $info['mValueURL'];
+                $save['taxon_id'] = $taxon_id;
+                $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
+                // $save['measurementType'] = $info['mTypeURL'];        not needed for TraitGeneric
+                // $save['measurementValue'] = $info['mValueURL'];      not needed for TraitGeneric
                 $save['measurementRemarks'] = $info['mRemarks'];
                 $save['source'] = $this->taxon_page.$save['taxonID'];
-                if($sciname = $this->taxa_rank[self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])]['n']) {
-                    $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
-                }
-                else {
-                    print_r($rec); exit("\nsciname not found with id from measurementAccuracy\n");
-                }
                 
+                if($vtaxon_id = self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])) {
+                    if($sciname = $this->taxa_rank[$vtaxon_id]['n']) {
+                        $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
+                    }
+                    else {
+                        print_r($rec); exit("\nsciname not found with id from measurementAccuracy\n");
+                    }
+                }
+                $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
                 // print_r($save); exit;
             }
             //========================================================================================================next task --- "Body size > Dimension"
