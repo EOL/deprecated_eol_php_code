@@ -749,6 +749,7 @@ class WormsArchiveAPI
                 $save['measurementRemarks'] = ''; //no instruction here
                 $save['source'] = $this->taxon_page.$taxon_id;
                 $save = self::adjustments_4_measurementAccuracy($save, $rec);
+                $save['measurementUnit'] = self::format_measurementUnit($rec);
                 
                 $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID']; //e.g. 528452_768436
                 $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
@@ -756,14 +757,13 @@ class WormsArchiveAPI
                 $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                 print("\nsuper child of [$measurementID]: ".$super_child."\n".$mType."\n");
                 
-                $save['measurementUnit'] = self::format_measurementUnit($rec);
-                
                 $this->func->add_string_types($save, $mValue, $mType, "true");
                 // print_r($save); exit;
                 break; //do this if you want to proceed create DwCA
             }
             //========================================================================================================end tasks
-        }
+
+        }//end foreach
     }
     private function format_measurementUnit($rec)
     {   if($val = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) { //e.g. mm
