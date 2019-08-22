@@ -757,7 +757,11 @@ class WormsArchiveAPI
                 
                 $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID']; //e.g. 528452_768436
                 $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
-                $mTypev = $this->BodysizeDimension[$super_child];
+                $mTypev = @$this->BodysizeDimension[$super_child];
+                if(!$mTypev) {
+                    //waiting for feedback from Jen.
+                    continue;
+                }
                 $mValuev = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                 print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
                 
