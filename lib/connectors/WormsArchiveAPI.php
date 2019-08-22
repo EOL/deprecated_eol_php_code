@@ -602,7 +602,7 @@ class WormsArchiveAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } // print_r($rec); exit;
-            /* $this->parentOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = @$rec['parentMeasurementID']; working OK not used yet */
+            /* $this->parentOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = @$rec['parentMeasurementID']; working OK but not used */
             if($parent = @$rec['parentMeasurementID']) $this->childOf[$parent] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             
             //this is to store URI map. this->childOf and this->BodysizeDimension will work hand in hand later on.
@@ -627,18 +627,6 @@ class WormsArchiveAPI
             else return $current;
         }
     }
-    /* working OK but not used.
-    private function get_super_parent($id)
-    {   $current = '';
-        while(true) {
-            if($parent = @$this->parentOf[$id]) {
-                $current = $parent;
-                $id = $current;
-            }
-            else return $current;
-        }
-    }
-    */
     private function get_measurements($meta)
     {   echo "\nprocess_measurementorfact...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -1230,7 +1218,18 @@ class WormsArchiveAPI
         //     }
         // }
     }
-
+    /* working OK but not used.
+    private function get_super_parent($id)
+    {   $current = '';
+        while(true) {
+            if($parent = @$this->parentOf[$id]) {
+                $current = $parent;
+                $id = $current;
+            }
+            else return $current;
+        }
+    }
+    */
     // =================================================================================== WORKING OK! BUT MAY HAVE BEEN JUST ONE-TIME IMPORT
     // START dynamic hierarchy ===========================================================
     // ===================================================================================
