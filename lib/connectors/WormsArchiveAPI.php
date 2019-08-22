@@ -74,6 +74,18 @@ class WormsArchiveAPI
         $this->BsD_URI['weight'] = 'http://purl.obolibrary.org/obo/PATO_0000125';
         $this->BsD_URI['width'] = 'http://purl.obolibrary.org/obo/VT_0015039';
         $this->BsD_URI['wingspan'] = 'http://www.wikidata.org/entity/Q245097';
+        
+        // NaN,ignore
+        $this->mUnit['mm'] = 'http://purl.obolibrary.org/obo/UO_0000016';
+        $this->mUnit['cm'] = 'http://purl.obolibrary.org/obo/UO_0000015';
+        $this->mUnit['µm'] = 'http://purl.obolibrary.org/obo/UO_0000017';
+        $this->mUnit['mm'] = 'http://purl.obolibrary.org/obo/UO_0000016';
+        $this->mUnit['kg'] = 'http://purl.obolibrary.org/obo/UO_0000009';
+        $this->mUnit['m'] = 'http://purl.obolibrary.org/obo/UO_0000008';
+        $this->mUnit['ton'] = 'http://purl.obolibrary.org/obo/UO_0010038';
+        $this->mUnit['mm'] = 'http://purl.obolibrary.org/obo/UO_0000016';
+        $this->mUnit['cm³'] = 'http://purl.obolibrary.org/obo/UO_0000097';
+        $this->mUnit['m²'] = 'http://purl.obolibrary.org/obo/UO_0000080';
     }
     private function get_valid_parent_id($id)
     {
@@ -182,7 +194,7 @@ class WormsArchiveAPI
         echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
         unset($this->func);
-        unset($this->parentOf);
+        unset($this->childOf);
         // exit("\nstop munax\n");
         $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
         // */ =====================================================================================================================
@@ -667,18 +679,17 @@ class WormsArchiveAPI
                                'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
                                'target_taxon_name' => $sciname);
                 self::add_association($param);
-                // exit("\nxxx\n");
+                break; //do this if you want to proceed create DwCA
             }
             //========================================================================================================next task --- worms_mapping1.csv
             /*Array( $this->match2map
                 [Feedingtype] => Array(
                         [carnivore] => Array(
                                 [mTypeURL] => http://www.wikidata.org/entity/Q1053008
-                                [mValueURL] => https://www.wikidata.org/entity/Q81875
-                            )
-            */
+                                [mValueURL] => https://www.wikidata.org/entity/Q81875 */
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];      //e.g. 'Functional group'
             $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];    //e.g. 'benthos'
+            $taxon_id = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
             if($info = @$this->match2map[$mtype][$mvalue]) { //$this->match2map came from a CSV mapping file
                 continue;
                 // print_r($info); print_r($rec); exit;
@@ -695,7 +706,6 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
                 )*/
-                $taxon_id = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
                 $save = array();
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
@@ -703,28 +713,24 @@ class WormsArchiveAPI
                 // $save['measurementValue'] = $info['mValueURL'];      not needed for TraitGeneric
                 $save['measurementRemarks'] = $info['mRemarks'];
                 $save['source'] = $this->taxon_page.$taxon_id;
-                
-                if($vtaxon_id = self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])) {
-                    if($sciname = @$this->taxa_rank[$vtaxon_id]['n']) {
-                        $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
-                    }
-                    else {
-                        // print_r($rec);
-                        // print("\nsciname not found with id from measurementAccuracy -- ");
-                        if($sciname = self::lookup_worms_name($vtaxon_id)) {
-                            $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
-                            // echo "\nfound [$sciname]";
-                        }
-                        else $this->debug['sciname not found with id from measurementAccuracy'][$vtaxon_id] = '';
-                    }
-                }
+                $save = self::adjustments_4_measurementAccuracy($save, $rec);
                 $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
-                print_r($save); //exit;
-                break;
+                // print_r($save); exit;
+                break; //do this if you want to proceed create DwCA
             }
-            //========================================================================================================next task --- "Body size > Dimension"
-            if($mtype == 'Body size > Dimension') {
-                /*Array(
+            //========================================================================================================next task --- "Body size"
+            if($mtype == 'Body size') { //the parent
+                /*Array( e.g. 'Body size'
+                    [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 768436
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 528452_768436
+                    [parentMeasurementID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => Body size
+                    [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => 0.1
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => mm
+                    [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:155944
+                
+                Array( e.g. of "Body size > Dimension" //the super child
                     [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 768436
                     [http://rs.tdwg.org/dwc/terms/measurementID] => 528458_768436
                     [parentMeasurementID] => 528454_768436
@@ -734,10 +740,53 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:155944
                 )*/
-                print_r($rec); exit("\nBody size > Dimension\n");
+                // print_r($rec); exit("\nBody size\n");
+                
+                $save = array();
+                $save['taxon_id'] = $taxon_id;
+                $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
+                $save['measurementRemarks'] = ''; //no instruction here
+                $save['source'] = $this->taxon_page.$taxon_id;
+                $save = self::adjustments_4_measurementAccuracy($save, $rec);
+                
+                $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID']; //e.g. 528452_768436
+                $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
+                $mType = $this->BodysizeDimension[$super_child];
+                $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                print("\nsuper child of [$measurementID]: ".$super_child."\n".$mType."\n");
+                
+                $save['measurementUnit'] = self::format_measurementUnit($rec);
+                
+                $this->func->add_string_types($save, $mValue, $mType, "true");
+                // print_r($save); exit;
+                break; //do this if you want to proceed create DwCA
             }
             //========================================================================================================end tasks
         }
+    }
+    private function format_measurementUnit($rec)
+    {   if($val = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) { //e.g. mm
+            if($uri = $this->mUnit[$val]) return $uri;
+            else $this->debug['undefined mUnit literal'][$val];
+        }
+    }
+    private function adjustments_4_measurementAccuracy($save, $rec)
+    {
+        if($vtaxon_id = self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])) {
+            if($sciname = @$this->taxa_rank[$vtaxon_id]['n']) {
+                $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
+            }
+            else {
+                // print_r($rec);
+                // print("\nsciname not found with id from measurementAccuracy -- ");
+                if($sciname = self::lookup_worms_name($vtaxon_id)) {
+                    $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
+                    // echo "\nfound [$sciname]";
+                }
+                else $this->debug['sciname not found with id from measurementAccuracy'][$vtaxon_id] = '';
+            }
+        }
+        return $save;
     }
     private function lookup_worms_name($vtaxon_id)
     {   $options = $this->download_options;
