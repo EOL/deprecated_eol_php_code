@@ -759,7 +759,7 @@ class WormsArchiveAPI
                 $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
                 $mTypev = $this->BodysizeDimension[$super_child];
                 $mValuev = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
-                print("\nsuper child of [$measurementID]: ".$super_child."\n".$mType."\n");
+                print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
                 
                 $this->func->add_string_types($save, $mValuev, $mTypev, "true");
                 // print_r($save); exit;
@@ -788,8 +788,8 @@ class WormsArchiveAPI
                 // $save['source'] = $this->taxon_page.$taxon_id; //no instruction here
                 $save = self::adjustments_4_measurementAccuracy($save, $rec);
                 $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
-                $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType']);
-                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+                $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType');
+                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue');
                 $this->func->add_string_types($save, $mValuev, $mTypev, "child");
                 // break; //do this if you want to proceed create DwCA
             }
@@ -797,9 +797,9 @@ class WormsArchiveAPI
 
         }//end foreach
     }
-    private function get_uri_from_value($val)
-    {   if($uri = $this->value_uri_map[$val]) return $uri;
-        else $this->debug['no uri'][$val] = '';
+    private function get_uri_from_value($val, $what)
+    {   if($uri = @$this->value_uri_map[$val]) return $uri;
+        else $this->debug['no uri'][$what][$val] = '';
     }
     private function format_measurementUnit($rec)
     {   if($val = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) { //e.g. mm
