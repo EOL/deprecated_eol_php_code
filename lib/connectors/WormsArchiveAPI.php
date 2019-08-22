@@ -100,7 +100,6 @@ class WormsArchiveAPI
                 *Corbiculina Dall, 1903 (worms#818186)
                 *Cyrenobatissa Suzuki & Oyama, 1943 (worms#818201)            
         */
-
         /* tests
         $this->children_of_synonyms = array(14769, 735405);
         $id = "24"; $id = "142"; $id = "5"; $id = "25"; $id = "890992"; $id = "834546";
@@ -114,7 +113,6 @@ class WormsArchiveAPI
         exit("\n valid parent_id: $x2\n");
         exit("\n");
         */
-        
         /* tests
         $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
         // $taxo_tmp = self::get_children_of_taxon("100795");
@@ -123,13 +121,11 @@ class WormsArchiveAPI
         $taxo_tmp = self::get_children_of_taxon("390648");
         print_r($taxo_tmp); exit("\n[".count($taxo_tmp)."] elix\n");
         */
-        
         /* tests
         $this->synonyms_without_children = self::get_synonyms_without_children(); //used so script will no longer lookup if this syn is known to have no children.
         $ids = self::get_all_ids_to_prune();
         print_r($ids); exit("\n[".count($ids)."] total IDs to prune\n");
         */
-        
         /*
         $str = "Cyclostomatida  incertae sedis";
         // $str = "Tubuliporoidea Incertae sedis";
@@ -138,11 +134,12 @@ class WormsArchiveAPI
         $str = self::format_incertae_sedis($str);
         exit("\n[$str]\n");
         */
-        
+
         /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
+        // print_r($paths); //exit;
         */
         // /* for development only
         $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
@@ -150,12 +147,9 @@ class WormsArchiveAPI
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
-        // print_r($paths); //exit;
-
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
-        if(!($this->fields["taxa"] = $tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
-        {
+        if(!($this->fields["taxa"] = $tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
