@@ -743,6 +743,7 @@ class WormsArchiveAPI
                 // print_r($rec); exit("\nBody size\n");
                 
                 $save = array();
+                $save['measurementID'] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
                 $save['measurementRemarks'] = ''; //no instruction here

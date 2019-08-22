@@ -56,8 +56,11 @@ class TraitGeneric
         if($val = @$rec['STATO_0000231']) $m->STATO_0000231 = $val;
         // end ---------------------------------------------------
         
-        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
-        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
+        if($val = @$rec['measurementID']) $m->measurementID = $val; //new Aug 22, 2019
+        else {
+            // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue')); //3rd param is optional. If blank then it will consider all properties of the extension
+            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id); //3rd param is optional. If blank then it will consider all properties of the extension
+        }
         
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
