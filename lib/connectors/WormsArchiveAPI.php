@@ -779,12 +779,27 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:1806
                 )*/
+                $save = array();
+                $save['measurementID'] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+                $save['parentMeasurementID'] = $rec['parentMeasurementID'];
+                $save['taxon_id'] = $taxon_id;
+                $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
+                $save['measurementRemarks'] = ''; //no instruction here
+                // $save['source'] = $this->taxon_page.$taxon_id; //no instruction here
+                $save = self::adjustments_4_measurementAccuracy($save, $rec);
+                $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
+                $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType']);
+                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+                $this->func->add_string_types($save, $mValuev, $mTypev, "child");
+                // break; //do this if you want to proceed create DwCA
             }
-            
-            
             //========================================================================================================end tasks
 
         }//end foreach
+    }
+    private function get_uri_from_value($val)
+    {   if($uri = $this->value_uri_map[$val]) return $uri;
+        else $this->debug['no uri'][$val] = '';
     }
     private function format_measurementUnit($rec)
     {   if($val = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) { //e.g. mm
@@ -846,8 +861,7 @@ class WormsArchiveAPI
         return $final;
     }
     private function csv2array($url, $type)
-    {
-        $options = $this->download_options;
+    {   $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24; //1 day expires
         $local = Functions::save_remote_file_to_local($url, $options);
         $file = fopen($local, 'r');
