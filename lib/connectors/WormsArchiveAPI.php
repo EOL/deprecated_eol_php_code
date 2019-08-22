@@ -58,6 +58,8 @@ class WormsArchiveAPI
         */
         /* start DATA-1827 below */
         $this->match2mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
+        $this->value_uri_mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/metastats-csv.tsv';
+        
         //mapping from here: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63730&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63730
         $this->BsD_URI['length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
         $this->BsD_URI['width'] = 'http://purl.obolibrary.org/obo/VT_0015039';
@@ -86,6 +88,7 @@ class WormsArchiveAPI
         $this->mUnit['mm'] = 'http://purl.obolibrary.org/obo/UO_0000016';
         $this->mUnit['cm³'] = 'http://purl.obolibrary.org/obo/UO_0000097';
         $this->mUnit['m²'] = 'http://purl.obolibrary.org/obo/UO_0000080';
+        $this->children_mTypes = array("Body size > Gender" ,"Body size > Stage", "Body size > Type" ,"Feedingtype > Stage", "Functional group > Stage" ,"Body size > Locality (MRGID)");
     }
     private function get_valid_parent_id($id)
     {
@@ -190,6 +193,7 @@ class WormsArchiveAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
+        $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
         echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
@@ -753,14 +757,31 @@ class WormsArchiveAPI
                 
                 $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID']; //e.g. 528452_768436
                 $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
-                $mType = $this->BodysizeDimension[$super_child];
-                $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                $mTypev = $this->BodysizeDimension[$super_child];
+                $mValuev = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                 print("\nsuper child of [$measurementID]: ".$super_child."\n".$mType."\n");
                 
-                $this->func->add_string_types($save, $mValue, $mType, "true");
+                $this->func->add_string_types($save, $mValuev, $mTypev, "true");
                 // print_r($save); exit;
-                break; //do this if you want to proceed create DwCA
+                // break; //do this if you want to proceed create DwCA
             }
+            //========================================================================================================next task --- child of "Body size"
+            $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType']; //e.g. 'Body size > Gender'
+            if(in_array($mtype, $this->children_mTypes)) {
+                // print_r($rec); exit("\na child record\n");
+                /*Array(
+                    [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 880402
+                    [http://rs.tdwg.org/dwc/terms/measurementID] => 17650_880402
+                    [parentMeasurementID] => 17649_880402
+                    [http://rs.tdwg.org/dwc/terms/measurementType] => Functional group > Stage
+                    [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementValue] => adult
+                    [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                    [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:1806
+                )*/
+            }
+            
+            
             //========================================================================================================end tasks
 
         }//end foreach
@@ -799,6 +820,31 @@ class WormsArchiveAPI
         exit("\nid not found [$vtaxon_id]\n");
         return false;
     }
+    private function tsv2array($url)
+    {   $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //1 day expires
+        $local = Functions::save_remote_file_to_local($url, $options);
+        $i = 0;
+        foreach(new FileIterator($local) as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [measurementValue] => Female
+                    [valueURI] => http://purl.obolibrary.org/obo/PATO_0000383
+                )*/
+                $final[$rec['measurementValue']] = $rec['valueURI'];
+            }
+        }
+        unlink($local);
+        return $final;
+    }
     private function csv2array($url, $type)
     {
         $options = $this->download_options;
@@ -823,8 +869,7 @@ class WormsArchiveAPI
                     [measurementRemarks] => 
                 )*/
                 if($type == 'match2map') {
-                    $final[$rec['measurementType']][$rec['measurementValue']] = array('mTypeURL' => $rec['measurementTypeURL'], 'mValueURL' => $rec['measurementValueURL'], 
-                                                                                      'mRemarks' => $rec['measurementRemarks']);
+                    $final[$rec['measurementType']][$rec['measurementValue']] = array('mTypeURL' => $rec['measurementTypeURL'], 'mValueURL' => $rec['measurementValueURL'], 'mRemarks' => $rec['measurementRemarks']);
                 }
             }
         }
