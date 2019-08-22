@@ -58,6 +58,22 @@ class WormsArchiveAPI
         */
         /* start DATA-1827 below */
         $this->match2mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
+        //mapping from here: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63730&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63730
+        $this->BsD_URI['length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
+        $this->BsD_URI['width'] = 'http://purl.obolibrary.org/obo/VT_0015039';
+        $this->BsD_URI['breadth'] = 'http://purl.obolibrary.org/obo/VT_0015039';
+        $this->BsD_URI['corresponding length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
+        $this->BsD_URI['diameter'] = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25285';
+        $this->BsD_URI['height'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
+        $this->BsD_URI['heigth'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
+        $this->BsD_URI['length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
+        $this->BsD_URI['thallus diameter'] = 'http://purl.obolibrary.org/obo/FLOPO_0023069';
+        $this->BsD_URI['thallus length'] = 'https://eol.org/schema/terms/thallus_length';
+        $this->BsD_URI['thickness'] = 'http://purl.obolibrary.org/obo/PATO_0000915';
+        $this->BsD_URI['volume'] = 'http://purl.obolibrary.org/obo/PATO_0001710';
+        $this->BsD_URI['weight'] = 'http://purl.obolibrary.org/obo/PATO_0000125';
+        $this->BsD_URI['width'] = 'http://purl.obolibrary.org/obo/VT_0015039';
+        $this->BsD_URI['wingspan'] = 'http://www.wikidata.org/entity/Q245097';
     }
     private function get_valid_parent_id($id)
     {
@@ -168,9 +184,11 @@ class WormsArchiveAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
-        echo "\n0 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
         unset($this->func);
+        unset($this->parentOf);
         // exit("\nstop munax\n");
         $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
         // */ =====================================================================================================================
@@ -570,6 +588,57 @@ class WormsArchiveAPI
         }
         return false;
     }
+    private function build_parentOf_childOf_data($meta)
+    {   $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            } // print_r($rec); exit;
+            /* $this->parentOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = @$rec['parentMeasurementID']; working OK not used yet */
+            if($parent = @$rec['parentMeasurementID']) $this->childOf[$parent] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            
+            //this is to store URI map
+            if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Body size > Dimension') {
+                $mValue = strtolower($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+                $this->BodysizeDimension[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = $this->BsD_URI[$mValue];
+            }
+        }
+        // /* just testing 
+        // exit("\nsuper parent of [528458_768436]: ".self::get_super_parent('528458_768436')."\n");
+        $super_child = self::get_super_child('528452_768436');
+        exit("\nsuper child of [528452_768436]: ".$super_child."\n".$this->BodysizeDimension[$super_child]."\n");
+        // */
+    }
+    private function get_super_child($id)
+    {   $current = '';
+        while(true) {
+            if($parent = @$this->childOf[$id]) {
+                $current = $parent;
+                $id = $current;
+            }
+            else return $current;
+        }
+    }
+    /* working OK but not used.
+    private function get_super_parent($id)
+    {   $current = '';
+        while(true) {
+            if($parent = @$this->parentOf[$id]) {
+                $current = $parent;
+                $id = $current;
+            }
+            else return $current;
+        }
+    }
+    */
     private function get_measurements($meta)
     {   echo "\nprocess_measurementorfact...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
