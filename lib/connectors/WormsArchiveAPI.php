@@ -588,7 +588,7 @@ class WormsArchiveAPI
         }
         return false;
     }
-    private function build_parentOf_childOf_data($meta)
+    private function build_parentOf_childOf_data($meta) // parentOf not used so far
     {   $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
@@ -605,17 +605,17 @@ class WormsArchiveAPI
             /* $this->parentOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = @$rec['parentMeasurementID']; working OK not used yet */
             if($parent = @$rec['parentMeasurementID']) $this->childOf[$parent] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             
-            //this is to store URI map
+            //this is to store URI map. this->childOf and this->BodysizeDimension will work hand in hand later on.
             if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Body size > Dimension') {
                 $mValue = strtolower($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
                 $this->BodysizeDimension[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = $this->BsD_URI[$mValue];
             }
         }
-        // /* just testing 
+        /* just testing
         // exit("\nsuper parent of [528458_768436]: ".self::get_super_parent('528458_768436')."\n");
         $super_child = self::get_super_child('528452_768436');
         exit("\nsuper child of [528452_768436]: ".$super_child."\n".$this->BodysizeDimension[$super_child]."\n");
-        // */
+        */
     }
     private function get_super_child($id)
     {   $current = '';
