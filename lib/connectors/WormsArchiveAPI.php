@@ -285,12 +285,10 @@ class WormsArchiveAPI
         */
     }
     private function get_children_of_taxon($taxon_id)
-    {
-        $taxo_tmp = array();
+    {   $taxo_tmp = array();
         //start ====
         $temp = self::get_children_of_synonym($taxon_id);
         $taxo_tmp = array_merge($taxo_tmp, $temp);
-
         //start 2nd loop -> process children of children
         foreach($temp as $id) {
             $temp2 = self::get_children_of_synonym($id);
