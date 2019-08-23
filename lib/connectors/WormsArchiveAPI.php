@@ -693,7 +693,7 @@ class WormsArchiveAPI
                                'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
                                'target_taxon_name' => $sciname);
                 self::add_association($param);
-                break; //do this if you want to proceed create DwCA
+                // break; //do this if you want to proceed create DwCA
             }
             //========================================================================================================next task --- worms_mapping1.csv
             /*Array( $this->match2map
@@ -705,7 +705,7 @@ class WormsArchiveAPI
             $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];    //e.g. 'benthos'
             $taxon_id = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
             if($info = @$this->match2map[$mtype][$mvalue]) { //$this->match2map came from a CSV mapping file
-                continue;
+                // continue;
                 // print_r($info); print_r($rec); exit;
                 /*Array( $info
                     [mTypeURL] => http://rs.tdwg.org/dwc/terms/habitat
@@ -731,7 +731,7 @@ class WormsArchiveAPI
                 $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
                 $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
                 // print_r($save); exit;
-                break; //do this if you want to proceed create DwCA
+                // break; //do this if you want to proceed create DwCA
             }
             //========================================================================================================next task --- "Body size"
             if($mtype == 'Body size') { //the parent
