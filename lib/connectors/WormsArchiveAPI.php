@@ -812,11 +812,12 @@ class WormsArchiveAPI
         }//end foreach
     }
     private function get_uri_from_value($val, $what)
-    {   $val = trim($val);
+    {   $orig = $val;
+        $val = trim(strtolower($val));
         if($uri = @$this->value_uri_map[$val]) return $uri;
         else {
             $this->debug['no uri'][$what][$val] = '';
-            return $val;
+            return $orig;
         }
     }
     private function format_measurementUnit($rec)
@@ -874,7 +875,7 @@ class WormsArchiveAPI
                     [measurementValue] => Female
                     [valueURI] => http://purl.obolibrary.org/obo/PATO_0000383
                 )*/
-                $final[$rec['measurementValue']] = $rec['valueURI'];
+                $final[strtolower($rec['measurementValue'])] = $rec['valueURI'];
             }
         }
         unlink($local);
