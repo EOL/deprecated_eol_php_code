@@ -82,8 +82,9 @@ class DWCADiagnoseAPI
         }
         else {
             $harvester = new ContentArchiveReader(NULL, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "/");
-            $tables = $harvester->tables;
-            $tables = array_keys($tables);
+            $tableZ = $harvester->tables;
+            /* orig but not scalable for big resources e.g. WoRMS (26)
+            $tables = array_keys($tableZ);
             // $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
             $tables = array_diff($tables, array("http://rs.gbif.org/terms/1.0/vernacularname")); //exclude vernacular name
             $tables = array_diff($tables, array("http://eol.org/schema/association")); //exclude association name
@@ -93,10 +94,59 @@ class DWCADiagnoseAPI
                 self::process_fields($records, pathinfo($table, PATHINFO_BASENAME));
                 $records = null;
             }
+            */
+            $tables = array_keys($tableZ);
+            print_r($tables);
+            // $tables = array_diff($tables, array("http://rs.tdwg.org/dwc/terms/measurementorfact")); //exclude measurementorfact
+            $tables = array_diff($tables, array("http://rs.gbif.org/terms/1.0/vernacularname")); //exclude vernacular name
+            $tables = array_diff($tables, array("http://eol.org/schema/association")); //exclude association name
+            print_r($tables);
+            foreach($tables as $table) {
+                $meta = $tableZ[$table][0];
+                // print_r($meta); exit;
+                self::process_fields_V2($meta, pathinfo($table, PATHINFO_BASENAME));
+            }
+            
         }
         echo "\n----------end Checking unique IDs----------\n";
     }
-
+    private function process_fields_V2($meta, $class)
+    {   echo "\n $class ";
+        if(!($field_index_key = @$this->file[$class])) {
+            echo "\nnot yet defined [$class]\n";
+            return false;
+        }
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; 
+            // if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array( e.g. for taxon extension
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 1
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Biota
+                ...
+            )*/
+            if(!isset($temp_ids[$rec[$field_index_key]])) $temp_ids[$rec[$field_index_key]] = '';
+            else {
+                if($val = $rec[$field_index_key]) {
+                    echo "\n -- not unique ID in [$class] - {" . $rec[$field_index_key] . "} - [$field_index_key]";
+                    return false;
+                }
+            }
+        }
+        echo " -- OK\n";
+        return true;
+    }
     private function process_fields($records, $class)
     {
         $temp_ids = array();

@@ -45,8 +45,12 @@ Historical:
 26	Thursday 2018-10-18 02:32:29 AM	{"agent.tab":1533,"measurement_or_fact.tab":539555,"media_resource.tab":92033,"occurrence.tab":535762,"reference.tab":691566,"taxon.tab":625782,"vernacular_name.tab":74148}
 26	Thursday 2018-10-18 09:38:17 PM	{"agent.tab":1533,"measurement_or_fact.tab":539555,"media_resource.tab":85041,"occurrence.tab":535762,"reference.tab":691566,"taxon.tab":625782,"vernacular_name.tab":74148}
 26	Saturday 2019-08-10 12:25:16 AM	{"agent.tab":1592,"measurement_or_fact.tab":553562,"media_resource.tab":85088,"occurrence.tab":549786,"reference.tab":604956,"taxon.tab":579191,"vernacular_name.tab":79059}
-
 exec time: ~30 minutes
+
+as of Aug 23, 2019
+26	Friday 2019-08-23 05:38:00 AM	{"agent.tab":1592,"association.tab":69630,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138761,"reference.tab":604956,"taxon.tab":579821,"vernacular_name.tab":79059} Mac Mini
+26	Friday 2019-08-23 05:09:26 AM	{"agent.tab":1592,"association.tab":69630,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138761,"reference.tab":604956,"taxon.tab":579821,"vernacular_name.tab":79059} eol-archive
+exec time: ?
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
