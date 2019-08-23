@@ -826,8 +826,7 @@ class WormsArchiveAPI
         }
     }
     private function adjustments_4_measurementAccuracy($save, $rec)
-    {
-        if($vtaxon_id = self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])) {
+    {   if($vtaxon_id = self::get_id_from_measurementAccuracy($rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'])) {
             if($sciname = @$this->taxa_rank[$vtaxon_id]['n']) {
                 $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
             }
@@ -912,13 +911,11 @@ class WormsArchiveAPI
         return $final;
     }
     private function get_id_from_measurementAccuracy($str)
-    {
-        $arr = explode(":", $str);
+    {   $arr = explode(":", $str);
         return array_pop($arr);
     }
     private function add_association($param)
-    {
-        $basename = pathinfo($param['predicate'], PATHINFO_BASENAME); //e.g. RO_0002454
+    {   $basename = pathinfo($param['predicate'], PATHINFO_BASENAME); //e.g. RO_0002454
         $taxon_id = $param['source_taxon_id'];
         $occurrenceID = $this->add_occurrence_assoc($taxon_id, $basename);
         $related_taxonID = $this->add_taxon_assoc($param['target_taxon_name'], self::get_worms_taxon_id($param['target_taxon_id']));
@@ -931,8 +928,7 @@ class WormsArchiveAPI
         $this->archive_builder->write_object_to_file($a);
     }
     private function add_taxon_assoc($taxon_name, $taxon_id)
-    {
-        if(isset($this->taxon_ids[$taxon_id])) return $taxon_id;
+    {   if(isset($this->taxon_ids[$taxon_id])) return $taxon_id;
         $t = new \eol_schema\Taxon();
         $t->taxonID = $taxon_id;
         $t->scientificName = $taxon_name;
@@ -941,8 +937,7 @@ class WormsArchiveAPI
         return $taxon_id;
     }
     private function add_occurrence_assoc($taxon_id, $identification_string)
-    {
-        $occurrence_id = $taxon_id.'_'.$identification_string;
+    {   $occurrence_id = $taxon_id.'_'.$identification_string;
         if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence();
         $o->occurrenceID = $occurrence_id;
