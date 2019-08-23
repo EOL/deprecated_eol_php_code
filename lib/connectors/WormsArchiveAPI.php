@@ -182,8 +182,8 @@ class WormsArchiveAPI
             // */
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
-        // echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        // echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         if($this->what == "taxonomy") {
             echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
         }
@@ -612,7 +612,7 @@ class WormsArchiveAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } // print_r($rec); exit;
-            /* $this->parentOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = @$rec['parentMeasurementID']; working OK but not used */
+            $this->parentOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = @$rec['parentMeasurementID'];
             if($parent = @$rec['parentMeasurementID']) $this->childOf[$parent] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             
             //this is to store URI map. this->childOf and this->BodysizeDimension will work hand in hand later on.
@@ -623,14 +623,24 @@ class WormsArchiveAPI
         }
         /* just testing
         // exit("\nsuper parent of [528458_768436]: ".self::get_super_parent('528458_768436')."\n");
-        $super_child = self::get_super_child('528452_768436');
-        exit("\nsuper child of [528452_768436]: ".$super_child."\n".$this->BodysizeDimension[$super_child]."\n");
+        // $super_child = self::get_super_child('528452_768436'); exit("\nsuper child of [528452_768436]: ".$super_child."\n".$this->BodysizeDimension[$super_child]."\n");
+        // exit("\nsuper parent of [168362_141433]: ".self::get_super_parent('168362_141433')."\n"); //super parent should be: 168359_141433 OK result
         */
     }
     private function get_super_child($id)
     {   $current = '';
         while(true) {
             if($parent = @$this->childOf[$id]) {
+                $current = $parent;
+                $id = $current;
+            }
+            else return $current;
+        }
+    }
+    private function get_super_parent($id)
+    {   $current = '';
+        while(true) {
+            if($parent = @$this->parentOf[$id]) {
                 $current = $parent;
                 $id = $current;
             }
@@ -718,6 +728,7 @@ class WormsArchiveAPI
                 $save['measurementRemarks'] = $info['mRemarks'];
                 $save['source'] = $this->taxon_page.$taxon_id;
                 $save = self::adjustments_4_measurementAccuracy($save, $rec);
+                $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
                 $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
                 // print_r($save); exit;
                 break; //do this if you want to proceed create DwCA
@@ -758,12 +769,9 @@ class WormsArchiveAPI
                 $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID']; //e.g. 528452_768436
                 $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
                 $mTypev = @$this->BodysizeDimension[$super_child];
-                if(!$mTypev) {
-                    //waiting for feedback from Jen.
-                    continue;
-                }
+                if(!$mTypev) $mTypev = 'http://purl.obolibrary.org/obo/OBA_VT0100005'; //feedback from Jen: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63749&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63749
                 $mValuev = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
-                print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
+                // print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
                 
                 $this->func->add_string_types($save, $mValuev, $mTypev, "true");
                 // print_r($save); exit;
@@ -785,7 +793,10 @@ class WormsArchiveAPI
                 )*/
                 $save = array();
                 $save['measurementID'] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+                /* orig but no enough, use get_super_parent() for the right parent
                 $save['parentMeasurementID'] = $rec['parentMeasurementID'];
+                */
+                $save['parentMeasurementID'] = self::get_super_parent($save['measurementID']);
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
                 $save['measurementRemarks'] = ''; //no instruction here
@@ -803,12 +814,15 @@ class WormsArchiveAPI
     }
     private function get_uri_from_value($val, $what)
     {   if($uri = @$this->value_uri_map[$val]) return $uri;
-        else $this->debug['no uri'][$what][$val] = '';
+        else {
+            $this->debug['no uri'][$what][$val] = '';
+            return $val;
+        }
     }
     private function format_measurementUnit($rec)
-    {   if($val = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) { //e.g. mm
-            if($uri = $this->mUnit[$val]) return $uri;
-            else $this->debug['undefined mUnit literal'][$val];
+    {   if($val = trim(@$rec['http://rs.tdwg.org/dwc/terms/measurementUnit'])) { //e.g. mm
+            if($uri = @$this->mUnit[$val]) return $uri;
+            else $this->debug['undefined mUnit literal'][$val] = '';
         }
     }
     private function adjustments_4_measurementAccuracy($save, $rec)
@@ -1325,18 +1339,6 @@ class WormsArchiveAPI
         //     }
         // }
     }
-    /* working OK but not used.
-    private function get_super_parent($id)
-    {   $current = '';
-        while(true) {
-            if($parent = @$this->parentOf[$id]) {
-                $current = $parent;
-                $id = $current;
-            }
-            else return $current;
-        }
-    }
-    */
     // =================================================================================== WORKING OK! BUT MAY HAVE BEEN JUST ONE-TIME IMPORT
     // START dynamic hierarchy ===========================================================
     // ===================================================================================
