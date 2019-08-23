@@ -817,7 +817,7 @@ class WormsArchiveAPI
         $val = trim(strtolower($val));
         if($uri = @$this->value_uri_map[$val]) return $uri;
         else {
-            $this->debug['no uri'][$what][$val] = '';
+            $this->debug['no uri'][$what][$orig] = '';
             return $orig;
         }
     }
