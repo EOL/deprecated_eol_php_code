@@ -813,7 +813,8 @@ class WormsArchiveAPI
         }//end foreach
     }
     private function get_uri_from_value($val, $what)
-    {   if($uri = @$this->value_uri_map[$val]) return $uri;
+    {   $val = trim($val);
+        if($uri = @$this->value_uri_map[$val]) return $uri;
         else {
             $this->debug['no uri'][$what][$val] = '';
             return $val;
