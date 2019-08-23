@@ -178,7 +178,6 @@ class DWCADiagnoseAPI
         echo " -- OK\n";
         return true;
     }
-
     function get_irn_from_media_extension($resource_id)
     {
         // e.g. https://collections.nmnh.si.edu/services/media.php?env=mammals&irn=7005395
@@ -194,7 +193,6 @@ class DWCADiagnoseAPI
         }
         return array_keys($irns);
     }
-
     function cannot_delete() // a utility
     {
         $final = array();
@@ -204,7 +202,6 @@ class DWCADiagnoseAPI
         foreach($final as $e) echo "\n $e";
         echo "\n";
     }
-
     function get_undefined_uris() // a utility
     {
         $ids = array("872", "886", "887", "892", "893", "894", "885", "42");
@@ -215,38 +212,31 @@ class DWCADiagnoseAPI
             echo "\nundefined uris: " . count($undefined_uris) . "\n";
         }
     }
-    
     function list_unique_taxa_from_XML_resource($resource_id)
     {
         $file = CONTENT_RESOURCE_LOCAL_PATH . "/$resource_id" . ".xml";
         $xml = simplexml_load_file($file);
         $taxa = array();
         $objects = array();
-        foreach($xml->taxon as $t)
-        {
+        foreach($xml->taxon as $t) {
             $do_count = sizeof($t->dataObject);
-            if($do_count > 0)
-            {
+            if($do_count > 0) {
                 $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
                 $t_dc = $t->children("http://purl.org/dc/elements/1.1/");
                 $sciname    = Functions::import_decode($t_dwc->ScientificName);
                 $taxa[$sciname] = '';
             }
-            
-            foreach($t->dataObject as $o)
-            {
+            foreach($t->dataObject as $o) {
                 $t_dc2 = $o->children("http://purl.org/dc/elements/1.1/");
                 $identifier = Functions::import_decode($t_dc2->identifier);
                 $objects[$identifier] = '';
             }
-            
         }
         print_r($taxa);
         print_r($objects);
         echo "\nTotal taxa: " . count($taxa) . "\n";
         echo "\nTotal objects: " . count($objects) . "\n";
     }
-
     //============================================================ work in progress...
     function check_if_all_vernaculars_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false)
     {   /* $suggested_fields -> not so much used here... */
