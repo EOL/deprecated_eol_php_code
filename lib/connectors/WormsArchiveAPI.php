@@ -150,15 +150,15 @@ class WormsArchiveAPI
         exit("\n[$str]\n");
         */
 
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
         // print_r($paths); //exit;
-        */
-        // /* for development only
-        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
         // */
+        /* for development only
+        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
+        */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
@@ -672,7 +672,7 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
                 )*/
-                continue; //debug only
+                // continue; //debug only
                 /* source is: 292968   target is: 217662
                 e.g. MoF
                 occurrenceID , associationType , targetOccurrenceID
