@@ -198,9 +198,8 @@ class WormsArchiveAPI
         echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
         unset($this->func);
-        unset($this->childOf);
-        // exit("\nstop munax\n");
-        $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
+        unset($this->childOf); unset($this->parentOf);
+        // $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
         // */ =====================================================================================================================
         
         if($this->what == "media_objects") {
@@ -940,7 +939,7 @@ class WormsArchiveAPI
     private function add_occurrence_assoc($taxon_id, $identification_string)
     {   $occurrence_id = $taxon_id.'_'.$identification_string;
         if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
-        $o = new \eol_schema\Occurrence();
+        $o = new \eol_schema\Occurrence_specific();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         $this->archive_builder->write_object_to_file($o);
@@ -1219,7 +1218,7 @@ class WormsArchiveAPI
     }
     private function add_string_types($rec, $label, $value, $measurementType)
     {
-        $m = new \eol_schema\MeasurementOrFact();
+        $m = new \eol_schema\MeasurementOrFact_specific();
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
         $m->occurrenceID = $occurrence_id;
         if($label == "Distribution" || $label == "true") { // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
@@ -1257,7 +1256,7 @@ class WormsArchiveAPI
         $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
         // $occurrence_id = md5($taxon_id . 'occurrence'); from environments
 
-        $o = new \eol_schema\Occurrence();
+        $o = new \eol_schema\Occurrence_specific();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
         
