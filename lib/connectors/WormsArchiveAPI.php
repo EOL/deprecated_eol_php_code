@@ -502,6 +502,7 @@ class WormsArchiveAPI
             
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
             $taxon->scientificName = self::format_incertae_sedis($taxon->scientificName);
+            if(!$taxon->scientificName) continue;
             
             if($taxon->scientificName != "Biota") {
                 $val = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"]);
@@ -920,6 +921,7 @@ class WormsArchiveAPI
         $taxon_id = $param['source_taxon_id'];
         $occurrenceID = $this->add_occurrence_assoc($taxon_id, $basename);
         $related_taxonID = $this->add_taxon_assoc($param['target_taxon_name'], self::get_worms_taxon_id($param['target_taxon_id']));
+        if(!$related_taxonID) return;
         $related_occurrenceID = $this->add_occurrence_assoc($related_taxonID, $taxon_id.'_'.$basename);
         $a = new \eol_schema\Association();
         $a->occurrenceID = $occurrenceID;
@@ -933,6 +935,7 @@ class WormsArchiveAPI
         $t = new \eol_schema\Taxon();
         $t->taxonID = $taxon_id;
         $t->scientificName = $taxon_name;
+        if(!$t->scientificName) return false; //very unique situation...
         $this->archive_builder->write_object_to_file($t);
         $this->taxon_ids[$taxon_id] = '';
         return $taxon_id;
@@ -1423,6 +1426,7 @@ class WormsArchiveAPI
             
             $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
             $taxon->scientificName = self::format_incertae_sedis($taxon->scientificName);
+            if(!$taxon->scientificName) continue;
             
             $taxon->taxonRank       = $t['rank'];
             $taxon->taxonomicStatus = $t['status'];
