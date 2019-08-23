@@ -838,7 +838,10 @@ class WormsArchiveAPI
                     $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'].', '.$sciname;
                     // echo "\nfound [$sciname]";
                 }
-                else $this->debug['sciname not found with id from measurementAccuracy'][$vtaxon_id] = '';
+                else {
+                    $this->debug['sciname not found with id from measurementAccuracy'][$vtaxon_id] = '';
+                    $save['measurementMethod'] = $rec['http://rs.tdwg.org/dwc/terms/measurementAccuracy'];
+                }
             }
         }
         return $save;
