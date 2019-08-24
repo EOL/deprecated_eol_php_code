@@ -76,7 +76,6 @@ class WormsArchiveAPI
         $this->BsD_URI['weight'] = 'http://purl.obolibrary.org/obo/PATO_0000125';
         $this->BsD_URI['width'] = 'http://purl.obolibrary.org/obo/VT_0015039';
         $this->BsD_URI['wingspan'] = 'http://www.wikidata.org/entity/Q245097';
-        
         // NaN,ignore
         $this->mUnit['mm'] = 'http://purl.obolibrary.org/obo/UO_0000016';
         $this->mUnit['cm'] = 'http://purl.obolibrary.org/obo/UO_0000015';
@@ -89,6 +88,24 @@ class WormsArchiveAPI
         $this->mUnit['cm³'] = 'http://purl.obolibrary.org/obo/UO_0000097';
         $this->mUnit['m²'] = 'http://purl.obolibrary.org/obo/UO_0000080';
         $this->children_mTypes = array("Body size > Gender" ,"Body size > Stage", "Body size > Type" ,"Feedingtype > Stage", "Functional group > Stage" ,"Body size > Locality (MRGID)");
+        //Aug 24, 2019 - for associations
+        $this->fType_URI['ectoparasitic']['reg']    = 'http://purl.obolibrary.org/obo/RO_0002632';
+        $this->fType_URI['parasitic']['reg']        = 'http://purl.obolibrary.org/obo/RO_0002444';
+        $this->fType_URI['endoparasitic']['reg']    = 'http://purl.obolibrary.org/obo/RO_0002634';
+        $this->fType_URI['endocommensal']['reg']    = 'https://eol.org/schema/terms/endosymbiontOf';
+        $this->fType_URI['symbiotic']['reg']        = 'http://purl.obolibrary.org/obo/RO_0002440';
+        $this->fType_URI['kleptovore']['reg']       = 'http://purl.obolibrary.org/obo/RO_0008503';
+        $this->fType_URI['epizoic']['reg']          = 'https://eol.org/schema/terms/epibiontOf';
+        $this->fType_URI['kleptivore']['reg']       = 'http://purl.obolibrary.org/obo/RO_0008503';
+        $this->fType_URI['ectoparasitic']['rev']    = 'http://purl.obolibrary.org/obo/RO_0002633';
+        $this->fType_URI['parasitic']['rev']        = 'http://purl.obolibrary.org/obo/RO_0002445';
+        $this->fType_URI['endoparasitic']['rev']    = 'http://purl.obolibrary.org/obo/RO_0002635';
+        $this->fType_URI['endocommensal']['rev']    = 'http://purl.obolibrary.org/obo/RO_0002453';
+        $this->fType_URI['symbiotic']['rev']        = 'http://purl.obolibrary.org/obo/RO_0002453';
+        $this->fType_URI['kleptovore']['rev']       = 'http://purl.obolibrary.org/obo/RO_0008504';
+        $this->fType_URI['epizoic']['rev']          = 'http://purl.obolibrary.org/obo/RO_0002453';
+        $this->fType_URI['kleptivore']['rev']       = '';
+        $this->real_parents = array('AMBI ecological group', 'Body size', 'Body size (qualitative)', 'Feedingtype', 'Fossil range', 'Functional group', 'Paraphyletic group', 'Species importance to society', 'Supporting structure & enclosure');
     }
     private function get_valid_parent_id($id)
     {
@@ -150,15 +167,15 @@ class WormsArchiveAPI
         exit("\n[$str]\n");
         */
 
-        // /* un-comment in real operation
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
         // print_r($paths); //exit;
-        // */
-        /* for development only
-        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
         */
+        // /* for development only
+        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
+        // */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
@@ -182,8 +199,8 @@ class WormsArchiveAPI
             // */
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
-        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        // echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        // echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         if($this->what == "taxonomy") {
             echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
         }
@@ -194,12 +211,12 @@ class WormsArchiveAPI
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
-        echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        // echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
         unset($this->func);
         unset($this->childOf); unset($this->parentOf);
-        // $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
+        $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
         // */ =====================================================================================================================
         
         if($this->what == "media_objects") {
@@ -611,7 +628,24 @@ class WormsArchiveAPI
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
-            } // print_r($rec); exit;
+            } //print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 1054700
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 286376_1054700
+                [parentMeasurementID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementType] => Functional group
+                [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => benthos
+                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
+            )*/
+            
+            /* for stats only - comment in real operation
+            if($rec['parentMeasurementID']) $withParentYN = 'with_Parent';
+            else                            $withParentYN = 'without_Parent';
+            $all_mtypes[$rec['http://rs.tdwg.org/dwc/terms/measurementType']][$withParentYN] = '';
+            */
+            
             $this->parentOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = @$rec['parentMeasurementID'];
             if($parent = @$rec['parentMeasurementID']) $this->childOf[$parent] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             
@@ -620,7 +654,12 @@ class WormsArchiveAPI
                 $mValue = strtolower($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
                 $this->BodysizeDimension[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = $this->BsD_URI[$mValue];
             }
+            if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype') {
+                $mValue = strtolower($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+                $this->FeedingType[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = $this->fType_URI[$mValue];
+            }
         }
+        // ksort($all_mtypes); print_r($all_mtypes); exit; -- for stats only
         /* just testing
         // exit("\nsuper parent of [528458_768436]: ".self::get_super_parent('528458_768436')."\n");
         // $super_child = self::get_super_child('528452_768436'); exit("\nsuper child of [528452_768436]: ".$super_child."\n".$this->BodysizeDimension[$super_child]."\n");
@@ -650,7 +689,7 @@ class WormsArchiveAPI
     private function get_measurements($meta)
     {   echo "\nprocess_measurementorfact...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -661,7 +700,16 @@ class WormsArchiveAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } // print_r($rec); exit;
-            //========================================================================================================first task
+            $rec = array_map('trim', $rec); //worked OK - important!
+
+            // /* just for testing...
+            $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+            // if($mtype == 'Body size > Gender' && !$rec['parentMeasurementID']) print_r($rec);
+            if($mtype == 'Species importance to society > IUCN Red List Category > Year Assessed' && !$rec['parentMeasurementID']) print_r($rec);
+            continue;
+            // */
+
+            //========================================================================================================first task - association
             if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') { // print_r($rec); exit;
                 /*Array(
                     [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 292968
@@ -734,7 +782,7 @@ class WormsArchiveAPI
                 // break; //do this if you want to proceed create DwCA
             }
             //========================================================================================================next task --- "Body size"
-            if($mtype == 'Body size') { //the parent
+            if(in_array($mtype, $this->real_parents)) { //the parents -- first client was 'Body size'
                 /*Array( e.g. 'Body size'
                     [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 768436
                     [http://rs.tdwg.org/dwc/terms/measurementID] => 528452_768436
@@ -744,7 +792,6 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementValue] => 0.1
                     [http://rs.tdwg.org/dwc/terms/measurementUnit] => mm
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:155944
-                
                 Array( e.g. of "Body size > Dimension" //the super child
                     [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 768436
                     [http://rs.tdwg.org/dwc/terms/measurementID] => 528458_768436
@@ -765,12 +812,18 @@ class WormsArchiveAPI
                 $save['source'] = $this->taxon_page.$taxon_id;
                 $save = self::adjustments_4_measurementAccuracy($save, $rec);
                 $save['measurementUnit'] = self::format_measurementUnit($rec);
-                
-                $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID']; //e.g. 528452_768436
-                $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
-                $mTypev = @$this->BodysizeDimension[$super_child];
-                if(!$mTypev) $mTypev = 'http://purl.obolibrary.org/obo/OBA_VT0100005'; //feedback from Jen: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63749&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63749
-                $mValuev = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+
+                if($mtype == 'Body size') {
+                    $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID']; //e.g. 528452_768436
+                    $super_child = self::get_super_child($measurementID);                //e.g. 528458_768436
+                    $mTypev = @$this->BodysizeDimension[$super_child];
+                    if(!$mTypev) $mTypev = 'http://purl.obolibrary.org/obo/OBA_VT0100005'; //feedback from Jen: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63749&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63749
+                }
+                else { //for Feedingtype no URI, will take string 'Feedingtype'.
+                    $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType');
+                }
+
+                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue');
                 // print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
                 
                 $this->func->add_string_types($save, $mValuev, $mTypev, "true");
