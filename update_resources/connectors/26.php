@@ -103,11 +103,14 @@ exit("\n");
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 
-$undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //true means output will write to text file
+$undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //2nd param true means output will write to text file
 echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
 
 $without = $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
-echo "\nTotal taxa without parents:" . count($without)."\n";
+echo "\nTotal taxa without parents:" . count($without)."\n"; unset($without);
+
+$undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
+echo "\nTotal undefined parents MoF:" . count($undefined_parents)."\n";
 // =====================================*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
