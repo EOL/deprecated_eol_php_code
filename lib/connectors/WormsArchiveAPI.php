@@ -742,7 +742,8 @@ class WormsArchiveAPI
                                'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
                                'target_taxon_name' => $sciname);
                 self::add_association($param);
-                // break; //do this if you want to proceed create DwCA
+                // break; //debug only --- do this if you want to proceed create DwCA
+                continue; //part of real operation. If MoF is of this type then you can go to next record now.
             }
             //========================================================================================================next task --- worms_mapping1.csv
             /*Array( $this->match2map
@@ -790,7 +791,8 @@ class WormsArchiveAPI
                 // break; //do this if you want to proceed create DwCA
             }
             //========================================================================================================next task --- "Body size"
-            if(in_array($mtype, $this->real_parents)) { //the parents -- first client was 'Body size'
+            // if(in_array($mtype, $this->real_parents)) { //the parents -- first client was 'Body size'
+            if($mtype == 'Body size') { //a parent
                 /*Array( e.g. 'Body size'
                     [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 768436
                     [http://rs.tdwg.org/dwc/terms/measurementID] => 528452_768436
@@ -827,9 +829,11 @@ class WormsArchiveAPI
                     $mTypev = @$this->BodysizeDimension[$super_child];
                     if(!$mTypev) $mTypev = 'http://purl.obolibrary.org/obo/OBA_VT0100005'; //feedback from Jen: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63749&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63749
                 }
-                else { //for Feedingtype no URI, will take string 'Feedingtype'.
+                /* not used for now
+                else {
                     $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType');
                 }
+                */
 
                 $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue');
                 // print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
