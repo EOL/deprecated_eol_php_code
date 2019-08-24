@@ -743,7 +743,7 @@ class WormsArchiveAPI
                                'target_taxon_name' => $sciname);
                 self::add_association($param);
                 // break; //debug only --- do this if you want to proceed create DwCA
-                continue; //part of real operation. If MoF is of this type then you can go to next record now.
+                continue; //part of real operation. Can go next row now
             }
             //========================================================================================================next task --- worms_mapping1.csv
             /*Array( $this->match2map
@@ -789,6 +789,7 @@ class WormsArchiveAPI
                 $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
                 // print_r($save); exit;
                 // break; //do this if you want to proceed create DwCA
+                continue; //part of real operation. Can go next row now
             }
             //========================================================================================================next task --- "Body size"
             // if(in_array($mtype, $this->real_parents)) { //the parents -- first client was 'Body size'
@@ -841,6 +842,7 @@ class WormsArchiveAPI
                 $this->func->add_string_types($save, $mValuev, $mTypev, "true");
                 // print_r($save); exit;
                 // break; //do this if you want to proceed create DwCA
+                continue; //part of real operation. Can go next row now
             }
             //========================================================================================================next task --- child of "Body size"
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType']; //e.g. 'Body size > Gender'
@@ -872,6 +874,7 @@ class WormsArchiveAPI
                 $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue');
                 $this->func->add_string_types($save, $mValuev, $mTypev, "child");
                 // break; //do this if you want to proceed create DwCA
+                continue; //part of real operation. Can go next row now
             }
             //========================================================================================================end tasks
 
