@@ -210,6 +210,7 @@ class WormsArchiveAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
+        // print_r($this->match2map); exit;
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
         // echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
@@ -702,12 +703,12 @@ class WormsArchiveAPI
             } // print_r($rec); exit;
             $rec = array_map('trim', $rec); //worked OK - important!
 
-            // /* just for testing...
+            /* just for testing...
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             // if($mtype == 'Body size > Gender' && !$rec['parentMeasurementID']) print_r($rec);
             if($mtype == 'Species importance to society > IUCN Red List Category > Year Assessed' && !$rec['parentMeasurementID']) print_r($rec);
             continue;
-            // */
+            */
 
             //========================================================================================================first task - association
             if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') { // print_r($rec); exit;
@@ -752,6 +753,12 @@ class WormsArchiveAPI
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];      //e.g. 'Functional group'
             $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];    //e.g. 'benthos'
             $taxon_id = self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact']);
+            
+            /* debug only
+            if($mtype == 'Functional group' && $mvalue == 'benthos') {}
+            else continue;
+            */
+            
             if($info = @$this->match2map[$mtype][$mvalue]) { //$this->match2map came from a CSV mapping file
                 // continue;
                 // print_r($info); print_r($rec); exit;
@@ -769,6 +776,7 @@ class WormsArchiveAPI
                     [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
                 )*/
                 $save = array();
+                $save['measurementID'] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
                 // $save['measurementType'] = $info['mTypeURL'];        not needed for TraitGeneric
