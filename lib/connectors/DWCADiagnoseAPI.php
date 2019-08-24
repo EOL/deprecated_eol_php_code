@@ -278,8 +278,9 @@ class DWCADiagnoseAPI
         return $undefined;
     }
     
-    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false)
+    function check_if_all_parents_have_entries($resource_id, $write_2text_file = false, $url = false, $suggested_fields = false, $sought_field = false, $filename = 'taxon.tab')
     {   /* $suggested_fields -> if taxon.tab is BIG and there are alot of fields, you might want to limit the no. of fields e.g. suggested_fields from BOLDS_DumpsServiceAPI.php */
+        $compared_field = 'taxonID';
         if(!$sought_field) {
             $what['field'] = "parentNameUsageID";
             $what['filename'] = "_undefined_parent_ids.txt";
@@ -289,28 +290,27 @@ class DWCADiagnoseAPI
                 $what['field'] = "acceptedNameUsageID";
                 $what['filename'] = "_undefined_acceptedName_ids.txt";
             }
+            elseif($sought_field == "parentMeasurementID") {
+                $what['field'] = "parentMeasurementID";
+                $what['filename'] = "_undefined_parentMeasurementIDs.txt";
+                $compared_field = 'measurementID';
+            }
             else exit("\nsought_field ($sought_field) undefined. Will terminate.\n");
         }
-        echo "\nChecking if all ".$what['field']." have entries in taxon.tab \n";
+        echo "\nChecking if all ".$what['field']." have entries in $filename \n";
         
         if($write_2text_file) $WRITE = fopen(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . $what['filename'], "w");
         
-        $var = self::get_fields_from_tab_file($resource_id, array("taxonID", $what['field']), $url, $suggested_fields, "taxon.tab"); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
+        $var = self::get_fields_from_tab_file($resource_id, array($compared_field, $what['field']), $url, $suggested_fields, $filename); //$url if to the tool genHigherClass | $suggested_fields from BOLDS_DumpsServiceAPI.php
 
         if($arr = @$var[$what['field']]) $parent_ids = array_keys($arr);
         else                             $parent_ids = array();
         $parent_ids = array_map('trim', $parent_ids);
-        /* old
-        $taxon_ids = array_keys($var['taxonID']);
-        $taxon_ids = array_map('trim', $taxon_ids);
-        */
-        // new
-        $taxon_ids = $var['taxonID'];
+        $taxon_ids = $var[$compared_field];
         unset($var);
 
         $undefined = array();
         foreach($parent_ids as $parent_id) {
-            // if(!in_array($parent_id, $taxon_ids)) $undefined[$parent_id] = ''; changed to isset
             if(!isset($taxon_ids[$parent_id])) $undefined[$parent_id] = '';
         }
         if($write_2text_file) {
