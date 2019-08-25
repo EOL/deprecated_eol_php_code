@@ -106,6 +106,18 @@ class WormsArchiveAPI
         $this->fType_URI['epizoic']['rev']          = 'http://purl.obolibrary.org/obo/RO_0002453';
         $this->fType_URI['kleptivore']['rev']       = false;
         $this->real_parents = array('AMBI ecological group', 'Body size', 'Body size (qualitative)', 'Feedingtype', 'Fossil range', 'Functional group', 'Paraphyletic group', 'Species importance to society', 'Supporting structure & enclosure');
+
+        $this->exclude_mType_mValue['Feedingtype']['endocommensal'] = '';
+        $this->exclude_mType_mValue['Feedingtype']['symbiotic'] = '';
+        $this->exclude_mType_mValue['Feedingtype']['unknown'] = '';
+        $this->exclude_mType_mValue['Feedingtype']['not feeding'] = '';
+        $this->exclude_mType_mValue['Feedingtype']['non-selective'] = '';
+        $this->exclude_mType_mValue['Feedingtype']['commensal'] = '';
+        $this->exclude_mType_mValue['Feedingtype']['epizoic'] = '';
+        $this->exclude_mType_mValue['Feedingtype']['selective'] = '';
+        $this->exclude_mType_mValue['Functional group']['macro'] = '';
+        $this->exclude_mType_mValue['Functional group']['meso'] = '';
+        $this->exclude_mType_mValue['Functional group']['not applicable'] = '';
     }
     private function get_valid_parent_id($id)
     {
@@ -212,7 +224,7 @@ class WormsArchiveAPI
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
         echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        // echo "\n02 of 8\n";  self::get_mIDs_2exclude($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        echo "\n02 of 8\n";  self::get_mIDs_2exclude($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n03 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
         unset($this->func);
@@ -696,7 +708,24 @@ class WormsArchiveAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/MeasurementOrFact] => 1054700
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 286376_1054700
+                [parentMeasurementID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementType] => Functional group
+                [http://rs.tdwg.org/dwc/terms/measurementValueID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => benthos
+                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
+            )*/
+            $mID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+            $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            if(isset($this->exclude_mType_mValue[$mType][$mValue])) {
+                $this->ToExcludeMeasurementIDs[$mID] = '';
+                if($child = $this->childOf[$mID]) $this->ToExcludeMeasurementIDs[$child] = '';
+            }
         }
     }
     private function get_super_child($id)
@@ -741,7 +770,7 @@ class WormsArchiveAPI
             if($mtype == 'Species importance to society > IUCN Red List Category > Year Assessed' && !$rec['parentMeasurementID']) print_r($rec);
             continue;
             */
-
+            if(isset($this->ToExcludeMeasurementIDs[$rec['http://rs.tdwg.org/dwc/terms/measurementID']])) continue;
             //========================================================================================================first task - association
             if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') { // print_r($rec); exit;
                 /*Array(
