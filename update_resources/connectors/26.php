@@ -99,6 +99,14 @@ exit("\n");
 */
 
 
+/* utility - Aug 25, 2019: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63762&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63762
+This script lists all mtypes and its mvalue that were missing bec. it wasn't initialized by Jen yet. Probably deliberately done to exclude them.
+$func = new WormsArchiveAPI($resource_id);
+$func->investigate_missing_parents_in_MoF();
+exit("\n");
+*/
+
+
 // /* utility ==========================
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
@@ -111,7 +119,7 @@ echo "\nTotal taxa without parents:" . count($without)."\n"; unset($without);
 
 $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
 echo "\nTotal undefined parents MoF:" . count($undefined_parents)."\n";
-// =====================================*/
+// ===================================== */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
