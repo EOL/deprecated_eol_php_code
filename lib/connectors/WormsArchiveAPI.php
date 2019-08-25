@@ -88,7 +88,7 @@ class WormsArchiveAPI
         $this->mUnit['cm³'] = 'http://purl.obolibrary.org/obo/UO_0000097';
         $this->mUnit['m²'] = 'http://purl.obolibrary.org/obo/UO_0000080';
         $this->children_mTypes = array("Body size > Gender" ,"Body size > Stage", "Body size > Type" ,"Feedingtype > Stage", "Functional group > Stage" ,"Body size > Locality (MRGID)");
-        //Aug 24, 2019 - for associations
+        //Aug 24, 2019 - for associations | 'reg' for regular; 'rev' for reverse
         $this->fType_URI['ectoparasitic']['reg']    = 'http://purl.obolibrary.org/obo/RO_0002632';
         $this->fType_URI['parasitic']['reg']        = 'http://purl.obolibrary.org/obo/RO_0002444';
         $this->fType_URI['endoparasitic']['reg']    = 'http://purl.obolibrary.org/obo/RO_0002634';
@@ -104,7 +104,7 @@ class WormsArchiveAPI
         $this->fType_URI['symbiotic']['rev']        = 'http://purl.obolibrary.org/obo/RO_0002453';
         $this->fType_URI['kleptovore']['rev']       = 'http://purl.obolibrary.org/obo/RO_0008504';
         $this->fType_URI['epizoic']['rev']          = 'http://purl.obolibrary.org/obo/RO_0002453';
-        $this->fType_URI['kleptivore']['rev']       = '';
+        $this->fType_URI['kleptivore']['rev']       = 'kleptivore reverse';
         $this->real_parents = array('AMBI ecological group', 'Body size', 'Body size (qualitative)', 'Feedingtype', 'Fossil range', 'Functional group', 'Paraphyletic group', 'Species importance to society', 'Supporting structure & enclosure');
     }
     private function get_valid_parent_id($id)
@@ -199,8 +199,8 @@ class WormsArchiveAPI
             // */
         }
         // exit("\n building up list of children of synonyms \n"); //comment in normal operation
-        // echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
-        // echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n1 of 8\n";  self::build_taxa_rank_array($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
+        echo "\n2 of 8\n";  self::create_instances_from_taxon_object($harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon'));
         if($this->what == "taxonomy") {
             echo "\n3 of 8\n";  self::add_taxa_from_undeclared_parent_ids();
         }
@@ -212,7 +212,7 @@ class WormsArchiveAPI
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         // print_r($this->match2map); exit;
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
-        // echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
         unset($this->func);
@@ -582,6 +582,14 @@ class WormsArchiveAPI
             $taxon->source = $this->taxon_page . $taxon->taxonID;
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = $referenceID;
 
+            // /* new Aug 25, 2019 - 
+            if($this->what != "taxonomy") {
+                if($taxon->taxonomicStatus != "accepted") continue;
+                $taxon->parentNameUsageID = ''; //source has many parentNameUsageID but without its own taxon entry. So will not use at all.
+            }
+            
+            // */
+
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
                 $this->taxon_ids[$taxon->taxonID] = '';
                 $this->archive_builder->write_object_to_file($taxon);
@@ -657,8 +665,15 @@ class WormsArchiveAPI
             }
             if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype') {
                 $mValue = strtolower($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
-                $this->FeedingType[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = $this->fType_URI[$mValue];
+                $this->FeedingType[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = $mValue;
             }
+            
+            // 292968 | 415014_292968 | 415013_292968 | Feedingtype > Stage |  | adult |  | 
+            if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Stage') {
+                $mValue = strtolower($rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+                $this->lifeStageOf[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = $mValue;
+            }
+            $this->measurementIDz[$rec['http://rs.tdwg.org/dwc/terms/measurementID']] = '';
         }
         // ksort($all_mtypes); print_r($all_mtypes); exit; -- for stats only
         /* just testing
@@ -728,17 +743,45 @@ class WormsArchiveAPI
                 occurrenceID , associationType , targetOccurrenceID
                 292968_RO_0002454 , http://purl.obolibrary.org/obo/RO_0002454 , 217662_292968_RO_0002454
                 */
-                $param = array('source_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'],     'predicate' => 'http://purl.obolibrary.org/obo/RO_0002454', 
-                               'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/measurementValueID'],    'target_taxon_name' => $rec['http://rs.tdwg.org/dwc/terms/measurementValue']);
+                
+                // /* new way to get predicate (and its reverse) instead of just 'RO_0002454' (and its reverse RO_0002453) per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63753&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63753
+                // AphiaID | measurementID | parentMeasurementID | measurementType | measurementValueID | measurementValue | measurementUnit | measurementAccuracy
+                // 292968 | 415013_292968 |  | Feedingtype |  | ectoparasitic |  | 
+                // 292968 | 415014_292968 | 415013_292968 | Feedingtype > Stage |  | adult |  | 
+                // 292968 | 415015_292968 | 415014_292968 | Feedingtype > Host | urn:lsid:marinespecies.org:taxname:217662 | Saurida gracilis (Quoy & Gaimard, 1824)
+                $mID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+                $super_parent = self::get_super_parent($mID);
+                if($value_str = @$this->FeedingType[$super_parent]) {
+                    if(in_array($value_str, array('carnivore', 'unknown', 'omnivore', 'commensal', 'on sessile prey', 'predator', 'scavenger'))) continue; //were not initialized in ticket, no instruction.
+                    $predicate         = $this->fType_URI[$value_str]['reg'];
+                    $predicate_reverse = $this->fType_URI[$value_str]['rev'];
+                }
+                else {
+                    print_r($rec); print("\nInvestigate: cannot link to parent record [$super_parent].\n"); //e.g. 478430_458997 legit no parent record
+                    continue;
+                }
+                //get lifeStage if any
+                $lifeStage = '';
+                if($parent = $rec['parentMeasurementID']) {
+                    if($value_str = @$this->lifeStageOf[$parent]) { //e.g. 'adult'
+                        $lifeStage = self::get_uri_from_value($value_str, 'mValue');
+                    }
+                }
+                // */
+                
+                $param = array('source_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'],     'predicate' => $predicate, 
+                               'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/measurementValueID'],    'target_taxon_name' => $rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 
+                               'lifeStage' => $lifeStage);
                 self::add_association($param);
                 /*Now do the reverse*/
+                
                 $sciname = 'will look up or create';
                 if($sciname = $this->taxa_rank[self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'])]['n']) {}
                 else {
                     print_r($rec);
                     exit("\nWill need to add taxon first\n");
                 }
-                $param = array('source_taxon_id' => self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementValueID']), 'predicate' => 'http://purl.obolibrary.org/obo/RO_0002453', 
+                $param = array('source_taxon_id' => self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementValueID']), 'predicate' => $predicate_reverse, 
                                'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
                                'target_taxon_name' => $sciname);
                 self::add_association($param);
@@ -860,10 +903,13 @@ class WormsArchiveAPI
                 )*/
                 $save = array();
                 $save['measurementID'] = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
-                /* orig but no enough, use get_super_parent() for the right parent
+                /* orig but not enough, use get_super_parent() for the right parent
                 $save['parentMeasurementID'] = $rec['parentMeasurementID'];
                 */
-                $save['parentMeasurementID'] = self::get_super_parent($save['measurementID']);
+                $possible_pMID = self::get_super_parent($save['measurementID']);
+                if(isset($this->measurementIDz[$possible_pMID])) $save['parentMeasurementID'] = $possible_pMID;
+                
+                
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
                 $save['measurementRemarks'] = ''; //no instruction here
