@@ -104,7 +104,7 @@ class WormsArchiveAPI
         $this->fType_URI['symbiotic']['rev']        = 'http://purl.obolibrary.org/obo/RO_0002453';
         $this->fType_URI['kleptovore']['rev']       = 'http://purl.obolibrary.org/obo/RO_0008504';
         $this->fType_URI['epizoic']['rev']          = 'http://purl.obolibrary.org/obo/RO_0002453';
-        $this->fType_URI['kleptivore']['rev']       = 'kleptivore reverse';
+        $this->fType_URI['kleptivore']['rev']       = false;
         $this->real_parents = array('AMBI ecological group', 'Body size', 'Body size (qualitative)', 'Feedingtype', 'Fossil range', 'Functional group', 'Paraphyletic group', 'Species importance to society', 'Supporting structure & enclosure');
     }
     private function get_valid_parent_id($id)
@@ -768,23 +768,26 @@ class WormsArchiveAPI
                     }
                 }
                 // */
-                
-                $param = array('source_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'],     'predicate' => $predicate, 
-                               'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/measurementValueID'],    'target_taxon_name' => $rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 
-                               'lifeStage' => $lifeStage);
-                self::add_association($param);
-                /*Now do the reverse*/
-                
-                $sciname = 'will look up or create';
-                if($sciname = $this->taxa_rank[self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'])]['n']) {}
-                else {
-                    print_r($rec);
-                    exit("\nWill need to add taxon first\n");
+                if($predicate) {
+                    $param = array('source_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'],     'predicate' => $predicate, 
+                                   'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/measurementValueID'],    'target_taxon_name' => $rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 
+                                   'lifeStage' => $lifeStage);
+                    self::add_association($param);
                 }
-                $param = array('source_taxon_id' => self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementValueID']), 'predicate' => $predicate_reverse, 
-                               'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
-                               'target_taxon_name' => $sciname);
-                self::add_association($param);
+
+                /*Now do the reverse*/
+                if($$predicate_reverse) {
+                    $sciname = 'will look up or create';
+                    if($sciname = $this->taxa_rank[self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'])]['n']) {}
+                    else {
+                        print_r($rec);
+                        exit("\nWill need to add taxon first\n");
+                    }
+                    $param = array('source_taxon_id' => self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/measurementValueID']), 'predicate' => $predicate_reverse, 
+                                   'target_taxon_id' => $rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'], 
+                                   'target_taxon_name' => $sciname);
+                    self::add_association($param);
+                }
                 // break; //debug only --- do this if you want to proceed create DwCA
                 continue; //part of real operation. Can go next row now
             }
@@ -1627,6 +1630,49 @@ class WormsArchiveAPI
             }
         }
     }
+    public function investigate_missing_parents_in_MoF()
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH . "/26_undefined_parentMeasurementIDs_OK.txt";
+        echo "\nProcessing ($filename)...\n";
+        if(file_exists($filename)) {
+            $txt = file_get_contents($filename);
+            $AphiaIDs = explode("\n", $txt);
+            $AphiaIDs = array_filter($AphiaIDs); //remove null arrays
+            $AphiaIDs = array_unique($AphiaIDs); //make unique
+            $AphiaIDs = array_values($AphiaIDs); //reindex key
+            print_r($AphiaIDs);
+        }
+        else echo "\nFile not found\n";
+
+        $i = 0;
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH . "26_ok/measurementorfact.txt") as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [AphiaID] => 1054700
+                    [measurementID] => 286376_1054700
+                    [parentMeasurementID] => 
+                    [measurementType] => Functional group
+                    [measurementValueID] => 
+                    [measurementValue] => benthos
+                    [measurementUnit] => 
+                    [measurementAccuracy] => inherited from urn:lsid:marinespecies.org:taxname:101
+                )*/
+                if(in_array($rec['measurementID'], $AphiaIDs)) {
+                    $final[$rec['measurementType']][$rec['measurementValue']] = '';
+                }
+            }
+        }
+        print_r($final);
+    }
+
     // */
     // ===================================================================================
     // END dynamic hierarchy ===========================================================
