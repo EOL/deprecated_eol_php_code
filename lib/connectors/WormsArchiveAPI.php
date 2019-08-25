@@ -724,7 +724,7 @@ class WormsArchiveAPI
             $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             if(isset($this->exclude_mType_mValue[$mType][$mValue])) {
                 $this->ToExcludeMeasurementIDs[$mID] = '';
-                if($child = $this->childOf[$mID]) $this->ToExcludeMeasurementIDs[$child] = '';
+                if($child = @$this->childOf[$mID]) $this->ToExcludeMeasurementIDs[$child] = '';
             }
         }
     }
