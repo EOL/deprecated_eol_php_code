@@ -1033,7 +1033,7 @@ class WormsArchiveAPI
     private function add_association($param)
     {   $basename = pathinfo($param['predicate'], PATHINFO_BASENAME); //e.g. RO_0002454
         $taxon_id = $param['source_taxon_id'];
-        $occurrenceID = $this->add_occurrence_assoc($taxon_id, $basename, $param['lifeStage']);
+        $occurrenceID = $this->add_occurrence_assoc($taxon_id, $basename, @$param['lifeStage']);
         $related_taxonID = $this->add_taxon_assoc($param['target_taxon_name'], self::get_worms_taxon_id($param['target_taxon_id']));
         if(!$related_taxonID) return;
         $related_occurrenceID = $this->add_occurrence_assoc($related_taxonID, $taxon_id.'_'.$basename);
