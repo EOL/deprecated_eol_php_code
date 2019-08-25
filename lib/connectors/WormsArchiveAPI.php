@@ -210,10 +210,10 @@ class WormsArchiveAPI
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
-        // print_r($this->match2map); exit;
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
         echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        echo "\n02 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        // echo "\n02 of 8\n";  self::get_mIDs_2exclude($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        echo "\n03 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         print_r($this->debug);
         unset($this->func);
         unset($this->childOf); unset($this->parentOf);
@@ -682,6 +682,23 @@ class WormsArchiveAPI
         // exit("\nsuper parent of [168362_141433]: ".self::get_super_parent('168362_141433')."\n"); //super parent should be: 168359_141433 OK result
         */
     }
+    private function get_mIDs_2exclude($meta)
+    {   $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            print_r($rec); exit;
+        }
+    }
     private function get_super_child($id)
     {   $current = '';
         while(true) {
@@ -776,7 +793,7 @@ class WormsArchiveAPI
                 }
 
                 /*Now do the reverse*/
-                if($$predicate_reverse) {
+                if($predicate_reverse) {
                     $sciname = 'will look up or create';
                     if($sciname = $this->taxa_rank[self::get_worms_taxon_id($rec['http://rs.tdwg.org/dwc/terms/MeasurementOrFact'])]['n']) {}
                     else {
