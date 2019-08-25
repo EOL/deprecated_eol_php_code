@@ -1033,7 +1033,7 @@ class WormsArchiveAPI
     private function add_association($param)
     {   $basename = pathinfo($param['predicate'], PATHINFO_BASENAME); //e.g. RO_0002454
         $taxon_id = $param['source_taxon_id'];
-        $occurrenceID = $this->add_occurrence_assoc($taxon_id, $basename);
+        $occurrenceID = $this->add_occurrence_assoc($taxon_id, $basename, $param['lifeStage']);
         $related_taxonID = $this->add_taxon_assoc($param['target_taxon_name'], self::get_worms_taxon_id($param['target_taxon_id']));
         if(!$related_taxonID) return;
         $related_occurrenceID = $this->add_occurrence_assoc($related_taxonID, $taxon_id.'_'.$basename);
@@ -1054,12 +1054,13 @@ class WormsArchiveAPI
         $this->taxon_ids[$taxon_id] = '';
         return $taxon_id;
     }
-    private function add_occurrence_assoc($taxon_id, $identification_string)
+    private function add_occurrence_assoc($taxon_id, $identification_string, $lifeStage = '')
     {   $occurrence_id = $taxon_id.'_'.$identification_string;
         if(isset($this->occurrence_ids[$occurrence_id])) return $occurrence_id;
         $o = new \eol_schema\Occurrence_specific();
         $o->occurrenceID = $occurrence_id;
         $o->taxonID = $taxon_id;
+        $o->lifeStage = $lifeStage;
         $this->archive_builder->write_object_to_file($o);
         $this->occurrence_ids[$occurrence_id] = '';
         return $occurrence_id;
