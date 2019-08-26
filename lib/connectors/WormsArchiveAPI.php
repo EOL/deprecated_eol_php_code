@@ -104,7 +104,7 @@ class WormsArchiveAPI
         $this->fType_URI['symbiotic']['rev']        = 'http://purl.obolibrary.org/obo/RO_0002453';
         $this->fType_URI['kleptovore']['rev']       = 'http://purl.obolibrary.org/obo/RO_0008504';
         $this->fType_URI['epizoic']['rev']          = 'http://purl.obolibrary.org/obo/RO_0002453';
-        $this->fType_URI['kleptivore']['rev']       = false;
+        $this->fType_URI['kleptivore']['rev']       = 'http://purl.obolibrary.org/obo/RO_0008504';
         $this->real_parents = array('AMBI ecological group', 'Body size', 'Body size (qualitative)', 'Feedingtype', 'Fossil range', 'Functional group', 'Paraphyletic group', 'Species importance to society', 'Supporting structure & enclosure');
 
         $this->exclude_mType_mValue['Feedingtype']['endocommensal'] = '';
