@@ -1571,10 +1571,9 @@ class SummaryDataResourcesAllAPI
         else echo "\nNothing to save.\n";
     }
     function build_MySQL_table_from_csv($table) //generic means to build MySQL table from CSV file //1st client is method: lifestage and statMeth
-    {
-        self::working_dir(); //initializes $this->main_paths
+    {   self::working_dir(); //initializes $this->main_paths
         if($table == 'metadata_LSM') $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); 
-        else exit; //and so on...
+        else exit("\ntable [$table] not yet initialized\n"); //and so on...
         
         //truncate first
         $sql = "TRUNCATE TABLE SDR.".$table.";";
@@ -3620,7 +3619,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $sql = "TRUNCATE TABLE SDR.".$table.";";
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
         
-        $predicates = self::get_predicates_per_method_and_parentYN($method);
+        $predicates = self::get_predicates_per_method_and_parentYN($method); //print_r($predicates); return;
         $filename = "traits_".$method."_"; $file_cnt = 1;
         $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         self::working_dir();
@@ -3673,8 +3672,9 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 $save_cnt++;
                 if(($save_cnt % 1000000) == 0) {
                     echo "\nSaving...".number_format($save_cnt);
-                    fclose($WRITE); $file_cnt++;
-                    $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                    fclose($WRITE);
+                    self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+                    $file_cnt++; $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                 }
                 // /* NEW to linkup lifeStage and statMeth to traits
                 if($method == "LSM") {
@@ -3688,6 +3688,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             }
         }
         fclose($WRITE);
+        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
         fclose($file); echo "\n\nTraits to MySQL DONE [$table].\n\n";
     }
     private function lookup_value_from_metadata($eol_pk, $predicate)
