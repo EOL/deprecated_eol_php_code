@@ -1626,12 +1626,11 @@ class SummaryDataResourcesAllAPI
         fclose($file); echo("\n\n$table to MySQL DONE.\n\n");
     }
     function build_MySQL_table_from_text($table) //generic means to build MySQL table from TSV file //1st client is DH with taxonRank table.
-    {
-        if($table == 'DH_lookup') {
+    {   if($table == 'DH_lookup') {
             $info = self::prep_DH();
             $file = $info['archive_path'].$info['tables']['taxa'];
         }
-        else exit; //and so on...
+        else exit("\nTable [$table] not yet initialized.\n"); //and so on...
         
         //truncate first
         $sql = "TRUNCATE TABLE SDR.".$table.";";
@@ -1639,11 +1638,7 @@ class SummaryDataResourcesAllAPI
         
         $file_cnt = 1; $save = 0;
         $file_write = $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
-
-        /* good debug file access
-        if($WRITE) exit("\nok fopen\n");
-        else exit("\nerror fopen\n");
-        */
+        if(!$WRITE) exit("\nerror fopen [$file_write]\n");
 
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
