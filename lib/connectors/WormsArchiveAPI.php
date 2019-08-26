@@ -183,7 +183,6 @@ class WormsArchiveAPI
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
-        // print_r($paths); //exit;
         */
         // /* for development only
         $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
@@ -226,10 +225,10 @@ class WormsArchiveAPI
         echo "\n01 of 8\n";  self::build_parentOf_childOf_data($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n02 of 8\n";  self::get_mIDs_2exclude($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n03 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        print_r($this->debug);
-        unset($this->func);
-        unset($this->childOf); unset($this->parentOf);
-        $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
+        // print_r($this->debug);
+        unset($this->func); unset($this->childOf); unset($this->parentOf); unset($this->ToExcludeMeasurementIDs);
+        unset($this->BodysizeDimension); unset($this->FeedingType); unset($this->lifeStageOf); unset($this->measurementIDz);
+        // $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
         // */ =====================================================================================================================
         
         if($this->what == "media_objects") {
@@ -770,6 +769,7 @@ class WormsArchiveAPI
             if($mtype == 'Species importance to society > IUCN Red List Category > Year Assessed' && !$rec['parentMeasurementID']) print_r($rec);
             continue;
             */
+            
             if(isset($this->ToExcludeMeasurementIDs[$rec['http://rs.tdwg.org/dwc/terms/measurementID']])) continue;
             //========================================================================================================first task - association
             if($rec['http://rs.tdwg.org/dwc/terms/measurementType'] == 'Feedingtype > Host') { // print_r($rec); exit;
@@ -803,7 +803,8 @@ class WormsArchiveAPI
                     $predicate_reverse = $this->fType_URI[$value_str]['rev'];
                 }
                 else {
-                    print_r($rec); print("\nInvestigate: cannot link to parent record [$super_parent].\n"); //e.g. 478430_458997 legit no parent record
+                    // print_r($rec);
+                    print("\nInvestigate: cannot link to parent record [$super_parent].\n"); //e.g. 478430_458997 legit no parent record
                     continue;
                 }
                 //get lifeStage if any
@@ -980,7 +981,7 @@ class WormsArchiveAPI
         $val = trim(strtolower($val));
         if($uri = @$this->value_uri_map[$val]) return $uri;
         else {
-            $this->debug['no uri'][$what][$orig] = '';
+            if(!is_numeric($orig)) $this->debug['no uri'][$what][$orig] = ''; //log only non-numeric values
             return $orig;
         }
     }
