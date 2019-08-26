@@ -48,10 +48,11 @@ class SummaryDataResourcesAllAPI
                                         $this->working_dir = $this->main_dir."page_ids/";
                                         $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH
                                         $this->working_dir = $this->main_dir."page_ids_DHv11/";     //to pertain using DHv1.1
+                                        $this->working_dir = $this->main_dir."page_ids_20190822/";
                                         $this->trait_bank_folder = 'trait_bank_2019Jun13';
-                                        
+                                        $this->trait_bank_folder = 'trait_bank_2019Aug22';
         }
-        /* seems not used as all
+        /* seems not used at all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
         */
         
