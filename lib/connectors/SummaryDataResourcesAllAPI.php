@@ -144,8 +144,7 @@ class SummaryDataResourcesAllAPI
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); exit;
+                }// print_r($rec); exit;
                 /*Array(
                     [page_id] => 351759
                     [parent_id] => 9985
@@ -159,37 +158,9 @@ class SummaryDataResourcesAllAPI
         $this->CSV_children_of = $final;
     }
     /* obsolete for ALL TRAIT EXPORT file
-    private function generate_children_of_taxa_using_parentsCSV_old()
-    {
-        $file = fopen($this->main_paths['archive_path'].'/parents.csv', 'r'); $i = 0;
-        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
-            if($i == 1) $fields = $line;
-            else {
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); exit;
-                // Array(
-                //     [child] => 47054812
-                //     [parent] => 7662
-                // )
-                $child = $rec['child']; $parent = $rec['parent'];
-                $children_of[$parent][$child] = '';
-            }
-        }
-        foreach($children_of as $parent => $children) $final[$parent] = array_keys($children);
-        $this->CSV_children_of = $final;
-    }
+    private function generate_children_of_taxa_using_parentsCSV_old(){}
+    function generate_children_of_taxa_usingDH() //the big long program from SDR_all.php --- was never used for All Trait Export
     */
-    // function generate_children_of_taxa_usingDH() //the big long program from SDR_all.php --- was never used for All Trait Export
-    // {
-    //     self::parse_DH(); self::initialize();
-    //     /* obsolete for All Trait Export
-    //     self::gen_children_of_taxon_usingDH();
-    //     */
-    //     self::gen_children_of_taxon_usingDH_New();
-    // }
     function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
