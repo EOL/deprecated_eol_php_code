@@ -959,7 +959,6 @@ class WormsArchiveAPI
                 $possible_pMID = self::get_super_parent($save['measurementID']);
                 if(isset($this->measurementIDz[$possible_pMID])) $save['parentMeasurementID'] = $possible_pMID;
                 
-                
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
                 $save['measurementRemarks'] = ''; //no instruction here
@@ -973,7 +972,6 @@ class WormsArchiveAPI
                 continue; //part of real operation. Can go next row now
             }
             //========================================================================================================end tasks
-
         }//end foreach
     }
     private function get_uri_from_value($val, $what)
@@ -1218,8 +1216,7 @@ class WormsArchiveAPI
         self::add_string_types($rec, "true", $mval, $mtype);
     }
     private function complete_url($path)
-    {
-        // http://www.marinespecies.org/aphia.php?p=sourcedetails&id=154106
+    {   // http://www.marinespecies.org/aphia.php?p=sourcedetails&id=154106
         $path = trim($path);
         if(substr($path, 0, 10) == "aphia.php?") return "http://www.marinespecies.org/" . $path;
         else return $path;
@@ -1249,8 +1246,7 @@ class WormsArchiveAPI
         return $final;
     }
     private function format_incertae_sedis($str)
-    {
-        /*
+    {   /*
         case 1: [One-word-name] incertae sedis
             Example: Bivalvia incertae sedis
             To: unplaced [One-word-name]
@@ -1278,8 +1274,7 @@ class WormsArchiveAPI
     }
     /*
     private function process_distribution($rec) // structured data
-    {
-        // not used yet
+    {   // not used yet
         // [] => WoRMS:distribution:274241
         // [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
         // [http://rs.tdwg.org/audubon_core/subtype] => 
@@ -1386,8 +1381,7 @@ class WormsArchiveAPI
         }
     }
     private function add_string_types($rec, $label, $value, $measurementType)
-    {
-        $m = new \eol_schema\MeasurementOrFact_specific();
+    {   $m = new \eol_schema\MeasurementOrFact_specific();
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
         $m->occurrenceID = $occurrence_id;
         if($label == "Distribution" || $label == "true") { // so that measurementRemarks (and source, contributor, etc.) appears only once in the [measurement_or_fact.tab]
@@ -1411,8 +1405,7 @@ class WormsArchiveAPI
         $this->archive_builder->write_object_to_file($m);
     }
     private function prepare_reference($referenceID)
-    {
-        if($referenceID) {
+    {   if($referenceID) {
             $ids = explode(",", $referenceID); // not sure yet what separator Worms used, comma or semicolon - or if there are any
             $reference_ids = array();
             foreach($ids as $id) $reference_ids[] = $id;
@@ -1421,8 +1414,7 @@ class WormsArchiveAPI
         return false;
     }
     private function add_occurrence($taxon_id, $catnum)
-    {
-        $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
+    {   $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
         // $occurrence_id = md5($taxon_id . 'occurrence'); from environments
 
         $o = new \eol_schema\Occurrence_specific();
@@ -1444,8 +1436,7 @@ class WormsArchiveAPI
     }
     private function get_vernaculars($records)
     {   self::process_fields($records, "vernacular");
-        // foreach($records as $rec)
-        // {
+        // foreach($records as $rec) {
         //     $v = new \eol_schema\VernacularName();
         //     $v->taxonID         = $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
         //     $v->taxonID         = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $v->taxonID);
@@ -1458,8 +1449,7 @@ class WormsArchiveAPI
     }
     private function get_agents($records)
     {   self::process_fields($records, "agent");
-        // foreach($records as $rec)
-        // {
+        // foreach($records as $rec) {
         //     $r = new \eol_schema\Agent();
         //     $r->identifier      = (string) $rec["http://purl.org/dc/terms/identifier"];
         //     $r->term_name       = (string) $rec["http://xmlns.com/foaf/spec/#term_name"];
@@ -1478,8 +1468,7 @@ class WormsArchiveAPI
     }
     private function get_references($records)
     {   self::process_fields($records, "reference");
-        // foreach($records as $rec)
-        // {
+        // foreach($records as $rec) {
         //     $r = new \eol_schema\Reference();
         //     $r->identifier      = (string) $rec["http://purl.org/dc/terms/identifier"];
         //     $r->publicationType = (string) $rec["http://eol.org/schema/reference/publicationType"];
@@ -1499,8 +1488,7 @@ class WormsArchiveAPI
         //     $r->uri             = (string) $rec["http://purl.org/ontology/bibo/uri"];
         //     $r->doi             = (string) $rec["http://purl.org/ontology/bibo/doi"];
         //     $r->localityName    = (string) $rec["http://schemas.talis.com/2005/address/schema#localityName"];
-        //     if(!isset($this->resource_reference_ids[$r->identifier]))
-        //     {
+        //     if(!isset($this->resource_reference_ids[$r->identifier])) {
         //        $this->resource_reference_ids[$r->identifier] = 1;
         //        $this->archive_builder->write_object_to_file($r);
         //     }
@@ -1523,8 +1511,7 @@ class WormsArchiveAPI
         // else exit("\n[$file] does not exist.\n");
     }
     private function AphiaClassificationByAphiaID($id)
-    {
-        $taxa = self::get_ancestry_by_id($id);
+    {   $taxa = self::get_ancestry_by_id($id);
         $taxa = self::add_authorship($taxa);
         // $taxa = self::add_parent_id($taxa); //obsolete
         $taxa = self::add_parent_id_v2($taxa);
@@ -1574,8 +1561,8 @@ class WormsArchiveAPI
     }
     private function create_taxa($taxa) //for dynamic hierarchy only
     {   
-        foreach($taxa as $t)
-        {   // [AphiaID] => 24
+        foreach($taxa as $t) {
+            // [AphiaID] => 24
             // [rank] => Class
             // [scientificname] => Zoomastigophora
             // [authority] => 
@@ -1626,8 +1613,7 @@ class WormsArchiveAPI
     //     return $taxa;
     // }
     private function add_parent_id_v2($taxa)
-    {   
-        // Array (
+    {   // Array (
         //     [AphiaID] => 25
         //     [rank] => Order
         //     [scientificname] => Choanoflagellida
@@ -1648,8 +1634,7 @@ class WormsArchiveAPI
         return $taxa;
     }
     private function get_parent_of_index($index, $taxa)
-    {
-        $parent_id = "";
+    {   $parent_id = "";
         for($k = 0; $k <= $index-1 ; $k++) {
             if($taxa[$k]['status'] == "accepted") {
                 if(!in_array($taxa[$k]['AphiaID'], $this->children_of_synonyms)) $parent_id = $taxa[$k]['AphiaID']; //new
@@ -1658,8 +1643,7 @@ class WormsArchiveAPI
         return $parent_id;
     }
     public function trim_text_files() //a utility to make the text files ID [in folder /26_files/] entries unique. Advised to run this utility once the 6 connectors finished during build-up
-    {
-        $files = array("26_taxonomy_synonyms_without_children.txt", "26_taxonomy_children_of_synonyms.txt");
+    {   $files = array("26_taxonomy_synonyms_without_children.txt", "26_taxonomy_children_of_synonyms.txt");
         foreach($files as $file) {
             $filename = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $file;
             echo "\nProcessing ($filename)...\n";
@@ -1678,8 +1662,7 @@ class WormsArchiveAPI
         }
     }
     public function investigate_missing_parents_in_MoF()
-    {
-        $filename = CONTENT_RESOURCE_LOCAL_PATH . "/26_undefined_parentMeasurementIDs_OK.txt";
+    {   $filename = CONTENT_RESOURCE_LOCAL_PATH . "/26_undefined_parentMeasurementIDs_OK.txt";
         echo "\nProcessing ($filename)...\n";
         if(file_exists($filename)) {
             $txt = file_get_contents($filename);
@@ -1719,14 +1702,12 @@ class WormsArchiveAPI
         }
         print_r($final);
     }
-
     // */
     // ===================================================================================
     // END dynamic hierarchy ===========================================================
     // ===================================================================================
     private function get_undeclared_parent_ids()
-    {
-        $ids = array();
+    {   $ids = array();
         $url = CONTENT_RESOURCE_LOCAL_PATH . "26_files/" . $this->resource_id . "_undefined_parent_ids_archive.txt";
         if(file_exists($url)) {
             foreach(new FileIterator($url) as $line_number => $id) $ids[$id] = '';
