@@ -91,6 +91,7 @@ load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_app
 
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_1.txt' into table traits_TS;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_2.txt' into table traits_TS;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_3.txt' into table traits_TS;
 
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TSp_1.txt' into table traits_TSp;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TSp_2.txt' into table traits_TSp;
@@ -215,6 +216,24 @@ connect to server: afp://
 then connect /web/, from Sites/ run ln below:
 sudo ln -s /Volumes/web/cp/ cp
 ----------------------------------------------------------------------------------------------------------------------------------------
+
+BUT THIS WAS NOW AUTOMATED IN generate_page_id_txt_files_MySQL() ... no more manual steps like these:
+
+/*For 2019Aug22 traits version: steps below:
+$ mysql -u root -p --local-infile SDR;
+mysql> 
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_1.txt' into table traits_BV;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_2.txt' into table traits_BV;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_3.txt' into table traits_BV;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_4.txt' into table traits_BV;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_5.txt' into table traits_BV;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_LSM_1.txt' into table traits_LSM;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_1.txt' into table traits_TS;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_2.txt' into table traits_TS;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TS_3.txt' into table traits_TS;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TSp_1.txt' into table traits_TSp;
+load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_TSp_2.txt' into table traits_TSp;
+*/
 ----------------------------------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------
 

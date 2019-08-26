@@ -133,31 +133,29 @@ $timestart = time_elapsed();
 $resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
 
-/* build data files - MySQL tables */
-// $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
+/* build data files - MySQL tables 
+$func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
+*/
 
-// $func->generate_refs_per_eol_pk_MySQL(); return;
-// $func->build_MySQL_table_from_csv('metadata_LSM'); //return; //used for method: lifestage and statMeth(); DONE
+// /* can run one after the other: Done for 2019Aug22
+// $func->generate_refs_per_eol_pk_MySQL();
+// $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth()
 
-/* normal operation - DONE worked OK
 $func->generate_page_id_txt_files_MySQL('BV');
 // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
 $func->generate_page_id_txt_files_MySQL('TS');
 $func->generate_page_id_txt_files_MySQL('TSp');
-$func->generate_page_id_txt_files_MySQL('LSM'); return;
-*/
+$func->generate_page_id_txt_files_MySQL('LSM');
+return;
+// */
+
 
 /* preparation for parent basal values. This takes some time.
     // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
     // INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
     // INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
     // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
-    $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export' Jun 13, 2019
-*/
-
-
-/* replaced by: generate_page_id_txt_files_MySQL()
-$func->generate_page_id_txt_files(); return; //important initial step -- OBSOLETE NOW!
+    $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22
 */
 
 /* hasn't ran this yet for All Trait Export
@@ -189,9 +187,9 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // */
 
 // $func->test_taxon_summary('TS');             return;
-// $func->print_taxon_summary('TS');            //return; //main orig report - 36.30 minutes | 9.88 minutes
+// $func->print_taxon_summary('TS');            //return; //main orig report - 36.30 minutes | 9.88 minutes | 10.73 minutes
 // $func->test_parent_taxon_summary('TSp');     return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
-$func->print_parent_taxon_summary('TSp');    //return; //main orig report - 4.23 hours | 4.89 hours Aug12'19 | 2.01 hours
+// $func->print_parent_taxon_summary('TSp');    //return; //main orig report - 4.23 hours | 4.89 hours Aug12'19 | 2.01 hours
 // $func->print_parent_taxon_summary('TSp', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662'); return; //not used eventually
 
 /* for multiple page_ids: TS
