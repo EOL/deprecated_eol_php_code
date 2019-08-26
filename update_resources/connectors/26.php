@@ -51,6 +51,8 @@ as of Aug 23, 2019
 26	Friday 2019-08-23 05:38:00 AM	{"agent.tab":1592,"association.tab":69630,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138761,"reference.tab":604956,"taxon.tab":579821,"vernacular_name.tab":79059} Mac Mini
 26	Friday 2019-08-23 05:09:26 AM	{"agent.tab":1592,"association.tab":69630,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138761,"reference.tab":604956,"taxon.tab":579821,"vernacular_name.tab":79059} eol-archive
 26	Friday 2019-08-23 08:53:32 AM	{"agent.tab":1592,"association.tab":69629,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138760,"reference.tab":604956,"taxon.tab":579820,"vernacular_name.tab":79059} eol-archive
+start below of new traits, no synonyms only accepted taxa
+26	Monday 2019-08-26 05:58:25 AM	{"agent.tab":1592,"association.tab":69107,"measurement_or_fact_specific.tab":3354792,"media_resource.tab":85088,"occurrence_specific.tab":2141506,"reference.tab":604956,"taxon.tab":338472,"vernacular_name.tab":79059} eol-archive, same as Mac Mini
 
 exec time: 45.29 minutes
 */
