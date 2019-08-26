@@ -150,8 +150,7 @@ class SummaryDataResourcesAllAPI
                     [page_id] => 351759
                     [parent_id] => 9985
                     [canonical] => Batocera gerstaeckerii
-                )
-                */
+                )*/
                 $child = $rec['page_id']; $parent = $rec['parent_id'];
                 $children_of[$parent][$child] = '';
             }
