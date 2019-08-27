@@ -616,12 +616,13 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002439"); //preys on - with rec but no DwCA as of Aug 14'19
         // $input[] = array('page_id' => 328607, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
 
+        // only existing no DwCA
         // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
         // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002471,http://purl.obolibrary.org/obo/RO_0002458,http://purl.obolibrary.org/obo/RO_0002445");
         // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002453");
         // $input[] = array('page_id' => 1000277, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454"); no records OK
-        
-        $input[] = array('page_id' => 972688, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454");
+        // $input[] = array('page_id' => 972688, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002454"); no records from 2019Aug22 traits
+        $input[] = array('page_id' => 7673, 'predicate' => "http://purl.obolibrary.org/obo/RO_0002470,http://purl.obolibrary.org/obo/RO_0002439,http://purl.obolibrary.org/obo/RO_0002444");
         
         foreach($input as $i) {
             $page_id = $i['page_id']; $predicate = $i['predicate'];
@@ -1050,7 +1051,8 @@ class SummaryDataResourcesAllAPI
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
                     //write to file block
-                    $row = array($page_id, $rec['eol_pk'], $id, $info['Label']); $existing_records_for_writing[] = $row;
+                    $row = array($page_id, $rec['eol_pk'], $id, $info['Label']);
+                    $existing_records_for_writing[] = $row;
                 }
             }
         }
@@ -1058,7 +1060,7 @@ class SummaryDataResourcesAllAPI
         $eol_pks = array_keys($eol_pks);
         echo "\n [$parentYN] Original recs: ".count($recs)."\n";
         if($new_records = array_diff($info['Selected'], $found)) {
-            echo "\nTS - Not found in traits.csv. Create new record(s): included in DwCA"; print_r($new_records); //good debug
+            echo "\nTS - Not found in traits.csv object_page_id for this page_id and predicate. Create new record(s): included in DwCA"; print_r($new_records); //good debug
 
             // /* magic 8 now applied above (orig) and now here as well. Also now for both 'parent' and 'non-parent'
             $new_records = array_diff($new_records, $this->magic8);
@@ -1355,7 +1357,7 @@ class SummaryDataResourcesAllAPI
         // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
         // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
         */
-        echo "\nExisting records: ".count($rows); //print_r($rows); //good debug - Jul 29 commented
+        echo "\nExisting records: ".count($rows); print_r($rows); //good debug - Jul 29 commented
         /*[1169] => Array(
                     [0] => 7662
                     [1] => R512-PK71414812
@@ -1373,7 +1375,7 @@ class SummaryDataResourcesAllAPI
         foreach($rows as $row) {
             @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
         }
-        echo "\ncounts: (included in resources.txt) "; print_r($counts);
+        echo "\ncounts: (to be included in resources.txt) "; print_r($counts);
         //step 2: get eol_pk if count > 1 -> meaning multiple records
         foreach($rows as $row) {
             $eol_pk = $row[1];
@@ -1384,7 +1386,7 @@ class SummaryDataResourcesAllAPI
             foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
             return;
         }
-        //step 3: choose 1 among multiple eol_pks based on metadata (references + biblio). If same count just picked one.
+        //step 3: choose 1 among multiple eol_pks based on metadata (references + biblio). If same count just pick one.
         foreach($study as $value_uri => $eol_pks) {
             //get refs for each eol_pk
             $total = count($eol_pks); $i = 0;
