@@ -133,6 +133,11 @@ class USDAPlants2019
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         */
         // print_r($this->debug); exit;
+        
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
+        
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -148,8 +153,7 @@ class USDAPlants2019
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
-            }
-            // print_r($rec); exit;
+            } // print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => M1
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
@@ -210,10 +214,11 @@ class USDAPlants2019
             ELI: it seems this has now been corrected. Current data uses http://eol.org/schema/terms/subshrub already. No need to code this requirement.
             */
             //===========================================================================================================================================================
-            /* Additional data: */
+            /* debug only - for 'Additional data' investigation
             if($mtype == 'http://eol.org/schema/terms/NativeRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
             if($mtype == 'http://eol.org/schema/terms/IntroducedRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
             $this->debug['mtype'][$mtype] = '';
+            */
             //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
@@ -241,15 +246,12 @@ class USDAPlants2019
                 $k++;
             }
             // print_r($rec); exit;
-            /**/
-            
             $o = new \eol_schema\Taxon();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
@@ -300,9 +302,7 @@ class USDAPlants2019
                 [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
                 [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
             )*/
-            
             if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
-            
             $o = new \eol_schema\Occurrence_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
