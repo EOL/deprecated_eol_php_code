@@ -54,9 +54,17 @@ class DwCA_Utility
     {
         if($dwca_file) $this->dwca_file = $dwca_file; //used by /conncectors/lifedesk_eol_export.php
         
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
+        // print_r($paths);
+        // */
+
+        /* development only
+        $paths = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_40023/', 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_40023/');
+        */
+        
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -113,7 +121,6 @@ class DwCA_Utility
             /* ----------customized start------------ */
             if(substr($this->resource_id,0,3) == 'SC_') break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             elseif($this->resource_id == 368) break; //all extensions will be processed elsewhere.
-            if($this->resource_id == 727) break; //debug only - comment or remove in real operation. Use this line only during development.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -165,9 +172,11 @@ class DwCA_Utility
         // ================================= end of customization ================================= */ 
         
         $this->archive_builder->finalize(TRUE);
+        // /* un-comment in real operation
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
+        // */
         if($this->debug) print_r($this->debug);
     }
     function convert_archive_files($lifedesks) //used by: connectors/lifedesk_eol_export.php

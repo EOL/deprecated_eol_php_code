@@ -121,7 +121,7 @@ class USDAPlants2019
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
     }
     private function process_occurrence($meta)
@@ -179,7 +179,7 @@ class USDAPlants2019
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
     }
     function process_per_state()
@@ -262,7 +262,7 @@ class USDAPlants2019
                     $rec['source_url'] = $this->service['taxon_page'] . $rec['Symbol'];
                     self::create_taxon($rec);
                     self::create_vernacular($rec);
-                    if($NorI_data = self::parse_profile_page($this->service['taxon_page'].$rec['Symbol'])) {
+                    if($NorI_data = self::parse_profile_page($this->service['taxon_page'].$rec['Symbol'])) { //NorI = Native or Introduced
                         self::write_NorI_measurement($NorI_data, $rec);
                     }
                     // write presence for this state

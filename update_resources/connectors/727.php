@@ -50,8 +50,7 @@ function test()
     // $url = 'https://plants.sc.egov.usda.gov/core/profile?symbol=ABAL3';
     $func->parse_profile_page($url);
     // */
-
-    // $func->process_per_state();
+    // $func->process_per_state(); //worked OK
 }
 
 function process_resource_url($dwca_file, $resource_id)
@@ -71,13 +70,12 @@ function process_resource_url($dwca_file, $resource_id)
       rowType="http://rs.tdwg.org/dwc/terms/Event"                      --- seems not needed
     */
 
-    $preferred_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.gbif.org/terms/1.0/vernacularname', 
-                                'http://eol.org/schema/reference/reference', 'http://eol.org/schema/agent/agent');
-    // $preferred_rowtypes = array();
-    /* These 3 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
+    $preferred_rowtypes = array('http://eol.org/schema/media/document', 'http://eol.org/schema/reference/reference', 'http://eol.org/schema/agent/agent');
+    /* These 4 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
     http://rs.tdwg.org/dwc/terms/occurrence
     http://rs.tdwg.org/dwc/terms/measurementorfact
     http://rs.tdwg.org/dwc/terms/taxon
+    http://rs.gbif.org/terms/1.0/vernacularname
     */
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id);
