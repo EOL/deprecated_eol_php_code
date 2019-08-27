@@ -1789,8 +1789,7 @@ class SummaryDataResourcesAllAPI
     }
     /* not being used anymore, since the use of MySQL tables
     function delete_all_eol_pks_refs_fileTXT() //total eol_pks 39,931
-    {
-        self::initialize();
+    {   self::initialize();
         $eol_pks = self::get_unique_eol_pks_from_metadata_csv();
         $total = count($eol_pks); $i = 0;
         foreach($eol_pks as $eol_pk) {
@@ -1803,8 +1802,7 @@ class SummaryDataResourcesAllAPI
         }
     }
     private function get_unique_eol_pks_from_metadata_csv()
-    {
-        $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
+    {   $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if($i == 1) $fields = $line;
             else {
@@ -1817,8 +1815,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         return array_keys($eol_pks);
-    }
-    */
+    }*/
     private function get_refs_from_metadata_csv($eol_pks)
     {
         $str = implode(",", $eol_pks);
