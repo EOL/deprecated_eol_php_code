@@ -45,13 +45,13 @@ function test()
 {
     require_library('connectors/USDAPlants2019');
     $func = new USDAPlants2019("", "");
-    /* worked OK
+    // /* worked OK
     $url = 'https://plants.sc.egov.usda.gov/core/profile?symbol=ABBA';
     // $url = 'https://plants.sc.egov.usda.gov/core/profile?symbol=ABAL3';
     $func->parse_profile_page($url);
-    */
+    // */
 
-    $func->process_per_state();
+    // $func->process_per_state();
 }
 
 function process_resource_url($dwca_file, $resource_id)

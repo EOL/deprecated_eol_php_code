@@ -25,8 +25,7 @@ class USDAPlants2019
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function process_per_state()
-    {
-        $state_list = self::parse_state_list_page();
+    {   $state_list = self::parse_state_list_page();
         foreach($state_list as $territory => $states) {
             echo "\n[$territory]\n";
             // print_r($states); exit;
@@ -41,8 +40,7 @@ class USDAPlants2019
         }
     }
     private function parse_state_list($local, $state_id)
-    {
-        echo "\nprocessing [$state_id]\n";
+    {   echo "\nprocessing [$state_id]\n";
         $file = fopen($local, 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {
@@ -69,8 +67,7 @@ class USDAPlants2019
         }
     }
     private function parse_state_list_page()
-    {
-        if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
+    {   if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
             if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
                 $a = $arr[1];
                 $a = array_map('strip_tags', $a);
@@ -105,8 +102,7 @@ class USDAPlants2019
         return $final;
     }
     function parse_profile_page($url)
-    {
-        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+    {   if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match("/Status<\/strong>(.*?)<\/tr>/ims", $html, $arr)) {
                 $str = $arr[1];
                 $str = str_ireplace(' valign="top"', '', $str); // echo "\n$str\n";
@@ -130,8 +126,7 @@ class USDAPlants2019
         return $final;
     }
     function start($info)
-    {
-        $tables = $info['harvester']->tables;
+    {   $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         /* may just use the per-state pages to build up taxa.tab
