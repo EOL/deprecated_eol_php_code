@@ -126,7 +126,7 @@ class USDAPlants2019
             }
             else exit("\nInvestigate $url status not found!\n");
         }
-        // print_r($final);
+        print_r($final);
         return $final;
     }
     function start($info)
@@ -180,6 +180,7 @@ class USDAPlants2019
             $pred_2remove = array('http://eol.org/schema/terms/NativeIntroducedRange', 'http://eol.org/schema/terms/NativeProbablyIntroducedRange', 
                 'http://eol.org/schema/terms/ProbablyIntroducedRange', 'http://eol.org/schema/terms/ProbablyNativeRange', 
                 'http://eol.org/schema/terms/ProbablyWaifRange', 'http://eol.org/schema/terms/WaifRange', 'http://eol.org/schema/terms/InvasiveNoxiousStatus');
+            $pred_2remove = array_merge($pred_2remove, array('http://eol.org/schema/terms/NativeRange', 'http://eol.org/schema/terms/IntroducedRange')); //will be removed, to get refreshed.
             if(in_array($rec['http://rs.tdwg.org/dwc/terms/measurementType'], $pred_2remove)) continue;
             //===========================================================================================================================================================
             /* Metadata: For records with measurementType=A, please add lifeStage=B
