@@ -1044,9 +1044,10 @@ class SummaryDataResourcesAllAPI
         elseif($parentYN == "parent") $recs = $this->taxon_summary_parent_recs;
         else exit("\nNot go here...\n");
         // echo "\nHere 001...\n";
+        echo "\nAssembled recs to check if id exists (object_page_id): "; //print_r($recs)
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
-            foreach($recs as $rec) {
+            foreach($recs as $rec) { echo " -".$rec['object_page_id']."- "; //good debug
                 if($rec['object_page_id'] == $id) {
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
