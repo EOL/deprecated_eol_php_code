@@ -107,6 +107,7 @@ class USDAPlants2019
                 if(!$rec['Synonym Symbol'] && @$rec['Symbol']) { //echo " ".$rec['Symbol'];
                     $rec['source_url'] = $this->service['taxon_page'] . $rec['Symbol'];
                     self::create_taxon($rec);
+                    self::create_vernacular($rec);
                     if($NorI_data = self::parse_profile_page($this->service['taxon_page'].$rec['Symbol'])) {
                         self::write_NorI_measurement($NorI_data, $rec);
                     }
@@ -163,6 +164,15 @@ class USDAPlants2019
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->taxon_ids[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
+        }
+    }
+    private function create_vernacular($rec)
+    {   if($comname = $rec['National Common Name']) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $rec["Symbol"];
+            $v->vernacularName  = $comname;
+            $v->language        = 'en';
+            $this->archive_builder->write_object_to_file($v);
         }
     }
     function parse_profile_page($url)
