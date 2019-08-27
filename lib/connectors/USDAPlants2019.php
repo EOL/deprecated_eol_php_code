@@ -27,8 +27,7 @@ class USDAPlants2019
     function process_per_state()
     {   $state_list = self::parse_state_list_page();
         foreach($state_list as $territory => $states) {
-            echo "\n[$territory]\n";
-            // print_r($states); exit;
+            echo "\n[$territory]\n"; // print_r($states); exit;
             foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
                 if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) {
                     if($local = Functions::save_remote_file_to_local($this->service['per_state_page'].$arr[1], $this->download_options)) {
@@ -38,6 +37,35 @@ class USDAPlants2019
                 }
             }
         }
+    }
+    private function parse_state_list_page()
+    {   if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
+            if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
+                $a = $arr[1];
+                $a = array_map('strip_tags', $a); // print_r($a);
+                /*Array(
+                    [0] => U.S. States
+                    [1] => U.S. Territories and Protectorates
+                    [2] => Canada
+                    [3] => Denmark
+                    [4] => France
+                )*/
+                $i = -1;
+                foreach($a as $area) { $i++;
+                    if($area == 'France') {
+                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)<\/table>/ims", $html, $arr)) {
+                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) $final[$area] = $arr2[1];
+                        }
+                    }
+                    else {
+                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)class=\"BodyTextBlackBold\">".$a[$i+1]."/ims", $html, $arr)) {
+                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) $final[$area] = $arr2[1];
+                        }
+                    }
+                }
+            }
+        }
+        print_r($final); return $final;
     }
     private function parse_state_list($local, $state_id)
     {   echo "\nprocessing [$state_id]\n";
@@ -65,41 +93,6 @@ class USDAPlants2019
                 }
             }
         }
-    }
-    private function parse_state_list_page()
-    {   if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
-            if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
-                $a = $arr[1];
-                $a = array_map('strip_tags', $a);
-                // print_r($a);
-                /*Array(
-                    [0] => U.S. States
-                    [1] => U.S. Territories and Protectorates
-                    [2] => Canada
-                    [3] => Denmark
-                    [4] => France
-                )*/
-                $i = -1;
-                foreach($a as $area) { $i++;
-                    if($area == 'France') {
-                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)<\/table>/ims", $html, $arr)) {
-                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) {
-                                $final[$area] = $arr2[1];
-                            }
-                        }
-                    }
-                    else {
-                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)class=\"BodyTextBlackBold\">".$a[$i+1]."/ims", $html, $arr)) {
-                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) {
-                                $final[$area] = $arr2[1];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        print_r($final);
-        return $final;
     }
     function parse_profile_page($url)
     {   if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -227,7 +220,7 @@ class USDAPlants2019
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
-            // if($i >= 10) break; //debug only
+            if($i >= 10) break; //debug only
         }
     }
     private function process_taxon($meta, $ret)
@@ -310,7 +303,7 @@ class USDAPlants2019
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
-            // if($i >= 10) break; //debug only
+            if($i >= 10) break; //debug only
         }
     }
     /*================================================================= ENDS HERE ======================================================================*/
