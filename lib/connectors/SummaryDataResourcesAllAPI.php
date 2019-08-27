@@ -159,7 +159,6 @@ class SummaryDataResourcesAllAPI
     }
     /* obsolete for ALL TRAIT EXPORT file
     private function generate_children_of_taxa_using_parentsCSV_old(){}
-    function generate_children_of_taxa_usingDH() //the big long program from SDR_all.php --- was never used for All Trait Export
     */
     function print_parent_basal_values($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
     {   $this->dbname = 'traits_'.$dbase;

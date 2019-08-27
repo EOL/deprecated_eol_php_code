@@ -158,13 +158,9 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage 
 return;
 ========================================================================================================== */ 
 
-/* hasn't ran this yet for All Trait Export
-// $func->generate_children_of_taxa_usingDH(); return; //the big long program
-*/
-
-// /* IMPORTANT STEP - for parent BV and parent TS
+/* IMPORTANT STEP - for parent BV and parent TS
 $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run multiple connectors. auto-breakdown installed.
-// */
+*/
 
 /* replaced by: generate_refs_per_eol_pk_MySQL()
 $func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
