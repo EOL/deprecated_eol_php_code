@@ -162,10 +162,6 @@ return;
 $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run multiple connectors. auto-breakdown installed.
 */
 
-/* replaced by: generate_refs_per_eol_pk_MySQL()
-$func->generate_refs_per_eol_pk(); return; //important step for counting refs per eol_pk
-*/
-
 // $func->investigate_metadata_csv(); exit;
 
 // $func->test_basal_values('BV');          return;
@@ -182,7 +178,7 @@ $func->generate_refs_per_eol_pk(); return; //important step for counting refs pe
 // foreach($page_ids as $page_id) $final[$page_id] = array('taxonRank' => 'not species', 'Landmark' => 1); //good but not used eventually
 // */
 
-// $func->test_taxon_summary('TS');             return;
+$func->test_taxon_summary('TS');             return;
 // $func->print_taxon_summary('TS');            //return; //main orig report - 36.30 minutes | 9.88 minutes | 10.73 minutes
 // $func->test_parent_taxon_summary('TSp');     return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary('TSp');    //return; //main orig report - 4.23 hours | 4.89 hours Aug12'19 | 2.01 hours
