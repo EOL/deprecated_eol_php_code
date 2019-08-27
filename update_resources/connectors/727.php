@@ -29,7 +29,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 
-test(); exit;
+// test(); exit;
 
 $resource_id = 727;
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/727_24Oct2017.tar.gz';
@@ -71,10 +71,9 @@ function process_resource_url($dwca_file, $resource_id)
       rowType="http://rs.tdwg.org/dwc/terms/Event"                      --- seems not needed
     */
 
-    $preferred_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.gbif.org/terms/1.0/vernacularname', 
+    $preferred_rowtypes = array('http://eol.org/schema/media/document', 'http://rs.gbif.org/terms/1.0/vernacularname', 
                                 'http://eol.org/schema/reference/reference', 'http://eol.org/schema/agent/agent');
-
-    $preferred_rowtypes = array();
+    // $preferred_rowtypes = array();
     /* These 3 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
     http://rs.tdwg.org/dwc/terms/occurrence
     http://rs.tdwg.org/dwc/terms/measurementorfact

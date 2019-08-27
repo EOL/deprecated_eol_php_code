@@ -19,6 +19,8 @@ class USDAPlants2019
         $this->area['SPM'] = "St. Pierre and Miquelon (France)";
         $this->area['NA'] = "North America";
         $this->area['NAV'] = "Navassa Island";
+        $this->NorI_mType['N'] = 'http://eol.org/schema/terms/NativeRange';
+        $this->NorI_mType['I'] = 'http://eol.org/schema/terms/IntroducedRange';
         $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
         $this->service['taxon_page'] = 'https://plants.usda.gov/core/profile?symbol=';
         $this->service['per_state_page'] = 'https://plants.sc.egov.usda.gov/java/stateDownload?statefips=';
@@ -65,7 +67,8 @@ class USDAPlants2019
                 }
             }
         }
-        print_r($final); return $final;
+        print_r($final); exit;
+        return $final;
     }
     private function parse_state_list($local, $state_id)
     {   echo "\nprocessing [$state_id]\n";
@@ -89,13 +92,57 @@ class USDAPlants2019
                 )
                 */
                 if(!$rec['Synonym Symbol'] && @$rec['Symbol']) { //echo " ".$rec['Symbol'];
-                    self::parse_profile_page($this->service['taxon_page'].$rec['Symbol']); //exit;
+                    $rec['source_url'] = $this->service['taxon_page'] . $rec['Symbol'];
+                    self::create_taxon($rec);
+                    if($NorI_data = self::parse_profile_page($this->service['taxon_page'].$rec['Symbol'])) {
+                        self::write_NorI_measurement($NorI_data, $rec);
+                    }
+                    // write presence for this state
+                    
+                    exit;
                 }
             }
         }
     }
+    private function write_NorI_measurement($NorI_data, $rec)
+    {   /*Array([0] => Array(
+                    [0] => L48
+                    [1] => N
+                )
+        )*/
+        foreach($NorI_data as $d) {
+            $mValue = $this->area[$d[0]];
+            $mType = $this->NorI_mType[$d[1]];
+            $taxon_id = $rec['Symbol'];
+            $save = array();
+            // $save['measurementID'] = '';
+            $save['taxon_id'] = $taxon_id;
+            $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+            // $save['measurementRemarks'] = '';
+            $save['source'] = $rec['source_url'];
+            // $save['measurementUnit'] = ''; //no instruction here
+            $this->func->add_string_types($save, $mValue, $mType, "true");
+        }
+    }
+    private function create_taxon($rec)
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID  = $rec["Symbol"];
+        $taxon->scientificName  = $rec["Scientific Name with Author"];
+        $taxon->taxonomicStatus = 'valid';
+        $taxon->family  = $rec["Family"];
+        $taxon->source = $rec['source_url'];
+        // $taxon->taxonRank       = '';
+        // $taxon->taxonRemarks    = '';
+        // $taxon->rightsHolder    = '';
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->taxon_ids[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
+    }
     function parse_profile_page($url)
-    {   if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+    {   $final = false;
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             if(preg_match("/Status<\/strong>(.*?)<\/tr>/ims", $html, $arr)) {
                 $str = $arr[1];
                 $str = str_ireplace(' valign="top"', '', $str); // echo "\n$str\n";
@@ -115,7 +162,6 @@ class USDAPlants2019
             }
             else exit("\nInvestigate $url status not found!\n");
         }
-        print_r($final);
         return $final;
     }
     function start($info)
@@ -130,6 +176,7 @@ class USDAPlants2019
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
+        self::process_per_state();
         
     }
     private function process_measurementorfact($meta)
@@ -223,6 +270,7 @@ class USDAPlants2019
             if($i >= 10) break; //debug only
         }
     }
+    /* not used
     private function process_taxon($meta, $ret)
     {   //print_r($meta);
         $i = 0;
@@ -248,7 +296,7 @@ class USDAPlants2019
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
-    }
+    }*/
     private function process_occurrence($meta)
     {   //print_r($meta);
         echo "\nprocess_occurrence...\n"; $i = 0;
