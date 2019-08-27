@@ -67,7 +67,20 @@ class USDAPlants2019
                 }
             }
         }
-        print_r($final); exit;
+        print_r($final); //exit;
+        $this->area_id_info = self::assign_id_2_locations($final);
+        return $final;
+    }
+    private function assign_id_2_locations($state_list)
+    {   foreach($state_list as $territory => $states) {
+            echo "\n[$territory]\n"; // print_r($states); exit;
+            foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
+                $id = false; $location = false;
+                if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) $id = $arr[1];
+                if(preg_match("/>(.*?)elix/ims", $str.'elix', $arr)) $location = $arr[1];
+                if($id && $location) $final[$id] = $location;
+            }
+        }
         return $final;
     }
     private function parse_state_list($local, $state_id)
@@ -98,11 +111,24 @@ class USDAPlants2019
                         self::write_NorI_measurement($NorI_data, $rec);
                     }
                     // write presence for this state
-                    
+                    self::write_presence_measurement_for_state($state_id, $rec);
                     exit;
                 }
             }
         }
+    }
+    private function write_presence_measurement_for_state($state_id, $rec)
+    {
+        $mValue = $this->area_id_info[$state_id];
+        $mType = 'http://eol.org/schema/terms/Present'; //for generic range
+        $taxon_id = $rec['Symbol'];
+        $save = array();
+        $save['taxon_id'] = $taxon_id;
+        $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+        $save['source'] = $rec['source_url'];
+        // $save['measurementID'] = '';
+        // $save['measurementRemarks'] = '';
+        $this->func->add_string_types($save, $mValue, $mType, "true");
     }
     private function write_NorI_measurement($NorI_data, $rec)
     {   /*Array([0] => Array(
@@ -115,12 +141,11 @@ class USDAPlants2019
             $mType = $this->NorI_mType[$d[1]];
             $taxon_id = $rec['Symbol'];
             $save = array();
-            // $save['measurementID'] = '';
             $save['taxon_id'] = $taxon_id;
             $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-            // $save['measurementRemarks'] = '';
             $save['source'] = $rec['source_url'];
-            // $save['measurementUnit'] = ''; //no instruction here
+            // $save['measurementID'] = '';
+            // $save['measurementRemarks'] = '';
             $this->func->add_string_types($save, $mValue, $mType, "true");
         }
     }
@@ -343,9 +368,10 @@ class USDAPlants2019
                 [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
                 [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
             )*/
+            $uris = array_keys($rec);
+            $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID');
             if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
             $o = new \eol_schema\Occurrence_specific();
-            $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
