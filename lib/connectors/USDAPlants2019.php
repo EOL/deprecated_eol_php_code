@@ -324,6 +324,7 @@ class USDAPlants2019
                 )
         )*/
         foreach($NorI_data as $d) {
+            if($d[0] == 'None') continue;
             $mValue = $this->area[$d[0]];
             /* seems $d[1] can have values like: I,N,W OR PB ; not just single N or I */
             $arr = explode(",", $d[1]);
