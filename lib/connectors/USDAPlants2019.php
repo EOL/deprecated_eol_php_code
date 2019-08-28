@@ -17,8 +17,9 @@ class USDAPlants2019
         $this->area['CAN'] = "Canada";
         $this->area['GL'] = "Greenland (Denmark)";
         $this->area['SPM'] = "St. Pierre and Miquelon (France)";
-        $this->area['NA'] = "North America";
-        $this->area['NAV'] = "Navassa Island";
+        $this->area['NA'] = "North America (only non-vascular plants and lichens have Native Status given at this level)"; //"North America";
+        $this->area['NAV'] = "Navassa Island (The sole Caribbean member of the United States Minor Outlying Islands)"; //"Navassa Island";
+        $this->area['PB'] = "Pacific Basin excluding Hawaii";
         $this->NorI_mType['N'] = 'http://eol.org/schema/terms/NativeRange';
         $this->NorI_mType['I'] = 'http://eol.org/schema/terms/IntroducedRange';
         $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
@@ -314,15 +315,20 @@ class USDAPlants2019
         )*/
         foreach($NorI_data as $d) {
             $mValue = $this->area[$d[0]];
-            $mType = $this->NorI_mType[$d[1]];
-            $taxon_id = $rec['Symbol'];
-            $save = array();
-            $save['taxon_id'] = $taxon_id;
-            $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-            $save['source'] = $rec['source_url'];
-            // $save['measurementID'] = '';
-            // $save['measurementRemarks'] = '';
-            $this->func->add_string_types($save, $mValue, $mType, "true");
+            /* seems $d[1] can have values like: I,N,W OR PB ; not just single N or I */
+            $arr = explode(",", $d[1]);
+            foreach($arr as $type) {
+                if(!in_array($type, array('N',"I"))) continue;
+                $mType = $this->NorI_mType[$type];
+                $taxon_id = $rec['Symbol'];
+                $save = array();
+                $save['taxon_id'] = $taxon_id;
+                $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                $save['source'] = $rec['source_url'];
+                // $save['measurementID'] = '';
+                // $save['measurementRemarks'] = '';
+                $this->func->add_string_types($save, $mValue, $mType, "true");
+            }
         }
     }
     private function create_taxon($rec)
