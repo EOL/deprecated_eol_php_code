@@ -296,7 +296,7 @@ class USDAPlants2019
             case "Québec":    return 'http://www.wikidata.org/entity/Q176';             /* The 4 entries here were already added to gen. mappings in Functions.php */
             case "Quebec":    return 'http://www.wikidata.org/entity/Q176';
             case "Qu&eacute;bec":    return 'http://www.wikidata.org/entity/Q176';
-            case "St. Pierre and Miquelon" return 'http://www.geonames.org/3424932';
+            case "St. Pierre and Miquelon": return 'http://www.geonames.org/3424932';
         }
     }
     private function write_presence_measurement_for_state($state_id, $rec)
