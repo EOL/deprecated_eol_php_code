@@ -290,12 +290,12 @@ class USDAPlants2019
         }
     }
     private function get_string_uri($string)
-    {   switch ($string) { //put here customized mapping
-            case "Québec":    return 'http://www.wikidata.org/entity/Q176';
+    {   if($string_uri = @$this->uris[$string]) return $string_uri;
+        switch ($string) { //put here customized mapping
+            case "Québec":    return 'http://www.wikidata.org/entity/Q176';             /* The 3 "Quebec" entries here were already added to gen. mappings in Functions.php */
             case "Quebec":    return 'http://www.wikidata.org/entity/Q176';
             case "Qu&eacute;bec":    return 'http://www.wikidata.org/entity/Q176';
         }
-        if($string_uri = @$this->uris[$string]) return $string_uri;
     }
     private function write_presence_measurement_for_state($state_id, $rec)
     {   $string_value = $this->area_id_info[$state_id];
