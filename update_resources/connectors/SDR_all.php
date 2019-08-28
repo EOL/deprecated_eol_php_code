@@ -133,7 +133,7 @@ $timestart = time_elapsed();
 $resource_id = 'SDR_all';
 $func = new SummaryDataResourcesAllAPI($resource_id);
 
-/* build data files - MySQL tables 
+/* build data files - MySQL tables --- worked OK
 $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
 */
 
@@ -159,7 +159,7 @@ return;
 ========================================================================================================== */ 
 
 /* IMPORTANT STEP - for parent BV and parent TS
-$func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run multiple connectors. auto-breakdown installed.
+$func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run multiple connectors. auto-breakdown installed. Maybe just 4 connectors so CPU wont max out.
 */
 
 // $func->investigate_metadata_csv(); exit;
