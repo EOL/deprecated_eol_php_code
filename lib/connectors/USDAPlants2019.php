@@ -246,7 +246,13 @@ class USDAPlants2019
                 $id = false; $location = false;
                 if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) $id = $arr[1];
                 if(preg_match("/>(.*?)elix/ims", $str.'elix', $arr)) $location = $arr[1];
-                if($id && $location) $final[$id] = $location;
+                if($id && $location) {
+                    $final[$id] = $location;
+                    /* for stats only
+                    if($string_uri = self::get_string_uri($location)) echo $string_uri;
+                    else                                              echo " no uri";
+                    */
+                }
             }
         }
         return $final;
@@ -285,8 +291,9 @@ class USDAPlants2019
     }
     private function get_string_uri($string)
     {   switch ($string) { //put here customized mapping
-            case "elix":    return false; //"DO NOT USE";
-            // case "USA":     return "http://www.wikidata.org/entity/Q30";
+            case "Québec":    return 'http://www.wikidata.org/entity/Q176';
+            case "Quebec":    return 'http://www.wikidata.org/entity/Q176';
+            case "Qu&eacute;bec":    return 'http://www.wikidata.org/entity/Q176';
         }
         if($string_uri = @$this->uris[$string]) return $string_uri;
     }
