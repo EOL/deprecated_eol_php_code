@@ -31,6 +31,7 @@ class USDAPlants2019
     {   $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        unset($this->occurrenceID_bodyPart);
         
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
