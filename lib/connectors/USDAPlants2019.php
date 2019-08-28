@@ -30,8 +30,18 @@ class USDAPlants2019
     {   $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
+        self::initialize_mapping(); //for location string mappings
         self::process_per_state();
+    }
+    private function initialize_mapping()
+    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // self::use_mapping_from_jen();
+        // print_r($this->uris);
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -271,16 +281,29 @@ class USDAPlants2019
             }
         }
     }
+    private function get_string_uri($string)
+    {   switch ($string) { //put here customized mapping
+            case "elix":    return false; //"DO NOT USE";
+            // case "USA":     return "http://www.wikidata.org/entity/Q30";
+        }
+        if($string_uri = @$this->uris[$string]) return $string_uri;
+    }
     private function write_presence_measurement_for_state($state_id, $rec)
-    {   $mValue = $this->area_id_info[$state_id];
+    {   $string_value = $this->area_id_info[$state_id];
+        if($string_uri = self::get_string_uri($string_value)) {}
+        else {
+            $this->debug['no uri mapping yet'][$string_value];
+            $string_uri = $string_value;
+        }
+        $mValue = $string_uri;
         $mType = 'http://eol.org/schema/terms/Present'; //for generic range
         $taxon_id = $rec['Symbol'];
         $save = array();
         $save['taxon_id'] = $taxon_id;
         $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
         $save['source'] = $rec['source_url'];
+        $save['measurementRemarks'] = $string_value;
         // $save['measurementID'] = '';
-        // $save['measurementRemarks'] = '';
         $this->func->add_string_types($save, $mValue, $mType, "true");
     }
     private function write_NorI_measurement($NorI_data, $rec)
