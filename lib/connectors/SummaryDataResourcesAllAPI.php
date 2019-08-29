@@ -157,6 +157,7 @@ class SummaryDataResourcesAllAPI
         foreach($children_of as $parent => $children) {
             $temp = array_keys($children);
             $temp = array_diff($temp, array($parent)); //no child should be equal to parent
+            $temp = self::my_atrim($temp);
             $final[$parent] = $temp;
         }
         $this->CSV_children_of = $final;
@@ -2105,7 +2106,7 @@ class SummaryDataResourcesAllAPI
             echo "\n*No children TBP found for [$main_page_id]\n";
             return array();
         }
-        
+        // return; //used for caching only
         if($debugModeYN) {
             $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
             fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
@@ -2245,7 +2246,7 @@ class SummaryDataResourcesAllAPI
             echo "\n*No children TBP found for [$main_page_id]\n";
             return array();
         }
-        
+        // return; //used for caching only
         if($debugModeYN) {
             $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
             fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
