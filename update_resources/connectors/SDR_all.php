@@ -158,9 +158,23 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage 
 return;
 ========================================================================================================== */ 
 
-/* IMPORTANT STEP - for parent BV and parent TS
-$func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run multiple connectors. auto-breakdown installed. Maybe just 4 connectors so CPU wont max out.
-*/
+// /* IMPORTANT STEP - for parent BV and parent TS ===============================================================================
+$func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
+
+// use this for single page_id:
+$page_id = 6551609;
+$page_id = 2366;
+$page_id = 46451825; //aborted
+$func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache() for [$page_id]-\n");
+
+// $json = $func->get_children_from_txt_file($page_id); //check the file path
+
+// $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/d3/b1/2366_ch.txt");
+// $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/ee/20/6551609_ch.txt");
+// $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/26/dd/2774383_ch.txt");
+// $arr = json_decode($json, true); print_r($arr);
+
+// =============================================================================================================================== */
 
 // $func->investigate_metadata_csv(); exit;
 
@@ -178,7 +192,7 @@ $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); /
 // foreach($page_ids as $page_id) $final[$page_id] = array('taxonRank' => 'not species', 'Landmark' => 1); //good but not used eventually
 // */
 
-$func->test_taxon_summary('TS');             return;
+// $func->test_taxon_summary('TS');             return;
 // $func->print_taxon_summary('TS');            //return; //main orig report - 36.30 minutes | 9.88 minutes | 10.73 minutes
 // $func->test_parent_taxon_summary('TSp');     return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
 // $func->print_parent_taxon_summary('TSp');    //return; //main orig report - 4.23 hours | 4.89 hours Aug12'19 | 2.01 hours

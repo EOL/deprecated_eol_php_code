@@ -201,6 +201,20 @@ https://editors.eol.org/other_files/SDR/parent_taxon_summary.zip
          [2913056] => Array
          [8814528] => Array
          [2774383] => Array
+
+Below for 2019Aug22 trait export:
+[reached L52] => Array
+       [10459935] => Array
+       [6551609] => Array
+       [2195] => Array
+       [2366] => Array
+       [46451825] => Array
+
+       Getting children of [8814528]...
+       Getting children of [46557930]...
+       Getting children of [2774383]...
+       Getting children of [2634372]...
+
 ----------------------------------------------------------------------------------------------------------------------------------------
 mysqldump -d -h localhost -u root -p SDR > SDR_structure_only.sql
 - dump one database, worked OK
