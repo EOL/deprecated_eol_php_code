@@ -190,7 +190,7 @@ class SummaryDataResourcesAllAPI
             $resource_id = 'parent_basal_values';
         }
         $total_page_ids = count($page_ids);
-        $m = $total_page_ids/3; //for breakdown when caching...
+        $m = $total_page_ids/2; //for breakdown when caching...
 
         $WRITE = self::start_write2DwCA($resource_id, 'BV');
         
@@ -226,7 +226,6 @@ class SummaryDataResourcesAllAPI
                 $cont = false;
                 if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
                 // if($cnt_page_id >= $m && $cnt_page_id < $m*2) $cont = true;
-                // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
                 if(!$cont) continue;
                 */
                 
@@ -307,7 +306,7 @@ class SummaryDataResourcesAllAPI
             $resource_id = 'parent_taxon_summary';
         }
         $total_page_ids = count($page_ids);
-        $m = $total_page_ids/3; //for breakdown when caching...
+        $m = $total_page_ids/2; //for breakdown when caching...
 
         $WRITE = self::start_write2DwCA($resource_id, 'TS');
         /* for indicator */
@@ -334,7 +333,6 @@ class SummaryDataResourcesAllAPI
                 $cont = false;
                 if($cnt_page_id >= 1 && $cnt_page_id < $m) $cont = true;
                 // if($cnt_page_id >= $m && $cnt_page_id < $m*2) $cont = true;
-                // if($cnt_page_id >= $m*2 && $cnt_page_id < $m*3) $cont = true;
                 if(!$cont) continue;
                 */
 
