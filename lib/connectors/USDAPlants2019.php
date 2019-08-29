@@ -184,8 +184,9 @@ class USDAPlants2019
                 [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
             )*/
             $uris = array_keys($rec);
-            $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID');
+            $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID', 'http:/eol.org/globi/terms/bodyPart');
             if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
+            else                                                                                             $rec['http:/eol.org/globi/terms/bodyPart'] = '';
             $o = new \eol_schema\Occurrence_specific();
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
