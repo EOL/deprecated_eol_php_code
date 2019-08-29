@@ -9,7 +9,7 @@ class USDAPlants2019
         $this->archive_builder = $archive_builder;
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        $this->download_options['expire_seconds'] = false;
+        $this->download_options['expire_seconds'] = false; //comment after first harvest
         $this->area['L48'] = "Lower 48 United States of America";
         $this->area['AK'] = "Alaska, USA";
         $this->area['HI'] = "Hawaii, USA";
@@ -201,9 +201,10 @@ class USDAPlants2019
             echo "\n[$territory]\n"; // print_r($states); exit;
             foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
                 if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) {
+                    echo "\nDownloading HTML ".$arr[1]."...";
                     if($local = Functions::save_remote_file_to_local($this->service['per_state_page'].$arr[1], $this->download_options)) {
                         self::parse_state_list($local, $arr[1]);
-                        unlink($local);
+                        if(file_exists($local)) unlink($local);
                     }
                 }
             }
