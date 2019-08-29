@@ -154,7 +154,11 @@ class SummaryDataResourcesAllAPI
                 $children_of[$parent][$child] = '';
             }
         }
-        foreach($children_of as $parent => $children) $final[$parent] = array_keys($children);
+        foreach($children_of as $parent => $children) {
+            $temp = array_keys($children);
+            $temp = array_diff($temp, array($parent)); //no child should be equal to parent
+            $final[$parent] = $temp;
+        }
         $this->CSV_children_of = $final;
     }
     /* obsolete for ALL TRAIT EXPORT file
@@ -705,7 +709,7 @@ class SummaryDataResourcesAllAPI
         echo("\n-- end method: basal values --\n");
         // */
     }
-    function build_up_children_cache() //DH total recs 2,724,941 | 2,237,554 Jun 9, 2019
+    function build_up_children_cache($sought_page_id = false) //DH total recs 2,724,941 | 2,237,554 Jun 9, 2019
     {
         self::initialize(); self::generate_children_of_taxa_using_parentsCSV(); //this generates: $this->CSV_children_of
 
@@ -739,7 +743,10 @@ class SummaryDataResourcesAllAPI
         //New Aug 8, 2019 - new now that we're going to use DH v1.1. Didn't have $exclude in last DH ver.
         $exclude = array(1, 281, 42430800, 2913056, 6061725, 2908256, 2910700, 51939910, 52126308, 49306824); //above Animalia and Plantae, inclusive
         
-        $page_ids = self::get_page_ids_andInfo_fromDH();
+        if($sought_page_id) $param_4DH = array($sought_page_id);
+        else                $param_4DH = array();
+        
+        $page_ids = self::get_page_ids_andInfo_fromDH($param_4DH);
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
         foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
 
@@ -810,7 +817,7 @@ class SummaryDataResourcesAllAPI
                     fclose($WRITE);
                 }
                 else {
-                    echo "\nNo children for [$page_id]\n";
+                    echo "\nNo children for [$page_id] [$txt_file]\n";
                     // if($page_id == '39311345') exit;
                 }
             }
@@ -4293,6 +4300,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                     foreach($children4 as $child4) {
                         if($children5 = @$this->CSV_children_of[$child4]) $anaks = array_merge($anaks, $children5);
                         else continue;
+
+                        $ret = self::check_max_children_reached($anaks, 'L5', $page_id);
+                        if($ret['exit']) return self::my_atrim($ret['anaks']);
+                        else             $anaks = $ret['anaks'];
+
                         foreach($children5 as $child5) {
                             if($children6 = @$this->CSV_children_of[$child5]) $anaks = array_merge($anaks, $children6);
                             else continue;
@@ -4308,6 +4320,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                         foreach($children9 as $child9) {
                                             if($children10 = @$this->CSV_children_of[$child9]) $anaks = array_merge($anaks, $children10);
                                             else continue;
+
+                                            $ret = self::check_max_children_reached($anaks, 'L10', $page_id);
+                                            if($ret['exit']) return self::my_atrim($ret['anaks']);
+                                            else             $anaks = $ret['anaks'];
+
                                             foreach($children10 as $child10) {
                                                 if($children11 = @$this->CSV_children_of[$child10]) $anaks = array_merge($anaks, $children11);
                                                 else continue;
@@ -4323,6 +4340,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                                             foreach($children14 as $child14) {
                                                                 if($children15 = @$this->CSV_children_of[$child14]) $anaks = array_merge($anaks, $children15);
                                                                 else continue;
+
+                                                                $ret = self::check_max_children_reached($anaks, 'L15', $page_id);
+                                                                if($ret['exit']) return self::my_atrim($ret['anaks']);
+                                                                else             $anaks = $ret['anaks'];
+
                                                                 foreach($children15 as $child15) {
                                                                     if($children16 = @$this->CSV_children_of[$child15]) $anaks = array_merge($anaks, $children16);
                                                                     else continue;
@@ -4338,6 +4360,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                                                                 foreach($children19 as $child19) {
                                                                                     if($children20 = @$this->CSV_children_of[$child19]) $anaks = array_merge($anaks, $children20);
                                                                                     else continue;
+                                                                                    
+                                                                                    $ret = self::check_max_children_reached($anaks, 'L20', $page_id);
+                                                                                    if($ret['exit']) return self::my_atrim($ret['anaks']);
+                                                                                    else             $anaks = $ret['anaks'];
+                                                                                    
                                                                                     foreach($children20 as $child20) {
                                                                                         if($children21 = @$this->CSV_children_of[$child20]) $anaks = array_merge($anaks, $children21);
                                                                                         else continue;
@@ -4353,6 +4380,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                                                                                     foreach($children24 as $child24) {
                                                                                                         if($children25 = @$this->CSV_children_of[$child24]) $anaks = array_merge($anaks, $children25);
                                                                                                         else continue;
+                                                                                                        
+                                                                                                        $ret = self::check_max_children_reached($anaks, 'L25', $page_id);
+                                                                                                        if($ret['exit']) return self::my_atrim($ret['anaks']);
+                                                                                                        else             $anaks = $ret['anaks'];
+                                                                                                        
                                                                                                         foreach($children25 as $child25) {
                                                                                                             if($children26 = @$this->CSV_children_of[$child25]) $anaks = array_merge($anaks, $children26);
                                                                                                             else continue;
@@ -4368,6 +4400,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 foreach($children29 as $child29) {
                     if($children30 = @$this->CSV_children_of[$child29]) $anaks = array_merge($anaks, $children30);
                     else continue;
+                    
+                    $ret = self::check_max_children_reached($anaks, 'L30', $page_id);
+                    if($ret['exit']) return self::my_atrim($ret['anaks']);
+                    else             $anaks = $ret['anaks'];
+                    
                     foreach($children30 as $child30) {
                         if($children31 = @$this->CSV_children_of[$child30]) $anaks = array_merge($anaks, $children31);
                         else continue;
@@ -4383,6 +4420,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                     foreach($children34 as $child34) {
                                         if($children35 = @$this->CSV_children_of[$child34]) $anaks = array_merge($anaks, $children35);
                                         else continue;
+
+                                        $ret = self::check_max_children_reached($anaks, 'L35', $page_id);
+                                        if($ret['exit']) return self::my_atrim($ret['anaks']);
+                                        else             $anaks = $ret['anaks'];
+                                        
                                         foreach($children35 as $child35) {
                                             if($children36 = @$this->CSV_children_of[$child35]) $anaks = array_merge($anaks, $children36);
                                             else continue;
@@ -4398,6 +4440,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                                         foreach($children39 as $child39) {
                                                             if($children40 = @$this->CSV_children_of[$child39]) $anaks = array_merge($anaks, $children40);
                                                             else continue;
+
+                                                            $ret = self::check_max_children_reached($anaks, 'L40', $page_id);
+                                                            if($ret['exit']) return self::my_atrim($ret['anaks']);
+                                                            else             $anaks = $ret['anaks'];
+                                                            
                                                             foreach($children40 as $child40) {
                                                                 if($children41 = @$this->CSV_children_of[$child40]) $anaks = array_merge($anaks, $children41);
                                                                 else continue;
@@ -4413,6 +4460,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                                                                             foreach($children44 as $child44) {
                                                                                 if($children45 = @$this->CSV_children_of[$child44]) $anaks = array_merge($anaks, $children45);
                                                                                 else continue;
+
+                                                                                $ret = self::check_max_children_reached($anaks, 'L45', $page_id);
+                                                                                if($ret['exit']) return self::my_atrim($ret['anaks']);
+                                                                                else             $anaks = $ret['anaks'];
+
                                                                                 foreach($children45 as $child45) {
                                                                                     if($children46 = @$this->CSV_children_of[$child45]) $anaks = array_merge($anaks, $children46);
                                                                                     else continue;
@@ -4429,6 +4481,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         foreach($children49 as $child49) {
             if($children50 = @$this->CSV_children_of[$child49]) $anaks = array_merge($anaks, $children50);
             else continue;
+            
+            $ret = self::check_max_children_reached($anaks, 'L50', $page_id);
+            if($ret['exit']) return self::my_atrim($ret['anaks']);
+            else             $anaks = $ret['anaks'];
+            
             foreach($children50 as $child50) {
                 if($children51 = @$this->CSV_children_of[$child50]) $anaks = array_merge($anaks, $children51);
                 else continue;
@@ -4438,7 +4495,26 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                     foreach($children52 as $child52) {
                         if($children53 = @$this->CSV_children_of[$child52]) $anaks = array_merge($anaks, $children53);
                         else continue;
-                        $this->debug['reached L52'][$page_id][$predicate] = ''; return array();
+                        foreach($children53 as $child53) {
+                            if($children54 = @$this->CSV_children_of[$child53]) $anaks = array_merge($anaks, $children54);
+                            else continue;
+                            foreach($children54 as $child54) {
+                                if($children55 = @$this->CSV_children_of[$child54]) $anaks = array_merge($anaks, $children55);
+                                else continue;
+                                foreach($children55 as $child55) {
+                                    if($children56 = @$this->CSV_children_of[$child55]) $anaks = array_merge($anaks, $children56);
+                                    else continue;
+
+                                    $this->debug['reached L55'][$page_id][$predicate] = ''; //return array();
+
+                                    // /* for 46451825 who is the only one that reached L55
+                                    $anaks = array_diff($anaks, array($page_id));
+                                    $anaks = self::my_atrim($anaks); return $anaks;
+                                    // */
+                                    
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -4491,9 +4567,22 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                     }
                 }
             }
-        $anaks = array_unique($anaks);
+        $anaks = self::my_atrim($anaks);
         "\nDone getting children of [$page_id] OK\n";
         return $anaks;
+    }
+    private function check_max_children_reached($anaks, $level, $page_id)
+    {   //echo "\nblock level reached: $level\n";
+        $anaks = array_diff($anaks, array($page_id));
+        $anaks = array_unique($anaks); //make unique
+        if(count($anaks) >= 10000) return array("exit" => true, 'anaks' => $anaks);
+        else                       return array("exit" => false, 'anaks' => $anaks);
+    }
+    private function my_atrim($arr)
+    {   $arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+        return $arr;
     }
     /* report for Jen
     self::parse_DH();
