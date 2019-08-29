@@ -259,8 +259,17 @@ class USDAPlants2019
         }
         return $final;
     }
-    private function parse_state_list($local, $state_id)
+    function parse_state_list($local, $state_id)
     {   echo "\nprocessing [$state_id]\n";
+        
+        // /* important: check if without data e.g. https://plants.sc.egov.usda.gov/java/stateDownload?statefips=CANFCALB
+        $contents = file_get_contents($local);
+        if(stripos($contents, "No Data Found") !== false) { //string is found
+            echo " -- No Data Found -- \n";
+            return;
+        }
+        // */
+        
         $file = fopen($local, 'r');
         $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) {

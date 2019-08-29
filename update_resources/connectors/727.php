@@ -45,12 +45,21 @@ function test()
 {
     require_library('connectors/USDAPlants2019');
     $func = new USDAPlants2019("", "");
-    // /* worked OK
+    /* worked OK
     $url = 'https://plants.sc.egov.usda.gov/core/profile?symbol=ABBA';
     // $url = 'https://plants.sc.egov.usda.gov/core/profile?symbol=ABAL3';
     $func->parse_profile_page($url);
-    // */
+    */
     // $func->process_per_state(); //worked OK
+    
+    // /* just a test, won't continue processing... just for debug example of 'no data found'
+    $id = 'US30'; //with data
+    $id = 'CANFCALB'; //e.g. no data found
+    if($local = Functions::save_remote_file_to_local('https://plants.sc.egov.usda.gov/java/stateDownload?statefips='.$id)) {
+        $func->parse_state_list($local, $id);
+        if(file_exists($local)) unlink($local);
+    }
+    // */
 }
 
 function process_resource_url($dwca_file, $resource_id)
