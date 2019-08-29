@@ -202,7 +202,7 @@ class USDAPlants2019
             echo "\n[$territory]\n"; // print_r($states); exit;
             foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
                 if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) {
-                    echo "\nDownloading HTML ".$arr[1]."...";
+                    // echo "\nDownloading HTML ".$arr[1]."...";
                     if($local = Functions::save_remote_file_to_local($this->service['per_state_page'].$arr[1], $this->download_options)) {
                         self::parse_state_list($local, $arr[1]);
                         if(file_exists($local)) unlink($local);
