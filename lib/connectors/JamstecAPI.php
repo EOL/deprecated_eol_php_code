@@ -23,6 +23,7 @@ class JamstecAPI
     function start()
     {   self::build_Name_taxonID_list();
         self::main();
+        self::now_create_rest_of_hierarchy();
         $this->archive_builder->finalize(TRUE);
         print_r($this->debug);
     }
@@ -39,8 +40,8 @@ class JamstecAPI
         foreach($groups as $group) {
             $recs = self::convert_sheet2array($group);
             self::write_dwca($recs, $group);
-            print_r($recs);
-            exit("\n");
+            // print_r($recs);
+            // exit("\n");
         }
     }
     private function write_dwca($recs, $group)
@@ -50,7 +51,6 @@ class JamstecAPI
             self::create_taxon($rec, $group);
             // self::create_media($rec, $group);
         }
-        self::now_create_rest_of_hierarchy()
     }
     private function create_taxon($rec, $group)
     {   /*Array(
@@ -104,19 +104,19 @@ class JamstecAPI
     {   //[Taxonomy] => Eukarya - Opisthokonta - Animalia - Chordata - Vertebrata - Gnathostomata - Pisciformes - Actinopterygii - Perciformes - Zoarcoidei - Zoarcidae - Bothrocara
         $names = explode(" - ", $str); //print_r($arr);
         $names = array_map('trim', $names);
-        foreach($names as $name) {
+        $i = -1;
+        foreach($names as $name) { $i++;
             if(@$this->Name_taxonID[$name]) {}
             else {
                 $taxon_id = strtolower($name);
-                eol_schema
-                
+                if($i > 0)  $parent_id = $names[$i-1];
+                else        $parent_id = '';
                 $taxon = new \eol_schema\Taxon();
-                $taxon->taxonID                 = $rec['BISMaLTaxonID'];
-                $taxon->scientificName          = $rec['scientificName'];
-                $taxon->parentNameUsageID       = $ret['parent_id'];
+                $taxon->taxonID                 = $taxon_id;
+                $taxon->scientificName          = $name;
+                $taxon->parentNameUsageID       = $parent_id;
                 $this->archive_builder->write_object_to_file($taxon);
-                
-                
+                $this->Name_taxonID[$name] = $taxon_id;
             }
         }
     }
