@@ -23,14 +23,14 @@ class JamstecAPI
     function start()
     {   self::build_Name_taxonID_list();
         self::main();
-        self::now_create_rest_of_hierarchy();
+        self::create_rest_of_hierarchy();
         $this->archive_builder->finalize(TRUE);
         print_r($this->debug);
     }
     private function build_Name_taxonID_list()
     {   $groups = array('Species', 'Genus', 'Family', 'Subfamily');
         foreach($groups as $group) {
-            $recs = self::convert_sheet2array($group);
+            $recs = self::convert_sheet2array($group, 'build_Name_taxonID_list');
             foreach($recs as $rec) {
                 if($val = @$rec['scientificName']) $this->Name_taxonID[$val] = $rec['BISMaLTaxonID'];
             }
@@ -40,7 +40,7 @@ class JamstecAPI
     {
         $groups = array('Species', 'Genus', 'Family', 'Subfamily');
         foreach($groups as $group) {
-            $recs = self::convert_sheet2array($group);
+            $recs = self::convert_sheet2array($group, 'main');
             self::write_dwca($recs, $group);
             // print_r($recs);
             // exit("\n");
@@ -76,7 +76,9 @@ class JamstecAPI
         )*/
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['BISMaLTaxonID'];
-        $taxon->scientificName          = $rec['scientificName'];
+        if($val = @$rec['Scientific Name']) $taxon->scientificName = $val;
+        elseif($val = @$rec['scientificName']) $taxon->scientificName = $val;
+        else exit("\nNo sciname\n");
         $ret = self::get_kingdom_phylum($rec['Taxonomy']);
         $taxon->kingdom                 = $ret['kingdom'];
         $taxon->phylum                  = $ret['phylum'];
@@ -95,16 +97,16 @@ class JamstecAPI
         else $parent_id = strtolower($parent);
         return array('kingdom' => 'Animalia', 'phylum' => $arr[$index_of_Animalia+1], 'parent_id' => $parent_id);
     }
-    private function now_create_rest_of_hierarchy()
+    private function create_rest_of_hierarchy()
     {   $groups = array('Species', 'Genus', 'Family', 'Subfamily');
         foreach($groups as $group) {
-            $recs = self::convert_sheet2array($group);
+            $recs = self::convert_sheet2array($group, 'create_rest_of_hierarchy');
             foreach($recs as $rec) self::write_hierarchy($rec['Taxonomy']);
         }
     }
     private function write_hierarchy($taxonomy)
     {   //[Taxonomy] => Eukarya - Opisthokonta - Animalia - Chordata - Vertebrata - Gnathostomata - Pisciformes - Actinopterygii - Perciformes - Zoarcoidei - Zoarcidae - Bothrocara
-        $names = explode(" - ", $str); //print_r($arr);
+        $names = explode(" - ", $taxonomy); //print_r($arr);
         $names = array_map('trim', $names);
         $i = -1;
         foreach($names as $name) { $i++;
@@ -205,8 +207,8 @@ class JamstecAPI
             $this->object_ids[$mr->identifier] = '';
         }
     }
-    private function convert_sheet2array($group)
-    {   echo "\nConverting sheet [$group]";
+    private function convert_sheet2array($group, $what)
+    {   echo "\nConverting sheet [$what][$group]";
         $final = array();
         $options = $this->download_options;
         $options['file_extension'] = 'xlsx';
