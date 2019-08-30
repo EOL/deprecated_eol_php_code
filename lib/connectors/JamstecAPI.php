@@ -48,8 +48,9 @@ class JamstecAPI
         foreach($recs as $rec) {
             $rec = array_map('trim', $rec);
             self::create_taxon($rec, $group);
-            self::create_media($rec, $group);
+            // self::create_media($rec, $group);
         }
+        self::now_create_rest_of_hierarchy()
     }
     private function create_taxon($rec, $group)
     {   /*Array(
@@ -86,7 +87,25 @@ class JamstecAPI
     {   //Eukarya - Opisthokonta - Animalia - Chordata - Vertebrata - Gnathostomata - Pisciformes - Actinopterygii - Lophiiformes - Chaunacidae - Chaunax
         $arr = explode(" - ", $str); //print_r($arr);
         $index_of_Animalia = array_search("Animalia", $arr);
-        return array('kingdom' => 'Animalia', 'phylum' => $arr[$index_of_Animalia+1]);
+        $parent = array_pop($arr);
+        if($parent_id = @$this->Name_taxonID[$parent]) {}
+        else $parent_id = strtolower($parent);
+        return array('kingdom' => 'Animalia', 'phylum' => $arr[$index_of_Animalia+1], 'parent_id' => $parent_id);
+    }
+    private function now_create_rest_of_hierarchy()
+    {   $groups = array('Species', 'Genus', 'Family', 'Subfamily');
+        foreach($groups as $group) {
+            $recs = self::convert_sheet2array($group);
+            foreach($recs as $rec) self::write_hierarchy($rec['Taxonomy']);
+        }
+    }
+    private function write_hierarchy($taxonomy)
+    {   //[Taxonomy] => Eukarya - Opisthokonta - Animalia - Chordata - Vertebrata - Gnathostomata - Pisciformes - Actinopterygii - Perciformes - Zoarcoidei - Zoarcidae - Bothrocara
+        $names = explode(" - ", $str); //print_r($arr);
+        $names = array_map('trim', $names);
+        foreach($names as $name) {
+            
+        }
     }
     private function create_media($rec, $group)
     {   /*JAMSTEC,DwC-A,notes
@@ -148,7 +167,7 @@ class JamstecAPI
         $mr->taxonID        = $rec['BISMaLTaxonID'];
         $mr->identifier     = $rec['imageID'];
         $mr->format         = 'image/jpeg'; //mimetype
-        $mr->type           = Functions::get_datatype_given_mimetype($mr->format)
+        $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
         $mr->language       = 'en';
         $mr->furtherInformationURL = $rec['url'];
         $mr->accessURI      = $this->image_path.$group."/".$rec['imageID'].".jpg";

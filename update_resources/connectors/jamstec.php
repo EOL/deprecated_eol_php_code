@@ -11,9 +11,9 @@ require_library('connectors/JamstecAPI');
 $timestart = time_elapsed();
 $resource_id = 'jamstec';
 
-$a = array('a','b','c');
-$last = array_pop($a);
-exit("\n[$last]\n");
+// $a = array('a','b','c');
+// $last = array_pop($a);
+// exit("\n[$last]\n");
 
 $func = new JamstecAPI($resource_id);
 $func->start();
