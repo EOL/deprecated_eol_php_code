@@ -67,8 +67,23 @@ class JamstecAPI
             $parser = new XLSParser();
             debug("\n reading: " . $local_xls . "\n");
             $temp = $parser->convert_sheet_to_array($local_xls);
-            print_r($temp); exit;
+            // print_r($temp);
             $fields = array_keys($temp);
+            print_r($fields);
+
+            $i = -1;
+            foreach($temp['BISMaLTaxonID'] as $taxon_id) {
+                $i++;
+                $rec = array();
+                foreach($fields as $field) {
+                    $rec[$field] = $temp[$field][$i];
+                }
+                // print_r($rec);
+                $final[] = $rec;
+            }
+            print_r($final); exit;
+
+            
         }
         unlink($local_xls);
         return $final;
