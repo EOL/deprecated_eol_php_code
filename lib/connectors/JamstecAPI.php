@@ -182,6 +182,7 @@ class JamstecAPI
         $mr->LocationCreated    = $rec['verbal location name'];
         $mr->lat                = $rec['latitude'];
         $mr->long               = $rec['longitude'];
+        $mr->alt                = $rec['water depth'];
         $mr->Owner              = $rec['owner'];
         $mr->contributor        = $rec['the pilot・operator・image editor'];
         $mr->UsageTerms         = $this->licenses[$rec['license']];
