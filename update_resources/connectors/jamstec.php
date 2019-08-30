@@ -7,6 +7,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
 error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 */
+ini_set('memory_limit','7096M');
 require_library('connectors/JamstecAPI');
 $timestart = time_elapsed();
 $resource_id = 'jamstec';

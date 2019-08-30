@@ -31,7 +31,9 @@ class JamstecAPI
     {   $groups = array('Species', 'Genus', 'Family', 'Subfamily');
         foreach($groups as $group) {
             $recs = self::convert_sheet2array($group);
-            foreach($recs as $rec) $this->Name_taxonID[$rec['scientificName']] = $rec['BISMaLTaxonID'];
+            foreach($recs as $rec) {
+                if($val = @$rec['scientificName']) $this->Name_taxonID[$val] = $rec['BISMaLTaxonID'];
+            }
         }
     }
     private function main()
@@ -204,7 +206,8 @@ class JamstecAPI
         }
     }
     private function convert_sheet2array($group)
-    {   $final = array();
+    {   echo "\nConverting sheet [$group]";
+        $final = array();
         $options = $this->download_options;
         $options['file_extension'] = 'xlsx';
         if($local_xls = Functions::save_remote_file_to_local($this->meta[$group], $options)) {
