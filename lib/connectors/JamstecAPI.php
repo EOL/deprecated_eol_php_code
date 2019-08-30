@@ -186,7 +186,6 @@ class JamstecAPI
         $mr->Owner              = $rec['owner'];
         $mr->contributor        = $rec['the pilot・operator・image editor'];
         $mr->UsageTerms         = $this->licenses[$rec['license']];
-        $mr->description        = utf8_encode($o['dc_description']);
         $mr->bibliographicCitation = $rec['partner site'];
         // $mr->rights         = '';
         // $mr->audience       = 'Everyone';
