@@ -40,10 +40,8 @@ class JamstecAPI
     {
         $groups = array('Species', 'Genus', 'Family', 'Subfamily');
         foreach($groups as $group) {
-            $recs = self::convert_sheet2array($group, 'main');
+            $recs = self::convert_sheet2array($group, 'main'); // print_r($recs);
             self::write_dwca($recs, $group);
-            // print_r($recs);
-            // exit("\n");
         }
     }
     private function write_dwca($recs, $group)
