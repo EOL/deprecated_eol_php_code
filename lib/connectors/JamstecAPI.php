@@ -78,6 +78,7 @@ class JamstecAPI
         $ret = self::get_kingdom_phylum($rec['Taxonomy']);
         $taxon->kingdom                 = $ret['kingdom'];
         $taxon->phylum                  = $ret['phylum'];
+        $taxon->parentNameUsageID       = $ret['parent_id'];
         $taxon->higherClassification    = trim(str_replace(" - ", "|", $rec['Taxonomy']));
         $taxon->taxonRank               = strtolower($group);
         $taxon->furtherInformationURL   = self::format_url($rec['partner site']);
@@ -104,7 +105,19 @@ class JamstecAPI
         $names = explode(" - ", $str); //print_r($arr);
         $names = array_map('trim', $names);
         foreach($names as $name) {
-            
+            if(@$this->Name_taxonID[$name]) {}
+            else {
+                $taxon_id = strtolower($name);
+                eol_schema
+                
+                $taxon = new \eol_schema\Taxon();
+                $taxon->taxonID                 = $rec['BISMaLTaxonID'];
+                $taxon->scientificName          = $rec['scientificName'];
+                $taxon->parentNameUsageID       = $ret['parent_id'];
+                $this->archive_builder->write_object_to_file($taxon);
+                
+                
+            }
         }
     }
     private function create_media($rec, $group)
