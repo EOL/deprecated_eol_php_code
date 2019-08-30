@@ -51,7 +51,7 @@ class JamstecAPI
         foreach($recs as $rec) {
             $rec = array_map('trim', $rec);
             self::create_taxon($rec, $group);
-            // self::create_media($rec, $group);
+            self::create_media($rec, $group);
         }
     }
     private function create_taxon($rec, $group)
@@ -76,7 +76,7 @@ class JamstecAPI
         )*/
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                 = $rec['BISMaLTaxonID'];
-        if($val = @$rec['Scientific Name']) $taxon->scientificName = $val;
+        if($val = @$rec['Scientific Name'])    $taxon->scientificName = $val;
         elseif($val = @$rec['scientificName']) $taxon->scientificName = $val;
         else exit("\nNo sciname\n");
         $ret = self::get_kingdom_phylum($rec['Taxonomy']);
@@ -113,7 +113,7 @@ class JamstecAPI
             if(@$this->Name_taxonID[$name]) {}
             else {
                 $taxon_id = strtolower($name);
-                if($i > 0)  $parent_id = $names[$i-1];
+                if($i > 0)  $parent_id = strtolower($names[$i-1]);
                 else        $parent_id = '';
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID                 = $taxon_id;
@@ -166,20 +166,8 @@ class JamstecAPI
         )*/
         
         /*JAMSTEC,DwC-A,notes
-            Taxonomy,,"I think a parent-child hierarchy would be nice, if you can construct one fairly safely. 
-            If that's painful, it should suffice to grab Animalia and the one element that follows it and use just Kingdom and Phylum columns"
-            
-            a short text title,http://purl.org/dc/terms/title,
-            a longer text caption,http://purl.org/dc/terms/description,
-             date,http://ns.adobe.com/xap/1.0/CreateDate,
-            verbal location name,http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/LocationCreated,
-            latitude,http://www.w3.org/2003/01/geo/wgs84_pos#lat,
-            longitude,http://www.w3.org/2003/01/geo/wgs84_pos#long,
             water depth,http://www.w3.org/2003/01/geo/wgs84_pos#alt,"please insert a ""-"" in front of the string"
-            partner site,http://purl.org/dc/terms/bibliographicCitation,
-            ,,
-            CC-BY-NC,http://creativecommons.org/licenses/by-nc/4.0/,
-            */
+        */
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID        = $rec['BISMaLTaxonID'];
         $mr->identifier     = $rec['imageID'];
@@ -188,24 +176,28 @@ class JamstecAPI
         $mr->language       = 'en';
         $mr->furtherInformationURL = $rec['url'];
         $mr->accessURI      = $this->image_path.$group."/".$rec['imageID'].".jpg";
+        $mr->title          = $rec['a short text title'];
+        $mr->description    = $rec['a longer text caption'];
+        $mr->CreateDate         = $rec['date'];
+        $mr->LocationCreated    = $rec['verbal location name'];
+        $mr->lat                = $rec['latitude'];
+        $mr->long               = $rec['longitude'];
+        $mr->Owner              = $rec['owner'];
+        $mr->contributor        = $rec['the pilot・operator・image editor'];
+        $mr->UsageTerms         = $this->licenses[$rec['license']];
+        $mr->description        = utf8_encode($o['dc_description']);
+        $mr->bibliographicCitation = $rec['partner site'];
+        // $mr->rights         = '';
+        // $mr->audience       = 'Everyone';
         // $mr->thumbnailURL   = '';
         // $mr->CVterm         = ''; subject
-        $mr->Owner          = $rec['owner'];
-        $mr->contributor    = $rec['the pilot・operator・image editor'];
-        // $mr->rights         = '';
-        $mr->title          = self::format_caption($rec);
-        $mr->UsageTerms     = $this->licenses[$rec['license']];
-        // $mr->audience       = 'Everyone';
-        $mr->description    = utf8_encode($o['dc_description']);
-        if(!Functions::is_utf8($mr->description)) continue;
-        $mr->LocationCreated = $o['location'];
-        $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
-        if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-        if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
+        // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+        // if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
         if(!isset($this->object_ids[$mr->identifier])) {
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
+        else echo "\nImage already exists\n";
     }
     private function convert_sheet2array($group, $what)
     {   echo "\nConverting sheet [$what][$group]";
@@ -217,15 +209,12 @@ class JamstecAPI
             $parser = new XLSParser();
             debug("\n reading: " . $local_xls . "\n");
             $temp = $parser->convert_sheet_to_array($local_xls); // print_r($temp);
-            $fields = array_keys($temp);
-            print_r($fields);
+            $fields = array_keys($temp); // print_r($fields);
             $i = -1;
             foreach($temp['BISMaLTaxonID'] as $taxon_id) {
                 $i++;
                 $rec = array();
-                foreach($fields as $field) {
-                    $rec[$field] = $temp[$field][$i];
-                }
+                foreach($fields as $field) $rec[$field] = $temp[$field][$i];
                 // print_r($rec);
                 $final[] = $rec;
             }
