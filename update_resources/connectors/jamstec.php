@@ -11,6 +11,10 @@ require_library('connectors/JamstecAPI');
 $timestart = time_elapsed();
 $resource_id = 'jamstec';
 
+$a = array('a','b','c');
+$last = array_pop($a);
+exit("\n[$last]\n");
+
 $func = new JamstecAPI($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, false); //3rd true means delete working dir
