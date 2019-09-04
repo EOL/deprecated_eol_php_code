@@ -6,7 +6,6 @@ $GLOBALS['ENV_DEBUG'] = false;
 // $resource_id = @$_GET["resource_id"];
 // if(!$resource_id) $function = @$_POST["resource_id"]; //not needed yet
 // print_r(@$_GET);
-// exit("\n".$_SERVER."\n");
 
 $ret = $_SERVER; // echo "<pre>"; print_r($ret); echo "</pre>";
 header('Content-Type: application/json');

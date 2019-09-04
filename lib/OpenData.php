@@ -14,7 +14,7 @@ class OpenData
         else $this->mysqli_slave =& $this->mysqli;
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => DOC_ROOT . "/temp/eol_names_archive/"));
         */
-        /*
+        /* diff means to access mysql
         $result = $this->mysqli_slave->query("SELECT MIN(id) as min, MAX(id) as max FROM taxon_concepts tc");
         if($result && $row=$result->fetch_assoc())
         
