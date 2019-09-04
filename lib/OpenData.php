@@ -17,7 +17,7 @@ class OpenData
         # 4 - All errors except notices 
         # 5 - All errors
         */
-        error_reporting(3);
+        error_reporting(0);
         $this->mysqli =& $GLOBALS['db_connection'];
         /*
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
