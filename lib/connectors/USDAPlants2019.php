@@ -23,17 +23,30 @@ class USDAPlants2019
         $this->area['NAV'] = "Navassa Island (The sole Caribbean member of the United States Minor Outlying Islands)"; //"Navassa Island";
         $this->area['PB'] = "Pacific Basin excluding Hawaii";
         */
-        $this->area['L48'] = "http://www.wikidata.org/entity/Q578170";
-        $this->area['AK'] = "http://www.geonames.org/5879092";
-        $this->area['HI'] = "http://www.geonames.org/5855797";
-        $this->area['PR'] = "http://www.geonames.org/4566966";
-        $this->area['VI'] = "http://www.geonames.org/4796775";
-        $this->area['CAN'] = "http://www.geonames.org/6251999";
-        $this->area['GL'] = "http://www.geonames.org/3425505";
-        $this->area['SPM'] = "http://www.geonames.org/3424932";
-        $this->area['NA'] = "http://www.geonames.org/6255149"; //"North America";
-        $this->area['NAV'] = "http://www.geonames.org/5854968"; //"Navassa Island";
-        $this->area['PB'] = "Pacific Basin excluding Hawaii";
+        $this->area['L48']['uri'] = "http://www.wikidata.org/entity/Q578170";
+        $this->area['AK']['uri'] = "http://www.geonames.org/5879092";
+        $this->area['HI']['uri'] = "http://www.geonames.org/5855797";
+        $this->area['PR']['uri'] = "http://www.geonames.org/4566966";
+        $this->area['VI']['uri'] = "http://www.geonames.org/4796775";
+        $this->area['CAN']['uri'] = "http://www.geonames.org/6251999";
+        $this->area['GL']['uri'] = "http://www.geonames.org/3425505";
+        $this->area['SPM']['uri'] = "http://www.geonames.org/3424932";
+        $this->area['NA']['uri'] = "http://www.geonames.org/6255149"; //"North America";
+        $this->area['NAV']['uri'] = "http://www.geonames.org/5854968"; //"Navassa Island";
+        $this->area['PB']['uri'] = "Pacific Basin excluding Hawaii";
+        
+        $this->area['L48']['mRemarks'] = "Lower 48 United States of America";
+        $this->area['AK']['mRemarks'] = "Alaska, USA";
+        $this->area['HI']['mRemarks'] = "Hawaii, USA";
+        $this->area['PR']['mRemarks'] = "Puerto Rico";
+        $this->area['VI']['mRemarks'] = "U. S. Virgin Islands";
+        $this->area['CAN']['mRemarks'] = "Canada";
+        $this->area['GL']['mRemarks'] = "Greenland (Denmark)";
+        $this->area['SPM']['mRemarks'] = "St. Pierre and Miquelon (France)";
+        $this->area['NA']['mRemarks'] = "North America (only non-vascular plants and lichens have Native Status given at this level)"; //"North America";
+        $this->area['NAV']['mRemarks'] = "Navassa Island (The sole Caribbean member of the United States Minor Outlying Islands)"; //"Navassa Island";
+        $this->area['PB']['mRemarks'] = "Pacific Basin excluding Hawaii";
+        
         $this->NorI_mType['N'] = 'http://eol.org/schema/terms/NativeRange';
         $this->NorI_mType['I'] = 'http://eol.org/schema/terms/IntroducedRange';
         $this->state_list_page = 'https://plants.sc.egov.usda.gov/dl_state.html';
@@ -349,7 +362,8 @@ class USDAPlants2019
         )*/
         foreach($NorI_data as $d) {
             if($d[0] == 'None') continue;
-            $mValue = $this->area[$d[0]];
+            $mValue = $this->area[$d[0]]['uri'];
+            $mRemarks = @$this->area[$d[0]]['mRemarks'];
             /* seems $d[1] can have values like: I,N,W OR PB ; not just single N or I */
             $arr = explode(",", $d[1]);
             foreach($arr as $type) {
@@ -361,7 +375,7 @@ class USDAPlants2019
                 $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                 $save['source'] = $rec['source_url'];
                 // $save['measurementID'] = '';
-                // $save['measurementRemarks'] = '';
+                $save['measurementRemarks'] = $mRemarks;
                 $this->func->add_string_types($save, $mValue, $mType, "true");
             }
         }
