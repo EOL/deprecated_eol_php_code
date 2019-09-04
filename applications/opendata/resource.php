@@ -8,7 +8,7 @@ $GLOBALS['ENV_DEBUG'] = true;
 // print_r(@$_GET);
 
 $ret = $_SERVER; // echo "<pre>"; print_r($ret); echo "</pre>";
-// header('Content-Type: application/json');
+header('Content-Type: application/json');
 require_library('OpenData');
 $func = new OpenData();
 $resource_id = $func->get_id_from_REQUEST_URI($ret['REQUEST_URI']);

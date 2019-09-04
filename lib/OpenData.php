@@ -7,8 +7,17 @@ class OpenData
     private $content_archive_builder;
     
     public function __construct()
-    {
-        error_reporting(0);
+    {   /*
+        # config.ini 
+        # PHP error reporting. supported values are given below. 
+        # 0 - Turn off all error reporting 
+        # 1 - Running errors 
+        # 2 - Running errors + notices 
+        # 3 - All errors except notices and warnings 
+        # 4 - All errors except notices 
+        # 5 - All errors
+        */
+        error_reporting(3);
         $this->mysqli =& $GLOBALS['db_connection'];
         /*
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
