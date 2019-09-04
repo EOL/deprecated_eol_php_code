@@ -8,6 +8,7 @@ class OpenData
     
     public function __construct()
     {
+        error_reporting(0);
         $this->mysqli =& $GLOBALS['db_connection'];
         /*
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
