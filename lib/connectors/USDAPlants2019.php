@@ -10,6 +10,7 @@ class USDAPlants2019
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        /* replaced now by URIs below
         $this->area['L48'] = "Lower 48 United States of America";
         $this->area['AK'] = "Alaska, USA";
         $this->area['HI'] = "Hawaii, USA";
@@ -20,6 +21,18 @@ class USDAPlants2019
         $this->area['SPM'] = "St. Pierre and Miquelon (France)";
         $this->area['NA'] = "North America (only non-vascular plants and lichens have Native Status given at this level)"; //"North America";
         $this->area['NAV'] = "Navassa Island (The sole Caribbean member of the United States Minor Outlying Islands)"; //"Navassa Island";
+        $this->area['PB'] = "Pacific Basin excluding Hawaii";
+        */
+        $this->area['L48'] = "http://www.wikidata.org/entity/Q578170";
+        $this->area['AK'] = "http://www.geonames.org/5879092";
+        $this->area['HI'] = "http://www.geonames.org/5855797";
+        $this->area['PR'] = "http://www.geonames.org/4566966";
+        $this->area['VI'] = "http://www.geonames.org/4796775";
+        $this->area['CAN'] = "http://www.geonames.org/6251999";
+        $this->area['GL'] = "http://www.geonames.org/3425505";
+        $this->area['SPM'] = "http://www.geonames.org/3424932";
+        $this->area['NA'] = "http://www.geonames.org/6255149"; //"North America";
+        $this->area['NAV'] = "http://www.geonames.org/5854968"; //"Navassa Island";
         $this->area['PB'] = "Pacific Basin excluding Hawaii";
         $this->NorI_mType['N'] = 'http://eol.org/schema/terms/NativeRange';
         $this->NorI_mType['I'] = 'http://eol.org/schema/terms/IntroducedRange';
