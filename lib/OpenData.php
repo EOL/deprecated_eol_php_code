@@ -25,13 +25,11 @@ class OpenData
         while($result && $row=$result->fetch_assoc()) {}
         */
     }
-    
     function get_id_from_REQUEST_URI($uri)
     {
         $arr = explode("/", $uri);
         return array_pop($arr);
     }
-    
     function get_resource_by_id($resource_id)
     {
         // echo "\n$resource_id\n";
