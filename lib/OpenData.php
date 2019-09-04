@@ -16,7 +16,7 @@ class OpenData
         # 3 - All errors except notices and warnings 
         # 4 - All errors except notices 
         # 5 - All errors
-        */
+          */
         error_reporting(0);
         $this->mysqli =& $GLOBALS['db_connection'];
         /*
