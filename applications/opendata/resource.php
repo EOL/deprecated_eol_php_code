@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 
 // $resource_id = @$_GET["resource_id"];
 // if(!$resource_id) $function = @$_POST["resource_id"]; //not needed yet
