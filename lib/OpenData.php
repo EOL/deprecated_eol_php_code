@@ -16,8 +16,8 @@ class OpenData
         # 3 - All errors except notices and warnings 
         # 4 - All errors except notices 
         # 5 - All errors
-          */
-        error_reporting(0);
+        */
+        if($GLOBALS['ENV_DEBUG'] == false) error_reporting(0);
         $this->mysqli =& $GLOBALS['db_connection'];
         /*
         if($GLOBALS['ENV_NAME'] == 'production' && environment_defined('slave')) $this->mysqli_slave = load_mysql_environment('slave');
@@ -40,15 +40,28 @@ class OpenData
         $arr = explode("/", $uri);
         return array_pop($arr);
     }
+    function get_organization_by_id($org_id)
+    {
+        $sql = "SELECT g.* FROM v259_ckan.group_list g WHERE g.id = '$org_id'";
+        self::run_query($sql);
+    }
+    function get_dataset_by_id($dataset_id)
+    {
+        $sql = "SELECT p.* from v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
+        self::run_query($sql);
+    }
     function get_resource_by_id($resource_id)
     {
-        // echo "\n$resource_id\n";
-        $qry = "SELECT r.* FROM v259_ckan.resource r WHERE r.id = '$resource_id'";
-        $result = $this->mysqli->query($qry);
+        $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.id = '$resource_id'";
+        self::run_query($sql);
+    }
+    private function run_query($sql)
+    {
+        $result = $this->mysqli->query($sql);
         if($result && $row=$result->fetch_assoc()) {
-            // echo "<pre>"; print_r($row); echo "</pre>";
-            $arr['id'] = $row['id'];
-            $arr['url'] = $row['url'];
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "<pre>"; print_r($row); echo "</pre>";
+            }
             $json = Functions::remove_whitespace(json_encode($row));
             echo $json;
         }

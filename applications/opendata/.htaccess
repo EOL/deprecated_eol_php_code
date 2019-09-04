@@ -1,3 +1,4 @@
 RewriteEngine on
 RewriteRule ^resource/(.*)$ resource.php
-
+RewriteRule ^dataset/(.*)$ dataset.php
+RewriteRule ^organization/(.*)$ organization.php
