@@ -958,6 +958,7 @@ class WormsArchiveAPI
                 */
                 $possible_pMID = self::get_super_parent($save['measurementID']);
                 if(isset($this->measurementIDz[$possible_pMID])) $save['parentMeasurementID'] = $possible_pMID;
+                else continue; //this child (e.g. 492937_734633) doesn't have a parent from actual source: measurementorfact.txt. Just disregard.
                 
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$rec['http://rs.tdwg.org/dwc/terms/measurementType'].$rec['http://rs.tdwg.org/dwc/terms/measurementValue']; //making it unique. no standard way of doing it.
