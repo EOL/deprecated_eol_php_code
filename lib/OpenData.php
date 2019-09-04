@@ -34,20 +34,15 @@ class OpenData
     
     function get_resource_by_id($resource_id)
     {
-        echo "\n$resource_id\n";
+        // echo "\n$resource_id\n";
         $qry = "SELECT r.* FROM v259_ckan.resource r WHERE r.id = '$resource_id'";
         $result = $this->mysqli->query($qry);
         if($result && $row=$result->fetch_assoc()) {
-            echo "<pre>"; print_r($row); echo "</pre>";
-            // $json = Functions::remove_whitespace(json_encode($row, true));
-            // echo $json;
-            
+            // echo "<pre>"; print_r($row); echo "</pre>";
             $arr['id'] = $row['id'];
             $arr['url'] = $row['url'];
             $json = Functions::remove_whitespace(json_encode($row));
             echo $json;
-            
-            
         }
     }
 }
