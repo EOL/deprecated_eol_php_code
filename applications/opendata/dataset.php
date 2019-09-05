@@ -8,6 +8,8 @@ if($GLOBALS['ENV_DEBUG'] == false) header('Content-Type: application/json');
 require_library('OpenData');
 $func = new OpenData();
 $info = $func->get_id_from_REQUEST_URI($ret['REQUEST_URI']);
+
+// echo "<pre>"; print_r($ret); echo "</pre>"; exit;
 // echo "<pre>"; print_r($info); echo "</pre>"; exit;
 
 if($info['task'] == 'get resources') $func->get_resources_from_dataset($info);

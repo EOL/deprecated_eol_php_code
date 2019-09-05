@@ -110,6 +110,7 @@ class OpenData
     */
     function get_id_from_REQUEST_URI($uri)
     {
+        $uri = Functions::remove_this_last_char_from_str($uri, '/');
         $arr = explode("/", $uri);
         $possible_id = array_pop($arr);
         if($possible_id == 'resources') {
