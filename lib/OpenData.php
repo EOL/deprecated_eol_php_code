@@ -35,6 +35,27 @@ class OpenData
         while($result && $row=$result->fetch_assoc()) {}
         */
     }
+    function get_all_ckan_resource_files($path)
+    {   //good resource: https://www.sitepoint.com/list-files-and-directories-with-php/
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/CKAN_uploaded_files.txt", 'w');
+        $path = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
+        $outer_dirs = scandir($path.".");
+        $outer_dirs = array_diff($outer_dirs, array('.', '..')); // print_r($outer_dirs);
+        foreach($outer_dirs as $odir) {
+            $inner_dirs = scandir($path.$odir."/.");
+            $inner_dirs = array_diff($inner_dirs, array('.', '..'));
+            foreach($inner_dirs as $idir) {
+                $path2save = $path.$odir."/".$idir."/";
+                $files = scandir($path2save.".");
+                $files = array_diff($files, array('.', '..'));
+                foreach($files as $file) {
+                    $arr = array($file, $path2save);
+                    fwrite($WRITE, implode("\t", $arr)."\n");
+                }
+            }
+        }
+        fclose($WRITE);
+    }
     function get_id_from_REQUEST_URI($uri)
     {
         $arr = explode("/", $uri);
