@@ -111,7 +111,12 @@ class OpenData
     function get_id_from_REQUEST_URI($uri)
     {
         $arr = explode("/", $uri);
-        return array_pop($arr);
+        $possible_id = array_pop($arr);
+        if($possible_id == 'resources') {
+            // echo "<pre>"; print_r($arr); echo "</pre>";
+            return array('id' => array_pop($arr), 'task' => 'get resources');
+        }
+        else return array('id' => $possible_id, 'task' => false);
     }
     function get_organization_by_id($org_id)
     {
@@ -128,6 +133,34 @@ class OpenData
             $sql = "SELECT p.* from v259_ckan.package p WHERE p.name = '$dataset_id' AND p.type = 'dataset'";
             self::run_query($sql, 'print json');
         }
+    }
+    function get_resources_from_dataset($info)
+    {
+        // echo "<pre>"; print_r($info); echo "</pre>";
+        if(self::is_this_dataset_id($info['id'])) {
+            $sql = "SELECT r.* from v259_ckan.resource r where r.package_id = '".$info['id']."'";
+            self::run_query_return_all($sql, 'print json', array('id', 'name', 'url', 'description', 'format'));
+        }
+        else {
+            if($val = self::get_dataset_id_using_name($info['id'])) {
+                $sql = "SELECT r.* from v259_ckan.resource r where r.package_id = '".$val."'";
+                self::run_query_return_all($sql, 'print json', array('id', 'name', 'url', 'description', 'format'));
+            }
+            else exit("\nInvestigate no dataset id.\n");
+        }
+    }
+    private function get_dataset_id_using_name($name)
+    {
+        $sql = "SELECT p.id from v259_ckan.package p WHERE p.name = '$name' AND p.type = 'dataset'";
+        if($row = self::run_query($sql)) {
+            return $row['id'];
+        }
+    }
+    private function is_this_dataset_id($dataset_id)
+    {
+        $sql = "SELECT p.id from v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
+        if(self::run_query($sql)) return true;
+        else                      return false;
     }
     function get_resource_by_id($resource_id)
     {
@@ -151,6 +184,21 @@ class OpenData
     {
         $json = Functions::remove_whitespace(json_encode($row));
         echo $json;
+    }
+    private function run_query_return_all($sql, $next = '', $sought_fields = false)
+    {
+        $result = $this->mysqli->query($sql);
+        // echo "\n$sql\n";
+        while($result && $row=$result->fetch_assoc()) {
+            if($sought_fields) {
+                $rec = array();
+                foreach($sought_fields as $fld) $rec[$fld] = $row[$fld];
+                $final[] = $rec;
+            }
+            else $final[] = $row;
+        }
+        if($next == 'print json') self::print_json($final);
+        else return $final;
     }
 }
 ?>
