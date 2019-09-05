@@ -116,28 +116,41 @@ class OpenData
     function get_organization_by_id($org_id)
     {
         $sql = "SELECT g.* FROM v259_ckan.group_list g WHERE g.id = '$org_id'";
-        self::run_query($sql);
+        self::run_query($sql, 'print json');
     }
     function get_dataset_by_id($dataset_id)
     {
         $sql = "SELECT p.* from v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
-        self::run_query($sql);
+        if($row = self::run_query($sql)) {
+            self::print_json($row);
+        }
+        else {
+            $sql = "SELECT p.* from v259_ckan.package p WHERE p.name = '$dataset_id' AND p.type = 'dataset'";
+            self::run_query($sql, 'print json');
+        }
     }
     function get_resource_by_id($resource_id)
     {
         $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.id = '$resource_id'";
-        self::run_query($sql);
+        self::run_query($sql, 'print json');
     }
-    private function run_query($sql)
+    private function run_query($sql, $next = '')
     {
         $result = $this->mysqli->query($sql);
         if($result && $row=$result->fetch_assoc()) {
             if($GLOBALS['ENV_DEBUG']) {
                 echo "<pre>"; print_r($row); echo "</pre>";
             }
-            $json = Functions::remove_whitespace(json_encode($row));
-            echo $json;
+            if($next == 'print json') {
+                self::print_json($row);
+            }
+            else return $row;
         }
+    }
+    private function print_json($row)
+    {
+        $json = Functions::remove_whitespace(json_encode($row));
+        echo $json;
     }
 }
 ?>
