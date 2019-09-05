@@ -36,55 +36,55 @@ class OpenData
         */
     }
     function connect_old_file_system_with_new()
-    {   $i = 0;
+    {
+        $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/CKAN_file_system.txt", 'w');
+        $headers = array('resource_id', 'url', 'url_type', 'file_id', 'file_path');
+        fwrite($WRITE, implode("\t", $headers)."\n");
+        $i = 0;
         foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."/CKAN_uploaded_files.txt") as $line_number => $line) {
             $line = explode("\t", $line); $i++;
             if($i == 1) $fields = $line;
             else {
                 if(!$line[0]) break;
-                // print_r($line);
                 $file_id = $line[0];
-                $partial_path = $line[1];
-                
-                $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.url LIKE '%".$file_id."%'");
+                $file_path = $line[1];
+                $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.id LIKE '%".$file_id."'");
                 if($result && $row=$result->fetch_assoc()) {
-                    /* debug only
-                    if(!$row['url_type']) {
-                        print_r($row); exit("\nexit muna\n");
-                    }
-                    */
-                    
-                    // echo "\n[$file_id]"; print_r($row);
-                    @$debug['found in url']++;
+                    @$debug['found in id']++;
                     @$debug['url_type'][$row['url_type']]++;
+                    $arr = array($row['id'], $row['url'], $row['url_type'], $file_id, $file_path);
+                    self::write_2text($arr, $WRITE);
                 }
                 else {
-                    
-                    $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.id LIKE '%".$file_id."'");
+                    $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.url LIKE '%".$file_id."%'");
                     if($result && $row=$result->fetch_assoc()) {
-                        @$debug['found in id']++;
+                        @$debug['found in url']++;
                         @$debug['url_type'][$row['url_type']]++;
-                        // print_r($row); exit("\nfile_id: [$file_id]\n");
+                        $arr = array($row['id'], $row['url'], $row['url_type'], $file_id, $file_path);
+                        self::write_2text($arr, $WRITE);
                     }
-                    else
-                    {
-                        $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.revision_id LIKE '%".$file_id."'");
+                    else {
+                        $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.revision_id LIKE '%".$file_id."%'");
                         if($result && $row=$result->fetch_assoc()) {
-                            @$debug['found in revision_id']++;
+                            @$debug['found in revision_id']++; //nothing was found here...
                             @$debug['url_type'][$row['url_type']]++;
+                            $arr = array($row['id'], $row['url'], $row['url_type'], $file_id, $file_path);
+                            self::write_2text($arr, $WRITE);
                         }
-                        else
-                        {
-                            print("\nInvestigate [$file_id] [$partial_path]");
+                        else {
+                            print("\nInvestigate [$file_id] [$file_path]");
                             @$debug['not found']++;
                         }
                     }
                 }
-                
             }
         }
         print_r($debug);
-        // echo "\nTotal found: ".count($debug['found']) + count($debug['found revision_id'])."\n";
+        fclose($WRITE);
+    }
+    private function write_2text($arr, $WRITE)
+    {
+        fwrite($WRITE, implode("\t", $arr)."\n");
     }
     /* Ran already. Run once only. Can be commented now.
     function get_all_ckan_resource_files($path)
