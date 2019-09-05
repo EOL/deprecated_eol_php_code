@@ -35,6 +35,58 @@ class OpenData
         while($result && $row=$result->fetch_assoc()) {}
         */
     }
+    function connect_old_file_system_with_new()
+    {   $i = 0;
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."/CKAN_uploaded_files.txt") as $line_number => $line) {
+            $line = explode("\t", $line); $i++;
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                // print_r($line);
+                $file_id = $line[0];
+                $partial_path = $line[1];
+                
+                $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.url LIKE '%".$file_id."%'");
+                if($result && $row=$result->fetch_assoc()) {
+                    /* debug only
+                    if(!$row['url_type']) {
+                        print_r($row); exit("\nexit muna\n");
+                    }
+                    */
+                    
+                    // echo "\n[$file_id]"; print_r($row);
+                    @$debug['found in url']++;
+                    @$debug['url_type'][$row['url_type']]++;
+                }
+                else {
+                    
+                    $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.id LIKE '%".$file_id."'");
+                    if($result && $row=$result->fetch_assoc()) {
+                        @$debug['found in id']++;
+                        @$debug['url_type'][$row['url_type']]++;
+                        // print_r($row); exit("\nfile_id: [$file_id]\n");
+                    }
+                    else
+                    {
+                        $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.revision_id LIKE '%".$file_id."'");
+                        if($result && $row=$result->fetch_assoc()) {
+                            @$debug['found in revision_id']++;
+                            @$debug['url_type'][$row['url_type']]++;
+                        }
+                        else
+                        {
+                            print("\nInvestigate [$file_id] [$partial_path]");
+                            @$debug['not found']++;
+                        }
+                    }
+                }
+                
+            }
+        }
+        print_r($debug);
+        // echo "\nTotal found: ".count($debug['found']) + count($debug['found revision_id'])."\n";
+    }
+    /* Ran already. Run once only. Can be commented now.
     function get_all_ckan_resource_files($path)
     {   //good resource: https://www.sitepoint.com/list-files-and-directories-with-php/
         $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/CKAN_uploaded_files.txt", 'w');
@@ -55,6 +107,7 @@ class OpenData
         }
         fclose($WRITE);
     }
+    */
     function get_id_from_REQUEST_URI($uri)
     {
         $arr = explode("/", $uri);
