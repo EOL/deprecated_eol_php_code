@@ -38,7 +38,6 @@ class OpenData
     function get_all_ckan_resource_files($path)
     {   //good resource: https://www.sitepoint.com/list-files-and-directories-with-php/
         $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/CKAN_uploaded_files.txt", 'w');
-        $path = "/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids/";
         $outer_dirs = scandir($path.".");
         $outer_dirs = array_diff($outer_dirs, array('.', '..')); // print_r($outer_dirs);
         foreach($outer_dirs as $odir) {
