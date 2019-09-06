@@ -30,6 +30,14 @@ this one is AFTER DATA-1814, changes were made already:
 368	Monday 2019-07-15 02:03:07 PM	{"measurement_or_fact.tab":2292095,"occurrence.tab":518515,"taxon.tab":377821,"vernacular_name.tab":6222}
 368	Monday 2019-07-15 02:28:18 PM	{"measurement_or_fact.tab":2304006,"occurrence.tab":521441,"taxon.tab":379961,"vernacular_name.tab":6234}
 368	Monday 2019-07-15 02:55:44 PM	{"measurement_or_fact.tab":2292053,"occurrence.tab":518508,"taxon.tab":377814,"vernacular_name.tab":6222} - expected lesser MoF & occurrence count. Still consistent.
+368	Tuesday 2019-08-13 11:25:11 AM	{"measurement_or_fact_specific.tab":2276891,"occurrence.tab":515360,"taxon.tab":376240,"vernacular_name.tab":5863}
+rows of 4
+368	Friday 2019-09-06 05:22:44 AM	{"measurement_or_fact.tab":2331238,"occurrence.tab":525483,"taxon.tab":383179,"vernacular_name.tab":6278}
+368	Friday 2019-09-06 05:46:07 AM	{"measurement_or_fact.tab":2343529,"occurrence.tab":528489,"taxon.tab":385363,"vernacular_name.tab":6289}
+368	Friday 2019-09-06 06:11:32 AM	{"measurement_or_fact.tab":2331196,"occurrence.tab":525476,"taxon.tab":383172,"vernacular_name.tab":6278}
+368	Friday 2019-09-06 06:21:45 AM	{"measurement_or_fact_specific.tab":2317122,"occurrence.tab":522534,"taxon.tab":381701,"vernacular_name.tab":5930}
+rows of 4
+...
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
