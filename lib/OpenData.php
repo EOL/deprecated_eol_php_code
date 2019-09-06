@@ -126,12 +126,12 @@ class OpenData
     }
     function get_dataset_by_id($dataset_id)
     {
-        $sql = "SELECT p.* from v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
+        $sql = "SELECT p.* FROM v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
         if($row = self::run_query($sql)) {
             self::print_json($row);
         }
         else {
-            $sql = "SELECT p.* from v259_ckan.package p WHERE p.name = '$dataset_id' AND p.type = 'dataset'";
+            $sql = "SELECT p.* FROM v259_ckan.package p WHERE p.name = '$dataset_id' AND p.type = 'dataset'";
             self::run_query($sql, 'print json');
         }
     }
@@ -139,12 +139,12 @@ class OpenData
     {
         // echo "<pre>"; print_r($info); echo "</pre>";
         if(self::is_this_dataset_id($info['id'])) {
-            $sql = "SELECT r.* from v259_ckan.resource r where r.package_id = '".$info['id']."'";
+            $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.package_id = '".$info['id']."'";
             self::run_query_return_all($sql, 'print json', array('id', 'name', 'url', 'description', 'format'));
         }
         else {
             if($val = self::get_dataset_id_using_name($info['id'])) {
-                $sql = "SELECT r.* from v259_ckan.resource r where r.package_id = '".$val."'";
+                $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.package_id = '".$val."'";
                 self::run_query_return_all($sql, 'print json', array('id', 'name', 'url', 'description', 'format'));
             }
             else exit("\nInvestigate no dataset id.\n");
@@ -152,14 +152,14 @@ class OpenData
     }
     private function get_dataset_id_using_name($name)
     {
-        $sql = "SELECT p.id from v259_ckan.package p WHERE p.name = '$name' AND p.type = 'dataset'";
+        $sql = "SELECT p.id FROM v259_ckan.package p WHERE p.name = '$name' AND p.type = 'dataset'";
         if($row = self::run_query($sql)) {
             return $row['id'];
         }
     }
     private function is_this_dataset_id($dataset_id)
     {
-        $sql = "SELECT p.id from v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
+        $sql = "SELECT p.id FROM v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
         if(self::run_query($sql)) return true;
         else                      return false;
     }
@@ -200,6 +200,21 @@ class OpenData
         }
         if($next == 'print json') self::print_json($final);
         else return $final;
+    }
+    function get_organizations($order_by)
+    {
+        $sql = "SELECT g.* FROM v259_ckan.group_list g WHERE g.type = 'organization' ORDER BY $order_by";
+        self::run_query_return_all($sql, 'print json');
+    }
+    function get_datasets($order_by)
+    {
+        $sql = "SELECT p.* FROM v259_ckan.package p WHERE p.type = 'dataset' ORDER BY $order_by";
+        self::run_query_return_all($sql, 'print json');
+    }
+    function get_resources($order_by)
+    {
+        $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.state = 'active' ORDER BY $order_by";
+        self::run_query_return_all($sql, 'print json');
     }
 }
 ?>
