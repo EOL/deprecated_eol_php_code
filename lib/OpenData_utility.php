@@ -45,11 +45,11 @@ class OpenData_utility
                     echo "\nERROR: not copied";
                     $debug['error copy'][$rec['resource_id']] = '';
                 }
-                break;
+                // break;
             }
             sleep(1);
         }
-        print_r($debug); exit("\n-end copy_uploaded_files_to_a_telling_name-\n");
+        print_r($debug); exit("\n-end copy_uploaded_files_to_a_telling_name-\n\n");
     }
     /* Ran already. Run once only. Can be commented now.
     function connect_old_file_system_with_new()
