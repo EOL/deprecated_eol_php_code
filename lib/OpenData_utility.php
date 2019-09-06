@@ -33,7 +33,11 @@ class OpenData_utility
                 echo "\n$rec[url]\n[$basename]\n";
                 $source = $rec['file_path'].$rec['file_id'];
                 $destination = $rec['file_path'].$basename;
-                if(copy($source, $destination)) echo "\nCopied OK";
+                if(copy($source, $destination)) {
+                    echo "\nCopied OK";
+                    if(chmod($destination, 0755)) echo " - mode changed OK";
+                    else                          echo " - ERROR: mode not changed";
+                }
                 else                            echo "\nERROR: not copied";
                 exit("\nend for now\n");
             }
