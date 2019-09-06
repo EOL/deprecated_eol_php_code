@@ -45,7 +45,7 @@ class OpenData_utility
                     echo "\nERROR: not copied";
                     $debug['error copy'][$rec['resource_id']] = '';
                 }
-                // exit("\nend for now\n");
+                break;
             }
             sleep(1);
         }
