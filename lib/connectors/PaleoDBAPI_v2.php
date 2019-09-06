@@ -599,8 +599,7 @@ class PaleoDBAPI_v2
         http://eol.org/schema/terms/SkeletalReinforcement
         */
         
-        // /* adjustment https://eol-jira.bibalex.org/browse/DATA-1831
-        So for taxa with and records with measurementValue=http://eol.org/schema/terms/extant , please remove any records with measurementType=http://eol.org/schema/terms/FossilLast
+        // /* adjustment: DATA-1831 - So for taxa with and records with measurementValue=http://eol.org/schema/terms/extant , please remove any records with measurementType=http://eol.org/schema/terms/FossilLast
         if($rec['measurementType'] == 'http://eol.org/schema/terms/FossilLast' && 
            $rec['measurementValue'] == 'http://eol.org/schema/terms/extant') return false;
         // */
