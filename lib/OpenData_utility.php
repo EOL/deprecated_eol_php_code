@@ -9,6 +9,45 @@ class OpenData_utility
         if($GLOBALS['ENV_DEBUG'] == false) error_reporting(0);
         $this->mysqli =& $GLOBALS['db_connection'];
     }
+    function create_resourceID_newURL_file()
+    {
+        $txt_file = CONTENT_RESOURCE_LOCAL_PATH."/CKAN_resourceID_url.txt";
+        $WRITE = Functions::file_open($txt_file, 'w');
+        $i = 0; $debug = array();
+        foreach(new FileIterator(CONTENT_RESOURCE_LOCAL_PATH."/CKAN_file_system.txt") as $line_number => $line) {
+            $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); //exit;
+                // Array(
+                //     [resource_id] => 0045454e-1ae4-4ea3-a087-59f8250e53f0
+                //     [url] => https://opendata.eol.org/dataset/a52ef387-d650-4f26-bcd5-fca5114462ef/resource/0045454e-1ae4-4ea3-a087-59f8250e53f0/download/wikipedia-fr.tar.gz
+                //     [url_type] => upload
+                //     [file_id] => 4e-1ae4-4ea3-a087-59f8250e53f0
+                //     [file_path] => /extra/ckan_resources/004/545/
+                // )
+                $basename = pathinfo($rec['url'], PATHINFO_BASENAME);
+                $destination = $rec['file_path'].$basename;
+                $destination = str_replace("/extra/ckan_resources", "https://editors.eol.org/uploaded_resources", $destination);
+                echo "\n$destination\n";
+                $arr = array($rec['resource_id'], $destination);
+                self::write_2text($arr, $WRITE);
+            }
+        }
+        fclose($WRITE);
+        
+        $sql = "TRUNCATE TABLE v259_ckan.resource_url;";
+        if($result = $this->mysqli->query($sql)) echo "\nTable truncated OK.\n";
+        
+        $sql = "LOAD data local infile '".$txt_file."' into table v259_ckan.resource_url;";
+        if($result = $this->mysqli->query($sql)) echo "\nSaved table to MySQL\n";
+    }
+    /* Ran already. Run once only. Can be commented now.
     function copy_uploaded_files_to_a_telling_name()
     {
         $i = 0; $debug = array();
@@ -22,13 +61,13 @@ class OpenData_utility
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); //exit;
-                /*Array(
-                    [resource_id] => 0045454e-1ae4-4ea3-a087-59f8250e53f0
-                    [url] => https://opendata.eol.org/dataset/a52ef387-d650-4f26-bcd5-fca5114462ef/resource/0045454e-1ae4-4ea3-a087-59f8250e53f0/download/wikipedia-fr.tar.gz
-                    [url_type] => upload
-                    [file_id] => 4e-1ae4-4ea3-a087-59f8250e53f0
-                    [file_path] => /extra/ckan_resources/004/545/
-                )*/
+                // Array(
+                //     [resource_id] => 0045454e-1ae4-4ea3-a087-59f8250e53f0
+                //     [url] => https://opendata.eol.org/dataset/a52ef387-d650-4f26-bcd5-fca5114462ef/resource/0045454e-1ae4-4ea3-a087-59f8250e53f0/download/wikipedia-fr.tar.gz
+                //     [url_type] => upload
+                //     [file_id] => 4e-1ae4-4ea3-a087-59f8250e53f0
+                //     [file_path] => /extra/ckan_resources/004/545/
+                // )
                 $basename = pathinfo($rec['url'], PATHINFO_BASENAME);
                 // echo "\n$rec[url]\n[$basename]\n";
                 $source = $rec['file_path'].$rec['file_id'];
@@ -51,6 +90,7 @@ class OpenData_utility
         }
         print_r($debug); exit("\n-end copy_uploaded_files_to_a_telling_name-\n\n");
     }
+    */
     /* Ran already. Run once only. Can be commented now.
     function connect_old_file_system_with_new()
     {
