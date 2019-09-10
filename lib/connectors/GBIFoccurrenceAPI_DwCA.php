@@ -1298,6 +1298,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         return false;
     }
+    /*
     private function process_current_hotlist_spreadsheet() //if we want to use the API for species-level taxa.
     {
         require_library('connectors/GoogleClientAPI');
@@ -1306,15 +1307,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $params['range']         = 'Sheet 1!A1:B73054'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
         $arr = $func->access_google_sheet($params);
         // print_r($arr); exit("\n");
-        /* [73052] => Array(
-                [0] => Clostridium
-                [1] => 83389
-            )
-        [73053] => Array(
-                [0] => Banasa dimiata
-                [1] => 609110
-            )
-        */
+        // [73052] => Array(
+        //         [0] => Clostridium
+        //         [1] => 83389
+        //     )
+        // [73053] => Array(
+        //         [0] => Banasa dimiata
+        //         [1] => 609110
+        //     )
         $species_level = 0; $m = 72311/3; $i = 0;
         foreach($arr as $rec) { $i++;
             $sciname = $rec[0];
@@ -1324,13 +1324,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             if(stripos($sciname, " ") !== false) { //process only species-level taxa
                 $species_level++;
                 echo " [$sciname]";
-                /*
-                $cont = false;
-                if($i >=  1    && $i < $m)    $cont = true;
-                // if($i >=  $m   && $i < $m*2)  $cont = true;
-                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                if(!$cont) continue;
-                */
+                // breakdown
+                // $cont = false;
+                // if($i >=  1    && $i < $m)    $cont = true;
+                // // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // if(!$cont) continue;
                 self::main_loop($sciname, $taxon_concept_id);
                 exit("\n\ntemporary exit...\n");
             }
@@ -1356,18 +1355,17 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $taxon_concept_id = $arr['1'][$i];
                     echo "\n$i. [$sciname][$taxon_concept_id]";
                     //==================
-                    /*
-                    $m = 10000;
-                    $cont = false;
-                    // if($i >=  1    && $i < $m)    $cont = true;
-                    // if($i >=  $m   && $i < $m*2)  $cont = true;
-                    // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                    // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                    // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                    // if($i >=  $m*5 && $i < $m*6)  $cont = true;
-                    // if($i >=  $m*6 && $i < $m*7)  $cont = true;
-                    if(!$cont) continue;
-                    */
+                    // breakdown
+                    // $m = 10000;
+                    // $cont = false;
+                    // // if($i >=  1    && $i < $m)    $cont = true;
+                    // // if($i >=  $m   && $i < $m*2)  $cont = true;
+                    // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                    // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                    // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+                    // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+                    // // if($i >=  $m*6 && $i < $m*7)  $cont = true;
+                    // if(!$cont) continue;
                     self::main_loop($sciname, $taxon_concept_id);
                     //==================
                     // break; //debug - process only 1
@@ -1404,6 +1402,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             // if($i >= 5) break; //debug
         }
     }
+    */
     //========================================================
     // start of Clustering code: (http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps)
     //========================================================
