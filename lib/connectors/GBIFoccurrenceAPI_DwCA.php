@@ -1207,200 +1207,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         return false;
     }
-    /*
-    private function main_loop($sciname, $taxon_concept_id = false)
-    {
-        $sciname = Functions::canonical_form($sciname); echo "\n[$sciname]\n";
-        $basename = $sciname;
-        if($val = $taxon_concept_id) $basename = $val;
-        if(self::map_data_file_already_been_generated($basename)) return;
-        $final_count = false;
-        if($rec = self::get_initial_data($sciname)) {
-            print_r($rec);
-            // first is check the csv front ------------------------------------------------------------------------------------------
-            if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
-                // print_r($final);
-                if($final['count'] > $this->rec_limit) {
-                    echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
-                    return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
-                }
-                else echo "\n -- will use API as source 01 -- Records from CSV: " . $final['count'] . " < " . $this->rec_limit . " \n";
-            }
-            else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
-            // end ------------------------------------------------------------------------------------------
-            
-            self::get_georeference_data_via_api($rec['usageKey'], $basename);
-        }
-        if(!$final_count) {
-            $filename = self::get_map_data_path($basename).$basename.".json";
-            if(file_exists($filename)) unlink($filename); //delete cluster map data
-        }
-        else { //delete respective file
-            if($final_count < $this->limit_20k) {}
-            else {
-                echo "\nfinal_count is [$final_count]\n";
-                $filename = self::get_map_data_path($basename).$basename.".json";
-                if(file_exists($filename)) {
-                    unlink($filename); //delete cluster map data
-                    exit("\nInvestigate: file deleted ($filename)\n");
-                }
-            }
-        }
-    }
-    obsolete since the JRice text file is very old, old tc_ids
-    private function process_all_eol_taxa($path = false, $listOnly = false)
-    {
-        if(!$path) $path = $this->eol_taxon_concept_names_tab;
-        if($listOnly) $list = array();
-        $i = 0;
-        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $line = explode("\t", $line);
-            $taxon_concept_id = $line[0];
-            $sciname          = Functions::canonical_form(@$line[1]);
-            if($listOnly) {
-                if($taxon_concept_id) $list[$sciname] = $taxon_concept_id;
-                continue;
-            }
-            $i++;
-
-            if($taxon_concept_id == 1) continue;
-            // if(stripos($sciname, " ") !== false) //only species-level taxa
-            if(true) { //all taxa
-                echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
-                //==================
-                // 285. [Geraniaceae][tc_id = 285]
-                // [Geraniaceae]
-                // Total:[1212423]
-                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
-                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
-                // [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
-                //  -- will use API as source 01 -- 411 > 50000 
-
-                // $m = 100000;
-                // $cont = false;
-                // // if($i >=  1    && $i < $m)    $cont = true;
-                // // if($i >=  $m   && $i < $m*2)  $cont = true;
-                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
-                // if($i >=  $m*4 && $i < $m*6)  $cont = true;
-                // if(!$cont) continue;
-
-                //==================
-                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
-                if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
-                else                                          echo " - usageKey not found!";
-                exit("\n--stopx--\n"); //doesn't go here if it is $listOnly boolean true
-            }
-            // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
-        }//end loop
-        if($listOnly) return $list;
-    }
-    private function process_current_hotlist_spreadsheet() //if we want to use the API for species-level taxa.
-    {
-        require_library('connectors/GoogleClientAPI');
-        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
-        $params['spreadsheetID'] = '1124WNU1r1-X1lGrtg8aFLg72IoMUlHpDoNK5QS_mb9E';
-        $params['range']         = 'Sheet 1!A1:B73054'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
-        $arr = $func->access_google_sheet($params);
-        // print_r($arr); exit("\n");
-        // [73052] => Array(
-        //         [0] => Clostridium
-        //         [1] => 83389
-        //     )
-        // [73053] => Array(
-        //         [0] => Banasa dimiata
-        //         [1] => 609110
-        //     )
-        $species_level = 0; $m = 72311/3; $i = 0;
-        foreach($arr as $rec) { $i++;
-            $sciname = $rec[0];
-            $taxon_concept_id = $rec[1];
-            $sciname = trim(Functions::canonical_form($sciname));
-            echo "\n$i. [$sciname][$taxon_concept_id]";
-            if(stripos($sciname, " ") !== false) { //process only species-level taxa
-                $species_level++;
-                echo " [$sciname]";
-                // breakdown
-                // $cont = false;
-                // if($i >=  1    && $i < $m)    $cont = true;
-                // // if($i >=  $m   && $i < $m*2)  $cont = true;
-                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                // if(!$cont) continue;
-                self::main_loop($sciname, $taxon_concept_id);
-                exit("\n\ntemporary exit...\n");
-            }
-        }
-        echo "\nspecies-level taxa count: $species_level\n";
-    }
-    private function process_hotlist_spreadsheet()
-    {
-        require_library('XLSParser');
-        $parser = new XLSParser();
-        $families = array();
-        $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
-        // $doc = "http://localhost/~eolit/eli/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx"; //for MacBook
-        echo "\n processing [$doc]...\n";
-        if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2))) {
-            $arr = $parser->convert_sheet_to_array($path);
-            $i = -1;
-            foreach($arr['Animals'] as $sciname) {
-                $i++;
-                $sciname = trim(Functions::canonical_form($sciname));
-                // if(stripos($sciname, " ") !== false) //process only species-level taxa
-                if(true) {
-                    $taxon_concept_id = $arr['1'][$i];
-                    echo "\n$i. [$sciname][$taxon_concept_id]";
-                    //==================
-                    // breakdown
-                    // $m = 10000;
-                    // $cont = false;
-                    // // if($i >=  1    && $i < $m)    $cont = true;
-                    // // if($i >=  $m   && $i < $m*2)  $cont = true;
-                    // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                    // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                    // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                    // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
-                    // // if($i >=  $m*6 && $i < $m*7)  $cont = true;
-                    // if(!$cont) continue;
-                    self::main_loop($sciname, $taxon_concept_id);
-                    //==================
-                    // break; //debug - process only 1
-                }
-            }
-            unlink($path);
-        }
-        else echo "\n [$doc] unavailable! \n";
-    }
-    private function process_DL_taxon_list()
-    {
-        $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, array('timeout' => 4800, 'download_attempts' => 5));
-        if(!$temp_filepath) {
-            echo "\n\nExternal file not available. Program will terminate.\n";
-            return;
-        }
-        $i = 0;
-        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $i++;
-            if($line) {
-                $m = 10000;
-                $cont = false;
-                if($i >=  1    && $i < $m)    $cont = true;
-                // if($i >=  $m   && $i < $m*2)  $cont = true;
-                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                if(!$cont) continue;
-                $arr = explode("\t", $line);
-                $sciname = trim($arr[0]);
-                echo "\n[$sciname]\n";
-                self::main_loop($sciname);
-            }
-            // if($i >= 5) break; //debug
-        }
-    }
-    */
     //========================================================
     // start of Clustering code: (http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps)
     //========================================================
@@ -1470,6 +1276,192 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     //========================================================
     // end of Clustering code: (http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps)
     //========================================================
+    /*
+    private function main_loop($sciname, $taxon_concept_id = false)
+    {   $sciname = Functions::canonical_form($sciname); echo "\n[$sciname]\n";
+        $basename = $sciname;
+        if($val = $taxon_concept_id) $basename = $val;
+        if(self::map_data_file_already_been_generated($basename)) return;
+        $final_count = false;
+        if($rec = self::get_initial_data($sciname)) {
+            print_r($rec);
+            // first is check the csv front ------------------------------------------------------------------------------------------
+            if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
+                // print_r($final);
+                if($final['count'] > $this->rec_limit) {
+                    echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
+                    return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
+                }
+                else echo "\n -- will use API as source 01 -- Records from CSV: " . $final['count'] . " < " . $this->rec_limit . " \n";
+            }
+            else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
+            // end ------------------------------------------------------------------------------------------
+            
+            self::get_georeference_data_via_api($rec['usageKey'], $basename);
+        }
+        if(!$final_count) {
+            $filename = self::get_map_data_path($basename).$basename.".json";
+            if(file_exists($filename)) unlink($filename); //delete cluster map data
+        }
+        else { //delete respective file
+            if($final_count < $this->limit_20k) {}
+            else {
+                echo "\nfinal_count is [$final_count]\n";
+                $filename = self::get_map_data_path($basename).$basename.".json";
+                if(file_exists($filename)) {
+                    unlink($filename); //delete cluster map data
+                    exit("\nInvestigate: file deleted ($filename)\n");
+                }
+            }
+        }
+    }
+    obsolete since the JRice text file is very old, old tc_ids
+    private function process_all_eol_taxa($path = false, $listOnly = false)
+    {   if(!$path) $path = $this->eol_taxon_concept_names_tab;
+        if($listOnly) $list = array();
+        $i = 0;
+        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $line = explode("\t", $line);
+            $taxon_concept_id = $line[0];
+            $sciname          = Functions::canonical_form(@$line[1]);
+            if($listOnly) {
+                if($taxon_concept_id) $list[$sciname] = $taxon_concept_id;
+                continue;
+            }
+            $i++;
+            if($taxon_concept_id == 1) continue;
+            // if(stripos($sciname, " ") !== false) //only species-level taxa
+            if(true) { //all taxa
+                echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
+                //==================
+                // 285. [Geraniaceae][tc_id = 285]
+                // [Geraniaceae]
+                // Total:[1212423]
+                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
+                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
+                // [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
+                //  -- will use API as source 01 -- 411 > 50000 
 
+                // $m = 100000;
+                // $cont = false;
+                // // if($i >=  1    && $i < $m)    $cont = true;
+                // // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+                // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+                // if($i >=  $m*4 && $i < $m*6)  $cont = true;
+                // if(!$cont) continue;
+                //==================
+                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
+                else                                          echo " - usageKey not found!";
+                exit("\n--stopx--\n"); //doesn't go here if it is $listOnly boolean true
+            }
+            // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
+        }//end loop
+        if($listOnly) return $list;
+    }
+    private function process_current_hotlist_spreadsheet() //if we want to use the API for species-level taxa.
+    {   require_library('connectors/GoogleClientAPI');
+        $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
+        $params['spreadsheetID'] = '1124WNU1r1-X1lGrtg8aFLg72IoMUlHpDoNK5QS_mb9E';
+        $params['range']         = 'Sheet 1!A1:B73054'; //where "A" is the starting column, "C" is the ending column, and "1" is the starting row.
+        $arr = $func->access_google_sheet($params);
+        // print_r($arr); exit("\n");
+        // [73052] => Array(
+        //         [0] => Clostridium
+        //         [1] => 83389
+        //     )
+        // [73053] => Array(
+        //         [0] => Banasa dimiata
+        //         [1] => 609110
+        //     )
+        $species_level = 0; $m = 72311/3; $i = 0;
+        foreach($arr as $rec) { $i++;
+            $sciname = $rec[0];
+            $taxon_concept_id = $rec[1];
+            $sciname = trim(Functions::canonical_form($sciname));
+            echo "\n$i. [$sciname][$taxon_concept_id]";
+            if(stripos($sciname, " ") !== false) { //process only species-level taxa
+                $species_level++;
+                echo " [$sciname]";
+                // breakdown
+                // $cont = false;
+                // if($i >=  1    && $i < $m)    $cont = true;
+                // // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // if(!$cont) continue;
+                self::main_loop($sciname, $taxon_concept_id);
+                exit("\n\ntemporary exit...\n");
+            }
+        }
+        echo "\nspecies-level taxa count: $species_level\n";
+    }
+    private function process_hotlist_spreadsheet()
+    {   require_library('XLSParser');
+        $parser = new XLSParser();
+        $families = array();
+        $doc = "http://localhost/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx";
+        // $doc = "http://localhost/~eolit/eli/eol_php_code/public/tmp/spreadsheets/SPG Hotlist Official Version.xlsx"; //for MacBook
+        echo "\n processing [$doc]...\n";
+        if($path = Functions::save_remote_file_to_local($doc, array("timeout" => 3600, "file_extension" => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2))) {
+            $arr = $parser->convert_sheet_to_array($path);
+            $i = -1;
+            foreach($arr['Animals'] as $sciname) {
+                $i++;
+                $sciname = trim(Functions::canonical_form($sciname));
+                // if(stripos($sciname, " ") !== false) //process only species-level taxa
+                if(true) {
+                    $taxon_concept_id = $arr['1'][$i];
+                    echo "\n$i. [$sciname][$taxon_concept_id]";
+                    //==================
+                    // breakdown
+                    // $m = 10000;
+                    // $cont = false;
+                    // // if($i >=  1    && $i < $m)    $cont = true;
+                    // // if($i >=  $m   && $i < $m*2)  $cont = true;
+                    // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                    // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                    // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+                    // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+                    // // if($i >=  $m*6 && $i < $m*7)  $cont = true;
+                    // if(!$cont) continue;
+                    self::main_loop($sciname, $taxon_concept_id);
+                    //==================
+                    // break; //debug - process only 1
+                }
+            }
+            unlink($path);
+        }
+        else echo "\n [$doc] unavailable! \n";
+    }
+    private function process_DL_taxon_list()
+    {   $temp_filepath = Functions::save_remote_file_to_local(self::DL_MAP_SPECIES_LIST, array('timeout' => 4800, 'download_attempts' => 5));
+        if(!$temp_filepath) {
+            echo "\n\nExternal file not available. Program will terminate.\n";
+            return;
+        }
+        $i = 0;
+        foreach(new FileIterator($temp_filepath, true) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $i++;
+            if($line) {
+                $m = 10000;
+                $cont = false;
+                if($i >=  1    && $i < $m)    $cont = true;
+                // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+                if(!$cont) continue;
+                $arr = explode("\t", $line);
+                $sciname = trim($arr[0]);
+                echo "\n[$sciname]\n";
+                self::main_loop($sciname);
+            }
+            // if($i >= 5) break; //debug
+        }
+    }
+    */
 }
 ?>
