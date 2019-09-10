@@ -22,15 +22,18 @@ class GBIF_backboneAPI
         }
     }
     private function access_dwca()
-    {   /* un-comment in real operation
+    {   
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
-        */
+        $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
+        // */
+        /* local when developing
         $paths = Array(
             "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
             "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
         );
+        */
         return $paths;
     }
     function start()
