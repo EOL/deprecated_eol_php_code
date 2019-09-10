@@ -105,6 +105,75 @@ class OpenData
         $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan.resource r LEFT JOIN v259_ckan.resource_url u ON r.id = u.id WHERE r.id = '$resource_id'";
         self::run_query($sql, 'print json');
     }
+    function get_resource_by_id_v2($resource_id)
+    {
+        $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan.resource r LEFT JOIN v259_ckan.resource_url u ON r.id = u.id WHERE r.id = ?";
+        echo "<hr>$resource_id<hr>";
+
+        $mysqli = $GLOBALS['db_connection'];
+        
+
+        // $db = $this->getConnection()->getDbConnection();
+        // $preparedQuery = $db->stmt_init();
+        // $preparedQuery->prepare ($query);
+
+        /* check connection */
+        if (mysqli_connect_errno()) {
+            printf("Connect failed: %s\n", mysqli_connect_error());
+            exit("\n error 01 \n");
+        }
+        else echo "<hr>good 01<hr>";
+
+        /* create a prepared statement */
+        echo "<hr>aaa<hr>";
+        // $stmt = $mysqli->prepare();
+        // $preparedQuery = $db->stmt_init();
+        $stmt =  $this->mysqli->stmt_init();
+        // $stmt =  $mysqli->mysqli_stmt_prepare();
+        echo "<hr>bbb<hr>";
+
+        // if ($stmt = $mysqli->prepare($sql)) {
+
+        if ($stmt->prepare($sql)) {
+            echo "<hr>good 03<hr>";
+            // /* bind parameters for markers */
+            // $stmt->bind_param("s", $resource_id);
+            // /* execute query */
+            // $stmt->execute();
+            // /* bind result variables */
+            // $stmt->bind_result($district);
+            // /* fetch value */
+            // $stmt->fetch();
+            // printf("%s is in \n", $resource_id);
+            /* close statement */
+            // $stmt->close();
+        }
+        else echo "<hr>error 03<hr>";
+        // 
+        // /* close connection */
+        // $mysqli->close();
+
+
+
+        //===================================
+
+        // echo "<pre>";
+        // print_r($this->mysqli);
+        // echo "</pre>";
+
+        // $stmt = $this->mysqli->prepare($sql);
+        // $stmt->bind_param('s', $resource_id); // 's' specifies the variable type => 'string'
+        // $stmt->execute();
+        // $result = $stmt->get_result();
+        // while ($row = $result->fetch_assoc()) {
+        //     print_r($row);
+        // }
+
+        // $stmt = $dbConnection->prepare('SELECT * FROM employees WHERE name = ?');
+        // $stmt->bind_param('s', $name); // 's' specifies the variable type => 'string'
+
+        // self::run_query($sql, 'print json', $resource_id);
+    }
     private function run_query($sql, $next = '')
     {
         $result = $this->mysqli->query($sql);
