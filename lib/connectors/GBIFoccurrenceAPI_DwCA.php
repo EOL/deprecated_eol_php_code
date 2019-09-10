@@ -878,58 +878,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         // exit("\n".count($debug)."\n"); //debug just for counting
         if($listOnly) return $list;
     }
-    /* obsolete since the JRice text file is very old, old tc_ids
-    private function process_all_eol_taxa($path = false, $listOnly = false)
-    {
-        if(!$path) $path = $this->eol_taxon_concept_names_tab;
-        if($listOnly) $list = array();
-        $i = 0;
-        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
-            $line = explode("\t", $line);
-            $taxon_concept_id = $line[0];
-            $sciname          = Functions::canonical_form(@$line[1]);
-            if($listOnly) {
-                if($taxon_concept_id) $list[$sciname] = $taxon_concept_id;
-                continue;
-            }
-            $i++;
-
-            if($taxon_concept_id == 1) continue;
-            // if(stripos($sciname, " ") !== false) //only species-level taxa
-            if(true) { //all taxa
-                echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
-                //==================
-
-                // 285. [Geraniaceae][tc_id = 285]
-                // [Geraniaceae]
-                // Total:[1212423]
-                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
-                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
-                // [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
-                //  -- will use API as source 01 -- 411 > 50000 
-
-                // $m = 100000;
-                // $cont = false;
-                // // if($i >=  1    && $i < $m)    $cont = true;
-                // // if($i >=  $m   && $i < $m*2)  $cont = true;
-                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
-                // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
-                // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
-                // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
-                // if($i >=  $m*4 && $i < $m*6)  $cont = true;
-                // if(!$cont) continue;
-
-                //==================
-                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
-                if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
-                else                                          echo " - usageKey not found!";
-                exit("\n--stopx--\n"); //doesn't go here if it is $listOnly boolean true
-            }
-            // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
-        }//end loop
-        if($listOnly) return $list;
-    }
-    */
     function map_data_file_already_been_generated($basename)
     {
         // return false; //debug
@@ -1298,6 +1246,56 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 }
             }
         }
+    }
+    obsolete since the JRice text file is very old, old tc_ids
+    private function process_all_eol_taxa($path = false, $listOnly = false)
+    {
+        if(!$path) $path = $this->eol_taxon_concept_names_tab;
+        if($listOnly) $list = array();
+        $i = 0;
+        foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $line = explode("\t", $line);
+            $taxon_concept_id = $line[0];
+            $sciname          = Functions::canonical_form(@$line[1]);
+            if($listOnly) {
+                if($taxon_concept_id) $list[$sciname] = $taxon_concept_id;
+                continue;
+            }
+            $i++;
+
+            if($taxon_concept_id == 1) continue;
+            // if(stripos($sciname, " ") !== false) //only species-level taxa
+            if(true) { //all taxa
+                echo "\n$i. [$sciname][tc_id = $taxon_concept_id]";
+                //==================
+                // 285. [Geraniaceae][tc_id = 285]
+                // [Geraniaceae]
+                // Total:[1212423]
+                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_animalia/]
+                // [4676] NOT found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_incertae/]
+                // [4676] found in [/Library/WebServer/Documents/eol_php_code//public/tmp/google_maps/GBIF_taxa_csv_others/]
+                //  -- will use API as source 01 -- 411 > 50000 
+
+                // $m = 100000;
+                // $cont = false;
+                // // if($i >=  1    && $i < $m)    $cont = true;
+                // // if($i >=  $m   && $i < $m*2)  $cont = true;
+                // // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+                // // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+                // // if($i >=  $m*4 && $i < $m*5)  $cont = true;
+                // // if($i >=  $m*5 && $i < $m*6)  $cont = true;
+                // if($i >=  $m*4 && $i < $m*6)  $cont = true;
+                // if(!$cont) continue;
+
+                //==================
+                self::main_loop($sciname, $taxon_concept_id); //uncomment in real operation...
+                if($usageKey = self::get_usage_key($sciname)) echo " - OK [$usageKey]"; //used to cache all usageKey requests...
+                else                                          echo " - usageKey not found!";
+                exit("\n--stopx--\n"); //doesn't go here if it is $listOnly boolean true
+            }
+            // else echo "\n[$sciname] will pass higher-level taxa at this time...\n";
+        }//end loop
+        if($listOnly) return $list;
     }
     private function process_current_hotlist_spreadsheet() //if we want to use the API for species-level taxa.
     {
