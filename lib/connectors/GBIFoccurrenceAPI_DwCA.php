@@ -947,45 +947,6 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         else return false;
     }
-    private function main_loop($sciname, $taxon_concept_id = false)
-    {
-        $sciname = Functions::canonical_form($sciname); echo "\n[$sciname]\n";
-        $basename = $sciname;
-        if($val = $taxon_concept_id) $basename = $val;
-        if(self::map_data_file_already_been_generated($basename)) return;
-        $final_count = false;
-        if($rec = self::get_initial_data($sciname)) {
-            print_r($rec);
-            // first is check the csv front ------------------------------------------------------------------------------------------
-            if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
-                // print_r($final);
-                if($final['count'] > $this->rec_limit) {
-                    echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
-                    return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
-                }
-                else echo "\n -- will use API as source 01 -- Records from CSV: " . $final['count'] . " < " . $this->rec_limit . " \n";
-            }
-            else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
-            // end ------------------------------------------------------------------------------------------
-            
-            self::get_georeference_data_via_api($rec['usageKey'], $basename);
-        }
-        if(!$final_count) {
-            $filename = self::get_map_data_path($basename).$basename.".json";
-            if(file_exists($filename)) unlink($filename); //delete cluster map data
-        }
-        else { //delete respective file
-            if($final_count < $this->limit_20k) {}
-            else {
-                echo "\nfinal_count is [$final_count]\n";
-                $filename = self::get_map_data_path($basename).$basename.".json";
-                if(file_exists($filename)) {
-                    unlink($filename); //delete cluster map data
-                    exit("\nInvestigate: file deleted ($filename)\n");
-                }
-            }
-        }
-    }
     function force_reduce_records($to_be_saved)
     {
         $divisor = count($to_be_saved['records'])/$this->limit_20k;
@@ -1299,6 +1260,45 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         return false;
     }
     /*
+    private function main_loop($sciname, $taxon_concept_id = false)
+    {
+        $sciname = Functions::canonical_form($sciname); echo "\n[$sciname]\n";
+        $basename = $sciname;
+        if($val = $taxon_concept_id) $basename = $val;
+        if(self::map_data_file_already_been_generated($basename)) return;
+        $final_count = false;
+        if($rec = self::get_initial_data($sciname)) {
+            print_r($rec);
+            // first is check the csv front ------------------------------------------------------------------------------------------
+            if($final = self::prepare_csv_data($rec['usageKey'], $this->csv_paths)) {
+                // print_r($final);
+                if($final['count'] > $this->rec_limit) {
+                    echo "\n -- will just use CSV source instead -- " . $final['count'] . " > " . $this->rec_limit . " \n"; //exit;
+                    return; //if count > from csv then use csv later instead using - generate_map_data_using_GBIF_csv_files()
+                }
+                else echo "\n -- will use API as source 01 -- Records from CSV: " . $final['count'] . " < " . $this->rec_limit . " \n";
+            }
+            else echo "\n -- will use API as source 02 -- No CSV data \n"; //exit;
+            // end ------------------------------------------------------------------------------------------
+            
+            self::get_georeference_data_via_api($rec['usageKey'], $basename);
+        }
+        if(!$final_count) {
+            $filename = self::get_map_data_path($basename).$basename.".json";
+            if(file_exists($filename)) unlink($filename); //delete cluster map data
+        }
+        else { //delete respective file
+            if($final_count < $this->limit_20k) {}
+            else {
+                echo "\nfinal_count is [$final_count]\n";
+                $filename = self::get_map_data_path($basename).$basename.".json";
+                if(file_exists($filename)) {
+                    unlink($filename); //delete cluster map data
+                    exit("\nInvestigate: file deleted ($filename)\n");
+                }
+            }
+        }
+    }
     private function process_current_hotlist_spreadsheet() //if we want to use the API for species-level taxa.
     {
         require_library('connectors/GoogleClientAPI');
