@@ -143,7 +143,7 @@ class GBIF_backboneAPI
         )*/
         $taxon = new \eol_schema\Taxon();
         $taxon->EOLid = $eol_rec['id'];
-        $taxon->EOLidAnnotations = $eol_rec['content'];
+        // $taxon->EOLidAnnotations = $eol_rec['content'];
         foreach($fields as $field) {
             $var = pathinfo($field, PATHINFO_BASENAME);
             if(in_array($var, array('genericName'))) continue;
