@@ -145,7 +145,7 @@ class GBIF_backboneAPI
                 */
                 
             }
-            // if($i >= 80) break;
+            // if($i >= 90) break;
         }
     }
     private function log_record($rec, $sciname = '')
@@ -177,7 +177,7 @@ class GBIF_backboneAPI
     }
     private function get_actual_name($ret, $sciname, $synonymYN)
     {
-        foreach($ret['results'] as $r) {    //first loop gets exact match only
+        foreach($ret['results'] as $r) { //first loop gets exact match only
             /*Array(
                 [id] => 37570
                 [title] => Lichenobactridium
