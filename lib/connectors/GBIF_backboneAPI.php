@@ -23,17 +23,17 @@ class GBIF_backboneAPI
     }
     private function access_dwca()
     {   
-        // /* un-comment in real operation
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
-        // */
-        /* local when developing
+        */
+        // /* local when developing
         $paths = Array(
             "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
             "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
         );
-        */
+        // */
         return $paths;
     }
     function start()
@@ -49,7 +49,8 @@ class GBIF_backboneAPI
         }
 
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-        exit;
+        $this->archive_builder->finalize(TRUE);
+        // exit;
         /* un-comment in real operation
         // remove temp dir
         recursive_rmdir($temp_dir);
@@ -105,27 +106,61 @@ class GBIF_backboneAPI
             */
             if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') continue;
             
-            $sciname = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
-            $sciname = $rec['http://rs.gbif.org/terms/1.0/canonicalName'];
+            if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
+            elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
+            else continue;
             if(!$sciname) continue;
+
             $str = substr($sciname,0,2);
-            if(strtoupper($str) == $str) {
-                echo "\nwill ignore [$sciname]\n";
+            if(strtoupper($str) == $str) { //probably viruses
+                // echo "\nwill ignore [$sciname]\n";
+                continue;
             }
-            else
-            {
-                echo "\nwill process [$i][$sciname]";
-                $sciname = Functions::canonical_form($sciname);
-                echo " - [$sciname] ";
+            else {
+                echo "\nwill process [$i][$sciname] ";
                 // print_r($rec);
                 if($ret = $func->search_name($sciname, $this->download_options)) {
-                    // print_r($ret);
-                    // break;
                     echo " - ".count($ret['results']);
-                    // if(!count($ret['results'])) print_r($rec); //good debug
+                    if($eol_rec = self::get_actual_name($ret, $sciname)) {
+                        self::write_archive($rec, $eol_rec);
+                    }
+                    else continue;
                 }
             }
-            // if($i >= 60) break;
+            if($i >= 60) break;
+        }
+    }
+    private function write_archive($rec, $eol_rec)
+    {
+        // print_r($rec); print_r($eol_rec);
+        $fields = array_keys($rec);
+        // print_r($fields); exit;
+        /*Array( $eol_rec
+            [id] => 37570
+            [title] => Lichenobactridium
+            [link] => https://eol.org/pages/37570
+            [content] => Lichenobactridium; Lichenobactridium P. Diederich & J. Etayo in F.J.A. Daniels et al., 1995
+        )*/
+        $taxon = new \eol_schema\Taxon();
+        $taxon->EOLid = $eol_rec['id'];
+        $taxon->EOLidAnnotations = $eol_rec['content'];
+        foreach($fields as $field) {
+            $var = pathinfo($field, PATHINFO_BASENAME);
+            if(in_array($var, array('genericName'))) continue;
+            $taxon->$var = $rec[$field];
+        }
+        $this->archive_builder->write_object_to_file($taxon);
+    }
+    private function get_actual_name($ret, $sciname)
+    {
+        foreach($ret['results'] as $r) {
+            /*Array(
+                [id] => 37570
+                [title] => Lichenobactridium
+                [link] => https://eol.org/pages/37570
+                [content] => Lichenobactridium; Lichenobactridium P. Diederich & J. Etayo in F.J.A. Daniels et al., 1995
+            )*/
+            if($sciname == $r['title']) return $r;
         }
     }
     private function create_taxon_archive($a)
