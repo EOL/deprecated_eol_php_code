@@ -6,9 +6,9 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 'gbif_classification';
-require_library('connectors/GBIF_backboneAPI');
+require_library('connectors/GBIF_classificationAPI');
 
-$func = new GBIF_backboneAPI($resource_id);
+$func = new GBIF_classificationAPI($resource_id);
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id);

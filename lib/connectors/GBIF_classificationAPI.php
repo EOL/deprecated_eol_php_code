@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-// connector: [gbif_backbone.php]
-class GBIF_backboneAPI
+// connector: [gbif_classification.php]
+class GBIF_classificationAPI
 {
     function __construct($folder)
     {
@@ -24,17 +24,17 @@ class GBIF_backboneAPI
     }
     private function access_dwca()
     {   
-        // /* un-comment in real operation
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
-        // */
-        /* local when developing
+        */
+        // /* local when developing
         $paths = Array(
             "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
             "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
         );
-        */
+        // */
         return $paths;
     }
     function start()
@@ -56,11 +56,10 @@ class GBIF_backboneAPI
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         $this->archive_builder->finalize(TRUE);
 
-        // /* un-comment in real operation
-        // remove temp dir
+        /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        // */
+        */
     }
     private function process_taxon($meta)
     {   //print_r($meta);
@@ -81,33 +80,21 @@ class GBIF_backboneAPI
                 $k++;
             }
             // print_r($rec); exit;
-            /*Array
-            (
-                [http://rs.tdwg.org/dwc/terms/taxonID] => 9651193
-                [http://rs.tdwg.org/dwc/terms/datasetID] => 61a5f178-b5fb-4484-b6d8-9b129739e59d
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 9651193                   [http://rs.tdwg.org/dwc/terms/datasetID] => 61a5f178-b5fb-4484-b6d8-9b129739e59d
                 [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
-                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
-                [http://rs.tdwg.org/dwc/terms/originalNameUsageID] => 
-                [http://rs.tdwg.org/dwc/terms/scientificName] => SH200216.07FU
-                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => 
-                [http://rs.gbif.org/terms/1.0/canonicalName] => 
-                [http://rs.gbif.org/terms/1.0/genericName] => 
-                [http://rs.tdwg.org/dwc/terms/specificEpithet] => 
-                [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] =>               [http://rs.tdwg.org/dwc/terms/originalNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/scientificName] => SH200216.07FU      [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => 
+                [http://rs.gbif.org/terms/1.0/canonicalName] =>                     [http://rs.gbif.org/terms/1.0/genericName] => 
+                [http://rs.tdwg.org/dwc/terms/specificEpithet] =>                   [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
                 [http://rs.tdwg.org/dwc/terms/taxonRank] => unranked
-                [http://rs.tdwg.org/dwc/terms/nameAccordingTo] => 
-                [http://rs.tdwg.org/dwc/terms/namePublishedIn] => 
-                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
-                [http://rs.tdwg.org/dwc/terms/nomenclaturalStatus] => 
+                [http://rs.tdwg.org/dwc/terms/nameAccordingTo] =>                   [http://rs.tdwg.org/dwc/terms/namePublishedIn] => 
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted          [http://rs.tdwg.org/dwc/terms/nomenclaturalStatus] => 
                 [http://rs.tdwg.org/dwc/terms/taxonRemarks] => 
-                [http://rs.tdwg.org/dwc/terms/kingdom] => Fungi
-                [http://rs.tdwg.org/dwc/terms/phylum] => Ascomycota
-                [http://rs.tdwg.org/dwc/terms/class] => 
-                [http://rs.tdwg.org/dwc/terms/order] => 
-                [http://rs.tdwg.org/dwc/terms/family] => 
-                [http://rs.tdwg.org/dwc/terms/genus] => 
-            )
-            */
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Fungi                     [http://rs.tdwg.org/dwc/terms/phylum] => Ascomycota
+                [http://rs.tdwg.org/dwc/terms/class] =>                             [http://rs.tdwg.org/dwc/terms/order] => 
+                [http://rs.tdwg.org/dwc/terms/family] =>                            [http://rs.tdwg.org/dwc/terms/genus] => 
+            )*/
             
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7921305) { print_r($rec); exit; } //debug only
             
@@ -145,7 +132,7 @@ class GBIF_backboneAPI
                 */
                 
             }
-            // if($i >= 90) break;
+            if($i >= 90) break;
         }
     }
     private function log_record($rec, $sciname = '')
