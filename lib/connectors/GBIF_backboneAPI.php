@@ -12,7 +12,7 @@ class GBIF_backboneAPI
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
-            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5, 'cache' => 1);
+            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
 
         if(Functions::is_production()) {
             $this->service["backbone_dwca"] = "http://rs.gbif.org/datasets/backbone/backbone-current.zip";
@@ -20,20 +20,21 @@ class GBIF_backboneAPI
         else {
             $this->service["backbone_dwca"] = "http://localhost/cp/GBIF_Backbone_Archive/backbone-current.zip";
         }
+        $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'gbif_names_not_found_in_eol.txt';
     }
     private function access_dwca()
     {   
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
-        */
-        // /* local when developing
+        // */
+        /* local when developing
         $paths = Array(
             "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
             "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
         );
-        // */
+        */
         return $paths;
     }
     function start()
@@ -48,18 +49,21 @@ class GBIF_backboneAPI
             return false;
         }
 
+        if(!($file = Functions::file_open($this->log_file, "w"))) return;
+        fwrite($file, implode("\t", array('taxonID', 'scientificName', 'searched string'))."\n");
+        fclose($file);
+        
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         $this->archive_builder->finalize(TRUE);
-        // exit;
-        /* un-comment in real operation
+
+        // /* un-comment in real operation
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
     }
     private function process_taxon($meta)
     {   //print_r($meta);
-        
         require_library('connectors/Eol_v3_API');
         $func = new Eol_v3_API();
         
@@ -104,31 +108,51 @@ class GBIF_backboneAPI
                 [http://rs.tdwg.org/dwc/terms/genus] => 
             )
             */
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') continue;
+            
+            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7921305) { print_r($rec); exit; } //debug only
+            
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'accepted') $synonymYN = false;
+            else                                                                   $synonymYN = true;
             
             if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
             elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
-            else continue;
-            if(!$sciname) continue;
+            else { self::log_record($rec); continue; }
+            if(!$sciname) { self::log_record($rec); continue; }
 
             $str = substr($sciname,0,2);
             if(strtoupper($str) == $str) { //probably viruses
                 // echo "\nwill ignore [$sciname]\n";
-                continue;
+                self::log_record($rec, $sciname); continue;
             }
             else {
-                echo "\nwill process [$i][$sciname] ";
-                // print_r($rec);
+                // /*
+                echo "\nwill process [$i][$sciname] "; // print_r($rec);
                 if($ret = $func->search_name($sciname, $this->download_options)) {
                     echo " - ".count($ret['results']);
-                    if($eol_rec = self::get_actual_name($ret, $sciname)) {
-                        self::write_archive($rec, $eol_rec);
-                    }
-                    else continue;
+                    if($eol_rec = self::get_actual_name($ret, $sciname, $synonymYN)) self::write_archive($rec, $eol_rec);
+                    else { self::log_record($rec, $sciname); continue; }
                 }
+                // */
+                
+                /* good debug
+                $eol_rec = Array(
+                    'id' => 173,
+                    'title' => 'elix',
+                    'link' => 'https://eol.org/pages/37570',
+                    'content' => ''
+                );
+                self::write_archive($rec, $eol_rec);
+                */
+                
             }
-            if($i >= 60) break;
+            // if($i >= 80) break;
         }
+    }
+    private function log_record($rec, $sciname = '')
+    {
+        if(!($file = Functions::file_open($this->log_file, "a"))) return;
+        fwrite($file, implode("\t", array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], $rec['http://rs.tdwg.org/dwc/terms/scientificName'], "[$sciname]"))."\n");
+        fclose($file);
     }
     private function write_archive($rec, $eol_rec)
     {
@@ -151,9 +175,9 @@ class GBIF_backboneAPI
         }
         $this->archive_builder->write_object_to_file($taxon);
     }
-    private function get_actual_name($ret, $sciname)
+    private function get_actual_name($ret, $sciname, $synonymYN)
     {
-        foreach($ret['results'] as $r) {
+        foreach($ret['results'] as $r) {    //first loop gets exact match only
             /*Array(
                 [id] => 37570
                 [title] => Lichenobactridium
@@ -162,7 +186,9 @@ class GBIF_backboneAPI
             )*/
             if($sciname == $r['title']) return $r;
         }
+        if($ret['results']) return $ret['results'][0]; //alternatively, just return the first record
     }
+    /*
     private function create_taxon_archive($a)
     {
         $taxon = new \eol_schema\Taxon();
@@ -174,5 +200,6 @@ class GBIF_backboneAPI
         $taxon->acceptedNameUsageID      = self::numerical_part(@$a[$this->map['acceptedNameUsageID']]);
         $this->archive_builder->write_object_to_file($taxon);
     }
+    */
 }
 ?>
