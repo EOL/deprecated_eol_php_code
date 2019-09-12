@@ -79,8 +79,42 @@ class GBIF_classificationAPI
                     $k++;
                     $rec[$field] = $reck[$k];
                 }
-                print_r($rec); exit;
+                // print_r($rec); exit;
+                // /* breakdown when caching
+                $cont = false;
+                // if($i >=  1    && $i < $m)    $cont = true;          //1st run
+                if($i >=  $m   && $i < $m*2)  $cont = true;             //5th run
+                // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //2nd run
+                // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //3rd run
+                // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //4th run
+                if(!$cont) continue;
+                // */
 
+                // print_r($rec); exit;
+                if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') { self::log_record($rec); continue; }
+                if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'accepted') $synonymYN = false;
+                else                                                                   $synonymYN = true;
+
+                if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
+                elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
+                else { self::log_record($rec); continue; }
+                if(!$sciname) { self::log_record($rec); continue; }
+
+                $str = substr($sciname,0,2);
+                if(strtoupper($str) == $str) { //probably viruses
+                    // echo "\nwill ignore [$sciname]\n";
+                    self::log_record($rec, $sciname); continue;
+                }
+                else {
+                    // /*
+                    if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$i][$sciname] "; // print_r($rec);
+                    if($ret = $func->search_name($sciname, $this->download_options)) {
+                        if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
+                        if($eol_rec = self::get_actual_name($ret, $sciname, $synonymYN)) self::write_archive($rec, $eol_rec);
+                        else { self::log_record($rec, $sciname); continue; }
+                    }
+                    // */
+                }
             }
         }
     }
