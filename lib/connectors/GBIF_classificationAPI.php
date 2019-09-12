@@ -67,7 +67,8 @@ class GBIF_classificationAPI
     }
     
     private function process_taxon_v2()
-    {   $i = 0;
+    {   echo "\nprocess_taxon...\n"; $i = 0;
+        $m = 5858200/5; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator('/extra/other_files/GBIF_backbone/Taxon.tsv') as $line => $row) {
             if(!$row) continue;
             $i++;
