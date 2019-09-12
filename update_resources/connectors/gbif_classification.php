@@ -3,6 +3,7 @@ namespace php_active_record;
 /* GBIF classification update - https://eol-jira.bibalex.org/browse/DATA-1826 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = true;
 ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 'gbif_classification';
