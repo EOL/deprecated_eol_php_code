@@ -164,7 +164,10 @@ class GBIF_classificationAPI
             
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7009828) { print_r($rec); exit; } //debug only
 
-            if($taxonomicStatus != 'accepted') { self::log_record($rec, $taxonomicStatus); continue; }
+            if($taxonomicStatus != 'accepted') {
+                // self::log_record($rec, $taxonomicStatus); 
+                continue;
+            }
 
             if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
             elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
@@ -174,7 +177,8 @@ class GBIF_classificationAPI
             $str = substr($sciname,0,2);
             if(strtoupper($str) == $str) { //probably viruses
                 // echo "\nwill ignore [$sciname]\n";
-                self::log_record($rec, $sciname); continue;
+                // self::log_record($rec, $sciname);
+                continue;
             }
             else {
                 $eol_rec = Array('id' => '', 'title' => '', 'link' => '', 'content' => '');
