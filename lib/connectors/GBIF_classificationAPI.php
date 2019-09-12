@@ -24,17 +24,17 @@ class GBIF_classificationAPI
     }
     private function access_dwca()
     {   
-        // /* un-comment in real operation
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
-        // */
-        /* local when developing
+        */
+        // /* local when developing
         $paths = Array(
             "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
             "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
         );
-        */
+        // */
         return $paths;
     }
     function start_v2()
@@ -60,10 +60,10 @@ class GBIF_classificationAPI
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         $this->archive_builder->finalize(TRUE);
 
-        // /* un-comment in real operation
+        /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        // */
+        */
     }
     private function process_taxon_v2()
     {   echo "\nprocess_taxon...\n"; $i = 0;
@@ -92,8 +92,6 @@ class GBIF_classificationAPI
 
                 // print_r($rec); exit;
                 if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') { self::log_record($rec); continue; }
-                if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'accepted') $synonymYN = false;
-                else                                                                   $synonymYN = true;
 
                 if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
                 elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
@@ -109,7 +107,7 @@ class GBIF_classificationAPI
                     if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$i][$sciname] "; // print_r($rec);
                     if($ret = $func->search_name($sciname, $this->download_options)) {
                         if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                        if($eol_rec = self::get_actual_name($ret, $sciname, $synonymYN)) self::write_archive($rec, $eol_rec);
+                        if($eol_rec = self::get_actual_name($ret, $sciname)) self::write_archive($rec, $eol_rec);
                         else { self::log_record($rec, $sciname); continue; }
                     }
                 }
@@ -136,7 +134,7 @@ class GBIF_classificationAPI
                 $k++;
             }
             
-            // /* breakdown when caching
+            /* breakdown when caching
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;          //1st run
             if($i >=  $m   && $i < $m*2)  $cont = true;             //5th run
@@ -144,7 +142,7 @@ class GBIF_classificationAPI
             // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //3rd run
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //4th run
             if(!$cont) continue;
-            // */
+            */
             
             // print_r($rec); exit;
             /*Array(
@@ -167,9 +165,6 @@ class GBIF_classificationAPI
 
             if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') { self::log_record($rec); continue; }
 
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'accepted') $synonymYN = false;
-            else                                                                   $synonymYN = true;
-            
             if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
             elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
             else { self::log_record($rec); continue; }
@@ -181,27 +176,18 @@ class GBIF_classificationAPI
                 self::log_record($rec, $sciname); continue;
             }
             else {
+                $eol_rec = Array('id' => '', 'title' => '', 'link' => '', 'content' => '');
                 // /*
                 if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$i][$sciname] "; // print_r($rec);
                 if($ret = $func->search_name($sciname, $this->download_options)) {
                     if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                    if($eol_rec = self::get_actual_name($ret, $sciname, $synonymYN)) self::write_archive($rec, $eol_rec);
-                    else { self::log_record($rec, $sciname); continue; }
+                    $eol_rec = self::get_actual_name($ret, $sciname);
                 }
-                // */
-                
-                /* good debug
-                $eol_rec = Array(
-                    'id' => 173,
-                    'title' => 'elix',
-                    'link' => 'https://eol.org/pages/37570',
-                    'content' => ''
-                );
                 self::write_archive($rec, $eol_rec);
-                */
-                
+                if(!$eol_rec['id']) { self::log_record($rec, $sciname); continue; }
+                // */
             }
-            // if($i >= 90) break;
+            if($i >= 90) break;
         }
     }
     private function log_record($rec, $sciname = '')
@@ -231,7 +217,7 @@ class GBIF_classificationAPI
         }
         $this->archive_builder->write_object_to_file($taxon);
     }
-    private function get_actual_name($ret, $sciname, $synonymYN)
+    private function get_actual_name($ret, $sciname)
     {
         foreach($ret['results'] as $r) { //first loop gets exact match only
             /*Array(
