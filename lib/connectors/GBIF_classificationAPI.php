@@ -37,6 +37,10 @@ class GBIF_classificationAPI
         */
         return $paths;
     }
+    function start_v2()
+    {
+        self::process_taxon_v2(); //just temporary
+    }
     function start()
     {   $paths = self::access_dwca();
         $archive_path = $paths['archive_path'];
@@ -60,6 +64,24 @@ class GBIF_classificationAPI
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         // */
+    }
+    
+    private function process_taxon_v2()
+    {   $i = 0;
+        foreach(new FileIterator('/extra/other_files/GBIF_backbone/Taxon.tsv') as $line => $row) {
+            if(!$row) continue;
+            $i++;
+            if($i == 1) $fields = explode("\t", $row);
+            else {
+                $reck = explode("\t", $row);
+                $k = -1; $rec = array();
+                foreach($fields as $field) {
+                    $k++;
+                    $rec[$field] = $reck[$k];
+                }
+            }
+            print_r($rec); exit;
+        }
     }
     private function process_taxon($meta)
     {   //print_r($meta);
