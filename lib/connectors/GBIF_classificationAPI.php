@@ -79,8 +79,9 @@ class GBIF_classificationAPI
                     $k++;
                     $rec[$field] = $reck[$k];
                 }
+                print_r($rec); exit;
+
             }
-            print_r($rec); exit;
         }
     }
     private function process_taxon($meta)
