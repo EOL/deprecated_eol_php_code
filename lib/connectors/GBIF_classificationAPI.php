@@ -85,8 +85,8 @@ class GBIF_classificationAPI
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
             // if($i >=  $m   && $i < $m*2)  $cont = true;
-            if($i >=  $m*2 && $i < $m*3)  $cont = true;         //2nd run
-            // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+            // if($i >=  $m*2 && $i < $m*3)  $cont = true;         //2nd run
+            if($i >=  $m*3 && $i < $m*4)  $cont = true;             //3rd run
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;
             if(!$cont) continue;
             // */
