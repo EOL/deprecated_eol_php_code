@@ -67,7 +67,7 @@ class GBIF_classificationAPI
         $func = new Eol_v3_API();
         
         echo "\nprocess_taxon...\n"; $i = 0;
-        $m = 5858200/3; //total rows = 5,858,143. Rounded to 5858200
+        $m = 5858200/5; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -84,8 +84,10 @@ class GBIF_classificationAPI
             // /* breakdown when caching
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;
-            if($i >=  $m   && $i < $m*2)  $cont = true;
-            // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+            // if($i >=  $m   && $i < $m*2)  $cont = true;
+            if($i >=  $m*2 && $i < $m*3)  $cont = true;         //2nd run
+            // if($i >=  $m*3 && $i < $m*4)  $cont = true;
+            // if($i >=  $m*4 && $i < $m*5)  $cont = true;
             if(!$cont) continue;
             // */
             
