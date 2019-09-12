@@ -28,10 +28,10 @@ $func = new OpenData_utility();
 $func->copy_uploaded_files_to_a_telling_name();
 */
 
-/* create a text file with resource_id and new_url. Done, run once only.
+// /* create a text file with resource_id and new_url. And populate the table resource_url. Done, run once only.
 require_library('OpenData_utility');
 $func = new OpenData_utility();
 $func->create_resourceID_newURL_file();
-*/
+// */
 
 ?>

@@ -8,6 +8,7 @@ class OpenData_utility
     {   
         if($GLOBALS['ENV_DEBUG'] == false) error_reporting(0);
         $this->mysqli =& $GLOBALS['db_connection'];
+        $this->db = 'v259_ckan_V2';
     }
     function create_resourceID_newURL_file()
     {
@@ -41,10 +42,10 @@ class OpenData_utility
         }
         fclose($WRITE);
         
-        $sql = "TRUNCATE TABLE v259_ckan.resource_url;";
+        $sql = "TRUNCATE TABLE ".$this->db.".resource_url;";
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated OK.\n";
         
-        $sql = "LOAD data local infile '".$txt_file."' into table v259_ckan.resource_url;";
+        $sql = "LOAD data local infile '".$txt_file."' into table ".$this->db.".resource_url;";
         if($result = $this->mysqli->query($sql)) echo "\nSaved table to MySQL\n";
     }
     /* Ran already. Run once only. Can be commented now.
@@ -105,7 +106,7 @@ class OpenData_utility
                 if(!$line[0]) break;
                 $file_id = $line[0];
                 $file_path = $line[1];
-                $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.id LIKE '%".$file_id."'");
+                $result = $this->mysqli->query("SELECT t.* FROM v259_ckan_V2.resource t WHERE t.id LIKE '%".$file_id."'");
                 if($result && $row=$result->fetch_assoc()) {
                     @$debug['found in id']++;
                     @$debug['url_type'][$row['url_type']]++;
@@ -113,7 +114,7 @@ class OpenData_utility
                     self::write_2text($arr, $WRITE);
                 }
                 else {
-                    $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.url LIKE '%".$file_id."%'");
+                    $result = $this->mysqli->query("SELECT t.* FROM v259_ckan_V2.resource t WHERE t.url LIKE '%".$file_id."%'");
                     if($result && $row=$result->fetch_assoc()) {
                         @$debug['found in url']++;
                         @$debug['url_type'][$row['url_type']]++;
@@ -121,7 +122,7 @@ class OpenData_utility
                         self::write_2text($arr, $WRITE);
                     }
                     else {
-                        $result = $this->mysqli->query("SELECT t.* FROM v259_ckan.resource t WHERE t.revision_id LIKE '%".$file_id."%'");
+                        $result = $this->mysqli->query("SELECT t.* FROM v259_ckan_V2.resource t WHERE t.revision_id LIKE '%".$file_id."%'");
                         if($result && $row=$result->fetch_assoc()) {
                             @$debug['found in revision_id']++; //nothing was found here...
                             @$debug['url_type'][$row['url_type']]++;
