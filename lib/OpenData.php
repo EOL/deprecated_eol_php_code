@@ -52,17 +52,17 @@ class OpenData
     }
     function get_organization_by_id($org_id)
     {
-        $sql = "SELECT g.* FROM v259_ckan.group_list g WHERE g.id = '$org_id'";
+        $sql = "SELECT g.* FROM v259_ckan_V2.group_list g WHERE g.id = '$org_id'";
         self::run_query($sql, 'print json');
     }
     function get_dataset_by_id($dataset_id)
     {
-        $sql = "SELECT p.* FROM v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
+        $sql = "SELECT p.* FROM v259_ckan_V2.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
         if($row = self::run_query($sql)) {
             self::print_json($row);
         }
         else {
-            $sql = "SELECT p.* FROM v259_ckan.package p WHERE p.name = '$dataset_id' AND p.type = 'dataset'";
+            $sql = "SELECT p.* FROM v259_ckan_V2.package p WHERE p.name = '$dataset_id' AND p.type = 'dataset'";
             self::run_query($sql, 'print json');
         }
     }
@@ -70,16 +70,16 @@ class OpenData
     {
         // echo "<pre>"; print_r($info); echo "</pre>";
         if(self::is_this_dataset_id($info['id'])) {
-            // $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.package_id = '".$info['id']."'";
-            $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan.resource r 
-            LEFT JOIN v259_ckan.resource_url u ON r.id = u.id WHERE r.package_id = '".$info['id']."'";
+            // $sql = "SELECT r.* FROM v259_ckan_V2.resource r WHERE r.package_id = '".$info['id']."'";
+            $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan_V2.resource r 
+            LEFT JOIN v259_ckan_V2.resource_url u ON r.id = u.id WHERE r.package_id = '".$info['id']."'";
             self::run_query_return_all($sql, 'print json', array('id', 'name', 'active_url', 'url', 'description', 'format'));
         }
         else {
             if($val = self::get_dataset_id_using_name($info['id'])) {
-                // $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.package_id = '".$val."'";
-                $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan.resource r 
-                LEFT JOIN v259_ckan.resource_url u ON r.id = u.id WHERE r.package_id = '".$val."'";
+                // $sql = "SELECT r.* FROM v259_ckan_V2.resource r WHERE r.package_id = '".$val."'";
+                $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan_V2.resource r 
+                LEFT JOIN v259_ckan_V2.resource_url u ON r.id = u.id WHERE r.package_id = '".$val."'";
                 
                 self::run_query_return_all($sql, 'print json', array('id', 'name', 'active_url', 'url', 'description', 'format'));
             }
@@ -88,26 +88,26 @@ class OpenData
     }
     private function get_dataset_id_using_name($name)
     {
-        $sql = "SELECT p.id FROM v259_ckan.package p WHERE p.name = '$name' AND p.type = 'dataset'";
+        $sql = "SELECT p.id FROM v259_ckan_V2.package p WHERE p.name = '$name' AND p.type = 'dataset'";
         if($row = self::run_query($sql)) {
             return $row['id'];
         }
     }
     private function is_this_dataset_id($dataset_id)
     {
-        $sql = "SELECT p.id FROM v259_ckan.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
+        $sql = "SELECT p.id FROM v259_ckan_V2.package p WHERE p.id = '$dataset_id' AND p.type = 'dataset'";
         if(self::run_query($sql)) return true;
         else                      return false;
     }
     function get_resource_by_id($resource_id)
     {
-        // $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.id = '$resource_id'";
-        $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan.resource r LEFT JOIN v259_ckan.resource_url u ON r.id = u.id WHERE r.id = '$resource_id'";
+        // $sql = "SELECT r.* FROM v259_ckan_V2.resource r WHERE r.id = '$resource_id'";
+        $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan_V2.resource r LEFT JOIN v259_ckan_V2.resource_url u ON r.id = u.id WHERE r.id = '$resource_id'";
         self::run_query($sql, 'print json');
     }
     function get_resource_by_id_v2($resource_id)
     {
-        $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan.resource r LEFT JOIN v259_ckan.resource_url u ON r.id = u.id WHERE r.id = ?";
+        $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan_V2.resource r LEFT JOIN v259_ckan_V2.resource_url u ON r.id = u.id WHERE r.id = ?";
         echo "<hr>$resource_id<hr>";
 
         $mysqli = $GLOBALS['db_connection'];
@@ -209,19 +209,19 @@ class OpenData
     }
     function get_organizations($order_by)
     {
-        $sql = "SELECT g.* FROM v259_ckan.group_list g WHERE g.type = 'organization' ORDER BY $order_by";
+        $sql = "SELECT g.* FROM v259_ckan_V2.group_list g WHERE g.type = 'organization' ORDER BY $order_by";
         self::run_query_return_all($sql, 'print json');
     }
     function get_datasets($order_by)
     {
-        $sql = "SELECT p.* FROM v259_ckan.package p WHERE p.type = 'dataset' ORDER BY $order_by";
+        $sql = "SELECT p.* FROM v259_ckan_V2.package p WHERE p.type = 'dataset' ORDER BY $order_by";
         self::run_query_return_all($sql, 'print json');
     }
     function get_resources($order_by)
     {
-        // $sql = "SELECT r.* FROM v259_ckan.resource r WHERE r.state = 'active' ORDER BY $order_by";
-        $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan.resource r 
-        LEFT JOIN v259_ckan.resource_url u ON r.id = u.id WHERE r.state = 'active' ORDER BY $order_by";
+        // $sql = "SELECT r.* FROM v259_ckan_V2.resource r WHERE r.state = 'active' ORDER BY $order_by";
+        $sql = "SELECT if(u.url is null, r.url, u.url) as active_url, r.* from v259_ckan_V2.resource r 
+        LEFT JOIN v259_ckan_V2.resource_url u ON r.id = u.id WHERE r.state = 'active' ORDER BY $order_by";
         
         self::run_query_return_all($sql, 'print json');
     }
