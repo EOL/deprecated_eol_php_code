@@ -115,9 +115,9 @@ class GBIF_classificationAPI
             }
             else {
                 // /*
-                if($GLOBALS['ENV_DEBUG'] == false) echo "\nwill process [$i][$sciname] "; // print_r($rec);
+                if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$i][$sciname] "; // print_r($rec);
                 if($ret = $func->search_name($sciname, $this->download_options)) {
-                    if($GLOBALS['ENV_DEBUG'] == false) echo " - ".count($ret['results']);
+                    if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
                     if($eol_rec = self::get_actual_name($ret, $sciname, $synonymYN)) self::write_archive($rec, $eol_rec);
                     else { self::log_record($rec, $sciname); continue; }
                 }
