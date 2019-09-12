@@ -160,10 +160,11 @@ class GBIF_classificationAPI
                 [http://rs.tdwg.org/dwc/terms/class] =>                             [http://rs.tdwg.org/dwc/terms/order] => 
                 [http://rs.tdwg.org/dwc/terms/family] =>                            [http://rs.tdwg.org/dwc/terms/genus] => 
             )*/
+            $taxonomicStatus = $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'];
             
-            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7921305) { print_r($rec); exit; } //debug only
+            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7009828) { print_r($rec); exit; } //debug only
 
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') { self::log_record($rec); continue; }
+            if($taxonomicStatus != 'accepted') { self::log_record($rec, $taxonomicStatus); continue; }
 
             if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
             elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
