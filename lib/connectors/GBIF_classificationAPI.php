@@ -67,8 +67,9 @@ class GBIF_classificationAPI
         $func = new Eol_v3_API();
         
         echo "\nprocess_taxon...\n"; $i = 0;
+        $m = 5858200/3; //total rows = 5,858,143. Rounded to 5858200
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 10000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -79,6 +80,15 @@ class GBIF_classificationAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
+            
+            // /* breakdown when caching
+            $cont = false;
+            // if($i >=  1    && $i < $m)    $cont = true;
+            if($i >=  $m   && $i < $m*2)  $cont = true;
+            // if($i >=  $m*2 && $i < $m*3)  $cont = true;
+            if(!$cont) continue;
+            // */
+            
             // print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/taxonID] => 9651193                   [http://rs.tdwg.org/dwc/terms/datasetID] => 61a5f178-b5fb-4484-b6d8-9b129739e59d
