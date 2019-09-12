@@ -24,17 +24,17 @@ class GBIF_classificationAPI
     }
     private function access_dwca()
     {   
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
-        */
-        // /* local when developing
+        // */
+        /* local when developing
         $paths = Array(
             "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
             "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
         );
-        // */
+        */
         return $paths;
     }
     function start()
@@ -56,10 +56,10 @@ class GBIF_classificationAPI
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         $this->archive_builder->finalize(TRUE);
 
-        /* un-comment in real operation
+        // /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
     }
     private function process_taxon($meta)
     {   //print_r($meta);
@@ -97,7 +97,9 @@ class GBIF_classificationAPI
             )*/
             
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7921305) { print_r($rec); exit; } //debug only
-            
+
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') { self::log_record($rec); continue; }
+
             if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'accepted') $synonymYN = false;
             else                                                                   $synonymYN = true;
             
