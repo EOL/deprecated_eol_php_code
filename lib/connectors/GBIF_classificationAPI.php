@@ -65,7 +65,6 @@ class GBIF_classificationAPI
         echo ("\n temporary directory removed: " . $temp_dir);
         // */
     }
-    
     private function process_taxon_v2()
     {   echo "\nprocess_taxon...\n"; $i = 0;
         $m = 5858200/5; //total rows = 5,858,143. Rounded to 5858200. For caching.
@@ -107,14 +106,12 @@ class GBIF_classificationAPI
                     self::log_record($rec, $sciname); continue;
                 }
                 else {
-                    // /*
                     if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$i][$sciname] "; // print_r($rec);
                     if($ret = $func->search_name($sciname, $this->download_options)) {
                         if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
                         if($eol_rec = self::get_actual_name($ret, $sciname, $synonymYN)) self::write_archive($rec, $eol_rec);
                         else { self::log_record($rec, $sciname); continue; }
                     }
-                    // */
                 }
             }
         }
