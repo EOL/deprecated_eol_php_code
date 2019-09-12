@@ -134,7 +134,7 @@ class GBIF_classificationAPI
                 */
                 
             }
-            if($i >= 90) break;
+            // if($i >= 90) break;
         }
     }
     private function log_record($rec, $sciname = '')
