@@ -68,7 +68,7 @@ class GBIF_classificationAPI
         
         echo "\nprocess_taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 10000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -115,9 +115,9 @@ class GBIF_classificationAPI
             }
             else {
                 // /*
-                echo "\nwill process [$i][$sciname] "; // print_r($rec);
+                if($GLOBALS['ENV_DEBUG'] == false) echo "\nwill process [$i][$sciname] "; // print_r($rec);
                 if($ret = $func->search_name($sciname, $this->download_options)) {
-                    echo " - ".count($ret['results']);
+                    if($GLOBALS['ENV_DEBUG'] == false) echo " - ".count($ret['results']);
                     if($eol_rec = self::get_actual_name($ret, $sciname, $synonymYN)) self::write_archive($rec, $eol_rec);
                     else { self::log_record($rec, $sciname); continue; }
                 }
