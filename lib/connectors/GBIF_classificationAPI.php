@@ -24,17 +24,17 @@ class GBIF_classificationAPI
     }
     private function access_dwca()
     {   
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
-        */
-        // /* local when developing
+        // */
+        /* local when developing
         $paths = Array(
             "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
             "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
         );
-        // */
+        */
         return $paths;
     }
     function start_v2()
@@ -60,10 +60,10 @@ class GBIF_classificationAPI
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         $this->archive_builder->finalize(TRUE);
 
-        /* un-comment in real operation
+        // /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
     }
     private function process_taxon_v2()
     {   echo "\nprocess_taxon...\n"; $i = 0;
@@ -134,15 +134,15 @@ class GBIF_classificationAPI
                 $k++;
             }
             
-            /* breakdown when caching
+            // /* breakdown when caching
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;          //1st run
-            if($i >=  $m   && $i < $m*2)  $cont = true;             //5th run
-            // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //2nd run
-            // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //3rd run
-            // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //4th run
+            if($i >=  $m   && $i < $m*2)  $cont = true;             //2nd run
+            // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //3rd run
+            // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run
+            // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run
             if(!$cont) continue;
-            */
+            // */
             
             // print_r($rec); exit;
             /*Array(
