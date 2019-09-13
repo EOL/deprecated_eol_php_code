@@ -62,7 +62,7 @@ class CITESspeciesAPI
         while($page <= $total_pages) {
             $page++;
             $url = $this->service['taxa'].$page;
-            $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
+            $cmd = 'curl -s "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
             echo "\n$cmd\n";
             $json = self::get_json_from_cache($cmd, $this->download_options);
             $obj = json_decode($json);
@@ -205,7 +205,7 @@ class CITESspeciesAPI
     private function get_distribution_per_id($taxon_id)
     {
         $url = str_replace("taxon_concept_id", $taxon_id, $this->service['distribution']);
-        $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
+        $cmd = 'curl -s "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
         echo "\n$cmd\n";
         $json = self::get_json_from_cache($cmd, $this->download_options);
         $obj = json_decode($json);
@@ -346,7 +346,7 @@ class CITESspeciesAPI
     {
         $page = 1;
         $url = $this->service['taxa'].$page;
-        $cmd = 'curl "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
+        $cmd = 'curl -s "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
         echo "\n$cmd\n";
         $json = self::get_json_from_cache($cmd, $this->download_options);
         $obj = json_decode($json);
