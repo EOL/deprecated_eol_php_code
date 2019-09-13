@@ -63,6 +63,12 @@ class CITESspeciesAPI
             $page++;
             $url = $this->service['taxa'].$page;
             $cmd = 'curl -s "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
+            /* Note to ELI: tried to put -s but may need to add: > /dev/null
+            to make it really quiet...
+            e.g.
+            curl -s 'http://example.com' > /dev/null
+            from: https://unix.stackexchange.com/questions/196549/hide-curl-output
+            */
             echo "\n$cmd\n";
             $json = self::get_json_from_cache($cmd, $this->download_options);
             $obj = json_decode($json);
