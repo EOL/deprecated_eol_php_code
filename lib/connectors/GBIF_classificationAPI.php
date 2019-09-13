@@ -192,7 +192,7 @@ class GBIF_classificationAPI
                 if(!$eol_rec['id']) { self::log_record($rec, $sciname); continue; }
                 // */
             }
-            if($i >= 90) break;
+            // if($i >= 90) break;
         }
     }
     private function log_record($rec, $sciname = '')
