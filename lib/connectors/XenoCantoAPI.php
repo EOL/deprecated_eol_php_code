@@ -265,6 +265,16 @@ class XenoCantoAPI
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
+        
+        $v = new \eol_schema\VernacularName();
+        $v->taxonID         = $rec['taxonID'];
+        $v->vernacularName  = $rec['comname'];
+        $v->language        = 'en';
+        $unique = md5($v->taxonID.$v->vernacularName);
+        if(!isset($this->common_names[$unique])) {
+            $this->archive_builder->write_object_to_file($v);
+            $this->common_names[$unique] = '';
+        }
     }
     private function write_agent($a)
     {
