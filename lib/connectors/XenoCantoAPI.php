@@ -43,9 +43,8 @@ class XenoCantoAPI
                     }
                     $rec = array_map('trim', $rec);
                     if($rec['sciname'] && $rec['url']) {
-                        self::write_taxon($rec);
-                        $media = self::prepare_media_records($rec);
-                        
+                        $ret = self::prepare_media_records($rec);
+                        self::write_taxon($ret['orig_rec']);
                     }
                     break;
                 }
@@ -53,15 +52,33 @@ class XenoCantoAPI
             else echo "\nnothing found...\n";
         }
         else echo "\nno HTML\n";
-        exit;
-        // $this->archive_builder->finalize(TRUE);
+        // exit("\n111\n");
+        $this->archive_builder->finalize(TRUE);
+    }
+    private function parse_order_family($html, $orig_rec)
+    {
+        // Order: <a href='/explore/taxonomy?o=STRUTHIONIFORMES'>STRUTHIONIFORMES</a>
+        if(preg_match("/Order:(.*?)<\/a>/ims", $html, $arr)) {
+            if(preg_match("/o=(.*?)\'/ims", $arr[1], $arr2)) {
+                $orig_rec['order'] = ucfirst(strtolower($arr2[1]));
+            }
+        }
+        // Family: <a href='/explore/taxonomy?f=Struthionidae'>Struthionidae</a> (Ostriches)
+        if(preg_match("/Family:(.*?)<\/a>/ims", $html, $arr)) {
+            if(preg_match("/\?f=(.*?)\'/ims", $arr[1], $arr2)) {
+                $orig_rec['family'] = ucfirst($arr2[1]);
+            }
+        }
+        $orig_rec['taxonID'] = strtolower(str_replace(" ", "-", $orig_rec['sciname']));
+        // print_r($orig_rec); exit;
+        return $orig_rec;
     }
     private function prepare_media_records($rec)
     {
-        print_r($rec);
+        $orig_rec = $rec;
         if($html = Functions::lookup_with_cache($this->domain.$rec['url'], $this->download_options)) {
             // echo $html;
-            
+            $orig_rec = self::parse_order_family($html, $orig_rec);
             if(preg_match("/<table class=\"results\">(.*?)<\/table>/ims", $html, $arr)) {
                 // echo $arr[1]; exit;
                 $str = $arr[1];
@@ -98,15 +115,25 @@ class XenoCantoAPI
             }
             
         }
-        print_r($final); exit;
+        // print_r($final); exit;
+        return array('orig_rec' => $orig_rec, 'media' => $final);
     }
     private function write_taxon($rec)
     {
+        // print_r($rec); exit;
+        /*Array(
+            [comname] => Common Ostrich
+            [url] => /species/Struthio-camelus
+            [sciname] => Struthio camelus
+            [order] => Struthioniformes
+            [family] => Struthionidae
+        )*/
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID                  = self::compute_taxonID($a, $taxon->taxonomicStatus);
-        $taxon->scientificName           = $a[$this->map['scientificName']];
-        $taxon->scientificNameAuthorship = @$a[$this->map['scientificNameAuthorship']];
-        $taxon->taxonRank                = self::compute_taxonRank($a);
+        $taxon->taxonID         = $rec['taxonID'];
+        $taxon->scientificName  = $rec['sciname'];
+        $taxon->taxonRank       = 'species';
+        $taxon->order           = $rec['order'];
+        $taxon->family          = $rec['family'];
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
