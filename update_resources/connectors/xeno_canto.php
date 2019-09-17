@@ -3,8 +3,8 @@ namespace php_active_record;
 /* https://eol-jira.bibalex.org/browse/DATA-1816 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = true;
-ini_set('memory_limit','8096M');
+// $GLOBALS['ENV_DEBUG'] = false;
+// ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 'xeno_canto';
 require_library('connectors/XenoCantoAPI');
