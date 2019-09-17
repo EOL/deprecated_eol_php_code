@@ -48,7 +48,7 @@ class XenoCantoAPI
                         self::write_media($ret['media']);
                     }
                     $i++;
-                    if($i >= 10) break;
+                    // if($i >= 10) break;
                 }
             }
             else echo "\nnothing found...\n";
