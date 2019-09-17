@@ -140,15 +140,20 @@ class XenoCantoAPI
             )*/
             $ret1 = self::parse_location_lat_long($rec['Location']);
             if($ret = self::parse_recordist($rec['Recordist'])) $agent_id = self::write_agent($ret);
+            
+            
+            $UsageTerms = self::parse_usageTerms($rec['Cat.nr.']);
+            
+            
             if($uri = self::parse_accessURI($rec['download'])) $accessURI = $uri;
             else continue;
             
             $mr = new \eol_schema\MediaResource();
             $mr->taxonID        = $rec['taxonID'];
             $mr->identifier     = md5($accessURI);
-            // $mr->type           = $o['dataType'];
-            // $mr->language       = 'en';
-            // $mr->format         = $o['mimeType'];
+            $mr->format         = Functions::get_mimetype($accessURI);
+            $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
+            
             // if(substr($o['dc_source'], 0, 4) == "http") $mr->furtherInformationURL = self::use_best_fishbase_server($o['dc_source']);
             $mr->accessURI      = $accessURI;
             // $mr->thumbnailURL   = self::use_best_fishbase_server($o['thumbnailURL']);
@@ -156,7 +161,7 @@ class XenoCantoAPI
             // $mr->Owner          = $o['dc_rightsHolder'];
             // $mr->rights         = $o['dc_rights'];
             // $mr->title          = $o['dc_title'];
-            // $mr->UsageTerms     = $o['license'];
+            $mr->UsageTerms     = $UsageTerms;
             
             $mr->LocationCreated       = $ret1['location'];
             $mr->lat       = $ret1['lat'];
@@ -175,6 +180,14 @@ class XenoCantoAPI
                 $this->object_ids[$mr->identifier] = '';
             }
         }
+    }
+    private function parse_usageTerms($str)
+    {
+        //[Cat.nr.] => style='white-space: nowrap;'><a href="/46725">XC46725 <span title="Creative Commons Attribution-NonCommercial-NoDerivs 2.5">
+        // <a href="//creativecommons.org/licenses/by-nc-nd/2.5/"><img class='icon' width='14' height='14' src='/static/img/cc.png'></a></span>
+        
+        if(preg_match("/href=\"\/\/creativecommons.org(.*?)\"/ims", $str, $arr)) return 'http://creativecommons.org'.$arr[1];
+        
     }
     private function parse_accessURI($str)
     {
