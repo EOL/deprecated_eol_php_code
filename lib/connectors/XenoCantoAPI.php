@@ -13,7 +13,6 @@ class XenoCantoAPI
             'resource_id'        => $this->resource_id,  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
-        // $this->download_options['expire_seconds'] = 0;
         $this->domain = 'https://www.xeno-canto.org';
         $this->species_list = $this->domain.'/collection/species/all';
     }
@@ -23,6 +22,7 @@ class XenoCantoAPI
             // echo $html;
             if(preg_match_all("/<tr class(.*?)<\/tr>/ims", $html, $arr)) {
                 // print_r($arr[1]);
+                $i = 0;
                 foreach($arr[1] as $r) {
                     /*[0] => ='new-species'>
                         <td>
@@ -47,7 +47,8 @@ class XenoCantoAPI
                         self::write_taxon($ret['orig_rec']);
                         self::write_media($ret['media']);
                     }
-                    break;
+                    $i++;
+                    if($i >= 10) break;
                 }
             }
             else echo "\nnothing found...\n";
@@ -90,7 +91,7 @@ class XenoCantoAPI
                         $fields = array_map('trim', $fields);
                         $fields[0] = 'download';
                         $fields[1] = 'sciname';
-                        print_r($fields);
+                        // print_r($fields);
                     }
                 }
                 
@@ -140,10 +141,12 @@ class XenoCantoAPI
                 [12] => Cat.nr.
             )*/
             $ret1 = self::parse_location_lat_long($rec['Location']);
-            if($ret = self::parse_recordist($rec['Recordist'])) $agent_id = self::write_agent($ret);
+            $agent_id = '';
+            if($ret2 = self::parse_recordist($rec['Recordist'])) $agent_id = self::write_agent($ret2);
             
             
-            $UsageTerms = self::parse_usageTerms($rec['Cat.nr.']);
+            if($UsageTerms = self::parse_usageTerms($rec['Cat.nr.'])) {}
+            else continue;
             
             
             if($ret = self::parse_accessURI($rec['download'])) {
@@ -161,25 +164,23 @@ class XenoCantoAPI
             
             $mr->furtherInformationURL = $furtherInformationURL;
             $mr->accessURI      = $accessURI;
-            // $mr->thumbnailURL   = self::use_best_fishbase_server($o['thumbnailURL']);
-            // $mr->CVterm         = $o['subject'];
-            // $mr->Owner          = $o['dc_rightsHolder'];
-            // $mr->rights         = $o['dc_rights'];
-            // $mr->title          = $o['dc_title'];
+            $mr->Owner          = $ret2['agent'];
             $mr->UsageTerms     = $UsageTerms;
-            
-            $mr->LocationCreated    = $ret1['location'];
-            $mr->lat                = $ret1['lat'];
-            $mr->long               = $ret1['long'];
-            
+            $mr->LocationCreated = @$ret1['location'];
+            $mr->lat             = @$ret1['lat'];
+            $mr->long            = @$ret1['long'];
             $mr->description    = self::parse_description($rec['Remarks']);
-            $mr->CreateDate = self::parse_CreateDate($rec);
-            // if(!Functions::is_utf8($mr->description)) continue;
-            // $mr->LocationCreated = $o['location'];
-            // $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
+            $mr->CreateDate     = self::parse_CreateDate($rec);
+            $mr->agentID        = $agent_id;
+
+            /*
+            // $mr->thumbnailURL   = ''
+            // $mr->CVterm         = ''
+            // $mr->rights         = ''
+            // $mr->title          = ''
+            // $mr->bibliographicCitation = '';
             // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-            
-            $mr->agentID = $agent_id;
+            */
             
             if(!isset($this->object_ids[$mr->identifier])) {
                 $this->archive_builder->write_object_to_file($mr);
@@ -209,7 +210,10 @@ class XenoCantoAPI
     {
         //[Cat.nr.] => style='white-space: nowrap;'><a href="/46725">XC46725 <span title="Creative Commons Attribution-NonCommercial-NoDerivs 2.5">
         // <a href="//creativecommons.org/licenses/by-nc-nd/2.5/"><img class='icon' width='14' height='14' src='/static/img/cc.png'></a></span>
-        if(preg_match("/href=\"\/\/creativecommons.org(.*?)\"/ims", $str, $arr)) return 'http://creativecommons.org'.$arr[1];
+        if(preg_match("/href=\"\/\/creativecommons.org(.*?)\"/ims", $str, $arr)) {
+            if(stripos($arr[1], "by-nc-nd") !== false) return false; //invalid license
+            return 'http://creativecommons.org'.$arr[1];
+        }
     }
     private function parse_accessURI($str)
     {
@@ -262,6 +266,7 @@ class XenoCantoAPI
     }
     private function write_agent($a)
     {
+        // print_r($a); exit;
         $r = new \eol_schema\Agent();
         $r->term_name       = $a['agent'];
         $r->agentRole       = 'recorder';
