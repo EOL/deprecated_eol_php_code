@@ -49,7 +49,7 @@ class XenoCantoAPI
                         else continue; //didn't get anything for media
                     }
                     $i++;
-                    // if($i >= 10) break;
+                    if($i >= 10) break;
                 }
             }
             else echo "\nnothing found...\n";
@@ -261,6 +261,9 @@ class XenoCantoAPI
         $taxon->taxonRank       = 'species';
         $taxon->order           = $rec['order'];
         $taxon->family          = $rec['family'];
+        // $taxon->source          = $this->domain.$rec['url'];
+        $taxon->furtherInformationURL = $this->domain.$rec['url'];
+        
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
