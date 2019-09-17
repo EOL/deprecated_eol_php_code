@@ -45,7 +45,8 @@ class XenoCantoAPI
                     if($rec['sciname'] && $rec['url']) {
                         $ret = self::prepare_media_records($rec);
                         self::write_taxon($ret['orig_rec']);
-                        self::write_media($ret['media']);
+                        if($val = $ret['media']) self::write_media($val);
+                        else continue; //didn't get anything for media
                     }
                     $i++;
                     // if($i >= 10) break;
