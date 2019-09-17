@@ -46,7 +46,6 @@ class XenoCantoAPI
                         $ret = self::prepare_media_records($rec);
                         self::write_taxon($ret['orig_rec']);
                         self::write_media($ret['media']);
-                        
                     }
                     break;
                 }
@@ -110,6 +109,8 @@ class XenoCantoAPI
                             }
                             // print_r($rek); exit;
                             $rek['taxonID'] = $orig_rec['taxonID'];
+                            $rek['furtherInformationURL'] = $this->domain.$orig_rec['url'];
+                            
                             $final[] = $rek;
                         }
                     }
@@ -145,7 +146,11 @@ class XenoCantoAPI
             $UsageTerms = self::parse_usageTerms($rec['Cat.nr.']);
             
             
-            if($uri = self::parse_accessURI($rec['download'])) $accessURI = $uri;
+            if($ret = self::parse_accessURI($rec['download'])) {
+                if($val = $ret['accessURI']) $accessURI = $val;
+                else continue;
+                $furtherInformationURL = $ret['furtherInfoURL'];
+            }
             else continue;
             
             $mr = new \eol_schema\MediaResource();
@@ -154,7 +159,7 @@ class XenoCantoAPI
             $mr->format         = Functions::get_mimetype($accessURI);
             $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
             
-            // if(substr($o['dc_source'], 0, 4) == "http") $mr->furtherInformationURL = self::use_best_fishbase_server($o['dc_source']);
+            $mr->furtherInformationURL = $furtherInformationURL;
             $mr->accessURI      = $accessURI;
             // $mr->thumbnailURL   = self::use_best_fishbase_server($o['thumbnailURL']);
             // $mr->CVterm         = $o['subject'];
@@ -163,11 +168,12 @@ class XenoCantoAPI
             // $mr->title          = $o['dc_title'];
             $mr->UsageTerms     = $UsageTerms;
             
-            $mr->LocationCreated       = $ret1['location'];
-            $mr->lat       = $ret1['lat'];
-            $mr->long       = $ret1['long'];
+            $mr->LocationCreated    = $ret1['location'];
+            $mr->lat                = $ret1['lat'];
+            $mr->long               = $ret1['long'];
             
-            // $mr->description    = utf8_encode($o['dc_description']);
+            $mr->description    = self::parse_description($rec['Remarks']);
+            $mr->CreateDate = self::parse_CreateDate($rec);
             // if(!Functions::is_utf8($mr->description)) continue;
             // $mr->LocationCreated = $o['location'];
             // $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
@@ -181,18 +187,38 @@ class XenoCantoAPI
             }
         }
     }
+    private function parse_CreateDate($rec)
+    {
+        // [Date] => >2010-02-09
+        // [Time] => > 07:00
+        $str = $rec['Date'].' '.$rec['Time'];
+        $str = str_replace('>', '', $str);
+        $str = Functions::remove_whitespace($str);
+        return $str;
+    }
+    private function parse_description($str)
+    {
+        $str = Functions::remove_whitespace(strip_tags($str));
+        $str = str_replace('[sono]', '', $str);
+        $str = str_replace('[also]', '', $str);
+        $str = trim(substr($str,1,strlen($str)));
+        // echo "\n$str\n";
+        return $str;
+    }
     private function parse_usageTerms($str)
     {
         //[Cat.nr.] => style='white-space: nowrap;'><a href="/46725">XC46725 <span title="Creative Commons Attribution-NonCommercial-NoDerivs 2.5">
         // <a href="//creativecommons.org/licenses/by-nc-nd/2.5/"><img class='icon' width='14' height='14' src='/static/img/cc.png'></a></span>
-        
         if(preg_match("/href=\"\/\/creativecommons.org(.*?)\"/ims", $str, $arr)) return 'http://creativecommons.org'.$arr[1];
-        
     }
     private function parse_accessURI($str)
     {
+        $ret = array();
         // data-xc-filepath='//www.xeno-canto.org/sounds/uploaded/DNKBTPCMSQ/Ostrich%20RV%202-10.mp3'>
-        if(preg_match("/filepath='(.*?)'/ims", $str, $arr)) return 'https:'.$arr[1];
+        if(preg_match("/filepath='(.*?)'/ims", $str, $arr)) $ret['accessURI'] = 'https:'.$arr[1];
+        // data-xc-id='46725'
+        if(preg_match("/data-xc-id='(.*?)'/ims", $str, $arr)) $ret['furtherInfoURL'] = $this->domain.'/'.$arr[1];
+        return $ret;
     }
     private function parse_recordist($str)
     {
