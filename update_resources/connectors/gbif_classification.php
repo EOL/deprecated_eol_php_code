@@ -11,7 +11,6 @@ require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
 $func->start(); //orig OK
-// $func->start_v2(); //just temporary
 unset($func);
 Functions::finalize_dwca_resource($resource_id);
 

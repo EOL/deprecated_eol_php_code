@@ -37,10 +37,6 @@ class GBIF_classificationAPI
         */
         return $paths;
     }
-    function start_v2()
-    {
-        self::process_taxon_v2(); //just temporary
-    }
     function start()
     {   $paths = self::access_dwca();
         $archive_path = $paths['archive_path'];
@@ -54,7 +50,7 @@ class GBIF_classificationAPI
         }
 
         if(!($file = Functions::file_open($this->log_file, "w"))) return;
-        fwrite($file, implode("\t", array('taxonID', 'scientificName', 'searched string'))."\n");
+        fwrite($file, implode("\t", array('taxonID', 'scientificName', 'searched string', 'flag'))."\n");
         fclose($file);
         
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
@@ -65,62 +61,13 @@ class GBIF_classificationAPI
         echo ("\n temporary directory removed: " . $temp_dir);
         // */
     }
-    private function process_taxon_v2()
-    {   echo "\nprocess_taxon...\n"; $i = 0;
-        $m = 5858200/5; //total rows = 5,858,143. Rounded to 5858200. For caching.
-        foreach(new FileIterator('/extra/other_files/GBIF_backbone/Taxon.tsv') as $line => $row) {
-            if(!$row) continue;
-            $i++;
-            if($i == 1) $fields = explode("\t", $row);
-            else {
-                $reck = explode("\t", $row);
-                $k = -1; $rec = array();
-                foreach($fields as $field) {
-                    $k++;
-                    $rec[$field] = $reck[$k];
-                }
-                // print_r($rec); exit;
-                // /* breakdown when caching
-                $cont = false;
-                // if($i >=  1    && $i < $m)    $cont = true;          //1st run
-                if($i >=  $m   && $i < $m*2)  $cont = true;             //5th run
-                // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //2nd run
-                // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //3rd run
-                // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //4th run
-                if(!$cont) continue;
-                // */
-
-                // print_r($rec); exit;
-                if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] != 'accepted') { self::log_record($rec); continue; }
-
-                if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
-                elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
-                else { self::log_record($rec); continue; }
-                if(!$sciname) { self::log_record($rec); continue; }
-
-                $str = substr($sciname,0,2);
-                if(strtoupper($str) == $str) { //probably viruses
-                    // echo "\nwill ignore [$sciname]\n";
-                    self::log_record($rec, $sciname); continue;
-                }
-                else {
-                    if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$i][$sciname] "; // print_r($rec);
-                    if($ret = $func->search_name($sciname, $this->download_options)) {
-                        if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                        if($eol_rec = self::get_actual_name($ret, $sciname)) self::write_archive($rec, $eol_rec);
-                        else { self::log_record($rec, $sciname); continue; }
-                    }
-                }
-            }
-        }
-    }
     private function process_taxon($meta)
     {   //print_r($meta);
         require_library('connectors/Eol_v3_API');
         $func = new Eol_v3_API();
         
         echo "\nprocess_taxon...\n"; $i = 0;
-        $m = 5858200/5; //total rows = 5,858,143. Rounded to 5858200. For caching.
+        $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -140,7 +87,9 @@ class GBIF_classificationAPI
             // if($i >=  $m   && $i < $m*2)  $cont = true;          //2nd run
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //3rd run
             // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run
-            if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run
+            // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run
+            // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //6th run
+            if($i >=  $m*6 && $i < $m*7)  $cont = true;          //7th run
             if(!$cont) continue;
             // */
             
@@ -171,15 +120,12 @@ class GBIF_classificationAPI
             
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7009828) { print_r($rec); exit; } //debug only
 
-            if($taxonomicStatus != 'accepted') {
-                // self::log_record($rec, $taxonomicStatus); 
-                continue;
-            }
+            if($taxonomicStatus != 'accepted') continue;
 
             if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
             elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
-            else { self::log_record($rec); continue; }
-            if(!$sciname) { self::log_record($rec); continue; }
+            else { self::log_record($rec, '', '1'); continue; }
+            if(!$sciname) { self::log_record($rec, '', '2'); continue; }
 
             $str = substr($sciname,0,2);
             if(strtoupper($str) == $str) { //probably viruses
@@ -204,16 +150,16 @@ class GBIF_classificationAPI
                     */
                 }
                 self::write_archive($rec, $eol_rec);
-                if(!$eol_rec['id']) { self::log_record($rec, $sciname); continue; }
+                if(!$eol_rec['id']) { self::log_record($rec, $sciname, '3'); continue; }
                 // */
             }
             // if($i >= 90) break;
         }
     }
-    private function log_record($rec, $sciname = '')
+    private function log_record($rec, $sciname = '', $flag = '')
     {
         if(!($file = Functions::file_open($this->log_file, "a"))) return;
-        fwrite($file, implode("\t", array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], $rec['http://rs.tdwg.org/dwc/terms/scientificName'], "[$sciname]"))."\n");
+        fwrite($file, implode("\t", array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], $rec['http://rs.tdwg.org/dwc/terms/scientificName'], "[$sciname]", $flag))."\n");
         fclose($file);
     }
     private function write_archive($rec, $eol_rec)
