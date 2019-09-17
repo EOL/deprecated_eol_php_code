@@ -78,6 +78,7 @@ class XenoCantoAPI
     private function prepare_media_records($rec)
     {
         $orig_rec = $rec;
+        $final = array();
         if($html = Functions::lookup_with_cache($this->domain.$rec['url'], $this->download_options)) {
             // echo $html;
             $orig_rec = self::parse_order_family($html, $orig_rec);
