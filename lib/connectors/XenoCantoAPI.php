@@ -45,6 +45,8 @@ class XenoCantoAPI
                     if($rec['sciname'] && $rec['url']) {
                         $ret = self::prepare_media_records($rec);
                         self::write_taxon($ret['orig_rec']);
+                        self::write_media($ret['media']);
+                        
                     }
                     break;
                 }
@@ -107,16 +109,96 @@ class XenoCantoAPI
                                 $rek[$f] = $values[$i];
                             }
                             // print_r($rek); exit;
+                            $rek['taxonID'] = $orig_rec['taxonID'];
                             $final[] = $rek;
                         }
                     }
                 }
-                
             }
-            
         }
         // print_r($final); exit;
         return array('orig_rec' => $orig_rec, 'media' => $final);
+    }
+    private function write_media($records)
+    {
+        foreach($records as $rec) {
+            // print_r($rec); exit;
+            /*Array(
+                [0] => download
+                [1] => sciname
+                [2] => Length
+                [3] => Recordist
+                [4] => Date
+                [5] => Time
+                [6] => Country
+                [7] => Location
+                [8] => Elev. (m)
+                [9] => Type
+                [10] => Remarks
+                [11] => Actions
+                [12] => Cat.nr.
+            )*/
+            $ret1 = self::parse_location_lat_long($rec['Location']);
+            if($ret = self::parse_recordist($rec['Recordist'])) $agent_id = self::write_agent($ret);
+            if($uri = self::parse_accessURI($rec['download'])) $accessURI = $uri;
+            else continue;
+            
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID        = $rec['taxonID'];
+            $mr->identifier     = md5($accessURI);
+            // $mr->type           = $o['dataType'];
+            // $mr->language       = 'en';
+            // $mr->format         = $o['mimeType'];
+            // if(substr($o['dc_source'], 0, 4) == "http") $mr->furtherInformationURL = self::use_best_fishbase_server($o['dc_source']);
+            $mr->accessURI      = $accessURI;
+            // $mr->thumbnailURL   = self::use_best_fishbase_server($o['thumbnailURL']);
+            // $mr->CVterm         = $o['subject'];
+            // $mr->Owner          = $o['dc_rightsHolder'];
+            // $mr->rights         = $o['dc_rights'];
+            // $mr->title          = $o['dc_title'];
+            // $mr->UsageTerms     = $o['license'];
+            
+            $mr->LocationCreated       = $ret1['location'];
+            $mr->lat       = $ret1['lat'];
+            $mr->long       = $ret1['long'];
+            
+            // $mr->description    = utf8_encode($o['dc_description']);
+            // if(!Functions::is_utf8($mr->description)) continue;
+            // $mr->LocationCreated = $o['location'];
+            // $mr->bibliographicCitation = $o['dcterms_bibliographicCitation'];
+            // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+            
+            $mr->agentID = $agent_id;
+            
+            if(!isset($this->object_ids[$mr->identifier])) {
+                $this->archive_builder->write_object_to_file($mr);
+                $this->object_ids[$mr->identifier] = '';
+            }
+        }
+    }
+    private function parse_accessURI($str)
+    {
+        // data-xc-filepath='//www.xeno-canto.org/sounds/uploaded/DNKBTPCMSQ/Ostrich%20RV%202-10.mp3'>
+        if(preg_match("/filepath='(.*?)'/ims", $str, $arr)) return 'https:'.$arr[1];
+    }
+    private function parse_recordist($str)
+    {
+        //<a href='/contributor/DNKBTPCMSQ'>Derek Solomon</a>
+        $val = array();
+        if(preg_match("/href='(.*?)\'/ims", $str, $arr)) $val['homepage'] = $arr[1];
+        if(preg_match("/\'>(.*?)<\/a>/ims", $str, $arr)) $val['agent'] = $arr[1];
+        // print_r($val); //exit;
+        return $val;
+    }
+    private function parse_location_lat_long($str)
+    {
+        //<a href="/location/map?lat=-24.3834&long=30.9334&loc=Hoedspruit">Hoedspruit</a>
+        $val = array();
+        if(preg_match("/lat=(.*?)&/ims", $str, $arr)) $val['lat'] = $arr[1];
+        if(preg_match("/long=(.*?)&/ims", $str, $arr)) $val['long'] = $arr[1];
+        if(preg_match("/\">(.*?)<\/a>/ims", $str, $arr)) $val['location'] = $arr[1];
+        // print_r($val); //exit;
+        return $val;
     }
     private function write_taxon($rec)
     {
@@ -138,6 +220,19 @@ class XenoCantoAPI
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
         }
+    }
+    private function write_agent($a)
+    {
+        $r = new \eol_schema\Agent();
+        $r->term_name       = $a['agent'];
+        $r->agentRole       = 'recorder';
+        $r->term_homepage   = $this->domain.$a['homepage'];
+        $r->identifier      = md5("$r->term_name|$r->agentRole|$r->term_homepage");
+        if(!isset($this->agent_ids[$r->identifier])) {
+           $this->agent_ids[$r->identifier] = '';
+           $this->archive_builder->write_object_to_file($r);
+        }
+        return $r->identifier;
     }
 }
 ?>
