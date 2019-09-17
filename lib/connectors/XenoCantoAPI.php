@@ -14,7 +14,8 @@ class XenoCantoAPI
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0;
-        $this->species_list = 'https://www.xeno-canto.org/collection/species/all';
+        $this->domain = 'https://www.xeno-canto.org';
+        $this->species_list = $this->domain.'/collection/species/all';
     }
     function start()
     {   
@@ -40,7 +41,12 @@ class XenoCantoAPI
                     if(preg_match_all("/<td>(.*?)<\/td>/ims", $r, $arr)) {
                         $rec['sciname'] = $arr[1][1];
                     }
-                    print_r($rec);
+                    $rec = array_map('trim', $rec);
+                    if($rec['sciname'] && $rec['url']) {
+                        self::write_taxon($rec);
+                        $media = self::prepare_media_records($rec);
+                        
+                    }
                     break;
                 }
             }
@@ -49,20 +55,62 @@ class XenoCantoAPI
         else echo "\nno HTML\n";
         exit;
         // $this->archive_builder->finalize(TRUE);
-
     }
-    /*
-    private function create_taxon_archive($a)
+    private function prepare_media_records($rec)
+    {
+        print_r($rec);
+        if($html = Functions::lookup_with_cache($this->domain.$rec['url'], $this->download_options)) {
+            // echo $html;
+            
+            if(preg_match("/<table class=\"results\">(.*?)<\/table>/ims", $html, $arr)) {
+                // echo $arr[1]; exit;
+                $str = $arr[1];
+                if(preg_match("/<thead>(.*?)<\/thead>/ims", $str, $arr2)) {
+                    if(preg_match_all("/<th>(.*?)<\/th>/ims", $arr2[1], $arr)) {
+                        // print_r($arr[1]);
+                        $fields = array_map('strip_tags', $arr[1]);
+                        $fields = array_map('trim', $fields);
+                        $fields[0] = 'download';
+                        $fields[1] = 'sciname';
+                        print_r($fields);
+                    }
+                }
+                
+                if(preg_match_all("/<tr (.*?)<\/tr>/ims", $str, $arr)) {
+                    // print_r($arr);
+                    $final = array();
+                    foreach($arr[1] as $r) {
+                        if(preg_match_all("/<td(.*?)<\/td>/ims", $r, $arr)) {
+                            $values = array_map('trim', $arr[1]);
+                            // print_r($values); exit;
+
+                            $rek = array();
+                            $i = -1;
+                            foreach($fields as $f) { $i++;
+                                $rek[$f] = $values[$i];
+                            }
+                            // print_r($rek); exit;
+                            $final[] = $rek;
+                        }
+                    }
+                }
+                
+            }
+            
+        }
+        print_r($final); exit;
+    }
+    private function write_taxon($rec)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonomicStatus          = self::compute_taxonomicStatus($a);
         $taxon->taxonID                  = self::compute_taxonID($a, $taxon->taxonomicStatus);
         $taxon->scientificName           = $a[$this->map['scientificName']];
         $taxon->scientificNameAuthorship = @$a[$this->map['scientificNameAuthorship']];
         $taxon->taxonRank                = self::compute_taxonRank($a);
-        $taxon->acceptedNameUsageID      = self::numerical_part(@$a[$this->map['acceptedNameUsageID']]);
-        $this->archive_builder->write_object_to_file($taxon);
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
     }
-    */
 }
 ?>
