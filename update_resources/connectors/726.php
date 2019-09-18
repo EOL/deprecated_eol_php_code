@@ -12,7 +12,6 @@ occurrence:                 2839    2839    2838
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/RotifersTypeSpecimenAPI');
-
 $timestart = time_elapsed();
 $resource_id = 726;
 $func = new RotifersTypeSpecimenAPI($resource_id);

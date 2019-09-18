@@ -154,7 +154,7 @@ class RotifersTypeSpecimenAPI
         }
         if(!isset($this->habitats[$rec["taxon_id"]][$value_uri])) {
             $this->habitats[$rec["taxon_id"]][$value_uri] = 1;
-            if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat", null, $value_uri);
+            if($val = $habitat)        self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat", null, $value_uri);
             if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
             return true;
         }
