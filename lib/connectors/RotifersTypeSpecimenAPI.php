@@ -154,7 +154,9 @@ class RotifersTypeSpecimenAPI
         }
         if(!isset($this->habitats[$rec["taxon_id"]][$value_uri])) {
             $this->habitats[$rec["taxon_id"]][$value_uri] = 1;
-            if($val = $habitat)        self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat", null, $value_uri);
+            if($val = $habitat) {
+                $rec['parentMeasurementID'] = self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat", null, $value_uri);
+            }
             if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
             return true;
         }
@@ -376,7 +378,7 @@ class RotifersTypeSpecimenAPI
                 $TSR = "http://eol.org/schema/terms/unknown";
                 $institution_code = $TSR;
             }
-            self::add_string_types($rec, "TSR", $TSR, "http://eol.org/schema/terms/TypeSpecimenRepository", $remarks);
+            $rec['parentMeasurementID'] = self::add_string_types($rec, "TSR", $TSR, "http://eol.org/schema/terms/TypeSpecimenRepository", $remarks);
             self::add_string_types($rec, "Institution code", $institution_code, "http://rs.tdwg.org/dwc/terms/institutionCode");
             // self::add_string_types($rec, "Type information", $type, "http://eol.org/schema/terms/TypeInformation"); // old but working
             self::add_string_types($rec, "Type information", $type, "http://rs.tdwg.org/dwc/terms/typeStatus"); // new and now is being displayed in Data tab
@@ -466,6 +468,11 @@ class RotifersTypeSpecimenAPI
             elseif($label == "Habitat") $m->source = $this->species_page_by_guid . $rec["lngSpecies_ID"];
             $m->contributor = 'Rotifer World Catalog';
         }
+        else { //child records
+            $m->occurrenceID = '';
+            $m->measurementOfTaxon = '';
+            $m->parentMeasurementID = $rec['parentMeasurementID'];
+        }
         
         if($label == "Verbatim elevation") $m->measurementUnit = "http://purl.obolibrary.org/obo/UO_0000008";
         $m->measurementType = $mtype;
@@ -479,6 +486,7 @@ class RotifersTypeSpecimenAPI
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->measurementID] = '';
         }
+        return $m->measurementID;
     }
     private function format_type_data($type, $rec)
     {
