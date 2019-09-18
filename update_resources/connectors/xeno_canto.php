@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
-/* https://eol-jira.bibalex.org/browse/DATA-1816 */
+/* https://eol-jira.bibalex.org/browse/DATA-1816 
+execution time: Took 5 hr 11 min (first time, un-cached)
+
+xeno_canto	Tuesday 2019-09-17 05:12:49 PM	{"agent.tab":3482,"media_resource.tab":116748,"taxon.tab":10939,"vernacular_name.tab":10939}
+
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;

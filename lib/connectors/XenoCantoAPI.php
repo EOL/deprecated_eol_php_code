@@ -163,6 +163,11 @@ class XenoCantoAPI
             $mr->identifier     = md5($accessURI);
             $mr->format         = Functions::get_mimetype($accessURI);
             $mr->type           = Functions::get_datatype_given_mimetype($mr->format);
+            if(!$mr->type) {
+                echo "\nMessage: DataType must be present\n";
+                print_r($rec);
+                continue;
+            }
             
             $mr->furtherInformationURL = $furtherInformationURL;
             $mr->accessURI      = $accessURI;
