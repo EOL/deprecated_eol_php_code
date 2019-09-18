@@ -27,7 +27,6 @@ class RotifersTypeSpecimenAPI
         $this->institutions_xls = "http://localhost/cp_new/Rotifers/World_Rotifer_institutionsURIS.xls";
         $this->institutions_xls = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Rotifers/World_Rotifer_institutionsURIS.xls";
     }
-
     function get_all_taxa()
     {
         $this->institution_uris = self::get_institution_uris();
@@ -67,7 +66,6 @@ class RotifersTypeSpecimenAPI
         recursive_rmdir($parts["dirname"]);
         debug("\n temporary directory removed: " . $parts["dirname"]);
     }
-
     private function get_institution_uris()
     {
         require_library('connectors/LifeDeskToScratchpadAPI');
@@ -75,37 +73,30 @@ class RotifersTypeSpecimenAPI
         $arr = $func->convert_spreadsheet($this->institutions_xls, 0);
         $institutions = array();
         $k = 0;
-        foreach($arr["Code"] as $code)
-        {
+        foreach($arr["Code"] as $code) {
             $institutions[$code] = $arr["URI"][$k];
             $k++;
         }
         echo "\nInstitutions from spreadsheet [$this->institutions_xls]:" . count($institutions) . "\n";
         return $institutions;
     }
-    
     private function assemble_identified_by($records_specimen)
     {
-        foreach($records_specimen as $rec)
-        {
+        foreach($records_specimen as $rec) {
             $rec = self::clean_record($rec);
             $id = $rec["lngSpecimen_ID"];
-            if($identifier = $rec["lngPersIdent_ID"])
-            {
+            if($identifier = $rec["lngPersIdent_ID"]) {
                 if(isset($this->identified_by[$id])) $this->identified_by[$id] .= ", " . $identifier;
                 else $this->identified_by[$id] = $identifier;
             }
         }
     }
-    
     private function create_instances_from_taxon_object($records, $type)
     {
         $processed_specimen = array();
         $processed_locality = array();
-        
         $i = 0;
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             if($type == "habitat") $sciname = $rec["lngSpeciesSenior_ID"];
             else                   $sciname = $rec["lngSpecies_ID"];
             $sciname = trim(str_replace('"', '', $sciname));
@@ -122,8 +113,7 @@ class RotifersTypeSpecimenAPI
             $rec["sciname"] = $sciname;
             $cont_save = false;
             
-            if($type == "locality")
-            {
+            if($type == "locality") {
                 // if(!isset($processed_locality[$rec["lngLoc_ID"]]))
                 // {
                 //     $rec["catnum"] = $rec["lngLoc_ID"];
@@ -131,49 +121,38 @@ class RotifersTypeSpecimenAPI
                 //     $processed_locality[$rec["lngLoc_ID"]] = 1;
                 // }
             }
-            elseif($type == "specimen")
-            {
-                if($lngSpecimen_ID = $rec["lngSpecimen_ID"])
-                {
-                    if(!isset($processed_specimen[$lngSpecimen_ID]))
-                    {
+            elseif($type == "specimen") {
+                if($lngSpecimen_ID = $rec["lngSpecimen_ID"]) {
+                    if(!isset($processed_specimen[$lngSpecimen_ID])) {
                         $rec["catnum"] = $lngSpecimen_ID;
                         $cont_save = self::process_specimen($rec);
                         $processed_specimen[$lngSpecimen_ID] = 1;
                     }
                 }
             }
-            elseif($type == "habitat")
-            {
+            elseif($type == "habitat") {
                 $habitats = explode("/", $rec["lngMacroMicro_ID"]);
-                foreach($habitats as $habitat)
-                {
+                foreach($habitats as $habitat) {
                     $habitat = trim($habitat);
-                    if($habitat != "-" && $habitat)
-                    {
+                    if($habitat != "-" && $habitat) {
                         $rec["catnum"] = md5($sciname . "|" . $habitat);
                         $rec["habitat"] = $habitat;
                         $cont_save = self::process_habitat($rec);
                     }
                 }
             }
-        
             if($cont_save) $this->taxa[$taxon->taxonID] = $taxon;
-        
         }//loop
     }
-
     private function process_habitat($rec)
     {
         $habitat = trim(str_replace('"', '', $rec["habitat"]));
         $habitat = utf8_encode($habitat);
         $value_uri = self::format_habitat_value($habitat);
-        if(!$value_uri)
-        {
+        if(!$value_uri) {
             if($habitat != "Open water (tychoplanktonic)") echo "\n investigate [$habitat] no URI\n";
         }
-        if(!isset($this->habitats[$rec["taxon_id"]][$value_uri]))
-        {
+        if(!isset($this->habitats[$rec["taxon_id"]][$value_uri])) {
             $this->habitats[$rec["taxon_id"]][$value_uri] = 1;
             if($val = $habitat) self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat", null, $value_uri);
             if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
@@ -181,11 +160,9 @@ class RotifersTypeSpecimenAPI
         }
         return false;
     }
-    
     private function format_habitat_value($habitat)
     {
-        switch($habitat)
-        {
+        switch($habitat) {
             case "Lake, freshwater (mesotrophic)": return "http://eol.org/schema/terms/mesotrophicFreshwaterLake";
             case "Macrophytes (Ceratophyllum, Myriophyllum)": return "http://eol.org/schema/terms/macrophytes";
             case "Periphyton, and POM (littoral stones, gravel)": return "http://eol.org/schema/terms/periphyton";
@@ -250,7 +227,6 @@ class RotifersTypeSpecimenAPI
             default: return false;
         }
     }
-
     private function process_locality($rec, $sciname)
     {
         /*
@@ -264,8 +240,7 @@ class RotifersTypeSpecimenAPI
         */
         
         $locality = "";
-        if($val = $rec["strLocName"])
-        {
+        if($val = $rec["strLocName"]) {
             if($locality) $locality .= ". " . $val;
             else $locality = $val;
         }
@@ -288,23 +263,19 @@ class RotifersTypeSpecimenAPI
         $longitude = $rec["sngLongitudeWGS84"];
         
         $field_notes = "";
-        if($val = $rec["lngMacrohabitat_ID"])
-        {
+        if($val = $rec["lngMacrohabitat_ID"]) {
             if($field_notes) $field_notes .= ". " . $val;
             else $field_notes = $val;
         }
-        if($val = $rec["lngPermanency_ID"])
-        {
+        if($val = $rec["lngPermanency_ID"]) {
             if($field_notes) $field_notes .= ". " . $val;
             else $field_notes = $val;
         }
-        if($val = $rec["strDepth"])
-        {
+        if($val = $rec["strDepth"]) {
             if($field_notes) $field_notes .= ". water depth = " . $val;
             else $field_notes = "water depth = " . $val;
         }
-        if($val = $rec["lngGeology_ID"])
-        {
+        if($val = $rec["lngGeology_ID"]) {
             if($field_notes) $field_notes .= ". Geology = " . $val;
             else $field_notes = "Geology = " . $val;
         }
@@ -317,20 +288,16 @@ class RotifersTypeSpecimenAPI
         if($val = $verbatim_elevation)  self::add_string_types($rec, "Verbatim elevation", $val, "http://rs.tdwg.org/dwc/terms/verbatimElevation");
         if($val = $field_notes)         self::add_string_types($rec, "Field notes", $val, "http://rs.tdwg.org/dwc/terms/fieldNotes");
     }
-
     private function clean_record($rec)
     {
-        foreach(array_keys($rec) as $field)
-        {
+        foreach(array_keys($rec) as $field) {
             if(is_numeric(stripos($rec[$field], "n.s."))) $rec[$field] = "";
         }
         return $rec;
     }
-    
     private function process_specimen($rec)
     {
         $rec = self::clean_record($rec);
-        
         /*
         In tblSpecimen
         IngRepository->Institution Code
@@ -357,8 +324,7 @@ class RotifersTypeSpecimenAPI
         $identified_by = str_replace('"', '', $identified_by);
 
         $remarks = "";
-        if($val = $rec["lngDocuTypeSpecimen"])
-        {
+        if($val = $rec["lngDocuTypeSpecimen"]) {
             if($remarks) $remarks .= ". " . $val;
             else $remarks = $val;
         }
@@ -369,8 +335,7 @@ class RotifersTypeSpecimenAPI
             else $remarks = $val;
         }
         */
-        if($val = $rec["txtPrepNotes"])
-        {
+        if($val = $rec["txtPrepNotes"]) {
             if($remarks) $remarks .= ". " . $val;
             else $remarks = $val;
         }
@@ -391,28 +356,23 @@ class RotifersTypeSpecimenAPI
         // }
 
         $recorded_by = "";
-        if($val = $rec["lngPersPrep_ID"])
-        {
+        if($val = $rec["lngPersPrep_ID"]) {
             if($recorded_by) $recorded_by .= ", " . $val;
             else $recorded_by = $val;
         }
-        if($val = $rec["lngPersID2_ID"])
-        {
+        if($val = $rec["lngPersID2_ID"]) {
             if($recorded_by) $recorded_by .= ", " . $val;
             else $recorded_by = $val;
         }
-        if($val = $rec["lngPersID3_ID"])
-        {
+        if($val = $rec["lngPersID3_ID"]) {
             if($recorded_by) $recorded_by .= ", " . $val;
             else $recorded_by = $val;
         }
         $recorded_by = str_replace('"', '', $recorded_by);
         
-        if($type = self::format_type_data($rec["strTypeStat"], $rec))
-        {
+        if($type = self::format_type_data($rec["strTypeStat"], $rec)) {
             if($institution_code && $institution_code != "- n.s. -") $TSR = self::get_institution_uri($institution_code);
-            else
-            {
+            else {
                 $TSR = "http://eol.org/schema/terms/unknown";
                 $institution_code = $TSR;
             }
@@ -431,7 +391,6 @@ class RotifersTypeSpecimenAPI
             return true;
         }
     }
-
     private function get_institution_uri($code) // get URI from biocol.org if available
     {
         /* working but not needed anymore
@@ -486,14 +445,12 @@ class RotifersTypeSpecimenAPI
         if($code == "MSU-KS") $code = "MSUT"; // Mahasarakham University, Science Museum, Thailand
         
         if($val = $this->institution_uris[$code]) return $val;
-        else
-        {
+        else {
             echo "\nInvestigate: [$code] no URI from spreadsheet\n";
             echo "\n will try: " . "http://eol.org/schema/terms/institution_" . strtoupper($code);
             exit;
         }
     }
-    
     private function add_string_types($rec, $label, $value, $mtype, $measurementRemarks = null, $value_uri = false)
     {
         $taxon_id = $rec["taxon_id"];
@@ -502,8 +459,7 @@ class RotifersTypeSpecimenAPI
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum);
         $m->occurrenceID = $occurrence_id;
 
-        if(in_array($label, array("TSR", "Habitat")))
-        {
+        if(in_array($label, array("TSR", "Habitat"))) {
             $m->measurementOfTaxon = 'true';
             $m->measurementRemarks = $measurementRemarks;
             if($label == "TSR") $m->source = $this->specimen_page_by_guid . $rec["lngSpecimen_ID"];
@@ -524,7 +480,6 @@ class RotifersTypeSpecimenAPI
             $this->measurement_ids[$m->measurementID] = '';
         }
     }
-
     private function format_type_data($type, $rec)
     {
         $type = str_ireplace("?", "", $type);
@@ -539,24 +494,19 @@ class RotifersTypeSpecimenAPI
         elseif(in_array($type, array("syntype", "syntypes")))             return "http://rs.tdwg.org/ontology/voc/TaxonName#Syntype";
         elseif(in_array($type, array("type", "type material")))           return "http://rs.tdwg.org/ontology/voc/TaxonName#Type";
         elseif($type == "topotypic material")                             return "http://rs.tdwg.org/ontology/voc/TaxonName#Topotype";
-        else
-        {
-            if(in_array($type, array("holotype + allotype", "syntypes + allotype")))
-            {
+        else {
+            if(in_array($type, array("holotype + allotype", "syntypes + allotype"))) {
                 $types = explode(" + ", $type);
-                foreach($types as $type)
-                {
+                foreach($types as $type) {
                     $rec["strTypeStat"] = $type;
                     self::process_specimen($rec);
                 }
                 return false;
             }
-            
             if(!in_array($type, array("check!", "check this !!"))) echo "\n investigate undefined type [$type]\n";
             return false;
         }
     }
-    
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum; // suggested by Katja to use -- ['O' . $catnum]
@@ -568,26 +518,22 @@ class RotifersTypeSpecimenAPI
         $this->occurrence_ids[$occurrence_id] = '';
         return $occurrence_id;
     }
-
     private function create_archive()
     {
         foreach($this->taxa as $t) $this->archive_builder->write_object_to_file($t);
         $this->archive_builder->finalize(TRUE);
     }
-
     private function load_zip_contents()
     {
         $this->TEMP_FILE_PATH = create_temp_dir() . "/";
-        if($file_contents = Functions::lookup_with_cache($this->zip_path, array('timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 1)))
-        {
+        if($file_contents = Functions::lookup_with_cache($this->zip_path, array('timeout' => 3600, 'download_attempts' => 2, 'delay_in_minutes' => 1))) {
             $parts = pathinfo($this->zip_path);
             $temp_file_path = $this->TEMP_FILE_PATH . "/" . $parts["basename"];
             if(!($TMP = Functions::file_open($temp_file_path, "w"))) return;
             fwrite($TMP, $file_contents);
             fclose($TMP);
             $output = shell_exec("unzip -o $temp_file_path -d $this->TEMP_FILE_PATH");
-            if(!file_exists($this->TEMP_FILE_PATH . "/sd_specimen.txt")) 
-            {
+            if(!file_exists($this->TEMP_FILE_PATH . "/sd_specimen.txt")) {
                 $this->TEMP_FILE_PATH = str_ireplace(".zip", "", $temp_file_path);
                 if(!file_exists($this->TEMP_FILE_PATH . "/sd_specimen.txt")) return;
             }
@@ -595,12 +541,10 @@ class RotifersTypeSpecimenAPI
             $this->text_path["sd_specimen_identifier"] = $this->TEMP_FILE_PATH . "/sd_specimen_identifier.txt";
             $this->text_path["sd_macro_locality"] = $this->TEMP_FILE_PATH . "/sd_macro_locality.txt";
         }
-        else
-        {
+        else {
             debug("\n\n Connector terminated. Remote files are not ready.\n\n");
             return;
         }
     }
-
 }
 ?>
