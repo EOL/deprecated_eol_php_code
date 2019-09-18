@@ -49,7 +49,7 @@ class XenoCantoAPI
                         else continue; //didn't get anything for media
                     }
                     $i++;
-                    if($i >= 10) break;
+                    // if($i >= 10) break;
                 }
             }
             else echo "\nnothing found...\n";
