@@ -179,13 +179,13 @@ class XenoCantoAPI
             $mr->description    = self::parse_description($rec['Remarks']);
             $mr->CreateDate     = self::parse_CreateDate($rec);
             $mr->agentID        = $agent_id;
+            $mr->bibliographicCitation = self::parse_citation($rec, $mr->Owner, $mr->accessURI, $mr->furtherInformationURL);
 
             /*
             // $mr->thumbnailURL   = ''
             // $mr->CVterm         = ''
             // $mr->rights         = ''
             // $mr->title          = ''
-            // $mr->bibliographicCitation = '';
             // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
             */
             
@@ -194,6 +194,15 @@ class XenoCantoAPI
                 $this->object_ids[$mr->identifier] = '';
             }
         }
+    }
+    private function parse_citation($rec, $owner, $accessURI, $furtherInformationURL)
+    {
+        // print_r($rec); //exit;
+        // citation e.g.: Ralf Wendt, XC356323. Accessible at www.xeno-canto.org/356323.
+        $filename = pathinfo($accessURI, PATHINFO_FILENAME);
+        //e.g. XC207312-Apteryx%20australis141122_T1460
+        $arr = explode('-', $filename);
+        return "$owner, $arr[0]. Accessible at " . str_replace('https://', '', $furtherInformationURL).".";
     }
     private function parse_CreateDate($rec)
     {
