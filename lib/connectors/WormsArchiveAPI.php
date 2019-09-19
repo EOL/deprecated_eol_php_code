@@ -1189,6 +1189,7 @@ class WormsArchiveAPI
             
             if($agentID = (string) $rec["http://eol.org/schema/agent/agentID"]) {
                 $ids = explode(",", $agentID); // not sure yet what separator Worms used, comma or semicolon - or if there are any
+                if(count($ids) == 1) $ids = explode("_", $agentID);
                 $agent_ids = array();
                 foreach($ids as $id) $agent_ids[] = $id;
                 $mr->agentID = implode("; ", $agent_ids);
