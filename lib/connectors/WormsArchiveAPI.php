@@ -591,7 +591,7 @@ class WormsArchiveAPI
             $taxon->namePublishedIn = (string) $rec["http://rs.tdwg.org/dwc/terms/namePublishedIn"];
             $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
             $taxon->source = $this->taxon_page . $taxon->taxonID;
-            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = $referenceID;
+            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/media/referenceID"])) $taxon->referenceID = self::use_correct_separator($referenceID);
 
             // /* new Aug 25, 2019 - 
             if($this->what != "taxonomy") {
@@ -1194,7 +1194,7 @@ class WormsArchiveAPI
                 $mr->agentID = implode("; ", $agent_ids);
             }
 
-            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $mr->referenceID = $referenceID;
+            if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) $mr->referenceID = self::use_correct_separator($referenceID);
             
             if($mr->type != "http://purl.org/dc/dcmitype/Text") {
                 $mr->accessURI      = self::complete_url((string) $rec["http://rs.tdwg.org/ac/terms/accessURI"]);
@@ -1392,7 +1392,7 @@ class WormsArchiveAPI
             $m->bibliographicCitation = (string) $rec["http://purl.org/dc/terms/bibliographicCitation"];
             $m->contributor = (string) $rec["http://purl.org/dc/terms/contributor"];
             if($referenceID = self::prepare_reference((string) $rec["http://eol.org/schema/reference/referenceID"])) {
-                $m->referenceID = $referenceID;
+                $m->referenceID = self::use_correct_separator($referenceID);
             }
             //additional fields per https://eol-jira.bibalex.org/browse/DATA-1767?focusedCommentId=62884&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62884
             $m->measurementDeterminedDate = $rec['http://ns.adobe.com/xap/1.0/CreateDate'];
@@ -1404,6 +1404,10 @@ class WormsArchiveAPI
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
+    }
+    private function use_correct_separator($str)
+    {
+        return str_replace("_", "|", $str);
     }
     private function prepare_reference($referenceID)
     {   if($referenceID) {
