@@ -728,7 +728,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             echo " -> saving json... recs: ".$rec['count']. " [$filename]";
             $json = json_encode($rec, JSON_UNESCAPED_SLASHES);
             if(!($file = Functions::file_open($filename, "w"))) return;
+            /* used for the longest time
             fwrite($file, "var data = ".$json);
+            */
+            fwrite($file, $json); //now real json-value
             fclose($file);
         }
     }
@@ -932,6 +935,32 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         }
         else echo "\nFile access error: [$text_file]\n";
         echo "\n--end taxon_concept_IDs total with map data: [$i]--\n";
+    }
+    function remove_var_data_equals() //a one-time-utility "var data = "
+    {
+        echo "\nwent here...\n";
+        $dir_to_process = $this->save_path['map_data'];
+        if($dir = opendir($dir_to_process)) {
+            while(false !== ($subdir = readdir($dir))) {
+                if(!in_array($subdir, array(".",".."))) {
+                    echo "\n[$subdir]";
+                    $files = $dir_to_process.$subdir."/*.json";
+                    foreach (glob($files) as $filename) {
+                        if(filesize($filename)) {
+                            echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME); //good debug
+                            $str = file_get_contents($filename);
+                            $str = str_replace("var data = ", "", $str);
+                            if($fhandle = Functions::file_open($filename, "w")) {
+                                fwrite($fhandle, $str);
+                                fclose($fhandle);
+                                echo " -- saved OK\n";
+                            }
+                            else echo " -- could not open file...\n";
+                        }
+                    }
+                }
+            }
+        }
     }
     private function prepare_data($taxon_concept_id)
     {

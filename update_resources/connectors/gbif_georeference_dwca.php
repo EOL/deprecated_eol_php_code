@@ -36,6 +36,8 @@ php                             gbif_georeference_dwca.php _ '{"group":"Gadus mo
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"group":"Gadus morhua","divisor":2}'
 
 php                             gbif_georeference_dwca.php _ '{"task":"save_ids_to_text_from_many_folders"}'
+php                             gbif_georeference_dwca.php _ '{"task":"remove_var_data_equals"}'
+
 php                             gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files"}'
 php                             gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Ailuropoda melanoleuca","tc_id":328070}'
 php update_resources/connectors/gbif_georeference_dwca.php _ '{"task":"generate_map_data_using_GBIF_csv_files","sciname":"Ailuropoda melanoleuca","tc_id":328070}'
@@ -101,7 +103,7 @@ if($task = @$arr['task']) {
     }
     elseif($task == "breakdown_multimedia_to_gbifID_files") $func->breakdown_multimedia_to_gbifID_files();
     elseif($task == "save_ids_to_text_from_many_folders")   $func->save_ids_to_text_from_many_folders(); //utility, important as last step. This is now added to main program $func->start(); 
-
+    elseif($task == "remove_var_data_equals")   $func->remove_var_data_equals(); //a one-time-utility
     elseif($task == "gen_map_data_forTaxa_with_children") {
         if    (($sciname = @$arr['sciname'])       && ($tc_id = @$arr['tc_id']))       $func->gen_map_data_forTaxa_with_children($sciname, $tc_id);
         elseif($divisor = @$arr['divisor']) {
