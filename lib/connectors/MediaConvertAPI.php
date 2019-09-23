@@ -13,13 +13,22 @@ class MediaConvertAPI
 
         $this->path['source']       = '/Volumes/AKiTiO4/web/cp/EOL_media/';
         $this->path['destination']  = '/Volumes/AKiTiO4/web/cp/EOL_media_tmp/';
+        
         /*
-        split.gz_aa is => do2.sql.gz => do2.sql
 
         1. split:
         $ tar cz EOL_media_tmp | split -b 300000000 - ./split.gz_
         2. then download each file locally and merge:
         $ cat split.gz_* | tar xz
+
+[root@eol-archive EOL_media_tmp]# find . -type f | wc -l
+6721 - files total
+
+        1. split:
+        $ tar cz EOL_media_tmp_mp4 | split -b 300000000 - ./mp4.gz_
+        2. then download each file locally and merge:
+        $ cat mp4.gz_* | tar xz
+
         
 wget https://editors.eol.org/other_files/split.gz_br
 wget https://editors.eol.org/other_files/split.gz_bq
@@ -47,7 +56,6 @@ wget https://editors.eol.org/other_files/split.gz_av
 wget https://editors.eol.org/other_files/split.gz_au
 wget https://editors.eol.org/other_files/split.gz_at
 wget https://editors.eol.org/other_files/split.gz_as
-
 wget https://editors.eol.org/other_files/split.gz_ar
 wget https://editors.eol.org/other_files/split.gz_aq
 wget https://editors.eol.org/other_files/split.gz_ap
@@ -62,11 +70,44 @@ wget https://editors.eol.org/other_files/split.gz_ah
 wget https://editors.eol.org/other_files/split.gz_ag
 wget https://editors.eol.org/other_files/split.gz_af
 wget https://editors.eol.org/other_files/split.gz_ae
-
 wget https://editors.eol.org/other_files/split.gz_ad
 wget https://editors.eol.org/other_files/split.gz_ac
 wget https://editors.eol.org/other_files/split.gz_ab
 wget https://editors.eol.org/other_files/split.gz_aa
+
+
+scp mp4.gz_bd archive:~/temp/mp4/.
+scp mp4.gz_bc archive:~/temp/mp4/.
+scp mp4.gz_bb archive:~/temp/mp4/.
+scp mp4.gz_ba archive:~/temp/mp4/.
+scp mp4.gz_az archive:~/temp/mp4/.
+scp mp4.gz_ay archive:~/temp/mp4/.
+scp mp4.gz_ax archive:~/temp/mp4/.
+scp mp4.gz_aw archive:~/temp/mp4/.
+scp mp4.gz_av archive:~/temp/mp4/.
+scp mp4.gz_au archive:~/temp/mp4/.
+scp mp4.gz_at archive:~/temp/mp4/.
+scp mp4.gz_as archive:~/temp/mp4/.
+scp mp4.gz_ar archive:~/temp/mp4/.
+scp mp4.gz_aq archive:~/temp/mp4/.
+scp mp4.gz_ap archive:~/temp/mp4/.
+scp mp4.gz_ao archive:~/temp/mp4/.
+scp mp4.gz_an archive:~/temp/mp4/.
+scp mp4.gz_am archive:~/temp/mp4/.
+scp mp4.gz_al archive:~/temp/mp4/.
+scp mp4.gz_ak archive:~/temp/mp4/.
+scp mp4.gz_aj archive:~/temp/mp4/.
+scp mp4.gz_ai archive:~/temp/mp4/.
+scp mp4.gz_ah archive:~/temp/mp4/.
+scp mp4.gz_ag archive:~/temp/mp4/.
+scp mp4.gz_af archive:~/temp/mp4/.
+scp mp4.gz_ae archive:~/temp/mp4/.
+scp mp4.gz_ad archive:~/temp/mp4/.
+scp mp4.gz_ac archive:~/temp/mp4/.
+scp mp4.gz_ab archive:~/temp/mp4/.
+scp mp4.gz_aa archive:~/temp/mp4/.
+
+
         */
     }
     function start_233($info)
@@ -120,11 +161,24 @@ wget https://editors.eol.org/other_files/split.gz_aa
     }
     function convert_mov_2_mp4() //a utility
     {
-        $dir_to_process = $this->path['destination'];
+        $path = '/Library/WebServer/Documents/eol_php_code/EOL_media_tmp/';
+        $dir_to_process = $path;
         if($dir = opendir($dir_to_process)) {
             while(false !== ($subdir = readdir($dir))) {
                 if(!in_array($subdir, array(".",".."))) {
+
+                    /*
+                    if(intval($subdir) % 2 == 0) {
+                        echo "Even";
+                        // continue;
+                    } 
+                    else {
+                        echo "Odd";
+                        continue;
+                    }
+                    */
                     echo "\n[$subdir]";
+                    
                     $files = $dir_to_process.$subdir."/*.mov";
                     foreach (glob($files) as $filename) {
                         if(filesize($filename)) {
@@ -133,6 +187,9 @@ wget https://editors.eol.org/other_files/split.gz_aa
                             $target = str_replace(".mov", ".mp4", $filename);
                             if(!file_exists($target)) {
                                 shell_exec("ffmpeg -i $source $target");
+                            }
+                            else { //we can now delete the $source (.mov file)
+                                unlink($source);
                             }
                         }
                     }
