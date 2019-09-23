@@ -169,6 +169,11 @@ class DwCA_Utility
             $func = new RemoveAvesChildrenAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if($this->resource_id == '233') {
+            require_library('connectors/MediaConvertAPI');
+            $func = new MediaConvertAPI($this->archive_builder, $this->resource_id);
+            $func->start_233($info);
+        }
         // ================================= end of customization ================================= */ 
         
         $this->archive_builder->finalize(TRUE);

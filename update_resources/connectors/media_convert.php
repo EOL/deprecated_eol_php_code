@@ -9,7 +9,7 @@ $timestart = time_elapsed();
 $resource_id = "1";
 // /* un-comment in real operation
 require_library('connectors/MediaConvertAPI');
-$func = new MediaConvertAPI($resource_id);
+$func = new MediaConvertAPI(false, $resource_id);
 $func->start();
 // Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means to delete working resource folder
 // */
