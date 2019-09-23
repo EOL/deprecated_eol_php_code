@@ -24,8 +24,8 @@ class MediaConvertAPI
         $this->path['source']       = '/extra/other_files/EOL_media/';
         $this->path['destination']  = '/extra/other_files/EOL_media_tmp/';
 
-        $this->path['source']       = '/Volumes/AKiTiO4/web/cp/EOL_media/';
-        $this->path['destination']  = '/Volumes/AKiTiO4/web/cp/EOL_media_tmp/';
+        // $this->path['source']       = '/Volumes/AKiTiO4/web/cp/EOL_media/';
+        // $this->path['destination']  = '/Volumes/AKiTiO4/web/cp/EOL_media_tmp/';
     }
     function move_movie_files()
     {
