@@ -81,7 +81,7 @@ class GBIF_classificationAPI
                 $k++;
             }
             
-            // /* breakdown when caching
+            /* breakdown when caching
             $cont = false;
             if($i >=  1    && $i < $m)    $cont = true;          //1st run
             // if($i >=  $m   && $i < $m*2)  $cont = true;          //2nd run
@@ -91,7 +91,7 @@ class GBIF_classificationAPI
             // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //6th run
             // if($i >=  $m*6 && $i < $m*7)  $cont = true;          //7th run
             if(!$cont) continue;
-            // */
+            */
             
             // print_r($rec); exit;
             /*Array(
