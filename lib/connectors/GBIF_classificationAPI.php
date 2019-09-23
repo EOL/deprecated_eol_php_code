@@ -121,6 +121,8 @@ class GBIF_classificationAPI
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7009828) { print_r($rec); exit; } //debug only
 
             if($taxonomicStatus != 'accepted') continue;
+            
+            // $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = "Erica multiflora multiflora"; //debug only
 
             if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
             elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
@@ -149,12 +151,34 @@ class GBIF_classificationAPI
                     }
                     */
                 }
+                if(!$eol_rec['id'] && self::is_subspecies($sciname)) {
+                    $species = self::get_species_from_subspecies($sciname);
+                    if($ret = $func->search_name($species, $this->download_options)) {
+                        if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
+                        $eol_rec = self::get_actual_name($ret, $sciname);
+                    }
+                }
                 self::write_archive($rec, $eol_rec);
                 if(!$eol_rec['id']) { self::log_record($rec, $sciname, '3'); continue; }
                 // */
             }
             // if($i >= 90) break;
         }
+    }
+    private function is_subspecies($sciname)
+    {
+        $arr = explode(" ", $sciname);
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_values($arr); //reindex key
+        if(count($arr) >= 3) return true;
+        else return false;
+    }
+    private function get_species_from_subspecies($sciname)
+    {
+        $arr = explode(" ", $sciname);
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_values($arr); //reindex key
+        return $arr[0]." ".$arr[1];
     }
     private function log_record($rec, $sciname = '', $flag = '')
     {
