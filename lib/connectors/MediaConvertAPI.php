@@ -3,24 +3,11 @@ namespace php_active_record;
 // connector: [media_convert.php]
 class MediaConvertAPI
 {
-    function __construct($archive_builder = false, $resource_id)
+    function __construct($archive_builder, $resource_id)
     {
         $this->resource_id = $resource_id;
-        $this->domain = "http://www.phorid.net/diptera/";
-        $this->taxa_list_url     = $this->domain . "diptera_index.html";
-        $this->phoridae_list_url = $this->domain . "lower_cyclorrhapha/phoridae/phoridae.html";
-        $this->taxa = array();
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        $this->resource_reference_ids = array();
-        $this->do_ids = array();
-        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'download_wait_time' => 500000, 'timeout' => 1200, 
-        // 'download_attempts' => 1, 'delay_in_minutes' => 2, 
-                                        'expire_seconds' => 60*60*24*30*3); //harvest quarterly
-        // $this->download_options['expire_seconds'] = false;
-        // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
-        $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
-
+        $this->archive_builder = $archive_builder;
+        
         $this->path['source']       = '/extra/other_files/EOL_media/';
         $this->path['destination']  = '/extra/other_files/EOL_media_tmp/';
 
@@ -60,6 +47,7 @@ wget https://editors.eol.org/other_files/split.gz_av
 wget https://editors.eol.org/other_files/split.gz_au
 wget https://editors.eol.org/other_files/split.gz_at
 wget https://editors.eol.org/other_files/split.gz_as
+
 wget https://editors.eol.org/other_files/split.gz_ar
 wget https://editors.eol.org/other_files/split.gz_aq
 wget https://editors.eol.org/other_files/split.gz_ap
@@ -74,13 +62,61 @@ wget https://editors.eol.org/other_files/split.gz_ah
 wget https://editors.eol.org/other_files/split.gz_ag
 wget https://editors.eol.org/other_files/split.gz_af
 wget https://editors.eol.org/other_files/split.gz_ae
+
 wget https://editors.eol.org/other_files/split.gz_ad
 wget https://editors.eol.org/other_files/split.gz_ac
-
 wget https://editors.eol.org/other_files/split.gz_ab
 wget https://editors.eol.org/other_files/split.gz_aa
         */
-        
+    }
+    function start_233($info)
+    {   $tables = $info['harvester']->tables;
+        // print_r($tables); exit;
+        self::process_media($tables['http://eol.org/schema/media/document'][0]);
+    }
+    private function process_media($meta)
+    {   //print_r($meta);
+        echo "\nprocess_media...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://purl.org/dc/terms/identifier] => 32809587
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 2
+                [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/MovingImage
+                [http://rs.tdwg.org/audubon_core/subtype] => 
+                [http://purl.org/dc/terms/format] => video/quicktime
+                [http://purl.org/dc/terms/description] => Indo-Pacific, Duration 19 seconds
+                [http://rs.tdwg.org/ac/terms/accessURI] => https://editors.eol.org/other_files/EOL_media/87/32809587.mov
+                [http://rs.tdwg.org/ac/terms/furtherInformationURL] => http://www.underseaproductions.com/royalty-free-stock-footage/humpback-unicornfish-naso-brachycentron-feeding-black-sand-slope-muck-tracking-hd-video-29694
+                [http://ns.adobe.com/xap/1.0/CreateDate] => 2012-10-07T13:07:39Z
+                [http://purl.org/dc/terms/language] => en
+                [http://ns.adobe.com/xap/1.0/Rating] => 2.5
+                [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by-nc/3.0/
+                [http://ns.adobe.com/xap/1.0/rights/Owner] => Josh Jensen, Undersea Productions
+                [http://eol.org/schema/agent/agentID] => c44a8993a5b878d11c8cbda204ccd80c; f433a45680bf8a28bb8fb6975aee67b0
+            )*/
+            $accessURI = $rec['http://rs.tdwg.org/ac/terms/accessURI'];
+            $rec['http://rs.tdwg.org/ac/terms/accessURI'] = str_replace('.mov', '.mp4', $accessURI);
+            $rec['http://purl.org/dc/terms/format'] = Functions::get_mimetype($rec['http://rs.tdwg.org/ac/terms/accessURI']);
+            $o = new \eol_schema\MediaResource();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+        }
     }
     function convert_mov_2_mp4() //a utility
     {

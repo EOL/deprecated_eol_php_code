@@ -19,6 +19,8 @@ Statistics
             video/quicktime: 6718
         Total: 6718
 *The legacy EOL_233_final.tar.gz was renamed to legacy_EOL_233_final.tar.gz. We're going to use the latter moving forward.
+-rw-r--r-- 1 root root 350594 Mar 19  2018 EOL_233_final.tar.gz
+-rw-r--r-- 1 root root 173724 Apr 16  2018 170.tar.gz
 -----------------------------------------------------------------------------------------------------------------------
 started using 233.php - Sep, 2019
 */
@@ -42,11 +44,10 @@ function process_resource_url($dwca_file, $resource_id)
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
 
-    /* Orig in meta.xml has capital letters. Just a note reminder.
-    */
-
-    $preferred_rowtypes = array('http://eol.org/schema/media/document', 'http://eol.org/schema/reference/reference', 'http://eol.org/schema/agent/agent');
-    /* These 4 will be processed in USDAPlants2019.php which will be called from DwCA_Utility.php
+    /* Orig in meta.xml has capital letters. Just a note reminder. */
+    $preferred_rowtypes = array('http://rs.gbif.org/terms/1.0/vernacularname', 'http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/agent/agent');
+    /* This 1 will be processed in MediaConvertAPI.php which will be called from DwCA_Utility.php
+    http://eol.org/schema/media/Document
     */
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id);
