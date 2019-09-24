@@ -27,6 +27,12 @@ class DHConnLib
         $this->listOf_taxa['family'] = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_family_4maps.txt';
         $this->listOf_taxa['genus']  = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_genus_4maps.txt';
         $this->listOf_taxa['all']    = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_all_4maps.txt';
+        
+        $this->all_ranks_['order'] = array('infraorder', 'hyporder', 'superorder', 'order', 'suborder');
+        $this->all_ranks_['family'] = array('superfamily', 'family', 'subfamily', 'tribe');
+        $this->all_ranks_['genus'] = array('genus', 'subgenus', 'series');
+        $this->all_ranks_['species'] = array('species', 'subspecies', 'infraspecies', 'species group', 'variety', 'subvariety', 'form');
+        $this->all_ranks_['all'] = array_merge($this->all_ranks_['order'], $this->all_ranks_['family'], $this->all_ranks_['genus'], $this->all_ranks_['species']);
     }
     // ----------------------------------------------------------------- start -----------------------------------------------------------------
     function generate_children_of_taxa_from_DH() /* This generates cache of children of order, family & genus. Also generates respective list txt files. */
@@ -34,7 +40,7 @@ class DHConnLib
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'list of taxa', 'all'); //for original generation of map data - all taxa with EOLid
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'initialize');
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'buildup ancestry and children');
-
+        
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family', 'order');
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family', 'family');
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'save children of genus and family', 'genus');
@@ -108,7 +114,8 @@ class DHConnLib
                 }
             }
             elseif($purpose == 'save children of genus and family') {
-                if($rec['taxonRank'] == $filter_rank) {
+                // if($rec['taxonRank'] == $filter_rank)
+                if(in_array($rec['taxonRank'], $this->all_ranks_[$filter_rank])) {
                     if($eol_id = $rec['EOLid']) { $found++;
                         $json = self::get_children_from_json_cache($eol_id);
                         // $children = json_decode($json, true); // print_r($children); //debug only
@@ -125,18 +132,43 @@ class DHConnLib
                 }
             }
             elseif($purpose == 'list of taxa') {
-                if($eol_id = $rec['EOLid']) { $found++;
-                    // /* text file here will be used in generating map data for all taxa
-                    if($val = $rec['canonicalName']) $sciname = $val;
-                    else                             $sciname = Functions::canonical_form($rec['scientificName']);
-                    $save = array($sciname, $eol_id, $rec['taxonRank'], $rec['taxonomicStatus']);
-                    fwrite($FILE, implode("\t", $save)."\n");
-                    // */
-                    // if($found >= 5) break; //debug only
+                if(in_array($rec['taxonRank'], $this->all_ranks_['all'])) {
+                    if($eol_id = $rec['EOLid']) { $found++;
+                        // /* text file here will be used in generating map data for all taxa
+                        if($val = $rec['canonicalName']) $sciname = $val;
+                        else                             $sciname = Functions::canonical_form($rec['scientificName']);
+                        $save = array($sciname, $eol_id, $rec['taxonRank'], $rec['taxonomicStatus']);
+                        fwrite($FILE, implode("\t", $save)."\n");
+                        // */
+                        // if($found >= 5) break; //debug only
+                        // $debug[$rec['taxonRank']] = '';
+                    }
                 }
+                
+                /*Array(
+Hi Jen, looking at the actual values for taxon rank in DH.
+I will include these:
+
+I will exclude these:
+[clade] => 
+[domain] => 
+[phylum] => 
+[subclass] => 
+[class] => 
+[] => 
+[subphylum] => 
+[kingdom] => 
+[infraclass] => 
+[superclass] => 
+[informal group] => 
+[paraphyletic group] => 
+
+Please confirm. Thanks.
+                )*/
             }
         }
         if(in_array($purpose, array('list of taxa', 'save children of genus and family'))) fclose($FILE);
+        // print_r($debug);
     }
     function get_children_from_json_cache($name, $options = array(), $gen_descendants_ifNot_availableYN = true)
     {
