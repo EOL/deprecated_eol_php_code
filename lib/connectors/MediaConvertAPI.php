@@ -15,7 +15,6 @@ class MediaConvertAPI
         $this->path['destination']  = '/Volumes/AKiTiO4/web/cp/EOL_media_tmp/';
         
         /*
-
         1. split:
         $ tar cz EOL_media_tmp | split -b 300000000 - ./split.gz_
         2. then download each file locally and merge:
@@ -29,7 +28,6 @@ class MediaConvertAPI
         2. then download each file locally and merge:
         $ cat mp4.gz_* | tar xz
 
-        
 wget https://editors.eol.org/other_files/split.gz_br
 wget https://editors.eol.org/other_files/split.gz_bq
 wget https://editors.eol.org/other_files/split.gz_bp
@@ -75,7 +73,6 @@ wget https://editors.eol.org/other_files/split.gz_ac
 wget https://editors.eol.org/other_files/split.gz_ab
 wget https://editors.eol.org/other_files/split.gz_aa
 
-
 scp mp4.gz_bd archive:~/temp/mp4/.
 scp mp4.gz_bc archive:~/temp/mp4/.
 scp mp4.gz_bb archive:~/temp/mp4/.
@@ -108,7 +105,6 @@ scp mp4.gz_ab archive:~/temp/mp4/.
 scp mp4.gz_aa archive:~/temp/mp4/.
 
 cp -r EOL_media_tmp_mp4 /extra/other_files
-
         */
     }
     function start_233($info)
