@@ -240,7 +240,7 @@ cp -r EOL_media_tmp_mp4 /extra/other_files
                                 if(copy($source, $target)) {
                                     echo("\nCopied from: [$source]\n");
                                     echo("\nCopied to: [$target]\n");
-                                    exit;
+                                    // exit;
                                 }
                                 else exit("\nerror: unable to copy [$source] [$target]\n");
                             }
@@ -253,7 +253,7 @@ cp -r EOL_media_tmp_mp4 /extra/other_files
     }
     function start_utility()
     {   /*
-        self::move_movie_files();
+        self::move_movie_files(); //in eol-archive
         self::convert_mov_2_mp4(); //in MacMini
         */
         self::move_mp4_2_EOL_media(); //in eol-archive
