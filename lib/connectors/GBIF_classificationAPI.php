@@ -155,7 +155,7 @@ class GBIF_classificationAPI
                     $species = self::get_species_from_subspecies($sciname);
                     if($ret = $func->search_name($species, $this->download_options)) {
                         if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                        $eol_rec = self::get_actual_name($ret, $sciname);
+                        $eol_rec = self::get_actual_name($ret, $sciname, false); //last_resort = false
                     }
                 }
                 self::write_archive($rec, $eol_rec);
@@ -207,7 +207,7 @@ class GBIF_classificationAPI
         }
         $this->archive_builder->write_object_to_file($taxon);
     }
-    private function get_actual_name($ret, $sciname)
+    private function get_actual_name($ret, $sciname, $last_resortYN = true)
     {
         foreach($ret['results'] as $r) { //first loop gets exact match only
             /*Array(
@@ -218,7 +218,9 @@ class GBIF_classificationAPI
             )*/
             if($sciname == $r['title']) return $r;
         }
-        if($ret['results']) return $ret['results'][0]; //alternatively, just return the first record
+        if($last_resortYN) {
+            if($ret['results']) return $ret['results'][0]; //alternatively, just return the first record
+        }
     }
     /*
     private function create_taxon_archive($a)
