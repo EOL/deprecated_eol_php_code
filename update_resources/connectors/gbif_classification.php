@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* GBIF classification update - https://eol-jira.bibalex.org/browse/DATA-1826 */
+/* GBIF classification update - https://eol-jira.bibalex.org/browse/DATA-1826 
+gbif_classification	Monday 2019-09-23 09:15:26 PM	{"taxon.tab":2845723}
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = false;
