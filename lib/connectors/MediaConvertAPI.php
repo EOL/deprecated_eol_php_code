@@ -156,7 +156,14 @@ cp -r EOL_media_tmp_mp4 /extra/other_files
             $this->archive_builder->write_object_to_file($o);
         }
     }
-    function convert_mov_2_mp4() //a utility
+    function start_utility()
+    {   /*
+        self::move_movie_files(); //in eol-archive
+        self::convert_mov_2_mp4(); //in MacMini
+        */
+        self::move_mp4_2_EOL_media(); //in eol-archive
+    }
+    private function convert_mov_2_mp4() //a utility
     {
         $path = '/Library/WebServer/Documents/eol_php_code/EOL_media_tmp/';
         $dir_to_process = $path;
@@ -194,7 +201,7 @@ cp -r EOL_media_tmp_mp4 /extra/other_files
             }
         }
     }
-    function move_movie_files() //a utility
+    private function move_movie_files() //a utility
     {
         $dir_to_process = $this->path['source'];
         if($dir = opendir($dir_to_process)) {
@@ -245,58 +252,6 @@ cp -r EOL_media_tmp_mp4 /extra/other_files
                 }
             }
         }
-        
     }
-    function start_utility()
-    {   /*
-        self::move_movie_files(); //in eol-archive
-        self::convert_mov_2_mp4(); //in MacMini
-        */
-        self::move_mp4_2_EOL_media(); //in eol-archive
-    }
-    /*
-    private function write_archive($rec)
-    {
-        $i = -1;
-        foreach($rec['media_info'] as $r) { $i++;
-            $taxon = new \eol_schema\Taxon();
-            $r['taxon_id'] = md5($r['sciname']);
-            $r['source_url'] = $this->page['image_page_url'].@$rec['next_pages'][$i];
-            $taxon->taxonID                 = $r['taxon_id'];
-            $taxon->scientificName          = $r['sciname'];
-            $taxon->parentNameUsageID       = $r['parent_id'];
-            $taxon->furtherInformationURL   = $r['source_url'];
-            // $taxon->taxonRank                = '';
-            $taxon->higherClassification    = implode("|", $r['ancestry']);
-            // echo "\n$taxon->higherClassification\n";
-            // if($reference_ids) $taxon->referenceID = implode("; ", $reference_ids);
-            if(!isset($this->taxon_ids[$taxon->taxonID])) {
-                $this->archive_builder->write_object_to_file($taxon);
-                $this->taxon_ids[$taxon->taxonID] = '';
-            }
-            if($val = @$r['ancestry']) self::create_taxa_for_ancestry($val, $taxon->parentNameUsageID);
-            if(@$r['image']) self::write_image($r);
-        }
-    }
-    private function write_image($rec)
-    {
-        $mr = new \eol_schema\MediaResource();
-        $mr->agentID                = implode("; ", $this->agent_id);
-        $mr->taxonID                = $rec["taxon_id"];
-        $mr->identifier             = md5($rec['image']);
-        $mr->type                   = "http://purl.org/dc/dcmitype/StillImage";
-        $mr->language               = 'en';
-        $mr->format                 = Functions::get_mimetype($rec['image']);
-        $mr->furtherInformationURL  = $rec['source_url'];
-        $mr->accessURI              = $this->page['image_page_url'].$rec['image'];
-        $mr->Owner                  = "Wolfgang Bettighofer";
-        $mr->UsageTerms             = "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        $mr->description            = @$rec["desc"];
-        if(!isset($this->obj_ids[$mr->identifier])) {
-            $this->archive_builder->write_object_to_file($mr);
-            $this->obj_ids[$mr->identifier] = '';
-        }
-    }
-    */
 }
 ?>
