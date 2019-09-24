@@ -107,6 +107,7 @@ scp mp4.gz_ac archive:~/temp/mp4/.
 scp mp4.gz_ab archive:~/temp/mp4/.
 scp mp4.gz_aa archive:~/temp/mp4/.
 
+cp -r EOL_media_tmp_mp4 /extra/other_files
 
         */
     }
@@ -167,7 +168,7 @@ scp mp4.gz_aa archive:~/temp/mp4/.
             while(false !== ($subdir = readdir($dir))) {
                 if(!in_array($subdir, array(".",".."))) {
 
-                    /*
+                    /* to make 2 connectors run. One for even and another for odd $subdir
                     if(intval($subdir) % 2 == 0) {
                         echo "Even";
                         // continue;
@@ -196,7 +197,6 @@ scp mp4.gz_aa archive:~/temp/mp4/.
                 }
             }
         }
-        
     }
     function move_movie_files() //a utility
     {
@@ -223,11 +223,40 @@ scp mp4.gz_aa archive:~/temp/mp4/.
             }
         }
     }
-    function start()
+    private function move_mp4_2_EOL_media()
+    {
+        $dir_to_process = '/extra/other_files/EOL_media_tmp_mp4/';
+        if($dir = opendir($dir_to_process)) {
+            while(false !== ($subdir = readdir($dir))) {
+                if(!in_array($subdir, array(".",".."))) {
+                    echo "\n[$subdir]";
+                    $files = $dir_to_process.$subdir."/*.mp4";
+                    foreach (glob($files) as $filename) {
+                        if(filesize($filename)) {
+                            echo "\n[$filename] - "; //good debug
+                            $source = $filename;
+                            $target = str_replace("EOL_media_tmp_mp4", "EOL_media", $filename);
+                            if(!file_exists($target)) {
+                                if(copy($source, $target)) {
+                                    echo("\nCopied from: [$source]\n");
+                                    echo("\nCopied to: [$target]\n");
+                                    exit;
+                                }
+                                else exit("\nerror: unable to copy [$source] [$target]\n");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    function start_utility()
     {   /*
         self::move_movie_files();
+        self::convert_mov_2_mp4(); //in MacMini
         */
-        self::convert_mov_2_mp4();
+        self::move_mp4_2_EOL_media(); //in eol-archive
     }
     /*
     private function write_archive($rec)

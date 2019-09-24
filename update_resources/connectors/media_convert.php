@@ -10,11 +10,10 @@ $resource_id = "1";
 // /* un-comment in real operation
 require_library('connectors/MediaConvertAPI');
 $func = new MediaConvertAPI(false, $resource_id);
-$func->start();
-// Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means to delete working resource folder
+$func->start_utility();
 // */
 
-/* utility
+/* utility - never used here...
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 // $func->check_unique_ids($resource_id); //takes time
