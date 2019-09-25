@@ -8,12 +8,15 @@ class MediaConvertAPI
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         
-        $this->path['source']       = '/extra/other_files/EOL_media/';
-        $this->path['destination']  = '/extra/other_files/EOL_media_tmp/';
+        if(Functions::is_production()) {
+            $this->path['source']       = '/extra/other_files/EOL_media/';
+            $this->path['destination']  = '/extra/other_files/EOL_media_tmp/';
+        }
+        else {
+            $this->path['source']       = '/Volumes/AKiTiO4/web/cp/EOL_media/';
+            $this->path['destination']  = '/Volumes/AKiTiO4/web/cp/EOL_media_tmp/';
+        }
 
-        $this->path['source']       = '/Volumes/AKiTiO4/web/cp/EOL_media/';
-        $this->path['destination']  = '/Volumes/AKiTiO4/web/cp/EOL_media_tmp/';
-        
         /*
         1. split:
         $ tar cz EOL_media_tmp | split -b 300000000 - ./split.gz_
