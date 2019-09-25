@@ -33,6 +33,24 @@ class DHConnLib
         $this->all_ranks_['genus'] = array('genus', 'subgenus', 'series');
         $this->all_ranks_['species'] = array('species', 'subspecies', 'infraspecies', 'species group', 'variety', 'subvariety', 'form');
         $this->all_ranks_['all'] = array_merge($this->all_ranks_['order'], $this->all_ranks_['family'], $this->all_ranks_['genus'], $this->all_ranks_['species']);
+        /*Array(
+        Hi Jen, looking at the actual values for taxon rank in DH.
+        I will include these:
+        I will exclude these:
+            [clade] => 
+            [domain] => 
+            [phylum] => 
+            [subclass] => 
+            [class] => 
+            [] => 
+            [subphylum] => 
+            [kingdom] => 
+            [infraclass] => 
+            [superclass] => 
+            [informal group] => 
+            [paraphyletic group] => 
+        Please confirm. Thanks.
+        )*/
     }
     // ----------------------------------------------------------------- start -----------------------------------------------------------------
     function generate_children_of_taxa_from_DH() /* This generates cache of children of order, family & genus. Also generates respective list txt files. */
@@ -144,27 +162,6 @@ class DHConnLib
                         // $debug[$rec['taxonRank']] = '';
                     }
                 }
-                
-                /*Array(
-Hi Jen, looking at the actual values for taxon rank in DH.
-I will include these:
-
-I will exclude these:
-[clade] => 
-[domain] => 
-[phylum] => 
-[subclass] => 
-[class] => 
-[] => 
-[subphylum] => 
-[kingdom] => 
-[infraclass] => 
-[superclass] => 
-[informal group] => 
-[paraphyletic group] => 
-
-Please confirm. Thanks.
-                )*/
             }
         }
         if(in_array($purpose, array('list of taxa', 'save children of genus and family'))) fclose($FILE);
