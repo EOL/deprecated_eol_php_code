@@ -72,8 +72,9 @@ class DHConnLib
         */
         exit("\nend muna\n");
     }
-    private function get_taxID_nodes_info($txtfile, $purpose, $filter_rank = '')
+    public function get_taxID_nodes_info($txtfile, $purpose, $filter_rank = '', $returnYN = false)
     {
+        if(!$txtfile) $txtfile = $this->main_path.'/taxon.tab'; //default value
         echo "\nPurpose: $purpose...\n";
         if($purpose == 'initialize') $this->mint2EOLid = array();
         elseif($purpose == 'buildup ancestry and children') { $this->taxID_info = array(); $this->descendants = array(); }
@@ -160,12 +161,17 @@ class DHConnLib
                         // */
                         // if($found >= 5) break; //debug only
                         // $debug[$rec['taxonRank']] = '';
+                        $taxID_rank_info[$rec['EOLid']] = array('r' => $rec['taxonRank'], 'n' => $rec['scientificName']); //to use in GBIF maps
                     }
                 }
             }
         }
         if(in_array($purpose, array('list of taxa', 'save children of genus and family'))) fclose($FILE);
         // print_r($debug);
+        
+        if($returnYN && $purpose == 'list of taxa') {
+            return $taxID_rank_info; //to be used in library GBIFoccurrenceAPI_DwCA - save_ids_to_text_from_many_folders()
+        }
     }
     function get_children_from_json_cache($name, $options = array(), $gen_descendants_ifNot_availableYN = true)
     {

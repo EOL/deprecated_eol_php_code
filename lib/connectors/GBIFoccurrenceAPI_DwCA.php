@@ -912,6 +912,14 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function save_ids_to_text_from_many_folders() //a utility
     {
+        // /* new: to limit the taxa to those: Order, Family, Genus, Species
+        require_library('connectors/DHConnLib');
+        $func = new DHConnLib('');
+        $taxID_rank_info = $func->get_taxID_nodes_info(false, 'list of taxa', 'all', true); //4th param true means has return value. first param false means use current DH.
+        // print_r($func->all_ranks_['all']); exit;
+        // print_r($taxID_rank_info); exit("\n-end muna-\n");
+        // */
+        
         $dir_to_process = $this->save_path['map_data'];
         $text_file = $this->save_path['map_data']."final_taxon_concept_IDS.txt";
         $i = 0;
@@ -923,8 +931,11 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                         $files = $dir_to_process.$subdir."/*.json";
                         foreach (glob($files) as $filename) {
                             if(filesize($filename)) {
-                                // echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME); //good debug
-                                fwrite($fhandle, pathinfo($filename, PATHINFO_FILENAME) . "\n");
+                                $taxID = pathinfo($filename, PATHINFO_FILENAME);
+                                if(in_array($taxID_rank_info[$taxID]['r'], $func->all_ranks_['all'])) {
+                                    // echo "\n[$filename] - " . $taxID; //good debug
+                                    fwrite($fhandle, $taxID . "\n");
+                                }
                                 $i++;
                             }
                         }
