@@ -102,7 +102,7 @@ class DwCA_Utility
         echo "\nConverting archive to EOL DwCA...\n";
         
         if($this->resource_id == 'test_eli') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //placeholder for customized resources with respective download_options
-        elseif(in_array($this->resource_id, array('globi_associations'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30));
+        elseif(in_array($this->resource_id, array('globi_associations', '170_mp4'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30));
         elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
         else $info = self::start(); //default
 
@@ -174,6 +174,11 @@ class DwCA_Utility
             require_library('connectors/MediaConvertAPI');
             $func = new MediaConvertAPI($this->archive_builder, $this->resource_id);
             $func->start_233($info);
+        }
+        if($this->resource_id == '170_mp4') {
+            require_library('connectors/MovieFilesAPI');
+            $func = new MovieFilesAPI($this->archive_builder, $this->resource_id);
+            $func->update_dwca($info);
         }
         // ================================= end of customization ================================= */ 
         
