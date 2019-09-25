@@ -932,7 +932,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                         foreach (glob($files) as $filename) {
                             if(filesize($filename)) {
                                 $taxID = pathinfo($filename, PATHINFO_FILENAME);
-                                if(in_array($taxID_rank_info[$taxID]['r'], $func->all_ranks_['all'])) {
+                                if(in_array(@$taxID_rank_info[$taxID]['r'], $func->all_ranks_['all'])) {
                                     // echo "\n[$filename] - " . $taxID; //good debug
                                     fwrite($fhandle, $taxID . "\n");
                                 }
