@@ -102,7 +102,7 @@ class MovieFilesAPI
         $cache2 = substr($md5, 2, 2);
 
         $options['cache_path'] = $this->path['source'];
-        $options['cache_path'] .= str_replace('_mp4', '', $this->resource_id) . "/";
+        $options['cache_path'] .= str_replace('_final', '', $this->resource_id) . "/";
         if(!file_exists($options['cache_path'])) mkdir($options['cache_path']);
 
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
@@ -180,7 +180,7 @@ class MovieFilesAPI
                 if(!file_exists($accessURI)) continue; //means the conversion from .mov to .mp4 was not successful
                 
                 $arr = explode('other_files', $accessURI);
-                $final = 'https://editors.eol.org/other_files/'.$arr[1];
+                $final = 'https://editors.eol.org/other_files'.$arr[1];
                 
                 $rec['http://rs.tdwg.org/ac/terms/accessURI'] = $final;
                 $rec['http://purl.org/dc/terms/format'] = Functions::get_mimetype($rec['http://rs.tdwg.org/ac/terms/accessURI']);
