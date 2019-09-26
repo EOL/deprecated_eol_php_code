@@ -7,7 +7,6 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/170.t
 This connector then finally generates 170_final.tar.gz
 Where all .mov files (from 170.tar.gz) are converted to .mp4 files.
 
-
 This connector is for those partners who host movie (.mov) files.
 Script should be able to:
 - download .mov file
