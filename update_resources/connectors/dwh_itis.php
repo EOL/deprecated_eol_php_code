@@ -19,6 +19,7 @@ Note: Database download files are currently from the 25-Feb-2019 data load.
 $dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
 $resource_id = "itis_2019-02-25";
 $resource_id = "itis_2019-03-31";
+$resource_id = "itis_2019-08-28";
 
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);

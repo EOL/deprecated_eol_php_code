@@ -117,6 +117,7 @@ class INBioAPI
         elseif(file_exists($temp_dir ."EOL_dynamic_hierarchy/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."EOL_dynamic_hierarchy/", 'temp_dir' => $temp_dir); //for https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip
         elseif(file_exists($temp_dir ."itisMySQL022519/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL022519/", 'temp_dir' => $temp_dir); //from ITIS downloads - TRAM-804
         elseif(file_exists($temp_dir ."itisMySQL033119/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL033119/", 'temp_dir' => $temp_dir); //from ITIS downloads - TRAM-806
+        elseif(file_exists($temp_dir ."itisMySQL082819/". $check_file_or_folder_name)) return array('archive_path' => $temp_dir."itisMySQL082819/", 'temp_dir' => $temp_dir); //from ITIS downloads
         else
         {
             echo "\n1. ".$temp_dir . $check_file_or_folder_name."\n";
