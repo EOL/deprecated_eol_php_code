@@ -159,7 +159,6 @@ class DWH_ITIS_API
         $this->syn_func = new SynonymsMtce();
         /* ===================================== END: For Synonym Maintenance ======================================= */
         
-        
         //step 1: get unnamed_taxon_ind == Y and all its children
         $what = 'unnamed_taxon_ind';
         $unnamed_taxon_ind_Y = self::process_file($info['archive_path'].'taxonomic_units', $what);
@@ -354,8 +353,6 @@ class DWH_ITIS_API
                         }
                         */
                     }
-                    
-                    
                     
                     $rec['scientificNameAuthorship'] = @$this->info_author[$rec['col_19']];
                     $rec['kingdom'] = @$this->info_kingdom[$rec['col_21']];
