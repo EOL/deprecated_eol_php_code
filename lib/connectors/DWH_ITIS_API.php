@@ -131,12 +131,12 @@ class DWH_ITIS_API
         /* build language info list */
         $this->info_vernacular = self::build_language_info(); // print_r($this->info_vernacular);
         
-        // /* un-comment in real operation
+        /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
         print_r($info); //exit;
-        // */
+        */
         
-        /* debug - force assign, used only during development...
+        // /* debug - force assign, used only during development...
         $info = Array( //dir_44057
             // from MacMini ---------------------------------
             // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
@@ -149,10 +149,16 @@ class DWH_ITIS_API
             // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
             // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
-        */
+        // */
         
         $temp_dir = $info['temp_dir']; // print_r($info); exit;
         echo "\nProcessing...\n";
+        
+        /* ===================================== START: For Synonym Maintenance ===================================== */
+        require_library('connectors/SynonymsMtce');
+        $this->syn_func = new SynonymsMtce();
+        /* ===================================== END: For Synonym Maintenance ======================================= */
+        
         
         //step 1: get unnamed_taxon_ind == Y and all its children
         $what = 'unnamed_taxon_ind';
@@ -170,7 +176,11 @@ class DWH_ITIS_API
         self::process_file($info['archive_path'].'taxon_authors_lkp', 'taxon_authors_lkp'); // print_r($this->info_author); exit("\ncheck info_author\n");
         self::process_file($info['archive_path'].'longnames', 'longnames');                 // print_r($this->info_longnames); exit("\ncheck info_longnames\n");
         self::process_file($info['archive_path'].'synonym_links', 'synonym_links');         // print_r($this->info_synonym); exit("\ncheck info_synonym\n");
-        
+
+        /* ===================================== START: For Synonym Maintenance ===================================== */
+        self::build_taxonID_info(); //$this->taxonID_info
+        /* ===================================== END: For Synonym Maintenance ======================================= */
+
         //step 4: create taxon archive with filter 
         self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca', $remove_ids);
         
@@ -180,14 +190,65 @@ class DWH_ITIS_API
         print_r($this->debug);
         $this->archive_builder->finalize(true);
         
-        // /* uncomment in real operation
+        /* uncomment in real operation
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        // */
+        */
 
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
+    }
+    private function build_taxonID_info()
+    {
+        $file = $info['archive_path'].'taxonomic_units';
+        $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            if(!$line) continue;
+            if(Functions::is_utf8($line)) {}
+            else $line = utf8_encode($line);
+            
+            $row = explode("|", $line);
+            // print_r($row); exit;
+            if(!$row) continue; //continue; or break; --- should work fine
+            $i++; if(($i % 100000) == 0) echo "\n $i ";
+            if($i == 1) {
+                $fields = self::fill_up_blank_fieldnames($row); // print_r($fields);
+                $count = count($fields);
+            }
+            else { //main records
+                $values = $row;
+                $k = 0; $rec = array();
+                foreach($fields as $field) {
+                    $rec[$field] = $values[$k];
+                    $k++;
+                }
+                $rec = array_map('trim', $rec); //important step
+                print_r($rec); exit;
+                
+                // /*
+                $rek = array();
+                $rek['taxonID'] = $rec['col_1'];
+                $rek['acceptedNameUsageID'] = @$this->info_synonym[$rec['col_1']];
+                $rek['parentNameUsageID'] = $rec['col_18'];
+                if(in_array($rek['taxonID'], $remove_ids)) continue;
+                if(in_array($rek['parentNameUsageID'], $remove_ids)) { //may not pass this line
+                    continue;
+                }
+                if(in_array($rek['acceptedNameUsageID'], $remove_ids)) { //may not pass this line
+                    continue;
+                }
+                $rek['taxonomicStatus'] = $rec['col_25']; //values are valid, invalid, accepted, not accepted
+                $rek['taxonRank'] = @$this->info_rank[$rec['col_21']][$rec['col_22']];
+                
+                $this->taxonID_info[$rek['taxonID']] = array('aID' => $rek['acceptedNameUsageID'], 
+                                                             'pID' => $rek['parentNameUsageID'],
+                                                             's' => $rek['taxonomicStatus'],
+                                                             'r' => $rek['taxonRank']);
+                // */
+                
+            }
+        }
     }
     private function process_file($file, $what, $remove_ids = array())
     {
@@ -326,6 +387,12 @@ class DWH_ITIS_API
         
         // if($rec['scientificName'] == "Not assigned") $rec['scientificName'] = self::replace_NotAssigned_name($rec);
         // $rec['scientificName'] = Functions::remove_whitespace(str_ireplace("(Unplaced)", "", $rec['scientificName']));
+        
+        /* ===================================== START: For Synonym Maintenance ===================================== */
+        if(isset($this->syn_func)) {
+            if(!($rec = $this->syn_func->synonym_maintenance($rec))) return;
+        }
+        /* ===================================== END: For Synonym Maintenance ======================================= */
         
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID                     = $rec['taxonID'];

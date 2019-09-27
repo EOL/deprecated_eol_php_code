@@ -2,9 +2,12 @@
 namespace php_active_record;
 /* TRAM-804 
 itis_2019-02-25	Wednesday 2019-03-27 08:02:55 AM	{"taxon.tab":798950,"vernacular_name.tab":112697}
+
 itis_2019-03-31	Sunday 2019-04-21 10:10:02 PM	    {"taxon.tab":799768,"vernacular_name.tab":112703} Mac Mini
 itis_2019-03-31	Sunday 2019-04-21 10:26:39 PM	    {"taxon.tab":799768,"vernacular_name.tab":112703} eol-archive
 
+itis_2019-08-28	Friday 2019-09-27 10:32:35 AM	{"taxon.tab":804287,"vernacular_name.tab":113136} Mac Mini
+itis_2019-08-28	Friday 2019-09-27 10:47:46 AM	{"taxon.tab":804287,"vernacular_name.tab":113136} eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -19,7 +22,7 @@ Note: Database download files are currently from the 25-Feb-2019 data load.
 $dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
 $resource_id = "itis_2019-02-25";
 $resource_id = "itis_2019-03-31";
-$resource_id = "itis_2019-08-28";
+$resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
 
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);
