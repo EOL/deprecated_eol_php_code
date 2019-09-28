@@ -177,7 +177,7 @@ class DWH_ITIS_API
         self::process_file($info['archive_path'].'synonym_links', 'synonym_links');         // print_r($this->info_synonym); exit("\ncheck info_synonym\n");
 
         /* ===================================== START: For Synonym Maintenance ===================================== */
-        self::build_taxonID_info(); //$this->taxonID_info
+        self::build_taxonID_info($info, $remove_ids); //$this->taxonID_info
         /* ===================================== END: For Synonym Maintenance ======================================= */
 
         //step 4: create taxon archive with filter 
@@ -198,8 +198,9 @@ class DWH_ITIS_API
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
     }
-    private function build_taxonID_info()
+    private function build_taxonID_info($info, $remove_ids) //this a specific function for implementing SynonymMtce. Each resource will have something like this one.
     {
+        debug("\nBuilding taxonID_info...\n");
         $file = $info['archive_path'].'taxonomic_units';
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
@@ -223,7 +224,7 @@ class DWH_ITIS_API
                     $k++;
                 }
                 $rec = array_map('trim', $rec); //important step
-                print_r($rec); exit;
+                // print_r($rec); exit;
                 
                 // /*
                 $rek = array();
@@ -245,7 +246,6 @@ class DWH_ITIS_API
                                                              's' => $rek['taxonomicStatus'],
                                                              'r' => $rek['taxonRank']);
                 // */
-                
             }
         }
     }
@@ -387,7 +387,7 @@ class DWH_ITIS_API
         
         /* ===================================== START: For Synonym Maintenance ===================================== */
         if(isset($this->syn_func)) {
-            if(!($rec = $this->syn_func->synonym_maintenance($rec))) return;
+            if(!($rec = $this->syn_func->is_valid_synonym_or_taxonYN($rec, $this->taxonID_info))) return;
         }
         /* ===================================== END: For Synonym Maintenance ======================================= */
         
