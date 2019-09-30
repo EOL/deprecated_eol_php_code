@@ -162,8 +162,8 @@ class DWH_ITIS_API
         echo "\nProcessing...\n";
         
         /* ===================================== START: For Synonym Maintenance ===================================== */
-        require_library('connectors/SynonymsMtce');
-        $this->syn_func = new SynonymsMtce($this->resource_id);
+        // require_library('connectors/SynonymsMtce');
+        // $this->syn_func = new SynonymsMtce($this->resource_id);
         /* ===================================== END: For Synonym Maintenance ======================================= */
         
         //step 1: get unnamed_taxon_ind == Y and all its children
@@ -184,7 +184,7 @@ class DWH_ITIS_API
         self::process_file($info['archive_path'].'synonym_links', 'synonym_links');         // print_r($this->info_synonym); exit("\ncheck info_synonym\n");
 
         /* ===================================== START: For Synonym Maintenance ===================================== */
-        self::build_taxonID_info($info, $remove_ids); //$this->taxonID_info
+        // self::build_taxonID_info($info, $remove_ids); //$this->taxonID_info
         /* ===================================== END: For Synonym Maintenance ======================================= */
 
         //step 4: create taxon archive with filter 
@@ -393,9 +393,9 @@ class DWH_ITIS_API
         // $rec['scientificName'] = Functions::remove_whitespace(str_ireplace("(Unplaced)", "", $rec['scientificName']));
         
         /* ===================================== START: For Synonym Maintenance ===================================== */
-        if(isset($this->syn_func)) {
-            if(!($rec = $this->syn_func->is_valid_synonym_or_taxonYN($rec, $this->taxonID_info))) return;
-        }
+        // if(isset($this->syn_func)) {
+        //     if(!($rec = $this->syn_func->is_valid_synonym_or_taxonYN($rec, $this->taxonID_info))) return;
+        // }
         /* ===================================== END: For Synonym Maintenance ======================================= */
         
         $taxon = new \eol_schema\Taxon();
