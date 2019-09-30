@@ -44,10 +44,6 @@ class SynonymsMtce
 
     If there are synonyms that violate these rank-based rules, we should exclude them from the resource.
     */
-    function build_taxonID_info()
-    {
-        
-    }
     function is_valid_synonym_or_taxonYN($rec, $taxonID_info)
     {
         // print_r($rec); exit;
