@@ -27,7 +27,7 @@ $resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);
 $func->start(); //main operation
-Functions::finalize_dwca_resource($resource_id, false, false);
+Functions::finalize_dwca_resource($resource_id, false, true);
 // */
 
 run_diagnostics($resource_id);

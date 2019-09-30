@@ -138,12 +138,12 @@ class DWH_ITIS_API
         /* build language info list */
         $this->info_vernacular = self::build_language_info(); // print_r($this->info_vernacular);
         
-        /* un-comment in real operation
+        // /* un-comment in real operation
         if(!($info = self::prepare_archive_for_access())) return;
         print_r($info); //exit;
-        */
+        // */
         
-        // /* debug - force assign, used only during development...
+        /* debug - force assign, used only during development...
         $info = Array( //dir_44057
             // from MacMini ---------------------------------
             // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
@@ -156,7 +156,7 @@ class DWH_ITIS_API
             // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
             // 'temp_dir' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/'
         );
-        // */
+        */
         
         $temp_dir = $info['temp_dir']; // print_r($info); exit;
         echo "\nProcessing...\n";
@@ -196,11 +196,11 @@ class DWH_ITIS_API
         print_r($this->debug);
         $this->archive_builder->finalize(true);
         
-        /* uncomment in real operation
+        // /* uncomment in real operation
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
 
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
