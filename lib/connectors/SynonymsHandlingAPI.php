@@ -12,7 +12,7 @@ class SynonymsHandlingAPI
             $this->valid_statuses = array('valid', 'accepted');
             $this->invalid_statuses = array('invalid', 'not accepted');
         }
-        elseif($resource_id == '368') { //and so on
+        elseif($resource_id == '368_final') { //and so on
             $this->valid_statuses = array('valid', 'accepted');
             $this->invalid_statuses = array('obsolete variant', 'subjective synonym', 'misspelling', 'replaced', 'nomen dubium', 'corrected',
                                             'objective synonym', 'nomen vanum', 'reassigned', 'nomen nudum', 'recombined', 'nomen oblitum');
@@ -134,7 +134,7 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
                     else return false;
                 }
                 else {
-                    print_r($rec);echo " -- 111";
+                    // print_r($rec);echo " -- 111";
                     return false;
                 }
             }
@@ -145,7 +145,7 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
                     else return false;
                 }
                 else {
-                    print_r($rec);echo " -- 222";
+                    // print_r($rec);echo " -- 222";
                     return false;
                 }
             }
