@@ -9,6 +9,7 @@ itis_2019-03-31	Sunday 2019-04-21 10:26:39 PM	    {"taxon.tab":799768,"vernacula
 itis_2019-08-28	Friday 2019-09-27 10:32:35 AM	{"taxon.tab":804287,"vernacular_name.tab":113136} Mac Mini
 itis_2019-08-28	Friday 2019-09-27 10:47:46 AM	{"taxon.tab":804287,"vernacular_name.tab":113136} eol-archive
 itis_2019-08-28	Monday 2019-09-30 06:17:33 AM	{"taxon.tab":802601,"vernacular_name.tab":113136} eol-archive
+itis_2019-08-28	Monday 2019-09-30 10:24:36 AM	{"taxon.tab":802601,"vernacular_name.tab":113136} Mac Mini
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

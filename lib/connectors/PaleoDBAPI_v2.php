@@ -699,12 +699,15 @@ class PaleoDBAPI_v2
                 return false;
             }
         }
-        
+        if($taxon->taxonomicStatus == 'invalid subgroup') return false;
         $this->archive_builder->write_object_to_file($taxon);
         
         // Important: Taxa that have an acc parameter are synonyms, spelling variants, and variants with alternative ranks. For these we only want to use the taxon information as outlined above. 
         // Ignore measurements and vernaculars associated with these records.               
-        if(@$a[$this->map['acceptedNameUsageID']]) return false;
+        if(@$a[$this->map['acceptedNameUsageID']]) {
+            $this->debug['synonym statuses'][$taxon->taxonomicStatus] = '';
+            return false;
+        }
         
         return $taxon->taxonID;
     }
