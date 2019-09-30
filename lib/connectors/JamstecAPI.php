@@ -185,6 +185,7 @@ class JamstecAPI
         $mr->contributor        = $rec['the pilot・operator・image editor'];
         $mr->UsageTerms         = $this->licenses[$rec['license']];
         $mr->bibliographicCitation = $rec['partner site'];
+        $mr->publisher = "Global Oceanographic Data Center, http://www.godac.jp/en";
         // $mr->rights         = '';
         // $mr->audience       = 'Everyone';
         // $mr->thumbnailURL   = '';
