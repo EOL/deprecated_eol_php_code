@@ -13,7 +13,7 @@ $timestart = time_elapsed();
 // print_r($argv);
 $params['jenkins_or_cron']  = @$argv[1];
 $params['resource_id']      = @$argv[2];
-print_r($params); exit;
+print_r($params); //exit;
 
 if($resource_id = @$params['resource_id']) {}
 else exit("\nERROR: No resource_id.\n");
