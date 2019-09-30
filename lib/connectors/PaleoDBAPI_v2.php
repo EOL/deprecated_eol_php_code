@@ -670,6 +670,7 @@ class PaleoDBAPI_v2
         )*/
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonomicStatus          = self::compute_taxonomicStatus($a);
+        $this->debug['taxonomicStatus'][$taxon->taxonomicStatus] = '';
         $taxon->taxonID                  = self::compute_taxonID($a, $taxon->taxonomicStatus);
         $taxon->scientificName           = $a[$this->map['scientificName']];
         if(!$taxon->scientificName) return false;
@@ -729,7 +730,7 @@ class PaleoDBAPI_v2
         // $this->map['taxonRank']                 = "rnk";
         // $this->map['taxonomicStatus']           = "tdf";
 
-        if($tdf = @$a[$this->map['taxonomicStatus']]) $this->debug['taxonomicStatus'][$tdf] = ''; //just for debug stats
+        // if($tdf = @$a[$this->map['taxonomicStatus']]) $this->debug['taxonomicStatus'][$tdf] = ''; //just for debug stats
 
         if($taxon_status == 'accepted') {
             if($acc = @$a['acc']) exit("\nShould not go here!\n");
