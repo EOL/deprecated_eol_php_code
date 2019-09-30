@@ -128,6 +128,13 @@ class DWH_ITIS_API
         $rec['taxonRemarks'] = '';
         self::write_taxon_DH($rec);
         
+        // /*
+        $this->taxonID_info[$rec['taxonID']] = array('aID' => $rec['acceptedNameUsageID'],
+                                                     'pID' => $rec['parentNameUsageID'],
+                                                     's' => $rec['taxonomicStatus'],
+                                                     'r' => $rec['taxonRank']);
+        // */
+        
         /* build language info list */
         $this->info_vernacular = self::build_language_info(); // print_r($this->info_vernacular);
         
@@ -156,7 +163,7 @@ class DWH_ITIS_API
         
         /* ===================================== START: For Synonym Maintenance ===================================== */
         require_library('connectors/SynonymsMtce');
-        $this->syn_func = new SynonymsMtce();
+        $this->syn_func = new SynonymsMtce($this->resource_id);
         /* ===================================== END: For Synonym Maintenance ======================================= */
         
         //step 1: get unnamed_taxon_ind == Y and all its children

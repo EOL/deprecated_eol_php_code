@@ -72,6 +72,14 @@ class SynonymsMtce
                     [s] => valid
                     [r] => species
                 )
+
+taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	scientificNameAuthorship	taxonomicStatus	taxonRemarks	canonicalName
+50	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=50#null			Bacteria Cavalier-Smith, 2002	kingdom	Cavalier-Smith, 2002	valid		Bacteria
+52	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=52#null	50		Archangiaceae	family		invalid	unavailable, database artifact	Archangiaceae
+54	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=54#null	50		Rhodobacteriineae	suborder		invalid	unavailable, database artifact	Rhodobacteriineae
+55	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=55#null	50		Pseudomonadineae	suborder		invalid	unavailable, database artifact	Pseudomonadineae
+56	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=56#null	50		Nitrobacteraceae	family		invalid	unavailable, database artifact	Nitrobacteraceae
+
         */
         if(self::is_record_a_synonymYN($rec)) {
             /* 1. A synonym with taxonRank (genus|subgenus) can only point to an acceptedName with taxonRank (genus|subgenus). */
@@ -83,15 +91,29 @@ class SynonymsMtce
                 else return false;
             }
             elseif(in_array($rec['taxonRank'], $this->species_ranks)) {
-                if($info = $taxonID_info['acceptedNameUsageID']) {
+                if($info = $taxonID_info[$rec['acceptedNameUsageID']]) {
                     if(in_array($info['r'], $this->species_ranks)) return $rec; //Ok
                     else return false;
                 }
-                else return false;
+                else {
+                    print_r($rec);echo " -- 111";
+                    return false;
+                }
+            }
+            elseif($rec['taxonRank'] == '') { //for rules 3 & 4
+                if($info = $taxonID_info[$rec['acceptedNameUsageID']]) {
+                    $ranks = array_merge(array('genus','subgenus'), $this->species_ranks);
+                    if(in_array($info['r'], $ranks)) return $rec; //Ok
+                    else return false;
+                }
+                else {
+                    print_r($rec);echo " -- 222";
+                    return false;
+                }
             }
         }
         else { //NOT a synonym
-            /* 3. A taxon with taxonRank (genus|subgenus) can only have synonyms with taxonRank (genus|subgenus) or where taxonRank is empty. */
+            /* 3 & 4 */
         }
         return $rec;
     }
