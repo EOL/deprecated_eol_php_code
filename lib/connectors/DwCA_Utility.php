@@ -103,7 +103,7 @@ class DwCA_Utility
         
         if($this->resource_id == 'test_eli') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //placeholder for customized resources with respective download_options
         elseif(in_array($this->resource_id, array('globi_associations', '170_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30));
-        elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
+        elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
         else $info = self::start(); //default
 
         $temp_dir = $info['temp_dir'];
@@ -121,7 +121,7 @@ class DwCA_Utility
         foreach($index as $row_type) {
             /* ----------customized start------------ */
             if(substr($this->resource_id,0,3) == 'SC_') break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
-            elseif($this->resource_id == 368) break; //all extensions will be processed elsewhere.
+            elseif($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -165,7 +165,7 @@ class DwCA_Utility
             $func = new SDRreportLib($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if($this->resource_id == '368') {
+        if($this->resource_id == '368_removed_aves') {
             require_library('connectors/RemoveAvesChildrenAPI');
             $func = new RemoveAvesChildrenAPI($this->archive_builder, $this->resource_id);
             $func->start($info);

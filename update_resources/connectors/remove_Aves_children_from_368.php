@@ -25,7 +25,7 @@ $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 $resource_id = '368_removed_aves';
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/368.tar.gz'; //the DwCA to adjust.
-else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/368_orig.tar.gz'; //during development only
+else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/368.tar.gz'; //during development only
 process_resource_url($dwca_file, $resource_id);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
