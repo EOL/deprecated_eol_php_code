@@ -12,8 +12,8 @@ class SynonymsHandlingAPI
             $this->valid_statuses = array('valid', 'accepted');
             $this->invalid_statuses = array('invalid', 'not accepted');
         }
-        elseif($resource_id == '368_final') { //and so on
-            $this->valid_statuses = array('accepted');
+        elseif($resource_id == '368_final') { //PBDB PaleoBiology Database
+            $this->valid_statuses = array('accepted', 'valid');
             $this->invalid_statuses = array('obsolete variant', 'subjective synonym', 'misspelling', 'replaced', 'nomen dubium', 'corrected',
                                             'objective synonym', 'nomen vanum', 'reassigned', 'nomen nudum', 'recombined', 'nomen oblitum');
         }
@@ -49,6 +49,7 @@ class SynonymsHandlingAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             // print_r($rec); exit;
             /* e.g. for itis resource
             Array(
