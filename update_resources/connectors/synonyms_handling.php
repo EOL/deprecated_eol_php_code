@@ -37,6 +37,12 @@ $dwca_file          = $info[$resource_id]['dwca_file'];
 $preferred_rowtypes = $info[$resource_id]['preferred_rowtypes'];
 process_resource_url($dwca_file, $resource_id, $preferred_rowtypes);
 
+// /* newly refactored routine
+require_library('connectors/DWCADiagnoseAPI');
+$func = new DWCADiagnoseAPI();
+$func->run_diagnostics($resource_id);
+// */
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";

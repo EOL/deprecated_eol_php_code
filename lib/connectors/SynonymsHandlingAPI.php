@@ -126,14 +126,14 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
         if(self::is_record_a_synonymYN($rec)) {
             /* 1. A synonym with taxonRank (genus|subgenus) can only point to an acceptedName with taxonRank (genus|subgenus). */
             if(in_array($rec['taxonRank'], array('genus','subgenus'))) {
-                if($info = $this->taxonID_info[$rec['acceptedNameUsageID']]) {
+                if($info = @$this->taxonID_info[$rec['acceptedNameUsageID']]) {
                     if(in_array($info['r'], array('genus','subgenus'))) return $rec; //Ok
                     else return false;
                 }
                 else return false;
             }
             elseif(in_array($rec['taxonRank'], $this->species_ranks)) {
-                if($info = $this->taxonID_info[$rec['acceptedNameUsageID']]) {
+                if($info = @$this->taxonID_info[$rec['acceptedNameUsageID']]) {
                     if(in_array($info['r'], $this->species_ranks)) return $rec; //Ok
                     else return false;
                 }
