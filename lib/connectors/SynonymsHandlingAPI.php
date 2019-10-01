@@ -155,13 +155,19 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
             }
             
             /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym START */
-            if($info = $this->taxonID_info[$rec['acceptedNameUsageID']]) return $rec; //Ok
+            if($info = @$this->taxonID_info[$rec['acceptedNameUsageID']]) return $rec; //Ok
             else return false;
             /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym END */
         }
         else { //NOT a synonym
             /* 3 & 4 */
         }
+        
+        /* Eli's general cleaning: if parentNameUsageID doesn't have an entry ignore that taxon START */
+        if($info = @$this->taxonID_info[$rec['parentNameUsageID']]) return $rec; //Ok
+        else return false;
+        /* Eli's general cleaning: if parentNameUsageID doesn't have an entry ignore that taxon END */
+        
         return $rec;
     }
     private function is_record_a_synonymYN($rec)
