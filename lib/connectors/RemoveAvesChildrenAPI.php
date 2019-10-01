@@ -53,6 +53,8 @@ class RemoveAvesChildrenAPI
             
             if($what == 'taxon') {
                 if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) continue;
+                if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']])) continue;
+                if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID']])) continue;
                 $o = new \eol_schema\Taxon();
             }
             elseif($what == 'vernacular') {
