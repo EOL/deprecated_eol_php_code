@@ -2823,7 +2823,8 @@ class WikiDataAPI
         }
         else {
             // echo "\n--- $html ---\n";
-            exit("\n-----\nNot found, investigate [$this->language_code]\n[$url]\n-----\n");
+            echo("\n-----\nNot found, investigate [$this->language_code]\n[$url]\n-----\n"); //Previously exits here.
+            // Cause for investigation, check final wiki if OK, since we continued process for now.
         }
         
         /* additional sections to remove e.g. lang 'nl' for Mus musculus */
