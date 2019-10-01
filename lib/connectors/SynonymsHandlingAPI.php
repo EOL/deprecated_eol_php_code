@@ -153,17 +153,17 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
                     return false;
                 }
             }
-            
-            /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym START */
-            if($accepted = $rec['acceptedNameUsageID']) {
-                if($info = @$this->taxonID_info[$accepted]) return $rec; //Ok
-                else return false;
-            }
-            /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym END */
         }
         else { //NOT a synonym
             /* 3 & 4 */
         }
+
+        /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym START */
+        if($accepted = $rec['acceptedNameUsageID']) {
+            if($info = @$this->taxonID_info[$accepted]) return $rec; //Ok
+            else return false;
+        }
+        /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym END */
         
         /* Eli's general cleaning: if parentNameUsageID doesn't have an entry ignore that taxon START */
         if($parent = $rec['parentNameUsageID']) {
