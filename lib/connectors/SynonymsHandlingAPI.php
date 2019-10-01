@@ -155,8 +155,10 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
             }
             
             /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym START */
-            if($info = @$this->taxonID_info[$rec['acceptedNameUsageID']]) return $rec; //Ok
-            else return false;
+            if($accepted = $rec['acceptedNameUsageID']) {
+                if($info = @$this->taxonID_info[$accepted]) return $rec; //Ok
+                else return false;
+            }
             /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym END */
         }
         else { //NOT a synonym
@@ -164,8 +166,10 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
         }
         
         /* Eli's general cleaning: if parentNameUsageID doesn't have an entry ignore that taxon START */
-        if($info = @$this->taxonID_info[$rec['parentNameUsageID']]) return $rec; //Ok
-        else return false;
+        if($parent = $rec['parentNameUsageID']) {
+            if($info = @$this->taxonID_info[$parent]) return $rec; //Ok
+            else return false;
+        }
         /* Eli's general cleaning: if parentNameUsageID doesn't have an entry ignore that taxon END */
         
         return $rec;
