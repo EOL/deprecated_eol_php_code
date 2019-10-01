@@ -13,13 +13,13 @@ class SynonymsHandlingAPI
             $this->invalid_statuses = array('invalid', 'not accepted');
         }
         elseif($resource_id == '368_final') { //and so on
-            $this->valid_statuses = array('valid', 'accepted');
+            $this->valid_statuses = array('accepted');
             $this->invalid_statuses = array('obsolete variant', 'subjective synonym', 'misspelling', 'replaced', 'nomen dubium', 'corrected',
                                             'objective synonym', 'nomen vanum', 'reassigned', 'nomen nudum', 'recombined', 'nomen oblitum');
         }
         else {
             $this->valid_statuses = array('valid', 'accepted');
-            $this->invalid_statuses = array('invalid', 'not accepted');
+            $this->invalid_statuses = array('invalid', 'not accepted', 'synonym');
         }
         $temp = 'f.|form|forma|infraspecies|species|ssp|subform|subsp.|subspecies|subvariety|var.|varietas|variety';
         $this->species_ranks = explode('|', $temp);
@@ -153,6 +153,11 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
                     return false;
                 }
             }
+            
+            /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym START */
+            if($info = $this->taxonID_info[$rec['acceptedNameUsageID']]) return $rec; //Ok
+            else return false;
+            /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym END */
         }
         else { //NOT a synonym
             /* 3 & 4 */
