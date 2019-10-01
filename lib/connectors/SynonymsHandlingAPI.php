@@ -29,6 +29,10 @@ class SynonymsHandlingAPI
     {   $tables = $info['harvester']->tables;
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build up taxonID_info');
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        
+        if($this->resource_id == '368_final') { //bec. it "Allowed memory size of xxx bytes exhausted in DwCA_Utility.php"
+            self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'MoF');
+        }
     }
     private function process_taxon($meta, $purpose = '')
     {   //print_r($meta);
@@ -169,6 +173,48 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
     {
         if(in_array($rec['taxonomicStatus'], $this->valid_statuses)) return true;
         if(in_array($rec['taxonomicStatus'], $this->invalid_statuses)) return false;
+    }
+    private function process_generic_table($meta, $what)
+    {   //print_r($meta);
+        echo "\nprocess $what...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /**/
+            /* ----start customization---- */
+            if($what == 'taxon') {
+                $o = new \eol_schema\Taxon();
+            }
+            elseif($what == 'vernacular') {
+                $o = new \eol_schema\VernacularName();
+            }
+            elseif($what == 'occurrence') {
+                $o = new \eol_schema\Occurrence();
+            }
+            elseif($what == 'MoF') {
+                $o = new \eol_schema\MeasurementOrFact_specific();
+            }
+            else exit("\nInvestigate [$what]\n");
+            /* ----end customization---- */
+            //===================================================================================
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
+        }
     }
     /*================================================================= ENDS HERE ======================================================================*/
 }

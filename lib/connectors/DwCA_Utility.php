@@ -170,6 +170,11 @@ class DwCA_Utility
             $func = new RemoveAvesChildrenAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if($this->resource_id == '368_final') {
+            require_library('connectors/SynonymsHandlingAPI');
+            $func = new SynonymsHandlingAPI($this->archive_builder, $this->resource_id);
+            $func->synonym_updates($info);
+        }
         if($this->resource_id == '233') {
             require_library('connectors/MediaConvertAPI');
             $func = new MediaConvertAPI($this->archive_builder, $this->resource_id);
@@ -181,11 +186,6 @@ class DwCA_Utility
             $func->update_dwca($info);
         }
         if($this->resource_id == 'itis_2019-08-28') {
-            require_library('connectors/SynonymsHandlingAPI');
-            $func = new SynonymsHandlingAPI($this->archive_builder, $this->resource_id);
-            $func->synonym_updates($info);
-        }
-        if($this->resource_id == '368_final') {
             require_library('connectors/SynonymsHandlingAPI');
             $func = new SynonymsHandlingAPI($this->archive_builder, $this->resource_id);
             $func->synonym_updates($info);

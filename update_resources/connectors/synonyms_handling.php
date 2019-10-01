@@ -30,7 +30,7 @@ else {
     $info['368_final'] = array('dwca_file' => 'http://localhost/eol_php_code/applications/content_server/resources_2/368_removed_aves.tar.gz');
 }
 $info['itis_2019-08-28']['preferred_rowtypes'] = array('http://rs.gbif.org/terms/1.0/vernacularname');
-$info['368_final']['preferred_rowtypes'] = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.gbif.org/terms/1.0/vernacularname');
+$info['368_final']['preferred_rowtypes'] = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.gbif.org/terms/1.0/vernacularname');
 
 if(!@$info[$resource_id]) exit("\nERROR: resource_id not initialized.\n");
 $dwca_file          = $info[$resource_id]['dwca_file'];
