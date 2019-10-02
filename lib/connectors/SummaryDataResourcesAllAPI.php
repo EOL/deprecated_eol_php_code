@@ -85,6 +85,8 @@ class SummaryDataResourcesAllAPI
         With new records. Will write to DwCA.
         With existiing records. Will write to resource.txt.
         */
+        $this->exemplary['REP'] = 'https://eol.org/schema/terms/representative';
+        $this->exemplary['PRM'] = 'https://eol.org/schema/terms/primary';
     }
     /*  basal values                                    taxon summary
         parent basal values                             parent taxon summary
@@ -1491,7 +1493,17 @@ class SummaryDataResourcesAllAPI
         return array_keys($reference_ids);
     }
     private function add_string_types($rec)
-    {
+    {    /* print_r($rec); exit;
+        Array(
+            [label] => REP
+            [taxon_id] => 7662
+            [measurementType] => http://eol.org/schema/terms/Habitat
+            [measurementValue] => http://eol.org/schema/terms/tropicalOrSubtropical
+            [referenceID] => Reference-8897485; Reference-8988813; Reference-8915923; Reference-8978513; Reference-8955183; Reference-9019732; Reference-9054048; Reference-8998034; Reference-8979709; Reference-9071187; Reference-8999304; Reference-9048194; Reference-9023393; Reference-8896872; Reference-9041016; Reference-9046402; Reference-8945923; Reference-8991510; Reference-8924857; Reference-8904324; Reference-8900960; Reference-9054856; Reference-8932820; Reference-8975638; Reference-9006498; Reference-8962800; Reference-8934165; Reference-8928949; Reference-8896127; Reference-9046735; Reference-8928611; Reference-8993500; Reference-8906103; Reference-9077711; Reference-9061335; Reference-8960306; Reference-8900908; Reference-8992856; Reference-9012815; Reference-8898492; Reference-9028101; Reference-8907922; Reference-8892883; Reference-9063926; Reference-8912922; Reference-8905730; Reference-8963159; Reference-9028455; Reference-8949447; Reference-8906133; Reference-9019754; Reference-8938068; Reference-8890699; Reference-8897298; Reference-9080110; Reference-9072789; Reference-8907551; Reference-8965897; Reference-8990692; Reference-9065817; Reference-8965865; Reference-8971274; Reference-8939062; Reference-9042468; Reference-8955579; Reference-9019187; Reference-9040371; Reference-9084722; Reference-9022325; Reference-8898016; Reference-9034831; Reference-9003856; Reference-8954097; Reference-9003187; Reference-8964758; Reference-9062241; Reference-9056672; Reference-8901189; Reference-8968144; Reference-9024785; Reference-9063461; Reference-8916912; Reference-9011734; Reference-8987824; Reference-8944846; Reference-8925936; Reference-8945633; Reference-8983654; Reference-8980769; Reference-8965428; Reference-8908830; Reference-9061308; Reference-8971057; Reference-8902934; Reference-8987812; Reference-9035282; Reference-8914882; Reference-9076704; Reference-9059279; Reference-8956187; Reference-8993738; Reference-8896087; Reference-8900090; Reference-8977087; Reference-8960865; Reference-8922012; Reference-8969278; Reference-9029362; Reference-8917394; Reference-9003602; Reference-8914019; Reference-9010281; Reference-9011200; Reference-9005325; Reference-8943636; Reference-9081498; Reference-9077235; Reference-9018831; Reference-8938177; Reference-9058342; Reference-9038205; Reference-8929009; Reference-9062029; Reference-8989560; Reference-9017134; Reference-8911831; Reference-9081442; Reference-9067080; Reference-9038825; Reference-8999356; Reference-8897373; Reference-8917292; Reference-9000561; Reference-8887769; Reference-8918050; Reference-9056710; Reference-9081467; Reference-8986889; Reference-9012802; Reference-8963226; Reference-8944901; Reference-8918619; Reference-8946133; Reference-8997411; Reference-9038362; Reference-8946074; Reference-8911809; Reference-8966552; Reference-8898451; Reference-9041979; Reference-8915170; Reference-8932484; Reference-9036515; Reference-9063400; Reference-8971388; Reference-9039112; Reference-9058464; Reference-8889053; Reference-8942134; Reference-8960069; Reference-9023832; Reference-8939848; Reference-8967430; Reference-8893116; Reference-9035135; Reference-8986299; Reference-8944538; Reference-8924446; Reference-8902309; Reference-9076287; Reference-8952631; Reference-9024739; Reference-8986100; Reference-9076892; Reference-8916829; Reference-8925860; Reference-8991433; Reference-9049272; Reference-8940971; Reference-8932212; Reference-9019946; Reference-8914956; Reference-8925336; Reference-9039679; Reference-9037615; Reference-9072000; Reference-8928647; Reference-9004836; Reference-8993655; Reference-8924525; Reference-9028394; Reference-8917665; Reference-9054951; Reference-8891739; Reference-8981356; Reference-8942375; Reference-8908387; Reference-9069088; Reference-9002233; Reference-8919484; Reference-8905168; Reference-8906644; Reference-9038913; Reference-9064793; Reference-8922712
+            [catnum] => 7662_Habitat_tropicalOrSubtropical
+            [source] => https://eol.org/terms/search_results?utf8=✓&term_query[clade_id]=7662&term_query[filters_attributes][0][pred_uri]=http://eol.org/schema/terms/Habitat&term_query[filters_attributes][0][op]=is_any&term_query[result_type]=record&commit=Search
+        )
+        */
         $taxon_id = $rec['taxon_id'];
         $catnum = $rec['catnum'];
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
@@ -1507,6 +1519,7 @@ class SummaryDataResourcesAllAPI
         $m->measurementDeterminedDate = "2018-Oct-10"; //date("Y-M-d");
         $m->referenceID   = @$rec['referenceID']; //not all have refs
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $parent = $m->measurementID;
         // if($m->measurementID == "08eea7c40c13234a8e9699b52676236a_parent_basal_values")
         // if($m->measurementID == "dd832955e92c2a7b823ebf5c737057b9_parent_basal_values") 
         // {
@@ -1516,10 +1529,28 @@ class SummaryDataResourcesAllAPI
         // }
         $this->archive_builder->write_object_to_file($m);
 
-        // $m->bibliographicCitation = "AmphibiaWeb: Information on amphibian biology and conservation. [web application]. 2015. Berkeley, California: AmphibiaWeb. Available: http://amphibiaweb.org/.";
-        // $m->measurementRemarks  = '';
-        // $m->contributor         = '';
-        // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        /* copied from template. Not used in SDR.
+        $m->bibliographicCitation   = '';
+        $m->measurementRemarks      = '';
+        $m->contributor             = '';
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
+        */
+        
+        /* CREATING child records ------------------------------------------------------------------------------------
+        Jen: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=63921&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63921
+        After consult with Jeremy, we've decided to handle the REP and PRM tags as normal metadata,
+        so let's make them child records, with 
+        measurementType=https://eol.org/schema/terms/exemplary and
+        measurementValue= https://eol.org/schema/terms/representative OR https://eol.org/schema/terms/primary
+        */
+        $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
+        $m->occurrenceID        = '';
+        $m->measurementOfTaxon  = '';
+        $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
+        $m->measurementValue    = $this->exemplary[$rec['label']];
+        $m->parentMeasurementID = $parent;
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $this->archive_builder->write_object_to_file($m);
     }
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
@@ -2004,7 +2035,7 @@ class SummaryDataResourcesAllAPI
         if($ret['count'] == 'single')       $sql = "SELECT DISTINCT(t.page_id) from SDR.".$this->dbname." t WHERE t.predicate = '".$ret['value']."'";
         elseif($ret['count'] == 'multiple') $sql = "SELECT DISTINCT(t.page_id) from SDR.".$this->dbname." t WHERE t.predicate IN (".$ret['value'].")";
         
-        echo "\nQuery start: [$sql]\n";
+        // echo "\nQuery start: [$sql]\n";
         $result = $this->mysqli->query($sql);
         $final = array();
         while($result && $rec=$result->fetch_assoc()) {
@@ -3696,7 +3727,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             elseif($ret['count'] == 'multiple') $sql = "SELECT DISTINCT t.page_id, t.object_page_id, t.value_uri from SDR.".$this->dbname." t WHERE t.page_id = '".$page_id."' AND t.predicate in (".$ret['value'].")";
         }
         */
-        echo "\nAssemble recs start [$sql]\n";
+        // echo "\nAssemble recs start [$sql]\n";
         $result = $this->mysqli->query($sql);
         $recs = array();
         while($result && $rec=$result->fetch_assoc()) {
