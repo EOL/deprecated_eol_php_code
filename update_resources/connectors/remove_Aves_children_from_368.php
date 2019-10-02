@@ -15,10 +15,10 @@ V10190530133396
 V1019053013339
 V1019053013339
 
-you can run immediately one after the other: Same in Jenkins in eol-archive
+you can run immediately one after the other: Same in Jenkins in eol-archive:
+php update_resources/connectors/pbdb_fresh_harvest.php
 php update_resources/connectors/remove_Aves_children_from_368.php
 php update_resources/connectors/synonyms_handling.php _ 368_final
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
