@@ -117,12 +117,13 @@ class SynonymsHandlingAPI
                     [r] => species
                 )
 
-taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	scientificNameAuthorship	taxonomicStatus	taxonRemarks	canonicalName
-50	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=50#null			Bacteria Cavalier-Smith, 2002	kingdom	Cavalier-Smith, 2002	valid		Bacteria
-52	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=52#null	50		Archangiaceae	family		invalid	unavailable, database artifact	Archangiaceae
-54	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=54#null	50		Rhodobacteriineae	suborder		invalid	unavailable, database artifact	Rhodobacteriineae
-55	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=55#null	50		Pseudomonadineae	suborder		invalid	unavailable, database artifact	Pseudomonadineae
-56	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=56#null	50		Nitrobacteraceae	family		invalid	unavailable, database artifact	Nitrobacteraceae
+        This result for ITIS was later on accepted by Katja: That is e.g. 4 of these family and suborder remain as synonyms for Bacteria (taxonID = 50).
+        taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificName	taxonRank	scientificNameAuthorship	taxonomicStatus	taxonRemarks	canonicalName
+        50	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=50#null			Bacteria Cavalier-Smith, 2002	kingdom	Cavalier-Smith, 2002	valid		Bacteria
+        52	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=52#null	50		Archangiaceae	family		invalid	unavailable, database artifact	Archangiaceae
+        54	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=54#null	50		Rhodobacteriineae	suborder		invalid	unavailable, database artifact	Rhodobacteriineae
+        55	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=55#null	50		Pseudomonadineae	suborder		invalid	unavailable, database artifact	Pseudomonadineae
+        56	https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value=56#null	50		Nitrobacteraceae	family		invalid	unavailable, database artifact	Nitrobacteraceae
         */
         if(self::is_record_a_synonymYN($rec)) {
             /* 1. A synonym with taxonRank (genus|subgenus) can only point to an acceptedName with taxonRank (genus|subgenus). */
@@ -167,6 +168,7 @@ taxonID	furtherInformationURL	acceptedNameUsageID	parentNameUsageID	scientificNa
         /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym END */
         
         /* Eli's general cleaning: if parentNameUsageID doesn't have an entry ignore that taxon START */
+        /* This was commented since this has to be placed accordingly for each resource. This library is for SynonymsHandling only */
         // if($parent = $rec['parentNameUsageID']) {
         //     if($info = @$this->taxonID_info[$parent]) return $rec; //Ok
         //     else return false;

@@ -6,12 +6,7 @@ php update_resources/connectors/synonyms_handling.php _ itis_2019-08-28
 php synonyms_handling.php jenkins itis_2019-08-28
 
 php update_resources/connectors/synonyms_handling.php _ 368_final
-
 php synonyms_handling.php jenkins 368_final
-php synonyms_handling.php jenkins 368_final2
-
-
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -29,7 +24,6 @@ else exit("\nERROR: No resource_id.\n");
 if(Functions::is_production()) {
     $info['itis_2019-08-28'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/itis_2019-08-28.tar.gz');
     $info['368_final'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/368_removed_aves.tar.gz');
-    $info['368_final2'] = array('dwca_file' => 'https://editors.eol.org/eol_php_code/applications/content_server/resources/368_final.tar.gz');
 }
 else {
     $info['itis_2019-08-28'] = array('dwca_file' => 'http://localhost/eol_php_code/applications/content_server/resources_2/itis_2019-08-28.tar.gz');
@@ -37,7 +31,6 @@ else {
 }
 $info['itis_2019-08-28']['preferred_rowtypes'] = array('http://rs.gbif.org/terms/1.0/vernacularname');
 $info['368_final']['preferred_rowtypes'] = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.gbif.org/terms/1.0/vernacularname');
-$info['368_final2']['preferred_rowtypes'] = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.gbif.org/terms/1.0/vernacularname');
 
 
 if(!@$info[$resource_id]) exit("\nERROR: resource_id not initialized.\n");
@@ -62,11 +55,11 @@ function process_resource_url($dwca_file, $resource_id, $preferred_rowtypes)
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
 
-    /* Orig in meta.xml has capital letters. Just a note reminder.
-    */
+    /* Orig in meta.xml has capital letters. Just a note reminder. */
 
     /* This 1 will be processed in SynonymsHandlingAPI.php which will be called from DwCA_Utility.php
     http://rs.tdwg.org/dwc/terms/Taxon
+    Please also check preferred_rowtypes above for each resource.
     */
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id);

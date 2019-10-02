@@ -5,6 +5,7 @@ class SynonymsMtce
 {
     function __construct($resource_id)
     {
+        exit("\nSynonymsMtce: is now obsolete. Will terminate.\n");
         $this->resource_id = $resource_id;
         if($resource_id == 'itis_2019-08-28') {
             /*[taxonomicStatus] => Array(
