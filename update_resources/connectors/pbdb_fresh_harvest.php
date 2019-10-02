@@ -36,8 +36,11 @@ rows of 4
 368	Friday 2019-09-06 05:46:07 AM	{"measurement_or_fact.tab":2343529,"occurrence.tab":528489,"taxon.tab":385363,"vernacular_name.tab":6289}
 368	Friday 2019-09-06 06:11:32 AM	{"measurement_or_fact.tab":2331196,"occurrence.tab":525476,"taxon.tab":383172,"vernacular_name.tab":6278}
 368	Friday 2019-09-06 06:21:45 AM	{"measurement_or_fact_specific.tab":2317122,"occurrence.tab":522534,"taxon.tab":381701,"vernacular_name.tab":5930}
-rows of 4
-...
+now rows of 5
+368	Tuesday 2019-10-01 07:25:02 AM	{"measurement_or_fact.tab":2350084,"occurrence.tab":530026,"taxon.tab":386089,"vernacular_name.tab":6291}
+368	Tuesday 2019-10-01 07:51:52 AM	{"measurement_or_fact.tab":2337888,"occurrence.tab":527040,"taxon.tab":383910,"vernacular_name.tab":6280}
+368_removed_aves	Tuesday 2019-10-01 08:02:43 AM	{"measurement_or_fact_specific.tab":2323850,"occurrence.tab":524104,"taxon.tab":381735,"vernacular_name.tab":5933}
+368_final	Tuesday 2019-10-01 09:07:36 AM	{"measurement_or_fact_specific.tab":2323850,"occurrence.tab":524104,"taxon.tab":369359,"vernacular_name.tab":5933}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

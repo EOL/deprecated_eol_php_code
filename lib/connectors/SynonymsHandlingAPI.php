@@ -36,7 +36,7 @@ class SynonymsHandlingAPI
     }
     private function process_taxon($meta, $purpose = '')
     {   //print_r($meta);
-        echo "\nprocess_taxon...$purpose\n"; $i = 0;
+        echo "\nprocess_taxon...$meta->file_uri...$purpose\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;

@@ -103,7 +103,7 @@ class DwCA_Utility
         
         if($this->resource_id == 'test_eli') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //placeholder for customized resources with respective download_options
         elseif(in_array($this->resource_id, array('globi_associations', '170_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30));
-        elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
+        elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final', '368_final2'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
         else $info = self::start(); //default
 
         $temp_dir = $info['temp_dir'];
@@ -170,7 +170,7 @@ class DwCA_Utility
             $func = new RemoveAvesChildrenAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if($this->resource_id == '368_final') {
+        if(in_array($this->resource_id, array('368_final', '368_final2'))) {
             require_library('connectors/SynonymsHandlingAPI');
             $func = new SynonymsHandlingAPI($this->archive_builder, $this->resource_id);
             $func->synonym_updates($info);
