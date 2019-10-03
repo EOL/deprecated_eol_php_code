@@ -87,6 +87,7 @@ class SummaryDataResourcesAllAPI
         */
         $this->exemplary['REP'] = 'https://eol.org/schema/terms/representative';
         $this->exemplary['PRM'] = 'https://eol.org/schema/terms/primary';
+        $this->exemplary['PRM and REP'] = 'PRM and REP';
     }
     /*  basal values                                    taxon summary
         parent basal values                             parent taxon summary
@@ -1167,7 +1168,11 @@ class SummaryDataResourcesAllAPI
             $related_taxon = $this->add_taxon(array('page_id' => $taxon_name_id));
             $related_occurrence_id = $this->add_occurrence_assoc($related_taxon->taxonID, $taxon_id . "_$type");
             $a = new \eol_schema\Association_specific(); //take note used with '_specific'
-            $a->label = $this->exemplary[self::get_assoc_label($ret, $taxon_name_id)];
+
+            $a->label = self::get_assoc_label($ret, $taxon_name_id);
+            $orig_label = $a->label;
+            $a->label = $this->exemplary[$a->label];
+
             $a->occurrenceID = $occurrence_id;
             $a->associationType = self::new_assocType_basedOn_EATS_or_IsEatenBy($ret['predicate']);
             $a->targetOccurrenceID = $related_occurrence_id;
@@ -1191,13 +1196,21 @@ class SummaryDataResourcesAllAPI
             so let's make them child records, with 
             measurementType=https://eol.org/schema/terms/exemplary and
             measurementValue= https://eol.org/schema/terms/representative OR https://eol.org/schema/terms/primary
-            $m = new \eol_schema\Association_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
-            $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
-            $m->measurementValue    = $this->exemplary[$a->label];
-            $m->parentMeasurementID = $parent;
-            $m->associationID = Functions::generate_measurementID($m, $this->resource_id, 'association');
-            $this->archive_builder->write_object_to_file($m);
+            
+            Jen: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=63938&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63938
+            you add a measurementOrFact file just for the child records. You use columns
+            http://eol.org/schema/associationID	http://rs.tdwg.org/dwc/terms/measurementType	http://rs.tdwg.org/dwc/terms/measurementValue
+            and any others that you need. the /associationID column acts like /parentMeasurementID, referring back to the records in the Associations file.
             */
+            
+
+            $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
+            $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
+            $m->measurementValue    = $a->label;
+            $m->parentMeasurementID = $parent;
+            $m->measurementRemarks = $orig_label;
+            $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+            $this->archive_builder->write_object_to_file($m);
         }
     }
     private function new_assocType_basedOn_EATS_or_IsEatenBy($predicate)
@@ -1564,6 +1577,7 @@ class SummaryDataResourcesAllAPI
         $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
         $m->measurementValue    = $this->exemplary[$rec['label']];
         $m->parentMeasurementID = $parent;
+        $m->measurementRemarks = $rec['label'];
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
