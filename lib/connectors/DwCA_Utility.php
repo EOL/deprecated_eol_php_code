@@ -120,7 +120,10 @@ class DwCA_Utility
         // print_r($index); exit; //good debug to see the all-lower case URIs
         foreach($index as $row_type) {
             /* ----------customized start------------ */
-            if(substr($this->resource_id,0,3) == 'SC_') break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
+            if(substr($this->resource_id,0,3) == 'SC_') {
+                if($this->resource_id == 'SC_australia') {}
+                else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
+            }
             elseif($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
@@ -146,9 +149,16 @@ class DwCA_Utility
             $func->start($info); //didn't use like above bec. memory can't handle 'occurrence' and 'association' TSV files
         }
         if(substr($this->resource_id,0,3) == 'SC_') {
-            require_library('connectors/SpeciesChecklistAPI');
-            $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
-            $func->start($info);
+            if($this->resource_id == 'SC_australia') { //customized for DATA-1833
+                require_library('connectors/SC_Australia2019');
+                $func = new SC_Australia2019($this->archive_builder, $this->resource_id);
+                $func->start($info);
+            }
+            else { //regular func called from original task
+                require_library('connectors/SpeciesChecklistAPI');
+                $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
+                $func->start($info);
+            }
         }
         if($this->resource_id == '708') {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
