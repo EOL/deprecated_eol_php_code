@@ -24,9 +24,7 @@ all from eol-archive:
 892	Thursday 2018-08-02 10:58:59 PM	{"measurement_or_fact.tab":49469,"occurrence.tab":12433,"taxon.tab":5953}
 893	Thursday 2018-08-02 11:04:27 PM	{"measurement_or_fact.tab":341938,"occurrence.tab":87627,"taxon.tab":50393}
 894	Thursday 2018-08-02 11:12:17 PM	{"measurement_or_fact.tab":499598,"occurrence.tab":135121,"taxon.tab":81241}
-
 */
-
 class GBIFCountryTypeRecordAPI
 {
     function __construct($folder)
@@ -55,7 +53,6 @@ class GBIFCountryTypeRecordAPI
         $this->IDB_service["record"] = "http://api.idigbio.org/v1/records/";
         $this->IDB_service["recordset"] = "http://api.idigbio.org/v1/recordsets/";
     }
-
     function export_gbif_to_eol($params)
     {
         if(!is_dir($this->download_options['cache_path']))  mkdir($this->download_options['cache_path']);
@@ -98,7 +95,6 @@ class GBIFCountryTypeRecordAPI
         recursive_rmdir($temp_dir); // remove temp dir
         print_r($this->debug);
     }
-
     function get_uris($params, $spreadsheet)
     {
         $fields = array();
@@ -108,8 +104,7 @@ class GBIFCountryTypeRecordAPI
             if(@$params["country"] == "Sweden") $fields["datasetKey"]      = "Type Specimen Repository URI"; //exception to the rule
             else                                $fields["institutionCode"] = "institutionCode_uri";          //rule case
             
-            if(@$params["uri_type"] == "citation") // additional fields when processing citation spreadsheets
-            {
+            if(@$params["uri_type"] == "citation") { // additional fields when processing citation spreadsheets
                 $fields["datasetKey France"]  = "BibliographicCitation"; //886
                 $fields["datasetKey UK"]      = "BibliographicCitation"; //894
                 $fields["datasetKey Germany"] = "BibliographicCitation"; //872
@@ -149,24 +144,19 @@ class GBIFCountryTypeRecordAPI
         }
         return $uris;
     }
-
     private function process_row_type($params, $callback = NULL, $parameters = NULL)
     {
         $row_type = $params["row_type"];
         $location = $params["location"];
-        if(isset($this->harvester->tables[strtolower($row_type)]))
-        {
-            foreach($this->harvester->tables[strtolower($row_type)] as $table_definition)
-            {
+        if(isset($this->harvester->tables[strtolower($row_type)])) {
+            foreach($this->harvester->tables[strtolower($row_type)] as $table_definition) {
                 if($table_definition->location != $location) continue;
                 $this->harvester->file_iterator_index = 0;
                 // rows are on newlines, so we can stream the file with an iterator
-                if($table_definition->lines_terminated_by == "\n")
-                {
+                if($table_definition->lines_terminated_by == "\n") {
                     $parameters['archive_table_definition'] =& $table_definition;
                     $i = 0;
-                    foreach(new FileIterator($table_definition->file_uri) as $line_number => $line)
-                    {
+                    foreach(new FileIterator($table_definition->file_uri) as $line_number => $line) {
                         if(!Functions::is_utf8($line)) exit("\nnot utf8\n");
                         
                         $i++;
@@ -216,7 +206,6 @@ class GBIFCountryTypeRecordAPI
             }
         }
     }
-
     private function create_instances_from_taxon_object($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -247,7 +236,6 @@ class GBIFCountryTypeRecordAPI
         $taxon->rightsHolder    = (string) $rec["http://purl.org/dc/terms/rightsHolder"];
         */
     }
-
     private function check_sciname_ancestry_values($taxon)
     {    //scientificname should not be equal to any of the ancestry
         $canonical = Functions::canonical_form($taxon->scientificName);
@@ -259,7 +247,6 @@ class GBIFCountryTypeRecordAPI
         if($taxon->genus == $canonical)     $taxon->genus = '';
         return $taxon;
     }
-    
     private function create_classification_gbif($rec)
     {
         $species = trim((string) $rec["http://rs.gbif.org/terms/1.0/species"]);
@@ -299,7 +286,6 @@ class GBIFCountryTypeRecordAPI
             $this->archive_builder->write_object_to_file($taxon);
         }
     }
-
     /*
     Hi Jen,
     Attached are the unique [dwc:institutionCode] and [dwc:typeStatus] - xxx.xls.
@@ -311,7 +297,6 @@ class GBIFCountryTypeRecordAPI
     referral of <a href=""http://arctos.database.museum/name/Ursus arctos""><i>Ursus arctos</i> (Linnaeus, 1758)</a>, page 74 in <a href=""http://arctos.database.museum/publication/10006542"">Talbot et al. 2006</a>
     Anyway, I just ignored them.
     */
-    
     private function get_taxon_id($rec)
     {
         $taxon_id = trim((string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
@@ -327,7 +312,6 @@ class GBIFCountryTypeRecordAPI
         }
         return $taxon_id;
     }
-
     private function get_institution_name($rec) //only for iDigBio
     {
         $record_id = (string) $rec[""];
@@ -343,7 +327,6 @@ class GBIFCountryTypeRecordAPI
         }
         return "";
     }
-    
     private function create_type_records_idigbio($rec) // structured data
     {
         if(count($rec) != 200) exit("\n count is not 200: " . count($rec));
@@ -417,7 +400,6 @@ class GBIFCountryTypeRecordAPI
             self::create_instances_from_taxon_object($rec);
         }
     }
-    
     private function get_institution($rec) //only for iDigBio
     {
         $rightsHolder = trim((string) $rec["http://purl.org/dc/terms/rightsHolder"]);
@@ -433,8 +415,7 @@ class GBIFCountryTypeRecordAPI
         if(is_numeric(substr($datasetName,0,2))) $datasetName = "";
 
         $institution = '';
-        if((!$rightsHolder && !$ownerInstitutionCode) || (!$rightsHolder && (is_numeric(substr($datasetName,0,3)) || !$datasetName)))
-        {
+        if((!$rightsHolder && !$ownerInstitutionCode) || (!$rightsHolder && (is_numeric(substr($datasetName,0,3)) || !$datasetName))) {
             /*
             echo "\n will start search for institution_name... =====";
             echo "\n datasetID:" . $rec["http://rs.tdwg.org/dwc/terms/datasetID"];
@@ -452,8 +433,7 @@ class GBIFCountryTypeRecordAPI
             $institution = self::get_institution_name($rec);
             // echo "\n found institution_name1: [$institution] =====\n";
 
-            if(!$institution) // 2nd option for institution value
-            {
+            if(!$institution) { // 2nd option for institution value
                 $institution_arr = array();
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/institutionCode"]) $institution_arr[$val] = '';
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/ownerInstitutionCode"]) $institution_arr[$val] = '';
@@ -511,7 +491,6 @@ class GBIFCountryTypeRecordAPI
         */
         return $final;
     }
-    
     private function  get_type_status_iDigBio($rec)
     {
         $types = array("TYPE", "COTYPE", "ISOTYPE", "SYNTYPE", "HOLOTYPE", "LECTOTYPE", "PARATYPE", "NEOTYPE", "EXTYPE", "TOPOTYPE", "ISOSYNTYPE", 
@@ -591,7 +570,6 @@ class GBIFCountryTypeRecordAPI
         */
         return $typestatus;
     }
-
     private function create_type_records_gbif($rec) // structured data
     {
         if(!$rec = self::valid_record($rec)) return;
@@ -642,7 +620,6 @@ class GBIFCountryTypeRecordAPI
             self::create_instances_from_taxon_object($rec);
         }
     }
-
     private function valid_record($rec)
     {
         foreach(array_keys($rec) as $field) {
@@ -654,12 +631,10 @@ class GBIFCountryTypeRecordAPI
         }
         return $rec;
     }
-    
     private function get_uri($value, $field)
     {
         if(in_array($field, array("sex", "TypeInformation"))) $value = strtoupper($value);
-        if($field == "sex")
-        {
+        if($field == "sex") {
             if(in_array($value, array("MALE AND FEMALE", "MALE , FEMALE")))                             $value = "MALE AND FEMALE";
             elseif($value == "M")                                                                       $value = "MALE";
             elseif($value == "F")                                                                       $value = "FEMALE";
@@ -676,14 +651,12 @@ class GBIFCountryTypeRecordAPI
             elseif(                                        is_numeric(stripos($value, "F;")))           $value = "FEMALE";
         }
         if($val = @$this->uris[$value]) return $val;
-        else
-        {
+        else {
             $this->debug["undefined"][$field][$value] = '';
             if($field == "sex") return "";
             return $value;
         }
     }
-
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
@@ -722,7 +695,6 @@ class GBIFCountryTypeRecordAPI
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
-    
     private function prepare_reference($citation)
     {
         if($citation) {
@@ -737,7 +709,6 @@ class GBIFCountryTypeRecordAPI
             return $r->identifier;
         }
     }
-
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
     {
         $o = new \eol_schema\Occurrence();
@@ -828,7 +799,6 @@ class GBIFCountryTypeRecordAPI
         return;
         */
     }
-
     private function get_contributor_name($url)
     {
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
@@ -839,6 +809,5 @@ class GBIFCountryTypeRecordAPI
             }
         }
     }
-
 }
 ?>
