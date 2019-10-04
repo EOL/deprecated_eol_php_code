@@ -14,15 +14,15 @@ $timestart = time_elapsed();
 
 $resource_id = 'SC_australia';
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/legacy_SC_australia.tar.gz';
-process_resource_url($dwca_file, $resource_id);
+process_resource_url($dwca_file, $resource_id, $timestart);
 
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
+// $elapsed_time_sec = time_elapsed() - $timestart;
+// echo "\nold\n";
+// echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
+// echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+// echo "\nDone processing.\n";
 
-function process_resource_url($dwca_file, $resource_id)
+function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
@@ -39,6 +39,6 @@ function process_resource_url($dwca_file, $resource_id)
     http://rs.tdwg.org/dwc/terms/measurementorfact
     */
     $func->convert_archive($preferred_rowtypes);
-    Functions::finalize_dwca_resource($resource_id);
+    Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 }
 ?>

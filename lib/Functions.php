@@ -436,7 +436,7 @@ class Functions
         if(stripos($file_headers[0], "Not Found") !== false) return false; //string is found
         else return true;
     }
-    public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false)
+    public static function finalize_dwca_resource($resource_id, $big_file = false, $deleteFolderYN = false, $timestart = false)
     {
         if(!$resource_id) return;
         if(stripos($resource_id, ".") !== false) return; //string is found
@@ -451,7 +451,6 @@ class Functions
             Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_working.tar.gz", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
             // Functions::set_resource_status_to_harvest_requested($resource_id); //not needed anymore
             $arr = Functions::count_resource_tab_files($resource_id);
-            self::finalize_connector_run($resource_id, json_encode($arr));
             if(!$big_file) {
                 // /* temporarily commented until the trait terms service is back.
                 if($undefined_uris = Functions::get_undefined_uris_from_resource($resource_id)) print_r($undefined_uris);
@@ -461,6 +460,8 @@ class Functions
                 $func = new DWCADiagnoseAPI();
                 $func->check_unique_ids($resource_id);
             }
+            $arr['time_elapsed'] = self::get_time_elapsed($timestart);
+            self::finalize_connector_run($resource_id, json_encode($arr));
         }
         if($deleteFolderYN) {
             if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))               recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
@@ -469,7 +470,24 @@ class Functions
         //added 14-Nov-2017: decided to remove folders xxx_previous for all resources
         if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous")) recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous");
     }
-
+    public static function get_time_elapsed($timestart)
+    {
+        if(!$timestart) return false;
+        $elapsed_time_sec = round(time_elapsed() - $timestart, 2);
+        $elapsed_time_min = round($elapsed_time_sec/60, 2);
+        $elapsed_time_hr = round($elapsed_time_sec/60/60, 2);
+        // if($elapsed_time_hr > 24) $elapsed_time_day = round($elapsed_time_hr/24, 2);
+        if(true) $elapsed_time_day = round($elapsed_time_hr/24, 2);
+        else                      $elapsed_time_day = false;
+        echo "\n----\n";
+        echo "elapsed time = " . $elapsed_time_min . " minutes \n";
+        echo "elapsed time = " . $elapsed_time_hr . " hours \n";
+        if($elapsed_time_day) echo "elapsed time = " . $elapsed_time_day . " days \n";
+        echo "\nDone processing.\n";
+        $temp = array('sec' => $elapsed_time_sec, 'min' => $elapsed_time_min, 'hr' => $elapsed_time_hr);
+        if($elapsed_time_day) $temp['day'] = $elapsed_time_day;
+        return $temp;
+    }
     public static function finalize_connector_run($resource_folder, $rows)
     {
         //write log
