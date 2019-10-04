@@ -28,7 +28,7 @@ $params["uri_file"]      = "http://localhost/cp_new/GBIF_dwca/countries/UK/GBIF 
 
 // remote
 $params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/UK/Citation Mapping UK.xlsx";
-$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/UK.zip";
+$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/UK_0010147-190918142434337.zip";
 $params["uri_file"]     = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/UK/GBIF UK mapping.xlsx";
 
 $params["dataset"]      = "GBIF";
@@ -42,10 +42,5 @@ $params["resource_id"]  = 894;
 $resource_id = $params["resource_id"];
 $func = new GBIFCountryTypeRecordAPI($resource_id);
 $func->export_gbif_to_eol($params);
-Functions::finalize_dwca_resource($resource_id, false, true);
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>

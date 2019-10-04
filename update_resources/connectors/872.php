@@ -43,13 +43,13 @@ $params["dataset"] = "All audio for birds";
 
 /* local
 $params["citation_file"] = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
-$params["dwca_file"]     = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/Germany.zip";
+$params["dwca_file"]     = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany_0010139-190918142434337.zip";
 $params["uri_file"]      = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany/germany mappings.xlsx";
 */
 
 // remote
 $params["citation_file"] = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Germany/Citation Mapping Germany.xlsx";
-$params["dwca_file"]    = "https://editors.eol.org/other_files/GBIF_DwCA/Germany.zip";
+$params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/Germany_0010139-190918142434337.zip";
 $params["uri_file"]      = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GBIF_dwca/countries/Germany/germany mappings.xlsx";
 
 $params["dataset"]      = "GBIF";
@@ -66,10 +66,5 @@ if($cmdline_params['classificationYesNo'] == "classification") { //GBIF national
 $resource_id = $params["resource_id"];
 $func = new GBIFCountryTypeRecordAPI($resource_id);
 $func->export_gbif_to_eol($params);
-Functions::finalize_dwca_resource($resource_id, false, true);
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>

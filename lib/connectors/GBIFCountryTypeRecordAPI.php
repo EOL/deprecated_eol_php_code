@@ -17,6 +17,15 @@ php update_resources/connectors/893.php
 php update_resources/connectors/894.php
 php update_resources/connectors/885.php
 
+The URL zip paths came from an email from downloads@gbif.org. That is upon request to download from their site: as of Oct 3, 2019 downloads
+e.g. 
+wget -q http://api.gbif.org/v1/occurrence/download/request/0010139-190918142434337.zip -O /extra/other_files/GBIF_DwCA/Germany_0010139-190918142434337.zip
+wget -q http://api.gbif.org/v1/occurrence/download/request/0010142-190918142434337.zip -O /extra/other_files/GBIF_DwCA/Sweden_0010142-190918142434337.zip
+wget -q http://api.gbif.org/v1/occurrence/download/request/0010147-190918142434337.zip -O /extra/other_files/GBIF_DwCA/UK_0010147-190918142434337.zip
+wget -q http://api.gbif.org/v1/occurrence/download/request/0010150-190918142434337.zip -O /extra/other_files/GBIF_DwCA/France_0010150-190918142434337.zip
+wget -q http://api.gbif.org/v1/occurrence/download/request/0010183-190918142434337.zip -O /extra/other_files/GBIF_DwCA/Brazil_0010183-190918142434337.zip
+wget -q http://api.gbif.org/v1/occurrence/download/request/0010181-190918142434337.zip -O /extra/other_files/GBIF_DwCA/Netherlands_0010181-190918142434337.zip
+
 all from eol-archive:
 872	Thursday 2018-08-02 08:54:52 PM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072}
 886	Thursday 2018-08-02 10:48:13 PM	{"measurement_or_fact.tab":837637,"occurrence.tab":212745,"taxon.tab":95622}
@@ -217,7 +226,7 @@ class GBIFCountryTypeRecordAPI
         $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
         $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
         $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
-        $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+        $taxon->taxonRank       = strtolower((string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"]);
 
         $taxon = self::check_sciname_ancestry_values($taxon);
 
@@ -264,7 +273,7 @@ class GBIFCountryTypeRecordAPI
         $taxon->order           = (string) $rec["http://rs.tdwg.org/dwc/terms/order"];
         $taxon->family          = (string) $rec["http://rs.tdwg.org/dwc/terms/family"];
         $taxon->genus           = (string) $rec["http://rs.tdwg.org/dwc/terms/genus"];
-        $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+        $taxon->taxonRank       = strtolower((string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"]);
 
         $taxon = self::check_sciname_ancestry_values($taxon);
 
@@ -278,7 +287,7 @@ class GBIFCountryTypeRecordAPI
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $synonym_taxon_id;
         $taxon->scientificName  = $sciname;
-        $taxon->taxonRank       = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"];
+        $taxon->taxonRank       = strtolower((string) $rec["http://rs.tdwg.org/dwc/terms/taxonRank"]);
         $taxon->taxonomicStatus     = "synonym";
         $taxon->acceptedNameUsageID = $taxon_id;
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
@@ -369,9 +378,9 @@ class GBIFCountryTypeRecordAPI
         $typestatus_uri = self::get_uri($typestatus, "TypeInformation");
         $rec["institutionCode"] = $institution;
         if($institution_uri && $typestatus_uri) {
-            self::add_string_types($rec, $institution_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
-            self::add_string_types($rec, $typestatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
-            if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+            $parent_id = self::add_string_types($rec, $institution_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
+            self::add_string_types($rec, $typestatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus", 'child', $parent_id);
+            if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName", 'child', $parent_id);
             
             // /*
             //not a standard element in occurrence, but in the XLS specs from Jen
@@ -393,7 +402,7 @@ class GBIFCountryTypeRecordAPI
                           "http://rs.tdwg.org/dwc/terms/minimumElevationInMeters",
                           "http://rs.tdwg.org/dwc/terms/latestEraOrHighestErathem");
             foreach($uris as $uri) {
-                if($val = $rec[$uri]) self::add_string_types($rec, Functions::import_decode($val), $uri);
+                if($val = $rec[$uri]) self::add_string_types($rec, Functions::import_decode($val), $uri, 'child', $parent_id);
             }
             // */
             
@@ -608,14 +617,14 @@ class GBIFCountryTypeRecordAPI
         }
 
         if($institutionCode_uri && $typeStatus_uri) {
-            self::add_string_types($rec, $institutionCode_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
-            self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus"); //new
+            $parent_id = self::add_string_types($rec, $institutionCode_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", "true");
+            self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus", 'child', $parent_id); //new
             // self::add_string_types($rec, $typeStatus_uri, "http://eol.org/schema/terms/TypeInformation"); // old but working
-            if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName");
+            if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName", 'child', $parent_id);
             
             // no standard column in occurrence --- added after the last force-harvest for Germany and France
-            if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimDepth"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/verbatimDepth");
-            if($val = $rec["http://rs.tdwg.org/dwc/terms/countryCode"])   self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/countryCode");                
+            if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimDepth"]) self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/verbatimDepth", 'child', $parent_id);
+            if($val = $rec["http://rs.tdwg.org/dwc/terms/countryCode"])   self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/countryCode", 'child', $parent_id);
             
             self::create_instances_from_taxon_object($rec);
         }
@@ -657,7 +666,7 @@ class GBIFCountryTypeRecordAPI
             return $value;
         }
     }
-    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
+    private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "", $parent = false)
     {
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"];
@@ -671,11 +680,12 @@ class GBIFCountryTypeRecordAPI
         $occurrence_id = $catnum;
 
         $m = new \eol_schema\MeasurementOrFact();
-        $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
-        $m->occurrenceID = $occurrence_id;
-        $m->measurementOfTaxon = $measurementOfTaxon;
         // =====================
         if($measurementOfTaxon == "true") {
+            $occurrence_id = $this->add_occurrence($taxon_id, $occurrence_id, $rec);
+            $m->occurrenceID = $occurrence_id;
+            $m->measurementOfTaxon = $measurementOfTaxon;
+
             $m->source              = $rec["source"];
             $m->contributor         = @$rec["contributor"];
             if($val = @$rec["http://rs.gbif.org/terms/1.0/datasetKey"]) //only for GBIF resources (not for iDigBio)
@@ -691,9 +701,22 @@ class GBIFCountryTypeRecordAPI
         // =====================
         $m->measurementType = $measurementType;
         $m->measurementValue = Functions::import_decode($value);
-
+        if($measurementOfTaxon == 'child') $m->parentMeasurementID = $parent;
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
+        return $m->measurementID;
+        
+        /* For child records - copied template from another resource
+        $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
+        $m->occurrenceID        = '';
+        $m->measurementOfTaxon  = '';
+        $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
+        $m->measurementValue    = $this->exemplary[$rec['label']];
+        $m->parentMeasurementID = $parent;
+        $m->measurementRemarks = $rec['label'];
+        $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        $this->archive_builder->write_object_to_file($m);
+        */
     }
     private function prepare_reference($citation)
     {

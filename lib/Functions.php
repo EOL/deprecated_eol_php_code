@@ -476,12 +476,12 @@ class Functions
         $elapsed_time_sec = round(time_elapsed() - $timestart, 2);
         $elapsed_time_min = round($elapsed_time_sec/60, 2);
         $elapsed_time_hr = round($elapsed_time_sec/60/60, 2);
-        // if($elapsed_time_hr > 24) $elapsed_time_day = round($elapsed_time_hr/24, 2);
-        if(true) $elapsed_time_day = round($elapsed_time_hr/24, 2);
+        if($elapsed_time_hr > 24) $elapsed_time_day = round($elapsed_time_hr/24, 2);
         else                      $elapsed_time_day = false;
-        echo "\n----\n";
-        echo "elapsed time = " . $elapsed_time_min . " minutes \n";
-        echo "elapsed time = " . $elapsed_time_hr . " hours \n";
+        echo "\n----end----\n";
+        if($elapsed_time_sec) echo "elapsed time = " . $elapsed_time_sec . " seconds \n";
+        if($elapsed_time_min) echo "elapsed time = " . $elapsed_time_min . " minutes \n";
+        if($elapsed_time_hr) echo "elapsed time = " . $elapsed_time_hr . " hours \n";
         if($elapsed_time_day) echo "elapsed time = " . $elapsed_time_day . " days \n";
         echo "\nDone processing.\n";
         $temp = array('sec' => $elapsed_time_sec, 'min' => $elapsed_time_min, 'hr' => $elapsed_time_hr);
