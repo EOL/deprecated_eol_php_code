@@ -177,8 +177,8 @@ class GBIFCountryTypeRecordAPI
                     $parameters['archive_table_definition'] =& $table_definition;
                     $i = 0;
                     foreach(new FileIterator($table_definition->file_uri) as $line_number => $line) {
+                        $line = Functions::conv_to_utf8($line);
                         if(!Functions::is_utf8($line)) exit("\nnot utf8\n");
-                        
                         $i++;
                         if(($i % 10000) == 0) echo "\n" . $params["type"] . " - $i ";
                         // else                  echo "\n" . $params["type"] . " -> $i ";

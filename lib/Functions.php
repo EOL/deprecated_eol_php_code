@@ -479,7 +479,7 @@ class Functions
         if($elapsed_time_hr > 24) $elapsed_time_day = round($elapsed_time_hr/24, 2);
         else                      $elapsed_time_day = false;
         echo "\n----end----\n";
-        if($elapsed_time_sec) echo "elapsed time = " . $elapsed_time_sec . " seconds \n";
+        if($elapsed_time_sec && $elapsed_time_sec < 500) echo "elapsed time = " . $elapsed_time_sec . " seconds \n";
         if($elapsed_time_min) echo "elapsed time = " . $elapsed_time_min . " minutes \n";
         if($elapsed_time_hr) echo "elapsed time = " . $elapsed_time_hr . " hours \n";
         if($elapsed_time_day) echo "elapsed time = " . $elapsed_time_day . " days \n";
