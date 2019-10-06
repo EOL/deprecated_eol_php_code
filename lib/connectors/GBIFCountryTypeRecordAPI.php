@@ -73,12 +73,34 @@ class GBIFCountryTypeRecordAPI
         $this->IDB_service["record"] = "http://api.idigbio.org/v1/records/";
         $this->IDB_service["recordset"] = "http://api.idigbio.org/v1/recordsets/";
     }
-    function export_gbif_to_eol($params)
+    private function initialize_mapping()
+    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris1 = Functions::additional_mappings($mappings); //add more mappings used in the past
+        echo "\nURIs 1 total: ".count($this->uris1)."\n";
+        // echo "\n".$this->uris['hapantotype'];
+        // echo "\n".$this->uris['hypotype'];
+        // echo "\n".$this->uris['plesiotype'];
+        // echo "\n".$this->uris['syntype'];
+        // echo "\n".$this->uris['plastotype'];
+        // echo "\n".$this->uris['secondarytype'];         x    secondary type ( http://rs.tdwg.org/ontology/voc/TaxonName#SecondaryType ) 
+        // echo "\n".$this->uris['supplementarytype'];     x    supplementary Type ( http://rs.tdwg.org/ontology/voc/TaxonName#SupplementaryType ) 
+        // echo "\n".$this->uris['exlectotype'];           x
+        // echo "\n".$this->uris['exisotype'];             x
+    }
+    function export_gbif_to_eol($params) //main program for GBIF country nodes
     {
+        self::initialize_mapping();
         if(!is_dir($this->download_options['cache_path']))  mkdir($this->download_options['cache_path']);
         
-        $this->uris = self::get_uris($params, $params["uri_file"]);
-        echo "\nURIs total: ".count($this->uris)."\n";
+        $this->uris2 = self::get_uris($params, $params["uri_file"]);
+        echo "\nURIs 2 total: ".count($this->uris2)."\n";
+        
+        $this->uris = array_merge($this->uris1, $this->uris2);
+        echo "\nURIs total: ".count($this->uris)."\n"; //exit;
+        unset($this->uris1); unset($this->uris2);
+        // print_r($this->uris); exit;
+        
         $params["uri_type"] = "citation";
         if($file = @$params["citation_file"]) $this->citations = self::get_uris($params, $file);
         

@@ -33,6 +33,10 @@ $cmdline_params['jenkins_or_cron']     = @$argv[1]; //irrelevant here
 $cmdline_params['classificationYesNo'] = @$argv[2]; //useful here
 // print_r($cmdline_params);
 
+// $a['aaa'] = 'letter a';
+// $b['aaa'] = 'letter b';
+// $c = array_merge($a, $b);
+// print_r($c); exit;
 
 /*
 $params["dwca_file"] = "http://localhost/~eolit/cp/GBIF_dwca/atlantic_cod.zip";
