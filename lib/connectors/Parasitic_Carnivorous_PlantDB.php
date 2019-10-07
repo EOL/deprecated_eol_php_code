@@ -22,7 +22,7 @@ class Parasitic_Carnivorous_PlantDB
         http://www.omnisterra.com/bot/cp_home.cgi?name=a&submit=Submit&search=accepted (carnivorous plants)
         */
         $letters = array('a','e','i','o','u','y');
-        $letters = array('y');
+        $letters = array('u');
         $services = array('parasitic', 'carnivorous');
         foreach($services as $service) {
             foreach($letters as $letter) {
@@ -30,12 +30,13 @@ class Parasitic_Carnivorous_PlantDB
                 self::parse_page($url);
             }
         }
-        print_r($this->main_records);
+        // print_r($this->main_records);
         echo "\ntotal: ".count($this->main_records)."\n";
     }
     private function parse_page($url)
     {
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            $html = str_replace("</b><dd>", "</b></dd><dd>", $html);
             if(preg_match_all("/<dl>(.*?)<\/dl>/ims", $html, $arr)) {
                 // print_r($arr[1]);
                 foreach($arr[1] as $dl) {
@@ -70,13 +71,16 @@ class Parasitic_Carnivorous_PlantDB
         }
         return array('id' => md5(json_encode($final)), 'cols' => $final);
         */
+        print_r($cols);
         foreach($cols as $col) {
             $tmp = explode(':', $col);
             $head = $tmp[0];
             array_shift($tmp);
+            $tmp = array_map('trim', $tmp);
             $value = implode(':', $tmp);
             $final[$head] = $value;
         }
+        print_r($final);
         return array('id' => md5(json_encode($final)), 'cols' => $final);
     }
 }
