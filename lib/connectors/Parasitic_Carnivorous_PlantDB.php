@@ -26,7 +26,7 @@ class Parasitic_Carnivorous_PlantDB
         http://www.omnisterra.com/bot/cp_home.cgi?name=a&submit=Submit&search=accepted (carnivorous plants)
         */
         $letters = array('a','e','i','o','u','y');
-        // $letters = array('u');
+        // $letters = array('u'); //debug only
         foreach($this->groups as $group) {
             foreach($letters as $letter) {
                 echo "\nprocessing [$group][$letter]\n";
