@@ -22,6 +22,7 @@ class Parasitic_Carnivorous_PlantDB
         http://www.omnisterra.com/bot/cp_home.cgi?name=a&submit=Submit&search=accepted (carnivorous plants)
         */
         $letters = array('a','e','i','o','u','y');
+        $letters = array('y');
         $services = array('parasitic', 'carnivorous');
         foreach($services as $service) {
             foreach($letters as $letter) {
@@ -29,6 +30,8 @@ class Parasitic_Carnivorous_PlantDB
                 self::parse_page($url);
             }
         }
+        print_r($this->main_records);
+        echo "\ntotal: ".count($this->main_records)."\n";
     }
     private function parse_page($url)
     {
@@ -39,12 +42,42 @@ class Parasitic_Carnivorous_PlantDB
                     $cols = array();
                     if(preg_match("/<dt>(.*?)\n/ims", $dl, $arr2))        $cols[] = $arr2[1];
                     if(preg_match_all("/<dd>(.*?)<\/dd>/ims", $dl, $arr3)) $cols = array_merge($cols, $arr3[1]);
+                    $cols = array_map('trim', $cols);
+                    $cols = array_map('strip_tags', $cols);
                     print_r($cols);
-                    
+                    /* e.g. $cols
+                    Array(
+                        [0] => N: [Zeuxine violascens {Ridl.}]
+                        [1] => P: Mat.Fl.Mal.Penins.1:218 (1907)
+                        [2] => T: Mal. Penins., MY, (?)
+                        [3] => S: =[Zeuxine purpurascens {Bl.}]
+                    )
+                    */
+                    $ret = self::format_cols($cols);
+                    // print_r($ret); exit;
+                    $this->main_records[$ret['id']] = $ret['cols'];
                 }
             }
         }
-        exit("\nend muna\n");
+        // exit("\nend muna\n");
+    }
+    private function format_cols($cols)
+    {   /* almost good but not quite since "LFR: " is sometimes "LFR:". So not uniformed.
+        foreach($cols as $col) {
+            $tmp = explode(': ', $col);
+            $tmp = array_map('trim', $tmp);
+            $final[$tmp[0]] = $tmp[1];
+        }
+        return array('id' => md5(json_encode($final)), 'cols' => $final);
+        */
+        foreach($cols as $col) {
+            $tmp = explode(':', $col);
+            $head = $tmp[0];
+            array_shift($tmp);
+            $value = implode(':', $tmp);
+            $final[$head] = $value;
+        }
+        return array('id' => md5(json_encode($final)), 'cols' => $final);
     }
 }
 ?>
