@@ -114,6 +114,9 @@ class BrazilianFloraAPI
                 // echo "\nhit...\n";
             }
             //===========================================================================================================================================================
+            $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = self::conv_2English($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
+            $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = self::conv_2English($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
+            //===========================================================================================================================================================
             $uris = array_keys($rec);
             $o = new \eol_schema\Taxon();
             foreach($uris as $uri) {
@@ -123,6 +126,28 @@ class BrazilianFloraAPI
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 50) break; //debug only
         }
+    }
+    private function conv_2English($spanish)
+    {
+        switch ($spanish) {
+            case "ORDEM": return "order";
+            case "GENERO": return "genus";
+            case "ESPECIE": return "species";
+            case "VARIEDADE": return "variety";
+            case "SUB_ESPECIE": return "subspecies";
+            case "CLASSE": return "class";
+            case "TRIBO": return "tribe";
+            case "FAMILIA": return "family";
+            case "SUB_FAMILIA": return "subfamily";
+            case "DIVISAO": return "division";
+            case "FORMA": return "form";
+            case "NOME_ACEITO": return "accepted";
+            case "SINONIMO": return "synonyms";
+            default: 
+                // if(!$spanish) {}
+                // else exit("\n[$spanish] no English translation yet.\n");
+        }
+        return $spanish;
     }
     private function process_Reference($meta)
     {   //print_r($meta);
