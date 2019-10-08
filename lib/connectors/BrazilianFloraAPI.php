@@ -51,8 +51,9 @@ class BrazilianFloraAPI
     */
     function start($info)
     {   $tables = $info['harvester']->tables;
-        self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         self::process_Reference($tables['http://rs.gbif.org/terms/1.0/reference'][0]);
+        // print_r($this->taxonID_ref_info); exit;
+        self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         /*
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
@@ -64,7 +65,7 @@ class BrazilianFloraAPI
     }
     private function process_Taxon($meta)
     {   //print_r($meta);
-        echo "\nprocess_Reference...\n"; $i = 0;
+        echo "\nprocess_Taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -77,7 +78,50 @@ class BrazilianFloraAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 12
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 120181
+                [http://rs.tdwg.org/dwc/terms/originalNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Agaricales
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsage] => 
+                [http://rs.tdwg.org/dwc/terms/parentNameUsage] => Basidiomycota
+                [http://rs.tdwg.org/dwc/terms/namePublishedIn] => 
+                [http://rs.tdwg.org/dwc/terms/namePublishedInYear] => 
+                [http://rs.tdwg.org/dwc/terms/higherClassification] => Flora;Fungos;stricto sensu;Basidiomycota;Agaricales
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Fungi
+                [http://rs.tdwg.org/dwc/terms/phylum] => Basidiomycota
+                [http://rs.tdwg.org/dwc/terms/class] => 
+                [http://rs.tdwg.org/dwc/terms/order] => Agaricales
+                [http://rs.tdwg.org/dwc/terms/family] => 
+                [http://rs.tdwg.org/dwc/terms/genus] => 
+                [http://rs.tdwg.org/dwc/terms/specificEpithet] => 
+                [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => ORDEM
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => 
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => NOME_ACEITO
+                [http://rs.tdwg.org/dwc/terms/nomenclaturalStatus] => NOME_CORRETO
+                [http://purl.org/dc/terms/modified] => 2018-08-10 11:58:06.954
+                [http://purl.org/dc/terms/bibliographicCitation] => Flora do Brasil 2020 em construção. Jardim Botânico do Rio de Janeiro. Disponível em: http://floradobrasil.jbrj.gov.br.
+                [http://purl.org/dc/terms/references] => http://reflora.jbrj.gov.br/reflora/listaBrasil/FichaPublicaTaxonUC/FichaPublicaTaxonUC.do?id=FB12
+            )*/
+            //===========================================================================================================================================================
+            $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL'] = $rec['http://purl.org/dc/terms/references'];
+            $rec['http://purl.org/dc/terms/references'] = '';
+            if($arr_ref_ids = @$this->taxonID_ref_info[$rec['http://rs.tdwg.org/dwc/terms/taxonID']]) {
+                $rec['http://purl.org/dc/terms/references'] = implode(";", $arr_ref_ids);
+                // echo "\nhit...\n";
+            }
+            //===========================================================================================================================================================
+            $uris = array_keys($rec);
+            $o = new \eol_schema\Taxon();
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 50) break; //debug only
         }
     }
     private function process_Reference($meta)
@@ -115,14 +159,15 @@ class BrazilianFloraAPI
             if($val = $rec['http://purl.org/dc/terms/bibliographicCitation']) $fullref .= "$val. ";
             $rec['http://eol.org/schema/reference/full_reference'] = trim($fullref);
             unset($rec['http://purl.org/dc/terms/title']);
-
-            $rec['http://purl.org/dc/terms/identifier'] = md5(json_encode($rec)).'_'.$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             unset($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            $rec['http://purl.org/dc/terms/identifier'] = md5(json_encode($rec));
+            $this->taxonID_ref_info[$taxonID][] = $rec['http://purl.org/dc/terms/identifier'];
+            
             unset($rec['http://purl.org/dc/terms/bibliographicCitation']);
             unset($rec['http://purl.org/dc/terms/creator']);
             unset($rec['http://purl.org/dc/terms/date']);
             unset($rec['http://purl.org/dc/terms/type']);
-            
             //===========================================================================================================================================================
             $uris = array_keys($rec);
             $o = new \eol_schema\Reference();
@@ -130,8 +175,12 @@ class BrazilianFloraAPI
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            $this->archive_builder->write_object_to_file($o);
-            if($i >= 10) break; //debug only
+            if(!isset($this->reference_ids[$rec['http://purl.org/dc/terms/identifier']]))
+            {
+                $this->archive_builder->write_object_to_file($o);
+                $this->reference_ids[$rec['http://purl.org/dc/terms/identifier']] = '';
+            }
+            // if($i >= 10) break; //debug only
         }
     }
     
