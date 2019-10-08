@@ -11,17 +11,131 @@ class BrazilianFloraAPI
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
     }
     /*================================================================= STARTS HERE ======================================================================*/
+    /* 
+    The occurrences file can be constructed as a 1->1 with no additional information.
+
+    The distribution and speciesprofile files can both go to the measurementsOrFacts file. Distribution will need a slightly convoluted mapping:
+
+    locationID will be used for measurementValue
+    countryCode can be ignored
+
+    measurementType is determined by establishmentMeans:
+
+    NATIVA-> http://eol.org/schema/terms/NativeRange
+    CULTIVADA-> http://eol.org/schema/terms/IntroducedRange
+    NATURALIZADA-> http://eol.org/schema/terms/IntroducedRange
+    unless the string "endemism":"Endemica" appears in occurrenceRemarks, in which case the measurementType is http://eol.org/terms/endemic
+
+    The strings CULTIVADA and NATURALIZADA should be preserved in measurementRemarks
+
+    occurrenceRemarks also contains another section, beginning "phytogeographicDomain": and followed by comma separated strings in square brackets. 
+    Each string will also be a measurementValue and should get an additional record with the same measurementType, occurrence, etc.
+
+    wrinkle: where measurementType is http://eol.org/terms/endemic for the original records, http://eol.org/schema/terms/NativeRange should be used for any accompanying records 
+        based on the occurrenceRemarks strings.
+
+    speciesprofile also has a convoluted batch of strings in lifeForm. (habitat seems to be empty for now). There may be up to three sections in each cell, of the form:
+
+    {"measurementType":["measurementValue","measurementValue"],"measurementType":["measurementValue","measurementValue"],"measurementType":["measurementValue","measurementValue"]}
+
+    if that makes it clear...
+
+    measurementTypes:
+
+    lifeForm-> http://purl.obolibrary.org/obo/FLOPO_0900022
+    habitat-> http://rs.tdwg.org/dwc/terms/habitat
+    vegetationType-> http://eol.org/schema/terms/Habitat
+
+    I'll make you a mapping for all the measurementValue strings from both files.
+    
+    */
     function start($info)
     {   $tables = $info['harvester']->tables;
+        self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        self::process_Reference($tables['http://rs.gbif.org/terms/1.0/reference'][0]);
+        /*
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
-        
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        
         self::initialize_mapping(); //for location string mappings
         self::process_per_state();
+        */
     }
+    private function process_Taxon($meta)
+    {   //print_r($meta);
+        echo "\nprocess_Reference...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            print_r($rec); exit;
+        }
+    }
+    private function process_Reference($meta)
+    {   //print_r($meta);
+        echo "\nprocess_Reference...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 264
+                [http://purl.org/dc/terms/identifier] => 
+                [http://purl.org/dc/terms/bibliographicCitation] => Arch. Jard. Bot. Rio de Janeiro,3: 187,1922
+                [http://purl.org/dc/terms/title] => Arch. Jard. Bot. Rio de Janeiro
+                [http://purl.org/dc/terms/creator] => 
+                [http://purl.org/dc/terms/date] => 1922
+                [http://purl.org/dc/terms/type] => 
+            )
+            The references file is pretty close, although the references are a bit sparse. It looks like the title column is redundant with bibliographicCitation and can be ignored. 
+                Could you please concatenate creator, then date, then bibliographicCitation, separated by ". " to make the fullReference?
+            */
+            //===========================================================================================================================================================
+            $fullref = '';
+            if($val = $rec['http://purl.org/dc/terms/creator']) $fullref .= "$val. ";
+            if($val = $rec['http://purl.org/dc/terms/date']) $fullref .= "$val. ";
+            if($val = $rec['http://purl.org/dc/terms/bibliographicCitation']) $fullref .= "$val. ";
+            $rec['http://eol.org/schema/reference/full_reference'] = trim($fullref);
+            unset($rec['http://purl.org/dc/terms/title']);
+
+            $rec['http://purl.org/dc/terms/identifier'] = md5(json_encode($rec)).'_'.$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            unset($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            unset($rec['http://purl.org/dc/terms/bibliographicCitation']);
+            unset($rec['http://purl.org/dc/terms/creator']);
+            unset($rec['http://purl.org/dc/terms/date']);
+            unset($rec['http://purl.org/dc/terms/type']);
+            
+            //===========================================================================================================================================================
+            $uris = array_keys($rec);
+            $o = new \eol_schema\Reference();
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            if($i >= 10) break; //debug only
+        }
+    }
+    
+    //=====================================================ends here
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
@@ -43,24 +157,6 @@ class BrazilianFloraAPI
                 $k++;
             } // print_r($rec); exit;
             /*Array(
-                [http://rs.tdwg.org/dwc/terms/measurementID] => M1
-                [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
-                [http://eol.org/schema/measurementOfTaxon] => true
-                [http://eol.org/schema/associationID] => 
-                [http://eol.org/schema/parentMeasurementID] => 
-                [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/TO_0002725
-                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://eol.org/schema/terms/perennial
-                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
-                [http://rs.tdwg.org/dwc/terms/measurementAccuracy] => 
-                [http://eol.org/schema/terms/statisticalMethod] => 
-                [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
-                [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
-                [http://rs.tdwg.org/dwc/terms/measurementMethod] => 
-                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => Source term: Duration. Some plants have different Durations...
-                [http://purl.org/dc/terms/source] => http://plants.usda.gov/core/profile?symbol=ABGR4
-                [http://purl.org/dc/terms/bibliographicCitation] => The PLANTS Database, United States Department of Agriculture,...
-                [http://purl.org/dc/terms/contributor] => 
-                [http://eol.org/schema/reference/referenceID] => 
             )*/
             //===========================================================================================================================================================
             /* Data to remove: Katja has heard that records for several of the predicates are suspect. Please remove anything with the predicates below: */
@@ -135,34 +231,6 @@ class BrazilianFloraAPI
             }
             // print_r($rec); exit("\ndebug...\n");
             /*Array(
-                [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
-                [http://rs.tdwg.org/dwc/terms/taxonID] => ABGR4
-                [http://rs.tdwg.org/dwc/terms/eventID] => http://plants.usda.gov/core/profile?symbol=ABGR4
-                [http://rs.tdwg.org/dwc/terms/institutionCode] => 
-                [http://rs.tdwg.org/dwc/terms/collectionCode] => 
-                [http://rs.tdwg.org/dwc/terms/catalogNumber] => 
-                [http://rs.tdwg.org/dwc/terms/sex] => 
-                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
-                [http://rs.tdwg.org/dwc/terms/reproductiveCondition] => 
-                [http://rs.tdwg.org/dwc/terms/behavior] => 
-                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => 
-                [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
-                [http://rs.tdwg.org/dwc/terms/individualCount] => 
-                [http://rs.tdwg.org/dwc/terms/preparations] => 
-                [http://rs.tdwg.org/dwc/terms/fieldNotes] => 
-                [http://rs.tdwg.org/dwc/terms/samplingProtocol] => 
-                [http://rs.tdwg.org/dwc/terms/samplingEffort] => 
-                [http://rs.tdwg.org/dwc/terms/recordedBy] => 
-                [http://rs.tdwg.org/dwc/terms/identifiedBy] => 
-                [http://rs.tdwg.org/dwc/terms/dateIdentified] => 
-                [http://rs.tdwg.org/dwc/terms/eventDate] => 
-                [http://purl.org/dc/terms/modified] => 
-                [http://rs.tdwg.org/dwc/terms/locality] => 
-                [http://rs.tdwg.org/dwc/terms/decimalLatitude] => 
-                [http://rs.tdwg.org/dwc/terms/decimalLongitude] => 
-                [http://rs.tdwg.org/dwc/terms/verbatimLatitude] => 
-                [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
-                [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
             )*/
             $uris = array_keys($rec);
             $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID', 'http:/eol.org/globi/terms/bodyPart');
@@ -177,164 +245,7 @@ class BrazilianFloraAPI
             // if($i >= 10) break; //debug only
         }
     }
-    function process_per_state()
-    {   $state_list = self::parse_state_list_page();
-        foreach($state_list as $territory => $states) {
-            echo "\n[$territory]\n"; // print_r($states); exit;
-            foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
-                if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) {
-                    // echo "\nDownloading HTML ".$arr[1]."...";
-                    if($local = Functions::save_remote_file_to_local($this->service['per_state_page'].$arr[1], $this->download_options)) {
-                        self::parse_state_list($local, $arr[1]);
-                        if(file_exists($local)) unlink($local);
-                    }
-                }
-            }
-        }
-    }
-    private function parse_state_list_page()
-    {   if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
-            if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
-                $a = $arr[1];
-                $a = array_map('strip_tags', $a); // print_r($a);
-                /*Array(
-                    [0] => U.S. States
-                    [1] => U.S. Territories and Protectorates
-                    [2] => Canada
-                    [3] => Denmark
-                    [4] => France
-                )*/
-                $i = -1;
-                foreach($a as $area) { $i++;
-                    if($area == 'France') {
-                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)<\/table>/ims", $html, $arr)) {
-                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) $final[$area] = $arr2[1];
-                        }
-                    }
-                    else {
-                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)class=\"BodyTextBlackBold\">".$a[$i+1]."/ims", $html, $arr)) {
-                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) $final[$area] = $arr2[1];
-                        }
-                    }
-                }
-            }
-        }
-        print_r($final); //exit;
-        $this->area_id_info = self::assign_id_2_locations($final);
-        return $final;
-    }
-    private function assign_id_2_locations($state_list)
-    {   foreach($state_list as $territory => $states) {
-            // echo "\n[$territory]\n"; // print_r($states); exit;
-            foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
-                $id = false; $location = false;
-                if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) $id = $arr[1];
-                if(preg_match("/>(.*?)elix/ims", $str.'elix', $arr)) $location = $arr[1];
-                if($id && $location) {
-                    $final[$id] = $location;
-                    /* for stats only
-                    if($string_uri = self::get_string_uri($location)) echo $string_uri;
-                    else                                              echo " no uri";
-                    */
-                }
-            }
-        }
-        return $final;
-    }
-    function parse_state_list($local, $state_id)
-    {   echo "\nprocessing [$state_id]\n";
-        
-        // /* important: check if without data e.g. https://plants.sc.egov.usda.gov/java/stateDownload?statefips=CANFCALB
-        $contents = file_get_contents($local);
-        if(stripos($contents, "No Data Found") !== false) { //string is found
-            echo " -- No Data Found -- \n";
-            return;
-        }
-        // */
-        
-        $file = fopen($local, 'r');
-        $i = 0;
-        while(($line = fgetcsv($file)) !== FALSE) {
-            $i++;
-            if($i == 1) $fields = $line;
-            else {
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                } // print_r($rec); exit;
-                /*Array(
-                    [Symbol] => DIBR2
-                    [Synonym Symbol] => 
-                    [Scientific Name with Author] => Dicliptera brachiata (Pursh) Spreng.
-                    [National Common Name] => branched foldwing
-                    [Family] => Acanthaceae
-                )*/
-                if(!$rec['Synonym Symbol'] && @$rec['Symbol']) { //echo " ".$rec['Symbol'];
-                    $rec['source_url'] = $this->service['taxon_page'] . $rec['Symbol'];
-                    self::create_taxon($rec);
-                    self::create_vernacular($rec);
-                    if($NorI_data = self::parse_profile_page($this->service['taxon_page'].$rec['Symbol'])) { //NorI = Native or Introduced
-                        self::write_NorI_measurement($NorI_data, $rec);
-                    }
-                    // write presence for this state
-                    self::write_presence_measurement_for_state($state_id, $rec);
-                }
-            }
-        }
-    }
-    private function get_string_uri($string)
-    {   if($string_uri = @$this->uris[$string]) return $string_uri;
-        switch ($string) { //put here customized mapping
-            case "Québec":    return 'http://www.wikidata.org/entity/Q176';             /* The 4 entries here were already added to gen. mappings in Functions.php */
-            case "Quebec":    return 'http://www.wikidata.org/entity/Q176';
-            case "Qu&eacute;bec":    return 'http://www.wikidata.org/entity/Q176';
-            case "St. Pierre and Miquelon": return 'http://www.geonames.org/3424932';
-        }
-    }
-    private function write_presence_measurement_for_state($state_id, $rec)
-    {   $string_value = $this->area_id_info[$state_id];
-        if($string_uri = self::get_string_uri($string_value)) {}
-        else {
-            $this->debug['no uri mapping yet'][$string_value];
-            $string_uri = $string_value;
-        }
-        $mValue = $string_uri;
-        $mType = 'http://eol.org/schema/terms/Present'; //for generic range
-        $taxon_id = $rec['Symbol'];
-        $save = array();
-        $save['taxon_id'] = $taxon_id;
-        $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-        $save['source'] = $rec['source_url'];
-        $save['measurementRemarks'] = $string_value;
-        // $save['measurementID'] = '';
-        $this->func->add_string_types($save, $mValue, $mType, "true");
-    }
-    private function write_NorI_measurement($NorI_data, $rec)
-    {   /*Array([0] => Array(
-                    [0] => L48
-                    [1] => N
-                )
-        )*/
-        foreach($NorI_data as $d) {
-            if($d[0] == 'None') continue;
-            $mValue = $this->area[$d[0]]['uri'];
-            $mRemarks = @$this->area[$d[0]]['mRemarks'];
-            /* seems $d[1] can have values like: I,N,W OR PB ; not just single N or I */
-            $arr = explode(",", $d[1]);
-            foreach($arr as $type) {
-                if(!in_array($type, array('N',"I"))) continue;
-                $mType = $this->NorI_mType[$type];
-                $taxon_id = $rec['Symbol'];
-                $save = array();
-                $save['taxon_id'] = $taxon_id;
-                $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                $save['source'] = $rec['source_url'];
-                // $save['measurementID'] = '';
-                $save['measurementRemarks'] = $mRemarks;
-                $this->func->add_string_types($save, $mValue, $mType, "true");
-            }
-        }
-    }
+    /*
     private function create_taxon($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -360,57 +271,7 @@ class BrazilianFloraAPI
             $this->archive_builder->write_object_to_file($v);
         }
     }
-    function parse_profile_page($url)
-    {   $final = false;
-        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            if(preg_match("/Status<\/strong>(.*?)<\/tr>/ims", $html, $arr)) {
-                $str = $arr[1];
-                $str = str_ireplace(' valign="top"', '', $str); // echo "\n$str\n";
-                if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr2)) {
-                    $str = str_replace(array("\t", "\n", "&nbsp;"), "", $arr2[1]);
-                    $str = Functions::remove_whitespace($str); // echo "\n[$str]\n";
-                    $arr = explode("<br>", $str);
-                    $arr = array_filter($arr); //remove null array
-                    // print_r($arr);
-                    /*Array(
-                        [0] => CAN N
-                        [1] => L48 N
-                        [2] => SPM N
-                    )*/
-                    foreach($arr as $a) $final[] = explode(" ", $a);
-                }
-            }
-            else exit("\nInvestigate $url status not found!\n");
-        }
-        return $final;
-    }
+    */
     /*================================================================= ENDS HERE ======================================================================*/
-    /* not used
-    private function process_taxon($meta, $ret)
-    {   //print_r($meta);
-        $i = 0;
-        foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
-            if($meta->ignore_header_lines && $i == 1) continue;
-            if(!$row) continue;
-            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta->fields as $field) {
-                if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
-                $k++;
-            }
-            // print_r($rec); exit;
-            $o = new \eol_schema\Taxon();
-            $uris = array_keys($rec);
-            foreach($uris as $uri) {
-                $field = pathinfo($uri, PATHINFO_BASENAME);
-                $o->$field = $rec[$uri];
-            }
-            $this->archive_builder->write_object_to_file($o);
-            // if($i >= 10) break; //debug only
-        }
-    }*/
 }
 ?>
