@@ -12,6 +12,10 @@ class BrazilianFloraAPI
     }
     /*================================================================= STARTS HERE ======================================================================*/
     /* 
+    The taxon file has a couple of columns we haven't heard of, which I'm comfortable leaving out.
+    -> ELI: - generate identifier in references and link these identifier accordingly to taxon with references
+    -> ELI: - set furtherInformationURL in taxon (from reference value)
+    
     The occurrences file can be constructed as a 1->1 with no additional information.
 
     The distribution and speciesprofile files can both go to the measurementsOrFacts file. Distribution will need a slightly convoluted mapping:

@@ -20,7 +20,6 @@ process_resource_url($dwca_file, $resource_id, $timestart);
 // echo "\nDone processing.\n";
 /* 
 The vernacularname file looks pretty good as is.
-The taxon file has a couple of columns we haven't heard of, which I'm comfortable leaving out.
 */
 function process_resource_url($dwca_file, $resource_id, $timestart)
 {
