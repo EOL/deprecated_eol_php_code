@@ -36,9 +36,9 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     rowType="http://rs.gbif.org/terms/1.0/TypesAndSpecimen">        IGNORE
     */
 
-    $preferred_rowtypes = array('http://rs.gbif.org/terms/1.0/vernacularname');
+    $preferred_rowtypes = array(); //all tables processed elsewhere in BrazilianFloraAPI
     /* These will be processed in BrazilianFloraAPI.php which will be called from DwCA_Utility.php
-    Taxon, Reference, SpeciesProfile, Distribution
+    vernacularname, Taxon, Reference, SpeciesProfile, Distribution
     */
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, false, $timestart);

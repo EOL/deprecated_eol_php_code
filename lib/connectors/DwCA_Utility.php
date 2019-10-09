@@ -125,7 +125,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             elseif($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
-            // elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere. debug only - vernaculars will be processed here
+            elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;

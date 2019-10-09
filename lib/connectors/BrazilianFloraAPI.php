@@ -37,22 +37,70 @@ class BrazilianFloraAPI
     function start($info)
     {   $tables = $info['harvester']->tables;
         // /* Normal operation
+        self::process_Vernacularname($tables['http://rs.gbif.org/terms/1.0/vernacularname'][0]);
         self::process_Reference($tables['http://rs.gbif.org/terms/1.0/reference'][0]);
         // print_r($this->taxonID_ref_info); exit;
         self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         // */
-
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
         self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         print_r($this->debug);
-        // exit;
+        
         /* copied template
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
         self::initialize_mapping(); //for location string mappings
         */
+    }
+    private function process_Vernacularname($meta)
+    {   //print_r($meta);
+        echo "\nprocess_Vernacularname...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); //exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 110445
+                [http://rs.tdwg.org/dwc/terms/vernacularName] => Embireira-do-campo
+                [http://purl.org/dc/terms/language] => PORTUGUES
+                [http://rs.tdwg.org/dwc/terms/locality] => 
+            )*/
+            //===========================================================================================================================================================
+            $rec['http://purl.org/dc/terms/language'] = self::get_ISOcode_language($rec['http://purl.org/dc/terms/language']);
+            //===========================================================================================================================================================
+            $uris = array_keys($rec);
+            $o = new \eol_schema\VernacularName();
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+        }
+    }
+    private function get_ISOcode_language($lang)
+    {   switch ($lang) {
+            case "PORTUGUES": return "pt";
+            case "INGLES": return "en";
+            case "ESPANHOL": return "es";
+            case "KAXINAWA": return "cbs";
+            case "HOLANDES": return "nl";
+            case "FRANCES": return "fr";
+            default:
+                if(!$lang) {}
+                else exit("\n lang [$lang] no mapping yet.\n");
+        }
+        return $lang;
     }
     private function process_SpeciesProfile($meta)
     {   //print_r($meta);
