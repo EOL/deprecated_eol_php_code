@@ -9,6 +9,7 @@ class BrazilianFloraAPI
         $this->archive_builder = $archive_builder;
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        $this->species_page = 'http://reflora.jbrj.gov.br/reflora/floradobrasil/FB';
     }
     /*================================================================= STARTS HERE ======================================================================*/
     /* 
@@ -20,31 +21,12 @@ class BrazilianFloraAPI
 
     The distribution and speciesprofile files can both go to the measurementsOrFacts file. Distribution will need a slightly convoluted mapping:
 
-    locationID will be used for measurementValue
-    countryCode can be ignored
-    measurementType is determined by establishmentMeans:
-
-    NATIVA-> http://eol.org/schema/terms/NativeRange
-    CULTIVADA-> http://eol.org/schema/terms/IntroducedRange
-    NATURALIZADA-> http://eol.org/schema/terms/IntroducedRange
-    unless the string "endemism":"Endemica" appears in occurrenceRemarks, in which case the measurementType is http://eol.org/terms/endemic
-
-    The strings CULTIVADA and NATURALIZADA should be preserved in measurementRemarks
-
-    occurrenceRemarks also contains another section, beginning "phytogeographicDomain": and followed by comma separated strings in square brackets. 
-    Each string will also be a measurementValue and should get an additional record with the same measurementType, occurrence, etc.
-
-    wrinkle: where measurementType is http://eol.org/terms/endemic for the original records, http://eol.org/schema/terms/NativeRange should be used for any accompanying records 
-        based on the occurrenceRemarks strings.
-
     speciesprofile also has a convoluted batch of strings in lifeForm. (habitat seems to be empty for now). There may be up to three sections in each cell, of the form:
-
     {"measurementType":["measurementValue","measurementValue"],"measurementType":["measurementValue","measurementValue"],"measurementType":["measurementValue","measurementValue"]}
 
     if that makes it clear...
 
     measurementTypes:
-
     lifeForm-> http://purl.obolibrary.org/obo/FLOPO_0900022
     habitat-> http://rs.tdwg.org/dwc/terms/habitat
     vegetationType-> http://eol.org/schema/terms/Habitat
@@ -59,18 +41,17 @@ class BrazilianFloraAPI
         // print_r($this->taxonID_ref_info); exit;
         self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         */
-        
+
+        require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
         // self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         
-        
-        /*
+        print_r($this->debug);
+        /* copied template
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
-        require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::initialize_mapping(); //for location string mappings
-        self::process_per_state();
         */
     }
     private function process_Distribution($meta)
@@ -96,27 +77,112 @@ class BrazilianFloraAPI
                 [http://rs.tdwg.org/dwc/terms/establishmentMeans] => NATIVA
                 [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => {"endemism":"Não endemica"}
             )
-            distribution label              measurementValue
-            BR-BA   https://www.geonames.org/3471168
-            BR-DF   https://www.geonames.org/3463504
-            BR-ES   https://www.geonames.org/3463930
-            BR-MG   https://www.geonames.org/3457153
-            BR-MS   https://www.geonames.org/3457415
-            BR-MT   https://www.geonames.org/3457419
-            BR-PA   https://www.geonames.org/3393129
-            BR-PR   https://www.geonames.org/3455077
-            BR-RJ   https://www.geonames.org/3451189
-            BR-RS   https://www.geonames.org/3451133
-            BR-SC   https://www.geonames.org/3450387
-            BR-SP   https://www.geonames.org/3448433
-            Amazônia    https://www.wikidata.org/entity/Q2841453
-            Caatinga    https://www.wikidata.org/entity/Q375816
-            Cerrado     https://www.wikidata.org/entity/Q278512
-            Mata Atlântica  https://www.wikidata.org/entity/Q477047
-            Pampa           https://www.wikidata.org/entity/Q184382
-            Pantanal        https://www.wikidata.org/entity/Q157603
+            locationID will be used for measurementValue
+            countryCode can be ignored
+            
+            measurementType is determined by establishmentMeans:
+                NATIVA-> http://eol.org/schema/terms/NativeRange
+                CULTIVADA-> http://eol.org/schema/terms/IntroducedRange
+                NATURALIZADA-> http://eol.org/schema/terms/IntroducedRange
+                unless the string "endemism":"Endemica" appears in occurrenceRemarks, in which case the measurementType is http://eol.org/terms/endemic
+
+            The strings CULTIVADA and NATURALIZADA should be preserved in measurementRemarks
+
+            occurrenceRemarks also contains another section, beginning "phytogeographicDomain": and followed by comma separated strings in square brackets. 
+            Each string will also be a measurementValue and should get an additional record with the same measurementType, occurrence, etc.
+            
+            {"endemism":"Não endemica","phytogeographicDomain":["Amazônia","Caatinga","Cerrado","Mata Atlântica","Pantanal"]}
+            {"endemism":"Endemica","phytogeographicDomain":["Amazônia","Caatinga","Cerrado"]}
+
+            wrinkle: where measurementType is http://eol.org/terms/endemic for the original records, http://eol.org/schema/terms/NativeRange should be used for any accompanying records 
+                based on the occurrenceRemarks strings.
             */
+            //===========================================================================================================================================================
+            unset($rec['http://rs.tdwg.org/dwc/terms/countryCode']);
+            $mValue = self::get_mValue_4distribution($rec['http://rs.tdwg.org/dwc/terms/locationID']);
+            $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'], $rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']);
+            $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $save = array();
+            $save['taxon_id'] = $taxon_id;
+            $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+            $save['source'] = $this->species_page.$taxon_id;
+            $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
+            $this->func->add_string_types($save, $mValue, $mType, "true");
+            //===========================================================================================================================================================
+            if($domains = self::occurrenceRemarks_has_phytogeographicDomain($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) {
+                foreach($domains as $domain) {
+                    $mValue = $domain;
+                    if($mType == 'http://eol.org/terms/endemic') $mType2 = 'http://eol.org/schema/terms/NativeRange';
+                    else                                         $mType2 = $mType;
+                    $save = array();
+                    $save['taxon_id'] = $taxon_id;
+                    $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $save['source'] = $this->species_page.$taxon_id;
+                    $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
+                    $this->func->add_string_types($save, $mValue, $mType2, "true");
+                }
+            }
+            //===========================================================================================================================================================
         }
+    }
+    private function occurrenceRemarks_has_phytogeographicDomain($occurrenceRemarks)
+    {
+        $arr = json_decode($occurrenceRemarks, true);
+        if($val = @$arr['phytogeographicDomain']) {
+            // print_r($val); exit("\nwith phytogeographicDomain\n");
+            return $val;
+        }
+    }
+    private function get_mType_4distribution($establishmentMeans, $occurrenceRemarks) //
+    {   
+        if(stripos($occurrenceRemarks, '"endemism":"Endemica"') !== false) { //string is found
+            return "http://eol.org/terms/endemic";
+        }
+        switch ($establishmentMeans) {
+            case "NATIVA": return "http://eol.org/schema/terms/NativeRange";
+            case "CULTIVADA": return "http://eol.org/schema/terms/IntroducedRange";
+            case "NATURALIZADA": return "http://eol.org/schema/terms/IntroducedRange";
+            default:
+                if(!$establishmentMeans) {}
+                else exit("\n establishmentMeans [$establishmentMeans] no mapping yet.\n");
+        }
+        /*
+        NATIVA-> http://eol.org/schema/terms/NativeRange
+        CULTIVADA-> http://eol.org/schema/terms/IntroducedRange
+        NATURALIZADA-> http://eol.org/schema/terms/IntroducedRange
+        unless the string "endemism":"Endemica" appears in occurrenceRemarks, in which case the measurementType is http://eol.org/terms/endemic
+        */
+        return $establishmentMeans;
+    }
+
+    private function get_mValue_4distribution($locationID) //$locationID is distribution label
+    {   switch ($locationID) {
+            case "BR-BA": return "https://www.geonames.org/3471168";
+            case "BR-DF": return "https://www.geonames.org/3463504";
+            case "BR-ES": return "https://www.geonames.org/3463930";
+            case "BR-MG": return "https://www.geonames.org/3457153";
+            case "BR-MS": return "https://www.geonames.org/3457415";
+            case "BR-MT": return "https://www.geonames.org/3457419";
+            case "BR-PA": return "https://www.geonames.org/3393129";
+            case "BR-PR": return "https://www.geonames.org/3455077";
+            case "BR-RJ": return "https://www.geonames.org/3451189";
+            case "BR-RS": return "https://www.geonames.org/3451133";
+            case "BR-SC": return "https://www.geonames.org/3450387";
+            case "BR-SP": return "https://www.geonames.org/3448433";
+            case "Amazônia": return "https://www.wikidata.org/entity/Q2841453";
+            case "Caatinga": return "https://www.wikidata.org/entity/Q375816";
+            case "Cerrado": return "https://www.wikidata.org/entity/Q278512";
+            case "Mata Atlântica": return "https://www.wikidata.org/entity/Q477047";
+            case "Pampa": return "https://www.wikidata.org/entity/Q184382";
+            case "Pantanal": return "https://www.wikidata.org/entity/Q157603";
+            default:
+                if(!$locationID) {}
+                else {
+                    // exit("\n locationID [$locationID] no mapping yet.\n");
+                    $this->debug['locationID no mapping yet'][$locationID] = '';
+                }
+        }
+        return $locationID;
     }
     /*
     Array( - SpeciesProfile
