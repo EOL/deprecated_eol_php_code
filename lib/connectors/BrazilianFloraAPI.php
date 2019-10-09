@@ -102,7 +102,7 @@ class BrazilianFloraAPI
                                 $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                                 $save['source'] = $this->species_page.$taxon_id;
                                 $save['measurementRemarks'] = "$key:$term";//json_encode(array($key => array($term)));
-                                $this->func->add_string_types($save, $mValue, $mType, "true");
+                                if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
                             }
                         }
                     }
@@ -164,7 +164,7 @@ class BrazilianFloraAPI
             $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
             $save['source'] = $this->species_page.$taxon_id;
             $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
-            $this->func->add_string_types($save, $mValue, $mType, "true");
+            if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
             //===========================================================================================================================================================
             if($domains = self::occurrenceRemarks_has_phytogeographicDomain($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) {
                 foreach($domains as $domain) {
@@ -176,7 +176,7 @@ class BrazilianFloraAPI
                     $save["catnum"] = $taxon_id.'_'.$mType2.$mValue; //making it unique. no standard way of doing it.
                     $save['source'] = $this->species_page.$taxon_id;
                     $save['measurementRemarks'] = json_encode(array('phytogeographicDomain' => $domains));
-                    $this->func->add_string_types($save, $mValue, $mType2, "true");
+                    if($mValue && $mType2) $this->func->add_string_types($save, $mValue, $mType2, "true");
                 }
             }
             //===========================================================================================================================================================
@@ -234,7 +234,6 @@ class BrazilianFloraAPI
             default:
                 if(!$locationID) {}
                 else {
-                    // exit("\n locationID [$locationID] no mapping yet.\n");
                     $this->debug['locationID no mapping yet'][$locationID] = '';
                 }
         }

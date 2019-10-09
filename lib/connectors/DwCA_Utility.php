@@ -102,7 +102,7 @@ class DwCA_Utility
         echo "\nConverting archive to EOL DwCA...\n";
         
         if($this->resource_id == 'test_eli') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //placeholder for customized resources with respective download_options
-        elseif(in_array($this->resource_id, array('globi_associations', '170_final', 'brazilian_flora'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*25));
+        elseif(in_array($this->resource_id, array('globi_associations', '170_final', 'BF'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*25));
         elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
         else $info = self::start(); //default
 
@@ -125,7 +125,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             elseif($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
-            elseif($this->resource_id == 'brazilian_flora') break; //all extensions will be processed elsewhere. debug only - vernaculars & taxon will be processed here
+            // elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere. debug only - vernaculars will be processed here
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -196,7 +196,7 @@ class DwCA_Utility
             $func = new MovieFilesAPI($this->archive_builder, $this->resource_id);
             $func->update_dwca($info);
         }
-        if($this->resource_id == 'brazilian_flora') {
+        if($this->resource_id == 'BF') {
             require_library('connectors/BrazilianFloraAPI');
             $func = new BrazilianFloraAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
