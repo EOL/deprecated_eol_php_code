@@ -22,7 +22,6 @@ class BrazilianFloraAPI
 
     locationID will be used for measurementValue
     countryCode can be ignored
-
     measurementType is determined by establishmentMeans:
 
     NATIVA-> http://eol.org/schema/terms/NativeRange
@@ -55,14 +54,14 @@ class BrazilianFloraAPI
     */
     function start($info)
     {   $tables = $info['harvester']->tables;
-        /*
+        /* Normal operation
         self::process_Reference($tables['http://rs.gbif.org/terms/1.0/reference'][0]);
         // print_r($this->taxonID_ref_info); exit;
         self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         */
         
-        // self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
-        self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
+        self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
+        // self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         
         
         /*
@@ -89,7 +88,7 @@ class BrazilianFloraAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
             /*Array( - Distribution
                 [http://rs.tdwg.org/dwc/terms/taxonID] => 121159
                 [http://rs.tdwg.org/dwc/terms/locationID] => BR-RS
@@ -97,13 +96,34 @@ class BrazilianFloraAPI
                 [http://rs.tdwg.org/dwc/terms/establishmentMeans] => NATIVA
                 [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => {"endemism":"Não endemica"}
             )
-            Array( - SpeciesProfile
-                [http://rs.tdwg.org/dwc/terms/taxonID] => 12
-                [http://rs.gbif.org/terms/1.0/lifeForm] => 
-                [http://rs.tdwg.org/dwc/terms/habitat] => 
-            )*/
+            distribution label              measurementValue
+            BR-BA   https://www.geonames.org/3471168
+            BR-DF   https://www.geonames.org/3463504
+            BR-ES   https://www.geonames.org/3463930
+            BR-MG   https://www.geonames.org/3457153
+            BR-MS   https://www.geonames.org/3457415
+            BR-MT   https://www.geonames.org/3457419
+            BR-PA   https://www.geonames.org/3393129
+            BR-PR   https://www.geonames.org/3455077
+            BR-RJ   https://www.geonames.org/3451189
+            BR-RS   https://www.geonames.org/3451133
+            BR-SC   https://www.geonames.org/3450387
+            BR-SP   https://www.geonames.org/3448433
+            Amazônia    https://www.wikidata.org/entity/Q2841453
+            Caatinga    https://www.wikidata.org/entity/Q375816
+            Cerrado     https://www.wikidata.org/entity/Q278512
+            Mata Atlântica  https://www.wikidata.org/entity/Q477047
+            Pampa           https://www.wikidata.org/entity/Q184382
+            Pantanal        https://www.wikidata.org/entity/Q157603
+            */
         }
     }
+    /*
+    Array( - SpeciesProfile
+        [http://rs.tdwg.org/dwc/terms/taxonID] => 12
+        [http://rs.gbif.org/terms/1.0/lifeForm] => 
+        [http://rs.tdwg.org/dwc/terms/habitat] => 
+    )*/
     private function process_Taxon($meta)
     {   //print_r($meta);
         echo "\nprocess_Taxon...\n"; $i = 0;
@@ -151,7 +171,7 @@ class BrazilianFloraAPI
             $rec['http://rs.tdwg.org/ac/terms/furtherInformationURL'] = $rec['http://purl.org/dc/terms/references'];
             $rec['http://purl.org/dc/terms/references'] = '';
             if($arr_ref_ids = @$this->taxonID_ref_info[$rec['http://rs.tdwg.org/dwc/terms/taxonID']]) {
-                $rec['http://purl.org/dc/terms/references'] = implode(";", $arr_ref_ids);
+                $rec['http://purl.org/dc/terms/references'] = implode("; ", $arr_ref_ids);
                 // echo "\nhit...\n";
             }
             //===========================================================================================================================================================
