@@ -36,17 +36,17 @@ class BrazilianFloraAPI
     */
     function start($info)
     {   $tables = $info['harvester']->tables;
-        /* Normal operation
+        // /* Normal operation
         self::process_Reference($tables['http://rs.gbif.org/terms/1.0/reference'][0]);
         // print_r($this->taxonID_ref_info); exit;
         self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-        */
+        // */
 
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        // self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
+        self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
         self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
-        exit;
         print_r($this->debug);
+        // exit;
         /* copied template
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
@@ -61,7 +61,7 @@ class BrazilianFloraAPI
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
-            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
@@ -77,7 +77,7 @@ class BrazilianFloraAPI
             )*/
             if($json = $rec['http://rs.gbif.org/terms/1.0/lifeForm']) {
                 if($arr = json_decode($json, true)) {
-                    print_r($arr);
+                    // print_r($arr);
                     /*Array(
                         [lifeForm] => Array(
                                 [0] => Erva
@@ -93,7 +93,7 @@ class BrazilianFloraAPI
                     )*/
                     foreach($arr as $key => $terms) {
                         foreach($terms as $term) {
-                            if($ret = self::get_mValue_mType_4lifeForm($term)) {
+                            if($ret = self::get_mValue_mType_4lifeForm($term, $key)) {
                                 $mValue = $ret[0];
                                 $mType = $ret[1];
                                 $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
@@ -101,7 +101,7 @@ class BrazilianFloraAPI
                                 $save['taxon_id'] = $taxon_id;
                                 $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                                 $save['source'] = $this->species_page.$taxon_id;
-                                $save['measurementRemarks'] = json_encode(array($key => array($term)));
+                                $save['measurementRemarks'] = "$key:$term";//json_encode(array($key => array($term)));
                                 $this->func->add_string_types($save, $mValue, $mType, "true");
                             }
                         }
@@ -246,7 +246,7 @@ class BrazilianFloraAPI
         [http://rs.gbif.org/terms/1.0/lifeForm] => {"lifeForm":["Árvore"],"habitat":["Terrícola"],"vegetationType":["Floresta Ombrófila (= Floresta Pluvial)"]}
         [http://rs.tdwg.org/dwc/terms/habitat] => 
     )*/
-    private function get_mValue_mType_4lifeForm($term)
+    private function get_mValue_mType_4lifeForm($term, $key)
     {   switch ($term) {
             case "Aquática-Bentos": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/freshwater_benthic');
             case "Aquática-Neuston": return array('http://eol.org/schema/terms/EcomorphologicalGuild' ,'https://eol.org/schema/terms/neuston');
@@ -302,7 +302,7 @@ class BrazilianFloraAPI
             default:
                 if(!$term) {}
                 else {
-                    $this->debug['term no mapping yet'][$term] = '';
+                    $this->debug['term no mapping yet'][$key][$term] = '';
                 }
         }
         return false;
