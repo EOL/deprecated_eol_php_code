@@ -9,7 +9,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 
-$resource_id = 'brazilian_flora';
+$resource_id = 'BF'; //'brazilian_flora';
 $dwca_file = "https://editors.eol.org/other_files/GBIF_DwCA/lista_especies_flora_brasil.zip";
 process_resource_url($dwca_file, $resource_id, $timestart);
 

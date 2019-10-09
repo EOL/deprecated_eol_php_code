@@ -43,9 +43,9 @@ class BrazilianFloraAPI
         */
 
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
-        // self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
-        
+        // self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
+        self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
+        exit;
         print_r($this->debug);
         /* copied template
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
@@ -53,6 +53,63 @@ class BrazilianFloraAPI
         unset($this->occurrenceID_bodyPart);
         self::initialize_mapping(); //for location string mappings
         */
+    }
+    private function process_SpeciesProfile($meta)
+    {   //print_r($meta);
+        echo "\nprocess_SpeciesProfile...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); //exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 606463
+                [http://rs.gbif.org/terms/1.0/lifeForm] => {"lifeForm":["Árvore"],"habitat":["Terrícola"],"vegetationType":["Floresta Ombrófila (= Floresta Pluvial)"]}
+                [http://rs.tdwg.org/dwc/terms/habitat] => 
+            )*/
+            if($json = $rec['http://rs.gbif.org/terms/1.0/lifeForm']) {
+                if($arr = json_decode($json, true)) {
+                    print_r($arr);
+                    /*Array(
+                        [lifeForm] => Array(
+                                [0] => Erva
+                            )
+                        [habitat] => Array(
+                                [0] => Terrícola
+                            )
+                        [vegetationType] => Array(
+                                [0] => Área Antrópica
+                                [1] => Floresta Ciliar ou Galeria
+                                [2] => Floresta Ombrófila (= Floresta Pluvial)
+                            )
+                    )*/
+                    foreach($arr as $key => $terms) {
+                        foreach($terms as $term) {
+                            if($ret = self::get_mValue_mType_4lifeForm($term)) {
+                                $mValue = $ret[0];
+                                $mType = $ret[1];
+                                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                                $save = array();
+                                $save['taxon_id'] = $taxon_id;
+                                $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                                $save['source'] = $this->species_page.$taxon_id;
+                                $save['measurementRemarks'] = json_encode(array($key => array($term)));
+                                $this->func->add_string_types($save, $mValue, $mType, "true");
+                            }
+                        }
+                    }
+                    
+                }
+            }
+        }
     }
     private function process_Distribution($meta)
     {   //print_r($meta);
@@ -116,9 +173,9 @@ class BrazilianFloraAPI
                     else                                         $mType2 = $mType;
                     $save = array();
                     $save['taxon_id'] = $taxon_id;
-                    $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $save["catnum"] = $taxon_id.'_'.$mType2.$mValue; //making it unique. no standard way of doing it.
                     $save['source'] = $this->species_page.$taxon_id;
-                    $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
+                    $save['measurementRemarks'] = json_encode(array('phytogeographicDomain' => $domains));
                     $this->func->add_string_types($save, $mValue, $mType2, "true");
                 }
             }
@@ -154,7 +211,6 @@ class BrazilianFloraAPI
         */
         return $establishmentMeans;
     }
-
     private function get_mValue_4distribution($locationID) //$locationID is distribution label
     {   switch ($locationID) {
             case "BR-BA": return "https://www.geonames.org/3471168";
@@ -185,11 +241,72 @@ class BrazilianFloraAPI
         return $locationID;
     }
     /*
-    Array( - SpeciesProfile
-        [http://rs.tdwg.org/dwc/terms/taxonID] => 12
-        [http://rs.gbif.org/terms/1.0/lifeForm] => 
+    Array(
+        [http://rs.tdwg.org/dwc/terms/taxonID] => 606463
+        [http://rs.gbif.org/terms/1.0/lifeForm] => {"lifeForm":["Árvore"],"habitat":["Terrícola"],"vegetationType":["Floresta Ombrófila (= Floresta Pluvial)"]}
         [http://rs.tdwg.org/dwc/terms/habitat] => 
     )*/
+    private function get_mValue_mType_4lifeForm($term)
+    {   switch ($term) {
+            case "Aquática-Bentos": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/freshwater_benthic');
+            case "Aquática-Neuston": return array('http://eol.org/schema/terms/EcomorphologicalGuild' ,'https://eol.org/schema/terms/neuston');
+            case "Aquática-Plâncton": return array('http://eol.org/schema/terms/EcomorphologicalGuild' ,'http://www.marinespecies.org/traits/Plankton');
+            case "Arbusto": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://purl.obolibrary.org/obo/FLOPO_0900034');
+            case "Árvore": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://purl.obolibrary.org/obo/FLOPO_0900033');
+            case "Bambu": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q20660322');
+            case "Coxim": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q1508694');
+            case "Dendróide": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://purl.obolibrary.org/obo/PATO_0000402');
+            case "Desconhecida": return false; //'DISCARD';
+            case "Dracenóide": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://eol.org/schema/terms/dracaenoid');
+            case "Epifita": return array('http://purl.obolibrary.org/obo/FLOPO_0900022', 'http://purl.obolibrary.org/obo/FLOPO_0900030');
+            case "Erva": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://purl.obolibrary.org/obo/FLOPO_0022142');
+            case "Folhosa": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q757163');
+            case "Hemiepífita": return array('http://purl.obolibrary.org/obo/FLOPO_0900022', 'http://eol.org/schema/terms/hemiepiphyte');
+            case "Liana/volúvel/trepadeira": return array('http://purl.obolibrary.org/obo/FLOPO_0900032' ,'http://purl.obolibrary.org/obo/FLOPO_0900035');
+            case "Palmeira": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q29582371');
+            case "Parasita": return array('http://eol.org/schema/terms/TrophicGuild' ,'https://www.wikidata.org/entity/Q12806437');
+            case "Pendente": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://eol.org/schema/terms/weeping');
+            case "Rupícola": return array('http://purl.obolibrary.org/obo/FLOPO_0900022', 'http://www.wikidata.org/entity/Q1321691');
+            case "Saprobio": return array('http://eol.org/schema/terms/TrophicGuild' ,'https://www.wikidata.org/entity/Q114750');
+            case "Simbionte": return array('http://eol.org/schema/terms/TrophicGuild' ,'https://www.wikidata.org/entity/Q2374421');
+            case "Subarbusto": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://eol.org/schema/terms/subshrub');
+            case "Suculenta": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://www.wikidata.org/entity/Q189939');
+            case "Tapete": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://eol.org/schema/terms/trailing');
+            case "Terrícola": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_00000446');
+            case "Trama": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q16868813');
+            case "Tufo": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://eol.org/schema/terms/tuft');
+            case "Área Antrópica": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_00002031');
+            case "Caatinga (stricto sensu)": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q375816');
+            case "Campinarana": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q25067050');
+            case "Campo de Altitude": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000194');
+            case "Campo de Várzea": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000195');
+            case "Campo Limpo": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000177');
+            case "Campo rupestre": return array('http://eol.org/schema/terms/Habitat' ,'http://eol.org/schema/terms/rockyGrassland');
+            case "Carrasco": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000218');
+            case "Cerrado (lato sensu)": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q278512');
+            case "Floresta Ciliar ou Galeria": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q911190');
+            case "Floresta de Igapó": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q1476287');
+            case "Floresta de Terra Firme": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q3518534');
+            case "Floresta de Várzea": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q1940784');
+            case "Floresta Estacional Decidual": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000816');
+            case "Floresta Estacional Perenifólia": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000843');
+            case "Floresta Estacional Semidecidual": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000388');
+            case "Floresta Ombrófila (= Floresta Pluvial)": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000228');
+            case "Floresta Ombrófila Mista": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_00002993');
+            case "Manguezal": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000181');
+            case "Palmeiral": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/palmeiral');
+            case "Restinga": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q3305106');
+            case "Savana Amazônica": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000178');
+            case "Vegetação Aquática": return array('http://eol.org/schema/terms/Habitat' ,'http://eol.org/schema/terms/aquaticVegetation');
+            case "Vegetação Sobre Afloramentos Rochosos": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/rockyVegetated');
+            default:
+                if(!$term) {}
+                else {
+                    $this->debug['term no mapping yet'][$term] = '';
+                }
+        }
+        return false;
+    }
     private function process_Taxon($meta)
     {   //print_r($meta);
         echo "\nprocess_Taxon...\n"; $i = 0;
