@@ -44,6 +44,14 @@ all from eol-archive:
 
 894	Thursday 2018-08-02 11:12:17 PM	{"measurement_or_fact.tab":499598,"occurrence.tab":135121,"taxon.tab":81241}
 894	Friday 2019-10-04 09:12:40 PM	{"measurement_or_fact.tab":1705335,"occurrence.tab":444151,"taxon.tab":233336,"time_elapsed":{"sec":1522.83,"min":25.38,"hr":0.42}}
+
+was removed in mapping (GISD/mapped_location_strings.txt)
+        added from GBIF country nodes (DATA-1809) on Oct 6, 2019 start ------------	
+        secondarytype	http://rs.tdwg.org/ontology/voc/TaxonName#SecondaryType
+        supplementarytype	http://rs.tdwg.org/ontology/voc/TaxonName#SupplementaryType
+        added from GBIF country nodes (DATA-1809) on Oct 6, 2019 end ------------	
+These 4 per Jen: "Eli. I think we'll leave them as strings for now. They sound like fringe categories."
+'secondarytype' 'exlectotype' 'supplementarytype' 'exisotype'
 */
 class GBIFCountryTypeRecordAPI
 {
