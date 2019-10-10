@@ -279,6 +279,22 @@ class BrazilianFloraAPI
             case "Mata Atlântica": return "https://www.wikidata.org/entity/Q477047";
             case "Pampa": return "https://www.wikidata.org/entity/Q184382";
             case "Pantanal": return "https://www.wikidata.org/entity/Q157603";
+            /* added */
+            case "BR-AM": return "https://www.wikidata.org/entity/Q2841453";
+            case "BR-RO": return "http://www.geonames.org/3924825";
+            case "BR-GO": return "http://www.geonames.org/3462372";
+            case "BR-TO": return "http://www.geonames.org/3474575";
+            case "BR-RN": return "http://www.geonames.org/3390290";
+            case "BR-PE": return "http://www.geonames.org/3392268";
+            case "BR-AL": return "http://www.geonames.org/3408096";
+            case "BR-AC": return "http://www.geonames.org/3665474";
+            case "BR-PI": return "http://www.geonames.org/3392213";
+            case "BR-PB": return "http://www.geonames.org/3393098";
+            case "BR-CE": return "http://www.geonames.org/3402362";
+            case "BR-AP": return "http://www.geonames.org/3407762";
+            case "BR-MA": return "http://www.geonames.org/3395443";
+            case "BR-RR": return "http://www.geonames.org/3662560";
+            case "BR-SE": return "http://www.geonames.org/3447799";
             default:
                 if(!$locationID) {}
                 else {
@@ -303,7 +319,6 @@ class BrazilianFloraAPI
             case "Bambu": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q20660322');
             case "Coxim": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q1508694');
             case "Dendróide": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://purl.obolibrary.org/obo/PATO_0000402');
-            case "Desconhecida": return false; //'DISCARD';
             case "Dracenóide": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://eol.org/schema/terms/dracaenoid');
             case "Epifita": return array('http://purl.obolibrary.org/obo/FLOPO_0900022', 'http://purl.obolibrary.org/obo/FLOPO_0900030');
             case "Erva": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://purl.obolibrary.org/obo/FLOPO_0022142');
@@ -346,6 +361,34 @@ class BrazilianFloraAPI
             case "Savana Amazônica": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000178');
             case "Vegetação Aquática": return array('http://eol.org/schema/terms/Habitat' ,'http://eol.org/schema/terms/aquaticVegetation');
             case "Vegetação Sobre Afloramentos Rochosos": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/rockyVegetated');
+            /* added */
+            case "Epífita": return array('http://purl.obolibrary.org/obo/FLOPO_0900022', 'http://purl.obolibrary.org/obo/FLOPO_0900030');
+            case "Aquática": return array('http://eol.org/schema/terms/Habitat', 'http://purl.obolibrary.org/obo/ENVO_00002030');
+            case "Hemiparasita": return array('http://eol.org/schema/terms/TrophicGuild', 'https://www.wikidata.org/entity/Q20739318');
+            case "Saprófita": return array('http://eol.org/schema/terms/TrophicGuild', 'https://www.wikidata.org/entity/Q114750');
+            case "Simbionte (incluindo fungos liquenizados)": return array('http://eol.org/schema/terms/TrophicGuild', 'https://www.wikidata.org/entity/Q2374421');
+            case "Desconhecida": return false; //'DISCARD';
+            case "Desconhecido": return false; //'DISCARD';
+            case "Tronco em decomposição": return false; //'DISCARD';
+            case "Solo": return false; //'DISCARD';
+            case "Planta viva - córtex do caule": return false; //'DISCARD';
+            case "Folhedo": return false; //'DISCARD';
+            case "Planta viva - folha": return false; //'DISCARD';
+            case "Planta viva - fruto": return false; //'DISCARD';
+            case "Planta viva - inflorescência": return false; //'DISCARD';
+            case "Folhedo aéreo": return false; //'DISCARD';
+            case "Areia": return false; //'DISCARD';
+            case "Água": return false; //'DISCARD';
+            case "Planta viva - raiz": return false; //'DISCARD';
+            case "Corticícola": return false; //'DISCARD';
+            case "Epixila": return false; //'DISCARD';
+            case "Saxícola": return false; //'DISCARD';
+            case "Epífila": return false; //'DISCARD';
+            case "Sub-aérea": return false; //'DISCARD';
+            case "Edáfica": return false; //'DISCARD';
+            case "Rocha": return false; //'DISCARD';
+            case "Flabelado": return false; //'DISCARD';
+            case "Talosa": return false; //'DISCARD';
             default:
                 if(!$term) {}
                 else {
