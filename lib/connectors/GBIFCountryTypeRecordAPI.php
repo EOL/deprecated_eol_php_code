@@ -708,9 +708,19 @@ class GBIFCountryTypeRecordAPI
         }
         if($val = @$this->uris[$value]) return $val;
         else {
-            $this->debug["undefined"][$field][$value] = '';
-            if($field == "sex") return "";
-            return $value;
+            if(in_array($field, array("TypeInformation"))) {
+                $value = strtolower($value);
+                if($val = @$this->uris[$value]) return $val;
+                else {
+                    $this->debug["undefined"][$field][$value] = '';
+                    return $value;
+                }
+            }
+            else {
+                $this->debug["undefined"][$field][$value] = '';
+                if($field == "sex") return "";
+                return $value;
+            }
         }
     }
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "", $parent = false)
