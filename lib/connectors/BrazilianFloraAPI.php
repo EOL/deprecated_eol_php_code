@@ -7,7 +7,7 @@ class BrazilianFloraAPI
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
-        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         $this->species_page = 'http://reflora.jbrj.gov.br/reflora/floradobrasil/FB';
     }
