@@ -29,21 +29,27 @@ wget -q http://api.gbif.org/v1/occurrence/download/request/0010181-1909181424343
 all from eol-archive:
 872	Thursday 2018-08-02 08:54:52 PM	{"measurement_or_fact.tab":639195,"occurrence.tab":167662,"taxon.tab":80072}
 872	Friday 2019-10-04 08:09:27 PM	{"measurement_or_fact.tab":1049247,"occurrence.tab":271867,"taxon.tab":151012,"time_elapsed":{"sec":1029.14,"min":17.15,"hr":0.29}}
+872	Thursday 2019-10-10 04:12:00 AM	{"measurement_or_fact.tab":1049247,"occurrence.tab":271867,"taxon.tab":151012,"time_elapsed":{"sec":991.04,"min":16.52,"hr":0.28}}
 
 886	Thursday 2018-08-02 10:48:13 PM	{"measurement_or_fact.tab":837637,"occurrence.tab":212745,"taxon.tab":95622}
 886	Friday 2019-10-04 08:25:37 PM	{"measurement_or_fact.tab":1074057,"occurrence.tab":271039,"taxon.tab":137903,"time_elapsed":{"sec":959.86,"min":16,"hr":0.27}}
+886	Thursday 2019-10-10 04:27:40 AM	{"measurement_or_fact.tab":1074057,"occurrence.tab":271039,"taxon.tab":137903,"time_elapsed":{"sec":930.49,"min":15.51,"hr":0.26}}
 
 887	Thursday 2018-08-02 10:57:39 PM	{"measurement_or_fact.tab":533798,"occurrence.tab":139483,"taxon.tab":52758}
 887	Friday 2019-10-04 08:31:40 PM	{"measurement_or_fact.tab":115120,"occurrence.tab":31837,"taxon.tab":17599,"time_elapsed":{"sec":353.23,"min":5.89,"hr":0.1}}
+887	Thursday 2019-10-10 04:33:48 AM	{"measurement_or_fact.tab":115120,"occurrence.tab":31837,"taxon.tab":17599,"time_elapsed":{"sec":358.26,"min":5.97,"hr":0.1}}
 
 892	Thursday 2018-08-02 10:58:59 PM	{"measurement_or_fact.tab":49469,"occurrence.tab":12433,"taxon.tab":5953}
 892	Friday 2019-10-04 08:42:04 PM	{"measurement_or_fact.tab":301212,"occurrence.tab":75544,"taxon.tab":25667,"time_elapsed":{"sec":617,"min":10.28,"hr":0.17}}
+892	Thursday 2019-10-10 04:38:24 AM	{"measurement_or_fact.tab":301212,"occurrence.tab":75544,"taxon.tab":25667,"time_elapsed":{"sec":269.77,"min":4.5,"hr":0.07000000000000001}}
 
 893	Thursday 2018-08-02 11:04:27 PM	{"measurement_or_fact.tab":341938,"occurrence.tab":87627,"taxon.tab":50393}
 893	Friday 2019-10-04 08:47:07 PM	{"measurement_or_fact.tab":341938,"occurrence.tab":87627,"taxon.tab":50393,"time_elapsed":{"sec":295.06,"min":4.92,"hr":0.08}}
+893	Thursday 2019-10-10 04:43:25 AM	{"measurement_or_fact.tab":341938,"occurrence.tab":87627,"taxon.tab":50393,"time_elapsed":{"sec":295.5,"min":4.93,"hr":0.08}}
 
 894	Thursday 2018-08-02 11:12:17 PM	{"measurement_or_fact.tab":499598,"occurrence.tab":135121,"taxon.tab":81241}
 894	Friday 2019-10-04 09:12:40 PM	{"measurement_or_fact.tab":1705335,"occurrence.tab":444151,"taxon.tab":233336,"time_elapsed":{"sec":1522.83,"min":25.38,"hr":0.42}}
+894	Thursday 2019-10-10 05:09:10 AM	{"measurement_or_fact.tab":1705335,"occurrence.tab":444151,"taxon.tab":233336,"time_elapsed":{"sec":1536.05,"min":25.6,"hr":0.43}}
 
 was removed in mapping (GISD/mapped_location_strings.txt)
         added from GBIF country nodes (DATA-1809) on Oct 6, 2019 start ------------	
