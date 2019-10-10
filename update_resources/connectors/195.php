@@ -10,21 +10,19 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 195;
 $file = "http://www.marlin.ac.uk/downloads/EOL/EOL.xml";
-if(!$contents = Functions::get_remote_file($file, array('timeout' => 172800)))
-{
+if(!$contents = Functions::get_remote_file($file, array('timeout' => 172800))) {
     echo "\n\n Content partner's server is down, connector will now terminate.\n";
-}elseif(stripos($contents, "The page you are looking for has been moved.") != "")
-{
+}
+elseif(stripos($contents, "The page you are looking for has been moved.") != "") {
     echo "\n\n Content partner's server is down, connector will now terminate.\n";
-}else
-{
+}
+else {
     $contents = str_ireplace("No text entered", "", $contents);
     $contents = str_ireplace('<synonym relationship="synonym">None</synonym>', '', $contents);
     $contents = str_ireplace("<![CDATA[", "", $contents);
     $contents = str_ireplace("]]>", "", $contents);
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-    if(!($OUT = fopen($resource_path, "w")))
-    {
+    if(!($OUT = fopen($resource_path, "w"))) {
       debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
       return;
     }
@@ -43,21 +41,16 @@ if(!$contents = Functions::get_remote_file($file, array('timeout' => 172800)))
     echo "elapsed time = " . $elapsed_time_sec/60/60 . " hr \n";
     echo "\n\n Done processing.";
 }
-
-
 function remove_erroneous_common_names($resource_id)
 {
     $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
     $xml = simplexml_load_file($file);
-    foreach($xml->taxon as $taxon)
-    {
+    foreach($xml->taxon as $taxon) {
         $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
         echo "\n " . "sciname: [" . $dwc->ScientificName."]";
         $i = 0;
-        foreach($taxon->commonName as $name) 
-        {
-            if(preg_match("/^A (.*?)/ims", $name, $match) || preg_match("/^An (.*?)/ims", $name, $match))
-            {
+        foreach($taxon->commonName as $name) {
+            if(preg_match("/^A (.*?)/ims", $name, $match) || preg_match("/^An (.*?)/ims", $name, $match)) {
                 echo "\n deleted common name: [$name]\n";
                 $taxon->commonName[$i] = "";
             }
@@ -65,8 +58,7 @@ function remove_erroneous_common_names($resource_id)
         }
     }
     $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
-    if(!($OUT = fopen($resource_path, "w")))
-    {
+    if(!($OUT = fopen($resource_path, "w"))) {
       debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
       return;
     }
@@ -74,18 +66,15 @@ function remove_erroneous_common_names($resource_id)
     fclose($OUT);
     return $xml->asXML();
 }
-
 Function list_all_common_names($resource_id)
 {
     $file = CONTENT_RESOURCE_LOCAL_PATH . $resource_id .".xml";
     $xml = simplexml_load_file($file);
-    foreach($xml->taxon as $t)
-    {
+    foreach($xml->taxon as $t) {
         $t_dwc = $t->children("http://rs.tdwg.org/dwc/dwcore/");
         echo "\n $t_dwc->ScientificName -- ";
         foreach($t->commonName as $name) echo "[$name] ";
     }
     echo "\n\n";
 }
-
 ?>

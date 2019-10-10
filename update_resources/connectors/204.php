@@ -1,11 +1,9 @@
 <?php
-
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
 $path_to_raw_file = DOC_ROOT . "update_resources/connectors/files/tol_new.xml";
 $path_to_updated_file = DOC_ROOT . "update_resources/connectors/files/tol-all-content-nc_updated.xml";
 $path_to_final_file = DOC_ROOT . "update_resources/connectors/files/tol-all-content-nc_final.xml";
-
 
 // // convert weird characters in the file
 // $file = file_get_contents($path_to_raw_file);
@@ -16,20 +14,15 @@ $path_to_final_file = DOC_ROOT . "update_resources/connectors/files/tol-all-cont
 // fclose($OUT);
 // unset($file);
 
-
-
 $reader = new XMLReader();
 $reader->open($path_to_raw_file);
 
-if(!($OUT = fopen($path_to_final_file, "w+")))
-{
+if(!($OUT = fopen($path_to_final_file, "w+"))) {
   debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$path_to_final_file);
   return;
 }
 scan_recursively($reader, $OUT);
 fclose($OUT);
-
-
 
 // // convert it again because new bad characters are introduced somehow
 // $file = file_get_contents($path_to_final_file);
@@ -40,33 +33,25 @@ fclose($OUT);
 // fclose($OUT);
 // unset($file);
 
-
-
-
 function scan_recursively($reader, &$OUT)
 {
     $node_string = "";
-    while(@$reader->read())
-    {
-        switch($reader->nodeType)
-        {
+    while(@$reader->read()) {
+        switch($reader->nodeType) {
             case XMLReader::END_ELEMENT:
                 fwrite($OUT, "</" . $reader->name.">\n");
                 return $node_string;
                 break;
             case XMLReader::ELEMENT:
                 $node_string = "<" . $reader->name;
-                if($reader->hasAttributes)
-                {
-                    while($reader->moveToNextAttribute())
-                    {
+                if($reader->hasAttributes) {
+                    while($reader->moveToNextAttribute()) {
                         $node_string .= " " . $reader->name . "=\"";
                         $node_string .= handle_encoded_string($reader->value) . "\"";
                     }
                 }
                 fwrite($OUT, $node_string .= ">");
-                if(!$reader->isEmptyElement)
-                {
+                if(!$reader->isEmptyElement) {
                     $node_string .= scan_recursively($reader, $OUT);
                 }
                 break;
@@ -110,10 +95,8 @@ function handle_encoded_string($string)
     $string = str_replace("&alpha;", "&#945;", $string);
     $string = str_replace("&apos;", "'", $string);
     $string = str_replace("&phi;", "&#966;", $string);
-    
     return $string;
 }
-
 function convert_file($file)
 {
     $file = str_replace("\x92", "'", $file);
@@ -135,5 +118,4 @@ function convert_file($file)
     $file = str_replace("\xB5", "µ", $file);
     return $file;
 }
-
 ?>

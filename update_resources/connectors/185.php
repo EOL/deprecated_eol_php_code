@@ -14,7 +14,7 @@ $timestart = time_elapsed();
 $resource_id = 185;
 $func = new TurbellarianAPI_v2($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 
 // /* utility ==========================
 require_library('connectors/DWCADiagnoseAPI');

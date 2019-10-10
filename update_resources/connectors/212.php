@@ -35,8 +35,6 @@ http://rs.tdwg.org/dwc/terms/taxon
 return;
 
 
-
-
 $resource_id = 212;
 
 /* utility Functions::count_rows_from_text_file(DOC_ROOT . "temp/media_resource.tab"); */
@@ -61,11 +59,5 @@ require_library('connectors/BOLDSysArchiveAPI');
 $func = new BOLDSysArchiveAPI($resource_id);
 $func->start_process($resource_id, false);
 
-Functions::finalize_dwca_resource($resource_id);
-
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing. \n";
-
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 ?>

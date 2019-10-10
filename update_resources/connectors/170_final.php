@@ -63,16 +63,10 @@ unset($func);
 // /* Start 2nd part -- create the DwCA 170_final.tar.gz
 $resource_id = '170_final';
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/170.tar.gz';
-process_resource_url($dwca_file, $resource_id);
+process_resource_url($dwca_file, $resource_id, $timestart);
 // */
 
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
-
-function process_resource_url($dwca_file, $resource_id)
+function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
@@ -84,6 +78,6 @@ function process_resource_url($dwca_file, $resource_id)
     http://eol.org/schema/media/Document
     */
     $func->convert_archive($preferred_rowtypes);
-    Functions::finalize_dwca_resource($resource_id, false, true);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 ?>

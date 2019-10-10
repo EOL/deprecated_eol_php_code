@@ -28,14 +28,8 @@ $func = new ConvertEOLtoDWCaAPI($resource_id);
 //we need to export from XML to archive due to bad chars in XML
 $func->export_xml_to_archive($params, true); //true means it is an XML file, and not zip or gzip
 
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 unlink($params["eol_xml_file"]);
-
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
 //end
 
 function start($resource_id)

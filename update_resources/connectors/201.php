@@ -26,12 +26,6 @@ $resource_id = 201;
 $func = new MCZHarvardArchiveAPI($resource_id);
 
 $func->get_all_taxa();
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 // $func->get_mediaURL_for_first_40k_images(); //this is a utility
-
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing.\n";
 ?>

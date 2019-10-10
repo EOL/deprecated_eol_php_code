@@ -15,11 +15,5 @@ $resource_id = 168;
 $func = new BioImagesAPI($resource_id, false, true);
 $func->get_all_taxa();
 
-Functions::finalize_dwca_resource($resource_id, false, true); //2nd param False - not a big file | 3rd param True - can delete working folder
-
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\n\n Done processing.";
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //2nd param False - not a big file | 3rd param True - can delete working folder
 ?>

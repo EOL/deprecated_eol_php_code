@@ -38,30 +38,17 @@ $params["resource_id"]  = $resource_id;
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, true); // true => means it is an XML file, not an archive file nor a zip file
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
-
-
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec seconds             \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\n\n Done processing.";
-
 
 function get_values($resource_path)
 {
     $dataObjects = array();
-    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 86400, 'download_attempts' => 5)))
-    {
-        foreach($xml->taxon as $taxon)
-        {
-            foreach($taxon->dataObject as $dataObject)
-            {
+    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 86400, 'download_attempts' => 5))) {
+        foreach($xml->taxon as $taxon) {
+            foreach($taxon->dataObject as $dataObject) {
                 $do_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
-                if($dataObject->agent{'role'} == "source")
-                {
+                if($dataObject->agent{'role'} == "source") {
                     $attrs = $do_dc->description->attributes('http://www.w3.org/XML/1998/namespace');
                     $dataObjects["$do_dc->identifier"] = array("dc_identifier"      => $do_dc->identifier,
                                                            "dataType"           => $dataObject->dataType,
@@ -83,15 +70,11 @@ function get_values($resource_path)
 
 function remove_elements($resource_path)
 {
-    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
-    {
-        foreach($xml->taxon as $taxon)
-        {
-            foreach($taxon->dataObject as $dataObject)
-            {
+    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5))) {
+        foreach($xml->taxon as $taxon) {
+            foreach($taxon->dataObject as $dataObject) {
                 $do_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
-                if($dataObject->agent{'role'} == "source")
-                {
+                if($dataObject->agent{'role'} == "source") {
                     unset($dataObject->agent);
                     unset($dataObject->audience);
                     unset($dataObject->subject);
@@ -108,19 +91,14 @@ function remove_elements($resource_path)
         return $xml->asXML();
     }
 }
-
 function fill_up_values($resource_path, $dataObjects)
 {
-    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5)))
-    {
-        foreach($xml->taxon as $taxon)
-        {
-            foreach($taxon->dataObject as $dataObject)
-            {
+    if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5))) {
+        foreach($xml->taxon as $taxon) {
+            foreach($taxon->dataObject as $dataObject) {
                 $do_dcterms = $dataObject->children("http://purl.org/dc/terms/");
                 $do_dc = $dataObject->children("http://purl.org/dc/elements/1.1/");
-                if(@$dataObjects["$do_dc->identifier"])
-                {
+                if(@$dataObjects["$do_dc->identifier"]) {
                     $do_dcterms->bibliographicCitation = $dataObjects["$do_dc->identifier"]['agent'];
                     $dataObject->subject = $dataObjects["$do_dc->identifier"]['subject'];
                     $do_dc->description = $dataObjects["$do_dc->identifier"]['description'];
@@ -131,5 +109,4 @@ function fill_up_values($resource_path, $dataObjects)
         return $xml->asXML();
     }
 }
-
 ?>

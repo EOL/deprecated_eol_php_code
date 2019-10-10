@@ -22,10 +22,5 @@ $params["resource_id"]  = $resource_id;
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, true, 60*60*24*25); // true => means it is an XML file, not an archive file nor a zip file. Expires in 25 days.
-Functions::finalize_dwca_resource($resource_id);
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 ?>

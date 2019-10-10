@@ -35,13 +35,7 @@ $params["resource_id"]  = $resource_id;
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, true); // true => means it is an XML file, not an archive file nor a zip file
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 
 unlink($params["eol_xml_file"]);
-
-$elapsed_time_sec = microtime(1) - $timestart;
-echo "\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\n\n Done processing.";
 ?>
