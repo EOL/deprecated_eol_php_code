@@ -19,21 +19,41 @@ class GlobalRegister_IntroducedInvasiveSpecies
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         
         $this->service['list of ISSG datasets'] = 'https://www.gbif.org/api/dataset/search?facet=type&facet=publishing_org&facet=hosting_org&facet=publishing_country&facet=project_id&facet=license&locale=en&offset=OFFSET_NO&publishing_org=cdef28b1-db4e-4c58-aa71-3c5238c2d0b5&type=CHECKLIST';
-        $this->service['dataset'] = 'https://api.gbif.org/v1/dataset/1288ee7d-d67c-4e23-8d95-409973067383/document';
+        $this->service['dataset'] = 'https://api.gbif.org/v1/dataset/DATASET_KEY/document';
     }
     function compare_meta_between_datasets()
     {
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
         print_r($dataset_keys);
-
-        /* string manipulate from: to:
-        https://ipt.inbo.be/resource?r=unified-checklist
-        https://ipt.inbo.be/archive.do?r=unified-checklist
-        
-        http://ipt.ala.org.au/resource?r=griis-united_kingdom
-        http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
-        */
+        foreach($dataset_keys as $dataset_key) {
+            $info = self::get_dataset_info($dataset_key);
+            print_r($info);
+        }
         exit("\n-end for now-\n");
+    }
+    private function get_dataset_info($dataset_key)
+    {
+        $url = str_replace('DATASET_KEY', $dataset_key, $this->service['dataset']);
+        if($xml = Functions::lookup_with_cache($url, $this->download_options)) {
+            if(preg_match_all("/<alternateIdentifier>(.*?)<\/alternateIdentifier>/ims", $xml, $arr)) {
+                foreach($arr[1] as $aI) {
+                    if(substr($aI,0,4) == 'http') {
+                        echo "\n$aI";
+                        /* string manipulate from: $aI to: $download_url
+                        https://ipt.inbo.be/resource?r=unified-checklist
+                        https://ipt.inbo.be/archive.do?r=unified-checklist
+
+                        http://ipt.ala.org.au/resource?r=griis-united_kingdom
+                        http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
+                        */
+
+                        $download_url = str_replace('resource?', 'archive.do?', $aI);
+                        $final[$dataset_key] = array('orig' => $aI, 'download_url' => $download_url);
+                        return $final;
+                    }
+                }
+            }
+        }
     }
     private function get_all_dataset_keys()
     {
