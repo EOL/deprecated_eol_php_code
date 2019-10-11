@@ -10,6 +10,7 @@ class BrazilianFloraAPI
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         $this->species_page = 'http://reflora.jbrj.gov.br/reflora/floradobrasil/FB';
+        $this->citation_4MoF = 'Brazil Flora G (2019). Brazilian Flora 2020 project - Projeto Flora do Brasil 2020. Version 393.206. Instituto de Pesquisas Jardim Botanico do Rio de Janeiro. Checklist dataset https://doi.org/10.15468/1mtkaw accessed via GBIF.org on '.date('Y-m-d');
     }
     /*================================================================= STARTS HERE ======================================================================*/
     /* 
@@ -142,14 +143,15 @@ class BrazilianFloraAPI
                     foreach($arr as $key => $terms) {
                         foreach($terms as $term) {
                             if($ret = self::get_mValue_mType_4lifeForm($term, $key)) {
-                                $mValue = $ret[0];
-                                $mType = $ret[1];
+                                $mValue = $ret[1];
+                                $mType = $ret[0];
                                 $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                                 $save = array();
                                 $save['taxon_id'] = $taxon_id;
                                 $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                                 $save['source'] = $this->species_page.$taxon_id;
                                 $save['measurementRemarks'] = "$key:$term";//json_encode(array($key => array($term)));
+                                $save['bibliographicCitation'] = $this->citation_4MoF;
                                 if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
                             }
                         }
@@ -212,18 +214,20 @@ class BrazilianFloraAPI
             $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
             $save['source'] = $this->species_page.$taxon_id;
             $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
+            $save['bibliographicCitation'] = $this->citation_4MoF;
             if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
             //===========================================================================================================================================================
             if($domains = self::occurrenceRemarks_has_phytogeographicDomain($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) {
                 foreach($domains as $domain) {
-                    $mValue = $domain;
+                    $mValue = self::get_mValue_4phytogeographicDomain($domain); //$domain e.g. Amazônia
                     if($mType == 'http://eol.org/terms/endemic') $mType2 = 'http://eol.org/schema/terms/NativeRange';
                     else                                         $mType2 = $mType;
                     $save = array();
                     $save['taxon_id'] = $taxon_id;
                     $save["catnum"] = $taxon_id.'_'.$mType2.$mValue; //making it unique. no standard way of doing it.
                     $save['source'] = $this->species_page.$taxon_id;
-                    $save['measurementRemarks'] = json_encode(array('phytogeographicDomain' => $domains));
+                    $save['measurementRemarks'] = "phytogeographicDomain:".implode(",", $domains);//json_encode(array('phytogeographicDomain' => $domains));
+                    $save['bibliographicCitation'] = $this->citation_4MoF;
                     if($mValue && $mType2) $this->func->add_string_types($save, $mValue, $mType2, "true");
                 }
             }
@@ -258,6 +262,22 @@ class BrazilianFloraAPI
         unless the string "endemism":"Endemica" appears in occurrenceRemarks, in which case the measurementType is http://eol.org/terms/endemic
         */
         return $establishmentMeans;
+    }
+    private function get_mValue_4phytogeographicDomain($domain)
+    {   switch ($domain) {
+            case "Amazônia": return "https://www.wikidata.org/entity/Q2841453";
+            case "Caatinga": return "https://www.wikidata.org/entity/Q375816";
+            case "Cerrado": return "https://www.wikidata.org/entity/Q278512";
+            case "Mata Atlântica": return "https://www.wikidata.org/entity/Q477047";
+            case "Pampa": return "https://www.wikidata.org/entity/Q184382";
+            case "Pantanal": return "https://www.wikidata.org/entity/Q157603";
+            default:
+                if(!$domain) {}
+                else {
+                    $this->debug['phytogeographicDomain no mapping yet'][$domain] = '';
+                }
+        }
+        return $domain;
     }
     private function get_mValue_4distribution($locationID) //$locationID is distribution label
     {   switch ($locationID) {
@@ -450,6 +470,21 @@ class BrazilianFloraAPI
             //===========================================================================================================================================================
             $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = self::conv_2English($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
             $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = self::conv_2English($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
+            //===========================================================================================================================================================
+            /* The taxa file looks great! We should probably remove some of the original columns that might confuse the harvester. 
+            Say… originalNameUsageID, acceptedNameUsage, parentNameUsage, namePublishedInYear, higherClassification, specificEpithet, infraspecificEpithet, and bibliographicCitation. 
+            And could you move nomenclaturalStatus to taxonRemarks? The others seem mostly redundant but that one has detail we’d rather not lose.
+            */
+            unset($rec['originalNameUsageID']);
+            unset($rec['acceptedNameUsage']);
+            unset($rec['parentNameUsage']);
+            unset($rec['namePublishedInYear']);
+            unset($rec['higherClassification']);
+            unset($rec['specificEpithet']);
+            unset($rec['infraspecificEpithet']);
+            unset($rec['bibliographicCitation']);
+            $rec['taxonRemarks'] = @$rec['nomenclaturalStatus'];
+            unset($rec['nomenclaturalStatus']);
             //===========================================================================================================================================================
             $uris = array_keys($rec);
             $o = new \eol_schema\Taxon();
