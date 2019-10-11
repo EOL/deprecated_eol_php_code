@@ -5,20 +5,24 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies');
 $timestart = time_elapsed();
-
-$cmdline_params['jenkins_or_cron']     = @$argv[1]; //irrelevant here
-// print_r($cmdline_params);
+$cmdline_params['jenkins_or_cron'] = @$argv[1]; //irrelevant here
 
 /* local
-$params["dwca_file"]     = "http://127.0.0.1/cp_new/GBIF_dwca/countries/Germany_0010139-190918142434337.zip";
+$params["dwca_file"]     = "http://127.0.0.1/cp_new/GBIF_dwca/countries/xxx.zip";
 */
 
 // remote
-$params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/Germany_0010139-190918142434337.zip";
-$params["resource_id"]  = 872;
+$params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/xxx.zip";
 
-$resource_id = $params["resource_id"];
+e.g. 
+Belgium -- https://ipt.inbo.be/archive.do?r=unified-checklist
+South Africa -- http://ipt.ala.org.au/archive.do?r=south-africa-griis-gbif
+
+
+$resource_id = 'griis'; //Global Register of Introduced and Invasive Species
 $func = new GlobalRegister_IntroducedInvasiveSpecies($resource_id);
-$func->start($params);
+$func->compare_meta_between_datasets(); //a utility to generate report for Jen
+
+// $func->start($params);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>

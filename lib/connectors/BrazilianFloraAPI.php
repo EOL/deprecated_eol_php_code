@@ -11,6 +11,7 @@ class BrazilianFloraAPI
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         $this->species_page = 'http://reflora.jbrj.gov.br/reflora/floradobrasil/FB';
         $this->citation_4MoF = 'Brazil Flora G (2019). Brazilian Flora 2020 project - Projeto Flora do Brasil 2020. Version 393.206. Instituto de Pesquisas Jardim Botanico do Rio de Janeiro. Checklist dataset https://doi.org/10.15468/1mtkaw accessed via GBIF.org on '.date('Y-m-d');
+        $this->debug = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     /* 
@@ -46,7 +47,7 @@ class BrazilianFloraAPI
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
         self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
-        print_r($this->debug);
+        if($this->debug) print_r($this->debug);
         
         /* copied template
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
@@ -226,7 +227,7 @@ class BrazilianFloraAPI
                     $save['taxon_id'] = $taxon_id;
                     $save["catnum"] = $taxon_id.'_'.$mType2.$mValue; //making it unique. no standard way of doing it.
                     $save['source'] = $this->species_page.$taxon_id;
-                    $save['measurementRemarks'] = "phytogeographicDomain:".implode(",", $domains);//json_encode(array('phytogeographicDomain' => $domains));
+                    $save['measurementRemarks'] = "phytogeographicDomain:$domain"; //"phytogeographicDomain:".implode(", ", $domains);
                     $save['bibliographicCitation'] = $this->citation_4MoF;
                     if($mValue && $mType2) $this->func->add_string_types($save, $mValue, $mType2, "true");
                 }
@@ -483,13 +484,16 @@ class BrazilianFloraAPI
             unset($rec['specificEpithet']);
             unset($rec['infraspecificEpithet']);
             unset($rec['bibliographicCitation']);
-            $rec['taxonRemarks'] = @$rec['nomenclaturalStatus'];
+            $rec['http://rs.tdwg.org/dwc/terms/taxonRemarks'] = @$rec['nomenclaturalStatus'];
             unset($rec['nomenclaturalStatus']);
+            $remove = array('originalNameUsageID', 'acceptedNameUsage', 'parentNameUsage', 'namePublishedInYear', 'higherClassification', 'specificEpithet', 'infraspecificEpithet', 
+            'bibliographicCitation', 'nomenclaturalStatus');
             //===========================================================================================================================================================
             $uris = array_keys($rec);
             $o = new \eol_schema\Taxon();
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
+                if(in_array($field, $remove)) continue;
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
