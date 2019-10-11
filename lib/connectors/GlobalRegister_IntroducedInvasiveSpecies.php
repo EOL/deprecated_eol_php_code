@@ -17,6 +17,8 @@ class USDAPlants2019
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        
+        $this->service['list of ISSG datasets'] = 'https://www.gbif.org/dataset/search?publishing_org=cdef28b1-db4e-4c58-aa71-3c5238c2d0b5';
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)

@@ -1,6 +1,11 @@
 <?php
 namespace php_active_record;
 /* Global Register of Introduced and Invasive Species : DATA-1838
+
+e.g. Belgium
+https://www.gbif.org/dataset/6d9e952f-948c-4483-9807-575348147c7e
+https://api.gbif.org/v1/dataset/6d9e952f-948c-4483-9807-575348147c7e/document
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies');
