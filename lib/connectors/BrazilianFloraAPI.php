@@ -214,7 +214,7 @@ class BrazilianFloraAPI
             $save['taxon_id'] = $taxon_id;
             $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
             $save['source'] = $this->species_page.$taxon_id;
-            $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
+            $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/locationID'].")";
             $save['bibliographicCitation'] = $this->citation_4MoF;
             if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
             //===========================================================================================================================================================
