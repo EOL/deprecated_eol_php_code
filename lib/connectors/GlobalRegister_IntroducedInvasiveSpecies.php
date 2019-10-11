@@ -8,17 +8,40 @@ http://ipt.ala.org.au/
 http://ipt.ala.org.au/rss.do
 
 */
-class USDAPlants2019
+class GlobalRegister_IntroducedInvasiveSpecies
 {
-    function __construct($archive_builder, $resource_id)
+    function __construct($resource_id)
     {
         $this->resource_id = $resource_id;
-        $this->archive_builder = $archive_builder;
+        // $this->archive_builder = $archive_builder;
         
-        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         
-        $this->service['list of ISSG datasets'] = 'https://www.gbif.org/dataset/search?publishing_org=cdef28b1-db4e-4c58-aa71-3c5238c2d0b5';
+        $this->service['list of ISSG datasets'] = 'https://www.gbif.org/api/dataset/search?facet=type&facet=publishing_org&facet=hosting_org&facet=publishing_country&facet=project_id&facet=license&locale=en&offset=OFFSET_NO&publishing_org=cdef28b1-db4e-4c58-aa71-3c5238c2d0b5&type=CHECKLIST';
+    }
+    function compare_meta_between_datasets()
+    {
+        self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
+        exit("\n-end for now-\n");
+    }
+    private function get_all_dataset_keys()
+    {
+        if($total_datasets = self::get_total_no_datasets()) {
+            $counter = ceil($total_datasets/20);
+            $offset = 0;
+            for($i = 0; $i <= $counter; $i++) {
+                echo "\n$offset";
+                $offset = $offset + 20;
+            }
+        }
+    }
+    private function get_total_no_datasets()
+    {   $url = str_replace('OFFSET_NO', '0', $this->service['list of ISSG datasets']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $obj = json_decode($json);
+            return $obj->count;
+        }
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)

@@ -19,9 +19,9 @@ $params["dwca_file"]     = "http://127.0.0.1/cp_new/GBIF_dwca/countries/xxx.zip"
 // remote
 $params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/xxx.zip";
 
-e.g. 
-Belgium -- https://ipt.inbo.be/archive.do?r=unified-checklist
-South Africa -- http://ipt.ala.org.au/archive.do?r=south-africa-griis-gbif
+// e.g.
+// Belgium -- https://ipt.inbo.be/archive.do?r=unified-checklist
+// South Africa -- http://ipt.ala.org.au/archive.do?r=south-africa-griis-gbif
 
 
 $resource_id = 'griis'; //Global Register of Introduced and Invasive Species
