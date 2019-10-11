@@ -22,18 +22,26 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     function compare_meta_between_datasets()
     {
-        self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
+        $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
+        print_r($dataset_keys);
         exit("\n-end for now-\n");
     }
     private function get_all_dataset_keys()
     {
         if($total_datasets = self::get_total_no_datasets()) {
-            $counter = ceil($total_datasets/20);
+            $counter = ceil($total_datasets/20) - 1; //minus 1 is important. Needed due to the nature of offset values
             $offset = 0;
             for($i = 0; $i <= $counter; $i++) {
                 echo "\n$offset";
+
+                $url = str_replace('OFFSET_NO', $offset, $this->service['list of ISSG datasets']);
+                if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+                    $obj = json_decode($json);
+                    foreach($obj->results as $res) $dataset_keys[$res->key] = '';
+                }
                 $offset = $offset + 20;
             }
+            return array_keys($dataset_keys);
         }
     }
     private function get_total_no_datasets()
