@@ -15,22 +15,112 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $this->resource_id = $resource_id;
         // $this->archive_builder = $archive_builder;
         
-        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 
+        'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         
         $this->service['list of ISSG datasets'] = 'https://www.gbif.org/api/dataset/search?facet=type&facet=publishing_org&facet=hosting_org&facet=publishing_country&facet=project_id&facet=license&locale=en&offset=OFFSET_NO&publishing_org=cdef28b1-db4e-4c58-aa71-3c5238c2d0b5&type=CHECKLIST';
         $this->service['dataset'] = 'https://api.gbif.org/v1/dataset/DATASET_KEY/document';
+        $this->south_africa = '3cabcf37-db13-4dc1-9bf3-e6f3fbfbbe23';
+        
+        if(Functions::is_production()) {
+            // $this->download_options['cache_path'] = "/extra/eol_cache_gbif/";
+            $this->dwca_folder = '/extra/other_files/GBIF_DwCA/ISSG/';
+        }
+        else {
+            // $this->download_options['resource_id'] = "gbif";
+            // $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";
+            $this->dwca_folder = CONTENT_RESOURCE_LOCAL_PATH.'ISSG/';
+        }
+        
     }
     function compare_meta_between_datasets()
     {
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
         print_r($dataset_keys);
-        foreach($dataset_keys as $dataset_key) {
-            $info = self::get_dataset_info($dataset_key);
-            print_r($info);
+        $i = 0;
+        foreach($dataset_keys as $dataset_key) { $i++;
+            $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
+            // print_r($this->info); exit;
+            // self::investigate_dataset($dataset_key);
+            if($i >= 10) break; //debug only
         }
+        self::investigate_dataset($this->south_africa);
+        echo "\nBelgium\n";
+        self::investigate_dataset('6d9e952f-948c-4483-9807-575348147c7e');
+        
+        
         exit("\n-end for now-\n");
     }
+    private function investigate_dataset($dataset_key)
+    {
+        /*Array(
+            [6d9e952f-948c-4483-9807-575348147c7e] => Array(
+                    [orig] => https://ipt.inbo.be/resource?r=unified-checklist
+                    [download_url] => https://ipt.inbo.be/archive.do?r=unified-checklist
+                )
+
+        )*/
+        $info = self::download_extract_dwca($this->info[$dataset_key]['download_url'], $dataset_key);
+        $temp_dir = $info['temp_dir'];
+        $harvester = $info['harvester'];
+        $tables = $info['tables'];
+        $index = $info['index'];
+
+        $tables = $info['harvester']->tables;
+        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        print_r(array_keys($tables));
+        foreach(array_keys($tables) as $rowtype) {
+            $meta = $tables['http://rs.tdwg.org/dwc/terms/taxon'][0];
+            // print_r($meta);
+            $fields = self::get_all_fields($meta);
+            // print_r($fields);
+            $final[$rowtype] = $fields;
+        }
+        print_r($final);
+    }
+    private function get_all_fields($meta)
+    {
+        foreach($meta->fields as $f) $final[$f['term']] = '';
+        return array_keys($final);
+    }
+    private function download_extract_dwca($url, $dataset_key) //probably default expires in a month 60*60*24*30. Not false.
+    {
+        $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30);
+        $target = $this->dwca_folder."$dataset_key.zip";
+        if(!file_exists($target)) shell_exec("wget -q $url -O $target");
+        else echo "\nalready exists: [$target]\n";
+        
+        // /* un-comment in real operation
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($target, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
+        // print_r($paths); exit;
+        // */
+
+        /* development only
+        $paths = Array
+        (
+            'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/",
+            'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/"
+        );
+        
+        */
+        
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        $tables = $harvester->tables;
+        $index = array_keys($tables);
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
+        {
+            debug("Invalid archive file. Program will terminate.");
+            return false;
+        }
+        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
+    }
+    
+    
     private function get_dataset_info($dataset_key)
     {
         $url = str_replace('DATASET_KEY', $dataset_key, $this->service['dataset']);
@@ -38,7 +128,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             if(preg_match_all("/<alternateIdentifier>(.*?)<\/alternateIdentifier>/ims", $xml, $arr)) {
                 foreach($arr[1] as $aI) {
                     if(substr($aI,0,4) == 'http') {
-                        echo "\n$aI";
+                        // echo "\n$aI";
                         /* string manipulate from: $aI to: $download_url
                         https://ipt.inbo.be/resource?r=unified-checklist
                         https://ipt.inbo.be/archive.do?r=unified-checklist
@@ -48,8 +138,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                         */
 
                         $download_url = str_replace('resource?', 'archive.do?', $aI);
-                        $final[$dataset_key] = array('orig' => $aI, 'download_url' => $download_url);
-                        return $final;
+                        return array('orig' => $aI, 'download_url' => $download_url);
                     }
                 }
             }
