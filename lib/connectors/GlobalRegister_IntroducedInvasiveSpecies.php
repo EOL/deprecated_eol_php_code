@@ -45,12 +45,21 @@ class GlobalRegister_IntroducedInvasiveSpecies
             // self::investigate_dataset($dataset_key);
             if($i >= 10) break; //debug only
         }
-        self::investigate_dataset($this->south_africa);
-        echo "\nBelgium\n";
-        self::investigate_dataset('6d9e952f-948c-4483-9807-575348147c7e');
-        
-        
+        echo "\nSouth Africa\n";
+        $this->south_africa = self::investigate_dataset($this->south_africa);
+
+        self::start_comparison('6d9e952f-948c-4483-9807-575348147c7e'); //e.g. Belgium
         exit("\n-end for now-\n");
+    }
+    private function start_comparison($dataset_key)
+    {
+        echo "\nBelgium\n";
+        $country = self::investigate_dataset($dataset_key);
+        if($arr = array_diff($country['rowtypes'], $this->south_africa['rowtypes'])) {
+            echo "\nThere is/are extra table(s) in $this->info[$dataset_key]['dataset_name'] VS South Africa\n";
+            print_r($arr);
+        }
+        
     }
     private function investigate_dataset($dataset_key)
     {   /*Array(
@@ -58,7 +67,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     [orig] => https://ipt.inbo.be/resource?r=unified-checklist
                     [download_url] => https://ipt.inbo.be/archive.do?r=unified-checklist
                 )
-
         )*/
         $info = self::download_extract_dwca($this->info[$dataset_key]['download_url'], $dataset_key);
         $temp_dir = $info['temp_dir'];
@@ -68,15 +76,23 @@ class GlobalRegister_IntroducedInvasiveSpecies
 
         $tables = $info['harvester']->tables;
         // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-        print_r(array_keys($tables));
-        foreach(array_keys($tables) as $rowtype) {
+        $rowtypes = array_keys($tables);
+        $final = array();
+        foreach($rowtypes as $rowtype) {
             $meta = $tables[$rowtype][0];
             // print_r($meta);
             $fields = self::get_all_fields($meta);
             // print_r($fields);
             $final[$rowtype] = $fields;
         }
+        $final['rowtypes'] = $rowtypes;
+
+        // /* un-comment in real operation -- remove temp dir
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: $temp_dir\n");
+        // */
         print_r($final);
+        return $final;
     }
     private function get_all_fields($meta)
     {
@@ -134,8 +150,11 @@ class GlobalRegister_IntroducedInvasiveSpecies
                         http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
                         */
 
+                        if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
+                        
+
                         $download_url = str_replace('resource?', 'archive.do?', $aI);
-                        return array('orig' => $aI, 'download_url' => $download_url);
+                        return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url);
                     }
                 }
             }
@@ -275,164 +294,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
             // if($i >= 10) break; //debug only
         }
     }
-    function process_per_state()
-    {   $state_list = self::parse_state_list_page();
-        foreach($state_list as $territory => $states) {
-            echo "\n[$territory]\n"; // print_r($states); exit;
-            foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
-                if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) {
-                    // echo "\nDownloading HTML ".$arr[1]."...";
-                    if($local = Functions::save_remote_file_to_local($this->service['per_state_page'].$arr[1], $this->download_options)) {
-                        self::parse_state_list($local, $arr[1]);
-                        if(file_exists($local)) unlink($local);
-                    }
-                }
-            }
-        }
-    }
-    private function parse_state_list_page()
-    {   if($html = Functions::lookup_with_cache($this->state_list_page, $this->download_options)) {
-            if(preg_match_all("/class=\"BodyTextBlackBold\">(.*?)<\/td>/ims", $html, $arr)) {
-                $a = $arr[1];
-                $a = array_map('strip_tags', $a); // print_r($a);
-                /*Array(
-                    [0] => U.S. States
-                    [1] => U.S. Territories and Protectorates
-                    [2] => Canada
-                    [3] => Denmark
-                    [4] => France
-                )*/
-                $i = -1;
-                foreach($a as $area) { $i++;
-                    if($area == 'France') {
-                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)<\/table>/ims", $html, $arr)) {
-                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) $final[$area] = $arr2[1];
-                        }
-                    }
-                    else {
-                        if(preg_match("/class=\"BodyTextBlackBold\">".$area."(.*?)class=\"BodyTextBlackBold\">".$a[$i+1]."/ims", $html, $arr)) {
-                            if(preg_match_all("/href=\"(.*?)<\/a>/ims", $arr[1], $arr2)) $final[$area] = $arr2[1];
-                        }
-                    }
-                }
-            }
-        }
-        print_r($final); //exit;
-        $this->area_id_info = self::assign_id_2_locations($final);
-        return $final;
-    }
-    private function assign_id_2_locations($state_list)
-    {   foreach($state_list as $territory => $states) {
-            // echo "\n[$territory]\n"; // print_r($states); exit;
-            foreach($states as $str) { //[0] => java/stateDownload?statefips=US01">Alabama
-                $id = false; $location = false;
-                if(preg_match("/statefips=(.*?)\"/ims", $str, $arr)) $id = $arr[1];
-                if(preg_match("/>(.*?)elix/ims", $str.'elix', $arr)) $location = $arr[1];
-                if($id && $location) {
-                    $final[$id] = $location;
-                    /* for stats only
-                    if($string_uri = self::get_string_uri($location)) echo $string_uri;
-                    else                                              echo " no uri";
-                    */
-                }
-            }
-        }
-        return $final;
-    }
-    function parse_state_list($local, $state_id)
-    {   echo "\nprocessing [$state_id]\n";
-        
-        // /* important: check if without data e.g. https://plants.sc.egov.usda.gov/java/stateDownload?statefips=CANFCALB
-        $contents = file_get_contents($local);
-        if(stripos($contents, "No Data Found") !== false) { //string is found
-            echo " -- No Data Found -- \n";
-            return;
-        }
-        // */
-        
-        $file = fopen($local, 'r');
-        $i = 0;
-        while(($line = fgetcsv($file)) !== FALSE) {
-            $i++;
-            if($i == 1) $fields = $line;
-            else {
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                } // print_r($rec); exit;
-                /*Array(
-                    [Symbol] => DIBR2
-                    [Synonym Symbol] => 
-                    [Scientific Name with Author] => Dicliptera brachiata (Pursh) Spreng.
-                    [National Common Name] => branched foldwing
-                    [Family] => Acanthaceae
-                )*/
-                if(!$rec['Synonym Symbol'] && @$rec['Symbol']) { //echo " ".$rec['Symbol'];
-                    $rec['source_url'] = $this->service['taxon_page'] . $rec['Symbol'];
-                    self::create_taxon($rec);
-                    self::create_vernacular($rec);
-                    if($NorI_data = self::parse_profile_page($this->service['taxon_page'].$rec['Symbol'])) { //NorI = Native or Introduced
-                        self::write_NorI_measurement($NorI_data, $rec);
-                    }
-                    // write presence for this state
-                    self::write_presence_measurement_for_state($state_id, $rec);
-                }
-            }
-        }
-    }
-    private function get_string_uri($string)
-    {   if($string_uri = @$this->uris[$string]) return $string_uri;
-        switch ($string) { //put here customized mapping
-            case "Québec":    return 'http://www.wikidata.org/entity/Q176';             /* The 4 entries here were already added to gen. mappings in Functions.php */
-            case "Quebec":    return 'http://www.wikidata.org/entity/Q176';
-            case "Qu&eacute;bec":    return 'http://www.wikidata.org/entity/Q176';
-            case "St. Pierre and Miquelon": return 'http://www.geonames.org/3424932';
-        }
-    }
-    private function write_presence_measurement_for_state($state_id, $rec)
-    {   $string_value = $this->area_id_info[$state_id];
-        if($string_uri = self::get_string_uri($string_value)) {}
-        else {
-            $this->debug['no uri mapping yet'][$string_value];
-            $string_uri = $string_value;
-        }
-        $mValue = $string_uri;
-        $mType = 'http://eol.org/schema/terms/Present'; //for generic range
-        $taxon_id = $rec['Symbol'];
-        $save = array();
-        $save['taxon_id'] = $taxon_id;
-        $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-        $save['source'] = $rec['source_url'];
-        $save['measurementRemarks'] = $string_value;
-        // $save['measurementID'] = '';
-        $this->func->add_string_types($save, $mValue, $mType, "true");
-    }
-    private function write_NorI_measurement($NorI_data, $rec)
-    {   /*Array([0] => Array(
-                    [0] => L48
-                    [1] => N
-                )
-        )*/
-        foreach($NorI_data as $d) {
-            if($d[0] == 'None') continue;
-            $mValue = $this->area[$d[0]]['uri'];
-            $mRemarks = @$this->area[$d[0]]['mRemarks'];
-            /* seems $d[1] can have values like: I,N,W OR PB ; not just single N or I */
-            $arr = explode(",", $d[1]);
-            foreach($arr as $type) {
-                if(!in_array($type, array('N',"I"))) continue;
-                $mType = $this->NorI_mType[$type];
-                $taxon_id = $rec['Symbol'];
-                $save = array();
-                $save['taxon_id'] = $taxon_id;
-                $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                $save['source'] = $rec['source_url'];
-                // $save['measurementID'] = '';
-                $save['measurementRemarks'] = $mRemarks;
-                $this->func->add_string_types($save, $mValue, $mType, "true");
-            }
-        }
-    }
     private function create_taxon($rec)
     {
         $taxon = new \eol_schema\Taxon();
@@ -457,30 +318,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $v->language        = 'en';
             $this->archive_builder->write_object_to_file($v);
         }
-    }
-    function parse_profile_page($url)
-    {   $final = false;
-        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-            if(preg_match("/Status<\/strong>(.*?)<\/tr>/ims", $html, $arr)) {
-                $str = $arr[1];
-                $str = str_ireplace(' valign="top"', '', $str); // echo "\n$str\n";
-                if(preg_match("/<td>(.*?)<\/td>/ims", $str, $arr2)) {
-                    $str = str_replace(array("\t", "\n", "&nbsp;"), "", $arr2[1]);
-                    $str = Functions::remove_whitespace($str); // echo "\n[$str]\n";
-                    $arr = explode("<br>", $str);
-                    $arr = array_filter($arr); //remove null array
-                    // print_r($arr);
-                    /*Array(
-                        [0] => CAN N
-                        [1] => L48 N
-                        [2] => SPM N
-                    )*/
-                    foreach($arr as $a) $final[] = explode(" ", $a);
-                }
-            }
-            else exit("\nInvestigate $url status not found!\n");
-        }
-        return $final;
     }
     /*================================================================= ENDS HERE ======================================================================*/
 }
