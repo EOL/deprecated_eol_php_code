@@ -43,7 +43,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
             // print_r($this->info); exit;
             // self::investigate_dataset($dataset_key);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
         
         $this->fhandle = Functions::file_open($this->comparison_file, "w");
@@ -52,11 +52,13 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $this->south_africa = self::investigate_dataset($this->south_africa);
         // print_r($this->south_africa);
 
-        foreach($dataset_keys as $dataset_key) { $i++;
+        // print_r($dataset_keys); exit;
+        $i = 0;
+        foreach($dataset_keys as $dataset_key) { $i++; echo "\n$i. $dataset_key\n";
             if($dataset_key == $this->south_africa) continue;
             // self::start_comparison('6d9e952f-948c-4483-9807-575348147c7e'); //e.g. Belgium
             self::start_comparison($dataset_key);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
 
         fclose($this->fhandle);
@@ -65,7 +67,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
     private function start_comparison($dataset_key)
     {
         echo "\n------------------------------------------------------------------------------\n".$this->info[$dataset_key]['dataset_name']."\n";
-        fwrite($this->fhandle, "\n----------------------------------START - ".$this->info[$dataset_key]['dataset_name']."\n"); 
+        fwrite($this->fhandle, "\n----------------------------------START - ".$this->info[$dataset_key]['dataset_name']." ----------------------------------\n"); 
         $country = self::investigate_dataset($dataset_key);
         /* compare no. of rowtypes against South Africa */
         if($arr = array_diff($country['rowtypes'], $this->south_africa['rowtypes'])) {
@@ -89,7 +91,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 fwrite($this->fhandle, $txt);
             }
         }
-        fwrite($this->fhandle, "\n----------------------------------END - ".$this->info[$dataset_key]['dataset_name']."\n"); 
+        fwrite($this->fhandle, "\n----------------------------------END - ".$this->info[$dataset_key]['dataset_name']." ----------------------------------\n"); 
     }
     private function investigate_dataset($dataset_key)
     {   /*Array(
