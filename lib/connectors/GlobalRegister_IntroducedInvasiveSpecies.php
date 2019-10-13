@@ -84,11 +84,14 @@ class GlobalRegister_IntroducedInvasiveSpecies
         foreach($meta->fields as $f) $final[$f['term']] = '';
         return array_keys($final);
     }
-    private function download_extract_dwca($url, $dataset_key) //probably default expires in a month 60*60*24*30. Not false.
+    private function download_extract_dwca($url, $dataset_key)
     {
-        $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30);
+        $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30); //probably default expires in a month 60*60*24*30. Not false.
         $target = $this->dwca_folder."$dataset_key.zip";
-        if(!file_exists($target)) shell_exec("wget -q $url -O $target");
+        if(!file_exists($target)) {
+            $out = shell_exec("wget -q $url -O $target");
+            echo "\n$out\n";
+        }
         else echo "\nalready exists: [$target]\n";
         
         // /* un-comment in real operation
@@ -104,7 +107,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
             'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/",
             'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/"
         );
-        
         */
         
         $archive_path = $paths['archive_path'];
@@ -112,15 +114,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
-        {
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    
-    
     private function get_dataset_info($dataset_key)
     {
         $url = str_replace('DATASET_KEY', $dataset_key, $this->service['dataset']);
