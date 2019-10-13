@@ -53,8 +53,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         exit("\n-end for now-\n");
     }
     private function investigate_dataset($dataset_key)
-    {
-        /*Array(
+    {   /*Array(
             [6d9e952f-948c-4483-9807-575348147c7e] => Array(
                     [orig] => https://ipt.inbo.be/resource?r=unified-checklist
                     [download_url] => https://ipt.inbo.be/archive.do?r=unified-checklist
@@ -102,8 +101,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         // */
 
         /* development only
-        $paths = Array
-        (
+        $paths = Array (
             'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/",
             'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/"
         );
@@ -149,8 +147,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $counter = ceil($total_datasets/20) - 1; //minus 1 is important. Needed due to the nature of offset values
             $offset = 0;
             for($i = 0; $i <= $counter; $i++) {
-                echo "\n$offset";
-
+                // echo "\n$offset";
                 $url = str_replace('OFFSET_NO', $offset, $this->service['list of ISSG datasets']);
                 if($json = Functions::lookup_with_cache($url, $this->download_options)) {
                     $obj = json_decode($json);
@@ -168,7 +165,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             return $obj->count;
         }
     }
-    /*================================================================= STARTS HERE ======================================================================*/
+    /*================================================================= copied templates below ======================================================================*/
     function start($info)
     {   $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
