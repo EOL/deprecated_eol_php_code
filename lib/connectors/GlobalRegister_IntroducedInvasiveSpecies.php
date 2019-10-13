@@ -53,11 +53,20 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     private function start_comparison($dataset_key)
     {
-        echo "\nBelgium\n";
+        echo "\n--------------------------------------------------\n".$this->info[$dataset_key]['dataset_name']."\n";
         $country = self::investigate_dataset($dataset_key);
+        /* compare no. of rowtypes against South Africa */
         if($arr = array_diff($country['rowtypes'], $this->south_africa['rowtypes'])) {
-            echo "\nThere is/are extra table(s) in $this->info[$dataset_key]['dataset_name'] VS South Africa\n";
+            echo "\nThere is/are extra table(s) in ".$this->info[$dataset_key]['dataset_name']." VS South Africa\n";
             print_r($arr);
+        }
+        /* now compare fields in each rowtype */
+        foreach($this->south_africa['rowtypes'] as $rt) {
+            echo "\n[$rt]";
+            if($arr = array_diff($country[$rt], $this->south_africa[$rt])) {
+                echo "\nThere are extra fields in [$rt]\n";
+                print_r($arr);
+            }
         }
         
     }
@@ -91,7 +100,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: $temp_dir\n");
         // */
-        print_r($final);
+        // print_r($final);
         return $final;
     }
     private function get_all_fields($meta)
