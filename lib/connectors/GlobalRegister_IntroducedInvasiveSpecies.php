@@ -32,7 +32,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             // $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache/";
             $this->dwca_folder = CONTENT_RESOURCE_LOCAL_PATH.'ISSG/';
         }
-        
+        $this->comparison_file = CONTENT_RESOURCE_LOCAL_PATH.'dataset_comparison.txt';
     }
     function compare_meta_between_datasets()
     {
@@ -45,31 +45,51 @@ class GlobalRegister_IntroducedInvasiveSpecies
             // self::investigate_dataset($dataset_key);
             if($i >= 10) break; //debug only
         }
+        
+        $this->fhandle = Functions::file_open($this->comparison_file, "w");
+        
         echo "\nSouth Africa\n";
         $this->south_africa = self::investigate_dataset($this->south_africa);
+        // print_r($this->south_africa);
 
-        self::start_comparison('6d9e952f-948c-4483-9807-575348147c7e'); //e.g. Belgium
+        foreach($dataset_keys as $dataset_key) { $i++;
+            if($dataset_key == $this->south_africa) continue;
+            // self::start_comparison('6d9e952f-948c-4483-9807-575348147c7e'); //e.g. Belgium
+            self::start_comparison($dataset_key);
+            if($i >= 10) break; //debug only
+        }
+
+        fclose($this->fhandle);
         exit("\n-end for now-\n");
     }
     private function start_comparison($dataset_key)
     {
         echo "\n------------------------------------------------------------------------------\n".$this->info[$dataset_key]['dataset_name']."\n";
+        fwrite($this->fhandle, "\n----------------------------------START - ".$this->info[$dataset_key]['dataset_name']."\n"); 
         $country = self::investigate_dataset($dataset_key);
         /* compare no. of rowtypes against South Africa */
         if($arr = array_diff($country['rowtypes'], $this->south_africa['rowtypes'])) {
-            echo "\nThere is/are extra table(s) but not found in South Africa\n";
+            echo "\nThere are extra tables not found in South Africa.\n";
+            fwrite($this->fhandle, "\nThere are extra tables not found in South Africa.\n");
             $arr = array_values($arr); //reindex key
             print_r($arr);
+            //start write to text
+            $txt = implode("\n", $arr);
+            fwrite($this->fhandle, $txt);
         }
         /* now compare fields in each rowtype */
         foreach($this->south_africa['rowtypes'] as $rt) {
             if($arr = array_diff($country[$rt], $this->south_africa[$rt])) {
-                echo "\nThere are extra fields in [$rt]\n";
+                echo "\nThere are extra fields in [$rt], not found in South Africa.\n";
+                fwrite($this->fhandle, "\n\nThere are extra fields in [$rt], not found in South Africa.\n");
                 $arr = array_values($arr); //reindex key
                 print_r($arr);
+                //start write to text
+                $txt = implode("\n", $arr);
+                fwrite($this->fhandle, $txt);
             }
         }
-        
+        fwrite($this->fhandle, "\n----------------------------------END - ".$this->info[$dataset_key]['dataset_name']."\n"); 
     }
     private function investigate_dataset($dataset_key)
     {   /*Array(
