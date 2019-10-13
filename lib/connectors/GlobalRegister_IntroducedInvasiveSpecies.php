@@ -71,7 +71,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         print_r(array_keys($tables));
         foreach(array_keys($tables) as $rowtype) {
-            $meta = $tables['http://rs.tdwg.org/dwc/terms/taxon'][0];
+            $meta = $tables[$rowtype][0];
             // print_r($meta);
             $fields = self::get_all_fields($meta);
             // print_r($fields);
