@@ -685,7 +685,11 @@ class MADtoolNatDBAPI
                 $r = new \eol_schema\Reference();
                 $r->identifier = $ref_id;
                 $r->full_reference = $ref['full_ref'];
-                $r->uri = $ref['URL.to.paper'];
+                
+                if(!isset($ref['URL.to.paper'])) print_r($ref);
+                else $r->uri = $ref['URL.to.paper'];
+                
+                
                 $r->doi = $ref['DOI'];
                 $r->publisher = $ref['Publisher'];
                 $r->title = $ref['Title'];
@@ -706,7 +710,7 @@ class MADtoolNatDBAPI
         If you use this, be sure remove the unlink() command below.
         */
         
-        $tmp_file = Functions::save_remote_file_to_local($this->citations_tsv_file);
+        $tmp_file = Functions::save_remote_file_to_local($this->citations_tsv_file, $this->download_options);
         
         $i = 0;
         if(!file_exists($tmp_file)) {
@@ -715,7 +719,11 @@ class MADtoolNatDBAPI
         foreach(new FileIterator($tmp_file) as $line => $row) {
             $row = Functions::conv_to_utf8($row);
             $i++; 
-            if($i == 1) $fields = explode("\t", $row);
+            if($i == 1) {
+                // URL.to.paper
+                $fields = explode("\t", $row);
+                print_r($fields); //exit;
+            }
             else {
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
@@ -726,6 +734,7 @@ class MADtoolNatDBAPI
                     $k++;
                 }
                 $rec = array_map('trim', $rec);
+                
                 // print_r($rec); //exit;
                 /*Array(
                     [URL to paper] => http://onlinelibrary.wiley.com/doi/10.1111/nph.13935/abstract
@@ -753,7 +762,7 @@ class MADtoolNatDBAPI
             }
         }
         unlink($tmp_file);
-        
+        // exit("\nstop muna\n");
         /* as of Oct 14, 2019: 
         no citations yet
         ----- .albouy.2015  total: 1
