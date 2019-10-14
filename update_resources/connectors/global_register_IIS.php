@@ -4,14 +4,6 @@ namespace php_active_record;
 e.g. Belgium
 https://www.gbif.org/dataset/6d9e952f-948c-4483-9807-575348147c7e
 https://api.gbif.org/v1/dataset/6d9e952f-948c-4483-9807-575348147c7e/document
-
-Hi Jen,
-Attached [dataset_comparison.txt].
-Here is a script-generated report comparing South Africa to the other 122 datasets.
-- Only Belgium has an extra extension (http://rs.gbif.org/terms/1.0/description)
-- The script notes of extra extension and extra fields in each extension in comparison with that of South Africa.
-Thanks.
-
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies');

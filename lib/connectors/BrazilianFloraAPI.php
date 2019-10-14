@@ -82,6 +82,9 @@ class BrazilianFloraAPI
             $rec['http://purl.org/dc/terms/language'] = self::get_ISOcode_language($rec['http://purl.org/dc/terms/language']);
             //===========================================================================================================================================================
             $uris = array_keys($rec);
+            // print_r($uris);
+            $uris = array_diff($uris, array('http://rs.tdwg.org/dwc/terms/locality'));
+            // print_r($uris); exit;
             $o = new \eol_schema\VernacularName();
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
