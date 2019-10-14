@@ -684,7 +684,7 @@ class MADtoolNatDBAPI
                 $r = new \eol_schema\Reference();
                 $r->identifier = $ref_id;
                 $r->full_reference = $ref['full_ref'];
-                $r->uri = $ref['URL to paper'];
+                $r->uri = $ref['URL.to.paper'];
                 $r->doi = $ref['DOI'];
                 $r->publisher = $ref['Publisher'];
                 $r->title = $ref['Title'];
@@ -700,7 +700,8 @@ class MADtoolNatDBAPI
     }
     private function initialize_citations_file()
     {
-        $tmp_file = $this->source_csv_path."/citations.tsv";
+        $tmp_file = $this->source_csv_path."/citations.tsv"; //orig but needed some manual massaging by Eli
+        $tmp_file = $this->source_csv_path."/citations_Eli_edited.tsv";
         $i = 0;
         if(!file_exists($tmp_file)) {
             exit("\nFile does not exist: [$tmp_file]\n");
@@ -712,13 +713,14 @@ class MADtoolNatDBAPI
             else {
                 if(!$row) continue;
                 $tmp = explode("\t", $row);
+                // print_r($tmp); //exit;
                 $rec = array(); $k = 0;
                 foreach($fields as $field) {
                     $rec[$field] = $tmp[$k];
                     $k++;
                 }
                 $rec = array_map('trim', $rec);
-                // print_r($rec); exit;
+                // print_r($rec); //exit;
                 /*Array(
                     [URL to paper] => http://onlinelibrary.wiley.com/doi/10.1111/nph.13935/abstract
                     [DOI] => 10.1111/nph.13935
@@ -744,24 +746,19 @@ class MADtoolNatDBAPI
                 $this->refs[$rec['author_year']] = $rec;
             }
         }
-        /* as of Oct 14, 2019: no citations yet
+        
+        /* as of Oct 14, 2019: 
+        no citations yet
         ----- .albouy.2015  total: 1
         ----- .anderson.2015  total: 1
-        ----- .goncalves.2018  total: 1
         */
+        
+        /* Latest citations.tsv from repo has ".albuoy.2015" */
+        $this->refs['.albouy.2015'] = $this->refs['.albuoy.2015'];
+        
         /* added by Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=64033&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64033
         Meanwhile, any luck on those dangling references? If not, I have a pretty good guess we can add manually:
         */
-        $rek = array();
-        $rek['author_year'] = '.albouy.2015';
-        $rek['full_ref'] = "Albouy, C. , Lasram, F. B., Velez, L. , Guilhaumon, F. , Meynard, C. N., Boyer, S. , Benestan, L. , Mouquet, N. , Douzery, E. , Aznar, R. , Troussellier, M. , Somot, S. , Leprieur, F. , Le Loc'h, F. and Mouillot, D. (2015), FishMed: traits, phylogeny, current and projected species distribution of Mediterranean fishes, and environmental data. Ecology, 96: 2312-2313. doi:10.1890/14-2279.1";
-        $rek['URL to paper'] = '';
-        $rek['DOI'] = 'doi:10.1890/14-2279.1';
-        $rek['Publisher'] = "";
-        $rek['Title'] = "FishMed: traits, phylogeny, current and projected species distribution of Mediterranean fishes, and environmental data";
-        $rek['Author'] = "Albouy, C. , Lasram, F. B., Velez, L. , Guilhaumon, F. , Meynard, C. N., Boyer, S. , Benestan, L. , Mouquet, N. , Douzery, E. , Aznar, R. , Troussellier, M. , Somot, S. , Leprieur, F. , Le Loc'h, F. and Mouillot, D.";
-        $this->refs[$rek['author_year']] = $rek;
-        
         $rek = array();
         $rek['author_year'] = ".anderson.2015";
         $rek['full_ref'] = "Jill T Anderson, Zachariah J. Gezon. 2015. Plasticity in functional traits in the context of climate change: a case study of the subalpine forb Boechera stricta (Brassicaceae). Global change biology 2015. DOI:10.1111/gcb.12770";
@@ -770,6 +767,17 @@ class MADtoolNatDBAPI
         $rek['Publisher'] = "";
         $rek['Title'] = "Plasticity in functional traits in the context of climate change: a case study of the subalpine forb Boechera stricta (Brassicaceae)";
         $rek['Author'] = "Jill T Anderson, Zachariah J. Gezon.";
+        $this->refs[$rek['author_year']] = $rek;
+
+        /* No need for manual entry anymore for these two:
+        $rek = array();
+        $rek['author_year'] = '.albouy.2015';
+        $rek['full_ref'] = "Albouy, C. , Lasram, F. B., Velez, L. , Guilhaumon, F. , Meynard, C. N., Boyer, S. , Benestan, L. , Mouquet, N. , Douzery, E. , Aznar, R. , Troussellier, M. , Somot, S. , Leprieur, F. , Le Loc'h, F. and Mouillot, D. (2015), FishMed: traits, phylogeny, current and projected species distribution of Mediterranean fishes, and environmental data. Ecology, 96: 2312-2313. doi:10.1890/14-2279.1";
+        $rek['URL to paper'] = '';
+        $rek['DOI'] = 'doi:10.1890/14-2279.1';
+        $rek['Publisher'] = "";
+        $rek['Title'] = "FishMed: traits, phylogeny, current and projected species distribution of Mediterranean fishes, and environmental data";
+        $rek['Author'] = "Albouy, C. , Lasram, F. B., Velez, L. , Guilhaumon, F. , Meynard, C. N., Boyer, S. , Benestan, L. , Mouquet, N. , Douzery, E. , Aznar, R. , Troussellier, M. , Somot, S. , Leprieur, F. , Le Loc'h, F. and Mouillot, D.";
         $this->refs[$rek['author_year']] = $rek;
 
         $rek = array();
@@ -781,7 +789,8 @@ class MADtoolNatDBAPI
         $rek['Title'] = "ATLANTIC MAMMAL TRAITS: a data set of morphological traits of mammals in the Atlantic Forest of South America";
         $rek['Author'] = "Gonçalves, F. , Bovendorp, R. S., Beca, G. , Bello, C. , et al.";
         $this->refs[$rek['author_year']] = $rek;
-
+        */
+        
         // print_r($this->refs); exit;
     }
     private function fill_up_blank_fieldnames($fields)
