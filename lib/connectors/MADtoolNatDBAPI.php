@@ -593,6 +593,7 @@ class MADtoolNatDBAPI
     {
         $delimeter = "elicha173";
         $html = implode($delimeter, $arr);
+        $html = Functions::conv_to_utf8($html);
         $html = str_ireplace(array("\n", "\r", "\t", "\o", "\xOB", "\11", "\011"), "", trim($html));
         $html = str_ireplace("> |", ">", $html);
         $arr = explode($delimeter, $html);
@@ -743,6 +744,44 @@ class MADtoolNatDBAPI
                 $this->refs[$rec['author_year']] = $rec;
             }
         }
+        /* as of Oct 14, 2019: no citations yet
+        ----- .albouy.2015  total: 1
+        ----- .anderson.2015  total: 1
+        ----- .goncalves.2018  total: 1
+        */
+        /* added by Jen: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=64033&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64033
+        Meanwhile, any luck on those dangling references? If not, I have a pretty good guess we can add manually:
+        */
+        $rek = array();
+        $rek['author_year'] = '.albouy.2015';
+        $rek['full_ref'] = "Albouy, C. , Lasram, F. B., Velez, L. , Guilhaumon, F. , Meynard, C. N., Boyer, S. , Benestan, L. , Mouquet, N. , Douzery, E. , Aznar, R. , Troussellier, M. , Somot, S. , Leprieur, F. , Le Loc'h, F. and Mouillot, D. (2015), FishMed: traits, phylogeny, current and projected species distribution of Mediterranean fishes, and environmental data. Ecology, 96: 2312-2313. doi:10.1890/14-2279.1";
+        $rek['URL to paper'] = '';
+        $rek['DOI'] = 'doi:10.1890/14-2279.1';
+        $rek['Publisher'] = "";
+        $rek['Title'] = "FishMed: traits, phylogeny, current and projected species distribution of Mediterranean fishes, and environmental data";
+        $rek['Author'] = "Albouy, C. , Lasram, F. B., Velez, L. , Guilhaumon, F. , Meynard, C. N., Boyer, S. , Benestan, L. , Mouquet, N. , Douzery, E. , Aznar, R. , Troussellier, M. , Somot, S. , Leprieur, F. , Le Loc'h, F. and Mouillot, D.";
+        $this->refs[$rek['author_year']] = $rek;
+        
+        $rek = array();
+        $rek['author_year'] = ".anderson.2015";
+        $rek['full_ref'] = "Jill T Anderson, Zachariah J. Gezon. 2015. Plasticity in functional traits in the context of climate change: a case study of the subalpine forb Boechera stricta (Brassicaceae). Global change biology 2015. DOI:10.1111/gcb.12770";
+        $rek['URL to paper'] = '';
+        $rek['DOI'] = "DOI:10.1111/gcb.12770";
+        $rek['Publisher'] = "";
+        $rek['Title'] = "Plasticity in functional traits in the context of climate change: a case study of the subalpine forb Boechera stricta (Brassicaceae)";
+        $rek['Author'] = "Jill T Anderson, Zachariah J. Gezon.";
+        $this->refs[$rek['author_year']] = $rek;
+
+        $rek = array();
+        $rek['author_year'] = ".goncalves.2018";
+        $rek['full_ref'] = "Gonçalves, F. , Bovendorp, R. S., Beca, G. , Bello, C. , et al. (2018), ATLANTIC MAMMAL TRAITS: a data set of morphological traits of mammals in the Atlantic Forest of South America. Ecology, 99: 498-498. doi:10.1002/ecy.2106";
+        $rek['URL to paper'] = '';
+        $rek['DOI'] = "doi:10.1002/ecy.2106";
+        $rek['Publisher'] = "";
+        $rek['Title'] = "ATLANTIC MAMMAL TRAITS: a data set of morphological traits of mammals in the Atlantic Forest of South America";
+        $rek['Author'] = "Gonçalves, F. , Bovendorp, R. S., Beca, G. , Bello, C. , et al.";
+        $this->refs[$rek['author_year']] = $rek;
+
         // print_r($this->refs); exit;
     }
     private function fill_up_blank_fieldnames($fields)

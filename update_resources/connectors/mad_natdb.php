@@ -7,11 +7,13 @@ natdb	Tuesday 2019-01-29 05:00:27 AM	{"measurement_or_fact_specific.tab":127187,
 natdb	Tuesday 2019-01-29 08:09:05 AM	{"measurement_or_fact_specific.tab":127187,"occurrence_specific.tab":94701,"reference.tab":8,"taxon.tab":2778}
 natdb	Tuesday 2019-01-29 05:57:54 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - PATO_0000146 now as 'child measurement'. Before it was as 'occurrence'
 natdb	Tuesday 2019-01-29 06:41:50 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - MacMini
+natdb	Sunday 2019-02-24 10:35:57 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - eol-archive
+natdb	Monday 2019-10-14 04:41:26 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778,"time_elapsed":{"sec":542.37,"min":9.04,"hr":0.15}} - MacMini
+natdb	Monday 2019-10-14 05:42:34 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":477.22,"min":7.95,"hr":0.13}} - MacMini
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
 $timestart = time_elapsed();
-
 
 // $str = "eliboy";
 // echo "\n[".substr($str, -3)."]\n";
@@ -144,10 +146,5 @@ exit("\n");
 $resource_id = "natdb";
 $func = new MADtoolNatDBAPI($resource_id);
 $func->start(); //main operation
-Functions::finalize_dwca_resource($resource_id, false, true);
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
