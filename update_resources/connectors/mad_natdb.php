@@ -10,6 +10,7 @@ natdb	Tuesday 2019-01-29 06:41:50 PM	{"measurement_or_fact_specific.tab":132656,
 natdb	Sunday 2019-02-24 10:35:57 PM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778} - eol-archive
 natdb	Monday 2019-10-14 04:41:26 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":8,"taxon.tab":2778,"time_elapsed":{"sec":542.37,"min":9.04,"hr":0.15}} - MacMini
 natdb	Monday 2019-10-14 05:42:34 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":477.22,"min":7.95,"hr":0.13}} - MacMini
+natdb	Monday 2019-10-14 06:12:34 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":242.49,"min":4.04,"hr":0.07}} - eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
