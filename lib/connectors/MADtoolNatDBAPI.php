@@ -24,6 +24,7 @@ class MADtoolNatDBAPI
         wood_density -- g cm^3
         Host.no -- #
         */
+        $this->citations_tsv_file = 'https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/MAD_tool_NatDB/citations_Eli_edited.tsv';
     }
     private function initialize_mapping()
     {
@@ -700,8 +701,13 @@ class MADtoolNatDBAPI
     }
     private function initialize_citations_file()
     {
-        $tmp_file = $this->source_csv_path."/citations.tsv"; //orig but needed some manual massaging by Eli
-        $tmp_file = $this->source_csv_path."/citations_Eli_edited.tsv";
+        /* orig but needed some manual massaging by Eli
+        $tmp_file = $this->source_csv_path."/citations.tsv";
+        If you use this, be sure remove the unlink() command below.
+        */
+        
+        $tmp_file = Functions::save_remote_file_to_local($this->citations_tsv_file);
+        
         $i = 0;
         if(!file_exists($tmp_file)) {
             exit("\nFile does not exist: [$tmp_file]\n");
@@ -746,6 +752,7 @@ class MADtoolNatDBAPI
                 $this->refs[$rec['author_year']] = $rec;
             }
         }
+        unlink($tmp_file);
         
         /* as of Oct 14, 2019: 
         no citations yet
