@@ -35,21 +35,23 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $this->exclude['taxon'] = array('acceptedNameUsageID', 'genus', 'specificEpithet', 'infraspecificEpithet', 'language', 
         'license', 'rightsHolder', 'bibliographicCitation', 'datasetID', 'datasetName', 'references');
         $this->exclude['speciesprofile'] = array('isMarine', 'isFreshwater', 'isTerrestrial');
+        $this->debug = array();
     }
-    function start()
+    function start($report_only_YN = false)
     {
+        $this->report_only_YN = $report_only_YN;
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
-        // print_r($dataset_keys);
         $i = 0;
         foreach($dataset_keys as $dataset_key) { $i++;
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
             // print_r($this->info); exit;
-            if($i >= 5) break; //debug only
+            // if($i >= 5) break; //debug only
         }
         foreach($dataset_keys as $dataset_key) { $i++;
             self::process_dataset($dataset_key);
-            if($i >= 5) break; //debug only
+            // if($i >= 5) break; //debug only
         }
+        if($this->debug) print_r($this->debug);
     }
     private function process_dataset($dataset_key)
     {   /*Array(
@@ -65,11 +67,56 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $index = $info['index'];
 
         $tables = $info['harvester']->tables;
-        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        if($this->report_only_YN) { //utility report only - for Jen
+            if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) {
+                self::process_distribution($val);
+            }
+        }
+        else { //main operation - generating DwCA
+            self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+            self::process_distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
+            self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
+        }
+        
         // /* un-comment in real operation -- remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: $temp_dir\n");
         // */
+    }
+    private function process_distribution($meta)
+    {   //print_r($meta);
+        echo "\nprocess_distribution...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
+                [http://rs.tdwg.org/dwc/terms/locationID] => ISO_3166-2:BE
+                [http://rs.tdwg.org/dwc/terms/locality] => Belgium
+                [http://rs.tdwg.org/dwc/terms/countryCode] => BE
+                [http://rs.tdwg.org/dwc/terms/occurrenceStatus] => present
+                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => introduced
+                [http://rs.tdwg.org/dwc/terms/eventDate] => 2018/2018
+                [http://purl.org/dc/terms/source] => https://www.gbif.org/species/148437977: Hanseniella caldaria (Hansen, 1903) in Reyserhove L, Groom Q, Adriaens T, Desmet P, Dekoninck W, Van Keer K, Lock K (2018). Ad hoc checklist of alien species in Belgium. Version 1.2. Research Institute for Nature and Forest (INBO). Checklist dataset https://doi.org/10.15468/3pmlxs
+            )*/
+            if($this->report_only_YN) { //utility report only - for Jen
+                $this->debug['oS_eM'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].":".$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']] = '';
+                continue;
+            }
+            else {
+                
+            }
+        }
     }
     private function process_taxon($meta)
     {   //print_r($meta);
@@ -86,9 +133,31 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            print_r($rec); //exit;
             /*Array(
-                [http://rs.tdwg.org/dwc/terms/measurementID] => M1
+                [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => https://www.gbif.org/species/1010644
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Hanseniella caldaria (Hansen, 1903)
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsage] => Hanseniella caldaria (Hansen, 1903)
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Animalia
+                [http://rs.tdwg.org/dwc/terms/phylum] => Arthropoda
+                [http://rs.tdwg.org/dwc/terms/class] => Symphyla
+                [http://rs.tdwg.org/dwc/terms/order] => 
+                [http://rs.tdwg.org/dwc/terms/family] => Scutigerellidae
+                [http://rs.tdwg.org/dwc/terms/genus] => Hanseniella
+                [http://rs.tdwg.org/dwc/terms/specificEpithet] => caldaria
+                [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => SPECIES
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => (Hansen, 1903)
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => ACCEPTED
+                [http://rs.tdwg.org/dwc/terms/taxonRemarks] => Sources considered for this taxon: https://doi.org/10.15468/3pmlxs
+                [http://purl.org/dc/terms/language] => en
+                [http://purl.org/dc/terms/license] => http://creativecommons.org/licenses/by/4.0/legalcode
+                [http://purl.org/dc/terms/rightsHolder] => 
+                [http://purl.org/dc/terms/bibliographicCitation] => https://www.gbif.org/species/1010644: Hanseniella caldaria (Hansen, 1903) in GBIF Secretariat (2017). GBIF Backbone Taxonomy. Checklist dataset https://doi.org/10.15468/39omei
+                [http://rs.tdwg.org/dwc/terms/datasetID] => https://doi.org/10.15468/xoidmd
+                [http://rs.tdwg.org/dwc/terms/datasetName] => Global Register of Introduced and Invasive Species - Belgium
+                [http://purl.org/dc/terms/references] => https://www.gbif.org/species/1010644
             )*/
             //===========================================================================================================================================================
             //===========================================================================================================================================================
@@ -98,10 +167,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
+                if(in_array($field, $this->exclude['taxon'])) continue;
                 $o->$field = $rec[$uri];
             }
+            print_r($o); exit;
             $this->archive_builder->write_object_to_file($o);
-            // if($i >= 10) break; //debug only
+            if($i >= 10) break; //debug only
         }
     }
     
