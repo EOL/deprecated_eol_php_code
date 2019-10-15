@@ -18,8 +18,7 @@ $diff = array_diff($belgium, $south); //proper
 print_r($diff); exit;
 */
 
-// remote
-$params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/xxx.zip";
+
 
 // e.g.
 // Belgium -- https://ipt.inbo.be/archive.do?r=unified-checklist
@@ -27,8 +26,9 @@ $params["dwca_file"]     = "https://editors.eol.org/other_files/GBIF_DwCA/xxx.zi
 
 $resource_id = 'griis'; //Global Register of Introduced and Invasive Species
 $func = new GlobalRegister_IntroducedInvasiveSpecies($resource_id);
+/*
 $func->compare_meta_between_datasets(); //a utility to generate report for Jen
-
-// $func->start($params);
-Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+*/
+$func->start();
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 ?>
