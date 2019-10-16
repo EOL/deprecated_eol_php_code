@@ -284,7 +284,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         // print_r($paths); exit;
         // */
 
-        /* development only
+        /* development only -- no longer used since DwCAs are quite small enough.
         $paths = Array (
             'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/",
             'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/flora_dir_29170/"
@@ -311,16 +311,10 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     if(substr($aI,0,4) == 'http') {
                         // echo "\n$aI";
                         /* string manipulate from: $aI to: $download_url
-                        https://ipt.inbo.be/resource?r=unified-checklist
-                        https://ipt.inbo.be/archive.do?r=unified-checklist
-
-                        http://ipt.ala.org.au/resource?r=griis-united_kingdom
-                        http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
+                        https://ipt.inbo.be/resource?r=unified-checklist        -   https://ipt.inbo.be/archive.do?r=unified-checklist
+                        http://ipt.ala.org.au/resource?r=griis-united_kingdom   -   http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
                         */
-
                         if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
-                        
-
                         $download_url = str_replace('resource?', 'archive.do?', $aI);
                         return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url);
                     }
@@ -420,34 +414,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
             // print_r($rec); exit("\ndebug...\n");
             /*Array(
-                [http://rs.tdwg.org/dwc/terms/occurrenceID] => O1
-                [http://rs.tdwg.org/dwc/terms/taxonID] => ABGR4
-                [http://rs.tdwg.org/dwc/terms/eventID] => http://plants.usda.gov/core/profile?symbol=ABGR4
-                [http://rs.tdwg.org/dwc/terms/institutionCode] => 
-                [http://rs.tdwg.org/dwc/terms/collectionCode] => 
-                [http://rs.tdwg.org/dwc/terms/catalogNumber] => 
-                [http://rs.tdwg.org/dwc/terms/sex] => 
-                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
-                [http://rs.tdwg.org/dwc/terms/reproductiveCondition] => 
-                [http://rs.tdwg.org/dwc/terms/behavior] => 
-                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => 
-                [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
-                [http://rs.tdwg.org/dwc/terms/individualCount] => 
-                [http://rs.tdwg.org/dwc/terms/preparations] => 
-                [http://rs.tdwg.org/dwc/terms/fieldNotes] => 
-                [http://rs.tdwg.org/dwc/terms/samplingProtocol] => 
-                [http://rs.tdwg.org/dwc/terms/samplingEffort] => 
-                [http://rs.tdwg.org/dwc/terms/recordedBy] => 
-                [http://rs.tdwg.org/dwc/terms/identifiedBy] => 
-                [http://rs.tdwg.org/dwc/terms/dateIdentified] => 
-                [http://rs.tdwg.org/dwc/terms/eventDate] => 
-                [http://purl.org/dc/terms/modified] => 
-                [http://rs.tdwg.org/dwc/terms/locality] => 
-                [http://rs.tdwg.org/dwc/terms/decimalLatitude] => 
-                [http://rs.tdwg.org/dwc/terms/decimalLongitude] => 
-                [http://rs.tdwg.org/dwc/terms/verbatimLatitude] => 
-                [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
-                [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
             )*/
             $uris = array_keys($rec);
             $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID', 'http:/eol.org/globi/terms/bodyPart');
