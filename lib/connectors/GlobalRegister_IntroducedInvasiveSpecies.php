@@ -168,18 +168,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
             IDs in each resource will need something appended to them (resource name or country name?) to make them unique among all the resources. 
             You can assume there's only 1 occurrence per taxon, and construct an occurrence file with a 1:1 relationship of taxa to occurrences. 
             The same IDs are used in the files we'll rely on for measurementOrFact, so you'll need to map from the taxon IDs to those as occurrence IDs in the measurementOrFact file, 
-            if you follow me.
-            
-            acceptedName columns: there's also some funny business in the taxa file that seems widespread in these files: the typical files have a column called acceptedNameUsage, 
-            which, for records with taxonomicStatus=SYNONYM (or similar), contains a namestring, which does not appear elsewhere in the file. 
-            Katja would like to look into mapping these later, but for now, please remove all the synonym records, and put them into a separate report which we'll deal with later. 
-            And please remove any corresponding MoF records for these taxa. Not all resources have this problem- Belgium, for instance, has an acceptedNameUsageID column and behaves normally. 
-            Only those resources with records of synonyms, but no acceptedNameUsageID column need this treatment. We don't need to keep acceptedNameUsage in the global resource file at all.
-            */
+            if you follow me. */
             $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
             $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
             $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
-
+            /* from Eli: if taxonID == acceptedNameUsageID, then latter should be blank */
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']) $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'] = '';
             //===========================================================================================================================================================
             /* manual massaging since like Great Britain (1288ee7d-d67c-4e23-8d95-409973067383) has swapped values for taxonRank and taxonomicStatus
             Array(
@@ -206,36 +200,48 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $this->debug[$rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']] = ''; //for stats only
             // /* debug only
             if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], array('species', 'subspecies', 'genus', 'variety', 'form'))) {
-                print_r($rec); //exit("\ndataset: ".$this->current_dataset_key."\n");
+                // print_r($rec); //exit("\ndataset: ".$this->current_dataset_key."\n");
                 $this->debug['datasets with species as status'][$this->current_dataset_key] = '';
             }
             // */
             /*Array(
                 [accepted] => 
                 [doubtful] => 
+                [none] => 
+                [] => 
+                
                 [proparte_synonym] => 
                 [synonym] => 
-                [] => 
-                [species] => 
-                [subspecies] => 
-                [genus] => 
-                [variety] => 
-                [form] => 
                 [homotypic_synonym] => 
                 [heterotypic_synonym] => 
                 [homotypic synonym] => 
+                [synoym] => 
                 [species proparte synonym] => 
-            )
+            )*/
+            $synonym_statuses = array('proparte_synonym', 'synonym', 'synoym', 'homotypic_synonym', 'heterotypic_synonym', 'homotypic synonym', 'species proparte synonym');
+            // continue; //debug only
+            //===========================================================================================================================================================
+            /*
+            acceptedName columns: there's also some funny business in the taxa file that seems widespread in these files: the typical files have a column called acceptedNameUsage, 
+            which, for records with taxonomicStatus=SYNONYM (or similar), contains a namestring, which does not appear elsewhere in the file. 
+            Katja would like to look into mapping these later, but for now, please remove all the synonym records, and put them into a separate report which we'll deal with later. 
+            And please remove any corresponding MoF records for these taxa. Not all resources have this problem- Belgium, for instance, has an acceptedNameUsageID column and behaves normally. 
+            Only those resources with records of synonyms, but no acceptedNameUsageID column need this treatment. We don't need to keep acceptedNameUsage in the global resource file at all.
             */
-            continue;
+            if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], $synonym_statuses) && !isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) {
+                $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+                continue;
+            }
+            
             //===========================================================================================================================================================
             /* taxonomicStatus: there may be a few other values represented in this column. For instance, for records with taxonomicStatus=DOUBTFUL, 
             please remove the string, leaving that cell blank, and place DOUBTFUL instead in a new, taxonRemarks column. */
             $status_2move_to_taxonRemarks = array('doubtful');
             if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], $status_2move_to_taxonRemarks)) {
-                $rec['http://rs.tdwg.org/dwc/terms/taxonRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']
+                $rec['http://rs.tdwg.org/dwc/terms/taxonRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'];
                 $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = '';
             }
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'none') $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = '';
             //===========================================================================================================================================================
             //===========================================================================================================================================================
             //===========================================================================================================================================================
