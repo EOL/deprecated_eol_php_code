@@ -32,8 +32,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $this->dwca_folder = CONTENT_RESOURCE_LOCAL_PATH.'ISSG/';
         }
         $this->comparison_file = CONTENT_RESOURCE_LOCAL_PATH.'dataset_comparison.txt';
-        $this->exclude['taxon'] = array('acceptedNameUsageID', 'genus', 'specificEpithet', 'infraspecificEpithet', 'language', 
-        'license', 'rightsHolder', 'bibliographicCitation', 'datasetID', 'datasetName', 'references');
+        $this->exclude['taxon'] = array('specificEpithet', 'infraspecificEpithet', 'acceptedNameUsage', 'language', 'license', 'rightsHolder', 
+                                        'bibliographicCitation', 'datasetID', 'datasetName', 'references');
         $this->exclude['speciesprofile'] = array('isMarine', 'isFreshwater', 'isTerrestrial');
         $this->debug = array();
     }
