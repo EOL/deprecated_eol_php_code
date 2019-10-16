@@ -41,18 +41,22 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     function start($report_only_YN = false)
     {
+        require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        self::initialize_mapping();
+        
         $this->report_only_YN = $report_only_YN;
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
         $i = 0;
         foreach($dataset_keys as $dataset_key) { $i++;                          //1st loop is to just generate the $this->info[$dataset_key]
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
             // print_r($this->info); exit;
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
+        $i = 0;
         foreach($dataset_keys as $dataset_key) { $i++;                          //2nd loop
             $this->current_dataset_key = $dataset_key;
             self::process_dataset($dataset_key);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
         if($this->debug) print_r($this->debug);
         $this->archive_builder->finalize(TRUE);
@@ -77,9 +81,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
         }
         else { //main operation - generating DwCA
-            // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-            require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-            self::process_distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
+            self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+            if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) self::process_distribution($val); 
             // self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         }
         
@@ -123,27 +126,36 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
                 if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
                 //===========================================================================================================================================================
-                /* For distribution: the usual columns are countryCode, occurrenceStatus, establishmentMeans. measurementValue will come from countryCode 
+                /* For distribution: the usual columns are countryCode, occurrenceStatus, establishmentMeans. 
+                - measurementValue will come from countryCode 
                 (if you don't need me to map those, please go ahead and match them to our country URIs; I'm happy to help with mapping if needed). 
-                measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
+                - measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
                 and I'll make you a mapping to measurementType from that.
                 */
-
-                $mValue = self::get_mValue_4distribution($rec['http://rs.tdwg.org/dwc/terms/countryCode']);
+                $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
                 $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+                if(!$mType) continue;
                 $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $save = array();
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                $save['source'] = $this->species_page.$taxon_id;
+                $save['source'] = self::get_source_from_taxonID_or_source($rec);
                 $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
-                $save['bibliographicCitation'] = $rec['http://purl.org/dc/terms/source'];
+                $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
                 if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
                 //===========================================================================================================================================================
-                if($i >= 10) break; //debug only
+                // if($i >= 10) break; //debug only
                 //===========================================================================================================================================================
             }
         }
+    }
+    private function get_source_from_taxonID_or_source($rec)
+    {
+        if($val = @$rec['http://purl.org/dc/terms/source']) {
+            $arr = explode(":", $val);
+            if(substr($arr[0],0,4) == 'http') return $arr[0];
+        }
+        return "https://www.gbif.org/species/".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
     }
     private function process_taxon($meta)
     {   //print_r($meta);
@@ -282,6 +294,57 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $this->archive_builder->write_object_to_file($o);
             if($i >= 10) break; //debug only
         }
+    }
+    private function get_uri($value, $field)
+    {
+        if($val = @$this->uris[$value]) return $val;
+        else {
+            $this->debug["undefined"][$field][$value] = '';
+            return $value;
+        }
+    }
+    private function get_mType_4distribution($oS, $eM)
+    {
+        /*
+        [present:introduced] =>http://eol.org/schema/terms/IntroducedRange
+        [Present:Alien] =>http://eol.org/schema/terms/IntroducedRange
+        [Present:Native|Alien] =>http://eol.org/schema/terms/Present
+        [present:alien] =>http://eol.org/schema/terms/IntroducedRange
+        [Alien:Present] =>http://eol.org/schema/terms/IntroducedRange
+        [present:native|alien] =>http://eol.org/schema/terms/Present
+        [Alien:] =>http://eol.org/schema/terms/IntroducedRange
+        [present:Alien] =>http://eol.org/schema/terms/IntroducedRange
+        [Present:Alien|Native] =>http://eol.org/schema/terms/Present
+        [Present:Cryptogenic|Uncertain] =>DISCARD
+        [present:cryptogenic|uncertain] =>DISCARD
+        [present:Cryptogenic|uncertain] =>DISCARD
+        [Cryptogenic|Uncertain:Present] =>DISCARD
+        [Alien:Uncertain] =>DISCARD
+        [Cryptogenic|Uncertain:] =>DISCARD
+        [Cryptogenic|Uncertain:Uncertain] =>DISCARD
+        [Uncertain:Alien] =>DISCARD
+        [present:Cryptogenic/uncertain] =>DISCARD
+        [present:cryptogenic/uncertain] =>DISCARD
+        [Present:Uncertain] =>DISCARD
+        [present:Cryptogenic|Uncertain] =>DISCARD
+        */
+        $combo = strtolower("$oS:$eM");
+        if(stripos($combo, 'uncertain') !== false) { //string is found
+            return false;
+        }
+        switch ($combo) {
+            case "present:introduced": return "http://eol.org/schema/terms/IntroducedRange";
+            case "present:alien": return "http://eol.org/schema/terms/IntroducedRange";
+            case "present:native|alien": return "http://eol.org/schema/terms/Present";
+            case "alien:present": return "http://eol.org/schema/terms/IntroducedRange";
+            case "present:native|alien": return "http://eol.org/schema/terms/Present";
+            case "alien:": return "http://eol.org/schema/terms/IntroducedRange";
+            case "present:alien|native": return "http://eol.org/schema/terms/Present";
+            default:
+                if(!$combo) return false;
+                else exit("\n combo [$combo] no mapping yet.\n");
+        }
+        return $combo;
     }
     private function format_gbif_id($str)
     {   //e.g. https://www.gbif.org/species/1010644
@@ -428,7 +491,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                         */
                         if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
                         $download_url = str_replace('resource?', 'archive.do?', $aI);
-                        return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url, 'citation' => );
+                        return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url, 'citation' => '');
                     }
                 }
             }
@@ -458,6 +521,13 @@ class GlobalRegister_IntroducedInvasiveSpecies
             return $obj->count;
         }
     }
+    private function initialize_mapping()
+    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // print_r($this->uris); exit;
+        echo "\nURIs total: ".count($this->uris)."\n";
+    }
     /*================================================================= copied templates below ======================================================================*/
     function x_start($info)
     {   $tables = $info['harvester']->tables;
@@ -469,13 +539,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
         
         self::initialize_mapping(); //for location string mappings
         self::process_per_state();
-    }
-    private function initialize_mapping()
-    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
-        // self::use_mapping_from_jen();
-        // print_r($this->uris);
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
