@@ -91,72 +91,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
         echo ("\n temporary directory removed: $temp_dir\n");
         // */
     }
-    private function process_distribution($meta)
-    {   //print_r($meta);
-        echo "\nprocess_distribution...\n"; $i = 0;
-        foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
-            if($meta->ignore_header_lines && $i == 1) continue;
-            if(!$row) continue;
-            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta->fields as $field) {
-                if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
-                $k++;
-            }
-            // print_r($rec); exit;
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
-                [http://rs.tdwg.org/dwc/terms/locationID] => ISO_3166-2:BE
-                [http://rs.tdwg.org/dwc/terms/locality] => Belgium
-                [http://rs.tdwg.org/dwc/terms/countryCode] => BE
-                [http://rs.tdwg.org/dwc/terms/occurrenceStatus] => present
-                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => introduced
-                [http://rs.tdwg.org/dwc/terms/eventDate] => 2018/2018
-                [http://purl.org/dc/terms/source] => https://www.gbif.org/species/148437977: Hanseniella caldaria (Hansen, 1903) in Reyserhove L, Groom Q, Adriaens T, Desmet P, Dekoninck W, Van Keer K, Lock K (2018). Ad hoc checklist of alien species in Belgium. Version 1.2. Research Institute for Nature and Forest (INBO). Checklist dataset https://doi.org/10.15468/3pmlxs
-            )*/
-            if($this->report_only_YN) { //utility report only - for Jen
-                $this->debug['oS_eM'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].":".$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']] = '';
-                continue;
-            }
-            else { //normal operation - for DwCA creation
-                $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
-                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
-                if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
-                //===========================================================================================================================================================
-                /* For distribution: the usual columns are countryCode, occurrenceStatus, establishmentMeans. 
-                - measurementValue will come from countryCode 
-                (if you don't need me to map those, please go ahead and match them to our country URIs; I'm happy to help with mapping if needed). 
-                - measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
-                and I'll make you a mapping to measurementType from that.
-                */
-                $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
-                $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
-                if(!$mType) continue; //exclude DISCARD
-                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-                $save = array();
-                $save['taxon_id'] = $taxon_id;
-                $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                $save['source'] = self::get_source_from_taxonID_or_source($rec);
-                $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
-                $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
-                if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
-                //===========================================================================================================================================================
-                // if($i >= 10) break; //debug only
-                //===========================================================================================================================================================
-            }
-        }
-    }
-    private function get_source_from_taxonID_or_source($rec)
-    {
-        if($val = @$rec['http://purl.org/dc/terms/source']) {
-            $arr = explode(":", $val);
-            if(substr($arr[0],0,4) == 'http') return $arr[0];
-        }
-        return "https://www.gbif.org/species/".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-    }
     private function process_taxon($meta)
     {   //print_r($meta);
         echo "\nprocess_taxon...\n"; $i = 0;
@@ -294,6 +228,72 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $this->archive_builder->write_object_to_file($o);
             if($i >= 10) break; //debug only
         }
+    }
+    private function process_distribution($meta)
+    {   //print_r($meta);
+        echo "\nprocess_distribution...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
+                [http://rs.tdwg.org/dwc/terms/locationID] => ISO_3166-2:BE
+                [http://rs.tdwg.org/dwc/terms/locality] => Belgium
+                [http://rs.tdwg.org/dwc/terms/countryCode] => BE
+                [http://rs.tdwg.org/dwc/terms/occurrenceStatus] => present
+                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => introduced
+                [http://rs.tdwg.org/dwc/terms/eventDate] => 2018/2018
+                [http://purl.org/dc/terms/source] => https://www.gbif.org/species/148437977: Hanseniella caldaria (Hansen, 1903) in Reyserhove L, Groom Q, Adriaens T, Desmet P, Dekoninck W, Van Keer K, Lock K (2018). Ad hoc checklist of alien species in Belgium. Version 1.2. Research Institute for Nature and Forest (INBO). Checklist dataset https://doi.org/10.15468/3pmlxs
+            )*/
+            if($this->report_only_YN) { //utility report only - for Jen
+                $this->debug['oS_eM'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].":".$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']] = '';
+                continue;
+            }
+            else { //normal operation - for DwCA creation
+                $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
+                if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
+                //===========================================================================================================================================================
+                /* For distribution: the usual columns are countryCode, occurrenceStatus, establishmentMeans. 
+                - measurementValue will come from countryCode 
+                (if you don't need me to map those, please go ahead and match them to our country URIs; I'm happy to help with mapping if needed). 
+                - measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
+                and I'll make you a mapping to measurementType from that.
+                */
+                $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
+                $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+                if(!$mType) continue; //exclude DISCARD
+                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $save = array();
+                $save['taxon_id'] = $taxon_id;
+                $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                $save['source'] = self::get_source_from_taxonID_or_source($rec);
+                $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
+                $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+                if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+                //===========================================================================================================================================================
+                // if($i >= 10) break; //debug only
+                //===========================================================================================================================================================
+            }
+        }
+    }
+    private function get_source_from_taxonID_or_source($rec)
+    {   //e.g. "https://www.gbif.org/species/141266826: Philadelphus"
+        if($val = @$rec['http://purl.org/dc/terms/source']) {
+            $arr = explode(": ", $val);
+            if(substr($arr[0],0,4) == 'http') return $arr[0];
+        }
+        return "https://www.gbif.org/species/".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
     }
     private function get_uri($value, $field)
     {
