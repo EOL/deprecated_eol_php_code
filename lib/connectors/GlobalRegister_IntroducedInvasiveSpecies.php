@@ -12,7 +12,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
     function __construct($resource_id)
     {
         $this->resource_id = $resource_id;
-        // $this->archive_builder = $archive_builder;
+
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 
         'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
@@ -45,11 +47,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
         foreach($dataset_keys as $dataset_key) { $i++;                          //1st loop is to just generate the $this->info[$dataset_key]
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
             // print_r($this->info); exit;
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
         foreach($dataset_keys as $dataset_key) { $i++;                          //2nd loop
+            $this->current_dataset_key = $dataset_key;
             self::process_dataset($dataset_key);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
         if($this->debug) print_r($this->debug);
     }
@@ -74,8 +77,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
         }
         else { //main operation - generating DwCA
             self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-            self::process_distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
-            self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
+            // self::process_distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
+            // self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         }
         
         // /* un-comment in real operation -- remove temp dir
@@ -120,7 +123,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     private function process_taxon($meta)
     {   //print_r($meta);
-        echo "\nprocess_measurementorfact...\n"; $i = 0;
+        echo "\nprocess_taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -133,7 +136,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); //exit;
+            $rec = array_map('trim', $rec);
+            // print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
                 [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => https://www.gbif.org/species/1010644
@@ -160,6 +164,69 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 [http://purl.org/dc/terms/references] => https://www.gbif.org/species/1010644
             )*/
             //===========================================================================================================================================================
+            /* identifiers. Taxon IDs may be of the form "https://www.gbif.org/species/1031677", or just the numeric part thereof. 
+            IDs in each resource will need something appended to them (resource name or country name?) to make them unique among all the resources. 
+            You can assume there's only 1 occurrence per taxon, and construct an occurrence file with a 1:1 relationship of taxa to occurrences. 
+            The same IDs are used in the files we'll rely on for measurementOrFact, so you'll need to map from the taxon IDs to those as occurrence IDs in the measurementOrFact file, 
+            if you follow me.
+            
+            acceptedName columns: there's also some funny business in the taxa file that seems widespread in these files: the typical files have a column called acceptedNameUsage, 
+            which, for records with taxonomicStatus=SYNONYM (or similar), contains a namestring, which does not appear elsewhere in the file. 
+            Katja would like to look into mapping these later, but for now, please remove all the synonym records, and put them into a separate report which we'll deal with later. 
+            And please remove any corresponding MoF records for these taxa. Not all resources have this problem- Belgium, for instance, has an acceptedNameUsageID column and behaves normally. 
+            Only those resources with records of synonyms, but no acceptedNameUsageID column need this treatment. We don't need to keep acceptedNameUsage in the global resource file at all.
+            */
+            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
+            $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
+
+            //===========================================================================================================================================================
+            /* manual massaging since like Great Britain (1288ee7d-d67c-4e23-8d95-409973067383) has swapped values for taxonRank and taxonomicStatus
+            Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 1288ee7d-d67c-4e23-8d95-409973067383_22146
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Abies alba Mill.
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsage] => 
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Plantae
+                [http://rs.tdwg.org/dwc/terms/phylum] => Tracheophyta
+                [http://rs.tdwg.org/dwc/terms/class] => Pinopsida
+                [http://rs.tdwg.org/dwc/terms/order] => Pinales
+                [http://rs.tdwg.org/dwc/terms/family] => Pinaceae
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => accepted
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => species
+            )*/
+            if(in_array($this->current_dataset_key, array('1288ee7d-d67c-4e23-8d95-409973067383'))) {
+                $temp = $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'];
+                $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
+                $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = $temp;
+            }
+            //===========================================================================================================================================================
+            $this->debug[$rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']] = ''; //for stats only
+            // /* debug only
+            if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], array('species', 'subspecies', 'genus', 'variety', 'form'))){
+                print_r($rec); //exit("\ndataset: ".$this->current_dataset_key."\n");
+                $this->debug['datasets with species as status'][$this->current_dataset_key] = '';
+            }
+            // */
+            /*Array(
+                [accepted] => 
+                [doubtful] => 
+                [proparte_synonym] => 
+                [synonym] => 
+                [] => 
+                [species] => 
+                [subspecies] => 
+                [genus] => 
+                [variety] => 
+                [form] => 
+                [homotypic_synonym] => 
+                [heterotypic_synonym] => 
+                [homotypic synonym] => 
+                [species proparte synonym] => 
+            )
+            taxonomicStatus: there may be a few other values represented in this column. For instance, for records with taxonomicStatus=DOUBTFUL, 
+            please remove the string, leaving that cell blank, and place DOUBTFUL instead in a new, taxonRemarks column. 
+            */
+            continue;
             //===========================================================================================================================================================
             //===========================================================================================================================================================
             //===========================================================================================================================================================
@@ -170,10 +237,14 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 if(in_array($field, $this->exclude['taxon'])) continue;
                 $o->$field = $rec[$uri];
             }
-            print_r($o); exit;
+            // print_r($o); exit;
             $this->archive_builder->write_object_to_file($o);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
+    }
+    private function format_gbif_id($str)
+    {   //e.g. https://www.gbif.org/species/1010644
+        return $this->current_dataset_key.'_'.pathinfo($str, PATHINFO_FILENAME);
     }
     function compare_meta_between_datasets() //utility to generate a report
     {
