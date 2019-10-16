@@ -82,14 +82,70 @@ class GlobalRegister_IntroducedInvasiveSpecies
         }
         else { //main operation - generating DwCA
             self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-            if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) self::process_distribution($val); 
-            // self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
+            // if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) self::process_distribution($val); 
+            self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         }
-        
         // /* un-comment in real operation -- remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: $temp_dir\n");
         // */
+    }
+    
+    private function process_speciesprofile($meta)
+    {   //print_r($meta);
+        echo "\nprocess_distribution...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
+                [http://rs.gbif.org/terms/1.0/isMarine] => FALSE
+                [http://rs.gbif.org/terms/1.0/isFreshwater] => FALSE
+                [http://rs.gbif.org/terms/1.0/isTerrestrial] => TRUE
+                [http://rs.gbif.org/terms/1.0/isInvasive] => 
+                [http://rs.tdwg.org/dwc/terms/habitat] => terrestrial
+                [http://purl.org/dc/terms/source] => https://www.gbif.org/species/148437977: Hanseniella caldaria (Hansen, 1903) in Reyserhove L, Groom Q, Adriaens T, Desmet P, Dekoninck W, Van Keer K, Lock K (2018). Ad hoc checklist of alien species in Belgium. Version 1.2. Research Institute for Nature and Forest (INBO). Checklist dataset https://doi.org/10.15468/3pmlxs
+            )*/
+            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
+            if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
+            //===========================================================================================================================================================
+            /*
+            start here...
+            
+            For speciesprofile: the usual columns are isInvasive, habitat, source. We'll get one record for habitat, and use isInvasive, sometimes, 
+            to modify a record from the distribution file.
+
+            Habitat measurementType: http://eol.org/schema/terms/Habitat. measurementValue mapping: Terrestrial-> http://purl.obolibrary.org/obo/ENVO_00000446, Marine-> http://purl.obolibrary.org/obo/ENVO_00000447, Freshwater-> http://purl.obolibrary.org/obo/ENVO_00000873.
+            isInvasive: disregard unless the value is "true" or "yes". If it is, find the record for this occurrence from the distribution file, and change its measurementType to http://eol.org/schema/terms/InvasiveRange.
+            
+            */
+            $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
+            $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+            if(!$mType) continue; //exclude DISCARD
+            $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $save = array();
+            $save['taxon_id'] = $taxon_id;
+            $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+            $save['source'] = self::get_source_from_taxonID_or_source($rec);
+            $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
+            $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+            if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+            //===========================================================================================================================================================
+            // if($i >= 10) break; //debug only
+            //===========================================================================================================================================================
+            
+        }
     }
     private function process_taxon($meta)
     {   //print_r($meta);
