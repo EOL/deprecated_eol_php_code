@@ -28,11 +28,10 @@ $resource_id = 'griis'; //Global Register of Introduced and Invasive Species
 $func = new GlobalRegister_IntroducedInvasiveSpecies($resource_id);
 /*
 $func->compare_meta_between_datasets(); //a utility to generate report for Jen
+$func->start(true); //utility, generate report for Jen. Used once only. The 'true' param makes the call to generate a report.
 */
-$func->start(true); //utility, generate report for Jen. Used once only.
-
-/*
+// /*
 $func->start(); //main operation - generate DwCA
-*/
+// */
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 ?>

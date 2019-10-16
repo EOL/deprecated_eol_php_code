@@ -42,14 +42,14 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $this->report_only_YN = $report_only_YN;
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
         $i = 0;
-        foreach($dataset_keys as $dataset_key) { $i++;
+        foreach($dataset_keys as $dataset_key) { $i++;                          //1st loop is to just generate the $this->info[$dataset_key]
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
             // print_r($this->info); exit;
-            // if($i >= 5) break; //debug only
+            if($i >= 10) break; //debug only
         }
-        foreach($dataset_keys as $dataset_key) { $i++;
+        foreach($dataset_keys as $dataset_key) { $i++;                          //2nd loop
             self::process_dataset($dataset_key);
-            // if($i >= 5) break; //debug only
+            if($i >= 10) break; //debug only
         }
         if($this->debug) print_r($this->debug);
     }
@@ -175,7 +175,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
             if($i >= 10) break; //debug only
         }
     }
-    
     function compare_meta_between_datasets() //utility to generate a report
     {
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
@@ -186,13 +185,10 @@ class GlobalRegister_IntroducedInvasiveSpecies
             // print_r($this->info); exit;
             // if($i >= 10) break; //debug only
         }
-        
         $this->fhandle = Functions::file_open($this->comparison_file, "w");
-        
         echo "\nSouth Africa\n";
         $this->south_africa = self::investigate_dataset($this->south_africa);
         // print_r($this->south_africa);
-
         // print_r($dataset_keys); exit;
         $i = 0;
         foreach($dataset_keys as $dataset_key) { $i++; echo "\n$i. $dataset_key\n";
@@ -201,9 +197,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
             self::start_comparison($dataset_key);
             // if($i >= 10) break; //debug only
         }
-
         fclose($this->fhandle);
-        exit("\n-end for now-\n");
+        exit("\n-end utility-\n");
     }
     private function start_comparison($dataset_key)
     {
@@ -274,7 +269,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     private function download_extract_dwca($url, $dataset_key)
     {
-        $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30); //probably default expires in a month 60*60*24*30. Not false.
         $target = $this->dwca_folder."$dataset_key.zip";
         if(!file_exists($target)) {
             $out = shell_exec("wget -q $url -O $target");
@@ -285,6 +279,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
+        $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30); //probably default expires in a month 60*60*24*30. Not false.
         $paths = $func->extract_archive_file($target, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
         // print_r($paths); exit;
         // */
