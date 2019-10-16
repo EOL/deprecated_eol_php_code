@@ -47,14 +47,15 @@ class GlobalRegister_IntroducedInvasiveSpecies
         foreach($dataset_keys as $dataset_key) { $i++;                          //1st loop is to just generate the $this->info[$dataset_key]
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
             // print_r($this->info); exit;
-            // if($i >= 10) break; //debug only
+            if($i >= 10) break; //debug only
         }
         foreach($dataset_keys as $dataset_key) { $i++;                          //2nd loop
             $this->current_dataset_key = $dataset_key;
             self::process_dataset($dataset_key);
-            // if($i >= 10) break; //debug only
+            if($i >= 10) break; //debug only
         }
         if($this->debug) print_r($this->debug);
+        $this->archive_builder->finalize(TRUE);
     }
     private function process_dataset($dataset_key)
     {   /*Array(
@@ -76,8 +77,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
         }
         else { //main operation - generating DwCA
-            self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-            // self::process_distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
+            // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+            require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+            self::process_distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
             // self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         }
         
@@ -116,8 +118,30 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $this->debug['oS_eM'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].":".$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']] = '';
                 continue;
             }
-            else {
-                
+            else { //normal operation - for DwCA creation
+                $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
+                if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
+                //===========================================================================================================================================================
+                /* For distribution: the usual columns are countryCode, occurrenceStatus, establishmentMeans. measurementValue will come from countryCode 
+                (if you don't need me to map those, please go ahead and match them to our country URIs; I'm happy to help with mapping if needed). 
+                measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
+                and I'll make you a mapping to measurementType from that.
+                */
+
+                $mValue = self::get_mValue_4distribution($rec['http://rs.tdwg.org/dwc/terms/countryCode']);
+                $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $save = array();
+                $save['taxon_id'] = $taxon_id;
+                $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                $save['source'] = $this->species_page.$taxon_id;
+                $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
+                $save['bibliographicCitation'] = $rec['http://purl.org/dc/terms/source'];
+                if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+                //===========================================================================================================================================================
+                if($i >= 10) break; //debug only
+                //===========================================================================================================================================================
             }
         }
     }
@@ -256,7 +280,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
             // print_r($o); exit;
             $this->archive_builder->write_object_to_file($o);
-            // if($i >= 10) break; //debug only
+            if($i >= 10) break; //debug only
         }
     }
     private function format_gbif_id($str)
@@ -404,7 +428,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                         */
                         if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
                         $download_url = str_replace('resource?', 'archive.do?', $aI);
-                        return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url);
+                        return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url, 'citation' => );
                     }
                 }
             }
