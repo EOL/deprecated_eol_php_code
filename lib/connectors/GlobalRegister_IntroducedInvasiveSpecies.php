@@ -170,10 +170,14 @@ class GlobalRegister_IntroducedInvasiveSpecies
             The same IDs are used in the files we'll rely on for measurementOrFact, so you'll need to map from the taxon IDs to those as occurrence IDs in the measurementOrFact file, 
             if you follow me. */
             $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            if(isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) {
+                $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']);
+                
+                /* from Eli: if taxonID == acceptedNameUsageID, then latter should be blank */
+                if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']) $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'] = '';
+            }
             $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
             $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
-            /* from Eli: if taxonID == acceptedNameUsageID, then latter should be blank */
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']) $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'] = '';
             //===========================================================================================================================================================
             /* manual massaging since like Great Britain (1288ee7d-d67c-4e23-8d95-409973067383) has swapped values for taxonRank and taxonomicStatus
             Array(
@@ -188,8 +192,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 [http://rs.tdwg.org/dwc/terms/taxonRank] => accepted
                 [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => species
             )*/
-            
-            
             $datasets_need_swapping = array('1288ee7d-d67c-4e23-8d95-409973067383', 'f6ae66a3-f267-4d03-8541-fdfa7ffc9eaf', '6b45e498-23e8-4e39-8620-77011495e42c', 'd006d8bb-cf1e-46ff-a054-c6768e23d86d', '137a287c-911c-40b5-8051-6dc86b110bcc', '2f7ea7d1-a73f-46f6-b790-7339126a999f', '7b6661a3-5bbd-4dbb-b3e4-0c26df341977', 'e1459ba8-561c-4be1-9ede-c31d16c3ef87', '5fd0d7a4-0381-4d6b-ad34-24e99a7b4247', '4a5c1429-3f25-4b2e-8ab6-d281c2c3df49', '69233277-0946-4931-8115-3b247a81a051', '51f5af06-7176-4ec1-b86e-776d11bc49c8', '543c8dbe-d386-4f87-8125-3a0ebd7784a4', '9ea091a2-6b54-47e1-80ac-36b921865b1f', '2001dd74-2069-43cf-95e4-1f9b39238a1b', '09d0256f-a986-4fee-9252-819ff12069e1', '5149ebfa-3873-4b11-8acb-3940303c793f', 'a368d019-028c-4f87-adcf-90771fd666f9', '2e76af52-48a9-4b89-81b8-441860dbed9e', '11891f2f-3cd7-4d13-a340-8041295af072', 'ced9186d-2778-4a32-b245-7506893061bc', 'f83db6d8-9849-4554-9d78-375bce27660f', 'f998e11b-5074-464e-84ba-a8bdc9556472', '8a73c1ea-82bb-4ada-bb69-d17b73e4719a', '0103d6f8-1f34-4f5d-a456-93dbcfe9f615', 'f77acd30-c3d5-429e-8592-d277e3f4cef3', '05539304-10a1-4ce8-a01f-693fbacf6ceb', 'bba03061-2924-4716-a3e8-8b8c268cfb89', '97ee2123-27de-4a95-9e6f-ea1f57c7c115', 'dd216b75-0282-4ee3-b99a-cfd00b1c8b3f', '9df5cb8b-c433-47b3-b077-d6f09c0c7aaa', 'cbd5726e-b5b7-4a1a-af70-0bc4a842aa2b', 'b2e5f15d-44e2-480d-b68c-c6d0627288f2', '46d612a6-90b3-4f50-8b9a-a290d1780b76', '016c16c3-d907-4c88-97dd-97ad62c8130e');
             if(in_array($this->current_dataset_key, $datasets_need_swapping)) {
                 $temp = $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'];
