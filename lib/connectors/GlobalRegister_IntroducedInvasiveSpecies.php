@@ -134,7 +134,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 */
                 $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
                 $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
-                if(!$mType) continue;
+                if(!$mType) continue; //exclude DISCARD
                 $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $save = array();
                 $save['taxon_id'] = $taxon_id;
