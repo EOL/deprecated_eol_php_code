@@ -1094,6 +1094,9 @@ class WormsArchiveAPI
         
         $additional_mappings = self::initialize_mapping();
         $final = array_merge($final, $additional_mappings);
+        echo "\nURIs total: ".count($final)."\n";
+        print_r($final['Europe']);
+        echo "\n-end test block-\n";
         return $final;
     }
     private function csv2array($url, $type)
