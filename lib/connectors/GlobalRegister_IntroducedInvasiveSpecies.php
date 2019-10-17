@@ -561,7 +561,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
     {
         $target = $this->dwca_folder."$dataset_key.zip";
         if(!file_exists($target)) {
-            $out = shell_exec("wget -q $url -O $target");
+            // $out = shell_exec("wget -q $url -O $target");
+            $out = shell_exec("wget $url -O $target");
             echo "\n$out\n";
         }
         else echo "\nalready exists: [$target]\n";
@@ -586,7 +587,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
+        if(!(@$tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
