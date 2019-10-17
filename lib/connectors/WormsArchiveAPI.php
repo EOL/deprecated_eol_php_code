@@ -1019,6 +1019,7 @@ class WormsArchiveAPI
     {   $orig = $val;
         $val = trim(strtolower($val));
         if($uri = @$this->value_uri_map[$val]) return $uri;
+        elseif($uri = @$this->value_uri_map[$orig]) return $uri;
         else {
             if(!is_numeric($orig)) $this->debug['no uri'][$what][$orig] = ''; //log only non-numeric values
             return $orig;
