@@ -1060,6 +1060,14 @@ class WormsArchiveAPI
         exit("\nid not found [$vtaxon_id]\n");
         return false;
     }
+    private function initialize_mapping()
+    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+        echo "\n".count($mappings). " - default URIs from EOL registry.";
+        $uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        // print_r($uris); exit;
+        echo "\nURIs total: ".count($uris)."\n";
+        return $uris;
+    }
     private function tsv2array($url)
     {   $options = $this->download_options;
         $options['expire_seconds'] = 60*60*24; //1 day expires
@@ -1083,6 +1091,9 @@ class WormsArchiveAPI
             }
         }
         unlink($local);
+        
+        $additional_mappings = self::initialize_mapping();
+        $final = array_merge($final, $additional_mappings);
         return $final;
     }
     private function csv2array($url, $type)
