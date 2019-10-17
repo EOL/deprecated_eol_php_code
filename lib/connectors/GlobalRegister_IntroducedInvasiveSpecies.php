@@ -292,6 +292,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
             if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'none') $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = '';
             //===========================================================================================================================================================
+            if(!$rec['http://rs.tdwg.org/dwc/terms/scientificName']) continue;
+            if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonRank'], array('synonym'))) $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = '';
+            //===========================================================================================================================================================
             $o = new \eol_schema\Taxon();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
