@@ -851,7 +851,7 @@ class WormsArchiveAPI
                 $lifeStage = '';
                 if($parent = $rec['parentMeasurementID']) {
                     if($value_str = @$this->lifeStageOf[$parent]) { //e.g. 'adult'
-                        $lifeStage = self::get_uri_from_value($value_str, 'mValue');
+                        $lifeStage = self::get_uri_from_value($value_str, 'mValue', 'lifeStage');
                     }
                 }
                 // */
@@ -969,7 +969,7 @@ class WormsArchiveAPI
                 }
                 */
 
-                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue');
+                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue', 'Body size');
                 // print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
                 
                 $this->func->add_string_types($save, $mValuev, $mTypev, "true");
@@ -1006,8 +1006,8 @@ class WormsArchiveAPI
                 // $save['source'] = $this->taxon_page.$taxon_id; //no instruction here
                 $save = self::adjustments_4_measurementAccuracy($save, $rec);
                 $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
-                $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType');
-                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue');
+                $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType', 'child of Body size');
+                $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue', 'child of Body size');
                 $this->func->add_string_types($save, $mValuev, $mTypev, "child");
                 // break; //do this if you want to proceed create DwCA
                 continue; //part of real operation. Can go next row now
@@ -1015,13 +1015,13 @@ class WormsArchiveAPI
             //========================================================================================================end tasks
         }//end foreach
     }
-    private function get_uri_from_value($val, $what)
+    private function get_uri_from_value($val, $what, $what2)
     {   $orig = $val;
         $val = trim(strtolower($val));
         if($uri = @$this->value_uri_map[$val]) return $uri;
         elseif($uri = @$this->value_uri_map[$orig]) return $uri;
         else {
-            if(!is_numeric($orig)) $this->debug['no uri'][$what][$orig] = ''; //log only non-numeric values
+            if(!is_numeric($orig)) $this->debug['no uri'][$what][$what2][$orig] = ''; //log only non-numeric values
             return $orig;
         }
     }
