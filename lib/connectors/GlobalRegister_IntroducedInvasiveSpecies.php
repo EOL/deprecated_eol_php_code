@@ -282,7 +282,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
                 continue;
             }
-            
             //===========================================================================================================================================================
             /* taxonomicStatus: there may be a few other values represented in this column. For instance, for records with taxonomicStatus=DOUBTFUL, 
             please remove the string, leaving that cell blank, and place DOUBTFUL instead in a new, taxonRemarks column. */
@@ -293,8 +292,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
             if($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] == 'none') $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = '';
             //===========================================================================================================================================================
-            //===========================================================================================================================================================
-            //===========================================================================================================================================================
             $o = new \eol_schema\Taxon();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
@@ -304,7 +301,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
             // print_r($o); exit;
             $this->archive_builder->write_object_to_file($o);
-            if($i >= 10) break; //debug only
+            // if($i >= 10) break; //debug only
         }
     }
     private function process_distribution($meta)
@@ -381,7 +378,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $save['source'] = @$rec['http://purl.org/dc/terms/source'];
                 if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
                 //===========================================================================================================================================================
-                if($i >= 10) break; //debug only
+                // if($i >= 10) break; //debug only
                 //===========================================================================================================================================================
             }
         }
