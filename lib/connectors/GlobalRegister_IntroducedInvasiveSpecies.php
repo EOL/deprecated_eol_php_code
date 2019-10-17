@@ -82,7 +82,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         }
         else { //main operation - generating DwCA
             self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-            self::process_speciesprofile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
+            if($val = @$tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]) self::process_speciesprofile($val);
             // if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) self::process_distribution($val);
         }
         // /* un-comment in real operation -- remove temp dir
@@ -132,20 +132,37 @@ class GlobalRegister_IntroducedInvasiveSpecies
             isInvasive: disregard unless the value is "true" or "yes". If it is, find the record for this occurrence from the distribution file, 
             and change its measurementType to http://eol.org/schema/terms/InvasiveRange.
             */
-            $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/habitat'],'habitat');
-            $mType = 'http://eol.org/schema/terms/Habitat';
-            if(!$mValue) continue;
-            $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            $save = array();
-            $save['taxon_id'] = $taxon_id;
-            $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-            $save['source'] = self::get_source_from_taxonID_or_source($rec);
-            $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
-            $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
-            if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+            
+            if($habitat = @$rec['http://rs.tdwg.org/dwc/terms/habitat']) {
+                
+                // /* manual adjustments
+                if($habitat == 'terrestrialifreshwater') $habitat = "terrestrial|freshwater";
+                $habitat = str_replace(array(",","/"), "|", $habitat);
+                // */
+                
+                $habitats = explode("|", $habitat);
+                if(count($habitats) > 1) print_r($rec);
+                $habitats = array_map('trim', $habitats);
+                foreach($habitats as $habitat) {
+                    $mValue = self::get_uri($habitat,'habitat');
+                    $mType = 'http://eol.org/schema/terms/Habitat';
+                    if(!$mValue) continue;
+                    $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    $save = array();
+                    $save['taxon_id'] = $taxon_id;
+                    $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $save['measurementRemarks'] = $habitat;
+                    /* by Eli
+                    $save['source'] = self::get_source_from_taxonID_or_source($rec);
+                    $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+                    */
+                    $save['source'] = @$rec['http://purl.org/dc/terms/source'];
+                    if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+                }
+            }
             //===========================================================================================================================================================
             if(in_array(strtolower($rec['http://rs.gbif.org/terms/1.0/isInvasive']), array('true', 'yes'))) {
-                $this->taxon_id_with_mType_InvasiveRange[$taxon_id] = '';
+                $this->taxon_id_with_mType_InvasiveRange[$taxonID] = '';
             }
             //===========================================================================================================================================================
             // if($i >= 10) break; //debug only
@@ -338,14 +355,28 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 if(isset($this->taxon_id_with_mType_InvasiveRange[$taxonID])) $mType = 'http://eol.org/schema/terms/InvasiveRange';
                 // */
 
+                /* Thanks for the additional fields report! The terrain is not as messy as I'd feared. 
+                Let's map both http://rs.tdwg.org/dwc/terms/locality and http://rs.tdwg.org/dwc/terms/locationID to http://rs.tdwg.org/dwc/terms/locality. 
+                I think the simple method would be to attach it as a column in measurementOrFact? Feel free to use whatever method you think best, though. 
+                If both columns are present (eg: the Belgium file) discard locationID and use locality.
+                */
+                $occur_locality = '';
+                if($val = @$rec['http://rs.tdwg.org/dwc/terms/locationID']) $occur_locality = $val;
+                if($val = @$rec['http://rs.tdwg.org/dwc/terms/locality']) $occur_locality = $val;
+
                 if(!$mType) continue; //exclude DISCARD
                 $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 $save = array();
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                $save['source'] = self::get_source_from_taxonID_or_source($rec);
+                $save['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
                 $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
+                $save['occur']['locality'] = $occur_locality;
+                /* by Eli
+                $save['source'] = self::get_source_from_taxonID_or_source($rec);
                 $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+                */
+                $save['source'] = @$rec['http://purl.org/dc/terms/source'];
                 if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
                 //===========================================================================================================================================================
                 // if($i >= 10) break; //debug only
@@ -362,19 +393,22 @@ class GlobalRegister_IntroducedInvasiveSpecies
         return "https://www.gbif.org/species/".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
     }
     private function get_uri($value, $field)
-    {   /* fron Jen: https://eol-jira.bibalex.org/browse/DATA-1838?focusedCommentId=64048&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64048
-        [KH] =>http://www.geonames.org/1527747 (but don’t rely on this ever again- I think it’s a typo) */
-        
+    {   
+        $orig = $value;
         if($field == 'habitat') {
+            $value = strtolower($value);
+            if(in_array($value, array('terrrestrial', 'terresstrial', 'terretrial', 'terrestre'))) $value = 'terrestrial';
             switch($value) {
                 case "terrestrial": return "http://purl.obolibrary.org/obo/ENVO_00000446";
                 case "marine": return "http://purl.obolibrary.org/obo/ENVO_00000447";
                 case "freshwater": return "http://purl.obolibrary.org/obo/ENVO_00000873";
                 default: $this->debug["undefined"][$field][$value] = '';
             }
-            return $value;
+            return $orig;
         }
 
+        /* fron Jen: https://eol-jira.bibalex.org/browse/DATA-1838?focusedCommentId=64048&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64048
+        [KH] =>http://www.geonames.org/1527747 (but don’t rely on this ever again- I think it’s a typo) */
         switch($value) {
             case "KH": return "http://www.geonames.org/1527747";
             default:
