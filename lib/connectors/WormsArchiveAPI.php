@@ -61,13 +61,13 @@ class WormsArchiveAPI
         
         //mapping from here: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63730&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63730
         $this->BsD_URI['length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
+        $this->BsD_URI['total length (tl)'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
         $this->BsD_URI['width'] = 'http://purl.obolibrary.org/obo/VT_0015039';
         $this->BsD_URI['breadth'] = 'http://purl.obolibrary.org/obo/VT_0015039';
         $this->BsD_URI['corresponding length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
         $this->BsD_URI['diameter'] = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25285';
         $this->BsD_URI['height'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
         $this->BsD_URI['heigth'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
-        $this->BsD_URI['length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
         $this->BsD_URI['thallus diameter'] = 'http://purl.obolibrary.org/obo/FLOPO_0023069';
         $this->BsD_URI['thallus length'] = 'https://eol.org/schema/terms/thallus_length';
         $this->BsD_URI['thickness'] = 'http://purl.obolibrary.org/obo/PATO_0000915';
