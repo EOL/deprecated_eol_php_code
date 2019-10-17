@@ -51,13 +51,12 @@ as of Aug 23, 2019
 26	Friday 2019-08-23 05:38:00 AM	{"agent.tab":1592,"association.tab":69630,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138761,"reference.tab":604956,"taxon.tab":579821,"vernacular_name.tab":79059} Mac Mini
 26	Friday 2019-08-23 05:09:26 AM	{"agent.tab":1592,"association.tab":69630,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138761,"reference.tab":604956,"taxon.tab":579821,"vernacular_name.tab":79059} eol-archive
 26	Friday 2019-08-23 08:53:32 AM	{"agent.tab":1592,"association.tab":69629,"measurement_or_fact_specific.tab":2853465,"media_resource.tab":85088,"occurrence_specific.tab":2138760,"reference.tab":604956,"taxon.tab":579820,"vernacular_name.tab":79059} eol-archive
-start below of new traits, no synonyms only accepted taxa
+start below of new traits, no synonyms, only accepted taxa
 26	Monday 2019-08-26 05:58:25 AM	{"agent.tab":1592,"association.tab":69107,"measurement_or_fact_specific.tab":3354792,"media_resource.tab":85088,"occurrence_specific.tab":2141506,"reference.tab":604956,"taxon.tab":338472,"vernacular_name.tab":79059} eol-archive, same as Mac Mini
 26	Tuesday 2019-09-03 11:43:25 PM	{"agent.tab":1597,"association.tab":73215,"measurement_or_fact_specific.tab":3376634,"media_resource.tab":85232,"occurrence_specific.tab":2160600,"reference.tab":608368,"taxon.tab":340007,"vernacular_name.tab":79081} consistent OK
 26	Tuesday 2019-09-10 12:49:04 AM	{"agent.tab":1597,"association.tab":73215,"measurement_or_fact_specific.tab":3376634,"media_resource.tab":85232,"occurrence_specific.tab":2160600,"reference.tab":608368,"taxon.tab":340007,"vernacular_name.tab":79081}
 26	Thursday 2019-09-19 11:46:55 AM	{"agent.tab":1597,"association.tab":73215,"measurement_or_fact_specific.tab":3376634,"media_resource.tab":85232,"occurrence_specific.tab":2160600,"reference.tab":608368,"taxon.tab":340007,"vernacular_name.tab":79081}
-
-exec time: 45.29 minutes
+26	Thursday 2019-10-17 08:47:04 AM	{"agent.tab":1603,"association.tab":76387,"measurement_or_fact_specific.tab":3406848,"media_resource.tab":85431,"occurrence_specific.tab":2180297,"reference.tab":612137,"taxon.tab":341924,"vernacular_name.tab":79111,"time_elapsed":{"min":43.71,"hr":0.73}} consistent OK
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
