@@ -2511,41 +2511,41 @@ class Functions
         $arr = $func->access_google_sheet($params);
         return $arr;
     }
-    public static function additional_mappings($mappings) //additional mappings from other resources, used in other connectors
+    public static function additional_mappings($mappings, $expire_seconds = 60*60*24*25) //additional mappings from other resources, used in other connectors
     {
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
-        $uri_values = $func->add_additional_mappings(true); //add country mappings used in Tropicos
+        $uri_values = $func->add_additional_mappings(true, false, $expire_seconds); //add country mappings used in Tropicos
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from Tropicos. \n";
         
         //add mappings specific to this resource: Turbellaria (185)
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
-        $uri_values = $func->add_additional_mappings(true, $url);
+        $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from Turbellarian (185). \n";
         
         //add mappings specific to this resource: GISD 751
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt"; /* Included other mappings from other resources */
-        $uri_values = $func->add_additional_mappings(true, $url, 60*60*24); //orig value not 0 but 60*60*24
+        $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds); //orig value not 0 but 60*60*24
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
         
         //add mappings from CABI ISC (760)
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/mapped_locations.txt";
-        $uri_values = $func->add_additional_mappings(true, $url);
+        $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from CABI ISC (760). \n";
         
         //from COLDataAPI.php
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CatalogueOfLife/CoLMissingGeoTerms.txt";
-        $uri_values = $func->add_additional_mappings(true, $url);
+        $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from COLDataAPI.php. \n";
 
         //from FishBaseArchiveAPI.php
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/mapped_locations.txt";
-        $uri_values = $func->add_additional_mappings(true, $url);
+        $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from FishBaseArchiveAPI.php. \n";
         

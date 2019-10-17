@@ -1063,7 +1063,7 @@ class WormsArchiveAPI
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        $uris = Functions::additional_mappings($mappings, 0); //add more mappings used in the past. 2nd param is expire_seconds
         // print_r($uris); exit;
         echo "\nURIs total: ".count($uris)."\n";
         return $uris;
