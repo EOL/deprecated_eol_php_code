@@ -94,7 +94,7 @@ else {                                                                      //'m
 // /* //main operation
 $func = new WormsArchiveAPI($resource_id);
 $func->get_all_taxa($cmdline_params['what']); 
-Functions::finalize_dwca_resource($resource_id, false, false); //3rd param should be false so it doesn't remove the /26/ folder which will be used below when diagnosing...
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param should be false so it doesn't remove the /26/ folder which will be used below when diagnosing...
 // */
 
 /* utility - run this after 6 connectors during build-up
@@ -103,14 +103,12 @@ $func->trim_text_files();
 exit("\n");
 */
 
-
 /* utility - Aug 25, 2019: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63762&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63762
 This script lists all mtypes and its mvalue that were missing bec. it wasn't initialized by Jen yet. Probably deliberately done to exclude them.
 $func = new WormsArchiveAPI($resource_id);
 $func->investigate_missing_parents_in_MoF();
 exit("\n");
 */
-
 
 // /* utility ==========================
 require_library('connectors/DWCADiagnoseAPI');

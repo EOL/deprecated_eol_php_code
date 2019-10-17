@@ -24,7 +24,6 @@ Connector downloads the archive file, extracts, reads it, assembles the data and
 http://www.marinespecies.org/rest/#/
 http://www.marinespecies.org/aphia.php?p=taxdetails&id=9
 */
-
 class WormsArchiveAPI
 {
     function __construct($folder)
@@ -183,10 +182,12 @@ class WormsArchiveAPI
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
+        // print_r($paths); exit;
         // */
         /* for development only
-        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_77073/");
+        $paths = Array("archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/WORMS_dir_89994/", "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/WORMS_dir_89994/");
         */
+        
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
@@ -521,8 +522,29 @@ class WormsArchiveAPI
             // if($k >=  400000 && $k < 600000) $cont = true;
             if(!$cont) continue;
             */
-            
-            $taxon = new \eol_schema\Taxon();
+            // print_r($rec); exit;
+            /* Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => urn:lsid:marinespecies.org:taxname:1
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Biota
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/kingdom] => 
+                [http://rs.tdwg.org/dwc/terms/phylum] => 
+                [http://rs.tdwg.org/dwc/terms/class] => 
+                [http://rs.tdwg.org/dwc/terms/order] => 
+                [http://rs.tdwg.org/dwc/terms/family] => 
+                [http://rs.tdwg.org/dwc/terms/genus] => 
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => kingdom
+                [http://rs.tdwg.org/ac/terms/furtherInformationURL] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=1
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+                [http://rs.tdwg.org/dwc/terms/taxonRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/namePublishedIn] => 
+                [http://eol.org/schema/media/referenceID] => WoRMS:citation:1
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => urn:lsid:marinespecies.org:taxname:1
+                [http://purl.org/dc/terms/rights] => http://creativecommons.org/licenses/by/4.0/
+                [http://purl.org/dc/terms/rightsHolder] => WoRMS Editorial Board
+                [http://rs.tdwg.org/dwc/terms/datasetName] => World Register of Marine Species (WoRMS)
+            )*/
+            $taxon = new \eol_schema\Taxon(); //for media_objects, MoF. Not for taxonomy.
             $taxon->taxonID = self::get_worms_taxon_id($rec["http://rs.tdwg.org/dwc/terms/taxonID"]);
             
             if($this->what == "taxonomy") {
@@ -540,7 +562,9 @@ class WormsArchiveAPI
                     else                                $taxon->parentNameUsageID = $val;
                 }
                 else { //media_objects
+                    /* deliberately removed Oct 16, 2019
                     $taxon->parentNameUsageID = $val;
+                    */
                 }
             }
             
@@ -570,11 +594,14 @@ class WormsArchiveAPI
             }
 
             if($taxon->taxonID == @$taxon->acceptedNameUsageID) $taxon->acceptedNameUsageID = '';
+            /* deliberately removed Oct 16, 2019
             if($taxon->taxonID == @$taxon->parentNameUsageID)   $taxon->parentNameUsageID = '';
-
+            */
             if($taxon->taxonomicStatus == "synonym") { // this will prevent names to become synonyms of another where the ranks are different
                 if($taxon->taxonRank != @$this->taxa_rank[$taxon->acceptedNameUsageID]['r']) continue;
+                /* deliberately removed Oct 16, 2019
                 $taxon->parentNameUsageID = ''; //remove the ParentNameUsageID data from all of the synonym lines
+                */
             }
             
             if($this->what == "taxonomy") { //based on https://eol-jira.bibalex.org/browse/TRAM-520?focusedCommentId=60923&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60923
@@ -596,9 +623,22 @@ class WormsArchiveAPI
             // /* new Aug 25, 2019 - 
             if($this->what != "taxonomy") {
                 if($taxon->taxonomicStatus != "accepted") continue;
+                /* deliberately removed Oct 16, 2019
                 $taxon->parentNameUsageID = ''; //source has many parentNameUsageID but without its own taxon entry. So will not use at all.
+                */
             }
-            
+            // */
+
+            // /* new Oct 16, 2019: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64047&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64047
+            $taxon->kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
+            $taxon->phylum = $rec['http://rs.tdwg.org/dwc/terms/phylum'];
+            $taxon->class = $rec['http://rs.tdwg.org/dwc/terms/class'];
+            $taxon->order = $rec['http://rs.tdwg.org/dwc/terms/order'];
+            $taxon->family = $rec['http://rs.tdwg.org/dwc/terms/family'];
+            $taxon->genus = $rec['http://rs.tdwg.org/dwc/terms/genus'];
+            if($val = @$rec['http://rs.tdwg.org/dwc/terms/taxonRank']) {
+                if(in_array($val, array('kingdom','phylum','class','order','family','genus'))) $taxon->$val = ''; //set to blank
+            }
             // */
 
             if(!isset($this->taxon_ids[$taxon->taxonID])) {
