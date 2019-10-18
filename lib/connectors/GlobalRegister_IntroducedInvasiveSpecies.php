@@ -136,7 +136,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
             if($habitat = @$rec['http://rs.tdwg.org/dwc/terms/habitat']) {
                 
                 // /* manual adjustments
-                if(strtolower($habitat) == 'terrestrialifreshwater') $habitat = "terrestrial|freshwater";
+                $habitat = str_ireplace('TerrestrialIFreshwater', 'Terrestrial|Freshwater', $habitat);
+                if(strtolower($habitat) == 'TerrestrialIFreshwater') $habitat = "terrestrial|freshwater";
                 $habitat = str_replace(array(",","/"), "|", $habitat);
                 // */
                 
@@ -430,6 +431,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             default:
         }
         if($val = @$this->uris[$value]) return $val;
+        elseif($val = @$this->uris[strtolower($value)]) return $val;
         else {
             $this->debug["undefined"][$field][$value] = '';
             return $orig;
