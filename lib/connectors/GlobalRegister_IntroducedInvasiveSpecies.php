@@ -656,7 +656,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
+        $this->uris = Functions::additional_mappings($mappings, 0); //add more mappings used in the past
         // print_r($this->uris); exit;
         echo "\nURIs total: ".count($this->uris)."\n";
     }
