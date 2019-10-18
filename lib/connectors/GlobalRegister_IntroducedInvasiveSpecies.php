@@ -416,14 +416,15 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 case "marine": return "http://purl.obolibrary.org/obo/ENVO_00000447";
                 case "freshwater": return "http://purl.obolibrary.org/obo/ENVO_00000873";
                 case "higr?fila": return false; //DISCARD
-                case "host"; return array('http://eol.org/schema/terms/EcomorphologicalGuild', 'https://www.wikidata.org/entity/Q2374421');
-                default: $this->debug["undefined"][$field][$value] = '';
+                case "host": return array('http://eol.org/schema/terms/EcomorphologicalGuild', 'https://www.wikidata.org/entity/Q2374421');
+                // default: $this->debug["undefined"][$field][$value] = '';
             }
-            return $orig;
         }
 
         /* fron Jen: https://eol-jira.bibalex.org/browse/DATA-1838?focusedCommentId=64048&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64048
         [KH] =>http://www.geonames.org/1527747 (but don’t rely on this ever again- I think it’s a typo) */
+
+        $value = $orig;
         switch($value) {
             case "KH": return "http://www.geonames.org/1527747";
             default:
@@ -431,7 +432,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         if($val = @$this->uris[$value]) return $val;
         else {
             $this->debug["undefined"][$field][$value] = '';
-            return $value;
+            return $orig;
         }
     }
     private function get_mType_4distribution($oS, $eM)
