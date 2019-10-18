@@ -292,6 +292,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 // if(count($habitats) > 1) print_r($rec); //debug only
                 $habitats = array_map('trim', $habitats);
                 foreach($habitats as $habitat) {
+                    if(!$habitat) continue;
                     $mValue = self::get_uri($habitat,'habitat');
                     $mType = 'http://eol.org/schema/terms/Habitat';
                     if(!$mValue) continue;
@@ -426,6 +427,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 case "marine": return "http://purl.obolibrary.org/obo/ENVO_00000447";
                 case "freshwater": return "http://purl.obolibrary.org/obo/ENVO_00000873";
                 case "higr?fila": return false; //DISCARD
+                case "higr��fila": return false; //DISCARD
                 case "host": return array('http://eol.org/schema/terms/EcomorphologicalGuild', 'https://www.wikidata.org/entity/Q2374421');
                 // default: $this->debug["undefined"][$field][$value] = '';
             }
