@@ -45,7 +45,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
 'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks', 
 'http://purl.org/dc/terms/language', 'http://purl.org/dc/terms/license', 'http://purl.org/dc/terms/rightsHolder', 'http://purl.org/dc/terms/bibliographicCitation', 
 'http://rs.tdwg.org/dwc/terms/datasetID', 'http://rs.tdwg.org/dwc/terms/datasetName', 'http://purl.org/dc/terms/references'); //for synonym report
-        $this->synonym_report_for_katja = CONTENT_RESOURCE_LOCAL_PATH.'synonym_report.txt';
+        $this->synonym_report_for_katja = CONTENT_RESOURCE_LOCAL_PATH.'GRIIS_synonym_report.txt';
     }
     private function synonym_report_header()
     {

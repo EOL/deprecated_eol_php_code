@@ -39,7 +39,10 @@ $func->start(); //main operation - generate DwCA
 
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 
-/*
+/* as of Oct 18, 2019
+wc -l GRIIS_synonym_report.txt 
+5233 GRIIS_synonym_report.txt
+
 Array
 (
     [http://rs.tdwg.org/dwc/terms/taxonID] => 
