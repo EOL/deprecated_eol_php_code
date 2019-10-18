@@ -147,6 +147,17 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     $mValue = self::get_uri($habitat,'habitat');
                     $mType = 'http://eol.org/schema/terms/Habitat';
                     if(!$mValue) continue;
+                    
+                    // /* manual adjustment
+                    if(is_array($mValue)) { //$habitat = 'host'
+                        $tmp_arr = $mValue;
+                        if($tmp_arr[0] == 'http://eol.org/schema/terms/EcomorphologicalGuild') {
+                            $mValue = $tmp_arr[1];
+                            $mType = $tmp_arr[0];
+                        }
+                    }
+                    // */
+                    
                     $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                     $save = array();
                     $save['taxon_id'] = $taxon_id;
@@ -404,6 +415,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 case "terrestrial": return "http://purl.obolibrary.org/obo/ENVO_00000446";
                 case "marine": return "http://purl.obolibrary.org/obo/ENVO_00000447";
                 case "freshwater": return "http://purl.obolibrary.org/obo/ENVO_00000873";
+                case "higr?fila": return false; //DISCARD
+                case "host"; return array('http://eol.org/schema/terms/EcomorphologicalGuild', 'https://www.wikidata.org/entity/Q2374421');
                 default: $this->debug["undefined"][$field][$value] = '';
             }
             return $orig;
