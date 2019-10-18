@@ -9,7 +9,7 @@ e.g.
 Belgium -- https://ipt.inbo.be/archive.do?r=unified-checklist
 South Africa -- http://ipt.ala.org.au/archive.do?r=south-africa-griis-gbif
 
-griis	Friday 2019-10-18 04:29:15 AM	{"measurement_or_fact_specific.tab":91634,"occurrence_specific.tab":91634,"taxon.tab":51907,"time_elapsed":{"sec":744.11,"min":12.4,"hr":0.21}}
+Friday 2019-10-18 08:42:41 AM	{"measurement_or_fact_specific.tab":91634,"occurrence_specific.tab":91634,"taxon.tab":51907,"time_elapsed":{"sec":756.03,"min":12.6,"hr":0.21}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies');
@@ -29,7 +29,8 @@ $func = new GlobalRegister_IntroducedInvasiveSpecies($resource_id);
 
 /* worked OK
 $func->compare_meta_between_datasets(); //a utility to generate report for Jen
-$func->start(true); //utility, generate report for Jen. Used once only. The 'true' param makes the call to generate a report.
+$func->start('utility_report'); //utility, generate report for Jen. Used once only.
+$func->start('synonym_report'); //utility, generate synonym report for Katja. Used once only.
 */
 
 // /*
@@ -37,4 +38,33 @@ $func->start(); //main operation - generate DwCA
 // */
 
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+
+/*
+Array
+(
+    [http://rs.tdwg.org/dwc/terms/taxonID] => 
+    [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+    [http://rs.tdwg.org/dwc/terms/scientificName] => 
+    [http://rs.tdwg.org/dwc/terms/acceptedNameUsage] => 
+    [http://rs.tdwg.org/dwc/terms/kingdom] => 
+    [http://rs.tdwg.org/dwc/terms/phylum] => 
+    [http://rs.tdwg.org/dwc/terms/class] => 
+    [http://rs.tdwg.org/dwc/terms/order] => 
+    [http://rs.tdwg.org/dwc/terms/family] => 
+    [http://rs.tdwg.org/dwc/terms/genus] => 
+    [http://rs.tdwg.org/dwc/terms/specificEpithet] => 
+    [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
+    [http://rs.tdwg.org/dwc/terms/taxonRank] => 
+    [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => 
+    [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => 
+    [http://rs.tdwg.org/dwc/terms/taxonRemarks] => 
+    [http://purl.org/dc/terms/language] => 
+    [http://purl.org/dc/terms/license] => 
+    [http://purl.org/dc/terms/rightsHolder] => 
+    [http://purl.org/dc/terms/bibliographicCitation] => 
+    [http://rs.tdwg.org/dwc/terms/datasetID] => 
+    [http://rs.tdwg.org/dwc/terms/datasetName] => 
+    [http://purl.org/dc/terms/references] => 
+)
+*/
 ?>

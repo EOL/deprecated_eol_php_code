@@ -39,9 +39,28 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $this->exclude['speciesprofile'] = array('isMarine', 'isFreshwater', 'isTerrestrial');
         $this->debug = array();
         $this->synonym_statuses = array('proparte_synonym', 'synonym', 'synoym', 'homotypic_synonym', 'heterotypic_synonym', 'homotypic synonym', 'species proparte synonym');
+        $this->cumulative_taxon_fields = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/acceptedNameUsageID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/acceptedNameUsage', 
+'http://rs.tdwg.org/dwc/terms/kingdom', 'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 
+'http://rs.tdwg.org/dwc/terms/family', 'http://rs.tdwg.org/dwc/terms/genus', 'http://rs.tdwg.org/dwc/terms/specificEpithet', 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet', 
+'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks', 
+'http://purl.org/dc/terms/language', 'http://purl.org/dc/terms/license', 'http://purl.org/dc/terms/rightsHolder', 'http://purl.org/dc/terms/bibliographicCitation', 
+'http://rs.tdwg.org/dwc/terms/datasetID', 'http://rs.tdwg.org/dwc/terms/datasetName', 'http://purl.org/dc/terms/references'); //for synonym report
+        $this->synonym_report_for_katja = CONTENT_RESOURCE_LOCAL_PATH.'synonym_report.txt';
+    }
+    private function synonym_report_header()
+    {
+        foreach($this->cumulative_taxon_fields as $uri) {
+            $field = pathinfo($uri, PATHINFO_BASENAME);
+            $fields[] = $field;
+        }
+        $fn = Functions::file_open($this->synonym_report_for_katja, "w");
+        fwrite($fn, implode("\t", $fields)."\n");
+        fclose($fn);
     }
     function start($report_only_YN = false)
     {
+        self::synonym_report_header();
+        
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         self::initialize_mapping();
         
@@ -76,10 +95,18 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $index = $info['index'];
 
         $tables = $info['harvester']->tables;
-        if($this->report_only_YN) { //utility report only - for Jen
+        if($this->report_only_YN == 'utility_report') { //utility report only - for Jen
             if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) {
                 self::process_distribution($val);
             }
+        }
+        elseif($this->report_only_YN == 'synonym_report') { //Utility only. To compile all taxon fields for synonym report for Katja. Used once only.
+            $meta = $tables['http://rs.tdwg.org/dwc/terms/taxon'][0];
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $this->taxon_fields[$field['term']] = '';
+            }
+            print_r($this->taxon_fields); /* This was then just manually copied to be the cumulative fields for taxon from all 123 datasets. Used in $this->cumulative_taxon_fields */
         }
         else { //main operation - generating DwCA
             self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
@@ -200,7 +227,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             Only those resources with records of synonyms, but no acceptedNameUsageID column need this treatment. We don't need to keep acceptedNameUsage in the global resource file at all.
             */
             if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], $this->synonym_statuses)) { //a synonym
-                // self::write_synonyms_report_for_katja($rec);
+                self::write_synonyms_report_for_katja($rec);
                 if(!isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) {
                     $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
                     continue;
@@ -239,11 +266,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     private function write_synonyms_report_for_katja($rec)
     {
-        $this->synonym_report_for_katja = CURRENT_RESOURCE_LOCAL_PATH.'synonym_report.txt';
-        $this->fn = Functions::file_open($this->synonym_report_for_katja, "w");
-
-        $this->fn = Functions::file_open($this->synonym_report_for_katja, "a");
-        fwrite($fn, implode("\n", $AphiaIDs));
+        $fn = Functions::file_open($this->synonym_report_for_katja, "a");
+        foreach($this->cumulative_taxon_fields as $uri) $val[] = @$rec[$uri];
+        fwrite($fn, implode("\t", $val)."\n");
         fclose($fn);
     }
     private function process_speciesprofile($meta)
@@ -680,7 +705,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings, 0); //add more mappings used in the past
+        $this->uris = Functions::additional_mappings($mappings, 60*60*24); //add more mappings used in the past
         // print_r($this->uris); exit;
         echo "\nURIs total: ".count($this->uris)."\n";
     }
