@@ -38,6 +38,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                                         'bibliographicCitation', 'datasetID', 'datasetName', 'references');
         $this->exclude['speciesprofile'] = array('isMarine', 'isFreshwater', 'isTerrestrial');
         $this->debug = array();
+        $this->synonym_statuses = array('proparte_synonym', 'synonym', 'synoym', 'homotypic_synonym', 'heterotypic_synonym', 'homotypic synonym', 'species proparte synonym');
     }
     function start($report_only_YN = false)
     {
@@ -168,7 +169,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = $temp;
             }
             //===========================================================================================================================================================
-            $this->debug[$rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']] = ''; //for stats only
+            $this->debug['taxonomicStatus'][$rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']] = ''; //for stats only
             // /* debug only
             if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], array('species', 'subspecies', 'genus', 'variety', 'form'))) {
                 // print_r($rec); //exit("\ndataset: ".$this->current_dataset_key."\n");
@@ -189,7 +190,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 [synoym] => 
                 [species proparte synonym] => 
             )*/
-            $synonym_statuses = array('proparte_synonym', 'synonym', 'synoym', 'homotypic_synonym', 'heterotypic_synonym', 'homotypic synonym', 'species proparte synonym');
             // continue; //debug only
             //===========================================================================================================================================================
             /*
@@ -199,7 +199,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             And please remove any corresponding MoF records for these taxa. Not all resources have this problem- Belgium, for instance, has an acceptedNameUsageID column and behaves normally. 
             Only those resources with records of synonyms, but no acceptedNameUsageID column need this treatment. We don't need to keep acceptedNameUsage in the global resource file at all.
             */
-            if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], $synonym_statuses)) { //a synonym
+            if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], $this->synonym_statuses)) { //a synonym
                 // self::write_synonyms_report_for_katja($rec);
                 if(!isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) {
                     $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
