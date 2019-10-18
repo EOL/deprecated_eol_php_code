@@ -566,7 +566,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
 
         // /* un-comment in real operation -- remove temp dir
         recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: $temp_dir\n");
+        debug("\n temporary directory removed: $temp_dir\n");
         // */
         // print_r($final);
         return $final;
@@ -584,7 +584,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $out = shell_exec("wget $url -O $target");
             echo "\n$out\n";
         }
-        else echo "\nalready exists: [$target]\n";
+        else debug("\nalready exists: [$target]\n");
         
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');
