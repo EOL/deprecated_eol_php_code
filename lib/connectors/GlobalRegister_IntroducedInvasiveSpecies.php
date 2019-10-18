@@ -234,8 +234,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
             // print_r($o); exit;
             $this->archive_builder->write_object_to_file($o);
-            // if($i >= 10) break; //debug only
+            // if($i >= 20) break; //debug only
         }
+    }
+    private function write_synonyms_report_for_katja($rec)
+    {
+        
     }
     private function process_speciesprofile($meta)
     {   //print_r($meta);
@@ -394,7 +398,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
                 $save['occur']['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
                 $save['occur']['locality'] = $occur_locality;
-                $save['occur']['eventDate'] = $rec['http://rs.tdwg.org/dwc/terms/eventDate'];
+                $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate'];
                 
                 /* by Eli
                 $save['source'] = self::get_source_from_taxonID_or_source($rec);
