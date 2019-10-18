@@ -83,103 +83,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
         else { //main operation - generating DwCA
             self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
             if($val = @$tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]) self::process_speciesprofile($val);
-            // if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) self::process_distribution($val);
+            if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) self::process_distribution($val);
         }
         // /* un-comment in real operation -- remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: $temp_dir\n");
         // */
-    }
-    private function process_speciesprofile($meta)
-    {   //print_r($meta);
-        echo "\nprocess_speciesprofile...\n"; $i = 0;
-        foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
-            if($meta->ignore_header_lines && $i == 1) continue;
-            if(!$row) continue;
-            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta->fields as $field) {
-                if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
-                $k++;
-            } // print_r($rec); exit;
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
-                [http://rs.gbif.org/terms/1.0/isMarine] => FALSE
-                [http://rs.gbif.org/terms/1.0/isFreshwater] => FALSE
-                [http://rs.gbif.org/terms/1.0/isTerrestrial] => TRUE
-                [http://rs.gbif.org/terms/1.0/isInvasive] => 
-                [http://rs.tdwg.org/dwc/terms/habitat] => terrestrial
-                [http://purl.org/dc/terms/source] => https://www.gbif.org/species/148437977: Hanseniella caldaria (Hansen, 1903) in Reyserhove L, Groom Q, Adriaens T, Desmet P, Dekoninck W, Van Keer K, Lock K (2018). Ad hoc checklist of alien species in Belgium. Version 1.2. Research Institute for Nature and Forest (INBO). Checklist dataset https://doi.org/10.15468/3pmlxs
-            )*/
-            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
-            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
-            if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
-            //===========================================================================================================================================================
-            /*
-            start here...
-            For speciesprofile: the usual columns are isInvasive, habitat, source. We'll get one record for habitat, and use isInvasive, sometimes, 
-            to modify a record from the distribution file.
-
-            Habitat measurementType: http://eol.org/schema/terms/Habitat. 
-                    measurementValue mapping: 
-                        Terrestrial-> http://purl.obolibrary.org/obo/ENVO_00000446, 
-                        Marine-> http://purl.obolibrary.org/obo/ENVO_00000447, 
-                        Freshwater-> http://purl.obolibrary.org/obo/ENVO_00000873.
-            
-            isInvasive: disregard unless the value is "true" or "yes". If it is, find the record for this occurrence from the distribution file, 
-            and change its measurementType to http://eol.org/schema/terms/InvasiveRange.
-            */
-            
-            if($habitat = @$rec['http://rs.tdwg.org/dwc/terms/habitat']) {
-                
-                // /* manual adjustments
-                $habitat = str_ireplace('TerrestrialIFreshwater', 'Terrestrial|Freshwater', $habitat);
-                if(strtolower($habitat) == 'TerrestrialIFreshwater') $habitat = "terrestrial|freshwater";
-                $habitat = str_replace(array(",","/"), "|", $habitat);
-                // */
-                
-                $habitats = explode("|", $habitat);
-                // if(count($habitats) > 1) print_r($rec); //debug only
-                $habitats = array_map('trim', $habitats);
-                foreach($habitats as $habitat) {
-                    $mValue = self::get_uri($habitat,'habitat');
-                    $mType = 'http://eol.org/schema/terms/Habitat';
-                    if(!$mValue) continue;
-                    
-                    // /* manual adjustment
-                    if(is_array($mValue)) { //$habitat = 'host'
-                        $tmp_arr = $mValue;
-                        if($tmp_arr[0] == 'http://eol.org/schema/terms/EcomorphologicalGuild') {
-                            $mValue = $tmp_arr[1];
-                            $mType = $tmp_arr[0];
-                        }
-                    }
-                    // */
-                    
-                    $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-                    $save = array();
-                    $save['taxon_id'] = $taxon_id;
-                    $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                    $save['measurementRemarks'] = $habitat;
-                    /* by Eli
-                    $save['source'] = self::get_source_from_taxonID_or_source($rec);
-                    $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
-                    */
-                    $save['source'] = @$rec['http://purl.org/dc/terms/source'];
-                    if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
-                }
-            }
-            //===========================================================================================================================================================
-            if(in_array(strtolower($rec['http://rs.gbif.org/terms/1.0/isInvasive']), array('true', 'yes'))) {
-                $this->taxon_id_with_mType_InvasiveRange[$taxonID] = '';
-            }
-            //===========================================================================================================================================================
-            // if($i >= 10) break; //debug only
-            //===========================================================================================================================================================
-        }
     }
     private function process_taxon($meta)
     {   //print_r($meta);
@@ -290,9 +199,18 @@ class GlobalRegister_IntroducedInvasiveSpecies
             And please remove any corresponding MoF records for these taxa. Not all resources have this problem- Belgium, for instance, has an acceptedNameUsageID column and behaves normally. 
             Only those resources with records of synonyms, but no acceptedNameUsageID column need this treatment. We don't need to keep acceptedNameUsage in the global resource file at all.
             */
-            if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], $synonym_statuses) && !isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) {
-                $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
-                continue;
+            if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'], $synonym_statuses)) { //a synonym
+                // self::write_synonyms_report_for_katja($rec);
+                if(!isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) {
+                    $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+                    continue;
+                }
+                else { //there is acceptedNameUsageID
+                    if(!$rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']) { // but has no value, blank
+                        $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+                        continue;
+                    }
+                }
             }
             //===========================================================================================================================================================
             /* taxonomicStatus: there may be a few other values represented in this column. For instance, for records with taxonomicStatus=DOUBTFUL, 
@@ -317,6 +235,97 @@ class GlobalRegister_IntroducedInvasiveSpecies
             // print_r($o); exit;
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
+        }
+    }
+    private function process_speciesprofile($meta)
+    {   //print_r($meta);
+        echo "\nprocess_speciesprofile...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            } // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => https://www.gbif.org/species/1010644
+                [http://rs.gbif.org/terms/1.0/isMarine] => FALSE
+                [http://rs.gbif.org/terms/1.0/isFreshwater] => FALSE
+                [http://rs.gbif.org/terms/1.0/isTerrestrial] => TRUE
+                [http://rs.gbif.org/terms/1.0/isInvasive] => 
+                [http://rs.tdwg.org/dwc/terms/habitat] => terrestrial
+                [http://purl.org/dc/terms/source] => https://www.gbif.org/species/148437977: Hanseniella caldaria (Hansen, 1903) in Reyserhove L, Groom Q, Adriaens T, Desmet P, Dekoninck W, Van Keer K, Lock K (2018). Ad hoc checklist of alien species in Belgium. Version 1.2. Research Institute for Nature and Forest (INBO). Checklist dataset https://doi.org/10.15468/3pmlxs
+            )*/
+            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
+            if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
+            //===========================================================================================================================================================
+            /*
+            start here...
+            For speciesprofile: the usual columns are isInvasive, habitat, source. We'll get one record for habitat, and use isInvasive, sometimes, 
+            to modify a record from the distribution file.
+
+            Habitat measurementType: http://eol.org/schema/terms/Habitat. 
+                    measurementValue mapping: 
+                        Terrestrial-> http://purl.obolibrary.org/obo/ENVO_00000446, 
+                        Marine-> http://purl.obolibrary.org/obo/ENVO_00000447, 
+                        Freshwater-> http://purl.obolibrary.org/obo/ENVO_00000873.
+            
+            isInvasive: disregard unless the value is "true" or "yes". If it is, find the record for this occurrence from the distribution file, 
+            and change its measurementType to http://eol.org/schema/terms/InvasiveRange.
+            */
+            
+            if($habitat = @$rec['http://rs.tdwg.org/dwc/terms/habitat']) {
+                
+                // /* manual adjustments
+                $habitat = str_ireplace('TerrestrialIFreshwater', 'Terrestrial|Freshwater', $habitat);
+                if(strtolower($habitat) == 'TerrestrialIFreshwater') $habitat = "terrestrial|freshwater";
+                $habitat = str_replace(array(",","/"), "|", $habitat);
+                // */
+                
+                $habitats = explode("|", $habitat);
+                // if(count($habitats) > 1) print_r($rec); //debug only
+                $habitats = array_map('trim', $habitats);
+                foreach($habitats as $habitat) {
+                    $mValue = self::get_uri($habitat,'habitat');
+                    $mType = 'http://eol.org/schema/terms/Habitat';
+                    if(!$mValue) continue;
+                    
+                    // /* manual adjustment
+                    if(is_array($mValue)) { //$habitat = 'host'
+                        $tmp_arr = $mValue;
+                        if($tmp_arr[0] == 'http://eol.org/schema/terms/EcomorphologicalGuild') {
+                            $mValue = $tmp_arr[1];
+                            $mType = $tmp_arr[0];
+                        }
+                    }
+                    // */
+                    
+                    $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    $save = array();
+                    $save['taxon_id'] = $taxon_id;
+                    $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $save['measurementRemarks'] = $habitat;
+                    /* by Eli
+                    $save['source'] = self::get_source_from_taxonID_or_source($rec);
+                    $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+                    */
+                    $save['source'] = @$rec['http://purl.org/dc/terms/source'];
+                    if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+                }
+            }
+            //===========================================================================================================================================================
+            if(in_array(strtolower($rec['http://rs.gbif.org/terms/1.0/isInvasive']), array('true', 'yes'))) {
+                $this->taxon_id_with_mType_InvasiveRange[$taxonID] = '';
+            }
+            //===========================================================================================================================================================
+            // if($i >= 10) break; //debug only
+            //===========================================================================================================================================================
         }
     }
     private function process_distribution($meta)
