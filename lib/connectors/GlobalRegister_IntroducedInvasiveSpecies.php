@@ -88,7 +88,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         }
         // /* un-comment in real operation -- remove temp dir
         recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: $temp_dir\n");
+        debug("\n temporary directory removed: $temp_dir\n");
         // */
     }
     private function process_taxon($meta)
@@ -239,7 +239,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     private function write_synonyms_report_for_katja($rec)
     {
-        
+        $this->synonym_report_for_katja = CURRENT_RESOURCE_LOCAL_PATH.'synonym_report.txt';
+        $this->fn = Functions::file_open($this->synonym_report_for_katja, "w");
+
+        $this->fn = Functions::file_open($this->synonym_report_for_katja, "a");
+        fwrite($fn, implode("\n", $AphiaIDs));
+        fclose($fn);
     }
     private function process_speciesprofile($meta)
     {   //print_r($meta);
@@ -399,6 +404,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $save['occur']['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
                 $save['occur']['locality'] = $occur_locality;
                 $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate'];
+                $save['occur']['occurrenceRemarks'] = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'];
                 
                 /* by Eli
                 $save['source'] = self::get_source_from_taxonID_or_source($rec);
