@@ -5,16 +5,21 @@ gbif_classification	Monday 2019-09-23 09:15:26 PM	{"taxon.tab":2845723}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = false;
+// $GLOBALS['ENV_DEBUG'] = false;
 ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
 $resource_id = 'gbif_classification';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
-$func->start(); //orig OK
+/* main operation
+$func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+*/
+// /* utility
+$func->utility_compare_2_DH_09();
+// */
 
 /* utility ========================== works OK
 require_library('connectors/DWCADiagnoseAPI');

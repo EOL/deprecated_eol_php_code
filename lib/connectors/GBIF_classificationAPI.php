@@ -16,29 +16,135 @@ class GBIF_classificationAPI
 
         if(Functions::is_production()) {
             $this->service["backbone_dwca"] = "http://rs.gbif.org/datasets/backbone/backbone-current.zip";
+            $this->service["gbif_classification"] = "https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification.tar.gz";
         }
         else {
             $this->service["backbone_dwca"] = "http://localhost/cp/GBIF_Backbone_Archive/backbone-current.zip";
+            $this->service["gbif_classification"] = "/Volumes/MacMini_HD2/work_temp/gbif_classification.tar.gz";
         }
         $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'gbif_names_not_found_in_eol.txt';
+
+        /* for comparison report DH 0.9 vs my gbif_classification DwCA */
+        $this->service['DH0.9'] = 'https://opendata.eol.org/dataset/0a023d9a-f8c3-4c80-a8d1-1702475cda18/resource/1b375a39-4739-45ba-87cd-328bdd50ec34/download/eoldynamichierarchywithlandmarks.zip';
+        $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
+
+        $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip';
+        
+        
+        
+        
+        /*
+        2,724,940 taxa.txt -> eoldynamichierarchywithlandmarks
+        2,724,668 eolpageids.csv
+        2,845,724 taxon.tab -> gbif_classification
+        */
     }
-    private function access_dwca()
+    function utility_compare_2_DH_09()
+    {
+        // self::build_info('gbif_classification');
+        /* Array( some fields were deleted coz its too many to list here:
+            [http://rs.tdwg.org/dwc/terms/taxonID] => 2588702
+            [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+            [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
+            [http://rs.tdwg.org/dwc/terms/scientificName] => Lichenobactridium Diederich & Etayo
+            [http://rs.tdwg.org/dwc/terms/namePublishedIn] => Flechten Follmann (Cologne), Contributions to Lichenology in Honour of Gerhard Follmann 212 (1995)
+            [http://rs.tdwg.org/dwc/terms/taxonRank] => genus
+            [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Diederich & Etayo
+            [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+            [http://rs.tdwg.org/dwc/terms/datasetID] => 7ddf754f-d193-4cc9-b351-99906754a03b
+            [http://rs.gbif.org/terms/1.0/canonicalName] => Lichenobactridium
+            [http://eol.org/schema/EOLid] => 37570
+        )*/
+        // self::build_info('DH0.9');
+        /* Array( some fields were deleted coz its too many to list here:
+            [http://rs.tdwg.org/dwc/terms/taxonID] => -100000
+            [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => -100000
+            [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => -79407
+            [http://rs.tdwg.org/dwc/terms/scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
+            [http://rs.tdwg.org/dwc/terms/taxonRank] => species
+            [http://purl.org/dc/terms/source] => gbif:4943435
+            [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+            [http://rs.gbif.org/terms/1.0/canonicalName] => Frescocyathus nagagreboensis
+            [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Barta-Calmus, 1969
+            [http://rs.tdwg.org/dwc/terms/datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
+            [http://eol.org/schema/EOLid] => 
+            [http://eol.org/schema/EOLidAnnotations] => 
+            [http://eol.org/schema/Landmark] => 
+        )*/
+        self::process_eolpageids_csv();
+    }
+    private function build_info($dwca)
+    {
+        $paths = self::access_dwca($dwca, false); //false here 2nd param is expire_seconds
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        $tables = $harvester->tables;
+        // print_r($tables); exit;
+        self::process_taxon_4report($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        
+        /* un-comment in real operation
+        recursive_rmdir($temp_dir);
+        echo ("\n temporary directory removed: " . $temp_dir);
+        */
+    }
+    private function process_taxon_4report($meta)
+    {   //print_r($meta);
+        echo "\nprocess_taxon...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            print_r($rec); exit;
+        }
+    }
+    private function access_dwca($dwca, $expire_seconds = false)
     {   
-        // /* un-comment in real operation
+        $download_options = $this->download_options;
+        if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->service["backbone_dwca"], "meta.xml", $this->download_options);
-        // */
-        /* local when developing
-        $paths = Array(
-            "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/",
-            "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/dir_66855_gbif/"
-        );
+        $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
+        print_r($paths); exit;
         */
+        // /* local when developing
+        $paths = Array(
+            "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/",
+            "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/"
+        );
+        
+        $paths = Array(
+            'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
+            'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
+        );
+        // */
         return $paths;
     }
+    private function process_eolpageids_csv()
+    {
+        $file = fopen('/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eolpageids.csv', 'r'); $i = 0;
+        while(($line = fgetcsv($file)) !== FALSE) { $i++; 
+            if($i == 1) $fields = $line;
+            else {
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                print_r($rec); exit;
+            }
+        }
+    }
     function start()
-    {   $paths = self::access_dwca();
+    {   $paths = self::access_dwca('backbone_dwca');
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         
