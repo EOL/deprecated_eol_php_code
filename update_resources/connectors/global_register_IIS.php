@@ -10,6 +10,7 @@ Belgium -- https://ipt.inbo.be/archive.do?r=unified-checklist
 South Africa -- http://ipt.ala.org.au/archive.do?r=south-africa-griis-gbif
 
 Friday 2019-10-18 08:42:41 AM	{"measurement_or_fact_specific.tab":91634,"occurrence_specific.tab":91634,"taxon.tab":51907,"time_elapsed":{"sec":756.03,"min":12.6,"hr":0.21}}
+Monday 2019-10-21 09:53:40 AM	{"measurement_or_fact_specific.tab":91634,"occurrence_specific.tab":91634,"taxon.tab":51907,"time_elapsed":{"sec":759.39,"min":12.66,"hr":0.21}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies');
