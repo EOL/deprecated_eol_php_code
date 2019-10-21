@@ -46,6 +46,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
 'http://purl.org/dc/terms/language', 'http://purl.org/dc/terms/license', 'http://purl.org/dc/terms/rightsHolder', 'http://purl.org/dc/terms/bibliographicCitation', 
 'http://rs.tdwg.org/dwc/terms/datasetID', 'http://rs.tdwg.org/dwc/terms/datasetName', 'http://purl.org/dc/terms/references'); //for synonym report
         $this->synonym_report_for_katja = CONTENT_RESOURCE_LOCAL_PATH.'GRIIS_synonym_report.txt';
+        $this->dataset_page = 'https://www.gbif.org/dataset/';
     }
     private function synonym_report_header()
     {
@@ -348,9 +349,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     $save['measurementRemarks'] = $habitat;
                     /* by Eli
                     $save['source'] = self::get_source_from_taxonID_or_source($rec);
-                    $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
                     */
-                    $save['source'] = @$rec['http://purl.org/dc/terms/source'];
+                    $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+                    $save['source'] = $this->dataset_page.$this->current_dataset_key;
                     if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
                 }
             }
@@ -430,12 +431,11 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $save['occur']['locality'] = $occur_locality;
                 $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate'];
                 $save['occur']['occurrenceRemarks'] = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'];
-                
                 /* by Eli
                 $save['source'] = self::get_source_from_taxonID_or_source($rec);
-                $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
                 */
-                $save['source'] = @$rec['http://purl.org/dc/terms/source'];
+                $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+                $save['source'] = $this->dataset_page.$this->current_dataset_key;
                 if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
                 //===========================================================================================================================================================
                 // if($i >= 10) break; //debug only
