@@ -42,7 +42,7 @@ class GBIF_classificationAPI
         self::build_info('gbif_classification');
         self::build_info('DH0.9');
         self::process_eolpageids_csv();
-        self::write_comparison_report()
+        self::write_comparison_report();
     }
     private function write_comparison_report()
     {
@@ -53,11 +53,13 @@ class GBIF_classificationAPI
         $file = Functions::file_open($this->comparison_report, "w");
         fwrite($file, implode("\t", $headers)."\n");
         foreach($this->gbif_classification as $GBIF_id => $EOL_id) {
+            $GBIF_id = ''; $EOL_id = '';
+            $DH_id = ''; $EOL_id2 = '';
             if($DH_id = @$this->DH09[$GBIF_id]) {
                 if($EOL_id2 = @$this->DH_map[$DH_id]) {}
-                else $EOL_id2 = false;
+                else $EOL_id2 = '';
             }
-            else $DH_id = false;
+            else $DH_id = '';
             $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2);
             fwrite($file, implode("\t", $vals)."\n");
         }
@@ -128,9 +130,10 @@ class GBIF_classificationAPI
             )*/
             if($dwca == 'DH0.9') {
                 if($source = $rec['http://purl.org/dc/terms/source']) {
-                    echo $source."\n";
-                    $gbif_id = self::get_gbif_id_from_source($source)
-                    $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
+                    // echo $source."\n";
+                    if($gbif_id = self::get_gbif_id_from_source($source)) {
+                        $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
+                    }
                 }
             }
         }
@@ -185,11 +188,12 @@ class GBIF_classificationAPI
             WOR:925487,gbif:9077856
         */
         $arr = explode(",", $source);
-        $arr = array_map('trim', $source);
+        $arr = array_map('trim', $arr);
         foreach($arr as $sors) {
             $arr2 = explode(":", $sors);
             if($arr2[0] == 'gbif') return $arr2[1];
         }
+        return false;
     }
     /*-------------------------------------- end report here --------------------------------------------*/
     function start()
