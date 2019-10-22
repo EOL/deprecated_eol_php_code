@@ -25,53 +25,30 @@ class GBIF_classificationAPI
         $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'gbif_names_not_found_in_eol.txt';
 
         /* for comparison report DH 0.9 vs my gbif_classification DwCA */
+        /*
         $this->service['DH0.9'] = 'https://opendata.eol.org/dataset/0a023d9a-f8c3-4c80-a8d1-1702475cda18/resource/1b375a39-4739-45ba-87cd-328bdd50ec34/download/eoldynamichierarchywithlandmarks.zip';
         $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
-
+        */
         $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip';
         
-        
-        
-        
         /*
+        2,845,724 taxon.tab -> gbif_classification
         2,724,940 taxa.txt -> eoldynamichierarchywithlandmarks
         2,724,668 eolpageids.csv
-        2,845,724 taxon.tab -> gbif_classification
         */
     }
     function utility_compare_2_DH_09()
     {
-        // self::build_info('gbif_classification');
-        /* Array( some fields were deleted coz its too many to list here:
-            [http://rs.tdwg.org/dwc/terms/taxonID] => 2588702
-            [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
-            [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
-            [http://rs.tdwg.org/dwc/terms/scientificName] => Lichenobactridium Diederich & Etayo
-            [http://rs.tdwg.org/dwc/terms/namePublishedIn] => Flechten Follmann (Cologne), Contributions to Lichenology in Honour of Gerhard Follmann 212 (1995)
-            [http://rs.tdwg.org/dwc/terms/taxonRank] => genus
-            [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Diederich & Etayo
-            [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
-            [http://rs.tdwg.org/dwc/terms/datasetID] => 7ddf754f-d193-4cc9-b351-99906754a03b
-            [http://rs.gbif.org/terms/1.0/canonicalName] => Lichenobactridium
-            [http://eol.org/schema/EOLid] => 37570
-        )*/
-        // self::build_info('DH0.9');
-        /* Array( some fields were deleted coz its too many to list here:
-            [http://rs.tdwg.org/dwc/terms/taxonID] => -100000
-            [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => -100000
-            [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => -79407
-            [http://rs.tdwg.org/dwc/terms/scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
-            [http://rs.tdwg.org/dwc/terms/taxonRank] => species
-            [http://purl.org/dc/terms/source] => gbif:4943435
-            [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
-            [http://rs.gbif.org/terms/1.0/canonicalName] => Frescocyathus nagagreboensis
-            [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Barta-Calmus, 1969
-            [http://rs.tdwg.org/dwc/terms/datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
-            [http://eol.org/schema/EOLid] => 
-            [http://eol.org/schema/EOLidAnnotations] => 
-            [http://eol.org/schema/Landmark] => 
-        )*/
+        self::build_info('gbif_classification');
+        self::build_info('DH0.9');
         self::process_eolpageids_csv();
+        self::write_comparison_report()
+    }
+    private function
+    {
+        $this->gbif_classification[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = $rec['http://eol.org/schema/EOLid']; //gbif_id -> EOLid
+        $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
+        $this->DH_map[$rec['DH_id']] = $rec['EOL_id']; //DH_id -> EOLid
     }
     private function build_info($dwca)
     {
@@ -81,14 +58,14 @@ class GBIF_classificationAPI
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         // print_r($tables); exit;
-        self::process_taxon_4report($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        self::process_taxon_4report($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $dwca);
         
         /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
         */
     }
-    private function process_taxon_4report($meta)
+    private function process_taxon_4report($meta, $dwca)
     {   //print_r($meta);
         echo "\nprocess_taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -103,7 +80,46 @@ class GBIF_classificationAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            /* gbif_classification
+            Array( some fields were deleted coz its too many to list here:
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 2588702
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Lichenobactridium Diederich & Etayo
+                [http://rs.tdwg.org/dwc/terms/namePublishedIn] => Flechten Follmann (Cologne), Contributions to Lichenology in Honour of Gerhard Follmann 212 (1995)
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => genus
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Diederich & Etayo
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+                [http://rs.tdwg.org/dwc/terms/datasetID] => 7ddf754f-d193-4cc9-b351-99906754a03b
+                [http://rs.gbif.org/terms/1.0/canonicalName] => Lichenobactridium
+                [http://eol.org/schema/EOLid] => 37570
+            )*/
+            if($dwca == 'gbif_classification') {
+                $this->gbif_classification[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = $rec['http://eol.org/schema/EOLid']; //gbif_id -> EOLid
+            }
+            /* Array( some fields were deleted coz its too many to list here:
+                [http://rs.tdwg.org/dwc/terms/taxonID] => -100000
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => -100000
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => -79407
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Frescocyathus nagagreboensis Barta-Calmus, 1969
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => species
+                [http://purl.org/dc/terms/source] => gbif:4943435
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+                [http://rs.gbif.org/terms/1.0/canonicalName] => Frescocyathus nagagreboensis
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Barta-Calmus, 1969
+                [http://rs.tdwg.org/dwc/terms/datasetID] => 6cfd67d6-4f9b-400b-8549-1933ac27936f
+                [http://eol.org/schema/EOLid] => 
+                [http://eol.org/schema/EOLidAnnotations] => 
+                [http://eol.org/schema/Landmark] => 
+            )*/
+            if($dwca == 'DH0.9') {
+                if($source = $rec['http://purl.org/dc/terms/source']) {
+                    echo $source."\n";
+                    $gbif_id = self::get_gbif_id_from_source($source)
+                    $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
+                }
+            }
         }
     }
     private function access_dwca($dwca, $expire_seconds = false)
@@ -117,15 +133,18 @@ class GBIF_classificationAPI
         print_r($paths); exit;
         */
         // /* local when developing
-        $paths = Array(
-            "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/",
-            "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/"
-        );
-        
-        $paths = Array(
-            'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
-            'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
-        );
+        if($dwca == 'gbif_classification') {
+            $paths = Array(
+                "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/",
+                "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/"
+            );
+        }
+        if($dwca == 'DH0.9') {
+            $paths = Array(
+                'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
+                'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
+            );
+        }
         // */
         return $paths;
     }
@@ -139,10 +158,27 @@ class GBIF_classificationAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                print_r($rec); exit;
+                // print_r($rec); exit;
+                /* Array(
+                    [DH_id] => -1
+                    [EOL_id] => 2913056
+                )*/
+                $this->DH_map[$rec['DH_id']] = $rec['EOL_id']; //DH_id -> EOLid
             }
         }
     }
+    private function get_gbif_id_from_source($source)
+    {   /*  gbif:4562002
+            WOR:925487,gbif:9077856
+        */
+        $arr = explode(",", $source);
+        $arr = array_map('trim', $source);
+        foreach($arr as $sors) {
+            $arr2 = explode(":", $sors);
+            if($arr2[0] == 'gbif') return $arr2[1];
+        }
+    }
+    /*-------------------------------------- end report here --------------------------------------------*/
     function start()
     {   $paths = self::access_dwca('backbone_dwca');
         $archive_path = $paths['archive_path'];
