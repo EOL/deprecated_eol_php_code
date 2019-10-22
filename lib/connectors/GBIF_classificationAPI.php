@@ -45,10 +45,11 @@ class GBIF_classificationAPI
         self::write_comparison_report();
     }
     private function write_comparison_report()
-    {
+    {   /* just reminder for what these 3 vars are. Debug only
         $this->gbif_classification[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = $rec['http://eol.org/schema/EOLid']; //gbif_id -> EOLid
         $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
         $this->DH_map[$rec['DH_id']] = $rec['EOL_id']; //DH_id -> EOLid
+        */
         $headers = array('GBIF_id', 'EOL_id from API match', 'DH09_id', 'EOL_id from DH09');
         $file = Functions::file_open($this->comparison_report, "w");
         fwrite($file, implode("\t", $headers)."\n");
