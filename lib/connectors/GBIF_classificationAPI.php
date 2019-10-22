@@ -54,7 +54,6 @@ class GBIF_classificationAPI
         $file = Functions::file_open($this->comparison_report, "w");
         fwrite($file, implode("\t", $headers)."\n");
         foreach($this->gbif_classification as $GBIF_id => $EOL_id) {
-            $GBIF_id = ''; $EOL_id = '';
             $DH_id = ''; $EOL_id2 = '';
             if($DH_id = @$this->DH09[$GBIF_id]) {
                 if($EOL_id2 = @$this->DH_map[$DH_id]) {}
