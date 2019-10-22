@@ -31,6 +31,7 @@ class GBIF_classificationAPI
         */
         $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip';
         $this->comparison_report = CONTENT_RESOURCE_LOCAL_PATH.'GBIF_id_EOL_id_coverage_comparison_report.txt';
+        $this->debug = array();
         /*
         2,845,724 taxon.tab -> gbif_classification
         2,724,940 taxa.txt -> eoldynamichierarchywithlandmarks
@@ -43,6 +44,7 @@ class GBIF_classificationAPI
         self::build_info('DH0.9');
         self::process_eolpageids_csv();
         self::write_comparison_report();
+        print_r($this->debug);
     }
     private function write_comparison_report()
     {   /* just reminder for what these 3 vars are. Debug only
@@ -50,7 +52,7 @@ class GBIF_classificationAPI
         $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
         $this->DH_map[$rec['DH_id']] = $rec['EOL_id']; //DH_id -> EOLid
         */
-        $headers = array('GBIF_id', 'EOL_id_from_API_match', 'DH09_taxonID', 'EOL_id_from_DH09');
+        $headers = array('GBIF_id', 'EOL_id_from_API_match', 'DH09_taxonID', 'EOL_id_from_DH09', 'Match_YN');
         $file = Functions::file_open($this->comparison_report, "w");
         fwrite($file, implode("\t", $headers)."\n");
         foreach($this->gbif_classification as $GBIF_id => $EOL_id) {
@@ -60,10 +62,17 @@ class GBIF_classificationAPI
                 else $EOL_id2 = '';
             }
             else $DH_id = '';
-            $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2);
+            $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2, self::match_YN($EOL_id, $EOL_id2));
             fwrite($file, implode("\t", $vals)."\n");
         }
         fclose($file);
+    }
+    private function match_YN($EOL_id, $EOL_id2)
+    {
+        if($EOL_id == $EOL_id2) $ans = 'Yes';
+        else return $ans = 'No';
+        @$this->debug['match_YN'][$ans]++;
+        return $ans;
     }
     private function build_info($dwca)
     {
