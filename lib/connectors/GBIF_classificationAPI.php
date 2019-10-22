@@ -62,16 +62,19 @@ class GBIF_classificationAPI
                 else $EOL_id2 = '';
             }
             else $DH_id = '';
-            $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2, self::match_YN($EOL_id, $EOL_id2));
+            $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2, self::match_YN($EOL_id, $EOL_id2, $DH_id));
             fwrite($file, implode("\t", $vals)."\n");
         }
         fclose($file);
     }
-    private function match_YN($EOL_id, $EOL_id2)
+    private function match_YN($EOL_id, $EOL_id2, $DH_id)
     {
         if($EOL_id == $EOL_id2) $ans = 'Yes';
-        else return $ans = 'No';
-        @$this->debug['match_YN'][$ans]++;
+        else $ans = 'No';
+        
+        if($DH_id) $withDH = 'with DH';
+        else       $withDH = 'without DH';
+        @$this->debug['match_YN'][$withDH][$ans]++;
         return $ans;
     }
     private function build_info($dwca)
