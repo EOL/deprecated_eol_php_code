@@ -50,7 +50,7 @@ class GBIF_classificationAPI
         $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
         $this->DH_map[$rec['DH_id']] = $rec['EOL_id']; //DH_id -> EOLid
         */
-        $headers = array('GBIF_id', 'EOL_id from API match', 'DH09_id', 'EOL_id from DH09');
+        $headers = array('GBIF_id', 'EOL_id_from_API_match', 'DH09_taxonID', 'EOL_id_from_DH09');
         $file = Functions::file_open($this->comparison_report, "w");
         fwrite($file, implode("\t", $headers)."\n");
         foreach($this->gbif_classification as $GBIF_id => $EOL_id) {
