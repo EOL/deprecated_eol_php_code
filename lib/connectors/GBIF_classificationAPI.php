@@ -62,19 +62,19 @@ class GBIF_classificationAPI
                 else $EOL_id2 = '';
             }
             else $DH_id = '';
-            $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2, self::match_YN($EOL_id, $EOL_id2, $DH_id));
+            $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2, self::match_YN($EOL_id, $EOL_id2, $DH_id, $GBIF_id));
             fwrite($file, implode("\t", $vals)."\n");
         }
         fclose($file);
     }
-    private function match_YN($EOL_id, $EOL_id2, $DH_id)
+    private function match_YN($EOL_id, $EOL_id2, $DH_id, $GBIF_id)
     {
         if($EOL_id == $EOL_id2) $ans = 'Yes';
         else $ans = 'No';
-        
         if($DH_id) $withDH = 'with DH';
         else       $withDH = 'without DH';
         @$this->debug['match_YN'][$withDH][$ans]++;
+        if($ans == 'No' && $withDH == 'with DH') $this->debug['to investigate']["$GBIF_id | $EOL_id | $DH_id | $EOL_id2"] = '';
         return $ans;
     }
     private function build_info($dwca)
@@ -96,7 +96,7 @@ class GBIF_classificationAPI
     {   //print_r($meta);
         echo "\nprocess_taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 300000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
