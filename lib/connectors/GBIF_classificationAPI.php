@@ -30,7 +30,7 @@ class GBIF_classificationAPI
         $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
         */
         $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip';
-        
+        $this->comparison_report = CONTENT_RESOURCE_LOCAL_PATH.'GBIF_id_EOL_id_coverage_comparison_report.txt';
         /*
         2,845,724 taxon.tab -> gbif_classification
         2,724,940 taxa.txt -> eoldynamichierarchywithlandmarks
@@ -44,11 +44,24 @@ class GBIF_classificationAPI
         self::process_eolpageids_csv();
         self::write_comparison_report()
     }
-    private function
+    private function write_comparison_report()
     {
         $this->gbif_classification[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = $rec['http://eol.org/schema/EOLid']; //gbif_id -> EOLid
         $this->DH09[$gbif_id] = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //gbif_id -> DH_id
         $this->DH_map[$rec['DH_id']] = $rec['EOL_id']; //DH_id -> EOLid
+        $headers = array('GBIF_id', 'EOL_id from API match', 'DH09_id', 'EOL_id from DH09');
+        $file = Functions::file_open($this->comparison_report, "w");
+        fwrite($file, implode("\t", $headers)."\n");
+        foreach($this->gbif_classification as $GBIF_id => $EOL_id) {
+            if($DH_id = @$this->DH09[$GBIF_id]) {
+                if($EOL_id2 = @$this->DH_map[$DH_id]) {}
+                else $EOL_id2 = false;
+            }
+            else $DH_id = false;
+            $vals = array($GBIF_id, $EOL_id, $DH_id, $EOL_id2);
+            fwrite($file, implode("\t", $vals)."\n");
+        }
+        fclose($file);
     }
     private function build_info($dwca)
     {
