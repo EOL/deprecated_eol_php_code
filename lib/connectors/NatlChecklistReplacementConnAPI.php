@@ -23,27 +23,40 @@ class NatlChecklistReplacementConnAPI
             $this->service["backbone_dwca"] = "http://localhost/cp/GBIF_Backbone_Archive/backbone-current.zip";
             $this->service["gbif_classification"] = "/Volumes/MacMini_HD2/work_temp/gbif_classification.tar.gz";
         }
-        */
         $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'xxx.txt';
+        */
+        
+        /* Generated respectively from gbif.org. Will receive email when download is complete. Will last in GBIF for 6 months starting now Oct 23, 2019
+        https://www.gbif.org/occurrence/search?country=AI
+        https://www.gbif.org/occurrence/search?country=AW
+        https://www.gbif.org/occurrence/search?country=BH
+        $this->service['c_BH'] = 'http://api.gbif.org/v1/occurrence/download/request/0027457-190918142434337.zip';
+        $this->service['c_AI'] = 'http://api.gbif.org/v1/occurrence/download/request/0027458-190918142434337.zip';
+        $this->service['c_AW'] = 'http://api.gbif.org/v1/occurrence/download/request/0027503-190918142434337.zip';
+        */
+        $this->service['c_BH'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Bahrain_0027457-190918142434337.zip';
+        $this->service['c_AI'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip';
+        $this->service['c_AW'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip';
         $this->debug = array();
+        $this->fields['taxa'] = array('http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 'http://rs.tdwg.org/dwc/terms/phylum', 
+            'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 'http://rs.tdwg.org/dwc/terms/genus', 
+            'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks');
     }
     function start()
-    {   $paths = self::access_dwca('backbone_dwca');
+    {   $paths = self::access_dwca($this->resource_id);
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
-        if(!($this->fields["taxa"] = $tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
+        
+        if(!($this->fields["taxa"] = $tables["http://rs.tdwg.org/dwc/terms/occurrence"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
-
-        if(!($file = Functions::file_open($this->log_file, "w"))) return;
-        fwrite($file, implode("\t", array('taxonID', 'scientificName', 'searched string', 'flag'))."\n");
-        fclose($file);
         
-        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        print_r($this->debug); exit("\nexit muna\n");
         $this->archive_builder->finalize(TRUE);
 
         // /* un-comment in real operation
@@ -55,34 +68,26 @@ class NatlChecklistReplacementConnAPI
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
-        print_r($paths); exit;
-        */
-        // /* local when developing
-        if($dwca == 'gbif_classification') {
-            $paths = Array(
-                "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/",
-                "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/"
-            );
-        }
-        if($dwca == 'DH0.9') {
-            $paths = Array(
-                'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
-                'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
-            );
-        }
+        // print_r($paths); exit;
         // */
+        /* local when developing
+        $paths = Array(
+            "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/xxx/",
+            "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/xxx/"
+        );
+        */
         return $paths;
     }
-    private function process_taxon($meta)
+    private function process_occurrence($meta)
     {   //print_r($meta);
         require_library('connectors/Eol_v3_API');
         $func = new Eol_v3_API();
         
-        echo "\nprocess_taxon...\n"; $i = 0;
+        echo "\nprocess_occurrence...\n"; $i = 0;
         $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -97,15 +102,106 @@ class NatlChecklistReplacementConnAPI
                 $k++;
             }
             // print_r($rec); exit;
-            /**/
+            /*Array( bec. list is too long, many where removed
+                [http://rs.gbif.org/terms/1.0/gbifID] => 2429025981
+                [http://purl.org/dc/terms/audience] => 
+                [http://purl.org/dc/terms/bibliographicCitation] => 
+                [http://purl.org/dc/terms/contributor] => 
+                [http://purl.org/dc/terms/created] => 
+                [http://purl.org/dc/terms/creator] => 
+                [http://purl.org/dc/terms/date] => 
+                [http://purl.org/dc/terms/dateAccepted] => 
+                [http://purl.org/dc/terms/dateSubmitted] => 
+                [http://purl.org/dc/terms/description] => 
+                [http://purl.org/dc/terms/format] => 
+                [http://purl.org/dc/terms/identifier] => 79231
+                [http://purl.org/dc/terms/instructionalMethod] => 
+                [http://purl.org/dc/terms/license] => CC_BY_4_0
+                [http://purl.org/dc/terms/modified] => 2017-11-23T11:52:23.683Z
+                [http://purl.org/dc/terms/publisher] => 
+                [http://purl.org/dc/terms/references] => 
+                [http://purl.org/dc/terms/rights] => 
+                [http://purl.org/dc/terms/rightsHolder] => 
+                [http://purl.org/dc/terms/source] => 
+                [http://purl.org/dc/terms/title] => 
+                [http://purl.org/dc/terms/type] => 
+                [http://rs.tdwg.org/dwc/terms/institutionID] => 
+                [http://rs.tdwg.org/dwc/terms/collectionID] => 
+                [http://rs.tdwg.org/dwc/terms/datasetID] => 
+                [http://rs.tdwg.org/dwc/terms/institutionCode] => K
+                [http://rs.tdwg.org/dwc/terms/collectionCode] => Economic Botany Collection
+                [http://rs.tdwg.org/dwc/terms/datasetName] => 
+                [http://rs.tdwg.org/dwc/terms/ownerInstitutionCode] => 
+                [http://rs.tdwg.org/dwc/terms/basisOfRecord] => UNKNOWN
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 
+                [http://rs.tdwg.org/dwc/terms/catalogNumber] => 79231
+                [http://rs.tdwg.org/dwc/terms/recordNumber] => 
+                [http://rs.tdwg.org/dwc/terms/recordedBy] => Nesbitt M
+                [http://rs.tdwg.org/dwc/terms/individualCount] => 
+                [http://rs.tdwg.org/dwc/terms/organismQuantity] => 
+                [http://rs.tdwg.org/dwc/terms/organismQuantityType] => 
+                [http://rs.tdwg.org/dwc/terms/sex] => 
+                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+                [http://rs.tdwg.org/dwc/terms/establishmentMeans] => 
+                [http://rs.tdwg.org/dwc/terms/occurrenceStatus] => 
+                [http://rs.tdwg.org/dwc/terms/preparations] => 
+                [http://rs.tdwg.org/dwc/terms/disposition] => 
+                [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/organismID] => 
+                [http://rs.tdwg.org/dwc/terms/organismName] => 
+                [http://rs.tdwg.org/dwc/terms/organismScope] => 
+                [http://rs.tdwg.org/dwc/terms/organismRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/eventDate] => 
+                [http://rs.tdwg.org/dwc/terms/verbatimEventDate] => 
+                [http://rs.tdwg.org/dwc/terms/habitat] => 
+                [http://rs.tdwg.org/dwc/terms/samplingProtocol] => 
+                [http://rs.tdwg.org/dwc/terms/samplingEffort] => 
+                [http://rs.tdwg.org/dwc/terms/sampleSizeValue] => 
+                [http://rs.tdwg.org/dwc/terms/sampleSizeUnit] => 
+                [http://rs.tdwg.org/dwc/terms/fieldNotes] => 
+                [http://rs.tdwg.org/dwc/terms/eventRemarks] => Purchased in market
+                [http://rs.tdwg.org/dwc/terms/locationID] => 
+                [http://rs.tdwg.org/dwc/terms/higherGeographyID] => 
+                [http://rs.tdwg.org/dwc/terms/higherGeography] => Bahrain
+                [http://rs.tdwg.org/dwc/terms/countryCode] => BH
+                [http://rs.tdwg.org/dwc/terms/locality] => Bahrain, village of Saar.
+                [http://rs.tdwg.org/dwc/terms/identificationID] => 
+                [http://rs.tdwg.org/dwc/terms/identificationQualifier] => 
+                [http://rs.tdwg.org/dwc/terms/typeStatus] => 
+                [http://rs.tdwg.org/dwc/terms/identifiedBy] => 
+                [http://rs.tdwg.org/dwc/terms/dateIdentified] => 
+
+                [http://rs.gbif.org/terms/1.0/datasetKey] => 1d31211e-350e-492a-a597-34d24bbc1769
+                [http://rs.gbif.org/terms/1.0/publishingCountry] => GB
+
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Phoenix dactylifera L.
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Plantae
+                [http://rs.tdwg.org/dwc/terms/phylum] => Tracheophyta
+                [http://rs.tdwg.org/dwc/terms/class] => Liliopsida
+                [http://rs.tdwg.org/dwc/terms/order] => Arecales
+                [http://rs.tdwg.org/dwc/terms/family] => Arecaceae
+                [http://rs.tdwg.org/dwc/terms/genus] => Phoenix
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => SPECIES
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => ACCEPTED
+                [http://rs.tdwg.org/dwc/terms/taxonRemarks] => 
+                
+                [http://rs.gbif.org/terms/1.0/taxonKey] => 6109699
+                [http://rs.gbif.org/terms/1.0/acceptedTaxonKey] => 6109699
+                [http://rs.gbif.org/terms/1.0/speciesKey] => 6109699
+            )*/
+            $this->debug[$rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']] = '';
+            // if($val = self::get_taxonID($rec)) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
+            // else continue;
+            
             // if($i >= 10) break;
         }
     }
-    private function log_record($rec, $sciname = '', $flag = '')
+    private function get_taxonID($rec)
     {
-        if(!($file = Functions::file_open($this->log_file, "a"))) return;
-        fwrite($file, implode("\t", array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], $rec['http://rs.tdwg.org/dwc/terms/scientificName'], "[$sciname]", $flag))."\n");
-        fclose($file);
+        if($val = @$rec['http://rs.gbif.org/terms/1.0/taxonKey']) return $val;
+        elseif($val = @$rec['http://rs.gbif.org/terms/1.0/acceptedTaxonKey']) return $val;
+        elseif($val = @$rec['http://rs.gbif.org/terms/1.0/speciesKey']) return $val;
+        return false;
     }
     private function write_archive($rec, $eol_rec)
     {
@@ -120,5 +216,13 @@ class NatlChecklistReplacementConnAPI
         }
         $this->archive_builder->write_object_to_file($taxon);
     }
+    /* copied template
+    private function log_record($rec, $sciname = '', $flag = '')
+    {
+        if(!($file = Functions::file_open($this->log_file, "a"))) return;
+        fwrite($file, implode("\t", array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], $rec['http://rs.tdwg.org/dwc/terms/scientificName'], "[$sciname]", $flag))."\n");
+        fclose($file);
+    }
+    */
 }
 ?>
