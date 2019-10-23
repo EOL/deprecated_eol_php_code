@@ -250,9 +250,11 @@ class NatlChecklistReplacementConnAPI
         
         //for child http://eol.org/schema/terms/SampleSize
         $save = array();
-        $save['parentMeasurementID'] = $ret['measurementID'];
-        $mValue = $this->debug['samplesize'][$taxon_id];
         $mType = 'http://eol.org/schema/terms/SampleSize';
+        $mValue = $this->info['samplesize'][$taxon_id];
+        $save['taxon_id'] = $taxon_id;
+        $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+        $save['parentMeasurementID'] = $ret['measurementID'];
         if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "child");
     }
     private function valid_statusYN($status)
@@ -286,7 +288,7 @@ class NatlChecklistReplacementConnAPI
             if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) $taxon->$rank = '';
         }
         // */
-        @$this->debug['samplesize'][$taxon->taxonID]++;
+        @$this->info['samplesize'][$taxon->taxonID]++;
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
