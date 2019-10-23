@@ -879,7 +879,7 @@ class GBIFCountryTypeRecordAPI
         return;
         */
     }
-    private function get_contributor_name($url)
+    private function get_contributor_name($url) //for GBIF only
     {
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             // <title property="dc:title">Herbarium Berolinense - Dataset detail</title>
