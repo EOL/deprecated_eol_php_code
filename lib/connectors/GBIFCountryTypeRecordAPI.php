@@ -637,7 +637,7 @@ class GBIFCountryTypeRecordAPI
         if($rec["country"] == "Sweden") {
             if($datasetKey = (string) $rec["http://rs.gbif.org/terms/1.0/datasetKey"]) {
                 if(!$institutionCode_uri = self::get_uri($datasetKey, "datasetKey")) return;
-                $institutionCode = self::get_contributor_name("http://www.gbif.org/dataset/" . $datasetKey);
+                $institutionCode = self::get_contributor_name($datasetKey);
             }
         }
         else {
@@ -660,7 +660,7 @@ class GBIFCountryTypeRecordAPI
 
         /* datasetKey --- use to construct http://purl.org/dc/terms/contributor, eg: http://www.gbif.org/dataset/85714c48-f762-11e1-a439-00145eb45e9a */
         if($val = (string) $rec["http://rs.gbif.org/terms/1.0/datasetKey"]) {
-            $rec["contributor"] = self::get_contributor_name("http://www.gbif.org/dataset/" . $val);
+            $rec["contributor"] = self::get_contributor_name($val);
         }
 
         if($institutionCode_uri && $typeStatus_uri) {
@@ -879,8 +879,9 @@ class GBIFCountryTypeRecordAPI
         return;
         */
     }
-    private function get_contributor_name($url) //for GBIF only
+    public function get_contributor_name($datasetKey) //for GBIF only
     {
+        $url = "http://www.gbif.org/dataset/".$datasetKey;
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             // <title property="dc:title">Herbarium Berolinense - Dataset detail</title>
             if(preg_match("/\"dc:title\">(.*?)\- Dataset detail/ims", $html, $arr)) {
