@@ -18,7 +18,7 @@ unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 */
 // /* utility
-$func->utility_compare_2_DH_09();
+$func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
 // */
 
 /* utility ========================== works OK

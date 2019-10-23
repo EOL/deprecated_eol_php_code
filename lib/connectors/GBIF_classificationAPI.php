@@ -38,7 +38,7 @@ class GBIF_classificationAPI
         2,724,668 eolpageids.csv
         */
     }
-    function utility_compare_2_DH_09()
+    function utility_compare_2_DH_09() //just ran locally. Not yet in eol-archive
     {
         self::build_info('gbif_classification');
         self::build_info('DH0.9');
