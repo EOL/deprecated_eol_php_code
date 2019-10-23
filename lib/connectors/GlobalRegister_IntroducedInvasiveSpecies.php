@@ -658,10 +658,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    private function get_dataset_info($dataset_key)
+    public function get_dataset_info($dataset_key)
     {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //delibarately false, coz dataset info doesn't change that much
         $url = str_replace('DATASET_KEY', $dataset_key, $this->service['dataset']);
-        if($xml = Functions::lookup_with_cache($url, $this->download_options)) {
+        if($xml = Functions::lookup_with_cache($url, $options)) {
             if(preg_match_all("/<alternateIdentifier>(.*?)<\/alternateIdentifier>/ims", $xml, $arr)) {
                 foreach($arr[1] as $aI) {
                     if(substr($aI,0,4) == 'http') {

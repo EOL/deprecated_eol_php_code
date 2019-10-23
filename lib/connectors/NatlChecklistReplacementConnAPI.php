@@ -208,12 +208,18 @@ class NatlChecklistReplacementConnAPI
             if($val = self::get_taxonID($rec)) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
             else continue;
             // -------------------------------------------------------------------------------------------------
+            if($dataset_key = $rec['http://rs.gbif.org/terms/1.0/datasetKey']) {
+                $ret = $this->func_griis->get_dataset_info($dataset_key);
+                print_r($ret); //exit;
+            }
+            // -------------------------------------------------------------------------------------------------
+            
             if($what == 'taxa') {
                 self::write_taxon($rec);
             }
             if($what == 'MoF') {
                 self::write_MoF($rec);
-                if($i >= 20) break;
+                if($i >= 10) break;
             }
             // if($i >= 20) break;
         }
