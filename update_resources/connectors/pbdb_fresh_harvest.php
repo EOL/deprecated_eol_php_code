@@ -46,6 +46,19 @@ rows of 4
 368	Wednesday 2019-10-02 05:25:42 AM	                {"measurement_or_fact.tab":2337888,"occurrence.tab":527040,"taxon.tab":383910,"vernacular_name.tab":6280}
 368_removed_aves	Wednesday 2019-10-02 06:07:17 AM	{"measurement_or_fact_specific.tab":2286206,"occurrence.tab":516498,"taxon.tab":378639,"vernacular_name.tab":4540}
 368_final	Wednesday 2019-10-02 06:19:59 AM	        {"measurement_or_fact_specific.tab":2286206,"occurrence.tab":516498,"taxon.tab":369789,"vernacular_name.tab":4540}
+
+Reminders:
+# Three (3) connectors to run, one after the other - OK
+
+# OK
+php5.6 pbdb_fresh_harvest.php jenkins #this generates 368.tar.gz
+
+# This will adjust newly generated 368.tar.gz. 
+# It'll remove all Aves descendants as requested.
+php5.6 remove_Aves_children_from_368.php jenkins #this generates 368_removed_aves.tar.gz
+
+# This will remove bad synonyms
+php5.6 synonyms_handling.php jenkins 368_final #this generates 368_final.tar.gz
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
