@@ -29,7 +29,7 @@ $func = new NatlChecklistReplacementConnAPI($resource_id);
 // /* main operation
 $func->start();
 unset($func);
-Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param can be 'true' on normal operation - delete folder
 // */
 
 /* utility ========================== from copied template

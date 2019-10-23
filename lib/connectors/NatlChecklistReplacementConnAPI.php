@@ -38,7 +38,7 @@ class NatlChecklistReplacementConnAPI
         $this->service['c_AI'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip';
         $this->service['c_AW'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip';
         $this->debug = array();
-        $this->fields['taxa'] = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 
+        $this->fields_4taxa = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 
             'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 
             'http://rs.tdwg.org/dwc/terms/genus', 'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks');
     }
@@ -84,11 +84,7 @@ class NatlChecklistReplacementConnAPI
     }
     private function process_occurrence($meta)
     {   //print_r($meta);
-        require_library('connectors/Eol_v3_API');
-        $func = new Eol_v3_API();
-        
         echo "\nprocess_occurrence...\n"; $i = 0;
-        $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -199,8 +195,8 @@ class NatlChecklistReplacementConnAPI
             if($val = self::get_taxonID($rec)) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
             else continue;
             // -------------------------------------------------------------------------------------------------
-            
-            if($i >= 100) break;
+            self::write_taxon($rec);
+            if($i >= 20) break;
         }
     }
     private function valid_statusYN($status)
@@ -222,13 +218,22 @@ class NatlChecklistReplacementConnAPI
     }
     private function write_taxon($rec)
     {
-        $fields = $this->fields['taxa'];
+        $fields = $this->fields_4taxa;
+        // print_r($fields); exit;
         $taxon = new \eol_schema\Taxon();
         foreach($fields as $field) {
             $var = pathinfo($field, PATHINFO_BASENAME);
             $taxon->$var = $rec[$field];
         }
-        $this->archive_builder->write_object_to_file($taxon);
+        // /* Eli's initiative: if rank is 'genus' then $taxon->genus should be blank
+        if($rank = @$rec['http://rs.tdwg.org/dwc/terms/taxonRank']) {
+            if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) $taxon->$rank = '';
+        }
+        // */
+        if(!isset($this->taxon_ids[$taxon->taxonID])) {
+            $this->archive_builder->write_object_to_file($taxon);
+            $this->taxon_ids[$taxon->taxonID] = '';
+        }
     }
     /* copied template
     private function log_record($rec, $sciname = '', $flag = '')
