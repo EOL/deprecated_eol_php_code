@@ -10,6 +10,10 @@ itis_2019-08-28	Friday 2019-09-27 10:32:35 AM	{"taxon.tab":804287,"vernacular_na
 itis_2019-08-28	Friday 2019-09-27 10:47:46 AM	{"taxon.tab":804287,"vernacular_name.tab":113136} eol-archive
 itis_2019-08-28	Monday 2019-09-30 06:17:33 AM	{"taxon.tab":802601,"vernacular_name.tab":113136} eol-archive
 itis_2019-08-28	Monday 2019-09-30 10:24:36 AM	{"taxon.tab":802601,"vernacular_name.tab":113136} Mac Mini
+
+Reminders: what is in Jenkins eol-archive. Run one after the other.
+php5.6 dwh_itis.php jenkins
+php5.6 synonyms_handling.php jenkins itis_2019-08-28
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -29,7 +33,7 @@ $resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);
 $func->start(); //main operation
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 // */
 
 // /* newly refactored routine
