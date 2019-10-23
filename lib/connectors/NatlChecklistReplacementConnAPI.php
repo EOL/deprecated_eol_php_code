@@ -38,9 +38,9 @@ class NatlChecklistReplacementConnAPI
         $this->service['c_AI'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip';
         $this->service['c_AW'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip';
         $this->debug = array();
-        $this->fields['taxa'] = array('http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 'http://rs.tdwg.org/dwc/terms/phylum', 
-            'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 'http://rs.tdwg.org/dwc/terms/genus', 
-            'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks');
+        $this->fields['taxa'] = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 
+            'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 
+            'http://rs.tdwg.org/dwc/terms/genus', 'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks');
     }
     function start()
     {   $paths = self::access_dwca($this->resource_id);
@@ -56,7 +56,7 @@ class NatlChecklistReplacementConnAPI
         }
         
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        print_r($this->debug); exit("\nexit muna\n");
+        print_r($this->debug); //exit("\nexit muna\n");
         $this->archive_builder->finalize(TRUE);
 
         // /* un-comment in real operation
@@ -189,12 +189,29 @@ class NatlChecklistReplacementConnAPI
                 [http://rs.gbif.org/terms/1.0/acceptedTaxonKey] => 6109699
                 [http://rs.gbif.org/terms/1.0/speciesKey] => 6109699
             )*/
-            $this->debug[$rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']] = '';
-            // if($val = self::get_taxonID($rec)) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
-            // else continue;
+            // -------------------------------------------------------------------------------------------------
+            $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
+            $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
+            // -------------------------------------------------------------------------------------------------
+            $taxonomicStatus = $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'];
+            $this->debug[$taxonomicStatus] = ''; //stats only
+            if(!self::valid_statusYN($taxonomicStatus)) continue;
+            if($val = self::get_taxonID($rec)) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
+            else continue;
+            // -------------------------------------------------------------------------------------------------
             
-            // if($i >= 10) break;
+            if($i >= 100) break;
         }
+    }
+    private function valid_statusYN($status)
+    {   /*Array(
+            [ACCEPTED] => 
+            [SYNONYM] => 
+            [] => 
+            [DOUBTFUL] => 
+        )*/
+        if(in_array($status, array('accepted', ''))) return true;
+        return false;
     }
     private function get_taxonID($rec)
     {
@@ -203,15 +220,12 @@ class NatlChecklistReplacementConnAPI
         elseif($val = @$rec['http://rs.gbif.org/terms/1.0/speciesKey']) return $val;
         return false;
     }
-    private function write_archive($rec, $eol_rec)
+    private function write_taxon($rec)
     {
-        $fields = array_keys($rec);
-        /**/
+        $fields = $this->fields['taxa'];
         $taxon = new \eol_schema\Taxon();
-        $taxon->EOLid = $eol_rec['id'];
         foreach($fields as $field) {
             $var = pathinfo($field, PATHINFO_BASENAME);
-            if(in_array($var, array('genericName'))) continue;
             $taxon->$var = $rec[$field];
         }
         $this->archive_builder->write_object_to_file($taxon);
