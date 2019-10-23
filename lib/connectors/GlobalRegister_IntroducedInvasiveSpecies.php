@@ -483,7 +483,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             return $orig;
         }
     }
-    private function get_mType_4distribution($oS, $eM)
+    public function get_mType_4distribution($oS, $eM)
     {
         /*
         [present:introduced] =>http://eol.org/schema/terms/IntroducedRange

@@ -30,38 +30,45 @@ class NatlChecklistReplacementConnAPI
         https://www.gbif.org/occurrence/search?country=AI
         https://www.gbif.org/occurrence/search?country=AW
         https://www.gbif.org/occurrence/search?country=BH
-        $this->service['c_BH'] = 'http://api.gbif.org/v1/occurrence/download/request/0027457-190918142434337.zip';
-        $this->service['c_AI'] = 'http://api.gbif.org/v1/occurrence/download/request/0027458-190918142434337.zip';
-        $this->service['c_AW'] = 'http://api.gbif.org/v1/occurrence/download/request/0027503-190918142434337.zip';
+        $this->c_service['c_BH'] = 'http://api.gbif.org/v1/occurrence/download/request/0027457-190918142434337.zip';
+        $this->c_service['c_AI'] = 'http://api.gbif.org/v1/occurrence/download/request/0027458-190918142434337.zip';
+        $this->c_service['c_AW'] = 'http://api.gbif.org/v1/occurrence/download/request/0027503-190918142434337.zip';
         */
-        $this->service['c_BH'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Bahrain_0027457-190918142434337.zip';
-        $this->service['c_AI'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip';
-        $this->service['c_AW'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip';
-        $this->bcitation['c_BH'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.tewqob';
-        $this->bcitation['c_AI'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.psdkxm';
-        $this->bcitation['c_AW'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.n3l3pq';
+        $this->c_service['c_BH'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Bahrain_0027457-190918142434337.zip';
+        $this->c_service['c_AI'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip';
+        $this->c_service['c_AW'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip';
+        $this->c_citation['c_BH'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.tewqob';
+        $this->c_citation['c_AI'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.psdkxm';
+        $this->c_citation['c_AW'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.n3l3pq';
+
+        $this->c_source['c_BH'] = 'https://doi.org/10.15468/dl.tewqob';
+        $this->c_source['c_AI'] = 'https://doi.org/10.15468/dl.psdkxm';
+        $this->c_source['c_AW'] = 'https://doi.org/10.15468/dl.n3l3pq';
+
+        $this->c_mValue['c_BH'] = 'http://www.geonames.org/290291';
+        $this->c_mValue['c_AI'] = 'http://www.geonames.org/3573512';
+        $this->c_mValue['c_AW'] = 'http://www.geonames.org/3577279';
         $this->debug = array();
         $this->fields_4taxa = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 
             'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 
             'http://rs.tdwg.org/dwc/terms/genus', 'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks');
     }
     function start()
-    {   
-        require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+    {   require_library('connectors/TraitGeneric');                             $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies'); $this->func_griis = new GlobalRegister_IntroducedInvasiveSpecies(false);
         
         $paths = self::access_dwca($this->resource_id);
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
-        
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
-        
         if(!($this->fields["taxa"] = $tables["http://rs.tdwg.org/dwc/terms/occurrence"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
         
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'taxa');
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'MoF');
         print_r($this->debug); //exit("\nexit muna\n");
         $this->archive_builder->finalize(TRUE);
 
@@ -77,7 +84,7 @@ class NatlChecklistReplacementConnAPI
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
+        $paths = $func->extract_archive_file($this->c_service[$dwca], "meta.xml", $download_options);
         // print_r($paths); exit;
         // */
         /* local when developing
@@ -88,7 +95,7 @@ class NatlChecklistReplacementConnAPI
         */
         return $paths;
     }
-    private function process_occurrence($meta)
+    private function process_occurrence($meta, $what)
     {   //print_r($meta);
         echo "\nprocess_occurrence...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -201,56 +208,52 @@ class NatlChecklistReplacementConnAPI
             if($val = self::get_taxonID($rec)) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
             else continue;
             // -------------------------------------------------------------------------------------------------
-            self::write_taxon($rec);
-            self::write_MoF($rec);
-            if($i >= 20) break;
+            if($what == 'taxa') {
+                self::write_taxon($rec);
+            }
+            if($what == 'MoF') {
+                self::write_MoF($rec);
+                if($i >= 20) break;
+            }
+            // if($i >= 20) break;
         }
     }
     private function write_MoF($rec)
     {
-        $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
-        $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
-        if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
-        //===========================================================================================================================================================
-        /* For distribution: the usual columns are countryCode, occurrenceStatus, establishmentMeans. 
-        - measurementValue will come from countryCode 
-        (if you don't need me to map those, please go ahead and match them to our country URIs; I'm happy to help with mapping if needed). 
-        - measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
-        and I'll make you a mapping to measurementType from that.
+        $mValue = $this->c_mValue[$this->resource_id];
+        /* may not be ideal - let us wait for instruction
+        $mType = $this->func_griis->get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+        if(!$mType) $mType = 'http://eol.org/schema/terms/Present';
         */
-        $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
-        $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+        $mType = 'http://eol.org/schema/terms/Present';
+        
+        // $occur_locality = '';
+        // if($val = @$rec['http://rs.tdwg.org/dwc/terms/locationID']) $occur_locality = $val;
+        // if($val = @$rec['http://rs.tdwg.org/dwc/terms/locality']) $occur_locality = $val;
 
-        // /* from speciesprofile specs
-        if(isset($this->taxon_id_with_mType_InvasiveRange[$taxonID])) $mType = 'http://eol.org/schema/terms/InvasiveRange';
-        // */
-
-        /* Thanks for the additional fields report! The terrain is not as messy as I'd feared. 
-        Let's map both http://rs.tdwg.org/dwc/terms/locality and http://rs.tdwg.org/dwc/terms/locationID to http://rs.tdwg.org/dwc/terms/locality. 
-        I think the simple method would be to attach it as a column in measurementOrFact? Feel free to use whatever method you think best, though. 
-        If both columns are present (eg: the Belgium file) discard locationID and use locality.
-        */
-        $occur_locality = '';
-        if($val = @$rec['http://rs.tdwg.org/dwc/terms/locationID']) $occur_locality = $val;
-        if($val = @$rec['http://rs.tdwg.org/dwc/terms/locality']) $occur_locality = $val;
-
-        if(!$mType) continue; //exclude DISCARD
         $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
         $save = array();
         $save['taxon_id'] = $taxon_id;
         $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-        $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
-        $save['occur']['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
-        $save['occur']['locality'] = $occur_locality;
-        $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate'];
-        $save['occur']['occurrenceRemarks'] = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'];
-        /* by Eli
-        $save['source'] = self::get_source_from_taxonID_or_source($rec);
-        */
-        $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
-        $save['source'] = $this->dataset_page.$this->current_dataset_key;
-        if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+        // $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")"; copied template
+        // $save['occur']['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
+        // $save['occur']['locality'] = $occur_locality;
+        // $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate']; copied template
         
+        // $save['occur']['recordedBy'] = @$rec['http://rs.tdwg.org/dwc/terms/recordedBy']; let us wait for instruction
+        
+        // $save['occur']['modified'] = @$rec['http://purl.org/dc/terms/modified']; let us wait for instruction
+        // $save['occur']['occurrenceRemarks'] = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']; copied template
+        $save['bibliographicCitation'] = $this->c_citation[$this->resource_id];
+        $save['source'] = $this->c_source[$this->resource_id];
+        if($mValue && $mType) $ret = $this->func->add_string_types($save, $mValue, $mType, "true");
+        
+        //for child http://eol.org/schema/terms/SampleSize
+        $save = array();
+        $save['parentMeasurementID'] = $ret['measurementID'];
+        $mValue = $this->debug['samplesize'][$taxon_id];
+        $mType = 'http://eol.org/schema/terms/SampleSize';
+        if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "child");
     }
     private function valid_statusYN($status)
     {   /*Array(
@@ -283,6 +286,7 @@ class NatlChecklistReplacementConnAPI
             if(in_array($rank, array('kingdom', 'phylum', 'class', 'order', 'family', 'genus'))) $taxon->$rank = '';
         }
         // */
+        @$this->debug['samplesize'][$taxon->taxonID]++;
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';
