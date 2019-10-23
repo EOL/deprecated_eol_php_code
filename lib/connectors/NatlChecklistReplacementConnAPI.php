@@ -37,13 +37,19 @@ class NatlChecklistReplacementConnAPI
         $this->service['c_BH'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Bahrain_0027457-190918142434337.zip';
         $this->service['c_AI'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip';
         $this->service['c_AW'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip';
+        $this->bcitation['c_BH'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.tewqob';
+        $this->bcitation['c_AI'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.psdkxm';
+        $this->bcitation['c_AW'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.n3l3pq';
         $this->debug = array();
         $this->fields_4taxa = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 
             'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 
             'http://rs.tdwg.org/dwc/terms/genus', 'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks');
     }
     function start()
-    {   $paths = self::access_dwca($this->resource_id);
+    {   
+        require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
+        $paths = self::access_dwca($this->resource_id);
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         
@@ -196,8 +202,55 @@ class NatlChecklistReplacementConnAPI
             else continue;
             // -------------------------------------------------------------------------------------------------
             self::write_taxon($rec);
+            self::write_MoF($rec);
             if($i >= 20) break;
         }
+    }
+    private function write_MoF($rec)
+    {
+        $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+        $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
+        if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
+        //===========================================================================================================================================================
+        /* For distribution: the usual columns are countryCode, occurrenceStatus, establishmentMeans. 
+        - measurementValue will come from countryCode 
+        (if you don't need me to map those, please go ahead and match them to our country URIs; I'm happy to help with mapping if needed). 
+        - measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
+        and I'll make you a mapping to measurementType from that.
+        */
+        $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
+        $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+
+        // /* from speciesprofile specs
+        if(isset($this->taxon_id_with_mType_InvasiveRange[$taxonID])) $mType = 'http://eol.org/schema/terms/InvasiveRange';
+        // */
+
+        /* Thanks for the additional fields report! The terrain is not as messy as I'd feared. 
+        Let's map both http://rs.tdwg.org/dwc/terms/locality and http://rs.tdwg.org/dwc/terms/locationID to http://rs.tdwg.org/dwc/terms/locality. 
+        I think the simple method would be to attach it as a column in measurementOrFact? Feel free to use whatever method you think best, though. 
+        If both columns are present (eg: the Belgium file) discard locationID and use locality.
+        */
+        $occur_locality = '';
+        if($val = @$rec['http://rs.tdwg.org/dwc/terms/locationID']) $occur_locality = $val;
+        if($val = @$rec['http://rs.tdwg.org/dwc/terms/locality']) $occur_locality = $val;
+
+        if(!$mType) continue; //exclude DISCARD
+        $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+        $save = array();
+        $save['taxon_id'] = $taxon_id;
+        $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+        $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
+        $save['occur']['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
+        $save['occur']['locality'] = $occur_locality;
+        $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate'];
+        $save['occur']['occurrenceRemarks'] = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'];
+        /* by Eli
+        $save['source'] = self::get_source_from_taxonID_or_source($rec);
+        */
+        $save['bibliographicCitation'] = @$rec['http://purl.org/dc/terms/source'];
+        $save['source'] = $this->dataset_page.$this->current_dataset_key;
+        if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+        
     }
     private function valid_statusYN($status)
     {   /*Array(
