@@ -9,12 +9,13 @@ http://ipt.ala.org.au/rss.do
 */
 class GlobalRegister_IntroducedInvasiveSpecies
 {
-    function __construct($resource_id)
+    function __construct($resource_id, $makeDwCA = true)
     {
         $this->resource_id = $resource_id;
-
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        if($makeDwCA) {
+            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        }
         
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 
         'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
@@ -664,6 +665,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $options['expire_seconds'] = false; //delibarately false, coz dataset info doesn't change that much
         $url = str_replace('DATASET_KEY', $dataset_key, $this->service['dataset']);
         if($xml = Functions::lookup_with_cache($url, $options)) {
+            if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
+            else exit("\nInvestigate: cannot get dataset name ($dataset_key)\n");
+            $aI = ''; $download_url = '';
             if(preg_match_all("/<alternateIdentifier>(.*?)<\/alternateIdentifier>/ims", $xml, $arr)) {
                 foreach($arr[1] as $aI) {
                     if(substr($aI,0,4) == 'http') {
@@ -672,13 +676,14 @@ class GlobalRegister_IntroducedInvasiveSpecies
                         https://ipt.inbo.be/resource?r=unified-checklist        -   https://ipt.inbo.be/archive.do?r=unified-checklist
                         http://ipt.ala.org.au/resource?r=griis-united_kingdom   -   http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
                         */
-                        if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
                         $download_url = str_replace('resource?', 'archive.do?', $aI);
-                        return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url, 'citation' => '');
                     }
                 }
             }
+            // echo "\n --- $dataset_name\n";
+            return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url, 'citation' => '');
         }
+        else exit("\ndataset_key ($dataset_key) not found...\n");
     }
     private function get_all_dataset_keys()
     {

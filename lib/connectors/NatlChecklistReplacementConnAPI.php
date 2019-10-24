@@ -55,7 +55,7 @@ class NatlChecklistReplacementConnAPI
     }
     function start()
     {   require_library('connectors/TraitGeneric');                             $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies'); $this->func_griis = new GlobalRegister_IntroducedInvasiveSpecies(false);
+        require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies'); $this->func_griis = new GlobalRegister_IntroducedInvasiveSpecies('griis');
         
         $paths = self::access_dwca($this->resource_id);
         $archive_path = $paths['archive_path'];
@@ -99,7 +99,7 @@ class NatlChecklistReplacementConnAPI
     {   //print_r($meta);
         echo "\nprocess_occurrence...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -210,7 +210,7 @@ class NatlChecklistReplacementConnAPI
             // -------------------------------------------------------------------------------------------------
             if($dataset_key = $rec['http://rs.gbif.org/terms/1.0/datasetKey']) {
                 $ret = $this->func_griis->get_dataset_info($dataset_key);
-                print_r($ret); //exit;
+                // print_r($ret); //exit;
             }
             // -------------------------------------------------------------------------------------------------
             
@@ -219,7 +219,7 @@ class NatlChecklistReplacementConnAPI
             }
             if($what == 'MoF') {
                 self::write_MoF($rec);
-                if($i >= 10) break;
+                // if($i >= 2) break;
             }
             // if($i >= 20) break;
         }
