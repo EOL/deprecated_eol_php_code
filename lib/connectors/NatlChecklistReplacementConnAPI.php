@@ -52,6 +52,7 @@ class NatlChecklistReplacementConnAPI
         $this->fields_4taxa = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 
             'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 
             'http://rs.tdwg.org/dwc/terms/genus', 'http://rs.tdwg.org/dwc/terms/taxonRank', 'http://rs.tdwg.org/dwc/terms/taxonomicStatus', 'http://rs.tdwg.org/dwc/terms/taxonRemarks');
+        $this->dataset_page = 'https://www.gbif.org/dataset/';
     }
     function start()
     {   require_library('connectors/TraitGeneric');                             $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
@@ -70,6 +71,7 @@ class NatlChecklistReplacementConnAPI
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'taxa');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'MoF');
         print_r($this->debug); //exit("\nexit muna\n");
+        print_r($this->info);
         $this->archive_builder->finalize(TRUE);
 
         // /* un-comment in real operation
@@ -198,30 +200,30 @@ class NatlChecklistReplacementConnAPI
                 [http://rs.gbif.org/terms/1.0/acceptedTaxonKey] => 6109699
                 [http://rs.gbif.org/terms/1.0/speciesKey] => 6109699
             )*/
-            // -------------------------------------------------------------------------------------------------
+            // ------------------------------------------------------------------------------------------------- for taxa
             $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
             $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
-            // -------------------------------------------------------------------------------------------------
+            // ------------------------------------------------------------------------------------------------- for taxa
             $taxonomicStatus = $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'];
             $this->debug[$taxonomicStatus] = ''; //stats only
             if(!self::valid_statusYN($taxonomicStatus)) continue;
             if($val = self::get_taxonID($rec)) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
             else continue;
-            // -------------------------------------------------------------------------------------------------
-            if($dataset_key = $rec['http://rs.gbif.org/terms/1.0/datasetKey']) {
-                $ret = $this->func_griis->get_dataset_info($dataset_key);
-                // print_r($ret); //exit;
-            }
+            // ------------------------------------------------------------------------------------------------- for MoF
+            // if($dataset_key = $rec['http://rs.gbif.org/terms/1.0/datasetKey']) {
+            //     $ret = $this->func_griis->get_dataset_info($dataset_key);
+            //     // print_r($ret); //exit;
+            // }
             // -------------------------------------------------------------------------------------------------
             
             if($what == 'taxa') {
                 self::write_taxon($rec);
+                if($i >= 20) break;
             }
             if($what == 'MoF') {
                 self::write_MoF($rec);
-                // if($i >= 2) break;
+                if($i >= 5) break;
             }
-            // if($i >= 20) break;
         }
     }
     private function write_MoF($rec)
@@ -245,13 +247,12 @@ class NatlChecklistReplacementConnAPI
         // $save['occur']['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
         // $save['occur']['locality'] = $occur_locality;
         // $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate']; copied template
-        
         // $save['occur']['recordedBy'] = @$rec['http://rs.tdwg.org/dwc/terms/recordedBy']; let us wait for instruction
-        
         // $save['occur']['modified'] = @$rec['http://purl.org/dc/terms/modified']; let us wait for instruction
         // $save['occur']['occurrenceRemarks'] = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']; copied template
         $save['bibliographicCitation'] = $this->c_citation[$this->resource_id];
         $save['source'] = $this->c_source[$this->resource_id];
+        $save['contributor'] = self::format_contributor($this->info['dataset_names'][$taxon_id]);
         if($mValue && $mType) $ret = $this->func->add_string_types($save, $mValue, $mType, "true");
         
         //for child http://eol.org/schema/terms/SampleSize
@@ -262,6 +263,25 @@ class NatlChecklistReplacementConnAPI
         $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
         $save['parentMeasurementID'] = $ret['measurementID'];
         if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "child");
+    }
+    private function format_contributor($arr)
+    {
+        $final = array();
+        $arr = array_keys($arr);
+        // print_r($arr); exit;
+        /* Array(
+            [0] => Royal Botanic Gardens, Kew - Economic Botany Collection Specimens\t|\t1d31211e-350e-492a-a597-34d24bbc1769
+        )*/
+        foreach($arr as $line) {
+            $tmp = explode("\t|\t", $line);
+            // print_r($tmp); exit;
+            /*Array(
+                [0] => Royal Botanic Gardens, Kew - Economic Botany Collection Specimens
+                [1] => 1d31211e-350e-492a-a597-34d24bbc1769
+            )*/
+            $final[] = $tmp[0] . " | " . $this->dataset_page.$tmp[1];
+        }
+        if($final) return implode(";", $final);
     }
     private function valid_statusYN($status)
     {   /*Array(
@@ -295,6 +315,15 @@ class NatlChecklistReplacementConnAPI
         }
         // */
         @$this->info['samplesize'][$taxon->taxonID]++;
+
+        // /* for contributor in MoF
+        if($dataset_key = $rec['http://rs.gbif.org/terms/1.0/datasetKey']) {
+            $ret = $this->func_griis->get_dataset_info($dataset_key);
+            print_r($ret); //exit;
+            $this->info['dataset_names'][$taxon->taxonID][$ret['dataset_name']."\t|\t".$ret['dataset_key']] = '';
+        }
+        // */
+        
         if(!isset($this->taxon_ids[$taxon->taxonID])) {
             $this->archive_builder->write_object_to_file($taxon);
             $this->taxon_ids[$taxon->taxonID] = '';

@@ -681,9 +681,33 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 }
             }
             // echo "\n --- $dataset_name\n";
-            return array('dataset_name' => $dataset_name, 'orig' => $aI, 'download_url' => $download_url, 'citation' => '');
+            $citation = self::parse_citation($xml);
+            return array('dataset_name' => $dataset_name, 'dataset_key' => $dataset_key, 'orig' => $aI, 'download_url' => $download_url, 'citation' => $citation);
         }
         else exit("\ndataset_key ($dataset_key) not found...\n");
+    }
+    private function parse_citation($xml)
+    {
+        /*
+        <citation>
+            iNaturalist.org (2019). iNaturalist Research-grade Observations. Occurrence dataset https://doi.org/10.15468/ab3s5x accessed via GBIF.org on 2019-10-24.
+        </citation>
+        OR
+        <citation identifier="http://doi.org/10.15468/l6smob">
+            Robinson T, Ivey P, Powrie L, Winter P, Wong L J, Pagad S (2019). Global Register of Introduced and Invasive Species- South Africa. Version 2.4. Invasive Species Specialist Group ISSG. Checklist dataset https://doi.org/10.15468/l6smob accessed via GBIF.org on 2019-10-24.
+        </citation>
+        */
+        if(preg_match("/<citation>(.*?)<\/citation>/ims", $xml, $arr)) return $arr[1];
+        elseif(preg_match("/<citation (.*?)<\/citation>/ims", $xml, $arr)) {
+            $str = $arr[1];
+            $pos = strpos($str, ">");
+            if ($pos === false) { // echo "The string '$findme' was not found in the string '$str'";
+                exit("\n---------\n$str\n---------\nInvestigate: citation parsing.\n");
+            }
+            else { // echo "The string '$findme' was found in the string '$str' and exists at position $pos";
+                return trim(substr($str, $pos+1, strlen($str)));
+            }
+        }
     }
     private function get_all_dataset_keys()
     {
