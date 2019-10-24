@@ -253,6 +253,7 @@ class NatlChecklistReplacementConnAPI
         $save['bibliographicCitation'] = $this->c_citation[$this->resource_id];
         $save['source'] = $this->c_source[$this->resource_id];
         $save['contributor'] = self::format_contributor($this->info['dataset_names'][$taxon_id]);
+        $save['referenceID'] = self::format_referenceID($this->info['references'][$taxon_id]);
         if($mValue && $mType) $ret = $this->func->add_string_types($save, $mValue, $mType, "true");
         
         //for child http://eol.org/schema/terms/SampleSize
@@ -264,9 +265,28 @@ class NatlChecklistReplacementConnAPI
         $save['parentMeasurementID'] = $ret['measurementID'];
         if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "child");
     }
+    private function format_referenceID($arr)
+    {   $reference_ids = array();
+        $arr = array_keys($arr);
+        // print_r($arr); exit;
+        /*Array(
+            [0] => Royal Botanic Gardens, Kew (2019). Royal Botanic Gardens, Kew - Economic Botany Collection Specimens. Occurrence dataset https://doi.org/10.15468/c3dx8a accessed via GBIF.org on 2019-10-24.
+        )*/
+        foreach($arr as $ref) {
+            $r = new \eol_schema\Reference();
+            $r->full_reference = $ref;
+            $r->identifier = md5($r->full_reference);
+            // $r->uri = ''; copied template
+            $reference_ids[] = $r->identifier;
+            if(!isset($this->reference_ids[$r->identifier])) {
+                $this->reference_ids[$r->identifier] = '';
+                $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        if($reference_ids) return implode(";", $reference_ids);
+    }
     private function format_contributor($arr)
-    {
-        $final = array();
+    {   $final = array();
         $arr = array_keys($arr);
         // print_r($arr); exit;
         /* Array(
@@ -321,6 +341,7 @@ class NatlChecklistReplacementConnAPI
             $ret = $this->func_griis->get_dataset_info($dataset_key);
             print_r($ret); //exit;
             $this->info['dataset_names'][$taxon->taxonID][$ret['dataset_name']."\t|\t".$ret['dataset_key']] = '';
+            $this->info['references'][$taxon->taxonID][$ret['citation']] = '';
         }
         // */
         
