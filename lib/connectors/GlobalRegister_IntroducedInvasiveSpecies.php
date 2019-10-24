@@ -687,8 +687,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         else exit("\ndataset_key ($dataset_key) not found...\n");
     }
     private function parse_citation($xml)
-    {
-        /*
+    {   /*
         <citation>
             iNaturalist.org (2019). iNaturalist Research-grade Observations. Occurrence dataset https://doi.org/10.15468/ab3s5x accessed via GBIF.org on 2019-10-24.
         </citation>
@@ -701,7 +700,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         elseif(preg_match("/<citation (.*?)<\/citation>/ims", $xml, $arr)) {
             $str = $arr[1];
             $pos = strpos($str, ">");
-            if ($pos === false) { // echo "The string '$findme' was not found in the string '$str'";
+            if($pos === false) { // echo "The string '$findme' was not found in the string '$str'";
                 exit("\n---------\n$str\n---------\nInvestigate: citation parsing.\n");
             }
             else { // echo "The string '$findme' was found in the string '$str' and exists at position $pos";
