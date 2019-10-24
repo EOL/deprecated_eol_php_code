@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 // connector: [gbif_classification.php]
-class NatlChecklistReplacementConnAPI
+class NatlChecklistReplacementAPI
 {
     function __construct($folder)
     {
@@ -71,7 +71,7 @@ class NatlChecklistReplacementConnAPI
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'taxa');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'MoF');
         print_r($this->debug); //exit("\nexit muna\n");
-        print_r($this->info);
+        // print_r($this->info);
         $this->archive_builder->finalize(TRUE);
 
         // /* un-comment in real operation
@@ -339,7 +339,7 @@ class NatlChecklistReplacementConnAPI
         // /* for contributor in MoF
         if($dataset_key = $rec['http://rs.gbif.org/terms/1.0/datasetKey']) {
             $ret = $this->func_griis->get_dataset_info($dataset_key);
-            print_r($ret); //exit;
+            // print_r($ret); //exit;
             $this->info['dataset_names'][$taxon->taxonID][$ret['dataset_name']."\t|\t".$ret['dataset_key']] = '';
             $this->info['references'][$taxon->taxonID][$ret['citation']] = '';
         }

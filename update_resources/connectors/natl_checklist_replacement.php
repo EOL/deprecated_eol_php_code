@@ -24,8 +24,8 @@ $ctry['Bahrain'] = 'BH';
 if(!isset($ctry[$ctry_name])) exit("\nERROR: Wrong country parameter.\n");
 else $resource_id = 'c_'.$ctry[$ctry_name];
 
-require_library('connectors/NatlChecklistReplacementConnAPI');
-$func = new NatlChecklistReplacementConnAPI($resource_id);
+require_library('connectors/NatlChecklistReplacementAPI');
+$func = new NatlChecklistReplacementAPI($resource_id);
 // /* main operation
 $func->start();
 unset($func);
