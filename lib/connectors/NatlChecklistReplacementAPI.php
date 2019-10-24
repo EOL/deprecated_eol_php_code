@@ -218,11 +218,11 @@ class NatlChecklistReplacementAPI
             
             if($what == 'taxa') {
                 self::write_taxon($rec);
-                if($i >= 20) break;
+                // if($i >= 20) break;
             }
             if($what == 'MoF') {
                 self::write_MoF($rec);
-                if($i >= 5) break;
+                // if($i >= 5) break;
             }
         }
     }
