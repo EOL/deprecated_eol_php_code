@@ -138,8 +138,7 @@ elseif(@$params['task'] == "save_all_media_filenames") {
     if($status) echo "\n---Can now proceed to next step...---\n\n";
     else exit(1);
 }
-elseif(@$params['task'] == "create_then_fill_commons_data")                                     //step 3 (ran 1 connector)
-{
+elseif(@$params['task'] == "create_then_fill_commons_data") {                                      //step 3 (ran 1 connector)
     $func = new WikiDataAPI($resource_id, "");
     //these 2 functions are ran one after the other, preferably. This is to process a new WikiMedia dump
     $func->create_temp_files_based_on_wikimedia_filenames();     //create blank json files
@@ -157,7 +156,7 @@ elseif(@$params['task'] == "generate_resource" || @$params['task'] == "generate_
         echo "\n".$params['actual']." -- finished\n";
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
-            Functions::finalize_dwca_resource($resource_id, true, true); //true means big file, 2nd param true means to delete working folder
+            Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //true means big file, 2nd param true means to delete working folder
         }
         else echo "\nCannot finalize dwca yet.\n";
     }
