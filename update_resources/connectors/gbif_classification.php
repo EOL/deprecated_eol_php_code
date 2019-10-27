@@ -12,14 +12,14 @@ $resource_id = 'gbif_classification';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
-/* main operation
+// /* main operation
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-*/
-// /* utility
-$func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
 // */
+/* utility
+$func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
+*/
 
 /* utility ========================== works OK
 require_library('connectors/DWCADiagnoseAPI');

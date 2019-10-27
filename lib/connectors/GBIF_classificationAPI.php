@@ -154,13 +154,19 @@ class GBIF_classificationAPI
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
-        print_r($paths); exit;
-        */
-        // /* local when developing
+        // print_r($paths); exit;
+        // */
+        /* local when developing
+        if($dwca == 'backbone_dwca') { //for main operation - gbif classification
+            $paths = Array(
+                'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
+                'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/'
+            );
+        }
         if($dwca == 'gbif_classification') {
             $paths = Array(
                 "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/",
@@ -173,7 +179,7 @@ class GBIF_classificationAPI
                 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
             );
         }
-        // */
+        */
         return $paths;
     }
     private function process_eolpageids_csv()
@@ -235,7 +241,7 @@ class GBIF_classificationAPI
     private function process_taxon($meta)
     {   //print_r($meta);
         require_library('connectors/Eol_v3_API');
-        $func = new Eol_v3_API();
+        $this->func_eol_v3 = new Eol_v3_API();
         
         echo "\nprocess_taxon...\n"; $i = 0;
         $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
@@ -307,34 +313,48 @@ class GBIF_classificationAPI
                 continue;
             }
             else {
-                $eol_rec = Array('id' => '', 'title' => '', 'link' => '', 'content' => '');
-                // /*
-                if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$i][$sciname] "; // print_r($rec);
-                if($ret = $func->search_name($sciname, $this->download_options)) {
-                    if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                    $eol_rec = self::get_actual_name($ret, $sciname);
-                    /* good debug
-                    if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == '4943435') {
-                        print_r($rec);
-                        print_r($ret);
-                        print_r($eol_rec);
-                        exit;
-                    }
-                    */
-                }
-                if(!$eol_rec['id'] && self::is_subspecies($sciname)) {
-                    $species = self::get_species_from_subspecies($sciname);
-                    if($ret = $func->search_name($species, $this->download_options)) {
-                        if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                        $eol_rec = self::get_actual_name($ret, $sciname, false); //last_resort = false
-                    }
-                }
-                self::write_archive($rec, $eol_rec);
-                if(!$eol_rec['id']) { self::log_record($rec, $sciname, '3'); continue; }
-                // */
+                // $sciname = 'Sphinx'; //debug only
+                if($eol_rec = self::search_api_with_moving_offset_number($sciname)) self::write_archive($rec, $eol_rec);
+                else self::log_record($rec, $sciname, '3'); continue; 
             }
             // if($i >= 90) break;
         }
+    }
+    private function search_api_with_moving_offset_number($sciname)
+    {
+        $eol_rec = Array('id' => '', 'title' => '', 'link' => '', 'content' => '');
+        $eol_rec = false;
+        if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$sciname] "; // print_r($rec);
+        if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options)) {
+            // echo("\n".$ret['totalResults']."\n"); 
+            $total_loop = ceil($ret['totalResults']/50);
+            // echo("\n".$total_loop."\n");
+            
+            for($page_no = 1; $page_no <= $total_loop; $page_no++) { //start loop to all, in batches of 50
+                if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, $page_no)) {
+                    if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
+                    if($eol_rec = self::get_actual_name($ret, $sciname)) return $eol_rec;
+                    // good debug
+                    // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == '4943435') {
+                    //     print_r($rec); print_r($ret); print_r($eol_rec); exit;
+                    // }
+                }
+            }
+            
+            if(!$eol_rec) {
+                if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, 1)) { //alternatively, just return the first record
+                    if($ret['results']) return $ret['results'][0];
+                }
+            }
+        }
+        if(self::is_subspecies($sciname)) {
+            $species = self::get_species_from_subspecies($sciname);
+            if($ret = $this->func_eol_v3->search_name($species, $this->download_options)) {
+                if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
+                if($eol_rec = self::get_actual_name($ret, $sciname)) return $eol_rec;
+            }
+        }
+        return false;
     }
     private function is_subspecies($sciname)
     {
@@ -378,7 +398,8 @@ class GBIF_classificationAPI
         }
         $this->archive_builder->write_object_to_file($taxon);
     }
-    private function get_actual_name($ret, $sciname, $last_resortYN = true)
+    // private function get_actual_name($ret, $sciname, $last_resortYN = true)
+    private function get_actual_name($ret, $sciname)
     {
         foreach($ret['results'] as $r) { //first loop gets exact match only
             /*Array(
@@ -389,9 +410,12 @@ class GBIF_classificationAPI
             )*/
             if($sciname == $r['title']) return $r;
         }
+        /* obsolete
         if($last_resortYN) {
             if($ret['results']) return $ret['results'][0]; //alternatively, just return the first record
         }
+        */
+        return false;
     }
     /*
     private function create_taxon_archive($a)

@@ -27,6 +27,7 @@ class Eol_v3_API
         $this->api['Pages2'][1] = '.json?details=true&xxx_per_page=75&xxx_page=';
 
         $this->api['search_name'] = 'https://eol.org/api/search/1.0.json?q=SCINAME&page=PAGE_NO&exact=true';
+        /* https://eol.org/api/search/1.0.json?q=Sphinx&page=1&exact=true */
 
         $this->api['DataObjects'][0] = "http://eol.org/api/data_objects/1.0/";
         $this->api['DataObjects'][1] = ".json?taxonomy=true&cache_ttl=";
@@ -40,10 +41,10 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
     }
-    function search_name($sciname, $options = array()) //this only gets the first 50 or less. No next page yet, not needed right now.
+    function search_name($sciname, $options = array(), $PAGE_NO = 1) //this only gets the first 50 or less. No next page yet, not needed right now.
     {   if(!$options) $options = $this->download_options;
         $url = str_replace("SCINAME", $sciname, $this->api['search_name']);
-        $url = str_replace("PAGE_NO", 1, $url);
+        $url = str_replace("PAGE_NO", $PAGE_NO, $url);
         // exit("\n[$url]\n");
         if($json = Functions::lookup_with_cache($url, $options)) {
             $arr = json_decode($json, true);
