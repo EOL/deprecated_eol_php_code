@@ -575,7 +575,7 @@ class WikiDataAPI
                 
                 /* force taxon in wikipedia & wikimedia. when developing. ***
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
-                // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua
+                // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua (No Indonesian - id)
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
@@ -3024,7 +3024,25 @@ class WikiDataAPI
         // echo "\n----------------------------------Comprehensive Desc";
         // echo "\n[".$desc."]";
         // echo "\n----------------------------------\n";
+        
+        /* for sr Eli updates: 10-25-2019 */
+        $left = '<table role="presentation">'; $right = '</table>';
+        $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
+        /* <span id="Spolja.C5.A1nje_veze"></span><span id="Spoljašnje_veze">Spoljašnje veze</span> */
+        $left = '<span id="Spolja'; $right = '</span>';
+        $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
+
         return $desc;
+    }
+    private function remove_all_in_between_inclusive($left, $right, $html)
+    {
+        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+            foreach($arr[1] as $str) {
+                $substr = $left.$str.$right;
+                $html = str_ireplace($substr, '', $html);
+            }
+        }
+        return $html;
     }
     private function create_brief_summary($desc)
     {
