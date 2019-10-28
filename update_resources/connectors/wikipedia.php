@@ -48,7 +48,7 @@ exit("\n Finished: just exploring... \n");
 
 // not yet complete:
 // $func = new WikiDataAPI($resource_id, "nl");     //496940    (nl) Dutch
-// $func = new WikiDataAPI($resource_id, "sv");     //317830    (sv) Swedish    //still being run, many many bot inspired
+// $func = new WikiDataAPI($resource_id, "sv");     //317830    (sv) Swedish    //many many bot inspired
 // $func = new WikiDataAPI($resource_id, "vi");     //459950    (vi) Vietnamese
 
 /*
