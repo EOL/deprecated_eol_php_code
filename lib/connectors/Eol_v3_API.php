@@ -25,6 +25,7 @@ class Eol_v3_API
         $this->api['Pages'] = "http://eol.org/api/pages/1.0.json?batch=false&images_per_page=75&images_page=1&videos_per_page=75&videos_page=1&sounds_per_page=75&sounds_page=1&maps_per_page=75&maps_page=1&texts_per_page=75&texts_page=1&iucn=false&subjects=overview&licenses=all&details=true&common_names=true&synonyms=true&references=true&taxonomy=true&vetted=0&cache_ttl=&language=en&id=";
         $this->api['Pages2'][0] = 'https://eol.org/api/pages/1.0/';
         $this->api['Pages2'][1] = '.json?details=true&xxx_per_page=75&xxx_page=';
+        $this->api['Pages3'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?details=true'; //for GBIF_classificationAPI.php
 
         $this->api['search_name'] = 'https://eol.org/api/search/1.0.json?q=SCINAME&page=PAGE_NO&exact=true';
         /* https://eol.org/api/search/1.0.json?q=Sphinx&page=1&exact=true */
@@ -41,6 +42,18 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
     }
+    function search_eol_page_id($eol_page_id, $options = array())
+    {   if(!$options) $options = $this->download_options;
+        $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages3']);
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $arr = json_decode($json, true);
+            return $arr;
+        }
+        else {
+            echo "\nnot found [$eol_page_id] in search_eol_page_id()\n";
+        }
+    }
+    
     function search_name($sciname, $options = array(), $PAGE_NO = 1) //this only gets the first 50 or less. No next page yet, not needed right now.
     {   if(!$options) $options = $this->download_options;
         $url = str_replace("SCINAME", $sciname, $this->api['search_name']);
