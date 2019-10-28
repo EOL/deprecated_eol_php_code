@@ -17,9 +17,51 @@ $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 // */
+
 /* utility
 $func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
 */
+
+// /* tests
+
+$sciname = 'Ciliophora';
+$rec = Array(
+    'http://rs.tdwg.org/dwc/terms/taxonID' => '3269382',
+    'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
+    'http://rs.tdwg.org/dwc/terms/scientificName' => 'Ciliophora Petr.',
+    'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Petr.',
+    'http://rs.gbif.org/terms/1.0/canonicalName' => 'Ciliophora',
+    'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+    'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+);
+
+$sciname = 'Cavernicola';
+$rec = Array(
+    'http://rs.tdwg.org/dwc/terms/taxonID' => '4774221',
+    'http://rs.tdwg.org/dwc/terms/datasetID' => '9ca92552-f23a-41a8-a140-01abaa31c931',
+    'http://rs.tdwg.org/dwc/terms/scientificName' => 'Cavernicola Barber, 1937',
+    'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Barber, 1937',
+    'http://rs.gbif.org/terms/1.0/canonicalName' => 'Cavernicola',
+    'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+    'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+);
+
+$sciname = 'Sphinx';
+$rec = Array(
+    'http://rs.tdwg.org/dwc/terms/taxonID' => '1864404',
+    'http://rs.tdwg.org/dwc/terms/datasetID' => 'd8fb1600-d636-4b35-aa0d-d4f292c1b424',
+    'http://rs.tdwg.org/dwc/terms/scientificName' => 'Sphinx Linnaeus, 1758',
+    'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Linnaeus, 1758',
+    'http://rs.gbif.org/terms/1.0/canonicalName' => 'Sphinx',
+    'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+    'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+);
+
+
+$ret = $func->main_sciname_search($sciname, $rec);
+print_r($ret);
+
+// */
 
 /* utility ========================== works OK
 require_library('connectors/DWCADiagnoseAPI');

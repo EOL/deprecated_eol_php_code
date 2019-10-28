@@ -37,6 +37,8 @@ class GBIF_classificationAPI
         2,724,940 taxa.txt -> eoldynamichierarchywithlandmarks
         2,724,668 eolpageids.csv
         */
+        require_library('connectors/Eol_v3_API');
+        $this->func_eol_v3 = new Eol_v3_API();
     }
     function utility_compare_2_DH_09() //just ran locally. Not yet in eol-archive
     {
@@ -240,9 +242,6 @@ class GBIF_classificationAPI
     }
     private function process_taxon($meta)
     {   //print_r($meta);
-        require_library('connectors/Eol_v3_API');
-        $this->func_eol_v3 = new Eol_v3_API();
-        
         echo "\nprocess_taxon...\n"; $i = 0;
         $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -257,7 +256,13 @@ class GBIF_classificationAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '3269382') continue; //debug only
+            
+            // /* debug only
+            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '3269382') continue; //GBIF Ciliophora
+            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '4774221') continue; //GBIF Cavernicola
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1864404') continue; //GBIF Sphinx
+            // */
+            
             /* breakdown when caching
             $cont = false;
             if($i >=  1    && $i < $m)    $cont = true;          //1st run
@@ -270,7 +275,7 @@ class GBIF_classificationAPI
             if(!$cont) continue;
             */
             
-            // print_r($rec); exit;
+            print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/taxonID] => 9651193                   [http://rs.tdwg.org/dwc/terms/datasetID] => 61a5f178-b5fb-4484-b6d8-9b129739e59d
                 [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
@@ -318,14 +323,13 @@ class GBIF_classificationAPI
                 $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
                 // $sciname = 'Cavernicola';
                 // ----------------------------------------------------------------------------------------- */
-                
                 if($eol_rec = self::main_sciname_search($sciname, $rec)) self::write_archive($rec, $eol_rec);
-                
+                else { self::log_record($rec, $sciname, '4'); continue; }
             }
             // if($i >= 90) break;
         }
     }
-    private function main_sciname_search($sciname, $rec)
+    function main_sciname_search($sciname, $rec)
     {
         $eol_rec = array();
         $hits = self::get_all_hits_for_search_string($sciname);
@@ -359,7 +363,6 @@ class GBIF_classificationAPI
                     [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
                 )*/
             }
-            else self::log_record($rec, $sciname, '4'); //continue;
         }
         // print_r($eol_rec); exit("\nstopx\n");
         return $eol_rec;
@@ -399,7 +402,7 @@ class GBIF_classificationAPI
             $choices[$hit['id']] = $hit;
             self::get_same_rank_as_sciname_in_question($hit, $rec['http://rs.tdwg.org/dwc/terms/taxonRank'], $rec['http://rs.tdwg.org/dwc/terms/taxonID']);
         }
-        print_r($this->hit_final);
+        // print_r($this->hit_final);
         /* Array(
             [46724417] => Array(
                     [ranks] => Array(
@@ -425,7 +428,6 @@ class GBIF_classificationAPI
             }
         }
         if($val = $choices[$final_taxonID]) return $val;
-        // exit("\n222\n");
     }
     private function get_same_rank_as_sciname_in_question($hit, $rank, $taxonID)
     {
