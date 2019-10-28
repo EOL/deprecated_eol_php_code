@@ -317,16 +317,23 @@ class GBIF_classificationAPI
                 $sciname = 'Sphinx';
                 // $sciname = 'Erica multiflora multiflora';
                 */
-                if($eol_rec = self::search_api_with_moving_offset_number($sciname)) {
+                if($eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
                     self::write_archive($rec, $eol_rec);
-                    // print_r($eol_rec); exit;
+                    // print_r($eol_rec); exit("\nused regular option\n");
+                }
+                elseif(self::is_subspecies($sciname)) {
+                    $species = self::get_species_from_subspecies($sciname);
+                    if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
+                        self::write_archive($rec, $eol_rec);
+                        // print_r($eol_rec); exit("\nused subspecies option\n");
+                    }
                 }
                 else self::log_record($rec, $sciname, '3'); continue;
             }
             // if($i >= 90) break;
         }
     }
-    private function search_api_with_moving_offset_number($sciname)
+    private function search_api_with_moving_offset_number($sciname, $sciname2use_for_func_get_actual_name)
     {
         $eol_rec = Array('id' => '', 'title' => '', 'link' => '', 'content' => '');
         $eol_rec = false;
@@ -339,7 +346,7 @@ class GBIF_classificationAPI
             for($page_no = 1; $page_no <= $total_loop; $page_no++) { //start loop to all, in batches of 50
                 if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, $page_no)) {
                     if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                    if($eol_rec = self::get_actual_name($ret, $sciname)) return $eol_rec;
+                    if($eol_rec = self::get_actual_name($ret, $sciname2use_for_func_get_actual_name)) return $eol_rec;
                     // good debug
                     // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == '4943435') {
                     //     print_r($rec); print_r($ret); print_r($eol_rec); exit;
@@ -350,16 +357,6 @@ class GBIF_classificationAPI
             if(!$eol_rec) {
                 if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, 1)) { //alternatively, just return the first record
                     if($ret['results']) return $ret['results'][0];
-                }
-            }
-        }
-        if(self::is_subspecies($sciname)) {
-            $species = self::get_species_from_subspecies($sciname);
-            if($ret = $this->func_eol_v3->search_name($species, $this->download_options)) {
-                if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                if($eol_rec = self::get_actual_name($ret, $sciname)) {
-                    debug("\nWent to subspecies option.\n");
-                    return $eol_rec;
                 }
             }
         }
