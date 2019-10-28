@@ -154,13 +154,13 @@ class GBIF_classificationAPI
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
-        // /* un-comment in real operation
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
         // print_r($paths); exit;
-        // */
-        /* local when developing
+        */
+        // /* local when developing
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
             $paths = Array(
                 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
@@ -179,7 +179,7 @@ class GBIF_classificationAPI
                 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
             );
         }
-        */
+        // */
         return $paths;
     }
     private function process_eolpageids_csv()
@@ -257,7 +257,7 @@ class GBIF_classificationAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '3269382') continue; //debug only
             /* breakdown when caching
             $cont = false;
             if($i >=  1    && $i < $m)    $cont = true;          //1st run
@@ -307,31 +307,137 @@ class GBIF_classificationAPI
             if(!$sciname) { self::log_record($rec, '', '2'); continue; }
 
             $str = substr($sciname,0,2);
-            if(strtoupper($str) == $str) { //probably viruses
-                // echo "\nwill ignore [$sciname]\n";
+            if(strtoupper($str) == $str) { //probably viruses will ignore [$sciname]
                 // self::log_record($rec, $sciname);
                 continue;
             }
             else {
-                /* debug only
+                // /* debug only ---------------------------------------------------------------------------
                 $sciname = 'Sphinx';
-                // $sciname = 'Erica multiflora multiflora';
-                */
-                if($eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
-                    self::write_archive($rec, $eol_rec);
-                    // print_r($eol_rec); exit("\nused regular option\n");
-                }
-                elseif(self::is_subspecies($sciname)) {
-                    $species = self::get_species_from_subspecies($sciname);
-                    if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
+                $sciname = 'Erica multiflora multiflora';
+                // $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
+                // $sciname = 'Cavernicola';
+                // ----------------------------------------------------------------------------------------- */
+                $hits = self::get_all_hits_for_search_string($sciname);
+                if(count($hits) <= 1) {
+                    if($eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
                         self::write_archive($rec, $eol_rec);
-                        // print_r($eol_rec); exit("\nused subspecies option\n");
+                        print_r($eol_rec); exit("\nused regular option\n");
                     }
+                    elseif(self::is_subspecies($sciname)) {
+                        $species = self::get_species_from_subspecies($sciname);
+                        if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
+                            self::write_archive($rec, $eol_rec);
+                            print_r($eol_rec); exit("\nused subspecies option\n");
+                        }
+                    }
+                    else self::log_record($rec, $sciname, '3'); continue;
                 }
-                else self::log_record($rec, $sciname, '3'); continue;
+                else { //homonym treatment
+                    $picked = self::pick_from_multiple_hits($hits, $rec, $sciname);
+                    print_r($picked); exit("\nmay pick na\n");
+                    /*Array(
+                        [id] => 46724417
+                        [title] => Ciliophora
+                        [link] => https://eol.org/pages/46724417
+                        [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
+                    )*/
+                }
             }
             // if($i >= 90) break;
         }
+    }
+    private function get_all_hits_for_search_string($sciname)
+    {
+        $final = array();
+        if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options)) {
+            $total_loop = ceil($ret['totalResults']/50);
+            for($page_no = 1; $page_no <= $total_loop; $page_no++) { //start loop to all, in batches of 50
+                if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, $page_no)) {
+                    foreach($ret['results'] as $r) { //first loop gets exact match only
+                        if($sciname == $r['title']) $final[] = $r;
+                    }
+                }
+            }
+        }
+        // print_r($final); exit;
+        return $final;
+    }
+    private function pick_from_multiple_hits($hits, $rec, $sciname)
+    {   // print_r($hits); print_r($rec); exit("\n$sciname\n");
+        /* Array(
+            [0] => Array(
+                    [id] => 4666
+                    [title] => Ciliophora
+                    [link] => https://eol.org/pages/4666
+                    [content] => Ciliophora
+                )
+            [1] => Array(
+                    [id] => 46724417
+                    [title] => Ciliophora
+                    [link] => https://eol.org/pages/46724417
+                    [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
+                )
+        */
+        $this->hit_final = array(); $choices = array();
+        foreach($hits as $hit) {
+            $choices[$hit['id']] = $hit;
+            self::get_same_rank_as_sciname_in_question($hit, $rec['http://rs.tdwg.org/dwc/terms/taxonRank'], $rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+        }
+        print_r($this->hit_final);
+        /* Array(
+            [46724417] => Array(
+                    [ranks] => Array(
+                            [genus] => 
+                        )
+                    [sourceIdentifiers] => Array(
+                            [GBIF:3269382] => 
+                        )
+                )
+        )*/
+        $final_taxonID = false;
+        foreach($this->hit_final as $taxonID => $items) {
+            if(@$items['ranks'] && @$items['sourceIdentifiers']) $final_taxonID = $taxonID;
+        }
+        if(!$final_taxonID) {
+            foreach($this->hit_final as $taxonID => $items) {
+                if(@$items['sourceIdentifiers']) $final_taxonID = $taxonID;
+            }
+        }
+        if(!$final_taxonID) {
+            foreach($this->hit_final as $taxonID => $items) {
+                if(@$items['ranks']) $final_taxonID = $taxonID;
+            }
+        }
+        if($val = $choices[$final_taxonID]) return $val;
+        // exit("\n222\n");
+    }
+    private function get_same_rank_as_sciname_in_question($hit, $rank, $taxonID)
+    {
+        if($rek = $this->func_eol_v3->search_eol_page_id($hit['id'])) {
+            // print_r($rek);
+            // echo "\n".count($rek['taxonConcept']['taxonConcepts'])."\n";
+            foreach($rek['taxonConcept']['taxonConcepts'] as $r) {
+                /*[0] => Array(
+                    [identifier] => 7130522
+                    [scientificName] => Ciliophora
+                    [name] => Ciliophora
+                    [nameAccordingTo] => EOL Dynamic Hierarchy 0.9
+                    [canonicalForm] => Ciliophora
+                    [sourceIdentifier] => -23632
+                    [taxonRank] => phylum //not all have taxonRank
+                )*/
+                
+                if(strtolower(@$r['taxonRank']) == strtolower($rank)) @$this->hit_final[$rek['taxonConcept']['identifier']]['ranks'][@$r['taxonRank']] = '';
+                
+                if(stripos($r['sourceIdentifier'], "gbif:$taxonID") !== false) { //string is found
+                    @$this->hit_final[$rek['taxonConcept']['identifier']]['sourceIdentifiers'][$r['sourceIdentifier']] = '';
+                }
+                
+            }
+        }
+        // if($final) print_r($final);
+        // exit("\nstopx\n");
     }
     private function search_api_with_moving_offset_number($sciname, $sciname2use_for_func_get_actual_name)
     {
