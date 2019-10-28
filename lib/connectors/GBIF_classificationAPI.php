@@ -433,7 +433,9 @@ class GBIF_classificationAPI
                 if(@$items['ranks']) $final_taxonID = $taxonID;
             }
         }
-        if($val = $choices[$final_taxonID]) return $val;
+        if($final_taxonID) {
+            if($val = $choices[$final_taxonID]) return $val;
+        }
     }
     private function get_same_rank_as_sciname_in_question($hit, $rank, $taxonID)
     {
