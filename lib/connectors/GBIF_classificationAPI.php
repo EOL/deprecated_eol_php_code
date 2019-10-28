@@ -329,19 +329,27 @@ class GBIF_classificationAPI
                         if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
                             self::write_archive($rec, $eol_rec);
                             print_r($eol_rec); exit("\nused subspecies option\n");
+                            /* Array(
+                                [id] => 52540300
+                                [title] => Erica multiflora multiflora
+                                [link] => https://eol.org/pages/52540300
+                                [content] => Erica multiflora multiflora; Erica multiflora subsp. multiflora; Erica multiflora f. alba (Regel) D. Mc Clintock; Erica multiflora var. alba Regel; <i>Erica multiflora alba</i>
+                            )*/
                         }
                     }
-                    else self::log_record($rec, $sciname, '3'); continue;
                 }
                 else { //homonym treatment
-                    $picked = self::pick_from_multiple_hits($hits, $rec, $sciname);
-                    print_r($picked); exit("\nmay pick na\n");
-                    /*Array(
-                        [id] => 46724417
-                        [title] => Ciliophora
-                        [link] => https://eol.org/pages/46724417
-                        [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
-                    )*/
+                    if($eol_rec = self::pick_from_multiple_hits($hits, $rec, $sciname)) {
+                        self::write_archive($rec, $eol_rec);
+                        print_r($eol_rec); exit("\nmay pick na\n");
+                        /*Array(
+                            [id] => 46724417
+                            [title] => Ciliophora
+                            [link] => https://eol.org/pages/46724417
+                            [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
+                        )*/
+                    }
+                    else self::log_record($rec, $sciname, '4'); continue;
                 }
             }
             // if($i >= 90) break;
