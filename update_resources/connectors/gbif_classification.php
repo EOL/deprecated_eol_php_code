@@ -93,8 +93,7 @@ function run_tests($func)
     );
     run_test($sciname, $rec, $func);
     
-    $sciname = 'Macronotops sexmaculatus';
-    $rec = Array(
+    $sciname = 'Macronotops sexmaculatus'; $rec = Array(
         'http://rs.tdwg.org/dwc/terms/taxonID' => '1081098',
         'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
         'http://rs.tdwg.org/dwc/terms/scientificName' => 'Macronotops sexmaculatus (Kraatz, 1894)',
@@ -104,6 +103,16 @@ function run_tests($func)
         'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
     );
     run_test($sciname, $rec, $func);
+    
+    $sciname = 'Capsosiraceae'; $rec = Array(
+        'http://rs.tdwg.org/dwc/terms/taxonID' => '1891',
+        'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
+        'http://rs.tdwg.org/dwc/terms/scientificName' => 'Capsosiraceae',
+        'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => '',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Capsosiraceae',
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'family',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+    );
     
 }
 function run_test($sciname, $rec, $func)
@@ -137,5 +146,13 @@ function run_test($sciname, $rec, $func)
         if($ret['id'] == '52612677') echo "\n -OK";
         else                         echo "\n -Error";
     }
+    if($sciname == 'Capsosiraceae') {
+        if($ret['id'] == '45281240') echo "\n -OK";
+        elseif($ret['id'] == '3267') echo "\n -OK";
+        else                         echo "\n -Error";
+    }
+
+
+
 }
 ?>
