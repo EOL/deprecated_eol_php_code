@@ -50,7 +50,7 @@ class Eol_v3_API
             return $arr;
         }
         else {
-            echo "\nnot found [$eol_page_id] in search_eol_page_id()\n";
+            debug("\nnot found [$eol_page_id] in search_eol_page_id()\n");
         }
     }
     
