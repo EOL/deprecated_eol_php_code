@@ -313,9 +313,15 @@ class GBIF_classificationAPI
                 continue;
             }
             else {
-                // $sciname = 'Sphinx'; //debug only
-                if($eol_rec = self::search_api_with_moving_offset_number($sciname)) self::write_archive($rec, $eol_rec);
-                else self::log_record($rec, $sciname, '3'); continue; 
+                /* debug only
+                $sciname = 'Sphinx';
+                // $sciname = 'Erica multiflora multiflora';
+                */
+                if($eol_rec = self::search_api_with_moving_offset_number($sciname)) {
+                    self::write_archive($rec, $eol_rec);
+                    // print_r($eol_rec); exit;
+                }
+                else self::log_record($rec, $sciname, '3'); continue;
             }
             // if($i >= 90) break;
         }
@@ -351,7 +357,10 @@ class GBIF_classificationAPI
             $species = self::get_species_from_subspecies($sciname);
             if($ret = $this->func_eol_v3->search_name($species, $this->download_options)) {
                 if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                if($eol_rec = self::get_actual_name($ret, $sciname)) return $eol_rec;
+                if($eol_rec = self::get_actual_name($ret, $sciname)) {
+                    debug("\nWent to subspecies option.\n");
+                    return $eol_rec;
+                }
             }
         }
         return false;
