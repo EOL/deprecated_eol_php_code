@@ -261,7 +261,9 @@ class GBIF_classificationAPI
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '3269382') continue; //GBIF Ciliophora
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '4774221') continue; //GBIF Cavernicola
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1864404') continue; //GBIF Sphinx
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '7328508') continue; //GBIF Erica multiflora subsp. multiflora
+            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '7328508') continue; //GBIF Erica multiflora subsp. multiflora
+            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1081098') continue; //GBIF Macronotops sexmaculatus
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1891') continue; //GBIF Capsosiraceae
             // */
             
             /* breakdown when caching
@@ -276,7 +278,7 @@ class GBIF_classificationAPI
             if(!$cont) continue;
             */
             
-            print_r($rec); exit;
+            print_r($rec); //exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/taxonID] => 9651193                   [http://rs.tdwg.org/dwc/terms/datasetID] => 61a5f178-b5fb-4484-b6d8-9b129739e59d
                 [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
@@ -324,7 +326,10 @@ class GBIF_classificationAPI
                 // $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
                 // $sciname = 'Cavernicola';
                 // ----------------------------------------------------------------------------------------- */
-                if($eol_rec = self::main_sciname_search($sciname, $rec)) self::write_archive($rec, $eol_rec);
+                if($eol_rec = self::main_sciname_search($sciname, $rec)) {
+                    self::write_archive($rec, $eol_rec);
+                    print_r($eol_rec); exit("\ndebug only\n");
+                }
                 else { self::log_record($rec, $sciname, '4'); continue; }
             }
             // if($i >= 90) break;

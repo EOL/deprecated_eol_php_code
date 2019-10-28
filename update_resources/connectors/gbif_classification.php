@@ -12,11 +12,11 @@ $resource_id = 'gbif_classification';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
-/* main operation
+// /* main operation
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-*/
+// */
 
 /* utility
 $func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
@@ -92,6 +92,19 @@ function run_tests($func)
         'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
     );
     run_test($sciname, $rec, $func);
+    
+    $sciname = 'Macronotops sexmaculatus';
+    $rec = Array(
+        'http://rs.tdwg.org/dwc/terms/taxonID' => '1081098',
+        'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
+        'http://rs.tdwg.org/dwc/terms/scientificName' => 'Macronotops sexmaculatus (Kraatz, 1894)',
+        'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => '(Kraatz, 1894)',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Macronotops sexmaculatus',
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'species',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+    );
+    run_test($sciname, $rec, $func);
+    
 }
 function run_test($sciname, $rec, $func)
 {
@@ -117,6 +130,11 @@ function run_test($sciname, $rec, $func)
     }
     if($sciname == 'Erica multiflora multiflora') {
         if($ret['id'] == '52540300') echo "\n -OK";
+        else                         echo "\n -Error";
+    }
+    
+    if($sciname == 'Macronotops sexmaculatus') {
+        if($ret['id'] == '52612677') echo "\n -OK";
         else                         echo "\n -Error";
     }
 }
