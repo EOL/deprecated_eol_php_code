@@ -398,7 +398,6 @@ class GBIF_classificationAPI
         }
         $this->archive_builder->write_object_to_file($taxon);
     }
-    // private function get_actual_name($ret, $sciname, $last_resortYN = true)
     private function get_actual_name($ret, $sciname)
     {
         foreach($ret['results'] as $r) { //first loop gets exact match only
@@ -410,11 +409,6 @@ class GBIF_classificationAPI
             )*/
             if($sciname == $r['title']) return $r;
         }
-        /* obsolete
-        if($last_resortYN) {
-            if($ret['results']) return $ret['results'][0]; //alternatively, just return the first record
-        }
-        */
         return false;
     }
     /*

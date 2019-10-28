@@ -51,7 +51,7 @@ class Eol_v3_API
             return $arr;
         }
         else {
-            echo "\nnot found [$sciname]\n";
+            echo "\nnot found [$sciname] in search_name()\n";
         }
     }
     function generate_stats($params) //$params came from run.php
