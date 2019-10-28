@@ -115,14 +115,9 @@ function run_test($sciname, $rec, $func)
         if($ret['id'] == '50708') echo "\n -OK";
         else                      echo "\n -Error";
     }
-    if($sciname == 'Erica multiflora subsp. multiflora') {
-        if($ret['id'] == '52540300') echo "\n -OK";
-        else                         echo "\n -Error";
-    }
     if($sciname == 'Erica multiflora multiflora') {
         if($ret['id'] == '52540300') echo "\n -OK";
         else                         echo "\n -Error";
     }
 }
-
 ?>
