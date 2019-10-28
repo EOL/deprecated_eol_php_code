@@ -313,62 +313,69 @@ class GBIF_classificationAPI
             }
             else {
                 // /* debug only ---------------------------------------------------------------------------
-                $sciname = 'Sphinx';
-                $sciname = 'Erica multiflora multiflora';
-                // $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
+                // $sciname = 'Sphinx';
+                // $sciname = 'Erica multiflora multiflora';
+                $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
                 // $sciname = 'Cavernicola';
                 // ----------------------------------------------------------------------------------------- */
-                $hits = self::get_all_hits_for_search_string($sciname);
-                if(count($hits) <= 1) {
-                    if($eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
-                        self::write_archive($rec, $eol_rec);
-                        print_r($eol_rec); exit("\nused regular option\n");
-                    }
-                    elseif(self::is_subspecies($sciname)) {
-                        $species = self::get_species_from_subspecies($sciname);
-                        if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
-                            self::write_archive($rec, $eol_rec);
-                            print_r($eol_rec); exit("\nused subspecies option\n");
-                            /* Array(
-                                [id] => 52540300
-                                [title] => Erica multiflora multiflora
-                                [link] => https://eol.org/pages/52540300
-                                [content] => Erica multiflora multiflora; Erica multiflora subsp. multiflora; Erica multiflora f. alba (Regel) D. Mc Clintock; Erica multiflora var. alba Regel; <i>Erica multiflora alba</i>
-                            )*/
-                        }
-                    }
-                }
-                else { //homonym treatment
-                    if($eol_rec = self::pick_from_multiple_hits($hits, $rec, $sciname)) {
-                        self::write_archive($rec, $eol_rec);
-                        print_r($eol_rec); exit("\nmay pick na\n");
-                        /*Array(
-                            [id] => 46724417
-                            [title] => Ciliophora
-                            [link] => https://eol.org/pages/46724417
-                            [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
-                        )*/
-                    }
-                    else self::log_record($rec, $sciname, '4'); continue;
-                }
+                
+                if($eol_rec = self::main_sciname_search($sciname, $rec)) self::write_archive($rec, $eol_rec);
+                
             }
             // if($i >= 90) break;
         }
     }
-    private function get_all_hits_for_search_string($sciname)
+    private function main_sciname_search($sciname, $rec)
     {
-        $final = array();
+        $eol_rec = array();
+        $hits = self::get_all_hits_for_search_string($sciname);
+        if(count($hits) <= 1) {
+            if($eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
+                // self::write_archive($rec, $eol_rec);
+                debug("\nused regular option\n");
+            }
+            elseif(self::is_subspecies($sciname)) {
+                $species = self::get_species_from_subspecies($sciname);
+                if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
+                    // self::write_archive($rec, $eol_rec);
+                    debug("\nused subspecies option\n");
+                    /* Array(
+                        [id] => 52540300
+                        [title] => Erica multiflora multiflora
+                        [link] => https://eol.org/pages/52540300
+                        [content] => Erica multiflora multiflora; Erica multiflora subsp. multiflora; Erica multiflora f. alba (Regel) D. Mc Clintock; Erica multiflora var. alba Regel; <i>Erica multiflora alba</i>
+                    )*/
+                }
+            }
+        }
+        else { //homonym treatment
+            if($eol_rec = self::pick_from_multiple_hits($hits, $rec, $sciname)) {
+                // self::write_archive($rec, $eol_rec);
+                debug("\npicked 1 from multiple hits\n");
+                /*Array(
+                    [id] => 46724417
+                    [title] => Ciliophora
+                    [link] => https://eol.org/pages/46724417
+                    [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
+                )*/
+            }
+            else self::log_record($rec, $sciname, '4'); //continue;
+        }
+        // print_r($eol_rec); exit("\nstopx\n");
+        return $eol_rec;
+    }
+    private function get_all_hits_for_search_string($sciname)
+    {   $final = array();
         if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options)) {
             $total_loop = ceil($ret['totalResults']/50);
             for($page_no = 1; $page_no <= $total_loop; $page_no++) { //start loop to all, in batches of 50
                 if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, $page_no)) {
-                    foreach($ret['results'] as $r) { //first loop gets exact match only
+                    foreach($ret['results'] as $r) {
                         if($sciname == $r['title']) $final[] = $r;
                     }
                 }
             }
         }
-        // print_r($final); exit;
         return $final;
     }
     private function pick_from_multiple_hits($hits, $rec, $sciname)
