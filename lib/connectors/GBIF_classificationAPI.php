@@ -260,7 +260,8 @@ class GBIF_classificationAPI
             // /* debug only
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '3269382') continue; //GBIF Ciliophora
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '4774221') continue; //GBIF Cavernicola
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1864404') continue; //GBIF Sphinx
+            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1864404') continue; //GBIF Sphinx
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '7328508') continue; //GBIF Erica multiflora subsp. multiflora
             // */
             
             /* breakdown when caching
@@ -320,7 +321,7 @@ class GBIF_classificationAPI
                 // /* debug only ---------------------------------------------------------------------------
                 // $sciname = 'Sphinx';
                 // $sciname = 'Erica multiflora multiflora';
-                $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
+                // $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
                 // $sciname = 'Cavernicola';
                 // ----------------------------------------------------------------------------------------- */
                 if($eol_rec = self::main_sciname_search($sciname, $rec)) self::write_archive($rec, $eol_rec);

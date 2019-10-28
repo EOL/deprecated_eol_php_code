@@ -12,55 +12,18 @@ $resource_id = 'gbif_classification';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
-// /* main operation
+/* main operation
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-// */
+*/
 
 /* utility
 $func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
 */
 
 // /* tests
-
-$sciname = 'Ciliophora';
-$rec = Array(
-    'http://rs.tdwg.org/dwc/terms/taxonID' => '3269382',
-    'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
-    'http://rs.tdwg.org/dwc/terms/scientificName' => 'Ciliophora Petr.',
-    'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Petr.',
-    'http://rs.gbif.org/terms/1.0/canonicalName' => 'Ciliophora',
-    'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
-    'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
-);
-
-$sciname = 'Cavernicola';
-$rec = Array(
-    'http://rs.tdwg.org/dwc/terms/taxonID' => '4774221',
-    'http://rs.tdwg.org/dwc/terms/datasetID' => '9ca92552-f23a-41a8-a140-01abaa31c931',
-    'http://rs.tdwg.org/dwc/terms/scientificName' => 'Cavernicola Barber, 1937',
-    'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Barber, 1937',
-    'http://rs.gbif.org/terms/1.0/canonicalName' => 'Cavernicola',
-    'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
-    'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
-);
-
-$sciname = 'Sphinx';
-$rec = Array(
-    'http://rs.tdwg.org/dwc/terms/taxonID' => '1864404',
-    'http://rs.tdwg.org/dwc/terms/datasetID' => 'd8fb1600-d636-4b35-aa0d-d4f292c1b424',
-    'http://rs.tdwg.org/dwc/terms/scientificName' => 'Sphinx Linnaeus, 1758',
-    'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Linnaeus, 1758',
-    'http://rs.gbif.org/terms/1.0/canonicalName' => 'Sphinx',
-    'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
-    'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
-);
-
-
-$ret = $func->main_sciname_search($sciname, $rec);
-print_r($ret);
-
+run_tests($func);
 // */
 
 /* utility ========================== works OK
@@ -80,4 +43,86 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
+
+function run_tests($func)
+{
+    $sciname = 'Ciliophora';
+    $rec = Array(
+        'http://rs.tdwg.org/dwc/terms/taxonID' => '3269382',
+        'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
+        'http://rs.tdwg.org/dwc/terms/scientificName' => 'Ciliophora Petr.',
+        'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Petr.',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Ciliophora',
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+    );
+    run_test($sciname, $rec, $func);
+
+    $sciname = 'Cavernicola'; $rec = Array(
+        'http://rs.tdwg.org/dwc/terms/taxonID' => '4774221',
+        'http://rs.tdwg.org/dwc/terms/datasetID' => '9ca92552-f23a-41a8-a140-01abaa31c931',
+        'http://rs.tdwg.org/dwc/terms/scientificName' => 'Cavernicola Barber, 1937',
+        'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Barber, 1937',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Cavernicola',
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+    );
+    run_test($sciname, $rec, $func);
+    
+    $sciname = 'Sphinx'; $rec = Array(
+        'http://rs.tdwg.org/dwc/terms/taxonID' => '1864404',
+        'http://rs.tdwg.org/dwc/terms/datasetID' => 'd8fb1600-d636-4b35-aa0d-d4f292c1b424',
+        'http://rs.tdwg.org/dwc/terms/scientificName' => 'Sphinx Linnaeus, 1758',
+        'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'Linnaeus, 1758',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Sphinx',
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+    );
+    run_test($sciname, $rec, $func);
+    
+    // $sciname = 'Erica multiflora subsp. multiflora';
+    $sciname = 'Erica multiflora multiflora';
+    $rec = Array(
+        'http://rs.tdwg.org/dwc/terms/taxonID' => '7328508',
+        'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
+        'http://rs.tdwg.org/dwc/terms/scientificName' => 'Erica multiflora subsp. multiflora',
+        'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => '',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Erica multiflora multiflora',
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'subspecies',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
+    );
+    run_test($sciname, $rec, $func);
+}
+function run_test($sciname, $rec, $func)
+{
+    $ret = $func->main_sciname_search($sciname, $rec);
+    // print_r($ret); //good debug
+    /* Array(
+        [id] => 46724417
+        [title] => Ciliophora
+        [link] => https://eol.org/pages/46724417
+        [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
+    )*/
+    if($sciname == 'Ciliophora') {
+        if($ret['id'] == '46724417') echo "\n -OK";
+        else                         echo "\n -Error";
+    }
+    if($sciname == 'Cavernicola') {
+        if($ret['id'] == '46481316') echo "\n -OK";
+        else                         echo "\n -Error";
+    }
+    if($sciname == 'Sphinx') {
+        if($ret['id'] == '50708') echo "\n -OK";
+        else                      echo "\n -Error";
+    }
+    if($sciname == 'Erica multiflora subsp. multiflora') {
+        if($ret['id'] == '52540300') echo "\n -OK";
+        else                         echo "\n -Error";
+    }
+    if($sciname == 'Erica multiflora multiflora') {
+        if($ret['id'] == '52540300') echo "\n -OK";
+        else                         echo "\n -Error";
+    }
+}
+
 ?>
