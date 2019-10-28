@@ -156,13 +156,13 @@ class GBIF_classificationAPI
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
         // print_r($paths); exit;
-        */
-        // /* local when developing
+        // */
+        /* local when developing
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
             $paths = Array(
                 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
@@ -181,7 +181,7 @@ class GBIF_classificationAPI
                 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
             );
         }
-        // */
+        */
         return $paths;
     }
     private function process_eolpageids_csv()
@@ -257,14 +257,14 @@ class GBIF_classificationAPI
                 $k++;
             }
             
-            // /* debug only
+            /* debug only
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '3269382') continue; //GBIF Ciliophora
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '4774221') continue; //GBIF Cavernicola
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1864404') continue; //GBIF Sphinx
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '7328508') continue; //GBIF Erica multiflora subsp. multiflora
             // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1081098') continue; //GBIF Macronotops sexmaculatus
             if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1891') continue; //GBIF Capsosiraceae
-            // */
+            */
             
             /* breakdown when caching
             $cont = false;
@@ -278,7 +278,7 @@ class GBIF_classificationAPI
             if(!$cont) continue;
             */
             
-            print_r($rec); //exit;
+            // print_r($rec); //exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/taxonID] => 9651193                   [http://rs.tdwg.org/dwc/terms/datasetID] => 61a5f178-b5fb-4484-b6d8-9b129739e59d
                 [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
@@ -328,7 +328,7 @@ class GBIF_classificationAPI
                 // ----------------------------------------------------------------------------------------- */
                 if($eol_rec = self::main_sciname_search($sciname, $rec)) {
                     self::write_archive($rec, $eol_rec);
-                    print_r($eol_rec); exit("\ndebug only\n");
+                    // print_r($eol_rec); exit("\ndebug only\n");
                 }
                 else { self::log_record($rec, $sciname, '4'); continue; }
             }

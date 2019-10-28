@@ -22,9 +22,9 @@ Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 $func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
 */
 
-// /* tests
+/* tests
 run_tests($func);
-// */
+*/
 
 /* utility ========================== works OK
 require_library('connectors/DWCADiagnoseAPI');
