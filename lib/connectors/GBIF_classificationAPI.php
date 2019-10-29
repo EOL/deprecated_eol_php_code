@@ -271,8 +271,8 @@ class GBIF_classificationAPI
             // if($i >=  1    && $i < $m)    $cont = true;          //1st run
             // if($i >=  $m   && $i < $m*2)  $cont = true;          //2nd run
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //3rd run
-            if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run
-            // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run
+            // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run
+            if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run
             // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //6th run
             // if($i >=  $m*6 && $i < $m*7)  $cont = true;          //7th run
             if(!$cont) continue;
@@ -440,7 +440,7 @@ class GBIF_classificationAPI
     }
     private function get_same_rank_as_sciname_in_question($hit, $rank, $taxonID)
     {
-        if($rek = $this->func_eol_v3->search_eol_page_id($hit['id'])) {
+        if($rek = $this->func_eol_v3->search_eol_page_id($hit['id'], $this->download_options)) {
             // print_r($rek);
             // echo "\n".count($rek['taxonConcept']['taxonConcepts'])."\n";
             foreach($rek['taxonConcept']['taxonConcepts'] as $r) {
