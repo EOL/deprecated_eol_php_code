@@ -49,9 +49,7 @@ class Eol_v3_API
             $arr = json_decode($json, true);
             return $arr;
         }
-        else {
-            debug("\nnot found [$eol_page_id] in search_eol_page_id()\n");
-        }
+        else debug("\nnot found [$eol_page_id] in search_eol_page_id()\n");
     }
     
     function search_name($sciname, $options = array(), $PAGE_NO = 1) //this only gets the first 50 or less. No next page yet, not needed right now.
@@ -63,9 +61,7 @@ class Eol_v3_API
             $arr = json_decode($json, true);
             return $arr;
         }
-        else {
-            echo "\nnot found [$sciname] in search_name()\n";
-        }
+        else echo "\nnot found [$sciname] in search_name()\n";
     }
     function generate_stats($params) //$params came from run.php
     {
