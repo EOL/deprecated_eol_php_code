@@ -402,11 +402,13 @@ function temp_filepath($relative_from_root = false, $extension = 'file')
 
 function create_temp_dir($prefix = 'dir')
 {
-    $filepath = DOC_ROOT ."tmp/". $prefix ."_". random_digits(5);
+    $path = $GLOBALS['MAIN_TMP_PATH'];                                      //new
+    // $filepath = DOC_ROOT ."tmp/". $prefix ."_". random_digits(5);        //orig
+    $filepath = $path. $prefix ."_". random_digits(5);                      //new
     // make sure the name is unique
-    while(glob($filepath))
-    {
-        $filepath = DOC_ROOT ."tmp/". $prefix ."_". random_digits(5);
+    while(glob($filepath)) {
+        // $filepath = DOC_ROOT ."tmp/". $prefix ."_". random_digits(5);    //orig
+        $filepath = $path. $prefix ."_". random_digits(5);                  //new
     }
     mkdir($filepath);
     return $filepath;
