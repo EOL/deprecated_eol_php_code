@@ -389,13 +389,16 @@ function random_digits($number, $start = 0)
 function temp_filepath($relative_from_root = false, $extension = 'file')
 {
     if($relative_from_root) $prefix = "";
-    else $prefix = DOC_ROOT;
+    else $prefix = $GLOBALS['MAIN_TMP_PATH'];                                   //new
+    // else $prefix = DOC_ROOT;                                                 //orig
 
-    $filepath = $prefix ."tmp/tmp_". random_digits(5) .".$extension";
+    // $filepath = $prefix ."tmp/tmp_". random_digits(5) .".$extension";        //orig
+    $filepath = $prefix ."tmp_". random_digits(5) .".$extension";               //new
+
     // make sure the name is unique
-    while(glob($filepath))
-    {
-        $filepath = $prefix ."tmp/tmp_". random_digits(5) .".$extension";
+    while(glob($filepath)) {
+        // $filepath = $prefix ."tmp/tmp_". random_digits(5) .".$extension";    //orig
+        $filepath = $prefix ."tmp_". random_digits(5) .".$extension";           //new
     }
     return $filepath;
 }
