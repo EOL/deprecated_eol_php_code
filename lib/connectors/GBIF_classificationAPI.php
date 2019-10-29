@@ -42,9 +42,9 @@ class GBIF_classificationAPI
     }
     function utility_compare_2_DH_09() //just ran locally. Not yet in eol-archive
     {
-        self::build_info('gbif_classification');
-        self::build_info('DH0.9');
-        self::process_eolpageids_csv();
+        self::build_info('gbif_classification');    //builds -> $this->gbif_classification[gbif_id] = EOLid; //gbif_id -> EOLid
+        self::build_info('DH0.9');                  //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id
+        self::process_eolpageids_csv();             //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
         self::write_comparison_report();
         print_r($this->debug);
     }
