@@ -337,6 +337,7 @@ class GBIF_classificationAPI
     }
     function main_sciname_search($sciname, $rec)
     {
+        if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$sciname] ";
         $eol_rec = array();
         $hits = self::get_all_hits_for_search_string($sciname);
         if(count($hits) <= 1) {
@@ -466,9 +467,8 @@ class GBIF_classificationAPI
     }
     private function search_api_with_moving_offset_number($sciname, $sciname2use_for_func_get_actual_name)
     {
-        $eol_rec = Array('id' => '', 'title' => '', 'link' => '', 'content' => '');
+        // $eol_rec = Array('id' => '', 'title' => '', 'link' => '', 'content' => ''); not used for now...
         $eol_rec = false;
-        if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$sciname] "; // print_r($rec);
         if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options)) {
             // echo("\n".$ret['totalResults']."\n"); 
             $total_loop = ceil($ret['totalResults']/50);
