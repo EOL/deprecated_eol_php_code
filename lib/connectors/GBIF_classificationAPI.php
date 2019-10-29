@@ -160,7 +160,7 @@ class GBIF_classificationAPI
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
-        // print_r($paths); exit;
+        print_r($paths); //exit;
         // */
         /* local when developing
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
