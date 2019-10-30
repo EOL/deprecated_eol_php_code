@@ -8,7 +8,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
-$resource_id = 'gbif_classification';
+$resource_id = 'gbif_classification_pre';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
@@ -21,6 +21,29 @@ Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 /* utility
 $func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
 */
+
+//====================================================================================================
+/* Use the DH09 EOL_id for the remaining conflicts between the API & DH09 mappings.
+      Since I'm using manually edited eoldynamichierarchywithlandmarks/meta.xml (wrong rowtype in meta.xml)
+      and
+      eolpageids.csv with added headers. SO THIS WILL BE RUN IN Mac Mini ONLY. */
+/*
+$resource_id = 'gbif_classification';
+$dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz';
+$dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/gbif_classification_pre.tar.gz';
+require_library('connectors/DwCA_Utility');
+$func = new DwCA_Utility($resource_id, $dwca_file);
+
+Orig in meta.xml has capital letters. Just a note reminder.
+
+$preferred_rowtypes = array();
+// This 1 will be processed in GBIF_classificationAPI.php which will be called from DwCA_Utility.php
+// http://rs.tdwg.org/dwc/terms/Taxon
+
+$func->convert_archive($preferred_rowtypes);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+*/
+//====================================================================================================
 
 /* tests
 run_tests($func);
