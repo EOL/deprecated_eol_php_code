@@ -34,7 +34,7 @@ $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resource
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility($resource_id, $dwca_file);
 
-Orig in meta.xml has capital letters. Just a note reminder.
+// Orig in meta.xml has capital letters. Just a note reminder.
 
 $preferred_rowtypes = array();
 // This 1 will be processed in GBIF_classificationAPI.php which will be called from DwCA_Utility.php
