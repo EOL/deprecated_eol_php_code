@@ -3,24 +3,31 @@ namespace php_active_record;
 // connector: [gbif_classification.php]
 class GBIF_classificationAPI
 {
-    function __construct($folder)
+    function __construct($folder, $archive_builder = false)
     {
         $this->resource_id = $folder;
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        if($archive_builder) { //coming from DwCA_Utility.php. For creating gbif_classification.tar.gz. Created second.
+            $this->archive_builder = $archive_builder;
+        }
+        else { //for creating gbif_classification_pre.tar.gz. Created first.
+            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        }
 
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
-
+        // /* i've set to expire false coz DH09 is still relative. There is also DH11
+        $this->download_options['expire_seconds'] = false;
+        // */
         if(Functions::is_production()) {
             $this->service["backbone_dwca"] = "http://rs.gbif.org/datasets/backbone/backbone-current.zip";
-            $this->service["gbif_classification"] = "https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification.tar.gz";
+            $this->service["gbif_classification_pre"] = "https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz";
         }
         else {
             $this->service["backbone_dwca"] = "http://localhost/cp/GBIF_Backbone_Archive/backbone-current.zip";
-            $this->service["gbif_classification"] = "/Volumes/MacMini_HD2/work_temp/gbif_classification.tar.gz";
+            $this->service["gbif_classification_pre"] = "http://localhost/eol_php_code/applications/content_server/resources_2/gbif_classification_pre.tar.gz";
         }
         $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'gbif_names_not_found_in_eol.txt';
 
@@ -29,7 +36,7 @@ class GBIF_classificationAPI
         $this->service['DH0.9'] = 'https://opendata.eol.org/dataset/0a023d9a-f8c3-4c80-a8d1-1702475cda18/resource/1b375a39-4739-45ba-87cd-328bdd50ec34/download/eoldynamichierarchywithlandmarks.zip';
         $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
         */
-        $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip';
+        $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip'; //the meta.xml is manually edited by Eli. rowtype changed to "http://rs.tdwg.org/dwc/terms/taxon".
         $this->comparison_report = CONTENT_RESOURCE_LOCAL_PATH.'GBIF_id_EOL_id_coverage_comparison_report.txt';
         $this->debug = array();
         /*
@@ -40,11 +47,96 @@ class GBIF_classificationAPI
         require_library('connectors/Eol_v3_API');
         $this->func_eol_v3 = new Eol_v3_API();
     }
-    function utility_compare_2_DH_09() //just ran locally. Not yet in eol-archive
+    //=================================================START fix remaining conflicts between the API & DH09 mappings
+    function fix_remaining_conflicts($info)
     {
-        self::build_info('gbif_classification');    //builds -> $this->gbif_classification[gbif_id] = EOLid; //gbif_id -> EOLid
+        // /* get info lists
         self::build_info('DH0.9');                  //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id
         self::process_eolpageids_csv();             //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
+        // */
+        $tables = $info['harvester']->tables;
+        self::process_fix_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        print_r($this->debug);
+    }
+    function process_fix_taxon($meta)
+    {   //print_r($meta);
+        echo "\nprocess_fix_taxon...\n$meta->file_uri\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 2588702
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
+                [http://rs.tdwg.org/dwc/terms/originalNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Lichenobactridium Diederich & Etayo
+                [http://rs.tdwg.org/dwc/terms/nameAccordingTo] => 
+                [http://rs.tdwg.org/dwc/terms/namePublishedIn] => Flechten Follmann (Cologne), Contributions to Lichenology in Honour of Gerhard Follmann 212 (1995)
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Fungi
+                [http://rs.tdwg.org/dwc/terms/phylum] => Ascomycota
+                [http://rs.tdwg.org/dwc/terms/class] => 
+                [http://rs.tdwg.org/dwc/terms/order] => 
+                [http://rs.tdwg.org/dwc/terms/family] => 
+                [http://rs.tdwg.org/dwc/terms/genus] => Lichenobactridium
+                [http://rs.tdwg.org/dwc/terms/specificEpithet] => 
+                [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => genus
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Diederich & Etayo
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+                [http://rs.tdwg.org/dwc/terms/nomenclaturalStatus] => 
+                [http://rs.tdwg.org/dwc/terms/taxonRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/datasetID] => 7ddf754f-d193-4cc9-b351-99906754a03b
+                [http://rs.gbif.org/terms/1.0/canonicalName] => Lichenobactridium
+                [http://eol.org/schema/EOLid] => 37570
+            )*/
+            //========================================================================================================================
+            $API_EOL_id = $rec['http://eol.org/schema/EOLid'];
+            $gbif_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $DH09_EOL_id = self::get_EOL_id_given_GBIF_id($gbif_id);
+            if($API_EOL_id == $DH09_EOL_id) @$this->debug['stats']['Matched OK']++;
+            else {
+                @$this->debug['stats']['Mis-matched']++;
+                if($DH09_EOL_id) @$this->debug['stats with DH09_EOL_id']['Mis-matched']++;
+                else             @$this->debug['stats without DH09_EOL_id']['Mis-matched']++;
+
+                if($val = $DH09_EOL_id) $rec['http://eol.org/schema/EOLid'] = $val;
+            }
+            //========================================================================================================================
+            $uris = array_keys($rec);
+            $o = new \eol_schema\Taxon();
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
+        }
+    }
+    private function get_EOL_id_given_GBIF_id($gbif_id)
+    {
+        //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id
+        //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
+        if($DH_id = @$this->DH09[$gbif_id]) {
+            if($EOL_id = @$this->DH_map[$DH_id]) return $EOL_id;
+        }
+    }
+    //=================================================END fix remaining conflicts between the API & DH09 mappings
+
+    function utility_compare_2_DH_09() //just ran locally. Not yet in eol-archive
+    {
+        self::build_info('gbif_classification_pre'); //builds -> $this->gbif_classification[gbif_id] = EOLid; //gbif_id -> EOLid
+        self::build_info('DH0.9');                   //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id
+        self::process_eolpageids_csv();              //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
         self::write_comparison_report();
         print_r($this->debug);
     }
@@ -96,7 +188,7 @@ class GBIF_classificationAPI
     }
     private function process_taxon_4report($meta, $dwca)
     {   //print_r($meta);
-        echo "\nprocess_taxon...\n"; $i = 0;
+        echo "\nprocess_taxon_4report...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 300000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -124,7 +216,7 @@ class GBIF_classificationAPI
                 [http://rs.gbif.org/terms/1.0/canonicalName] => Lichenobactridium
                 [http://eol.org/schema/EOLid] => 37570
             )*/
-            if($dwca == 'gbif_classification') {
+            if($dwca == 'gbif_classification_pre') {
                 $this->gbif_classification[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = $rec['http://eol.org/schema/EOLid']; //gbif_id -> EOLid
             }
             /* Array( some fields were deleted coz its too many to list here:
@@ -156,23 +248,23 @@ class GBIF_classificationAPI
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
-        // /* un-comment in real operation
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
         print_r($paths); //exit;
-        // */
-        /* local when developing
+        */
+        // /* local when developing
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
             $paths = Array(
                 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
                 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/'
             );
         }
-        if($dwca == 'gbif_classification') {
+        if($dwca == 'gbif_classification_pre') {
             $paths = Array(
-                "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/",
-                "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification/"
+                "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/",
+                "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/"
             );
         }
         if($dwca == 'DH0.9') {
@@ -181,7 +273,7 @@ class GBIF_classificationAPI
                 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
             );
         }
-        */
+        // */
         return $paths;
     }
     private function process_eolpageids_csv()
