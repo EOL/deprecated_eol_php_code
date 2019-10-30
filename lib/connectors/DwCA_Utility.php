@@ -62,7 +62,10 @@ class DwCA_Utility
         // */
 
         /* development only
-        $paths = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/brazilian_flora_dir_42944/', 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/brazilian_flora_dir_42944/');
+        $paths = Array(
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/gbif_dir_fix_dir_31585/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/gbif_dir_fix_dir_31585/'
+        );
         */
         
         $archive_path = $paths['archive_path'];
@@ -70,8 +73,7 @@ class DwCA_Utility
         $harvester = new ContentArchiveReader(NULL, $archive_path);
         $tables = $harvester->tables;
         $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) // take note the index key is all lower case
-        {
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
             debug("Invalid archive file. Program will terminate.");
             return false;
         }
@@ -102,9 +104,9 @@ class DwCA_Utility
         echo "\nConverting archive to EOL DwCA...\n";
         
         if($this->resource_id == 'test_eli') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //placeholder for customized resources with respective download_options
-        elseif(in_array($this->resource_id, array('globi_associations', '170_final', 'BF'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*25));
+        elseif(in_array($this->resource_id, array('globi_associations', '170_final', 'BF', 'gbif_classification'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*25));
         elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
-        else $info = self::start(); //default
+        else $info = self::start(); //default doesn't expire. Your call.
 
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
@@ -126,6 +128,7 @@ class DwCA_Utility
             }
             elseif($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
+            elseif(in_array($this->resource_id, array('BF', 'gbif_classification'))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -200,6 +203,11 @@ class DwCA_Utility
             require_library('connectors/BrazilianFloraAPI');
             $func = new BrazilianFloraAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
+        }
+        if($this->resource_id == 'gbif_classification') {
+            require_library('connectors/GBIF_classificationAPI');
+            $func = new GBIF_classificationAPI($this->resource_id, $this->archive_builder);
+            $func->fix_remaining_conflicts($info);
         }
         // ================================= end of customization ================================= */ 
         
