@@ -53,7 +53,9 @@ class Eol_v3_API
     }
     
     function search_name($sciname, $options = array(), $PAGE_NO = 1) //this only gets the first 50 or less. No next page yet, not needed right now.
-    {   if(!$options) $options = $this->download_options;
+    {
+        if(in_array($sciname, array('Viruses'))) return false;
+        if(!$options) $options = $this->download_options;
         $url = str_replace("SCINAME", $sciname, $this->api['search_name']);
         $url = str_replace("PAGE_NO", $PAGE_NO, $url);
         // exit("\n[$url]\n");
