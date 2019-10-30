@@ -103,7 +103,7 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
         echo "\n".$params['actual']." -- finished\n";
         if($status_arr[1]) {
             echo "\n---Can now proceed - finalize dwca...---\n\n";
-            Functions::finalize_dwca_resource($resource_id, true, true); //2nd param true means big file; 3rd param true means will delete working folder
+            Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
             delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else echo "\nCannot finalize dwca yet.\n";
@@ -112,7 +112,7 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
 }
 else { //orig - just one connector
     $func->generate_resource();
-    Functions::finalize_dwca_resource($resource_id, false, true); //3rd param true means delete working folder
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means delete working folder
 }
 // ----------end main operation */
 
