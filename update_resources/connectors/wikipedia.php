@@ -179,9 +179,9 @@ wikipedia-uk.tar.gz Ukrainian
 wikipedia-cu.tar.gz Indo-European 	Church Slavic, Church Slavonic, Old Church Slavonic, Old Slavonic, Old Bulgarian
 
 To do: DATA-1800
-nl, 
-pl, sv, vi, (and war, ceb)
+nl, pl, sv, vi, (and war, ceb)
 
+Next batch: Serbian si  Indonesia id    Hungarian hu
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}
@@ -345,6 +345,8 @@ wikipedia-ca	Thursday 2019-08-15 08:52:01 PM	{"media_resource.tab":124621,"taxon
 wikipedia-sr	Sunday 2019-10-27 09:47:57 AM	{"media_resource.tab":19809,"taxon.tab":15500,"time_elapsed":false}
 
 wikipedia-id	Tuesday 2019-10-29 02:46:33 PM	{"media_resource.tab":244932,"taxon.tab":130506,"time_elapsed":false}
+Hungarian
+wikipedia-hu
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
