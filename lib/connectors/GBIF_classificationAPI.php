@@ -181,10 +181,10 @@ class GBIF_classificationAPI
         // print_r($tables); exit;
         self::process_taxon_4report($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $dwca);
         
-        /* un-comment in real operation
+        // /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
     }
     private function process_taxon_4report($meta, $dwca)
     {   //print_r($meta);
@@ -248,13 +248,13 @@ class GBIF_classificationAPI
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
         print_r($paths); //exit;
-        */
-        // /* local when developing
+        // */
+        /* local when developing
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
             $paths = Array(
                 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
@@ -273,7 +273,7 @@ class GBIF_classificationAPI
                 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
             );
         }
-        // */
+        */
         return $paths;
     }
     private function process_eolpageids_csv()
