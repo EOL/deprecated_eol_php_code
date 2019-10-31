@@ -337,7 +337,7 @@ class GBIF_classificationAPI
         echo "\nprocess_taxon...\n"; $i = 0;
         $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -360,13 +360,13 @@ class GBIF_classificationAPI
             
             // /* breakdown when caching
             $cont = false;
-            // if($i >=  1    && $i < $m)    $cont = true;          //1st run
+            if($i >=  1    && $i < $m)    $cont = true;          //1st run
             // if($i >=  $m   && $i < $m*2)  $cont = true;          //2nd run
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //3rd run
             // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run
             // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //6th run
-            if($i >=  $m*6 && $i < $m*7)  $cont = true;          //7th run
+            // if($i >=  $m*6 && $i < $m*7)  $cont = true;          //7th run
             if(!$cont) continue;
             // */
             
