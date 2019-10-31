@@ -751,14 +751,13 @@ class GlobalRegister_IntroducedInvasiveSpecies
         echo "\nURIs total: ".count($this->uris)."\n";
     }
     /*================================================================= copied templates below ======================================================================*/
+    /*
     function x_start($info)
     {   $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
-        
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        
         self::initialize_mapping(); //for location string mappings
         self::process_per_state();
     }
@@ -777,11 +776,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } // print_r($rec); exit;
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/measurementID] => M1
-            )*/
-            //===========================================================================================================================================================
-            //===========================================================================================================================================================
             //===========================================================================================================================================================
             //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
@@ -810,8 +804,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $k++;
             }
             // print_r($rec); exit("\ndebug...\n");
-            /*Array(
-            )*/
             $uris = array_keys($rec);
             $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID', 'http:/eol.org/globi/terms/bodyPart');
             if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
@@ -850,6 +842,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $this->archive_builder->write_object_to_file($v);
         }
     }
+    */
     /*================================================================= ENDS HERE ======================================================================*/
 }
 ?>
