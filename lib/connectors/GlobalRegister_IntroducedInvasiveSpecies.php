@@ -71,6 +71,11 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $i = 0;
         foreach($dataset_keys as $dataset_key) { $i++;                          //1st loop is to just generate the $this->info[$dataset_key]
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
+            /* debug only
+            if($dataset_key == '3cabcf37-db13-4dc1-9bf3-e6f3fbfbbe23') {
+                print_r($this->info[$dataset_key]); exit;
+            }
+            */
             // print_r($this->info); exit;
             // if($i >= 10) break; //debug only
         }
@@ -240,6 +245,10 @@ class GlobalRegister_IntroducedInvasiveSpecies
                         continue;
                     }
                 }
+                // /* new 2019-10-31, contradicts above: remove all synonyms per: https://eol-jira.bibalex.org/browse/DATA-1838?focusedCommentId=64089&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64089
+                $this->synonym_taxa_excluded[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+                continue;
+                // */
             }
             //===========================================================================================================================================================
             /* taxonomicStatus: there may be a few other values represented in this column. For instance, for records with taxonomicStatus=DOUBTFUL, 
@@ -255,6 +264,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonRank'], array('synonym'))) $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = '';
             //===========================================================================================================================================================
             $o = new \eol_schema\Taxon();
+            if(isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) unset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']); //new 2019-10-31
             $uris = array_keys($rec);
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
@@ -529,7 +539,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     private function format_gbif_id($str)
     {   //e.g. https://www.gbif.org/species/1010644
-        return $this->current_dataset_key.'_'.pathinfo($str, PATHINFO_FILENAME);
+        // return $this->current_dataset_key.'_'.pathinfo($str, PATHINFO_FILENAME); obsolete...
+        exit("\nwaiting for feedback\n");
     }
     function compare_meta_between_datasets() //utility to generate a report
     {
