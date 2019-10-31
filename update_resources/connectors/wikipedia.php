@@ -2,6 +2,7 @@
 namespace php_active_record;
 /* Wikipedia in different languages */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false;
