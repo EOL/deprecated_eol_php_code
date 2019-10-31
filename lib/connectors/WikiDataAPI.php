@@ -2516,6 +2516,11 @@ class WikiDataAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == "hu") { /* for hu Eli updates: 10-30-2019 */
+            $html = self::code_the_steps('<tr class="taxobox-heading">', '</td></tr>', $html, true);
+            // <table class="infobox biota taxobox taxobox-animalia">
+            $html = self::code_the_steps('<table class="infobox', '</tbody></table>', $html, true);
+        }
         if($this->language_code == "tr") {
             $left = '<table class="infobox biota"';
             $right = '<p><b>';
@@ -2836,6 +2841,12 @@ class WikiDataAPI
         
         /* for 'no' */
         $html = self::code_the_steps('<table class="navbox hlist"', '</table></td></tr></tbody></table>', $html);
+
+        if($this->language_code == "hu") { /* for hu Eli updates: 10-30-2019 */
+            $html = self::code_the_steps('<table cellspacing="0" class="nowraplinks mw-collapsible mw-autocollapse"', '</tbody></table>', $html);
+            $html = self::code_the_steps('<table class="navbox noprint noviewer"', '</div></div>', $html);
+            $html = self::code_the_steps('<table class="navbox authoritycontrol"', '</div></div>', $html);
+        }
 
         /* for 'ca' */
         $html = self::code_the_steps('<div role="navigation" class="navbox"', '</tbody></table></div>', $html, true);
