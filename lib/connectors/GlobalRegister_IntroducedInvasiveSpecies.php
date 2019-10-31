@@ -125,6 +125,17 @@ class GlobalRegister_IntroducedInvasiveSpecies
         debug("\n temporary directory removed: $temp_dir\n");
         // */
     }
+    private function format_taxonID($rec)
+    {
+        $orig_taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //posterity
+        $sciname = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+        if($author = @$rec['http://rs.tdwg.org/dwc/terms/scientificNameAuthorship']) $sciname = trim(str_replace($author, '', $sciname));
+        $sciname = Functions::canonical_form($sciname);
+        // $id = trim(str_replace(" ", "_", strtolower($sciname)));
+        $id = md5($sciname);
+        $this->info_map_taxonID[$orig_taxonID] = $id;
+        return $id;
+    }
     private function process_taxon($meta)
     {   //print_r($meta);
         echo "\nprocess_taxon...\n"; $i = 0;
@@ -173,7 +184,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             You can assume there's only 1 occurrence per taxon, and construct an occurrence file with a 1:1 relationship of taxa to occurrences. 
             The same IDs are used in the files we'll rely on for measurementOrFact, so you'll need to map from the taxon IDs to those as occurrence IDs in the measurementOrFact file, 
             if you follow me. */
-            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_taxonID($rec); // obsolete scheme was self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
             if(isset($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'])) {
                 $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']);
                 
@@ -272,7 +283,11 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $o->$field = $rec[$uri];
             }
             // print_r($o); exit;
-            $this->archive_builder->write_object_to_file($o);
+
+            if(!isset($this->taxon_ids[$o->taxonID])) {
+                $this->taxon_ids[$o->taxonID] = '';
+                $this->archive_builder->write_object_to_file($o);
+            }
             // if($i >= 20) break; //debug only
         }
     }
@@ -307,7 +322,14 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 [http://rs.tdwg.org/dwc/terms/habitat] => terrestrial
                 [http://purl.org/dc/terms/source] => https://www.gbif.org/species/148437977: Hanseniella caldaria (Hansen, 1903) in Reyserhove L, Groom Q, Adriaens T, Desmet P, Dekoninck W, Van Keer K, Lock K (2018). Ad hoc checklist of alien species in Belgium. Version 1.2. Research Institute for Nature and Forest (INBO). Checklist dataset https://doi.org/10.15468/3pmlxs
             )*/
-            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+            
+            // $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']); obsolete
+            if($val = @$this->info_map_taxonID[$rec['http://rs.tdwg.org/dwc/terms/taxonID']]) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
+            else {
+                print_r($rec); exit("\nthis taxonID from SpeciesProfile doesn't exist in taxon.txt\n");
+                continue;
+            }
+            
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
             if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
             //===========================================================================================================================================================
@@ -406,7 +428,13 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 continue;
             }
             else { //normal operation - for DwCA creation
-                $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']);
+                // $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = self::format_gbif_id($rec['http://rs.tdwg.org/dwc/terms/taxonID']); obsolete
+                if($val = @$this->info_map_taxonID[$rec['http://rs.tdwg.org/dwc/terms/taxonID']]) $rec['http://rs.tdwg.org/dwc/terms/taxonID'] = $val;
+                else {
+                    print_r($rec); exit("\nthis taxonID from Distribution doesn't exist in taxon.txt\n");
+                    continue;
+                }
+                
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']; //just to shorten the var.
                 if(isset($this->synonym_taxa_excluded[$taxonID])) continue; //remove all MoF for synonym taxa
                 //===========================================================================================================================================================
@@ -454,14 +482,17 @@ class GlobalRegister_IntroducedInvasiveSpecies
             }
         }
     }
+    /* not used anymore...
     private function get_source_from_taxonID_or_source($rec)
     {   //e.g. "https://www.gbif.org/species/141266826: Philadelphus"
         if($val = @$rec['http://purl.org/dc/terms/source']) {
             $arr = explode(": ", $val);
             if(substr($arr[0],0,4) == 'http') return $arr[0];
+            else return $val;
         }
-        return "https://www.gbif.org/species/".$rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+        // return "https://www.gbif.org/species/".$rec['http://rs.tdwg.org/dwc/terms/taxonID']; --- outright wrong! since not all taxonID is using GBIF convention for taxonID.
     }
+    */
     private function get_uri($value, $field)
     {   
         $orig = $value;
@@ -540,7 +571,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
     private function format_gbif_id($str)
     {   //e.g. https://www.gbif.org/species/1010644
         // return $this->current_dataset_key.'_'.pathinfo($str, PATHINFO_FILENAME); obsolete...
-        exit("\nwaiting for feedback\n");
+        return $str;
     }
     function compare_meta_between_datasets() //utility to generate a report
     {
