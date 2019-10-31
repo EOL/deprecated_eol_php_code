@@ -123,6 +123,8 @@ $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true
 echo "\nTotal undefined parents MoF:" . count($undefined_parents)."\n";
 // ===================================== */
 
+recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."26/"); //we can now delete folder after DWCADiagnoseAPI
+
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
