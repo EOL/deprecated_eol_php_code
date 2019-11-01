@@ -358,17 +358,26 @@ class GBIF_classificationAPI
             if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] != '1891') continue; //GBIF Capsosiraceae
             */
             
-            // /* breakdown when caching
+            /* breakdown when caching
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;          //1st run
             // if($i >=  $m   && $i < $m*2)  $cont = true;          //2nd run
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //3rd run
-            if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run
+            // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run
             // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //6th run
             // if($i >=  $m*6 && $i < $m*7)  $cont = true;          //7th run
             if(!$cont) continue;
-            // */
+            */
+            
+            // /* breakdown when caching
+            $m = 5858200/7/3;
+            $cont = false;
+            // if($i >=  1    && $i < $m)    $cont = true;          //1st run
+            if($i >=  $m   && $i < $m*2)  $cont = true;             //2nd run
+            // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //3rd run
+            if(!$cont) continue;
+            */
             
             // print_r($rec); //exit;
             /*Array(
