@@ -17,7 +17,7 @@ class GBIF_classificationAPI
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
-            'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
         // /* i've set to expire false coz DH09 is still relative. There is also DH11
         $this->download_options['expire_seconds'] = false;
         // */
@@ -371,11 +371,14 @@ class GBIF_classificationAPI
             */
             
             // /* breakdown when caching
-            $m = 5858200/7/3;
+            $m = 5858200/7/5;
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;          //1st run
-            if($i >=  $m   && $i < $m*2)  $cont = true;             //conn2
+            // if($i >=  $m   && $i < $m*2)  $cont = true;          //conn2
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //conn3
+            // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //conn8
+            // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //conn9
+            if($i >=  $m*5 && $i < $m*6)  $cont = true;          //conn10
             if(!$cont) continue;
             // */
             
