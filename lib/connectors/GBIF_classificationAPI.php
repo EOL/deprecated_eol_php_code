@@ -376,9 +376,9 @@ class GBIF_classificationAPI
             // if($i >=  1    && $i < $m)    $cont = true;          //1st run
             // if($i >=  $m   && $i < $m*2)  $cont = true;          //conn2
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //conn3
-            // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //conn8
-            // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //conn9
-            if($i >=  $m*5 && $i < $m*6)  $cont = true;          //conn10
+            // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //conn10
+            if($i >=  $m*4 && $i < $m*5)  $cont = true;          //conn9
+            // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //conn8
             if(!$cont) continue;
             // */
             
