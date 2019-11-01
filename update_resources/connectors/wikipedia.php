@@ -346,8 +346,10 @@ wikipedia-ca	Thursday 2019-08-15 08:52:01 PM	{"media_resource.tab":124621,"taxon
 wikipedia-sr	Sunday 2019-10-27 09:47:57 AM	{"media_resource.tab":19809,"taxon.tab":15500,"time_elapsed":false}
 
 wikipedia-id	Tuesday 2019-10-29 02:46:33 PM	{"media_resource.tab":244932,"taxon.tab":130506,"time_elapsed":false}
-Hungarian
-wikipedia-hu
+
+wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
+
+
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
