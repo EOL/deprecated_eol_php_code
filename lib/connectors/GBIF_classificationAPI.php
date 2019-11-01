@@ -377,7 +377,7 @@ class GBIF_classificationAPI
             // if($i >=  $m   && $i < $m*2)  $cont = true;             //conn2
             if($i >=  $m*2 && $i < $m*3)  $cont = true;          //conn3
             if(!$cont) continue;
-            */
+            // */
             
             // print_r($rec); //exit;
             /*Array(
