@@ -20,6 +20,15 @@ $timestart = time_elapsed();
 $cmdline_params['jenkins_or_cron'] = @$argv[1]; //irrelevant here
 
 /* test
+$str = 'Medicago sativa subsp. varia (Martyn) Arcang.';
+$str = 'Rumex sanguineus var. sanguineus';
+$str = 'Lespedeza juncea var. sericea (Thunb.) Lace & Hauech';
+$str = 'Abelmoschus esculentus (L.) Moench';
+// $str = 'Abelmoschus esculentus Moench';
+exit("\n".Functions::canonical_form($str)."\n");
+*/
+
+/* test
 $south = array('a','b','c');
 $belgium = array('a','b','c','d','e');
 $diff = array_diff($belgium, $south); //proper
