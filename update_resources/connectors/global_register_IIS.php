@@ -12,7 +12,7 @@ South Africa -- http://ipt.ala.org.au/archive.do?r=south-africa-griis-gbif
 Friday 2019-10-18 08:42:41 AM	{"measurement_or_fact_specific.tab":91634,"occurrence_specific.tab":91634,"taxon.tab":51907,"time_elapsed":{"sec":756.03,"min":12.6,"hr":0.21}}
 Monday 2019-10-21 09:53:40 AM	{"measurement_or_fact_specific.tab":91634,"occurrence_specific.tab":91634,"taxon.tab":51907,"time_elapsed":{"sec":759.39,"min":12.66,"hr":0.21}}
 Thursday 2019-10-31 12:17:33 PM	{"measurement_or_fact_specific.tab":89450,"occurrence_specific.tab":62123,"taxon.tab":16994,"time_elapsed":{"sec":742.57,"min":12.38,"hr":0.21}}
-
+Friday 2019-11-01 08:23:30 AM	{"measurement_or_fact_specific.tab":89450,"occurrence_specific.tab":62123,"taxon.tab":16994,"time_elapsed":{"sec":745.43,"min":12.42,"hr":0.21}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies');
