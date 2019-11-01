@@ -374,8 +374,8 @@ class GBIF_classificationAPI
             $m = 5858200/7/3;
             $cont = false;
             // if($i >=  1    && $i < $m)    $cont = true;          //1st run
-            // if($i >=  $m   && $i < $m*2)  $cont = true;             //conn2
-            if($i >=  $m*2 && $i < $m*3)  $cont = true;          //conn3
+            if($i >=  $m   && $i < $m*2)  $cont = true;             //conn2
+            // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //conn3
             if(!$cont) continue;
             // */
             
