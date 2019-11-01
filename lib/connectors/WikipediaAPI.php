@@ -19,13 +19,13 @@ class WikipediaAPI
             else                  $row .= "\t";
         }
         
-        // /* good debug to write to HTML for testing ***
+        /* good debug to write to HTML for testing ***
         $file = DOC_ROOT."test.html";
         echo "\nfile: [$file]\n";
         $f = Functions::file_open($file, "w");
         fwrite($f, $media['description']);
         fclose($f); exit;
-        // */
+        */
         
         if(!isset($this->object_ids[$media['identifier']])) {
             $this->object_ids[$media['identifier']] = '';

@@ -311,8 +311,8 @@ class WikiDataAPI extends WikipediaAPI
                                             )
           ) { //orig
             //start new block ---------------------------------------
-            if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it
-            // if($actual_task) { //un-comment in real operation
+            // if(false) { // *** used for wikipedia only - when developing, so to process just one taxon e.g. en, es, de, it
+            if($actual_task) { //un-comment in real operation
                 self::parse_wiki_data_json($task, $range_from, $range_to);
                 //log this task finished
                 $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
@@ -321,8 +321,8 @@ class WikiDataAPI extends WikipediaAPI
                 return array(true, false); //so it can run and test final step if ready
             }
             else { //means finalize file
-                if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
-                // if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force") { //un-comment in real operation
+                // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
+                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force") { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
                     $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
@@ -573,7 +573,7 @@ class WikiDataAPI extends WikipediaAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
-                // /* force taxon in wikipedia & wikimedia. when developing. ***
+                /* force taxon in wikipedia & wikimedia. when developing. ***
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
                 // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua (No Indonesian - id)
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
@@ -584,7 +584,7 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
                 // $arr = self::get_object('Q729'); $arr = $arr->entities->Q729; //Animalia
                 // $arr = self::get_object('Q756'); $arr = $arr->entities->Q756; //Plantae
-                // */
+                */
                 
                 /* print_r($arr->claims->P935); exit; */
                 
@@ -666,7 +666,7 @@ class WikiDataAPI extends WikipediaAPI
                     echo("\n --Investigate not ok-- \n"); //previously this is exit()
                 }
                 
-                break; //debug get first taxon wiki only //use this when developing*** wikimedia and wikipedia
+                // break; //debug get first taxon wiki only //use this when developing*** wikimedia and wikipedia
                 // if($k > 10) break; //10000
                 // if($exit_now) break;
                 
