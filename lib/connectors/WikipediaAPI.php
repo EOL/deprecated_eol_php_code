@@ -132,6 +132,7 @@ class WikipediaAPI
             }
         }
 
+        $tmp = trim(str_ireplace('<p> </p>', "<p></p>", $tmp));
         $arr = array("<p></p>");
         $tmp = trim(str_ireplace($arr, "", $tmp));
         /* debug
@@ -236,6 +237,12 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == "hy") { /* for hu Eli updates: 11-04-2019 */
+            $left = '<table cellpadding="3" cellspacing="0" style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center">';
+            $html = self::code_the_steps($left, '</tr></tbody></table>', $html); //Panthera leo
+            $left = '<table class="toccolours" style="float:right; clear:right; width:300px; margin-left: 1em;">';
+            $html = self::code_the_steps($left, '</tr></tbody></table>', $html); //Pale fox
+        }
         if($this->language_code == "hu") { /* for hu Eli updates: 10-30-2019 */
             $html = self::code_the_steps('<tr class="taxobox-heading">', '</td></tr>', $html, true);
             // <table class="infobox biota taxobox taxobox-animalia">
@@ -484,6 +491,10 @@ class WikipediaAPI
             // Cause for investigation, check final wiki if OK, since we continued process for now.
         }
         
+        // /* remove - general purpose sections: Eli updates: 11-04-2019 
+        $html = self::code_the_steps('<span class="error mw-ext-cite-error"', '</span>', $html, true);
+        // */
+        
         /* additional sections to remove e.g. lang 'nl' for Mus musculus */
         $html = self::code_the_steps('<table class="navigatiesjabloon"', '</tbody></table>', $html);
         $html = self::code_the_steps('<div id="normdaten"', '</div>', $html);
@@ -498,6 +509,10 @@ class WikipediaAPI
             $html = self::code_the_steps('<table cellspacing="0" class="nowraplinks mw-collapsible mw-autocollapse"', '</tbody></table>', $html);
             $html = self::code_the_steps('<table class="navbox noprint noviewer"', '</div></div>', $html);
             $html = self::code_the_steps('<table class="navbox authoritycontrol"', '</div></div>', $html);
+        }
+        if($language_code == "eu") { /* for eu Eli updates: 11-04-2019 */
+            $html = self::code_the_steps('<table class="navbox collapsible autocollapse"', '</tbody></table>', $html);
+            $html = self::code_the_steps('<h2><span class="mw-headline" id="Kanpo_loturak">', '</h2>', $html);
         }
 
         /* for 'ca' */
@@ -515,6 +530,10 @@ class WikipediaAPI
         $html = self::code_the_steps('<div id="portallinks" class="catlinks"', '</div>', $html, true);
         $html = self::code_the_steps('<div class="catlinks"', '</div>', $html, true);
         
+        // /* remove - general purpose sections: Eli updates: 11-04-2019 
+        $html = self::code_the_steps('<td class="mbox-image"', '</td>', $html, true);
+        $html = self::code_the_steps('<td class="mbox-text"', '</td>', $html, true);
+        // */
         return $html;
     }
     function code_the_steps($left, $right, $html, $multiple = false)
