@@ -349,6 +349,7 @@ wikipedia-id	Tuesday 2019-10-29 02:46:33 PM	{"media_resource.tab":244932,"taxon.
 
 wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
 
+wikipedia-sh	Sunday 2019-11-03 10:54:20 PM	{"media_resource.tab":4145,"taxon.tab":3960,"time_elapsed":{"sec":3963.9,"min":66.07,"hr":1.1}}
 
 */
 /*

@@ -576,9 +576,11 @@ class WikiDataAPI extends WikipediaAPI
                 /* force taxon in wikipedia & wikimedia. when developing. ***
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
                 // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua (No Indonesian - id)
+                // $arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843; //Orca
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
+                // $arr = self::get_object('Q311170'); $arr = $arr->entities->Q311170; //Oreochromis niloticus
                 // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear - Ursus maritimus
                 // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //Angiosperms DATA-1803
                 // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
@@ -587,6 +589,8 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q80005'); $arr = $arr->entities->Q80005; //ferns
                 // $arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666; //Acacia
                 // $arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939; //tiger - Panthera tigris
+                // $arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216; //Bald Eagle
+                // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; //sunflower
                 */
                 
                 /* print_r($arr->claims->P935); exit; */
