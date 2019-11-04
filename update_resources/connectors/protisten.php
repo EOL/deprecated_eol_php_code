@@ -5,6 +5,7 @@ protisten	Thursday 2019-03-21 11:05:34 AM	{"agent.tab":1,"media_resource.tab":15
 protisten	Thursday 2019-03-28 09:40:16 PM	{"agent.tab":1,"media_resource.tab":1587,"taxon.tab":556}
 protisten	Monday 2019-04-15 12:53:10 AM	{"agent.tab":1,"media_resource.tab":1587,"taxon.tab":1050}
 protisten	Thursday 2019-09-19 11:49:40 PM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089}
+protisten	Monday 2019-11-04 03:23:38 AM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089,"time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
@@ -13,7 +14,7 @@ $resource_id = "protisten";
 require_library('connectors/Protisten_deAPI');
 $func = new Protisten_deAPI($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, false); //3rd param true means to delete working resource folder
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
 // */
 
 /* utility */
