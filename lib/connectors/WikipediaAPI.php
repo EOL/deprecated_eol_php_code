@@ -20,11 +20,12 @@ class WikipediaAPI
         }
         
         /* good debug to write to HTML for testing ***
-        $file = DOC_ROOT."test.html";
+        if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')  $file = DOC_ROOT."Description.html";
+        if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology') $file = DOC_ROOT."TaxonBiology.html";
         echo "\nfile: [$file]\n";
         $f = Functions::file_open($file, "w");
         fwrite($f, $media['description']);
-        fclose($f); exit;
+        fclose($f); //exit;
         */
         
         if(!isset($this->object_ids[$media['identifier']])) {
