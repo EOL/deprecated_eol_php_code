@@ -17,7 +17,7 @@ class GBIF_classificationAPI
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
-            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'cache' => 1);
+            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 0.5, 'cache' => 1);
         // /* i've set to expire false coz DH09 is still relative. There is also DH11
         $this->download_options['expire_seconds'] = false;
         // */
@@ -445,12 +445,13 @@ class GBIF_classificationAPI
         $eol_rec = array();
         $hits = self::get_all_hits_for_search_string($sciname);
         if(count($hits) <= 1) {
-            if($eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
+            if(count($hits) == 1 && $eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
                 // self::write_archive($rec, $eol_rec);
                 debug("\nused regular option\n");
             }
-            elseif(self::is_subspecies($sciname)) {
+            elseif(count($hits) == 0 && self::is_subspecies($sciname)) {
                 $species = self::get_species_from_subspecies($sciname);
+                if($species == $sciname) return array();
                 if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
                     // self::write_archive($rec, $eol_rec);
                     debug("\nused subspecies option\n");
@@ -610,7 +611,7 @@ class GBIF_classificationAPI
         $arr = explode(" ", $sciname);
         $arr = array_filter($arr); //remove null arrays
         $arr = array_values($arr); //reindex key
-        return $arr[0]." ".$arr[1];
+        return trim($arr[0]." ".$arr[1]);
     }
     private function log_record($rec, $sciname = '', $flag = '')
     {
