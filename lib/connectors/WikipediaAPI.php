@@ -5,6 +5,89 @@ class WikipediaAPI
     function __construct()
     {
     }
+    function taxon_wiki_per_language_stats($sitelinks)
+    {
+        // print_r($sitelinks); exit;
+        /* 1st version: OK but triggers API calls. Better to use what the json dump gives.
+        foreach($sitelinks as $key => $val) { // echo "\n".$val->url;
+            // https://za.wikipedia.org/wiki/Saeceij
+            // https://zh-min-nan.wikipedia.org/wiki/Sai
+            // https://zh-yue.wikipedia.org/wiki/%E7%8D%85%E5%AD%90
+            // https://zh.wikipedia.org/wiki/%E7%8B%AE
+            // https://zu.wikipedia.org/wiki/Ibhubesi
+            if(preg_match("/\/\/(.*?)\.wikipedia/ims", $val->url, $arr)) {
+                $lang_abbrev = $arr[1];
+                // echo " -- $lang_abbrev";
+                @$this->count_taxon_wiki_per_lang[$lang_abbrev]++;
+            }
+        }
+        */
+        
+        /* start 2nd version
+        Array(
+            [commonswiki] => stdClass Object(
+                    [site] => commonswiki
+                    [title] => Panthera leo
+                    [badges] => Array(
+                        )
+                )
+            [eswikiquote] => stdClass Object(
+                    [site] => eswikiquote
+                    [title] => León
+                    [badges] => Array(
+                        )
+                )
+            [hywwiki] => stdClass Object(
+                     [site] => hywwiki
+                     [title] => Առիւծ
+                     [badges] => Array(
+                         )
+                 )
+            [nds_nlwiki] => stdClass Object(
+                 [site] => nds_nlwiki
+                 [title] => Leeuw
+                 [badges] => Array(
+                     )
+        )*/
+        $keys = array_keys($sitelinks);
+        // print_r($keys); exit;
+        foreach($keys as $key) {
+            $key = str_replace('_', '-', $key);
+            $exclude = "commonswiki,wikiquote,wiktionary,voyage,news,books,source,versity,species";
+            $exclude = explode(',', $exclude);
+            $cont = false;
+            foreach($exclude as $str) {
+                if(stripos($key, $str) !== false) { //string is found
+                    $cont = true;
+                    break;
+                }
+            }
+            if($cont) continue;
+            $lang_abbrev = str_replace('wiki', '', $key);
+            @$this->count_taxon_wiki_per_lang[$lang_abbrev]++;
+        }
+    }
+    function eli_sort($multi_array)
+    {
+        $data = array();
+        foreach($multi_array as $key => $value) $data[] = array('language' => $key, 'count' => $value);
+        // Obtain a list of columns
+        /* before PHP 5.5.0
+        foreach ($data as $key => $row) {
+            $language[$key]  = $row['language'];
+            $count[$key] = $row['count'];
+        }
+        */
+        
+        // as of PHP 5.5.0 you can use array_column() instead of the above code
+        $language  = array_column($data, 'language');
+        $count = array_column($data, 'count');
+
+        // Sort the data with language descending, count ascending
+        // Add $data as the last parameter, to sort by the common key
+        array_multisort($count, SORT_DESC, $language, SORT_ASC, $data);
+        return $data;
+    }
     function create_wikipedia_object($media) //for wikipedia only
     {
         $media['description'] = self::last_html_clean($media['description']);

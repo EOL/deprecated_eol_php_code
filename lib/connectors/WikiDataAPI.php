@@ -296,6 +296,8 @@ class WikiDataAPI extends WikipediaAPI
         exit("\n-Finished testing-\n");
         */
         
+        if($task == 'taxon_wiki_per_language_stats') $this->download_options['expire_seconds'] = false;
+        
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
@@ -322,7 +324,7 @@ class WikiDataAPI extends WikipediaAPI
             }
             else { //means finalize file
                 // if(true) { //use this when developing*** wikimedia & wikipedia --- for 'en' and now 'es' -> those with multiple jobs
-                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force") { //un-comment in real operation
+                if(self::finalize_media_filenames_ready($what_generation_status) || $task == "generate_resource_force" || $task == "taxon_wiki_per_language_stats") { //un-comment in real operation
                     self::parse_wiki_data_json($task, false, false);
                     //truncate for next run
                     $txtfile = CONTENT_RESOURCE_LOCAL_PATH . $what_generation_status . date("Y_m") . ".txt";
@@ -565,8 +567,9 @@ class WikiDataAPI extends WikipediaAPI
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
 
-                debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
+                // debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
                 $arr = json_decode($row);
+                $Q_id = $arr->id;
 
                 /* for debug start ====================== Q4589415 - en with blank taxon name | Q5113 - jap with erroneous desc | ko Q8222313 has invalid parent | Q132634
                 $arr = self::get_object('Q6707390');
@@ -592,6 +595,20 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216; //Bald Eagle
                 // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; //sunflower
                 */
+                
+                // /* taxon_wiki_per_language_stats
+                if($task == 'taxon_wiki_per_language_stats') {
+                    /* 1st version: OK but triggers API calls. Better to use what the json dump gives.
+                    $arr = self::get_object($Q_id);
+                    $arr = $arr->entities->$Q_id;
+                    */
+                    if($val = @$arr->sitelinks) {
+                        self::taxon_wiki_per_language_stats((array) $val);
+                        if($k >= 10) break; //debug only
+                    }
+                    continue;
+                }
+                // */
                 
                 /* print_r($arr->claims->P935); exit; */
                 
@@ -684,6 +701,27 @@ class WikiDataAPI extends WikipediaAPI
         } //main loop
         echo "\ntotal taxon wikis = [$i]\n";
         echo "\ntotal non-taxon wikis = [$j]\n";
+        
+        if($task == 'taxon_wiki_per_language_stats') {
+            $a = self::eli_sort($this->count_taxon_wiki_per_lang);                        
+            // print_r($a);
+            //write to text:
+            /*[52] => Array(
+                        [language] => kk
+                        [count] => 4290
+                    )
+            */
+            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "taxon_wiki_per_language_count_" . date("Y_m") . ".txt";
+            $handle = fopen($txtfile, "w");
+            $arr = array('language', 'count');
+            fwrite($handle, implode("\t", $arr) . "\n");
+            foreach($a as $rec) {
+                $arr = array($rec['language'], $rec['count']);
+                fwrite($handle, implode("\t", $arr) . "\n");
+            }
+            fclose($handle);
+            exit("\n-end stats-\n");
+        }
     }
     private function save_ancestry_to_temp($ancestry)
     {
