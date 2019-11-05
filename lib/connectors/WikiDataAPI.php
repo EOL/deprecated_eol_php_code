@@ -303,7 +303,7 @@ class WikiDataAPI extends WikipediaAPI
             $this->trans['editors'][$this->language_code] = $func->translate_source_target_lang("Wikipedia authors and editors", "en", $this->language_code);
         }
         
-        self::initialize_files();
+        if($task != 'taxon_wiki_per_language_stats') self::initialize_files();
         if    ($this->what == "wikipedia") $what_generation_status = "wikipedia_generation_status_".$this->language_code."_";
         elseif($this->what == "wikimedia") $what_generation_status = "wikimedia_generation_status_";
 
@@ -391,10 +391,12 @@ class WikiDataAPI extends WikipediaAPI
     {   /* orig. worked well but it goes to /tmp/ folder. We need to put it in /extra/ in eol-archive
         $this->TEMP_FILE_PATH = temp_filepath(); 
         */
+        
         //creates a temp file
         $this->TEMP_FILE_PATH = CONTENT_RESOURCE_LOCAL_PATH."/wikipedia_".$this->language_code."_".date("Y-m-d_H_s").".tmp";
         if(!($f = Functions::file_open($this->TEMP_FILE_PATH, "w"))) return;
         fclose($f);
+        
         /*
         <field index="0" term="http://purl.org/dc/terms/identifier"/>
         <field index="1" term="http://rs.tdwg.org/dwc/terms/taxonID"/>
