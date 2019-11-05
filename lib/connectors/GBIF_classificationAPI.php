@@ -365,7 +365,7 @@ class GBIF_classificationAPI
             // if($i >=  $m*2 && $i < $m*3)  $cont = true;          //3rd run
             // if($i >=  $m*3 && $i < $m*4)  $cont = true;          //4th run max 3 347 542
             // if($i >=  $m*4 && $i < $m*5)  $cont = true;          //5th run max 4 184 428
-            // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //6th run
+            // if($i >=  $m*5 && $i < $m*6)  $cont = true;          //6th run max 5 021 314
             // if($i >=  $m*6 && $i < $m*7)  $cont = true;          //7th run
             if(!$cont) continue;
             */
@@ -373,7 +373,9 @@ class GBIF_classificationAPI
             // /* breakdown when caching
             $cont = false;
             // if($i >=  3000000 && $i < $m*4)  $cont = true;          //conn2 max 3 347 542
-            if($i >=  4000000 && $i < $m*5)  $cont = true;          //5th run max 4 184 428
+            // if($i >=  4000000 && $i < $m*5)  $cont = true;          //conn3 max 4 184 428
+            if($i >=  4900000 && $i < $m*6)  $cont = true;          //6th run max 5 021 314
+
             if(!$cont) continue;
             // */
 
