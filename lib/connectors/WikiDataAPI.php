@@ -605,7 +605,7 @@ class WikiDataAPI extends WikipediaAPI
                     */
                     if($val = @$arr->sitelinks) {
                         self::taxon_wiki_per_language_stats((array) $val);
-                        if($k >= 10) break; //debug only
+                        // if($k >= 10) break; //debug only
                     }
                     continue;
                 }
