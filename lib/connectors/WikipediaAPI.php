@@ -197,6 +197,13 @@ class WikipediaAPI
                 $rek['other']['last_modified']    = $func_region->get_last_modified($html);
                 $rek['other']['phrase']           = $func_region->get_wikipedia_phrase($html);
                 $rek['other']['citation']         = $func_region->get_citation($rek['other']['title'], $rek['other']['permalink'], $rek['other']['last_modified'], $rek['other']['phrase']);
+                
+                // /* if TaxonBiology == Description; then disregard TaxonBiology
+                $var1 = trim(strip_tags($rek['other']['comprehensive_desc']));
+                $var2 = trim(strip_tags($rek['other']['brief_summary']));
+                if($var1 == $var2) $rek['other']['brief_summary'] = '';
+                // */
+                
             }
         }
         return $rek;
@@ -225,6 +232,8 @@ class WikipediaAPI
         echo "\n[".strip_tags($tmp)."]";
         echo "\n----------------------------------\n";
         */
+        
+        if(trim(strip_tags($tmp)) == '') return '';
         return $tmp;
     }
     private function additional_desc_format($desc)
@@ -320,6 +329,13 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == "bg") { /* for hu Eli updates: 11-06-2019 */
+            $html = self::code_the_steps('<table class="infobox', '</tr></tbody></table>', $html);
+        }
+        if($this->language_code == "min") { /* for hu Eli updates: 11-06-2019 */
+            $html = self::code_the_steps('<table class="infobox biota"', '</td></tr></tbody></table>', $html);
+            $html = self::code_the_steps('<table class="metadata plainlinks stub"', '</tr></tbody></table>', $html);
+        }
         if($this->language_code == "hy") { /* for hu Eli updates: 11-04-2019 */
             $left = '<table cellpadding="3" cellspacing="0" style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center">';
             $html = self::code_the_steps($left, '</tr></tbody></table>', $html); //Panthera leo
@@ -617,6 +633,11 @@ class WikipediaAPI
         $html = self::code_the_steps('<td class="mbox-image"', '</td>', $html, true);
         $html = self::code_the_steps('<td class="mbox-text"', '</td>', $html, true);
         // */
+        
+        if($language_code == "bg") {
+            $html = self::code_the_steps('<div id="stub" class="boilerplate metadata plainlinks noprint"', '</div></div>', $html);
+        }
+        
         return $html;
     }
     function code_the_steps($left, $right, $html, $multiple = false)
