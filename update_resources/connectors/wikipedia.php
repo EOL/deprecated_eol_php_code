@@ -189,6 +189,7 @@ To do: DATA-1800
 nl, pl, sv, vi, (and war, ceb)
 
 Next batch: Serbian si, Indonesia id, Hungarian hu, Serbo-Croatian sh, Basque (eu), Malay (ms), Armenian (hy)
+Cebuano (ceb), Waray-Waray (war), Minangkabau (min), Bulgarian (bg)
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}
