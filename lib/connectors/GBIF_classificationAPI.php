@@ -17,7 +17,7 @@ class GBIF_classificationAPI
         $this->download_options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
-            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 2, 'delay_in_minutes' => 0.5, 'cache' => 1);
+            'download_wait_time' => 500000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1/60, 'cache' => 1); //delay_in_minutes of 1/6 is 10 secs, 1/60 is 1 sec.
         // /* i've set to expire false coz DH09 is still relative. There is also DH11
         $this->download_options['expire_seconds'] = false;
         // */

@@ -116,7 +116,8 @@ class Functions
                 if($options['delay_in_minutes'])
                 {
                     debug("Will delay for " . $options['delay_in_minutes'] . " minute(s), then will try again. Number of attempts will be reset.");
-                    sleep($options['delay_in_minutes'] . 60);
+                    debug("Will delay for " . $options['delay_in_minutes'] * 60 . " seconds, then will try again. Number of attempts will be reset.");
+                    sleep($options['delay_in_minutes'] * 60);
                     $attempts = 1;
                     $options['delay_in_minutes'] = false;
                 }
