@@ -357,6 +357,7 @@ wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.
 
 wikipedia-sh	Sunday 2019-11-03 10:54:20 PM	{"media_resource.tab":4145,"taxon.tab":3960,"time_elapsed":{"sec":3963.9,"min":66.07,"hr":1.1}}
 
+wikipedia-eu	Tuesday 2019-11-05 05:55:55 PM	{"media_resource.tab":142743,"taxon.tab":82575,"time_elapsed":{"sec":112061.2,"min":1867.69,"hr":31.13,"day":1.3}}
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
