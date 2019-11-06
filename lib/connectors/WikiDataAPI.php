@@ -296,7 +296,7 @@ class WikiDataAPI extends WikipediaAPI
         exit("\n-Finished testing-\n");
         */
         
-        if($task == 'taxon_wiki_per_language_stats') $this->download_options['expire_seconds'] = false;
+        // if($task == 'taxon_wiki_per_language_stats') $this->download_options['expire_seconds'] = false; NO NEED ANYMORE AS IT DOESN'T MAKE API CALLS ANYMORE.
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -712,7 +712,7 @@ class WikiDataAPI extends WikipediaAPI
                         [count] => 4290
                     )
             */
-            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "taxon_wiki_per_language_count_" . date("Y_m") . ".txt";
+            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "taxon_wiki_per_language_count_" . date("Y_m_d") . ".txt";
             $handle = fopen($txtfile, "w");
             $arr = array('language', 'count');
             fwrite($handle, implode("\t", $arr) . "\n");
