@@ -370,14 +370,14 @@ class GBIF_classificationAPI
             if(!$cont) continue;
             */
 
-            // /* breakdown when caching
+            /* breakdown when caching
             $cont = false;
             // if($i >=  3000000 && $i < $m*4)  $cont = true;          //conn2 max 3 347 542
             // if($i >=  4000000 && $i < $m*5)  $cont = true;          //conn3 max 4 184 428
             // if($i >=  4900000 && $i < $m*6)  $cont = true;          //conn8 max 5 021 314
             if($i >=  5700000 && $i < $m*7)  $cont = true;          //conn9 max 5 858 200
             if(!$cont) continue;
-            // */
+            */
 
             
             /* breakdown when caching
