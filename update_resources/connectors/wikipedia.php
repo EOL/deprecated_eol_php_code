@@ -101,6 +101,8 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("sh")); //first client for MultipleConnJenkinsAPI
+
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
@@ -113,7 +115,12 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
             Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
             delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
-        else echo "\nCannot finalize dwca yet.\n";
+        else {
+            echo "\nCannot finalize dwca yet.\n";
+            // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI
+            if(in_array($language, array('sh'))) inject_MultipleConnJenkinsAPI($language);
+            // ------------------------------------------------------ */
+        }
     }
     else exit(1);
 }
@@ -141,6 +148,25 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 
+function inject_MultipleConnJenkinsAPI($language)
+{
+    /* START continue lifeline of Jenkins event --------------------------------------------- */
+    require_library('connectors/MultipleConnJenkinsAPI');
+    $funcj = new MultipleConnJenkinsAPI();
+    echo "\ntry to finalize now...\n";
+    $total_count = 2500000;
+    $arr_info = array();
+    $arr_info['finalize_now'] = true;
+    $arr_info['langx'] = $language;
+    $arr_info['connector'] = 'gen_wikipedia_by_lang';
+    $arr_info['divisor'] = 6;
+    $arr_info['total_count'] = $total_count;
+    $batches = array();
+    $batches[] = array(1, $total_count);
+    $arr_info['batches'] = $batches;
+    $funcj->jenkins_call($arr_info, "finalize"); //finally make the call
+    /* END continue lifeline of Jenkins event ----------------------------------------------- */
+}
 function delete_temp_files_and_others($language)
 {   /*
     -rw-r--r-- 1 root      root       91798932 Apr 18 19:30 wikipedia-pl.tar.gz
@@ -177,16 +203,15 @@ wikipedia-pt.tar.gz Portuguese
 wikipedia-ja.tar.gz Japanese
 wikipedia-ko.tar.gz Korean
 
-To do:
+Done:
 wikipedia-nl.tar.gz Dutch
 wikipedia-pl.tar.gz Polish
 wikipedia-sv.tar.gz Swedish
 wikipedia-vi.tar.gz Vietnamese
 wikipedia-uk.tar.gz Ukrainian
-wikipedia-cu.tar.gz Indo-European 	Church Slavic, Church Slavonic, Old Church Slavonic, Old Slavonic, Old Bulgarian
 
 To do: DATA-1800
-nl, pl, sv, vi, (and war, ceb)
+(and war, ceb) and many others...
 
 Next batch: Serbian si, Indonesia id, Hungarian hu, Serbo-Croatian sh, Basque (eu), Malay (ms), Armenian (hy)
 Cebuano (ceb), Waray-Waray (war), Minangkabau (min), Bulgarian (bg)
@@ -327,7 +352,7 @@ wikipedia-vi	Wednesday 2019-08-14 07:34:50 PM{"media_resource.tab":1584541,"taxo
 
 wikipedia-sv	Tuesday 2019-04-30 09:04:30 PM	{"media_resource.tab":80151,"taxon.tab":51485}
 wikipedia-sv	Friday 2019-08-16 04:32:53 PM	{"media_resource.tab":80428,"taxon.tab":51666} OK
- 
+
 Not yet with multiple connectors: "no", "fi", "ca", "uk", "tr", "ro", "cs"
 wikipedia-cs	Saturday 2019-04-27 06:30:40 AM	{"media_resource.tab":23413,"taxon.tab":17991}
 wikipedia-cs	Thursday 2019-08-15 12:27:48 AM	{"media_resource.tab":23627,"taxon.tab":18160} OK

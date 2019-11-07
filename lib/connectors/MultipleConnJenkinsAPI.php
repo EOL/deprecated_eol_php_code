@@ -42,6 +42,10 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
         //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
         */
         
+        if($connector_task == 'finalize')           $job_name = 'eol_stats_job_finalize'; //finalize wikipedia resource
+        elseif($connector_task == 'generate_stats') $job_name = 'eol_stats_job'; //orig for EOL stats
+        else exit("\nUndefined job ($connector_task).\n");
+        
         $ctr = 0;
         foreach($batches as $batch) {
             $ctr++;
@@ -52,11 +56,27 @@ class MultipleConnJenkinsAPI //this makes use of the GBIF DwCA occurrence downlo
             $param['divisor'] = $divisor;
             $param['total_count'] = $total_count;
             
-            $task = $ctrler->get_available_job("eol_stats_job");
+            $task = $ctrler->get_available_job($job_name);
             $json = json_encode($param, true);
             $params['uuid'] = time();
             echo "\njson param: [$json]\n";
             if    ($connector == "eol_v3_api.php")  $cmd = PHP_PATH.' eol_v3_api.php jenkins ' . "'" . $json . "'";
+            elseif($connector == "gen_wikipedia_by_lang")
+            {   /*Array(
+                    [range] => Array(
+                            [0] => 317782
+                            [1] => 635563
+                        )
+                    [ctr] => 2
+                    [divisor] => 6
+                    [total_count] => 1906685
+                )*/
+                $lang = $arr_info['langx'];
+                if($connector_task == 'finalize') $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource";
+                else $cmd = PHP_PATH." wikipedia.php jenkins $lang generate_resource ".$param['range'][0]." ".$param['range'][1]." ".$param['ctr']."of".$param['divisor'];
+                               // wikipedia.php jenkins es generate_resource 1 416666 1of6
+                               // wikipedia.php jenkins es generate_resource
+            }
             elseif($connector == "xxx.php")         $cmd = PHP_PATH.' xxx.php jenkins ' . "'" . $json . "'";
             
             // /* works well locally Jul 10, 2019, but will still check if it will work in eol-archive - fingers crossed

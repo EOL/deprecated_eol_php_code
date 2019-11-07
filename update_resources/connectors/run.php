@@ -13,6 +13,8 @@ $GLOBALS['ENV_DEBUG'] = false;
 /*
 php5.6                    run.php jenkins '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
 php update_resources/connectors/run.php _ '{"connector":"eol_v3_api.php", "divisor":6, "task":"initial"}'
+
+php5.6                    run.php jenkins '{"connector":"gen_wikipedia_by_lang", "divisor":6, "task":"initial", "langx":"sh"}'
 */
 
 $funcj = new MultipleConnJenkinsAPI();
@@ -52,8 +54,23 @@ if($arr['task'] == 'initial') { //this is where to get e.g. the total number of 
         //end
         $funcj->jenkins_call($arr, "generate_stats"); //finally make the call
     }
+    elseif($arr['connector'] == 'gen_wikipedia_by_lang') {
+        $total_count = 2500000;
+        $arr['total_count'] = $total_count;
+        echo "\ntotal_count: $total_count\n";
+        
+        if($arr['divisor']) $batches = $funcj->get_range_batches($total_count, $arr['divisor']);
+        else                $batches[] = array(1, $total_count);
+        print_r($batches);
+        $arr['batches'] = $batches;
+        //start create temp group indicator files
+        // not needed here
+        //end
+        $funcj->jenkins_call($arr, "generate_stats"); //finally make the call
+    }
     elseif($arr['connector'] == 'xxx.php') { //customization part
     }
+    else exit("\nNot yet initialized, will terminate\n");
 }
 
 $elapsed_time_sec = time_elapsed() - $timestart;
