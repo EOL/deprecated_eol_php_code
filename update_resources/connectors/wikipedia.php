@@ -101,7 +101,9 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
-$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("sh")); //first client for MultipleConnJenkinsAPI
+
+$use_MultipleConnJenkinsAPI = array("sh"); //first client for MultipleConnJenkinsAPI
+$langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
 
@@ -154,7 +156,7 @@ function inject_MultipleConnJenkinsAPI($language)
     require_library('connectors/MultipleConnJenkinsAPI');
     $funcj = new MultipleConnJenkinsAPI();
     echo "\ntry to finalize now...\n";
-    $total_count = 2500000;
+    $total_count = 2700000; //2500000 old value
     $arr_info = array();
     $arr_info['finalize_now'] = true;
     $arr_info['langx'] = $language;
@@ -382,6 +384,7 @@ wikipedia-id	Tuesday 2019-10-29 02:46:33 PM	{"media_resource.tab":244932,"taxon.
 wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
 
 wikipedia-sh	Sunday 2019-11-03 10:54:20 PM	{"media_resource.tab":4145,"taxon.tab":3960,"time_elapsed":{"sec":3963.9,"min":66.07,"hr":1.1}}
+wikipedia-sh	Thursday 2019-11-07 06:07:45 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":857.63,"min":14.29,"hr":0.24}}
 
 wikipedia-eu	Tuesday 2019-11-05 05:55:55 PM	{"media_resource.tab":142743,"taxon.tab":82575,"time_elapsed":{"sec":112061.2,"min":1867.69,"hr":31.13,"day":1.3}}
 */
