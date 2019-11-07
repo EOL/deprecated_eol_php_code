@@ -24,7 +24,7 @@ print_r($arr);
 */
 $func->generate_stats($arr); //normal operation
 
-/* continue lifeline of Jenkins event */
+/* START continue lifeline of Jenkins event --------------------------------------------- */
 require_library('connectors/MultipleConnJenkinsAPI');
 $funcj = new MultipleConnJenkinsAPI();
 $filename = CONTENT_RESOURCE_LOCAL_PATH."part_EOL_stats_COUNTER.txt";
@@ -35,6 +35,7 @@ if($funcj->check_indicator_files_if_ready_2finalize_YN($filename, $arr['divisor'
     $func->generate_stats($arr); //finalize report
 }
 else echo "\ncannot finalize yet\n";
+/* END continue lifeline of Jenkins event ----------------------------------------------- */
 
 
 $elapsed_time_sec = time_elapsed() - $timestart;
