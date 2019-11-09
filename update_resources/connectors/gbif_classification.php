@@ -18,6 +18,20 @@ unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 // */
 
+/* 
+------------------------------------------------------------------------------------------------------
+For eoldynamichierarchywithlandmarks.zip, the meta.xml is manually edited by Eli.
+That is edited rowtype = http://rs.tdwg.org/dwc/terms/taxon
+The orig value is wrong (occurrence).
+------------------------------------------------------------------------------------------------------
+For eolpageids.csv, this was also edited by Eli. Added headers, that is column names (DH_id,EOL_id).
+e.g. Array(
+            [DH_id] => -1
+            [EOL_id] => 2913056
+        )
+------------------------------------------------------------------------------------------------------
+*/
+
 /* utility
 $func->utility_compare_2_DH_09(); //just ran locally. Not yet in eol-archive
 */
