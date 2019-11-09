@@ -120,7 +120,7 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
         else {
             echo "\nCannot finalize dwca yet.\n";
             // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI
-            if(in_array($language, array('sh'))) inject_MultipleConnJenkinsAPI($language);
+            if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
             // ------------------------------------------------------ */
         }
     }
@@ -216,7 +216,8 @@ To do: DATA-1800
 (and war, ceb) and many others...
 
 Next batch: Serbian si, Indonesia id, Hungarian hu, Serbo-Croatian sh, Basque (eu), Malay (ms), Armenian (hy)
-Cebuano (ceb), Waray-Waray (war), Minangkabau (min), Bulgarian (bg)
+Cebuano (ceb), Waray-Waray (war), Minangkabau (min), Bulgarian (bg), 
+Azerbaijani (az), Asturian (ast)
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}
