@@ -579,6 +579,7 @@ class WikiDataAPI extends WikipediaAPI
                 
                 /* force taxon in wikipedia & wikimedia. when developing. ***
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
+                // $arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386; //Formicidae
                 // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua (No Indonesian - id)
                 // $arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843; //Orca
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
