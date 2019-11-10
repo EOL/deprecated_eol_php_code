@@ -2,7 +2,9 @@
 namespace php_active_record;
 /* connector: [eol_v3_api.php]
 This script uses the different means to access the EOL V3 API.
-First client is DATA-1807: EOL stats resource
+- First client is DATA-1807: EOL stats resource
+- DATA-1826: GBIF Classification
+- DATA-1842: EOL image bundles for Katie
 */
 class Eol_v3_API
 {
@@ -26,6 +28,7 @@ class Eol_v3_API
         $this->api['Pages2'][0] = 'https://eol.org/api/pages/1.0/';
         $this->api['Pages2'][1] = '.json?details=true&xxx_per_page=75&xxx_page=';
         $this->api['Pages3'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?details=true'; //for GBIF_classificationAPI.php
+        $this->api['Pages4'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?details=true&images_per_page=50&images_page=PAGE_NO'; //for DATA-1842: EOL image bundles for Katie
 
         $this->api['search_name'] = 'https://eol.org/api/search/1.0.json?q=SCINAME&page=PAGE_NO&exact=true';
         /* https://eol.org/api/search/1.0.json?q=Sphinx&page=1&exact=true */
@@ -41,6 +44,37 @@ class Eol_v3_API
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         
         $this->basename = "cypher_".date('YmdHis');
+    }
+    function get_images_per_eol_page_id($eol_page_id, $options = array())
+    {
+        if(!$options) $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        $PAGE_NO = 0;
+        while(true) {
+            $PAGE_NO++;
+            $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages4']);
+            $url = str_replace("PAGE_NO", $PAGE_NO, $url);
+            echo("\n[$url]\n");
+            if($json = Functions::lookup_with_cache($url, $options)) {
+                $arr = json_decode($json, true);
+                if($objects = @$arr['taxonConcept']['dataObjects']) {
+                    echo "\nobjects: ".count($objects)."\n";
+                    // print_r($objects);
+                    foreach($objects as $obj) {
+                        unset($obj['dataRatings']);
+                        unset($obj['agents']);
+                        unset($obj['description']);
+                        $final[] = $obj;
+                    }
+                    // exit("\ndebug\n");
+                }
+                else break;
+            }
+            else break;
+        }
+        // print_r($final);
+        echo "\nTotal objects: ".count($final)."\n";
+        exit("\nxxx\n");
     }
     function search_eol_page_id($eol_page_id, $options = array())
     {   if(!$options) $options = $this->download_options;
