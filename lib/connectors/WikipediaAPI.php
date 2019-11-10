@@ -338,10 +338,7 @@ class WikipediaAPI
                 // $html = str_ireplace($substr, '', $html); //orig
                 $html = str_ireplace($substr, '<p>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
             }
-            
-            
-            
-            
+            //---------------------------------------------------------------------
             $left = '<table border="1" cellspacing="0" align="right" cellpadding="2">';
             $right = '</tbody></table><p>';
             if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
@@ -349,9 +346,7 @@ class WikipediaAPI
                 // $html = str_ireplace($substr, '', $html); //orig
                 $html = str_ireplace($substr, '<p>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
             }
-            
-            
-            
+            //---------------------------------------------------------------------
             $left = '<table class="infobox_v2">';
             $right = '</tbody></table><p>';
             if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
@@ -359,9 +354,7 @@ class WikipediaAPI
                 // $html = str_ireplace($substr, '', $html); //orig
                 $html = str_ireplace($substr, '<p>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
             }
-            
         }
-        
         if($this->language_code == "az") { /* for hu Eli updates: 11-08-2019 */
             $html = str_replace("</tr>\n", "</tr>", $html);
             $html = self::code_the_steps('<table class="infobox', '</tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>', $html);
@@ -375,7 +368,6 @@ class WikipediaAPI
                 $html = str_ireplace($substr, '</div>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
             }
         }
-        
         if($this->language_code == "cy") { /* for hu Eli updates: 11-07-2019 */
             // $html = self::code_the_steps('<table class="infobox biota', '</tbody></table></div>', $html);
             $left = '<table class="infobox biota';
