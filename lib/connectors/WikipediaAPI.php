@@ -329,6 +329,63 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == "ast") { /* for hu Eli updates: 11-08-2019 */
+            $html = str_replace("</table>\n", "</table>", $html);
+            $left = '<table border="1" cellspacing="0" cellpadding="2" style="margin-left: 1em; margin-bottom: 0.5em;float:right">';
+            $right = '</tbody></table><p>';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                $substr = $left.$arr[1].$right;
+                // $html = str_ireplace($substr, '', $html); //orig
+                $html = str_ireplace($substr, '<p>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
+            }
+            
+            
+            
+            
+            $left = '<table border="1" cellspacing="0" align="right" cellpadding="2">';
+            $right = '</tbody></table><p>';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                $substr = $left.$arr[1].$right;
+                // $html = str_ireplace($substr, '', $html); //orig
+                $html = str_ireplace($substr, '<p>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
+            }
+            
+            
+            
+            $left = '<table class="infobox_v2">';
+            $right = '</tbody></table><p>';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                $substr = $left.$arr[1].$right;
+                // $html = str_ireplace($substr, '', $html); //orig
+                $html = str_ireplace($substr, '<p>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
+            }
+            
+        }
+        
+        if($this->language_code == "az") { /* for hu Eli updates: 11-08-2019 */
+            $html = str_replace("</tr>\n", "</tr>", $html);
+            $html = self::code_the_steps('<table class="infobox', '</tr></tbody></table></td></tr></tbody></table></td></tr></tbody></table>', $html);
+            //---------------------------------------------------------------------
+            $html = str_replace("</table>\n", "</table>", $html);
+            $left = '<table cellpadding="3" cellspacing="0" style="border:1px solid #aaa; background:#ffffff;';
+            $right = '</tbody></table></div>';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                $substr = $left.$arr[1].$right;
+                // $html = str_ireplace($substr, '', $html); //orig
+                $html = str_ireplace($substr, '</div>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
+            }
+        }
+        
+        if($this->language_code == "cy") { /* for hu Eli updates: 11-07-2019 */
+            // $html = self::code_the_steps('<table class="infobox biota', '</tbody></table></div>', $html);
+            $left = '<table class="infobox biota';
+            $right = '</tbody></table></div>';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
+                $substr = $left.$arr[1].$right;
+                // $html = str_ireplace($substr, '', $html); //orig
+                $html = str_ireplace($substr, '</div>', $html); //2nd param is '</div>' not '' bec. '</div>' was added in $right above.
+            }
+        }
         if($this->language_code == "bg") { /* for hu Eli updates: 11-06-2019 */
             $html = self::code_the_steps('<table class="infobox', '</tr></tbody></table>', $html);
         }
@@ -637,7 +694,14 @@ class WikipediaAPI
         if($language_code == "bg") {
             $html = self::code_the_steps('<div id="stub" class="boilerplate metadata plainlinks noprint"', '</div></div>', $html);
         }
-        
+
+        if($language_code == "cy") {
+            $html = self::code_the_steps('<div class="floatnone">', '</div>', $html);
+            // exit("\n$html\n");
+            $html = self::code_the_steps('<div class="infobox"', '</div></div>', $html);
+            $html = self::code_the_steps('<div class="infobox"', '</div>&nbsp;</div>', $html);
+            $html = self::code_the_steps('<div style="clear: both; background-color: #f9f9f9;', '</div>', $html);
+        }
         return $html;
     }
     function code_the_steps($left, $right, $html, $multiple = false)
