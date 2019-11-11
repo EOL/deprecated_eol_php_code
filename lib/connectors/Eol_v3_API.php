@@ -45,37 +45,122 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
     }
-    function get_images_per_eol_page_id($eol_page_id, $options = array())
+    function get_images_per_eol_page_id($param, $options = array(), $destination = false)
     {
+        $eol_page_id = $param['eol_page_id'];
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
         $PAGE_NO = 0;
         while(true) {
             $PAGE_NO++;
+            // if(in_array($PAGE_NO, array(4,8,12,15,16,19,23,26))) continue; //Arthropoda
             $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages4']);
             $url = str_replace("PAGE_NO", $PAGE_NO, $url);
-            echo("\n[$url]\n");
+            // echo("\n[$url]\n");
             if($json = Functions::lookup_with_cache($url, $options)) {
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
-                    echo "\nobjects: ".count($objects)."\n";
-                    // print_r($objects);
+                    echo "\nobjects: ".count($objects)."\n"; // print_r($objects);
                     foreach($objects as $obj) {
                         unset($obj['dataRatings']);
                         unset($obj['agents']);
                         unset($obj['description']);
+                        unset($obj['created']);
+                        unset($obj['modified']);
                         $final[] = $obj;
-                    }
-                    // exit("\ndebug\n");
+                    } // exit("\ndebug\n");
                 }
                 else break;
             }
             else break;
         }
+        if($destination) {
+            if(!($f = Functions::file_open($destination, "w"))) return;
+            $fields = array_keys($final[0]);
+            fwrite($f, implode("\t", $fields)."\n");
+            foreach($final as $rec) {
+                /* fwrite($f, implode("\t", $rec)."\n"); //1st ver, looks good but not safe... not all api results are the same. */
+                // /* 2nd ver. 
+                $r = array();
+                foreach($fields as $fld) $r[] = @$rec[$fld];
+                fwrite($f, implode("\t", $r)."\n");
+                // */
+            }
+            fclose($f);
+        }
         // print_r($final);
         echo "\nTotal objects: ".count($final)."\n";
-        exit("\nxxx\n");
+        return $final;
     }
+    /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
+    function bundle_images_4download_per_eol_page_id($param, $file)
+    {
+        $items_count = 0; $folder_no = 1;
+        if(Functions::is_production()) {
+            $this->bundle_folder = '/extra/other_files/bundle_images/';
+            $items_per_bundle = 1000; 
+        }
+        else {
+            $this->bundle_folder = '/Volumes/AKiTiO4/other_files/bundle_images/';
+            $items_per_bundle = 2; 
+        }
+        $destination_folder = $this->bundle_folder.$param['eol_page_id']."/";
+        if(!is_dir($destination_folder)) mkdir($destination_folder);
+        
+        $i = 0;
+        foreach(new FileIterator($file) as $line_number => $line) {
+            $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [identifier] => EOL-media-542-4888050484
+                    [dataObjectVersionID] => 6707831
+                    [dataType] => http://purl.org/dc/dcmitype/StillImage
+                    [dataSubtype] => jpg
+                    [vettedStatus] => Trusted
+                    [mediumType] => image
+                    [dataRating] => 2.5
+                    [mimeType] => image/jpeg
+                    [title] => Male Lion - Maasai Mara, Kenya
+                    [license] => http://creativecommons.org/licenses/by-nc-sa/2.0/
+                    [license_id] => 4
+                    [rightsHolder] => David d'O / Schaapmans
+                    [source] => https://www.flickr.com/photos/david_o/4888050484/
+                    [mediaURL] => https://farm5.staticflickr.com/4093/4888050484_fba7e481cd_o.jpg
+                    [eolMediaURL] => https://content.eol.org/data/media/80/19/a6/542.4888050484.jpg
+                    [eolThumbnailURL] => https://content.eol.org/data/media/80/19/a6/542.4888050484.98x68.jpg
+                )*/
+                if($rec['eolMediaURL']) $items_count++;
+                else continue;
+                
+                if($items_count > $items_per_bundle) {
+                    $folder_no++;
+                    $items_count = 1;
+                }
+                
+                $filename = pathinfo($rec['eolMediaURL'], PATHINFO_BASENAME);
+                $target = $destination_folder.$folder_no."/";
+                if(!is_dir($target)) mkdir($target);
+                
+                $file_target = $target.$filename;
+                if(!file_exists($file_target)) {
+                    $cmd = "wget -q ".$rec['eolMediaURL']." -O $file_target";
+                    echo "\n$cmd\n";
+                    $output = shell_exec($cmd); // echo "\n$output\n";
+                }
+                else echo "\nalready exists($file_target)\n";
+                
+                if($i >= 6) break; //debug only
+            }
+        }
+    }
+    /* ---------------------------------------------------------- END image bundles ------------------------------------------------------------ */
     function search_eol_page_id($eol_page_id, $options = array())
     {   if(!$options) $options = $this->download_options;
         $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages3']);
