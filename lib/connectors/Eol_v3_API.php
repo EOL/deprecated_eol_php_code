@@ -67,6 +67,7 @@ class Eol_v3_API
                         unset($obj['description']);
                         unset($obj['created']);
                         unset($obj['modified']);
+                        unset($obj['license_id']);
                         $final[] = $obj;
                     } // exit("\ndebug\n");
                 }
@@ -75,18 +76,23 @@ class Eol_v3_API
             else break;
         }
         if($destination) {
+            
+            $destination2 = str_replace(".txt", "_download.txt", $destination);
+            if(!($f2 = Functions::file_open($destination2, "w"))) return;
+
             if(!($f = Functions::file_open($destination, "w"))) return;
             $fields = array_keys($final[0]);
             fwrite($f, implode("\t", $fields)."\n");
-            foreach($final as $rec) {
-                /* fwrite($f, implode("\t", $rec)."\n"); //1st ver, looks good but not safe... not all api results are the same. */
-                // /* 2nd ver. 
+            $i = 0;
+            foreach($final as $rec) { $i++;
                 $r = array();
                 foreach($fields as $fld) $r[] = @$rec[$fld];
                 fwrite($f, implode("\t", $r)."\n");
-                // */
+                fwrite($f2, $rec['eolMediaURL']."\n");
+                if($i >= 10) break; //debug only
             }
             fclose($f);
+            fclose($f2);
         }
         // print_r($final);
         echo "\nTotal objects: ".count($final)."\n";
@@ -155,7 +161,7 @@ class Eol_v3_API
                 }
                 else echo "\nalready exists($file_target)\n";
                 
-                if($i >= 8) break; //debug only
+                if($i >= 11) break; //debug only
             }
         }
     }
