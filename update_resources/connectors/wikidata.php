@@ -26,6 +26,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Friday 2019-04-12 08:34:05 PM	 {"agent.tab":189886,"media_resource.tab":1315303,"taxon.tab":128676,"vernacular_name.tab":729662} expected big increase in vernaculars
 71	Thursday 2019-06-06 04:31:09 AM	 {"agent.tab":190674,"media_resource.tab":1324658,"taxon.tab":129200,"vernacular_name.tab":734354} consistent OK
 71	Friday 2019-08-09 01:56:21 AM	 {"agent.tab":191768,"media_resource.tab":1340788,"taxon.tab":129802,"vernacular_name.tab":748550} conistent OK
+71	Monday 2019-11-11 04:56:47 AM	 {"agent.tab":192916,"media_resource.tab":1373427,"taxon.tab":130672,"vernacular_name.tab":757699,"time_elapsed":{"sec":75396.18,"min":1256.6,"hr":20.94}} conistent OK
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -44,6 +45,7 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Friday 2019-04-12 08:48:05 PM	{"agent.tab":189886,"media_resource.tab":1315303,"taxon.tab":128676} expected big increase in vernaculars
 71_new	Thursday 2019-06-06 04:46:47 AM	{"agent.tab":190674,"media_resource.tab":1324658,"taxon.tab":129200} consistent OK
 71_new	Monday 2019-08-12 04:31:40 AM	{"agent.tab":191768,"media_resource.tab":1340788,"taxon.tab":129802} consistent OK - after fixing in DwCA_Utility the expire_seconds to zero 0
+71_new	Monday 2019-11-11 05:13:27 AM	{"agent.tab":192916,"media_resource.tab":1373427,"taxon.tab":130672,"time_elapsed":false} consistent OK
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
