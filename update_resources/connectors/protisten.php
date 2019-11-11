@@ -6,6 +6,9 @@ protisten	Thursday 2019-03-28 09:40:16 PM	{"agent.tab":1,"media_resource.tab":15
 protisten	Monday 2019-04-15 12:53:10 AM	{"agent.tab":1,"media_resource.tab":1587,"taxon.tab":1050}
 protisten	Thursday 2019-09-19 11:49:40 PM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089}
 protisten	Monday 2019-11-04 03:23:38 AM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089,"time_elapsed":false}
+protisten	Monday 2019-11-11 10:05:34 AM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089,"time_elapsed":{"sec":19.97,"min":0.33,"hr":0.01}}
+            Monday 2019-11-11 10:40:00 AM	{"agent.tab":1,"media_resource.tab":1705,"taxon.tab":1093} consistent OK
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
