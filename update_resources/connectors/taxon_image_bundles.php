@@ -23,7 +23,7 @@ $arr = json_decode($params['json'], true);
 // $eol_page_id = 164; $sci = 'Arthropoda';
 // $eol_page_id = 695; $sci = 'Aves';
 $eol_page_id = 328672; $sci = 'Panthera leo';
-$eol_page_id = 919224; $sci = 'wormy guy';
+// $eol_page_id = 919224; $sci = 'wormy guy';
 
 $param = array('eol_page_id' => $eol_page_id, 'sci' => $sci);
 $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $sci).".txt"; //false;

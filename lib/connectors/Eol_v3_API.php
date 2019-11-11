@@ -98,11 +98,12 @@ class Eol_v3_API
         $items_count = 0; $folder_no = 1;
         if(Functions::is_production()) {
             $this->bundle_folder = '/extra/other_files/bundle_images/';
-            $items_per_bundle = 1000; 
+            $items_per_bundle = 1000;
+            $items_per_bundle = 2;
         }
         else {
             $this->bundle_folder = '/Volumes/AKiTiO4/other_files/bundle_images/';
-            $items_per_bundle = 2; 
+            $items_per_bundle = 2;
         }
         $destination_folder = $this->bundle_folder.$param['eol_page_id']."/";
         if(!is_dir($destination_folder)) mkdir($destination_folder);
