@@ -7,10 +7,12 @@ wget -q https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /extra/o
 wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
 
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":919224, "sci":"wormy guy"}'
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":328672, "sci":"Panthera leo"}'
+
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":695, "sci":"Aves"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":164, "sci":"Arthropoda"}'
-php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":328672, "sci":"Panthera leo"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1642, "sci":"Mammalia"}'
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
