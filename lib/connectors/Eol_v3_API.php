@@ -90,8 +90,7 @@ class Eol_v3_API
                 fwrite($f2, $rec['eolMediaURL']."\n");
                 // if($i >= 10) break; //debug only
             }
-            fclose($f);
-            fclose($f2);
+            fclose($f); fclose($f2);
             // ---------------------------------------------------- single file end */
 
             // /* multiple file start ----------------------------------------------------
@@ -114,10 +113,9 @@ class Eol_v3_API
                 fwrite($f2, $rec['eolMediaURL']."\n");
                 
                 if($items_count == $items_per_bundle) {
-                    $folder_no++; echo "\n$folder_no\n";
+                    $folder_no++; //echo "\n$folder_no\n";
                     $items_count = 0;
-                    fclose($f);
-                    fclose($f2);
+                    fclose($f); fclose($f2);
                     $destination = str_replace(".txt", "_breakdown.txt", $orig_destination); //new destination file: images_for_Panthera_leo_breakdown.txt
                     $destination2 = str_replace(".txt", "_download.txt", $destination); //new destination2 file: images_for_Panthera_leo_breakdown_download.txt
                     $destination = str_replace(".txt", "_".Functions::format_number_with_leading_zeros($folder_no, 2).".txt", $destination);
@@ -127,8 +125,7 @@ class Eol_v3_API
                     fwrite($f, implode("\t", $fields)."\n");
                 }
             }
-            fclose($f);
-            fclose($f2);
+            fclose($f); fclose($f2);
             // ---------------------------------------------------- multiple file end */
             
         }

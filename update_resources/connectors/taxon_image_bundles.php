@@ -25,7 +25,12 @@ $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $param = json_decode($params['json'], true);
 
-$destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
+if(Functions::is_production()) $path = '/extra/other_files/image_bundles/files/';
+else                           $path = '/Volumes/AKiTiO4/other_files/bundle_images/files/';
+
+
+// $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
+$destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination); //normal operation
 // $func->bundle_images_4download_per_eol_page_id($param, $destination); //normal operation
 
