@@ -143,11 +143,9 @@ class Eol_v3_API
                     $folder_no++;
                     $items_count = 1;
                 }
-                
-                $filename = pathinfo($rec['eolMediaURL'], PATHINFO_BASENAME);
                 $target = $destination_folder.$folder_no."/";
                 if(!is_dir($target)) mkdir($target);
-                
+                $filename = pathinfo($rec['eolMediaURL'], PATHINFO_BASENAME);
                 $file_target = $target.$filename;
                 if(!file_exists($file_target)) {
                     $cmd = "wget -q ".$rec['eolMediaURL']." -O $file_target";
@@ -156,7 +154,7 @@ class Eol_v3_API
                 }
                 else echo "\nalready exists($file_target)\n";
                 
-                if($i >= 6) break; //debug only
+                if($i >= 8) break; //debug only
             }
         }
     }
