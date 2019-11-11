@@ -110,7 +110,7 @@ class Eol_v3_API
         
         $i = 0;
         foreach(new FileIterator($file) as $line_number => $line) {
-            $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            $line = explode("\t", $line); $i++; if(($i % 500) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;
             else {
                 if(!$line[0]) break;
@@ -148,10 +148,10 @@ class Eol_v3_API
                 if(!is_dir($target)) mkdir($target);
                 $filename = pathinfo($rec['eolMediaURL'], PATHINFO_BASENAME);
                 $file_target = $target.$filename;
-                if(!file_exists($file_target)) {
-                    $cmd = "wget -q ".$rec['eolMediaURL']." -O $file_target";
+                if(!file_exists($file_target)) { // "-nc" seems redundant already with this line
+                    $cmd = "wget -q -nc ".$rec['eolMediaURL']." -O $file_target"; // "-nc" means will not re-download if file exists already. "-N" means will re-download newer files.
                     echo "\n$cmd\n";
-                    $output = shell_exec($cmd); // echo "\n$output\n";
+                    $output = shell_exec($cmd); // since using "-q", $output is blank anyway.
                 }
                 else echo "\nalready exists($file_target)\n";
                 
