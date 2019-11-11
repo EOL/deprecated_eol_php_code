@@ -32,7 +32,7 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 // $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination); //normal operation
-// $func->bundle_images_4download_per_eol_page_id($param, $destination); //normal operation
+// $func->bundle_images_4download_per_eol_page_id($param, $destination); //normal operation -- working but not used for now...
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";

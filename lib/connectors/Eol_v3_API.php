@@ -127,14 +127,13 @@ class Eol_v3_API
             }
             fclose($f); fclose($f2);
             // ---------------------------------------------------- multiple file end */
-            
         }
         // print_r($final);
         echo "\nTotal objects: ".count($final)."\n";
         return $final;
     }
     /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
-    function bundle_images_4download_per_eol_page_id($param, $file)
+    function bundle_images_4download_per_eol_page_id($param, $file) //working but not used for now...
     {
         $items_count = 0; $folder_no = 1;
         if(Functions::is_production()) {
@@ -195,7 +194,6 @@ class Eol_v3_API
                     $output = shell_exec($cmd); // since using "-q", $output is blank anyway.
                 }
                 else echo "\nalready exists($file_target)\n";
-                
                 if($i >= 11) break; //debug only
             }
         }
