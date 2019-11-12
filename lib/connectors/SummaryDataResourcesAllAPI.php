@@ -544,8 +544,14 @@ class SummaryDataResourcesAllAPI
             $sql = "TRUNCATE TABLE SDR.".$table.";";
             if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
             //insert data
+            /* commented 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used manual, notes in SDR_all_readmeli.txt.
             $sql = "INSERT INTO SDR.".$table." SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = '".$predicate."'";
             if($result = $this->mysqli->query($sql)) echo "\nTable updated [$table] OK.\n";
+            else {
+                echo "\nsomething went wrong: [$table]\n";
+                print_r($result);
+            }
+            */
         }
     }
     function test_parent_basal_values($dbase, $debugModeYN = false)

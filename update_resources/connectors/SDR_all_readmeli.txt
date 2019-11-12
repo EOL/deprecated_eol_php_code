@@ -128,10 +128,9 @@ mysql>
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/metadata_refs_1.txt' into table metadata_refs;
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/metadata_refs_2.txt' into table metadata_refs;
 ----------------------------------------------------------------------------------------------------------------------------------------
-this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT
+this was manually done for now: Jun 9, 2019 - for ALL TRAIT EXPORT. And also on 2019Nov11.
 -- for parent basal values process:
-Array
-(
+Array(
     [0] => http://eol.org/schema/terms/Present
     [1] => http://eol.org/schema/terms/Habitat
     [2] => http://purl.obolibrary.org/obo/FLOPO_0900032

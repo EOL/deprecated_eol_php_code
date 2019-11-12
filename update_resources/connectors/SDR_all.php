@@ -142,21 +142,21 @@ $this->working_dir
 $this->trait_bank_folder
 */
 
-// /* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
-// $func->generate_refs_per_eol_pk_MySQL(); exit("\n-end 2019Nov11-\n");
+/* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
+$func->generate_refs_per_eol_pk_MySQL(); exit("\n-end 2019Nov11-\n");
     // metadata_refs   984,498 2019Aug22
     //               1,207,934 2019Nov11
 
-// $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); //used for method: lifestage and statMeth()
+$func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); //used for method: lifestage and statMeth()
     // metadata_LSM    1,727,545   2019Aug22
     //                 1,878,398   2019Nov11
 
 // these four are for the main traits table 
-    // $func->generate_page_id_txt_files_MySQL('BV');
+    $func->generate_page_id_txt_files_MySQL('BV');
     // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
-    // $func->generate_page_id_txt_files_MySQL('TS');
-    // $func->generate_page_id_txt_files_MySQL('TSp');
-    // $func->generate_page_id_txt_files_MySQL('LSM');
+    $func->generate_page_id_txt_files_MySQL('TS');
+    $func->generate_page_id_txt_files_MySQL('TSp');
+    $func->generate_page_id_txt_files_MySQL('LSM');
     // traits_BV   2019Aug22   3,525,177
     //             2019Nov11   5,724,786
     // 
@@ -171,23 +171,24 @@ $this->trait_bank_folder
 
 
 // preparation for parent basal values. This takes some time.
-    // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
+    // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - SDR_all_readmeli.txt for more details
     // INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
     // INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
     // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
-    $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22
 
+    $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22. But didn't work anymore for 2019Nov11.
+
+    // On 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used manual, login to "mysql>", notes in SDR_all_readmeli.txt instead.
     // page_ids_FLOPO_0900032  2019Aug22    189,741
-    //                         2019Nov11    
+    //                         2019Nov11    160,560
     // 
     // page_ids_Habitat        2019Aug22    344,704
-    //                         2019Nov11
+    //                         2019Nov11    391,046
     // 
     // page_ids_Present        2019Aug22    1,242,249
-    //                         2019Nov11
-    exit("\n-end 2019Nov11-\n");
+    //                         2019Nov11    1,116,012   exit("\n-end 2019Nov11-\n");
 return;
-// ========================================================================================================== */ 
+========================================================================================================== */ 
 
 /* IMPORTANT STEP - for parent BV and parent TS ===============================================================================
 $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
