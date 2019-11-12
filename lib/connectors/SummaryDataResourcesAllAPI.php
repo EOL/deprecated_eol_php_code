@@ -14,7 +14,18 @@ class SummaryDataResourcesAllAPI
         $this->debug = array();
 
         $opendata_paths = self::get_opendata_paths();
-        /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships */
+        /* Terms relationships -> https://opendata.eol.org/dataset/terms-relationships --- as of Nov 12, 2019:  // print_r($opendata_paths); exit;
+        Array(
+        actually used:
+            [preferred synonym] => https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonymnov8.csv
+            [terms relationships for habitat values] => https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/c5ff5c62-a2ef-44be-9f59-88cd99bc8af2/download/habitat-parent-child-6-1.csv
+            [terms relationships for geographic values] => https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-feb19.csv
+        not used:
+            [parent child] => https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/f8036c30-f4ab-4796-8705-f3ccd20eb7e9/download/parent-child-nov8.csv
+            [trait defaultUnit] => https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/d90b165f-92ad-44fe-aef2-ecd25721caac/download/defaultunits.csv
+            [values terms] => https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/c464e148-a1d7-4e07-a1be-f920b99e4afb/download/values-terms-sept-7-2.csv
+            [all relationships] => https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/2affbe5a-4bd6-4e8c-b19c-f65f9dafd078/download/all-relationships-7.csv
+        )*/
         /* not used at the moment:
         $this->file['parent child']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/f8036c30-f4ab-4796-8705-f3ccd20eb7e9/download/parent-child-aug-16-2.csv";
         $this->file['parent child']['path'] = "http://localhost/cp/summary data resources/parent-child-aug-16-2.csv";
