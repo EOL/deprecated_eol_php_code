@@ -39,7 +39,6 @@ show tables;
 show warnings; 
 show tables;
 -> worked OK, even with multi-line entries. Just a test that was a success.
-
 ----------------------------------------------------------------------------------------------------------------------------------------
 $ mysql -u root -p --local-infile SDR;
 
@@ -64,8 +63,6 @@ select count(*) from traits_BV;
 select count(*) from traits_LSM;
 select count(*) from traits_TS;
 select count(*) from traits_TSp;
-
-
 
 TABLES                  |2019May29 |  |2019Jun13 |
 DH_lookup;              |  2237553 |
