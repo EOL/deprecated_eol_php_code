@@ -143,8 +143,15 @@ $this->trait_bank_folder
 */
 
 // /* can run one after the other: Done for 2019Aug22 ======================================================== this block worked OK
-$func->generate_refs_per_eol_pk_MySQL(); exit("\n-end-\n");
+// $func->generate_refs_per_eol_pk_MySQL(); exit("\n-end 2019Nov11-\n");
+/*  metadata_refs   984,498 2019Aug22
+                  1,207,934 2019Nov11
+*/
 $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth()
+/*  metadata_LSM    1,727,545   2019Aug22
+                                2019Nov11
+*/
+exit("\n-end 2019Nov11-\n");
 
 // these four are for the main traits table
     $func->generate_page_id_txt_files_MySQL('BV');
