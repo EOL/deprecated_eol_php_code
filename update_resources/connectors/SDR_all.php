@@ -142,33 +142,33 @@ $this->working_dir
 $this->trait_bank_folder
 */
 
-// /* can run one after the other: Done for 2019Aug22 ======================================================== this block worked OK
+// /* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
 // $func->generate_refs_per_eol_pk_MySQL(); exit("\n-end 2019Nov11-\n");
-/*  metadata_refs   984,498 2019Aug22
-                  1,207,934 2019Nov11
-*/
+    // metadata_refs   984,498 2019Aug22
+    //               1,207,934 2019Nov11
+
 // $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); //used for method: lifestage and statMeth()
-/*  metadata_LSM    1,727,545   2019Aug22
-                    1,878,398   2019Nov11
-*/
+    // metadata_LSM    1,727,545   2019Aug22
+    //                 1,878,398   2019Nov11
 
-
-// these four are for the main traits table
+// these four are for the main traits table 
     // $func->generate_page_id_txt_files_MySQL('BV');
     // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
-    $func->generate_page_id_txt_files_MySQL('TS');
-    $func->generate_page_id_txt_files_MySQL('TSp');
-    $func->generate_page_id_txt_files_MySQL('LSM');
-/*  traits_BV   2019Aug22   3,525,177
-                2019Nov11
-    traits_LSM  2019Aug22   190,833
-                2019Nov11
-    traits_TS   2019Aug22   2,178,526
-                2019Nov11
-    traits_TSp  2019Aug22   1,402,799
-                2019Nov11
-*/
-    exit("\n-end 2019Nov11-\n");
+    // $func->generate_page_id_txt_files_MySQL('TS');
+    // $func->generate_page_id_txt_files_MySQL('TSp');
+    // $func->generate_page_id_txt_files_MySQL('LSM');
+    // traits_BV   2019Aug22   3,525,177
+    //             2019Nov11   5,724,786
+    // 
+    // traits_LSM  2019Aug22   190,833
+    //             2019Nov11   309,906
+    //             
+    // traits_TS   2019Aug22   2,178,526
+    //             2019Nov11   3.089,998
+    // 
+    // traits_TSp  2019Aug22   1,402,799
+    //             2019Nov11   1,969,893   exit("\n-end 2019Nov11-\n");
+
 
 // preparation for parent basal values. This takes some time.
     // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
@@ -177,6 +177,15 @@ $this->trait_bank_folder
     // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
     $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22
 
+    // page_ids_FLOPO_0900032  2019Aug22    189,741
+    //                         2019Nov11    
+    // 
+    // page_ids_Habitat        2019Aug22    344,704
+    //                         2019Nov11
+    // 
+    // page_ids_Present        2019Aug22    1,242,249
+    //                         2019Nov11
+    exit("\n-end 2019Nov11-\n");
 return;
 // ========================================================================================================== */ 
 
