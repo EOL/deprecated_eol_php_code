@@ -190,9 +190,9 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); 
 return;
 ========================================================================================================== */ 
 
-// /* IMPORTANT STEP - for parent BV and parent TS =============================================================================== should run every new all-trait-export.
+/* IMPORTANT STEP - for parent BV and parent TS =============================================================================== should run every new all-trait-export.
 $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
-
+                                  exit("\n-end 2019Nov11-\n");
 // use this for single page_id:
 $page_id = 6551609;
 $page_id = 2366;
@@ -206,12 +206,12 @@ $func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache()
 // $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/26/dd/2774383_ch.txt");
 // $arr = json_decode($json, true); print_r($arr);
 
-// =============================================================================================================================== */
+=============================================================================================================================== */
 
 // $func->investigate_metadata_csv(); exit;
 
 // $func->test_basal_values('BV');          return;
-// $func->print_basal_values('BV');         //return;   //main orig report -- 3.91 hours
+$func->print_basal_values('BV');         return;   //main orig report -- 3.91 hours
 // $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
 // $func->print_parent_basal_values('BV');  //return; //main orig report -- 92.75 minutes | 1.25 hours
 // $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
