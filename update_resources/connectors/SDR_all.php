@@ -137,8 +137,13 @@ $func = new SummaryDataResourcesAllAPI($resource_id);
 $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
 */
 
-/* can run one after the other: Done for 2019Aug22 ======================================================== this block worked OK
-$func->generate_refs_per_eol_pk_MySQL();
+/* for every new all-trait-export, must update these vars: Done already for 2019Nov11
+$this->working_dir
+$this->trait_bank_folder
+*/
+
+// /* can run one after the other: Done for 2019Aug22 ======================================================== this block worked OK
+$func->generate_refs_per_eol_pk_MySQL(); exit("\n-end-\n");
 $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth()
 
 // these four are for the main traits table
@@ -156,7 +161,7 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage 
     $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22
 
 return;
-========================================================================================================== */ 
+// ========================================================================================================== */ 
 
 /* IMPORTANT STEP - for parent BV and parent TS ===============================================================================
 $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
