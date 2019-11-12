@@ -147,18 +147,28 @@ $this->trait_bank_folder
 /*  metadata_refs   984,498 2019Aug22
                   1,207,934 2019Nov11
 */
-$func->build_MySQL_table_from_csv('metadata_LSM'); //used for method: lifestage and statMeth()
+// $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); //used for method: lifestage and statMeth()
 /*  metadata_LSM    1,727,545   2019Aug22
-                                2019Nov11
+                    1,878,398   2019Nov11
 */
-exit("\n-end 2019Nov11-\n");
+
 
 // these four are for the main traits table
-    $func->generate_page_id_txt_files_MySQL('BV');
+    // $func->generate_page_id_txt_files_MySQL('BV');
     // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
     $func->generate_page_id_txt_files_MySQL('TS');
     $func->generate_page_id_txt_files_MySQL('TSp');
     $func->generate_page_id_txt_files_MySQL('LSM');
+/*  traits_BV   2019Aug22   3,525,177
+                2019Nov11
+    traits_LSM  2019Aug22   190,833
+                2019Nov11
+    traits_TS   2019Aug22   2,178,526
+                2019Nov11
+    traits_TSp  2019Aug22   1,402,799
+                2019Nov11
+*/
+    exit("\n-end 2019Nov11-\n");
 
 // preparation for parent basal values. This takes some time.
     // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - readmeli.txt for more details
