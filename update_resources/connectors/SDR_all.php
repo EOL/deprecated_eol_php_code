@@ -190,7 +190,7 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); 
 return;
 ========================================================================================================== */ 
 
-/* IMPORTANT STEP - for parent BV and parent TS ===============================================================================
+// /* IMPORTANT STEP - for parent BV and parent TS =============================================================================== should run every new all-trait-export.
 $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
 
 // use this for single page_id:
@@ -206,7 +206,7 @@ $func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache()
 // $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/26/dd/2774383_ch.txt");
 // $arr = json_decode($json, true); print_r($arr);
 
-=============================================================================================================================== */
+// =============================================================================================================================== */
 
 // $func->investigate_metadata_csv(); exit;
 
