@@ -675,7 +675,7 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 46559197, 'predicate' => "http://eol.org/schema/terms/Present");
         // $input[] = array('page_id' => 46559217, 'predicate' => "http://eol.org/schema/terms/Present");
         
-        // $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
+        $input[] = array('page_id' => 7662, 'predicate' => "http://eol.org/schema/terms/Habitat"); //first test case     //test case with new 2nd deletion step
         // $input[] = array('page_id' => 328607, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328682, 'predicate' => "http://eol.org/schema/terms/Habitat");
         // $input[] = array('page_id' => 328609, 'predicate' => "http://eol.org/schema/terms/Habitat");                        //test case with new first & second deletion steps
@@ -1612,7 +1612,7 @@ class SummaryDataResourcesAllAPI
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
-    function append_to_MySQL_table($table, $file_append)
+    function append_to_MySQL_table($table, $file_append, $csvFileYN = false)
     {
         echo "\nSaving [$table] records to MySQL...\n";
         if(filesize($file_append)) {
@@ -1621,11 +1621,29 @@ class SummaryDataResourcesAllAPI
             $sql = "TRUNCATE TABLE SDR.".$table.";";
             if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
             */
+            
+            // e.g. load csv file to a blank table
+            // LOAD DATA LOCAL INFILE 'abc.csv' INTO TABLE abc
+            // FIELDS TERMINATED BY ',' 
+            // ENCLOSED BY '"' 
+            // LINES TERMINATED BY '\r\n'
+            // IGNORE 1 LINES
+            // (col1, col2, col3, col4, col5...);
+            
             //load data to a blank table
-            $sql = "LOAD data local infile '".$file_append."' into table SDR.".$table.";";
+            if(!$csvFileYN) $sql = "LOAD DATA LOCAL INFILE '".$file_append."' INTO TABLE SDR.".$table.";";
+            else            $sql = "LOAD DATA LOCAL INFILE '".$file_append."' INTO TABLE SDR.".$table." FIELDS TERMINATED BY ',' ;";
             if($result = $this->mysqli->query($sql)) echo "\nSaved table [$table] to MySQL\n";
+            else                                     echo "\nError: failed saving [$table]\n";
         }
         else echo "\nNothing to save.\n";
+    }
+    function update_inferred_file()
+    {
+        self::working_dir(); //initializes $this->main_paths
+        $table = 'traits_inferred'; $sql = "TRUNCATE TABLE SDR.".$table.";";
+        if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
+        self::append_to_MySQL_table($table, $this->main_paths['archive_path'].'/inferred.csv', $csvFileYN = true);
     }
     function build_MySQL_table_from_csv($table) //generic means to build MySQL table from CSV file //1st client is method: lifestage and statMeth
     {   self::working_dir(); //initializes $this->main_paths
@@ -3201,9 +3219,11 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         else {
             exit("\nShould not go here...\n");
         }
-        echo "\n recs: ".count($recs);
+        echo "\n A recs: ".count($recs);
+        print_r($recs); exit;
+        
         $uris = self::get_valueUris_from_recs($recs);
-        echo "\n uris: ".count($uris); print_r($uris);
+        echo "\n B uris: ".count($uris); print_r($uris);
         
         self::set_ancestor_ranking_from_set_of_uris($uris);
         // print_r($this->ancestor_ranking_preferred); exit;
