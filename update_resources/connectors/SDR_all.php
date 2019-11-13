@@ -143,6 +143,13 @@ $this->trait_bank_folder
 */
 
 /* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
+
+// ----------------------------update 'inferred' start
+$func->update_inferred_file(); exit("\n-end 2019Nov11-\n");
+    // csv file rows:  1,199,241   2019Nov11
+    //                             1,199,241
+// ----------------------------update 'inferred' end
+
 $func->generate_refs_per_eol_pk_MySQL(); exit("\n-end 2019Nov11-\n");
     // metadata_refs   984,498 2019Aug22
     //               1,207,934 2019Nov11
@@ -211,9 +218,9 @@ $func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache()
 // $func->investigate_metadata_csv(); exit;
 
 // $func->test_basal_values('BV');          return;
-$func->print_basal_values('BV');         return;   //main orig report -- 3.91 hours
+$func->print_basal_values('BV');         //return;   //main orig report -- 3.91 hours
 // $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
-// $func->print_parent_basal_values('BV');  //return; //main orig report -- 92.75 minutes | 1.25 hours
+// $func->print_parent_basal_values('BV');  return; //main orig report -- 92.75 minutes | 1.25 hours
 // $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
 // /* for multiple page_ids: BV
