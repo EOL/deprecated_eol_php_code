@@ -50,6 +50,7 @@ class Eol_v3_API
         $eol_page_id = $param['eol_page_id'];
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
+        $options['download_wait_time'] = 2000000; //2 seconds
         $PAGE_NO = 0;
         while(true) {
             $PAGE_NO++;
