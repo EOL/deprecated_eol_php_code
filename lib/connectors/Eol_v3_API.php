@@ -52,6 +52,7 @@ class Eol_v3_API
         $options['expire_seconds'] = false;
         $options['download_wait_time'] = 2000000; //2 seconds
         $PAGE_NO = 0;
+        $items_count = 0; $folder_no = 1; $items_per_bundle = 1000; $final = array();
         while(true) {
             $PAGE_NO++;
             // if(in_array($PAGE_NO, array(4,8,12,15,16,19,23,26))) continue; //Arthropoda
@@ -65,7 +66,7 @@ class Eol_v3_API
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
                     if(($PAGE_NO % 100) == 0) echo "\nobjects: ".count($objects)."\n";
-                    foreach($objects as $obj) {
+                    foreach($objects as $obj) { $items_count++;
                         unset($obj['dataRatings']);
                         unset($obj['agents']);
                         unset($obj['description']);
@@ -73,70 +74,47 @@ class Eol_v3_API
                         unset($obj['modified']);
                         unset($obj['license_id']);
                         $final[] = $obj;
+                        
+                        if(!isset($fields)) $fields = array_keys($obj);
+                        
+                        if($items_count == $items_per_bundle) {
+                            $folder_no++; //echo "\n$folder_no\n";
+                            $items_count = 0;
+                            self::write_2file_bundle($final, $param, $folder_no, $destination, $fields);
+                            $final = array();
+                        }
+                        
                     } // exit("\ndebug\n");
                 }
                 else break;
             }
             else break;
         }
-        if($destination) {
-            // /* single file start ----------------------------------------------------
-            $destination2 = str_replace(".txt", "_download.txt", $destination);
-            if(!($f2 = Functions::file_open($destination2, "w"))) return;
-            if(!($f = Functions::file_open($destination, "w"))) return;
-            $fields = array_keys($final[0]);
-            fwrite($f, implode("\t", $fields)."\n");
-            $i = 0;
-            foreach($final as $rec) { $i++;
-                $r = array();
-                foreach($fields as $fld) $r[] = @$rec[$fld];
-                fwrite($f, implode("\t", $r)."\n");
-                fwrite($f2, $rec['eolMediaURL']."\n");
-                // if($i >= 10) break; //debug only
-            }
-            fclose($f); fclose($f2);
-            // ---------------------------------------------------- single file end */
-
-            // /* multiple file start ----------------------------------------------------
-            $orig_destination = $destination;
-            $items_count = 0; $folder_no = 1; $items_per_bundle = 1000;
-            
-            $destination = str_replace(".txt", "_breakdown.txt", $orig_destination); //new destination file: images_for_Panthera_leo_breakdown.txt
-            $destination2 = str_replace(".txt", "_download.txt", $destination); //new destination2 file: images_for_Panthera_leo_breakdown_download.txt
-            $destination = str_replace(".txt", "_".Functions::format_number_with_leading_zeros($folder_no, 2).".txt", $destination);
-            $destination2 = str_replace(".txt", "_".Functions::format_number_with_leading_zeros($folder_no, 2).".txt", $destination2);
-            if(!($f2 = Functions::file_open($destination2, "w"))) return;
-            if(!($f = Functions::file_open($destination, "w"))) return;
-            $fields = array_keys($final[0]);
-            fwrite($f, implode("\t", $fields)."\n");
-
-            foreach($final as $rec) { $items_count++;
-                $r = array();
-                foreach($fields as $fld) $r[] = @$rec[$fld];
-                fwrite($f, implode("\t", $r)."\n");
-                fwrite($f2, $rec['eolMediaURL']."\n");
-                
-                if($items_count == $items_per_bundle) {
-                    $folder_no++; //echo "\n$folder_no\n";
-                    $items_count = 0;
-                    fclose($f); fclose($f2);
-                    $destination = str_replace(".txt", "_breakdown.txt", $orig_destination); //new destination file: images_for_Panthera_leo_breakdown.txt
-                    $destination2 = str_replace(".txt", "_download.txt", $destination); //new destination2 file: images_for_Panthera_leo_breakdown_download.txt
-                    $destination = str_replace(".txt", "_".Functions::format_number_with_leading_zeros($folder_no, 2).".txt", $destination);
-                    $destination2 = str_replace(".txt", "_".Functions::format_number_with_leading_zeros($folder_no, 2).".txt", $destination2);
-                    if(!($f2 = Functions::file_open($destination2, "w"))) return;
-                    if(!($f = Functions::file_open($destination, "w"))) return;
-                    fwrite($f, implode("\t", $fields)."\n");
-                }
-            }
-            fclose($f); fclose($f2);
-            // ---------------------------------------------------- multiple file end */
-        }
         // print_r($final);
         echo "\nTotal objects: ".count($final)."\n";
         return $final;
     }
     /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
+    private function write_2file_bundle($final, $param, $folder_no, $destination, $fields)
+    {
+        // /* multiple file start ----------------------------------------------------
+        $orig_destination = $destination;
+        $destination = str_replace(".txt", "_breakdown.txt", $orig_destination); //new destination file: images_for_Panthera_leo_breakdown.txt
+        $destination2 = str_replace(".txt", "_download.txt", $destination); //new destination2 file: images_for_Panthera_leo_breakdown_download.txt
+        $destination = str_replace(".txt", "_".Functions::format_number_with_leading_zeros($folder_no, 6).".txt", $destination);
+        $destination2 = str_replace(".txt", "_".Functions::format_number_with_leading_zeros($folder_no, 6).".txt", $destination2);
+        if(!($f2 = Functions::file_open($destination2, "w"))) return;
+        if(!($f = Functions::file_open($destination, "w"))) return;
+        fwrite($f, implode("\t", $fields)."\n");
+        foreach($final as $rec) {
+            $r = array();
+            foreach($fields as $fld) $r[] = @$rec[$fld];
+            fwrite($f, implode("\t", $r)."\n");
+            fwrite($f2, $rec['eolMediaURL']."\n");
+        }
+        fclose($f); fclose($f2);
+        // ---------------------------------------------------- multiple file end */
+    }
     function bundle_images_4download_per_eol_page_id($param, $file) //working but not used for now...
     {
         $items_count = 0; $folder_no = 1;
