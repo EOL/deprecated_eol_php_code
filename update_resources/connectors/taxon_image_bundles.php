@@ -27,7 +27,7 @@ $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $param = json_decode($params['json'], true);
 
-if(Functions::is_production()) $path = '/extra/other_files/image_bundles/files/';
+if(Functions::is_production()) $path = '/extra/other_files/bundle_images/files/';
 else                           $path = '/Volumes/AKiTiO4/other_files/bundle_images/files/';
 
 
