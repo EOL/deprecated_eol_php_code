@@ -16,7 +16,7 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1642, "sci":"Mammalia"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
+$GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false ... especially in eol-archive server
 
 require_library('connectors/Eol_v3_API');
 $resource_id = '';
