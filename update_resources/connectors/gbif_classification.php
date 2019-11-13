@@ -1,7 +1,8 @@
 <?php
 namespace php_active_record;
 /* GBIF classification update - https://eol-jira.bibalex.org/browse/DATA-1826 
-gbif_classification	Monday 2019-09-23 09:15:26 PM	{"taxon.tab":2845723}
+gbif_classification	    Monday 2019-09-23 09:15:26 PM	{"taxon.tab":2845723}
+gbif_classification_pre	Tuesday 2019-11-12 12:52:55 PM	{"taxon.tab":2674301,"time_elapsed":{"sec":452183.7,"min":7536.4,"hr":125.61,"day":5.23}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
