@@ -37,7 +37,7 @@ class GBIF_classificationAPI
         $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
         */
         $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip'; //the meta.xml is manually edited by Eli. rowtype changed to "http://rs.tdwg.org/dwc/terms/taxon".
-        $this->comparison_report = CONTENT_RESOURCE_LOCAL_PATH.'GBIF_id_EOL_id_coverage_comparison_report.txt';
+        $this->comparison_report = CONTENT_RESOURCE_LOCAL_PATH.'GBIF_id_EOL_id_coverage_comparison_report_'.date('Y-m-d').'.txt';
         $this->debug = array();
         /*
         2,845,724 taxon.tab -> gbif_classification
@@ -254,20 +254,20 @@ class GBIF_classificationAPI
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
         print_r($paths); //exit;
         // */
-        /* local when developing
+        /* local when developing, and when running reports and final version: gbif_classification.tar.gz
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
             $paths = Array(
                 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
                 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/'
             );
         }
-        if($dwca == 'gbif_classification_pre') {
+        if($dwca == 'gbif_classification_pre') { //files here are manually moved to this destination, everytime a new version of gbif_classification_pre.tar.gz comes.
             $paths = Array(
                 "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/",
                 "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/"
             );
         }
-        if($dwca == 'DH0.9') {
+        if($dwca == 'DH0.9') { //files here are manually moved to this destination:
             $paths = Array(
                 'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
                 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"

@@ -13,19 +13,19 @@ $resource_id = 'gbif_classification_pre';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
-// /* main operation
+// /* main operation --- will generate: gbif_classification_pre.tar.gz
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 // */
 
-/* 
+/* 2 Reminders: 
 ------------------------------------------------------------------------------------------------------
-For eoldynamichierarchywithlandmarks.zip, the meta.xml is manually edited by Eli.
+1. For eoldynamichierarchywithlandmarks.zip, the meta.xml is manually edited by Eli.
 That is edited rowtype = http://rs.tdwg.org/dwc/terms/taxon
 The orig value is wrong (occurrence).
 ------------------------------------------------------------------------------------------------------
-For eolpageids.csv, this was also edited by Eli. Added headers, that is column names (DH_id,EOL_id).
+2. For eolpageids.csv, this was also edited by Eli. Added headers, that is column names (DH_id,EOL_id).
 e.g. Array(
             [DH_id] => -1
             [EOL_id] => 2913056
@@ -84,7 +84,7 @@ echo "\nDone processing.\n";
 
 function run_tests($func)
 {
-    $sciname = 'Ciliophora';
+    $sciname = 'Ciliophora'; //should be 46724417
     $rec = Array(
         'http://rs.tdwg.org/dwc/terms/taxonID' => '3269382',
         'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
@@ -96,7 +96,7 @@ function run_tests($func)
     );
     run_test($sciname, $rec, $func);
 
-    $sciname = 'Cavernicola'; $rec = Array(
+    $sciname = 'Cavernicola'; $rec = Array( //should be 46481316
         'http://rs.tdwg.org/dwc/terms/taxonID' => '4774221',
         'http://rs.tdwg.org/dwc/terms/datasetID' => '9ca92552-f23a-41a8-a140-01abaa31c931',
         'http://rs.tdwg.org/dwc/terms/scientificName' => 'Cavernicola Barber, 1937',
@@ -107,7 +107,7 @@ function run_tests($func)
     );
     run_test($sciname, $rec, $func);
     
-    $sciname = 'Sphinx'; $rec = Array(
+    $sciname = 'Sphinx'; $rec = Array( //should be 50708
         'http://rs.tdwg.org/dwc/terms/taxonID' => '1864404',
         'http://rs.tdwg.org/dwc/terms/datasetID' => 'd8fb1600-d636-4b35-aa0d-d4f292c1b424',
         'http://rs.tdwg.org/dwc/terms/scientificName' => 'Sphinx Linnaeus, 1758',
@@ -119,7 +119,7 @@ function run_tests($func)
     run_test($sciname, $rec, $func);
     
     // $sciname = 'Erica multiflora subsp. multiflora';
-    $sciname = 'Erica multiflora multiflora';
+    $sciname = 'Erica multiflora multiflora'; //should be 52540300
     $rec = Array(
         'http://rs.tdwg.org/dwc/terms/taxonID' => '7328508',
         'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
@@ -131,7 +131,7 @@ function run_tests($func)
     );
     run_test($sciname, $rec, $func);
     
-    $sciname = 'Macronotops sexmaculatus'; $rec = Array(
+    $sciname = 'Macronotops sexmaculatus'; $rec = Array( //should be 52612677
         'http://rs.tdwg.org/dwc/terms/taxonID' => '1081098',
         'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
         'http://rs.tdwg.org/dwc/terms/scientificName' => 'Macronotops sexmaculatus (Kraatz, 1894)',
@@ -142,7 +142,7 @@ function run_tests($func)
     );
     run_test($sciname, $rec, $func);
     
-    $sciname = 'Capsosiraceae'; $rec = Array(
+    $sciname = 'Capsosiraceae'; $rec = Array( //should be 45281240 (or 3267)
         'http://rs.tdwg.org/dwc/terms/taxonID' => '1891',
         'http://rs.tdwg.org/dwc/terms/datasetID' => '7ddf754f-d193-4cc9-b351-99906754a03b',
         'http://rs.tdwg.org/dwc/terms/scientificName' => 'Capsosiraceae',
@@ -151,7 +151,7 @@ function run_tests($func)
         'http://rs.tdwg.org/dwc/terms/taxonRank' => 'family',
         'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
     );
-    
+    run_test($sciname, $rec, $func);
 }
 function run_test($sciname, $rec, $func)
 {
@@ -164,33 +164,30 @@ function run_test($sciname, $rec, $func)
         [content] => Ciliophora; Ciliophora Petrak in H. Sydow & Petrak, 1929
     )*/
     if($sciname == 'Ciliophora') {
-        if($ret['id'] == '46724417') echo "\n -OK";
-        else                         echo "\n -Error";
+        if($ret['id'] == '46724417') echo "\n -OK $sciname \n";
+        else                         echo "\n -Error $sciname \n";
     }
     if($sciname == 'Cavernicola') {
-        if($ret['id'] == '46481316') echo "\n -OK";
-        else                         echo "\n -Error";
+        if($ret['id'] == '46481316') echo "\n -OK $sciname \n";
+        else                         echo "\n -Error $sciname \n";
     }
     if($sciname == 'Sphinx') {
-        if($ret['id'] == '50708') echo "\n -OK";
-        else                      echo "\n -Error";
+        if($ret['id'] == '50708') echo "\n -OK $sciname \n";
+        else                      echo "\n -Error $sciname \n";
     }
     if($sciname == 'Erica multiflora multiflora') {
-        if($ret['id'] == '52540300') echo "\n -OK";
-        else                         echo "\n -Error";
+        if($ret['id'] == '52540300') echo "\n -OK $sciname \n";
+        else                         echo "\n -Error $sciname \n";
     }
     
     if($sciname == 'Macronotops sexmaculatus') {
-        if($ret['id'] == '52612677') echo "\n -OK";
-        else                         echo "\n -Error";
+        if($ret['id'] == '52612677') echo "\n -OK $sciname \n";
+        else                         echo "\n -Error $sciname \n";
     }
     if($sciname == 'Capsosiraceae') {
-        if($ret['id'] == '45281240') echo "\n -OK";
-        elseif($ret['id'] == '3267') echo "\n -OK";
-        else                         echo "\n -Error";
+        if($ret['id'] == '45281240') echo "\n -OK $sciname \n";
+        elseif($ret['id'] == '3267') echo "\n -OK $sciname \n";
+        else                         echo "\n -Error $sciname \n";
     }
-
-
-
 }
 ?>
