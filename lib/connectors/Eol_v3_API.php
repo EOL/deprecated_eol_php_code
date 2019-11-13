@@ -51,11 +51,12 @@ class Eol_v3_API
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
         $options['download_wait_time'] = 2000000; //2 seconds
-        $PAGE_NO = 0;
-        $items_count = 0; $folder_no = 1; $items_per_bundle = 1000; $final = array();
+        $PAGE_NO = 0; 
+        $i = 0; //stats only
+        $items_count = 0; $folder_no = 0; $items_per_bundle = 1000; $final = array();
         while(true) {
             $PAGE_NO++;
-            // if(in_array($PAGE_NO, array(4,8,12,15,16,19,23,26))) continue; //Arthropoda
+            // if($PAGE_NO >= 2) break; //debug only
             $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages4']);
             $url = str_replace("PAGE_NO", $PAGE_NO, $url);
             if(($PAGE_NO % 100) == 0) {
@@ -66,7 +67,7 @@ class Eol_v3_API
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
                     if(($PAGE_NO % 100) == 0) echo "\nobjects: ".count($objects)."\n";
-                    foreach($objects as $obj) { $items_count++;
+                    foreach($objects as $obj) { $items_count++; $i++;
                         unset($obj['dataRatings']);
                         unset($obj['agents']);
                         unset($obj['description']);
@@ -90,14 +91,13 @@ class Eol_v3_API
             }
             else break;
         }
-        // print_r($final);
-        echo "\nTotal objects: ".count($final)."\n";
-        return $final;
+        // last batch
+        $folder_no++; //echo "\n$folder_no\n";
+        self::write_2file_bundle($final, $param, $folder_no, $destination, $fields);
     }
     /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
     private function write_2file_bundle($final, $param, $folder_no, $destination, $fields)
-    {
-        // /* multiple file start ----------------------------------------------------
+    {   // /* multiple file start ----------------------------------------------------
         $orig_destination = $destination;
         $destination = str_replace(".txt", "_breakdown.txt", $orig_destination); //new destination file: images_for_Panthera_leo_breakdown.txt
         $destination2 = str_replace(".txt", "_download.txt", $destination); //new destination2 file: images_for_Panthera_leo_breakdown_download.txt
