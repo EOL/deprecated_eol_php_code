@@ -57,11 +57,14 @@ class Eol_v3_API
             // if(in_array($PAGE_NO, array(4,8,12,15,16,19,23,26))) continue; //Arthropoda
             $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages4']);
             $url = str_replace("PAGE_NO", $PAGE_NO, $url);
-            // echo("\n[$url]\n");
+            if(($PAGE_NO % 100) == 0) {
+                echo "\n".number_format($PAGE_NO);
+                echo("\n[$url]");
+            }
             if($json = Functions::lookup_with_cache($url, $options)) {
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
-                    echo "\nobjects: ".count($objects)."\n"; // print_r($objects);
+                    if(($PAGE_NO % 100) == 0) echo "\nobjects: ".count($objects)."\n";
                     foreach($objects as $obj) {
                         unset($obj['dataRatings']);
                         unset($obj['agents']);
