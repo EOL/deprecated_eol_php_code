@@ -102,7 +102,7 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
 
-$use_MultipleConnJenkinsAPI = array("min", "ceb", "war", "bg", "cy", "az", "ast"); //first client for MultipleConnJenkinsAPI
+$use_MultipleConnJenkinsAPI = array("min", "ceb", "war", "bg"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast"
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
@@ -216,8 +216,8 @@ To do: DATA-1800
 (and war, ceb) and many others...
 
 Next batch: Serbian si, Indonesia id, Hungarian hu, Serbo-Croatian sh, Basque (eu), Malay (ms), Armenian (hy)
-Cebuano (ceb), Waray-Waray (war), Minangkabau (min), Bulgarian (bg), Welsh (cy),
-Azerbaijani (az), Asturian (ast)
+Cebuano (ceb), Waray-Waray (war), Minangkabau (min), Bulgarian (bg), 
+Welsh (cy), Azerbaijani (az), Asturian (ast)
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}
