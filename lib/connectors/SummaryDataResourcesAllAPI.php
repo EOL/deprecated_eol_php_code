@@ -1849,9 +1849,9 @@ class SummaryDataResourcesAllAPI
         }
         // print_r($debug);
     }
+    /*
     function generate_refs_per_eol_pk() //total eol_pks 39,931 Carnivora | 11,233,522 metadata.csv | 985,159 metadata_refs in MySQL
-    {   
-        exit; /* just save it to MySQL table. BE SURE TO INDEX eol_pk, trait_eol_pk */
+    {   exit; just save it to MySQL table. BE SURE TO INDEX eol_pk, trait_eol_pk
         self::initialize();
         $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
@@ -1863,7 +1863,7 @@ class SummaryDataResourcesAllAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 print_r($rec); //exit("\nstopx refs\n");
-                /*Array(
+                Array(
                     [eol_pk] => MetaTrait-122920149
                     [trait_eol_pk] => R788-PK74516597
                     [predicate] => http://rs.tdwg.org/dwc/terms/measurementMethod
@@ -1871,8 +1871,8 @@ class SummaryDataResourcesAllAPI
                     [measurement] => 
                     [units_uri] => 
                     [literal] => Adult body mass averaged across males and females and geographic locations.
-                )*/
-                // /* main operation
+                )
+                // main operation start
                 $refs = array();
                 if(count($fields) == count($line) && $rec['predicate'] == "http://eol.org/schema/reference/referenceID"    && $rec['literal']) $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
                 if(count($fields) == count($line) && $rec['predicate'] == "http://purl.org/dc/terms/bibliographicCitation" && $rec['literal']) $refs[$rec['eol_pk']] = strip_tags($rec['literal']);
@@ -1888,11 +1888,12 @@ class SummaryDataResourcesAllAPI
                     foreach($refs as $refno => $fullref) if(!isset($arr[$refno])) $arr[$refno] = $fullref;
                     $WRITE = fopen($json_file, 'w'); fwrite($WRITE, json_encode($arr)); fclose($WRITE); 
                 }
-                // */
+                // main operation end
             }
             // if($i >= 5) return; //debug
         }
     }
+    */
     /* not being used anymore, since the use of MySQL tables
     function delete_all_eol_pks_refs_fileTXT() //total eol_pks 39,931
     {   self::initialize();
