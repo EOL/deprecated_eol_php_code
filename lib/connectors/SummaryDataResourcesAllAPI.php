@@ -3216,14 +3216,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 return false;
             }
         }
-        else {
-            exit("\nShould not go here...\n");
-        }
-        echo "\n A recs: ".count($recs);
-        print_r($recs); exit("\nstopx muna\n");
-        
+        else exit("\nShould not go here...\n");
+        echo "\n A1 recs: ".count($recs);
+        $recs = self::check_inferred_file($recs, $page_id, $predicate);
+        echo "\n A2 recs: ".count($recs);
         $uris = self::get_valueUris_from_recs($recs);
-        echo "\n B uris: ".count($uris); print_r($uris);
+        echo "\n B uris: ".count($uris);
         
         self::set_ancestor_ranking_from_set_of_uris($uris);
         // print_r($this->ancestor_ranking_preferred); exit;
@@ -3400,6 +3398,44 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         So in our case: page_id: 7662 | predicate: [http://eol.org/schema/terms/Habitat]
         I will be creating new rocords based on 'ROOT_ANCESTORS'.
         */
+    }
+    private function check_inferred_file($recs, $page_id, $predicate)
+    {   /*[40] => Array(
+                [eol_pk] => R512-PK89527614
+                [page_id] => 7662
+                [resource_pk] => 
+                [resource_id] => 413
+                [source] => https://eol.org/search?q=Carnivora
+                [scientific_name] => Carnivora
+                [predicate] => http://eol.org/schema/terms/Habitat
+                [object_page_id] => 
+                [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
+                [normal_measurement] => 
+                [normal_units_uri] => 
+                [normal_units] => 
+                [measurement] => 
+                [units_uri] => 
+                [units] => 
+                [literal] => http://purl.obolibrary.org/obo/ENVO_00000446
+        )*/
+        //step 1: get all unique eol_pk
+        foreach($recs as $rec) $unique_eol_pks[$rec['eol_pk']] = '';
+        $unique_eol_pks = array_keys($unique_eol_pks);
+        // print_r($unique_eol_pks); exit;
+        //step2: query inferred file if it has page_id(s) with these eol_pks from step 1.
+        $in_str = implode(",", $unique_eol_pks);
+        $in_str = str_replace(",", "','", $in_str);
+        $in_str = "'".$in_str."'";
+        // exit("\n$in_str\n");
+        $sql = "SELECT DISTINCT(t.page_id) FROM SDR.traits_inferred t WHERE t.inferred_trait IN ($in_str) ORDER BY t.page_id;";
+        if($result = $this->mysqli->query($sql)) {
+            while($result && $rec=$result->fetch_assoc()) {
+                print_r($rec);
+                exit("\nGot hit from inferred file [$page_id], [$predicate]\n");
+            }
+        }
+        echo "\nNothing from inferred file\n";
+        return $recs;
     }
     private function two_new_steps($ISVAT, $roots, $tips)
     {   echo "\nroots: ".count($roots)." "; print_r($roots);
