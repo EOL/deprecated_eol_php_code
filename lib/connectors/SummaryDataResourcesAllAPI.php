@@ -693,7 +693,7 @@ class SummaryDataResourcesAllAPI
         // $input[] = array('page_id' => 328604, 'predicate' => "http://eol.org/schema/terms/Present"); //left seems infinite loop
         
         // page_id: 1004183 | predicate: [http://eol.org/schema/terms/Present]
-        $input[] = array('page_id' => 1004183, 'predicate' => "http://eol.org/schema/terms/Present"); // Jun 6, 2019 - seems infinite loop
+        // $input[] = array('page_id' => 1004183, 'predicate' => "http://eol.org/schema/terms/Present"); // Jun 6, 2019 - seems infinite loop
 
         foreach($input as $i) {
             /* temp block
@@ -3220,7 +3220,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             exit("\nShould not go here...\n");
         }
         echo "\n A recs: ".count($recs);
-        print_r($recs); exit;
+        print_r($recs); exit("\nstopx muna\n");
         
         $uris = self::get_valueUris_from_recs($recs);
         echo "\n B uris: ".count($uris); print_r($uris);
