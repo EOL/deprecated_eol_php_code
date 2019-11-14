@@ -3418,23 +3418,33 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 [units] => 
                 [literal] => http://purl.obolibrary.org/obo/ENVO_00000446
         )*/
-        //step 1: get all unique eol_pk
-        foreach($recs as $rec) $unique_eol_pks[$rec['eol_pk']] = '';
+        // step 1: get all unique eol_pk and build $recs_info for lookup on step 2
+        foreach($recs as $rec) {
+            $unique_eol_pks[$rec['eol_pk']] = '';
+            $recs_info[$rec['eol_pk']] = $rec;
+        }
         $unique_eol_pks = array_keys($unique_eol_pks);
         // print_r($unique_eol_pks); exit;
-        //step2: query inferred file if it has page_id(s) with these eol_pks from step 1.
+        // step2: query inferred file if it has page_id(s) with these eol_pks from step 1.
         $in_str = implode(",", $unique_eol_pks);
         $in_str = str_replace(",", "','", $in_str);
         $in_str = "'".$in_str."'";
-        // exit("\n$in_str\n");
-        $sql = "SELECT DISTINCT(t.page_id) FROM SDR.traits_inferred t WHERE t.inferred_trait IN ($in_str) ORDER BY t.page_id;";
+        $sql = "SELECT DISTINCT t.page_id, t.inferred_trait FROM SDR.traits_inferred t WHERE t.inferred_trait IN ($in_str) ORDER BY t.page_id;";
         if($result = $this->mysqli->query($sql)) {
-            while($result && $rec=$result->fetch_assoc()) {
-                print_r($rec);
-                exit("\nGot hit from inferred file [$page_id], [$predicate]\n");
+            exit("\nGot hit from inferred file [$page_id], [$predicate]\n");
+            while($result && $rek=$result->fetch_assoc()) { // print_r($rek);
+                if($val = @$recs_info[$rek['inferred_trait']]) {
+                    $val['page_id'] = $rek['page_id'];
+                    $val['resource_pk'] = '';
+                    $val['resource_id'] = '';
+                    $val['source'] = '';
+                    $val['scientific_name'] = ''
+                    $val['object_page_id'] = '';
+                    $recs[] = $val;
+                }
             }
         }
-        echo "\nNothing from inferred file\n";
+        else echo "\nNothing from inferred file\n";
         return $recs;
     }
     private function two_new_steps($ISVAT, $roots, $tips)
