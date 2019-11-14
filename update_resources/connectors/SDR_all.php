@@ -217,10 +217,10 @@ $func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache()
 
 // $func->investigate_metadata_csv(); exit;
 
-$func->test_basal_values('BV');          return;
-// $func->print_basal_values('BV');         return;   //main orig report -- 3.91 hours
+// $func->test_basal_values('BV');          return;
+$func->print_basal_values('BV');         //return; //main orig report -- 3.91 hours
 // $func->test_parent_basal_values('BV', false);   return; //2nd parm is debugModeYN
-// $func->print_parent_basal_values('BV');  return; //main orig report -- 92.75 minutes | 1.25 hours
+$func->print_parent_basal_values('BV');  return; //main orig report -- 92.75 minutes | 1.25 hours
 // $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
 // /* for multiple page_ids: BV
@@ -232,9 +232,9 @@ $func->test_basal_values('BV');          return;
 // */
 
 // $func->test_taxon_summary('TS');             return;
-$func->print_taxon_summary('TS');            //return; //main orig report - 36.30 minutes | 9.88 minutes | 10.73 minutes
+// $func->print_taxon_summary('TS');            //return; //main orig report - 36.30 minutes | 9.88 minutes | 10.73 minutes
 // $func->test_parent_taxon_summary('TSp');     return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
-$func->print_parent_taxon_summary('TSp');    //return; //main orig report - 4.23 hours | 4.89 hours Aug12'19 | 2.01 hours
+// $func->print_parent_taxon_summary('TSp');    //return; //main orig report - 4.23 hours | 4.89 hours Aug12'19 | 2.01 hours
 // $func->print_parent_taxon_summary('TSp', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662'); return; //not used eventually
 
 /* for multiple page_ids: TS
