@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [jamstec] https://eol-jira.bibalex.org/browse/DATA-1828
+/* connector: [jamstec.php] https://eol-jira.bibalex.org/browse/DATA-1828
 */
 class JamstecAPI
 {
