@@ -521,7 +521,7 @@ class SummaryDataResourcesAllAPI
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     if($ret = self::main_lifestage_statMeth($page_id, $predicate)) {
-                        $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $ret['label']);
+                        $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $this->exemplary[$ret['label']]);
                         fwrite($WRITE, implode("\t", $row). "\n");
                     }
                 }
@@ -613,7 +613,7 @@ class SummaryDataResourcesAllAPI
         foreach($page_ids as $page_id) {
             $ret = self::main_lifestage_statMeth($page_id, $predicate);
             // print_r($ret); exit;
-            $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $ret['label']);
+            $row = array($page_id, $ret['recs'][0]['eol_pk'], $predicate, $this->exemplary[$ret['label']]);
             fwrite($WRITE, implode("\t", $row). "\n");
         }
         fclose($WRITE);
