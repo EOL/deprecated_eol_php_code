@@ -45,7 +45,7 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
     }
-    function get_images_per_eol_page_id($param, $options = array(), $destination = false)
+    function get_images_per_eol_page_id($param, $options = array(), $destination = false, $items_per_bundle = 1000)
     {
         $eol_page_id = $param['eol_page_id'];
         if(!$options) $options = $this->download_options;
@@ -53,7 +53,7 @@ class Eol_v3_API
         $options['download_wait_time'] = 2000000; //2 seconds
         $PAGE_NO = 0; 
         $i = 0; //stats only
-        $items_count = 0; $folder_no = 0; $items_per_bundle = 1000; $final = array();
+        $items_count = 0; $folder_no = 0; $final = array();
         while(true) {
             $PAGE_NO++;
             // if($PAGE_NO >= 2) break; //debug only
