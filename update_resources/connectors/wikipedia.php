@@ -386,7 +386,7 @@ wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.
 
 wikipedia-sh	Sunday 2019-11-03 10:54:20 PM	{"media_resource.tab":4145,"taxon.tab":3960,"time_elapsed":{"sec":3963.9,"min":66.07,"hr":1.1}}
 wikipedia-sh	Thursday 2019-11-07 06:07:45 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":857.63,"min":14.29,"hr":0.24}}
-wikipedia-sh	Tuesday 2019-11-12 09:33:45 PM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":846.49,"min":14.11,"hr":0.24}}
+wikipedia-sh	Friday 2019-11-15 10:57:39 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":1130.61,"min":18.84,"hr":0.31}}
 
 wikipedia-eu	Tuesday 2019-11-05 05:55:55 PM	{"media_resource.tab":142743,"taxon.tab":82575,"time_elapsed":{"sec":112061.2,"min":1867.69,"hr":31.13,"day":1.3}}
 
@@ -395,7 +395,14 @@ wikipedia-cy	Thursday 2019-11-14 11:33:19 AM	{"media_resource.tab":34585,"taxon.
 wikipedia-az	Thursday 2019-11-14 12:21:35 PM	{"media_resource.tab":33656,"taxon.tab":19977,"time_elapsed":{"sec":2888.26,"min":48.14,"hr":0.8}}
 
 wikipedia-ast	Thursday 2019-11-14 01:18:56 PM	{"media_resource.tab":30745,"taxon.tab":21852,"time_elapsed":{"sec":3411.17,"min":56.85,"hr":0.95}}
+wikipedia-ast	Thursday 2019-11-14 01:18:56 PM	{"media_resource.tab":30745,"taxon.tab":21852,"time_elapsed":{"sec":3411.17,"min":56.85,"hr":0.95}}
 
+wikipedia-az	Thursday 2019-11-14 11:29:37 AM	{"media_resource.tab":33656,"taxon.tab":19977,"time_elapsed":{"sec":26561.69,"min":442.69,"hr":7.38}}
+wikipedia-az	Thursday 2019-11-14 12:21:35 PM	{"media_resource.tab":33656,"taxon.tab":19977,"time_elapsed":{"sec":2888.26,"min":48.14,"hr":0.8}}
+
+wikipedia-min	Friday 2019-11-15 04:50:27 PM	{"media_resource.tab":233143,"taxon.tab":175486,"time_elapsed":{"sec":17561.97,"min":292.7,"hr":4.88}}
+
+wikipedia-bg	Saturday 2019-11-16 12:44:27 AM	{"media_resource.tab":60646,"taxon.tab":41185,"time_elapsed":{"sec":50384.04,"min":839.73,"hr":14}}
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
