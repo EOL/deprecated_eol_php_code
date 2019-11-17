@@ -8,7 +8,7 @@ class XLSParser
                       LookAlikes,Management,Migration,MolecularBiology,Morphology,Physiology,PopulationBiology,Procedures,Reproduction,RiskStatement,
                       Size,TaxonBiology,Threats,Trends,TrophicStrategy,Uses";
     
-    public function convert_sheet_to_array($spreadsheet, $sheet = NULL, $startRow = NULL, $save_params = false)
+    public function convert_sheet_to_array($spreadsheet, $sheet_index_number = NULL, $startRow = NULL, $save_params = false, $sheet_index_name = NULL)
     {
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
         
@@ -28,11 +28,14 @@ class XLSParser
             $objPHPExcel = $objReader->load($spreadsheet);
             $this->open_spreadsheets['spreadsheet'] = $objPHPExcel;
         }
-        if(is_null($sheet)) $objWorksheet = $objPHPExcel->getActiveSheet();
+        if(is_null($sheet_index_number)) {
+            if(is_null($sheet_index_name)) $objWorksheet = $objPHPExcel->getActiveSheet();
+            else                           $objWorksheet = $objPHPExcel->setActiveSheetIndexByName($sheet_index_name);
+        }
         else
         {
-            if($sheet+1 > $objPHPExcel->getSheetCount()) return false;
-            $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet);
+            if($sheet_index_number+1 > $objPHPExcel->getSheetCount()) return false;
+            $objWorksheet = $objPHPExcel->setActiveSheetIndex($sheet_index_number);
         }
         $highestRow         = $objWorksheet->getHighestRow(); // e.g. 10
         $highestColumn      = $objWorksheet->getHighestColumn(); // e.g 'F'
