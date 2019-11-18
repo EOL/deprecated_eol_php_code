@@ -28,10 +28,10 @@ class MarineGEOAPI
     }
     function start()
     {   
-        /*
+        // /*
         $coll_num = 'KB17-277';
         self::search_collector_no($coll_num); //exit;
-        */
+        // */
         $input_file = $this->input['path'].'input.xlsx';
         self::read_input_file($input_file);
         
@@ -72,18 +72,63 @@ class MarineGEOAPI
     }
     private function compute_output_rec($input_rec, $sheet_name)
     {
+        $output_rec = array();
         $subheads = array_keys($this->labels[$sheet_name]);
         foreach($subheads as $subhead) {
-            $fields = $this->labels[$sheet_name][$subhead]; // print_r($fields);
+            $fields = $this->labels[$sheet_name][$subhead]; print_r($fields);
             foreach($fields as $field) {
-                $output[$field] = self::construct_output($sheet_name, $field, $input_rec);
+                $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
             }
         }
+        print_r($output_rec);
         exit("\nx001\n");
+        return $output_rec;
     }
     private function construct_output($sheet_name, $field, $input_rec)
-    {
-        
+    {   /* Array(
+        [Collector Number: (Version 1.2 elements (2))] => KB17-277
+        [Sex: (Sex/Stage)] => F
+        [Reproduction Description] => nonreproductive
+        [Life Stage: (Version 1.3 changes (1))] => juv
+        [Kind: (Measurements Details)] => 
+        [Verbatim value: (Measurements Details)] => 
+        [Unit: (Measurements Details)] => 
+        [Note: (Note Details)] => Archival sample.
+        [Secondary Sample Type] => Fin-clip
+        [GUID: (GUIDs)] => ark:/65665/3d6ffd3e4-1188-40e4-848a-2f1dff71abe0
+        )
+        Array(
+            [0] => Sample ID
+            [1] => Sex
+            [2] => Reproduction
+            [3] => Life Stage
+            [4] => Extra Info
+            [5] => Notes
+        )
+        Array(
+            [0] => Voucher Status
+            [1] => Tissue Descriptor
+            [2] => External URLs
+            [3] => Associated Taxa
+            [4] => Associated Specimens
+        )*/
+        switch ($field) {
+            case "Sample ID": return $input_rec['Collector Number: (Version 1.2 elements (2))'];
+                // echo "Your favorite color is red!";
+                // break;
+            case "Sex":                     return $input_rec['Sex: (Sex/Stage)'];
+            case "Reproduction":            return $input_rec['Reproduction Description'];
+            case "Life Stage":              return $input_rec['Life Stage: (Version 1.3 changes (1))'];
+            case "Extra Info":              return ''; //No Equivalent
+            case "Notes":                   return $input_rec['Note: (Note Details)'];
+            case "Voucher Status":          return ''; //No Equivalent
+            case "Tissue Descriptor":       return ''; //to be mapped
+            case "External URLs":           return "http://n2t.net/".$input_rec['GUID: (GUIDs)'];
+            case "Associated Taxa":         return ''; //No Equivalent
+            case "Associated Specimens":    return ''; //No Equivalent
+            default:
+                exit("\nInvestigate field [$field] not defined.\n");
+        }
     }
     private function search_collector_no($coll_num)
     {
