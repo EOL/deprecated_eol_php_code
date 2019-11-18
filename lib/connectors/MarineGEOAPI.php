@@ -19,8 +19,8 @@ class MarineGEOAPI
 
         /* Labels */
         $this->labels['Voucher Info']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
-        $this->labels['Taxonomy']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
-        $this->labels['Taxonomy']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
+        $this->labels['Taxonomy Data']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
+        $this->labels['Taxonomy Data']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
         $this->labels['Specimen Details']['Specimen Details Metadata'] = array('Sample ID','Sex','Reproduction','Life Stage','Extra Info','Notes');
         $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
         $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
@@ -49,7 +49,8 @@ class MarineGEOAPI
 
         // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
         // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
-        $sheet_name = 'Specimen Details';
+        $sheet_name = 'Specimen Details'; //from input
+        $sheet_name = 'Taxonomy Data';
         $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
         
         $headers = array_keys($temp);
@@ -113,6 +114,7 @@ class MarineGEOAPI
             [4] => Associated Specimens
         )*/
         switch ($field) {
+            /*=====Specimen Details=====*/
             case "Sample ID": return $input_rec['Collector Number: (Version 1.2 elements (2))'];
                 // echo "Your favorite color is red!";
                 // break;
@@ -126,6 +128,20 @@ class MarineGEOAPI
             case "External URLs":           return "http://n2t.net/".$input_rec['GUID: (GUIDs)'];
             case "Associated Taxa":         return ''; //No Equivalent
             case "Associated Specimens":    return ''; //No Equivalent
+            /*=====Taxonomy Data=====*/
+            case "Phylum":                  return $input_rec['Phylum: (Version 1.2 elements (1))'];
+            case "Class":                   return $input_rec['Class: (Version 1.2 elements (1))'];
+            case "Order":                   return $input_rec['Order: (Version 1.2 elements (1))'];
+            case "Family":                  return $input_rec['Family: (Version 1.2 elements (1))'];
+            case "Subfamily":               return ''; //No Equivalent
+            case "Tribe":                   return ''; //No Equivalent
+            case "Genus":                   return $input_rec['Genus: (Version 1.2 elements (1))'];
+            case "Species":                 return $input_rec['Species: (Version 1.2 elements (2))'];
+            case "Subspecies":              return ''; //get from API
+            case "Identifier":              return $input_rec['Identified By: (Version 1.2 elements (2))'];
+            case "Identifier Email":        return ''; //No Equivalent
+            case "Identification Method":   return ''; //No Equivalent
+            case "Taxonomy Notes":          return ''; //No Equivalent
             default:
                 exit("\nInvestigate field [$field] not defined.\n");
         }
