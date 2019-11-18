@@ -51,6 +51,7 @@ class MarineGEOAPI
         // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
         $sheet_name = 'Specimen Details'; //from input
         $sheet_name = 'Taxonomy Data';
+        $sheet_name = 'Collection Data';
         $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
         
         $headers = array_keys($temp);
@@ -142,9 +143,38 @@ class MarineGEOAPI
             case "Identifier Email":        return ''; //No Equivalent
             case "Identification Method":   return ''; //No Equivalent
             case "Taxonomy Notes":          return ''; //No Equivalent
+            /*=====Collection Data=====*/
+            case "Collectors":      return $input_rec['Collector: (Version 1.2 elements (2))'];
+            case "Collection Date": return self::format_Collection_Date($input_rec);
+            case "Country/Ocean":   return $input_rec['Country: (Version 1.2 elements (3))'];
+            case "State/Province":  return $input_rec['State/Province: (Version 1.2 elements (3))'];
+            case "Region":          return $input_rec['County: (Version 1.2 elements (3))'];
+            case "Sector":          return '';
+            case "Exact Site":      return $input_rec['Locality: (Version 1.2 elements (3))'];
+            case "Lat":             return $input_rec['Latitude: (Version 1.2 elements (3))'];
+            case "Lon":             return $input_rec['Longitude: (Version 1.2 elements (3))'];
+            case "Elev":            return $input_rec['Maximum Elevation: (Version 1.2 elements (4))'];
+
+            case "Depth":                       return $input_rec['Maximum Depth: (Version 1.2 elements (4))'];
+            case "Elevation Precision":         return $input_rec['Maximum Elevation: (Version 1.2 elements (4))']-$input_rec['Minimum Elevation: (Version 1.2 elements (4))'];
+            case "Depth Precision":             return $input_rec['Maximum Depth: (Version 1.2 elements (4))']-$input_rec['Minimum Depth: (Version 1.2 elements (4))'];
+            case "GPS Source":                  return ''; //to be mapped
+            case "Coordinate Accuracy":         return ''; //to be mapped
+            case "Event Time":                  return '';
+            case "Collection Date Accuracy":    return '';
+            case "Habitat":                     return '';
+            case "Sampling Protocol":           return '';
+            case "Collection Notes":            return $input_rec['Maximum Depth: (Version 1.2 elements (4))']."-".$input_rec['Minimum Depth: (Version 1.2 elements (4))']." m";
+            case "Site Code":                   return '';
+            case "Collection Event ID":         return $input_rec['Field Number: (Version 1.2 elements (2))'];
+
             default:
                 exit("\nInvestigate field [$field] not defined.\n");
         }
+    }
+    private function format_Collection_Date($input_rec)
+    {
+        return $input_rec['Day Collected: (Version 1.2 elements (3))'].";".$input_rec['Month Collected: (Version 1.2 elements (3))'].";".$input_rec['Year Collected: (Version 1.2 elements (2))'];
     }
     private function search_collector_no($coll_num)
     {
