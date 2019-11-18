@@ -16,12 +16,24 @@ class MarineGEOAPI
         
         $this->input['path'] = '/Volumes/AKiTiO4/other_files/MarineGeo/'; //input.xlsx
         $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
+
+        $this->labels['Voucher Info']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
+        
+        $this->labels['Taxonomy']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
+        $this->labels['Taxonomy']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
+        
+        
+        $this->labels['Specimen Details']['Specimen Details Metadata'] = array('Sample ID','Sex','Reproduction','Life Stage','Extra Info','Notes');
+        $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
+
+
     }
     function start()
-    {   /*
+    {   
+        // /*
         $coll_num = 'KB17-277';
-        self::search_collector_no($coll_num);
-        */
+        self::search_collector_no($coll_num); //exit;
+        // */
         $input_file = $this->input['path'].'input.xlsx';
         self::read_input_file($input_file);
         
@@ -36,15 +48,31 @@ class MarineGEOAPI
         $final = array();
         require_library('XLSParser'); $parser = new XLSParser();
         debug("\n reading: " . $input_file . "\n");
-        // $temp = $parser->convert_sheet_to_array($input_file, '2');
-        $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, 'Collection Data');
+
+        // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
+        // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
+        $sheet_name = 'Specimen Details';
+        $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
         
         $headers = array_keys($temp);
-        print_r($temp);
+        // print_r($temp);
         print_r($headers);
+        
+        $fld = $headers[0]; $i = -1;
+        foreach($temp[$fld] as $col) { $i++;
+            $rec = array();
+            foreach($headers as $header) {
+                $rec[$header] = $temp[$header][$i];
+            }
+            // print_r($rec); exit;
+            $output = self::compute_output($rec, $sheet_name);
+        }
         
         exit;
         return $final;
+    }
+    private function compute_output($rec, $sheet_name)
+    {
         
     }
     private function search_collector_no($coll_num)
