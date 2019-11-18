@@ -28,10 +28,10 @@ class MarineGEOAPI
     }
     function start()
     {   
-        // /*
+        /*
         $coll_num = 'KB17-277';
         self::search_collector_no($coll_num); //exit;
-        // */
+        */
         $input_file = $this->input['path'].'input.xlsx';
         self::read_input_file($input_file);
         
@@ -58,18 +58,30 @@ class MarineGEOAPI
         
         $fld = $headers[0]; $i = -1;
         foreach($temp[$fld] as $col) { $i++;
-            $rec = array();
+            $input_rec = array();
             foreach($headers as $header) {
-                $rec[$header] = $temp[$header][$i];
+                $input_rec[$header] = $temp[$header][$i];
             }
-            // print_r($rec); exit;
-            $output = self::compute_output($rec, $sheet_name);
+            print_r($input_rec); //exit;
+            $output_rec = self::compute_output_rec($input_rec, $sheet_name);
+            exit;
         }
         
         exit;
         return $final;
     }
-    private function compute_output($rec, $sheet_name)
+    private function compute_output_rec($input_rec, $sheet_name)
+    {
+        $subheads = array_keys($this->labels[$sheet_name]);
+        foreach($subheads as $subhead) {
+            $fields = $this->labels[$sheet_name][$subhead]; // print_r($fields);
+            foreach($fields as $field) {
+                $output[$field] = self::construct_output($sheet_name, $field, $input_rec);
+            }
+        }
+        exit("\nx001\n");
+    }
+    private function construct_output($sheet_name, $field, $input_rec)
     {
         
     }
