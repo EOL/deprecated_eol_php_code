@@ -18,7 +18,7 @@ class MarineGEOAPI
         $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
 
         /* Labels */
-        $this->labels['Voucher Info']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
+        $this->labels['Voucher Data']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
         $this->labels['Taxonomy Data']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
         $this->labels['Taxonomy Data']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
         $this->labels['Specimen Details']['Specimen Details Metadata'] = array('Sample ID','Sex','Reproduction','Life Stage','Extra Info','Notes');
@@ -52,6 +52,7 @@ class MarineGEOAPI
         $sheet_name = 'Specimen Details'; //from input
         $sheet_name = 'Taxonomy Data';
         $sheet_name = 'Collection Data';
+        // $sheet_name = 'Voucher Data';
         $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
         
         $headers = array_keys($temp);
@@ -115,10 +116,14 @@ class MarineGEOAPI
             [4] => Associated Specimens
         )*/
         switch ($field) {
+            /*=====Voucher Data=====*/
+            case "Sample ID":               return $input_rec['Collector Number: (Version 1.2 elements (2))'];
+            case "Field ID":                return $input_rec['Collector Number: (Version 1.2 elements (2))'];
+            case "Museum ID":               return $input_rec['Institution Code: (Version 1.2 elements (1))'].":FISH:".$input_rec['Catalog No.Text: (MaNIS extensions (1))'];
+            case "Collection Code":         return '';
+            case "Institution Storing":     return ''; //to be mapped
             /*=====Specimen Details=====*/
-            case "Sample ID": return $input_rec['Collector Number: (Version 1.2 elements (2))'];
-                // echo "Your favorite color is red!";
-                // break;
+            case "Sample ID":               return $input_rec['Collector Number: (Version 1.2 elements (2))'];
             case "Sex":                     return $input_rec['Sex: (Sex/Stage)'];
             case "Reproduction":            return $input_rec['Reproduction Description'];
             case "Life Stage":              return $input_rec['Life Stage: (Version 1.3 changes (1))'];
@@ -154,7 +159,7 @@ class MarineGEOAPI
             case "Lat":             return $input_rec['Latitude: (Version 1.2 elements (3))'];
             case "Lon":             return $input_rec['Longitude: (Version 1.2 elements (3))'];
             case "Elev":            return $input_rec['Maximum Elevation: (Version 1.2 elements (4))'];
-
+            //2nd half
             case "Depth":                       return $input_rec['Maximum Depth: (Version 1.2 elements (4))'];
             case "Elevation Precision":         return $input_rec['Maximum Elevation: (Version 1.2 elements (4))']-$input_rec['Minimum Elevation: (Version 1.2 elements (4))'];
             case "Depth Precision":             return $input_rec['Maximum Depth: (Version 1.2 elements (4))']-$input_rec['Minimum Depth: (Version 1.2 elements (4))'];
@@ -164,10 +169,10 @@ class MarineGEOAPI
             case "Collection Date Accuracy":    return '';
             case "Habitat":                     return '';
             case "Sampling Protocol":           return '';
-            case "Collection Notes":            return $input_rec['Maximum Depth: (Version 1.2 elements (4))']."-".$input_rec['Minimum Depth: (Version 1.2 elements (4))']." m";
+            case "Collection Notes":            return $input_rec['Minimum Depth: (Version 1.2 elements (4))']."-".$input_rec['Maximum Depth: (Version 1.2 elements (4))']." m";
             case "Site Code":                   return '';
             case "Collection Event ID":         return $input_rec['Field Number: (Version 1.2 elements (2))'];
-
+            /*=====End=====*/
             default:
                 exit("\nInvestigate field [$field] not defined.\n");
         }
