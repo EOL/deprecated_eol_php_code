@@ -30,7 +30,7 @@ class MarineGEOAPI
     {   
         // /*
         $coll_num = 'KB17-277';
-        self::search_collector_no($coll_num); //exit;
+        self::search_collector_no($coll_num); exit;
         // */
         $input_file = $this->input['path'].'input.xlsx';
         self::read_input_file($input_file);
