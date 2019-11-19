@@ -57,6 +57,12 @@ class XLSParser
                 }
                 else
                 {
+                    // /* special
+                    if($sheet_label[0] == $sheet_label[1]) {
+                        $sheet_label[1] .= "_2";
+                    }
+                    // print_r($sheet_label); exit;
+                    // */
                     $index = trim($sheet_label[$col]);
                     if($index)
                     {
