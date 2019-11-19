@@ -25,7 +25,6 @@ class MarineGEOAPI
         $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
         $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
         $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
-
     }
     function start()
     {   
@@ -46,7 +45,7 @@ class MarineGEOAPI
     private function create_output_file()
     {
         require_library('MarineGEO_XLSParser');
-        $parser = new MarineGEO_XLSParser($this->labels);
+        $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id);
         $parser->start();
     }
     /* ========================================END create output file======================================== */

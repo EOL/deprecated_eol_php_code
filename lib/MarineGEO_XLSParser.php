@@ -4,28 +4,98 @@ namespace php_active_record;
 class MarineGEO_XLSParser
 {
     const SUBJECTS = "";
-    function __construct($labels)
+    function __construct($labels, $resource_id)
     {
         $this->labels = $labels;
+        $this->resource_id = $resource_id;
         $this->output['worksheets'] = array('Voucher Info', 'Taxonomy', 'Specimen Details', 'Collection Data');
-        $this->sheet_mappings['Voucher Info'] = 'Voucher Data';
-        $this->sheet_mappings['Taxonomy'] = 'Taxonomy Data';
+        $this->sheet_mappings['Voucher Data'] = 'Voucher Info';
+        $this->sheet_mappings['Taxonomy Data'] = 'Taxonomy';
         $this->sheet_mappings['Specimen Details'] = 'Specimen Details';
         $this->sheet_mappings['Collection Data'] = 'Collection Data';
     }
     public function start()
     {
-        $output_file = CONTENT_RESOURCE_LOCAL_PATH."Isaiah.xls";
-        // print_r($this->labels);
+        /*Array(
+            [Voucher Data] => Array(
+                    [Specimen Info Metadata] => Array(
+                            [0] => Sample ID
+                            [1] => Field ID
+                        )
+                )
+            [Taxonomy Data] => Array(
+                    [Taxonomy Metadata] => Array(
+                            [0] => Sample ID
+                            [1] => Phylum
+                        )
+                    [Extended Fields (BOLD 3.1)] => Array(
+                            [0] => Identification Method
+                        )
+                )
+        */
+        $alpha = array('A','B','C','D','E','F','G','H','I','J','K', 'L','M','N','O','P','Q','R','S','T','U','V','W','X ','Y','Z');
+        $labels = $this->labels;
+        $output_file = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id.".xls";
+        // print_r($this->labels); exit;
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
         $objPHPExcel = new \PHPExcel();
+
+        // /*
+        $worksheets = array_keys($labels);
+        print_r($worksheets); //exit;
+        $sheetIndex = -1;
+        foreach($worksheets as $worksheet) { $sheetIndex++;
+            echo "\n$sheetIndex\n";
+            $objPHPExcel->setActiveSheetIndex($sheetIndex);
+            $objPHPExcel->getActiveSheet()->setTitle($this->sheet_mappings[$worksheet]);
+            // $objPHPExcel->getActiveSheet()->setCellValue('A1', "xxx");
+            
+            // /*
+            $main_heads = array_keys($labels[$worksheet]);
+            print_r($main_heads);
+            $col = 1;
+            foreach($main_heads as $main_head) {
+                $no_of_cols = count($labels[$worksheet][$main_head]);
+                echo "\ncols# $no_of_cols\n";
+                
+                $objPHPExcel->getActiveSheet()->mergeCells($alpha[$col]."1:".$alpha[$col+$no_of_cols]."1");
+                $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."1", $main_head);
+                
+                $col = $col+$no_of_cols + 1;
+                
+            }
+            // */
+            $objPHPExcel->createSheet();
+        }
+
+        //save Excel file
+        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
+        // require_once '/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php'; //by Eli
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save($output_file);
+        
+        return;
+        // */
         
         $objPHPExcel->setActiveSheetIndex(0);
         $objPHPExcel->getActiveSheet()->setTitle('Sheet ONE');
-        $objPHPExcel->createSheet();
         
+        $objPHPExcel->getActiveSheet()->mergeCells('A1:L1');
+        $objPHPExcel->getActiveSheet()->setCellValue('A1', "merged title");
+        $objPHPExcel->getActiveSheet()->getStyle('A1')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        
+        $objPHPExcel->getActiveSheet()->mergeCells('M1:O1');
+        $objPHPExcel->getActiveSheet()->setCellValue('M1', "merged title 2");
+        $objPHPExcel->getActiveSheet()->getStyle('M1')->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        $objPHPExcel->createSheet();
+
         $objPHPExcel->setActiveSheetIndex(1);
         $objPHPExcel->getActiveSheet()->setTitle('Sheet 222');
+        $objPHPExcel->createSheet();
+
+        $objPHPExcel->setActiveSheetIndex(2);
+        $objPHPExcel->getActiveSheet()->setTitle('Sheet 333');
+
         $objPHPExcel->createSheet();
 
         //save Excel file
