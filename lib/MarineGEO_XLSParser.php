@@ -14,6 +14,13 @@ class MarineGEO_XLSParser
         $this->sheet_mappings['Specimen Details'] = 'Specimen Details';
         $this->sheet_mappings['Collection Data'] = 'Collection Data';
     }
+    private function get_no_of_cols_per_worksheet($worksheet, $labels)
+    {
+        $final = 0;
+        $main_heads = $labels[$worksheet];
+        foreach($main_heads as $key => $fields) $final = $final + count($fields);
+        return $final;
+    }
     public function start()
     {
         /*Array(
@@ -38,6 +45,28 @@ class MarineGEO_XLSParser
         $output_file = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id.".xls";
         // print_r($this->labels); exit;
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
+        define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+        
+        /*
+        const cache_in_memory               = 'Memory';
+        const cache_in_memory_gzip          = 'MemoryGZip';
+        const cache_in_memory_serialized    = 'MemorySerialized';
+        const cache_igbinary                = 'Igbinary';
+        const cache_to_discISAM             = 'DiscISAM';
+        const cache_to_apc                  = 'APC';
+        const cache_to_memcache             = 'Memcache';
+        const cache_to_phpTemp              = 'PHPTemp';
+        const cache_to_wincache             = 'Wincache';
+        const cache_to_sqlite               = 'SQLite';
+        const cache_to_sqlite3              = 'SQLite3';
+        */
+        
+        //set cache method
+        $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_in_memory; //options for memory in CachedObjectStorageFactory.php
+        if (!\PHPExcel_Settings::setCacheStorageMethod($cacheMethod)) {
+            die($cacheMethod . " caching method is not available" . EOL);
+        }
+
         $objPHPExcel = new \PHPExcel();
 
         // /*
@@ -45,8 +74,13 @@ class MarineGEO_XLSParser
         print_r($worksheets); //exit;
         $sheetIndex = -1;
         foreach($worksheets as $worksheet) { $sheetIndex++;
-            echo "\n$sheetIndex\n";
+            // echo "\n$sheetIndex\n";
             $objPHPExcel->setActiveSheetIndex($sheetIndex);
+            
+            $no_of_cols_per_worksheet = self::get_no_of_cols_per_worksheet($worksheet, $labels);
+            echo "\nno_of_cols_per_worksheet: $no_of_cols_per_worksheet\n";
+            for($c = 1; $c <= $no_of_cols_per_worksheet; $c++) $objPHPExcel->getActiveSheet()->getColumnDimension($alpha[$c])->setWidth(20);
+            
             $objPHPExcel->getActiveSheet()->setTitle($this->sheet_mappings[$worksheet]);
             // $objPHPExcel->getActiveSheet()->setCellValue('A1', "xxx");
             
@@ -54,7 +88,7 @@ class MarineGEO_XLSParser
             $main_heads = array_keys($labels[$worksheet]);
             print_r($main_heads);
             $col = 1;
-            foreach($main_heads as $main_head) {
+            foreach($main_heads as $main_head) { //writing main heads
                 $no_of_cols = count($labels[$worksheet][$main_head]);
                 // echo "\ncols# $no_of_cols\n";
                 $objPHPExcel->getActiveSheet()->mergeCells($alpha[$col]."1:".$alpha[$col+$no_of_cols-1]."1");
@@ -64,7 +98,7 @@ class MarineGEO_XLSParser
             }
 
             $col = 1;
-            foreach($main_heads as $main_head) {
+            foreach($main_heads as $main_head) { //writing sub-heads
                 $heads = $labels[$worksheet][$main_head];
                 foreach($heads as $head) {
                     $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."2", $head);
@@ -72,14 +106,25 @@ class MarineGEO_XLSParser
                 }
             }
             // */
+            
+            self::get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha);
+            
             $objPHPExcel->createSheet();
-        }
+        }//loop worksheets
 
+        $objPHPExcel->removeSheetByIndex(4);
+        
         //save Excel file
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
-        // require_once '/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php'; //by Eli
+
+        // /*
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save($output_file);
+        // */
+        /*
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save($output_file);
+        */
         
         return;
         // */
@@ -107,10 +152,44 @@ class MarineGEO_XLSParser
 
         //save Excel file
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
-        // require_once '/Library/WebServer/Documents/eol_php_code/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php'; //by Eli
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save($output_file);
         */
+    }
+    private function get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha)
+    {
+        $row_num = 3;
+        $filename = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_".str_replace(" ", "_", $worksheet).".txt";
+        $i = 0;
+        foreach(new FileIterator($filename) as $line_number => $line) { // 'true' will auto delete temp_filepath
+            $i++; if(($i % 10000) == 0) echo "\n [$path] ".number_format($i) . " ";
+            // if($i == 1) $line = strtolower($line);
+            $row = explode("\t", $line);
+            if($i == 1) {
+                $fields = $row;
+                continue;
+            }
+            else {
+                if(!@$row[0]) continue; //$row[0] is gbifID
+                $k = 0; $rec = array();
+                foreach($fields as $fld) {
+                    $rec[$fld] = $row[$k];
+                    $k++;
+                }
+            }
+            print_r($rec); //exit("\nstopx\n");
+            // /*
+            $col = 1;
+            foreach($main_heads as $main_head) { //writing sub-heads
+                $heads = $labels[$worksheet][$main_head];
+                foreach($heads as $head) {
+                    $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col].$row_num, $rec[$head]);
+                    $col++;
+                }
+            }
+            $row_num++;
+            // */
+        }
     }
     function cell_value($obj, $col, $row, $ext)
     {
