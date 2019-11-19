@@ -26,11 +26,6 @@ class MarineGEOAPI
         $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
         $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
 
-        Voucher Info
-        Taxonomy
-        Specimen Details
-        Collection Data
-        
     }
     function start()
     {   
@@ -50,7 +45,9 @@ class MarineGEOAPI
     /* =======================================START create output file======================================= */
     private function create_output_file()
     {
-        
+        require_library('MarineGEO_XLSParser');
+        $parser = new MarineGEO_XLSParser($this->labels);
+        $parser->start();
     }
     /* ========================================END create output file======================================== */
     private function read_input_file($input_file)
