@@ -56,13 +56,21 @@ class MarineGEO_XLSParser
             $col = 1;
             foreach($main_heads as $main_head) {
                 $no_of_cols = count($labels[$worksheet][$main_head]);
-                echo "\ncols# $no_of_cols\n";
-                
+                // echo "\ncols# $no_of_cols\n";
                 $objPHPExcel->getActiveSheet()->mergeCells($alpha[$col]."1:".$alpha[$col+$no_of_cols-1]."1");
                 $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."1", $main_head);
+                $objPHPExcel->getActiveSheet()->getStyle($alpha[$col]."1")->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
                 
                 $col = $col+$no_of_cols;
-                
+            }
+
+            $col = 1;
+            foreach($main_heads as $main_head) {
+                $heads = $labels[$worksheet][$main_head];
+                foreach($heads as $head) {
+                    $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."2", $head);
+                    $col++;
+                }
             }
             // */
             $objPHPExcel->createSheet();
