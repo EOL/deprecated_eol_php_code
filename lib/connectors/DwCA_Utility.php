@@ -103,9 +103,10 @@ class DwCA_Utility
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA. 1st client was DATA-1770 */
         echo "\nConverting archive to EOL DwCA...\n";
         
-        if($this->resource_id == 'test_eli') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //placeholder for customized resources with respective download_options
-        elseif(in_array($this->resource_id, array('globi_associations', '170_final', 'BF', 'gbif_classification'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*25));
-        elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
+        //placeholder for customized resources with respective download_options
+        if(in_array($this->resource_id, array('globi_associations', '170_final', 'BF'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
+        elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
+        elseif(in_array($this->resource_id, array('gbif_classification'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
         else $info = self::start(); //default doesn't expire. Your call.
 
         $temp_dir = $info['temp_dir'];
