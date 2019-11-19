@@ -49,11 +49,11 @@ class MarineGEOAPI
         // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
         // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
         // $sheet_name = 'Specimen Details'; //from input
-        // $sheet_name = 'Taxonomy Data';
+        $sheet_name = 'Taxonomy Data';
         // $sheet_name = 'Collection Data';
-        $sheet_name = 'Voucher Data';
+        // $sheet_name = 'Voucher Data';
+        self::initialize_file($sheet_name);
         $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
-        
         $headers = array_keys($temp);
         // print_r($temp); print_r($headers); exit;
         
@@ -77,12 +77,29 @@ class MarineGEOAPI
                 echo "\ncount $i\n";
                 // print_r($input_rec); //exit;
                 $output_rec = self::compute_output_rec($input_rec, $sheet_name);
+                self::write_output_rec_2txt($output_rec, $sheet_name);
             }
             // exit;
         }
         
-        exit;
-        return $final;
+    }
+    private function initialize_file($sheet_name)
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $WRITE = Functions::file_open($filename, "w");
+        fclose($WRITE);
+    }
+    private function write_output_rec_2txt($rec, $sheet_name)
+    {
+        $filename = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $fields = array_keys($rec);
+        $WRITE = Functions::file_open($filename, "a");
+        clearstatcache(); //important for filesize()
+        if(filesize($filename) == 0) fwrite($WRITE, implode("\t", $fields) . "\n");
+        $save = array();
+        foreach($fields as $fld) $save[] = $rec[$fld];
+        fwrite($WRITE, implode("\t", $save) . "\n");
+        fclose($WRITE);
     }
     private function compute_output_rec($input_rec, $sheet_name)
     {

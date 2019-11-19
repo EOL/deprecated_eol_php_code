@@ -20,8 +20,8 @@ error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except noti
 ini_set('memory_limit','7096M');
 require_library('connectors/MarineGEOAPI');
 $timestart = time_elapsed();
-$resource_id = 'MarineGEO';
 
+$resource_id = 'Dep-01';
 $func = new MarineGEOAPI($resource_id);
 
 $func->start();
