@@ -28,13 +28,12 @@ class MarineGEOAPI
     }
     function start()
     {   
-        // /*
+        /*
         $coll_num = 'KB17-277';
         self::search_collector_no($coll_num); exit;
-        // */
-        $input_file = $this->input['path'].'input.xlsx';
+        */
+        $input_file = $this->input['path'].'input_Eli.xlsx';
         self::read_input_file($input_file);
-        
     }
     private function read_input_file($input_file)
     {
@@ -49,25 +48,37 @@ class MarineGEOAPI
 
         // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
         // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
-        $sheet_name = 'Specimen Details'; //from input
-        $sheet_name = 'Taxonomy Data';
-        $sheet_name = 'Collection Data';
-        // $sheet_name = 'Voucher Data';
+        // $sheet_name = 'Specimen Details'; //from input
+        // $sheet_name = 'Taxonomy Data';
+        // $sheet_name = 'Collection Data';
+        $sheet_name = 'Voucher Data';
         $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
         
         $headers = array_keys($temp);
-        // print_r($temp);
-        print_r($headers);
+        // print_r($temp); print_r($headers); exit;
         
         $fld = $headers[0]; $i = -1;
         foreach($temp[$fld] as $col) { $i++;
             $input_rec = array();
+            
+            //START check if entire row is blank, if yes then ignore row
+            $ignoreRow = true;
             foreach($headers as $header) {
-                $input_rec[$header] = $temp[$header][$i];
+                if($val = trim(@$temp[$header][$i])) {
+                    $ignoreRow = false;
+                    // echo "\nmay laman daw [$val]\n";
+                    break;
+                }
             }
-            print_r($input_rec); //exit;
-            $output_rec = self::compute_output_rec($input_rec, $sheet_name);
-            exit;
+            //END check if entire row is blank, if yes then ignore row
+
+            if(!$ignoreRow) {
+                foreach($headers as $header) $input_rec[$header] = $temp[$header][$i];
+                echo "\ncount $i\n";
+                // print_r($input_rec); //exit;
+                $output_rec = self::compute_output_rec($input_rec, $sheet_name);
+            }
+            // exit;
         }
         
         exit;
@@ -78,13 +89,13 @@ class MarineGEOAPI
         $output_rec = array();
         $subheads = array_keys($this->labels[$sheet_name]);
         foreach($subheads as $subhead) {
-            $fields = $this->labels[$sheet_name][$subhead]; print_r($fields);
+            $fields = $this->labels[$sheet_name][$subhead]; //print_r($fields);
             foreach($fields as $field) {
                 $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
             }
         }
         print_r($output_rec);
-        exit("\nx001\n");
+        // exit("\nx001\n");
         return $output_rec;
     }
     private function construct_output($sheet_name, $field, $input_rec)
