@@ -13,7 +13,7 @@ $resource_id = 'gbif_classification_pre';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
-// /* main operation --- will generate: gbif_classification_pre.tar.gz
+// /* main operation --- will generate: gbif_classification_pre.tar.gz. Will run in eol-archive.
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);

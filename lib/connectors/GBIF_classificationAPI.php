@@ -50,6 +50,8 @@ class GBIF_classificationAPI
     //=================================================START fix remaining conflicts between the API & DH09 mappings
     function fix_remaining_conflicts($info)
     {
+        self::build_info_PreferEOL_id_from_API_match(); //from Jira attachment: PreferEOL_id_from_API_match.txt
+        
         // /* get info lists
         self::build_info('DH0.9');                  //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id
         self::process_eolpageids_csv();             //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
@@ -57,6 +59,15 @@ class GBIF_classificationAPI
         $tables = $info['harvester']->tables;
         self::process_fix_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         print_r($this->debug);
+    }
+    private function build_info_PreferEOL_id_from_API_match()
+    {
+        $contents = file_get_contents("/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/Jira/PreferEOL_id_from_API_match.txt");
+        $arr = explode("\n", $contents);
+        array_shift($arr); //remove first row which is the header
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_values($arr); //reindex key
+        foreach($arr as $id) $this->prefer_EOLid_fromAPI_for_these_GBIFids[$id] = '';
     }
     function process_fix_taxon($meta)
     {   //print_r($meta);
@@ -103,6 +114,7 @@ class GBIF_classificationAPI
             $API_EOL_id = $rec['http://eol.org/schema/EOLid'];
             $gbif_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             $DH09_EOL_id = self::get_EOL_id_given_GBIF_id($gbif_id);
+            /* version 1. Worked but not used anymore.
             if($API_EOL_id == $DH09_EOL_id) @$this->debug['stats']['Matched OK']++;
             else {
                 @$this->debug['stats']['Mis-matched']++;
@@ -111,6 +123,31 @@ class GBIF_classificationAPI
 
                 if($val = $DH09_EOL_id) $rec['http://eol.org/schema/EOLid'] = $val;
             }
+            */
+            
+            // /* Katja's version: https://eol-jira.bibalex.org/browse/DATA-1826?focusedCommentId=64135&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64135
+            // For taxa where Match_YN=No and DH09_taxonID is not null (13,846 taxa) choose the EOL_id_from_DH09 over the EOL_id_from_API_match 
+            // except for taxa whose GBIF_id is listed in the attached PreferEOL_id_from_API_match.txt file.
+            if($API_EOL_id != $DH09_EOL_id) {
+                if($DH09_EOL_id) { @$this->debug['stats']['13K']['total']++;
+                    if(isset($this->prefer_EOLid_fromAPI_for_these_GBIFids[$gbif_id])) {
+                        $rec['http://eol.org/schema/EOLid'] = $API_EOL_id;
+                        @$this->debug['stats']['13K']['used API']++;    //stats only
+                    }
+                    else {
+                        $rec['http://eol.org/schema/EOLid'] = $DH09_EOL_id;
+                        @$this->debug['stats']['13K']['used DH09']++;   //stats only
+                    }
+                }
+                else {
+                    if($API_EOL_id) {
+                        $rec['http://eol.org/schema/EOLid'] = $API_EOL_id; //juse Eli's assumption
+                        // @$this->debug['stats']['ELIs assumption actual']["$API_EOL_id - $DH09_EOL_id"] = ''; //stats only
+                        @$this->debug['stats']['ELIs assumption total']++;                                      //stats only
+                    }
+                }
+            }
+            // */
             //========================================================================================================================
             $uris = array_keys($rec);
             $o = new \eol_schema\Taxon();
@@ -269,8 +306,11 @@ class GBIF_classificationAPI
         }
         if($dwca == 'DH0.9') { //files here are manually moved to this destination:
             $paths = Array(
-                'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
-                'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
+                // 'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
+                // 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
+                
+                'archive_path' => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/",
+                'temp_dir' => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/"
             );
         }
         */
