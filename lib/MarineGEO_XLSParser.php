@@ -177,8 +177,8 @@ class MarineGEO_XLSParser
                     $k++;
                 }
             }
-            print_r($rec); //exit("\nstopx\n");
-            // /*
+            // print_r($rec); //exit("\nstopx\n");
+            // /* start writing to excel
             $col = 1;
             foreach($main_heads as $main_head) { //writing sub-heads
                 $heads = $labels[$worksheet][$main_head];
