@@ -37,8 +37,9 @@ class MarineGEOAPI
         unlink($local_xls);
         */
 
-        $input_file = $this->input['path'].'input_Eli.xlsx';
-        // self::read_input_file($input_file); //writes to text files for reading in next step.
+        $input_file = $this->input['path'].'input.xlsx';
+        // $input_file = $this->input['path'].'input_Eli.xlsx';
+        self::read_input_file($input_file); //writes to text files for reading in next step.
         self::create_output_file();
     }
     /* =======================================START create output file======================================= */
