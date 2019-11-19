@@ -25,33 +25,48 @@ class MarineGEOAPI
         $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
         $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
         $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
+
+        Voucher Info
+        Taxonomy
+        Specimen Details
+        Collection Data
+        
     }
     function start()
     {   
-        /*
+        /* may not be needed since output.xls is based on input.xls
         $coll_num = 'KB17-277';
         self::search_collector_no($coll_num); exit;
         */
-        $input_file = $this->input['path'].'input_Eli.xlsx';
-        self::read_input_file($input_file);
-    }
-    private function read_input_file($input_file)
-    {
         /*
-        if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false)))
-        {}
+        if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false))) {}
         unlink($local_xls);
         */
+
+        $input_file = $this->input['path'].'input_Eli.xlsx';
+        // self::read_input_file($input_file); //writes to text files for reading in next step.
+        self::create_output_file();
+    }
+    /* =======================================START create output file======================================= */
+    private function create_output_file()
+    {
+        
+    }
+    /* ========================================END create output file======================================== */
+    private function read_input_file($input_file)
+    {
         $final = array();
         require_library('XLSParser'); $parser = new XLSParser();
         debug("\n reading: " . $input_file . "\n");
 
         // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
         // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
-        // $sheet_name = 'Specimen Details'; //from input
-        $sheet_name = 'Taxonomy Data';
-        // $sheet_name = 'Collection Data';
-        // $sheet_name = 'Voucher Data';
+        
+        $sheet_names = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
+        foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
+    }
+    private function read_worksheet($sheet_name, $input_file, $parser)
+    {
         self::initialize_file($sheet_name);
         $temp = $parser->convert_sheet_to_array($input_file, NULL, NULL, false, $sheet_name);
         $headers = array_keys($temp);
@@ -66,7 +81,6 @@ class MarineGEOAPI
             foreach($headers as $header) {
                 if($val = trim(@$temp[$header][$i])) {
                     $ignoreRow = false;
-                    // echo "\nmay laman daw [$val]\n";
                     break;
                 }
             }
@@ -79,9 +93,7 @@ class MarineGEOAPI
                 $output_rec = self::compute_output_rec($input_rec, $sheet_name);
                 self::write_output_rec_2txt($output_rec, $sheet_name);
             }
-            // exit;
         }
-        
     }
     private function initialize_file($sheet_name)
     {
