@@ -33,7 +33,7 @@ class MarineGEO_XLSParser
                         )
                 )
         */
-        $alpha = array('A','B','C','D','E','F','G','H','I','J','K', 'L','M','N','O','P','Q','R','S','T','U','V','W','X ','Y','Z');
+        $alpha = array(1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D', 5 => 'E', 6 => 'F', 7 => 'G', 8 => 'H', 9 => 'I', 10 => 'J', 11 => 'K', 12 => 'L', 13 => 'M', 14 => 'N', 15 => 'O', 16 => 'P', 17 => 'Q', 18 => 'R', 19 => 'S', 20 => 'T', 21 => 'U', 22 => 'V', 23 => 'W', 24 => 'X ', 25 => 'Y', 26 => 'Z');
         $labels = $this->labels;
         $output_file = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id.".xls";
         // print_r($this->labels); exit;
@@ -58,10 +58,10 @@ class MarineGEO_XLSParser
                 $no_of_cols = count($labels[$worksheet][$main_head]);
                 echo "\ncols# $no_of_cols\n";
                 
-                $objPHPExcel->getActiveSheet()->mergeCells($alpha[$col]."1:".$alpha[$col+$no_of_cols]."1");
+                $objPHPExcel->getActiveSheet()->mergeCells($alpha[$col]."1:".$alpha[$col+$no_of_cols-1]."1");
                 $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."1", $main_head);
                 
-                $col = $col+$no_of_cols + 1;
+                $col = $col+$no_of_cols;
                 
             }
             // */
