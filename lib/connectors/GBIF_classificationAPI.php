@@ -457,35 +457,21 @@ class GBIF_classificationAPI
             else continue;
             */
             
-            // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 7009828) { print_r($rec); exit; } //debug only
-
             if($taxonomicStatus != 'accepted') continue;
-            
-            // $rec['http://rs.gbif.org/terms/1.0/canonicalName'] = "Erica multiflora multiflora"; //debug only
-
-            if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
-            elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
-            else { self::log_record($rec, '', '1'); continue; }
-            if(!$sciname) { self::log_record($rec, '', '2'); continue; }
+            $sciname = '';
+            if($rec['http://rs.tdwg.org/dwc/terms/kingdom'] != 'Viruses') {
+                if($val = $rec['http://rs.gbif.org/terms/1.0/canonicalName'])       $sciname = $val;
+                elseif($val = $rec['http://rs.tdwg.org/dwc/terms/scientificName'])  $sciname = Functions::canonical_form($val);
+                else self::log_record($rec, '', '1');
+            }
 
             $str = substr($sciname,0,2);
-            if(strtoupper($str) == $str) { //probably viruses will ignore [$sciname]
-                // self::log_record($rec, $sciname);
-                continue;
-            }
-            else {
-                // /* debug only ---------------------------------------------------------------------------
-                // $sciname = 'Sphinx';
-                // $sciname = 'Erica multiflora multiflora';
-                // $sciname = 'Ciliophora'; //e.g. of homonyms #1 in Katja's findings
-                // $sciname = 'Cavernicola';
-                // ----------------------------------------------------------------------------------------- */
-                if($eol_rec = self::main_sciname_search($sciname, $rec)) {
-                    self::write_archive($rec, $eol_rec);
-                    // print_r($eol_rec); exit("\ndebug only\n");
-                }
-                else { self::log_record($rec, $sciname, '4'); continue; }
-            }
+            if(strtoupper($str) == $str) $sciname = ''; //probably viruses will ignore [$sciname]
+            
+            if($sciname) $eol_rec = self::main_sciname_search($sciname, $rec);
+            else         $eol_rec = array();
+            self::write_archive($rec, $eol_rec);
+            
             // if($i >= 90) break;
         }
     }
@@ -767,7 +753,7 @@ class GBIF_classificationAPI
             [content] => Lichenobactridium; Lichenobactridium P. Diederich & J. Etayo in F.J.A. Daniels et al., 1995
         )*/
         $taxon = new \eol_schema\Taxon();
-        $taxon->EOLid = $eol_rec['id'];
+        $taxon->EOLid = @$eol_rec['id'];
         // $taxon->EOLidAnnotations = $eol_rec['content'];
         foreach($fields as $field) {
             $var = pathinfo($field, PATHINFO_BASENAME);
