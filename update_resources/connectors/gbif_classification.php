@@ -9,7 +9,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
-$resource_id = 'gbif_classification_pre';
+$resource_id = 'gbif_classification_pre2';
 require_library('connectors/GBIF_classificationAPI');
 
 $func = new GBIF_classificationAPI($resource_id);
@@ -64,6 +64,9 @@ Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 run_tests($func);
 */
 
+// run_1test($func);
+
+
 /* utility ========================== works OK
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
@@ -82,6 +85,80 @@ echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
 
+/*
+For #7
+
+These should NOT anymore suggest an EOLid. Nothing found in API.
+- 7367811 7899521 Verbascum cheiranthifollum var. cheiranthifollum
+- 9738186 2370086 Limbochromis robertsi robertsi
+- 9674520 2370086 Limbochromis robertsi van-den Audenaerde & Loiselle, 1971
+
+*/
+function run_1test($func)
+{
+    $sciname = 'Pelmatochromis'; //should be 10885
+    // $sciname = 'Verbascum cheiranthifollum var. cheiranthifollum'; //none
+    // $sciname = 'Verbascum cheiranthifollum cheiranthifollum'; //none
+
+    // $sciname = 'Erica multiflora subsp. multiflora'; //52540300
+    // $sciname = 'Erica multiflora multiflora'; //should be 52540300
+
+    // $sciname = 'Limbochromis robertsi robertsi'; //none
+    // $sciname = 'Limbochromis robertsi van-den Audenaerde & Loiselle, 1971'; //none
+    // $sciname = 'Limbochromis robertsi'; //46572794
+
+    $sciname = 'Najas'; //35130
+    $rec = Array(
+        "http://rs.tdwg.org/dwc/terms/taxonID" => '2865618',
+        "http://rs.tdwg.org/dwc/terms/datasetID" => '7ddf754f-d193-4cc9-b351-99906754a03b',
+        "http://rs.tdwg.org/dwc/terms/scientificName" => 'Najas L.',
+        "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship" => 'L.',
+        "http://rs.gbif.org/terms/1.0/canonicalName" => 'Najas',
+        "http://rs.tdwg.org/dwc/terms/taxonRank" => 'genus',
+        "http://rs.tdwg.org/dwc/terms/taxonomicStatus" => 'accepted',
+    );
+    
+    $sciname = 'Najas marina angustifolia'; //none
+    $rec = Array(
+        "http://rs.tdwg.org/dwc/terms/taxonID" => '7952446',
+        "http://rs.tdwg.org/dwc/terms/datasetID" => '0e61f8fe-7d25-4f81-ada7-d970bbb2c6d6',
+        "http://rs.tdwg.org/dwc/terms/scientificName" => 'Najas marina var. angustifolia A.Braun',
+        "http://rs.tdwg.org/dwc/terms/scientificNameAuthorship" => 'A.Braun',
+        "http://rs.gbif.org/terms/1.0/canonicalName" => 'Najas marina angustifolia',
+        "http://rs.tdwg.org/dwc/terms/taxonRank" => 'variety',
+        "http://rs.tdwg.org/dwc/terms/taxonomicStatus" => 'accepted',
+    );
+    
+    // /*
+    $sciname = 'Polychaeta';
+    $sciname = 'Cingulata';
+    $sciname = 'Felis ocreata griselda';
+    $sciname = 'Enallagma cyathigerum vernale';
+    $sciname = 'Vicia';
+    $sciname = 'Najas';
+    $sciname = 'Saccharomycetes';
+    $sciname = 'Verbascum cheiranthifollum cheiranthifollum';
+    $sciname = 'Limbochromis robertsi van-den';
+    $rec = Array(
+        'http://rs.tdwg.org/dwc/terms/taxonID' => 'xxx',
+        'http://rs.tdwg.org/dwc/terms/datasetID' => 'xxx',
+        'http://rs.tdwg.org/dwc/terms/scientificName' => 'xxx',
+        'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'xxx',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Felis ocreata griselda',
+        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'species',
+        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'class',
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'subspecies',
+        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'variety',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'xxx'
+    );
+    // */
+    
+    
+    $ret = $func->main_sciname_search($sciname, $rec);
+    if($ret) print_r($ret); //good debug
+    else echo "\nNo API result.\n";
+}
 function run_tests($func)
 {
     $sciname = 'Ciliophora'; //should be 46724417
