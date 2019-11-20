@@ -60,11 +60,15 @@ Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 */
 //====================================================================================================
 
-/* tests
-run_tests($func);
-*/
+// /* tests
+// run_tests($func);
+// */
 
 // run_1test($func);
+// Used APIs for debugging:
+// https://eol.org/api/pages/1.0/84.json?details=true
+// https://eol.org/api/search/1.0.json?q=Limbochromis&page=1&exact=true
+
 
 
 /* utility ========================== works OK
@@ -96,9 +100,7 @@ These should NOT anymore suggest an EOLid. Nothing found in API.
 */
 function run_1test($func)
 {
-    $sciname = 'Pelmatochromis'; //should be 10885
     // $sciname = 'Verbascum cheiranthifollum var. cheiranthifollum'; //none
-    // $sciname = 'Verbascum cheiranthifollum cheiranthifollum'; //none
 
     // $sciname = 'Erica multiflora subsp. multiflora'; //52540300
     // $sciname = 'Erica multiflora multiflora'; //should be 52540300
@@ -118,7 +120,7 @@ function run_1test($func)
         "http://rs.tdwg.org/dwc/terms/taxonomicStatus" => 'accepted',
     );
     
-    $sciname = 'Najas marina angustifolia'; //none
+    $sciname = 'Najas marina angustifolia'; //35130
     $rec = Array(
         "http://rs.tdwg.org/dwc/terms/taxonID" => '7952446',
         "http://rs.tdwg.org/dwc/terms/datasetID" => '0e61f8fe-7d25-4f81-ada7-d970bbb2c6d6',
@@ -130,27 +132,33 @@ function run_1test($func)
     );
     
     // /*
-    $sciname = 'Polychaeta';
     $sciname = 'Cingulata';
-    $sciname = 'Felis ocreata griselda';
-    $sciname = 'Enallagma cyathigerum vernale';
-    $sciname = 'Vicia';
-    $sciname = 'Najas';
-    $sciname = 'Saccharomycetes';
-    $sciname = 'Verbascum cheiranthifollum cheiranthifollum';
-    $sciname = 'Limbochromis robertsi van-den';
+    // $sciname = 'Felis ocreata griselda';
+    // $sciname = 'Enallagma cyathigerum vernale';
+    // $sciname = 'Vicia';
+    // $sciname = 'Najas';
+    // $sciname = 'Saccharomycetes';
+    // $sciname = 'Verbascum cheiranthifollum cheiranthifollum'; //should be 60976
+    // $sciname = 'Limbochromis robertsi van-den'; //should be 46572793 by Eli BUT NOT 10885
+    // $sciname = 'Limbochromis robertsi robertsi'; //should be 46572793 by Eli BUT NOT 10885
+    // $sciname = 'Pelmatochromis'; //should be 10885
+    // $sciname = 'Polychaeta';
+
     $rec = Array(
         'http://rs.tdwg.org/dwc/terms/taxonID' => 'xxx',
         'http://rs.tdwg.org/dwc/terms/datasetID' => 'xxx',
         'http://rs.tdwg.org/dwc/terms/scientificName' => 'xxx',
         'http://rs.tdwg.org/dwc/terms/scientificNameAuthorship' => 'xxx',
-        'http://rs.gbif.org/terms/1.0/canonicalName' => 'Felis ocreata griselda',
-        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
+        'http://rs.gbif.org/terms/1.0/canonicalName' => 'xxx',
+        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'xxx',
+
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus',
         // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'species',
         // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'class',
-        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'subspecies',
+        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'subspecies',
         // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'variety',
-        'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'xxx'
+        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'family',
+        // 'http://rs.tdwg.org/dwc/terms/taxonRank' => 'order',
     );
     // */
     
@@ -229,6 +237,13 @@ function run_tests($func)
         'http://rs.tdwg.org/dwc/terms/taxonomicStatus' => 'accepted'
     );
     run_test($sciname, $rec, $func);
+    
+    $sciname = 'Saccharomycetes'; $rec = Array( //should be 5678
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'class'
+    ); run_test($sciname, $rec, $func);
+    $sciname = 'Pelmatochromis'; $rec = Array( //should be 10885
+        'http://rs.tdwg.org/dwc/terms/taxonRank' => 'genus'
+    ); run_test($sciname, $rec, $func);
 }
 function run_test($sciname, $rec, $func)
 {
@@ -256,7 +271,6 @@ function run_test($sciname, $rec, $func)
         if($ret['id'] == '52540300') echo "\n -OK $sciname \n";
         else                         echo "\n -Error $sciname \n";
     }
-    
     if($sciname == 'Macronotops sexmaculatus') {
         if($ret['id'] == '52612677') echo "\n -OK $sciname \n";
         else                         echo "\n -Error $sciname \n";
@@ -265,6 +279,14 @@ function run_test($sciname, $rec, $func)
         if($ret['id'] == '45281240') echo "\n -OK $sciname \n";
         elseif($ret['id'] == '3267') echo "\n -OK $sciname \n";
         else                         echo "\n -Error $sciname \n";
+    }
+    if($sciname == 'Saccharomycetes') {
+        if($ret['id'] == '5678') echo "\n -OK $sciname \n";
+        else                     echo "\n -Error $sciname \n";
+    }
+    if($sciname == 'Pelmatochromis') {
+        if($ret['id'] == '10885') echo "\n -OK $sciname \n";
+        else                      echo "\n -Error $sciname \n";
     }
 }
 ?>
