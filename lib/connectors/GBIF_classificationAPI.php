@@ -377,7 +377,7 @@ class GBIF_classificationAPI
         echo "\nprocess_taxon...\n"; $i = 0;
         $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 10000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
@@ -493,24 +493,52 @@ class GBIF_classificationAPI
     {
         if($GLOBALS['ENV_DEBUG'] == true) echo "\nwill process [$sciname] ";
         $eol_rec = array();
-        $hits = self::get_all_hits_for_search_string($sciname);
+        $hits = self::get_all_hits_for_search_string($sciname, $rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
+        // print_r($hits); exit("\nhits = ".count($hits)."\n");
+        if(count($hits) == 1) return $hits[0];
         if(count($hits) <= 1) {
             if(count($hits) == 1 && $eol_rec = self::search_api_with_moving_offset_number($sciname, $sciname)) {
                 // self::write_archive($rec, $eol_rec);
                 debug("\nused regular option\n");
+                // print_r($eol_rec); exit("\ncompare\n");
             }
             elseif(count($hits) == 0 && self::is_subspecies($sciname)) {
                 $species = self::get_species_from_subspecies($sciname);
                 if($species == $sciname) return array();
                 if($eol_rec = self::search_api_with_moving_offset_number($species, $sciname)) {
                     // self::write_archive($rec, $eol_rec);
-                    debug("\nused subspecies option\n");
+                    debug("\nused subspecies option [$species][$sciname]\n");
                     /* Array(
                         [id] => 52540300
                         [title] => Erica multiflora multiflora
                         [link] => https://eol.org/pages/52540300
                         [content] => Erica multiflora multiflora; Erica multiflora subsp. multiflora; Erica multiflora f. alba (Regel) D. Mc Clintock; Erica multiflora var. alba Regel; <i>Erica multiflora alba</i>
                     )*/
+                }
+                else { //new remove ' var. ' or ' subsp. '
+                    $new_sciname = self::remove_some_strings($sciname);
+                    if($new_sciname != $sciname) {
+                        if($eol_rec = self::main_sciname_search($new_sciname, $rec)) {
+                            debug("\nused subspecies option with remove_some_strings() [$new_sciname][$species][$sciname]\n");
+                        }
+                    }
+                    else {
+                        $new_sciname = Functions::canonical_form($sciname);
+                        if($new_sciname != $sciname) {
+                            if($eol_rec = self::main_sciname_search($new_sciname, $rec)) {
+                                debug("\nused subspecies option with canonical_form() [$new_sciname][$species][$sciname]\n");
+                            }
+                        }
+                        elseif(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonRank'], array('subspecies', 'variety', 'form'))) //Katja's #5a
+                        { /* subspecies like: Felis ocreata griselda, Enallagma cyathigerum mongolicum, converted to genus */
+                            $arr = explode(" ", $sciname);
+                            $genus_part = $arr[0];
+                            $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = 'genus';
+                            if($eol_rec = self::main_sciname_search($genus_part, $rec)) {
+                                debug("\nsubspecies converted to genus\n");
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -529,19 +557,70 @@ class GBIF_classificationAPI
         // print_r($eol_rec); exit("\nstopx\n");
         return $eol_rec;
     }
-    private function get_all_hits_for_search_string($sciname)
+    private function remove_some_strings($species)
+    {
+        $arr = array(' var. ', ' subsp. ');
+        return str_replace($arr, " ", $species);
+    }
+    private function get_all_hits_for_search_string($sciname, $source_rank)
     {   $final = array();
         if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options)) {
             $total_loop = ceil($ret['totalResults']/50);
             for($page_no = 1; $page_no <= $total_loop; $page_no++) { //start loop to all, in batches of 50
                 if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, $page_no)) {
                     foreach($ret['results'] as $r) {
-                        if($sciname == $r['title']) $final[] = $r;
+                        /* e.g. $r
+                        Array(
+                            [id] => 84
+                            [title] => Polychaeta
+                            [link] => https://eol.org/pages/84
+                            [content] => Polychaeta; Polychaeta Macquart, 1851; Polychaeta (unidentified); Polychaeta Grube, 1850
+                        )
+                        */
+                        if($sciname == $r['title']) {
+                            // exit("\npassed here 111\n");
+                            /* - if source sciname is genus or species then the target should also be genus or species.
+                            */
+                            if(!$source_rank) $final[] = $r;
+                            else {
+                                $target_rank = self::get_rank_of_this_id($r['id']);
+                                $source_rank = strtolower($source_rank);
+                                if($source_rank == 'genus') {
+                                    if($target_rank == 'genus') $final[] = $r;
+                                }
+                                elseif($source_rank == 'species') {
+                                    if($target_rank == 'species') $final[] = $r;
+                                }
+                                else {
+                                    if(in_array($target_rank, array('genus', 'species'))) {} // a source_rank = 'class' cannot get a target_rank = 'genus' or 'species'.
+                                    else $final[] = $r;
+                                }
+                            }
+                        }
+                        
                     }
                 }
             }
         }
         return $final;
+    }
+    private function get_rank_of_this_id($tc_id)
+    {
+        if($rek = $this->func_eol_v3->search_eol_page_id($tc_id, $this->download_options)) {
+            foreach($rek['taxonConcept']['taxonConcepts'] as $r) {
+                /*[0] => Array(
+                    [identifier] => 7130522
+                    [scientificName] => Ciliophora
+                    [name] => Ciliophora
+                    [nameAccordingTo] => EOL Dynamic Hierarchy 0.9
+                    [canonicalForm] => Ciliophora
+                    [sourceIdentifier] => -23632
+                    [taxonRank] => phylum //not all have taxonRank
+                )*/
+                if($val = @$r['taxonRank']) return strtolower($val);
+            }
+        }
+        return '';
     }
     private function pick_from_multiple_hits($hits, $rec, $sciname)
     {   // print_r($hits); print_r($rec); exit("\n$sciname\n");
@@ -632,19 +711,26 @@ class GBIF_classificationAPI
             for($page_no = 1; $page_no <= $total_loop; $page_no++) { //start loop to all, in batches of 50
                 if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, $page_no)) {
                     if($GLOBALS['ENV_DEBUG'] == true) echo " - ".count($ret['results']);
-                    if($eol_rec = self::get_actual_name($ret, $sciname2use_for_func_get_actual_name)) return $eol_rec;
+                    if($eol_rec = self::get_actual_name($ret, $sciname2use_for_func_get_actual_name)) {
+                        // print_r($eol_rec); exit;
+                        return $eol_rec;
+                    }
                     // good debug
                     // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == '4943435') {
                     //     print_r($rec); print_r($ret); print_r($eol_rec); exit;
                     // }
                 }
             }
-            
+            /* this last option has to be commented since it gives many wrong EOLids
             if(!$eol_rec) {
                 if($ret = $this->func_eol_v3->search_name($sciname, $this->download_options, 1)) { //alternatively, just return the first record
-                    if($ret['results']) return $ret['results'][0];
+                    if($ret['results']) {
+                        echo "\nalternatively, just return the first record\n";
+                        return $ret['results'][0];
+                    }
                 }
             }
+            */
         }
         return false;
     }
