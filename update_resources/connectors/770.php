@@ -4,6 +4,7 @@ namespace php_active_record;
 estimated execution time:
 
 770	Thursday 2019-07-11 06:58:32 AM	{"measurement_or_fact_specific.tab":977,"occurrence_specific.tab":976,"reference.tab":1,"taxon.tab":919}
+770	Thursday 2019-11-21 10:38:47 AM	{"measurement_or_fact_specific.tab":977,"occurrence_specific.tab":976,"reference.tab":1,"taxon.tab":919,"time_elapsed":false}
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
