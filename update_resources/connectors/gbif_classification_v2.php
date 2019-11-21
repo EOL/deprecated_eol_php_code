@@ -13,12 +13,12 @@ $resource_id = 'gbif_classification_pre';
 require_library('connectors/GBIF_classificationAPI_v2');
 
 $func = new GBIF_classificationAPI_v2($resource_id);
-// /* main operation --- will generate: gbif_classification_pre.tar.gz. Will run in eol-archive.
+/* main operation --- will generate: gbif_classification_pre.tar.gz. Will run in eol-archive.
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means delete folder
 check_parents($resource_id);
-// */
+*/
 
 /* Two Reminders: 
 ------------------------------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ e.g. Array(
       Since I'm using manually edited eoldynamichierarchywithlandmarks/meta.xml (wrong rowtype in meta.xml)
       and
       eolpageids.csv with added headers. SO THIS WILL BE RUN IN Mac Mini ONLY. */
-/*
+// /*
 $resource_id = 'gbif_classification';
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz';
 else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/gbif_classification_pre.tar.gz';
@@ -55,9 +55,8 @@ $preferred_rowtypes = array();
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 check_parents($resource_id);
-*/
+// */
 //====================================================================================================
-
 
 function check_parents($resource_id)
 {
@@ -79,5 +78,4 @@ echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
 echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
 echo "\nDone processing.\n";
-
 ?>

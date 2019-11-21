@@ -261,7 +261,7 @@ class GBIF_classificationAPI_v2
         require_library('connectors/BoldsImagesAPIv2');
         $func = new BoldsImagesAPIv2("");
         $path = $func->download_and_extract_remote_file($this->service['DH0.9 EOL pageID mappings'], true); //2nd param True meqns will use cache.
-        print_r($paths); exit;
+        print_r($path); //exit;
         
         $file = fopen('/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eolpageids.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
