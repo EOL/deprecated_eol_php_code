@@ -111,7 +111,6 @@ class GBIF_classificationAPI_v2
                 [http://eol.org/schema/EOLid] => 37570
             )*/
             //========================================================================================================================
-            $API_EOL_id = $rec['http://eol.org/schema/EOLid'];
             $gbif_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             $DH09_EOL_id = self::get_EOL_id_given_GBIF_id($gbif_id);
             
@@ -359,7 +358,7 @@ class GBIF_classificationAPI_v2
             if($taxonomicStatus != 'accepted') continue;
             self::write_archive($rec);
             
-            if($i >= 100) break;
+            // if($i >= 100) break;
         }
     }
     private function write_archive($rec)

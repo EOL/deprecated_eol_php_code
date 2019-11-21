@@ -60,7 +60,7 @@ Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 
 
 
-/* utility ========================== works OK
+// /* utility ========================== works OK
 require_library('connectors/DWCADiagnoseAPI');
 $func = new DWCADiagnoseAPI();
 
@@ -71,7 +71,7 @@ else           echo "\nOK: All parents in taxon.tab have entries.\n";
 $undefined = $func->check_if_all_parents_have_entries($resource_id, true, false, array(), "acceptedNameUsageID"); //true means output will write to text file
 if($undefined) echo "\nERROR: There is undefined acceptedNameUsageID(s): ".count($undefined)."\n";
 else           echo "\nOK: All acceptedNameUsageID have entries.\n";
-===================================== */
+// ===================================== */
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
