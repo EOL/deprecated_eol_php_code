@@ -32,11 +32,10 @@ class GBIF_classificationAPI_v2
         $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'gbif_names_not_found_in_eol.txt';
 
         /* for comparison report DH 0.9 vs my gbif_classification DwCA */
-        /*
+        $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip'; //the meta.xml is manually edited by Eli. rowtype changed to "http://rs.tdwg.org/dwc/terms/taxon".
         $this->service['DH0.9'] = 'https://opendata.eol.org/dataset/0a023d9a-f8c3-4c80-a8d1-1702475cda18/resource/1b375a39-4739-45ba-87cd-328bdd50ec34/download/eoldynamichierarchywithlandmarks.zip';
         $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
-        */
-        $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip'; //the meta.xml is manually edited by Eli. rowtype changed to "http://rs.tdwg.org/dwc/terms/taxon".
+
         $this->comparison_report = CONTENT_RESOURCE_LOCAL_PATH.'GBIF_id_EOL_id_coverage_comparison_report_'.date('Y-m-d').'.txt';
         $this->debug = array();
         /*
@@ -226,13 +225,13 @@ class GBIF_classificationAPI_v2
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
         print_r($paths); //exit;
-        */
-        // /* local when developing, and when running reports and final version: gbif_classification.tar.gz
+        // */
+        /* local when developing, and when running reports and final version: gbif_classification.tar.gz
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
             $paths = Array(
                 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
@@ -254,11 +253,16 @@ class GBIF_classificationAPI_v2
                 'temp_dir'     => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/"
             );
         }
-        // */
+        */
         return $paths;
     }
     private function process_eolpageids_csv()
     {
+        require_library('connectors/BoldsImagesAPIv2');
+        $func = new BoldsImagesAPIv2("");
+        $path = $func->download_and_extract_remote_file($this->service['DH0.9 EOL pageID mappings'], true); //2nd param True meqns will use cache.
+        print_r($paths); exit;
+        
         $file = fopen('/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eolpageids.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if($i == 1) $fields = $line;
