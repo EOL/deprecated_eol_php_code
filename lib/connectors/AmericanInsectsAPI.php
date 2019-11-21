@@ -397,7 +397,7 @@ class AmericanInsectsAPI
                     $rec["statistical_method"] = "http://eol.org/schema/terms/average";
                     $rec["measurementUnit"] = "http://purl.obolibrary.org/obo/UO_0000016";
                     $length_measurement = "http://purl.obolibrary.org/obo/CMO_0000013";
-                    if(is_numeric(stripos($length, "wingspan")) || @$rec["wingspan"]) $length_measurement = "http://www.owl-ontologies.com/unnamed.owl#Wingspan";
+                    if(is_numeric(stripos($length, "wingspan")) || @$rec["wingspan"]) $length_measurement = "http://www.wikidata.org/entity/Q245097"; //"http://www.owl-ontologies.com/unnamed.owl#Wingspan"; remapped per DATA-1841
 
                     // print_r($rec);
                     /*Array(
