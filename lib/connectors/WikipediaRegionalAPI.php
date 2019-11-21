@@ -306,7 +306,7 @@ class WikipediaRegionalAPI
         $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" . $source_lang . "&tl=" . $target_lang . "&dt=t&q=" . $source_text;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
-        if($target_lang == 'min') $options['expire_seconds'] = 0;
+        // if($target_lang == 'min') $options['expire_seconds'] = 0; //debug only
         $ret_str = '';
         if($json = Functions::lookup_with_cache($url, $options)) { //always cache expires false, since this is just a term translation
             // if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return ucfirst($arr[1]); //orig
