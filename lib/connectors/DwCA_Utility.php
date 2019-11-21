@@ -206,8 +206,8 @@ class DwCA_Utility
             $func->start($info);
         }
         if($this->resource_id == 'gbif_classification') {
-            require_library('connectors/GBIF_classificationAPI');
-            $func = new GBIF_classificationAPI($this->resource_id, $this->archive_builder);
+            require_library('connectors/GBIF_classificationAPI_v2');
+            $func = new GBIF_classificationAPI_v2($this->resource_id, $this->archive_builder);
             $func->fix_remaining_conflicts($info);
         }
         // ================================= end of customization ================================= */ 

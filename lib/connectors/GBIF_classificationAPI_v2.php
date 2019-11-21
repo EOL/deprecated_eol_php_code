@@ -359,7 +359,7 @@ class GBIF_classificationAPI_v2
             if($taxonomicStatus != 'accepted') continue;
             self::write_archive($rec);
             
-            if($i >= 10) break;
+            if($i >= 100) break;
         }
     }
     private function write_archive($rec)

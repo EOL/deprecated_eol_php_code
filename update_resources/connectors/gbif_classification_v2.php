@@ -9,14 +9,14 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
 ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
-$resource_id = 'gbif_classification_pre2';
+$resource_id = 'gbif_classification_pre';
 require_library('connectors/GBIF_classificationAPI_v2');
 
 $func = new GBIF_classificationAPI_v2($resource_id);
 // /* main operation --- will generate: gbif_classification_pre.tar.gz. Will run in eol-archive.
 $func->start();
 unset($func);
-Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means delete folder
 // */
 
 /* Two Reminders: 
@@ -38,7 +38,7 @@ e.g. Array(
       Since I'm using manually edited eoldynamichierarchywithlandmarks/meta.xml (wrong rowtype in meta.xml)
       and
       eolpageids.csv with added headers. SO THIS WILL BE RUN IN Mac Mini ONLY. */
-/*
+// /*
 $resource_id = 'gbif_classification';
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz';
 $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/gbif_classification_pre.tar.gz';
@@ -53,7 +53,7 @@ $preferred_rowtypes = array();
 
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-*/
+// */
 //====================================================================================================
 
 
