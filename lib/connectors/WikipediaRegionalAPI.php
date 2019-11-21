@@ -306,12 +306,13 @@ class WikipediaRegionalAPI
         $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=" . $source_lang . "&tl=" . $target_lang . "&dt=t&q=" . $source_text;
         $options = $this->download_options;
         $options['expire_seconds'] = false;
-        if($json = Functions::lookup_with_cache($url, $options)) //always cache expires false, since this is just a term translation
-        {
-            // echo "\n $json \n";
+        if($target_lang == 'min') $options['expire_seconds'] = 0;
+        if($json = Functions::lookup_with_cache($url, $options)) { //always cache expires false, since this is just a term translation
             // if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return ucfirst($arr[1]); //orig
-            if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return self::format_wiki_substr(ucfirst($arr[1]));
+            if(preg_match("/\"(.*?)\"/ims", $json, $arr)) $ret_str = self::format_wiki_substr(ucfirst($arr[1]));
         }
+        if($ret_str == 'En') $ret_str = $source_text;
+        return $ret_str;
     }
     private function translate($source_text)
     {
