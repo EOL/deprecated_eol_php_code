@@ -251,7 +251,7 @@ class GBIF_classificationAPI_v2
                 // 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
                 
                 'archive_path' => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/",
-                'temp_dir' => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/"
+                'temp_dir'     => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/"
             );
         }
         // */
@@ -318,7 +318,7 @@ class GBIF_classificationAPI_v2
         echo "\nprocess_taxon...\n"; $i = 0;
         $m = 5858200/7; //total rows = 5,858,143. Rounded to 5858200. For caching.
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 10000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
