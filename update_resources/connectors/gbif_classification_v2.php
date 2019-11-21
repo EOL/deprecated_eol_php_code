@@ -1,8 +1,10 @@
 <?php
 namespace php_active_record;
 /* GBIF classification update - https://eol-jira.bibalex.org/browse/DATA-1826 
-gbif_classification	    Monday 2019-09-23 09:15:26 PM	{"taxon.tab":2845723}
-gbif_classification_pre	Tuesday 2019-11-12 12:52:55 PM	{"taxon.tab":2674301,"time_elapsed":{"sec":452183.7,"min":7536.4,"hr":125.61,"day":5.23}}
+Mac Mini:
+gbif_classification_pre	    Thursday 2019-11-21 05:53:56 AM	{"taxon.tab":3820178,"time_elapsed":{"sec":2516.83,"min":41.95,"hr":0.7}}
+gbif_classification	        Thursday 2019-11-21 09:34:38 AM	{"taxon.tab":3820178,"time_elapsed":{"sec":3079.33,"min":51.32,"hr":0.86}}
+Haven't run it yet in eol-archive since the 2 resource files are 'private' in OpenData.
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

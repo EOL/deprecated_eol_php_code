@@ -24,22 +24,19 @@ class GBIF_classificationAPI_v2
         if(Functions::is_production()) {
             $this->service["backbone_dwca"] = "http://rs.gbif.org/datasets/backbone/backbone-current.zip";
             $this->service["gbif_classification_pre"] = "https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz";
+            $this->service['DH0.9'] = 'https://opendata.eol.org/dataset/0a023d9a-f8c3-4c80-a8d1-1702475cda18/resource/1b375a39-4739-45ba-87cd-328bdd50ec34/download/eoldynamichierarchywithlandmarks.zip';
+            $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
         }
         else {
             $this->service["backbone_dwca"] = "http://localhost/cp/GBIF_Backbone_Archive/backbone-current.zip";
             $this->service["gbif_classification_pre"] = "http://localhost/eol_php_code/applications/content_server/resources_2/gbif_classification_pre.tar.gz";
+            $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip';
+            $this->service['DH0.9 EOL pageID mappings'] = 'http://localhost/cp/DATA-1826 GBIF class/eolpageids.csv.gz';
         }
         $this->log_file = CONTENT_RESOURCE_LOCAL_PATH.'gbif_names_not_found_in_eol.txt';
 
-        /* for comparison report DH 0.9 vs my gbif_classification DwCA */
-        $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip'; //the meta.xml is manually edited by Eli. rowtype changed to "http://rs.tdwg.org/dwc/terms/taxon".
-        $this->service['DH0.9'] = 'https://opendata.eol.org/dataset/0a023d9a-f8c3-4c80-a8d1-1702475cda18/resource/1b375a39-4739-45ba-87cd-328bdd50ec34/download/eoldynamichierarchywithlandmarks.zip';
-        $this->service['DH0.9 EOL pageID mappings'] = 'https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/118fbbd8-71df-4ef9-90f5-5b4a663c7602/download/eolpageids.csv.gz';
-
-        $this->comparison_report = CONTENT_RESOURCE_LOCAL_PATH.'GBIF_id_EOL_id_coverage_comparison_report_'.date('Y-m-d').'.txt';
         $this->debug = array();
         /*
-        2,845,724 taxon.tab -> gbif_classification
         2,724,940 taxa.txt -> eoldynamichierarchywithlandmarks
         2,724,668 eolpageids.csv
         */
@@ -52,8 +49,10 @@ class GBIF_classificationAPI_v2
         self::build_info_PreferEOL_id_from_API_match(); //from Jira attachment: PreferEOL_id_from_API_match.txt
         
         // /* get info lists
-        self::build_info('DH0.9', false);   //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id        2nd param false means expire_seconds = false
+        self::build_info('DH0.9', false);       //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id        2nd param false means expire_seconds = false
         self::process_eolpageids_csv();     //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
+        echo "\n resource file DH09: ".count($this->DH09)."\n";
+        echo "\n resource file DH_map: ".count($this->DH_map)."\n";
         // */
         $tables = $info['harvester']->tables;
         self::process_fix_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
@@ -225,6 +224,8 @@ class GBIF_classificationAPI_v2
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
+        elseif($expire_seconds === 0) $download_options['expire_seconds'] = $expire_seconds;
+        
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -258,12 +259,14 @@ class GBIF_classificationAPI_v2
     }
     private function process_eolpageids_csv()
     {
-        require_library('connectors/BoldsImagesAPIv2');
-        $func = new BoldsImagesAPIv2("");
-        $path = $func->download_and_extract_remote_file($this->service['DH0.9 EOL pageID mappings'], true); //2nd param True meqns will use cache.
-        print_r($path); //exit;
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        $paths = $func->extract_archive_file($this->service['DH0.9 EOL pageID mappings'], 'eolpageids.csv', $options, false);
+        // print_r($paths); exit;
         
-        $file = fopen('/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eolpageids.csv', 'r'); $i = 0;
+        $file = fopen($paths['archive_path'].'/eolpageids.csv', 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if($i == 1) $fields = $line;
             else {
@@ -305,9 +308,11 @@ class GBIF_classificationAPI_v2
             return false;
         }
 
+        /* working but not used here...
         if(!($file = Functions::file_open($this->log_file, "w"))) return;
         fwrite($file, implode("\t", array('taxonID', 'scientificName', 'searched string', 'flag'))."\n");
         fclose($file);
+        */
         
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         $this->archive_builder->finalize(TRUE);
