@@ -13,12 +13,12 @@ $resource_id = 'gbif_classification_pre';
 require_library('connectors/GBIF_classificationAPI_v2');
 
 $func = new GBIF_classificationAPI_v2($resource_id);
-/* main operation --- will generate: gbif_classification_pre.tar.gz. Will run in eol-archive.
+// /* main operation --- will generate: gbif_classification_pre.tar.gz. Will run in eol-archive.
 $func->start();
 unset($func);
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means delete folder
 check_parents($resource_id);
-*/
+// */
 
 /* Two Reminders: 
 ------------------------------------------------------------------------------------------------------
