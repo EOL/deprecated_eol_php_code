@@ -52,8 +52,8 @@ class GBIF_classificationAPI_v2
         self::build_info_PreferEOL_id_from_API_match(); //from Jira attachment: PreferEOL_id_from_API_match.txt
         
         // /* get info lists
-        self::build_info('DH0.9');                  //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id
-        self::process_eolpageids_csv();             //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
+        self::build_info('DH0.9', false);   //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id        2nd param false means expire_seconds = false
+        self::process_eolpageids_csv();     //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
         // */
         $tables = $info['harvester']->tables;
         self::process_fix_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
@@ -148,9 +148,9 @@ class GBIF_classificationAPI_v2
     }
     //=================================================END fix remaining conflicts between the API & DH09 mappings
 
-    private function build_info($dwca)
+    private function build_info($dwca, $expire_seconds)
     {
-        $paths = self::access_dwca($dwca, false); //false here 2nd param is expire_seconds
+        $paths = self::access_dwca($dwca, $expire_seconds); //false here 2nd param is expire_seconds
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -158,10 +158,10 @@ class GBIF_classificationAPI_v2
         // print_r($tables); exit;
         self::process_taxon_4report($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $dwca);
         
-        /* un-comment in real operation
+        // /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
     }
     private function process_taxon_4report($meta, $dwca)
     {   //print_r($meta);
@@ -221,7 +221,7 @@ class GBIF_classificationAPI_v2
             }
         }
     }
-    private function access_dwca($dwca, $expire_seconds = false)
+    private function access_dwca($dwca, $expire_seconds)
     {   
         $download_options = $this->download_options;
         if($expire_seconds) $download_options['expire_seconds'] = $expire_seconds;
@@ -294,7 +294,7 @@ class GBIF_classificationAPI_v2
     }
     /*-------------------------------------- end report here --------------------------------------------*/
     function start()
-    {   $paths = self::access_dwca('backbone_dwca');
+    {   $paths = self::access_dwca('backbone_dwca', false); //2nd param false means expire_seconds = false;
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         
@@ -311,11 +311,11 @@ class GBIF_classificationAPI_v2
         
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         $this->archive_builder->finalize(TRUE);
-
-        /* un-comment in real operation
+        print_r($this->debug);
+        // /* un-comment in real operation
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
-        */
+        // */
     }
     private function process_taxon($meta)
     {   //print_r($meta);
@@ -359,7 +359,9 @@ class GBIF_classificationAPI_v2
             else continue;
             */
             
-            if($taxonomicStatus != 'accepted') continue;
+            // if($taxonomicStatus != 'accepted') continue;    //ERROR: There is undefined parent(s): 6160
+            if($taxonomicStatus == 'synonym') continue;     //OK: All parents in taxon.tab have entries.
+            
             self::write_archive($rec);
             
             // if($i >= 100) break;
