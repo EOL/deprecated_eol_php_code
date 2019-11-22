@@ -2553,6 +2553,17 @@ class Functions
         $mappings = array_merge($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from FishBaseArchiveAPI.php. \n";
         
+        /* START DATA-1841 terms remapping */
+        echo "\n'Cura ao' OLD: ".$mappings['Cura ao']."\n"; //old value is: http://www.wikidata.org/entity/Q25279
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
+        $func = new TropicosArchiveAPI(NULL); //to initialize variable $this->uri_values in TropicosArchiveAPI
+        $remapped_terms = $func->add_additional_mappings(true, $url, $expire_seconds); //*this is not add_additional_mappings() like how was used above.
+        echo "\nremapped_terms: ".count($remapped_terms)."\n";
+        echo "\nmappings: ".count($mappings)."\n";
+        $mappings = $func->data_1841_terms_remapping($mappings, $remapped_terms);
+        echo "\nmappings: ".count($mappings)."\n";
+        if($mappings['Cura ao'] == 'http://www.geonames.org/7626836') echo "\nRemapping OK. 'Cura ao' NEW: ".$mappings['Cura ao']."\n"; //new value should be http://www.geonames.org/7626836
+        /* END DATA-1841 terms remapping */
         return $mappings;
     }
     public static function get_Flickr_user_id_from_url($url) //e.g. $url "http://flickr.com/photos/64684201@N00/291506502/"

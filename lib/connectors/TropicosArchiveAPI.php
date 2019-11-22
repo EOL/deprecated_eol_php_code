@@ -795,5 +795,14 @@ class TropicosArchiveAPI
         unlink($local);
         if($return_d_value) return $this->uri_values;
     }
+    public function data_1841_terms_remapping($mappings, $remapped_terms)
+    {
+        $final = array();
+        foreach($mappings as $term => $uri) {
+            if($new_uri = @$remapped_terms[$uri]) $final[$term] = $new_uri;
+            else                                  $final[$term] = $uri;
+        }
+        return $final;
+    }
 }
 ?>
