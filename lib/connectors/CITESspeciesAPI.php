@@ -60,7 +60,7 @@ class CITESspeciesAPI
         $page = 0; //normal operation
         // $page = 100; //debug only - force
         while($page <= $total_pages) {
-            $page++;
+            $page++; echo "\n$page of $total_pages";
             $url = $this->service['taxa'].$page;
             $cmd = 'curl -s "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
             /* Note to ELI: tried to put -s but may need to add: > /dev/null
@@ -216,7 +216,7 @@ class CITESspeciesAPI
         $json = self::get_json_from_cache($cmd, $this->download_options);
         $obj = json_decode($json);
         // print_r($obj); exit;
-        echo "\nDistributions: ".count($obj)."\n";
+        debug("\nDistributions: ".count($obj)."\n");
         /*Array(
             [0] => stdClass Object(
                     [id] => 50
