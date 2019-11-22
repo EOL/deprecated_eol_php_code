@@ -5,6 +5,9 @@ first step: this will generate 1000.tar.gz. But has duplicate taxon identifiers.
 php update_resources/connectors/spreadsheet_2_dwca.php _ 1000
 2nd step:
 php update_resources/connectors/1000.php
+
+1000	    Friday 2019-11-22 02:58:26 AM{"agents.txt":0,"associations.txt":0,"common names.txt":0,"events.txt":0,"measurements or facts.txt":4242,"media.txt":0,"occurrences.txt":4242,"references.txt":0,"taxa.txt":4242}
+1000_final	Friday 2019-11-22 02:58:44 AM{"measurement_or_fact.tab":4242,"occurrence.tab":4142,"taxon.tab":4142,"time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
