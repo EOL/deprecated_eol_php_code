@@ -8,6 +8,7 @@ cites_taxa	Wednesday 2019-01-09 09:42:31 AM	{"measurement_or_fact.tab":57748,"oc
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/CITESspeciesAPI');
 ini_set('memory_limit','7096M'); //required for checking uniqueness of measurementID
+$GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 $resource_id = 'cites_taxa';
 $func = new CITESspeciesAPI($resource_id);
