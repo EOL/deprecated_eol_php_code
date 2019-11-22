@@ -212,7 +212,7 @@ class CITESspeciesAPI
     {
         $url = str_replace("taxon_concept_id", $taxon_id, $this->service['distribution']);
         $cmd = 'curl -s "'.$url.'" -H "X-Authentication-Token:'.$this->service['token'].'"';
-        echo "\n$cmd\n";
+        debug("\n$cmd\n");
         $json = self::get_json_from_cache($cmd, $this->download_options);
         $obj = json_decode($json);
         // print_r($obj); exit;
@@ -314,9 +314,9 @@ class CITESspeciesAPI
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.json";
-        echo "\ncache_path: [$cache_path]\n";
+        debug("\ncache_path: [$cache_path]\n");
         if(file_exists($cache_path)) {
-            // echo "\nRetrieving cache ($name)...\n"; //good debug
+            debug("\nRetrieving cache ($name)...\n"); //good debug
             $file_contents = file_get_contents($cache_path);
             $cache_is_valid = true;
             if(($file_contents && $cache_is_valid) || (strval($file_contents) == "0" && $cache_is_valid)) {
@@ -327,7 +327,7 @@ class CITESspeciesAPI
             @unlink($cache_path);
         }
         //generate json
-        echo "\nGenerating cache json for the first time ($name)...\n";
+        debug("\nGenerating cache json for the first time ($name)...\n"); //good debug
         $cmd = $name;
         $json = shell_exec($cmd);
         if(true) {
