@@ -699,7 +699,7 @@ class CoralTraitsAPI
         $final = array();
         $options = $this->download_options;
         $options['file_extension'] = 'xlsx';
-        // $options['expire_seconds'] = 0; //debug only
+        $options['expire_seconds'] = 60*60*24; //updated Nov 22, 2019
         $local_xls = Functions::save_remote_file_to_local($file, $options);
         require_library('XLSParser');
         $parser = new XLSParser();
