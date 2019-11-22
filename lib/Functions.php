@@ -2003,7 +2003,16 @@ class Functions
                     if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $a)) { // <property name="measurementID"
                         foreach($a[1] as $field) {
                             if($resource_id == 'cites_taxa') { //until I get the real issue
-                                if($val = (string) @$m->$field) $final .= $val."_";
+                                if(isset($m->$field)) {
+                                    if(is_object($m->$field)) {
+                                        // print_r($m); print_r($m->$field); //good debug
+                                        $arr = (array) $m->$field;
+                                        $json = json_encode($arr);
+                                        // exit("\nstopped [$field]\n[$json]\n"); //good debug
+                                        $m->$field = $json;
+                                    }
+                                    if($val = (string) @$m->$field) $final .= $val."_";
+                                }
                             }
                             else { //regular
                                 if($val = @$m->$field) $final .= $val."_";
