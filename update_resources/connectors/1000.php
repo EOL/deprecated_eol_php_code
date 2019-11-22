@@ -15,7 +15,6 @@ $resource_id = '1000_final';
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/1000.tar.gz';
 else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/1000.tar.gz';
 process_resource_url($dwca_file, $resource_id, $timestart);
-echo "\nDone processing.\n";
 function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
