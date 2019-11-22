@@ -504,7 +504,7 @@ class DwCA_Utility
                 /* Need to have unique taxon ids. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique taxon ids.
                 Useful for e.g. DATA-1724 resource 'plant_forms_habitat_and_distribution'.
                 */
-                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted')) || in_array(substr($this->resource_id,0,3), array('LD_', 'EOL'))) {
+                if(in_array($this->resource_id, array('plant_forms_habitat_and_distribution-adjusted', '1000_final')) || in_array(substr($this->resource_id,0,3), array('LD_', 'EOL'))) {
                     if($class == "taxon") {
                         if($field == "taxonID") {
                             $taxon_id = @$rec[$key];
@@ -513,6 +513,22 @@ class DwCA_Utility
                                 $c = false; break; //exclude entire taxon entry if id already exists
                             }
                             else $this->taxon_ids[$taxon_id] = '';
+                        }
+                    }
+                }
+
+                /* Need to have unique occurrenceIDs. It is confined to a pre-defined list of resources bec. it is memory intensive and most resources have already unique occurrenceIDs.
+                Useful for e.g. DATA-1841 resource '1000_final'.
+                */
+                if(in_array($this->resource_id, array('1000_final'))) {
+                    if($class == "occurrence") {
+                        if($field == "occurrenceID") {
+                            $occurrence_id = @$rec[$key];
+                            if(isset($this->occurrence_ids[$occurrence_id])) {
+                                $this->debug['duplicate_occurrence_ids'][$occurrence_id] = '';
+                                $c = false; break; //exclude entire taxon entry if id already exists
+                            }
+                            else $this->occurrence_ids[$occurrence_id] = '';
                         }
                     }
                 }

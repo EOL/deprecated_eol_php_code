@@ -338,7 +338,10 @@ class Functions
     public static function file_rename($oldname, $newname)
     {
         if($oldname == $newname) return false;
-        if(!self::is_within_folders_where_file_change_is_allowed($oldname)) return false;
+        if(!self::is_within_folders_where_file_change_is_allowed($oldname)) {
+            debug("\nCannot allow file change in this folder ($oldname). Check Functions lib.\n");
+            return false;
+        }
 
         if(is_file($newname)) unlink($newname);
         elseif(is_dir($newname)) recursive_rmdir($newname);
@@ -364,7 +367,7 @@ class Functions
     public static function is_within_folders_where_file_change_is_allowed($file)
     {
         $allowed_folders = array('eol_php_code/tmp/', 'eol_php_code/temp/', 'eol_php_code/public/tmp/', 'eol_php_code/applications/content_server/resources/', 'eol_php_code/applications/content_server/tmp', '/opt/resources'
-        , '/Volumes/AKiTiO4/d_w_h/', 'eol_php_code/applications/content_server/resources_2/'); //allowed folders so far; we can add more.
+        , '/Volumes/AKiTiO4/d_w_h/', 'eol_php_code/applications/content_server/resources_2/', '/Volumes/AKiTiO4/eol_php_code_tmp/', '/extra/eol_php_code_tmp/'); //allowed folders so far; we can add more.
         foreach($allowed_folders as $folder)
         {
             if(strpos($file, $folder) !== false) return true;
