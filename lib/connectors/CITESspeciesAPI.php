@@ -94,7 +94,9 @@ class CITESspeciesAPI
                     }
                     //copied from above end ------------------------------------------------------------
                 }
+                /* commented Nov 23, 2019 -- seems erroneous that this is here...
                 break;
+                */
             }
             // if($page >= 5) break;   //debug only
             // break;   //debug only
