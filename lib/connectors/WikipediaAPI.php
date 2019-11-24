@@ -166,6 +166,23 @@ class WikipediaAPI
         }
         return $html;
     }
+    function retrieve_info_on_bot_wikis()
+    {   $this->title_is_bot = array();
+        if(file_exists($this->wikipedia_bot_file)) {
+            foreach(new FileIterator($this->wikipedia_bot_file) as $line_number => $row) {
+                $this->title_is_bot[trim($row)] = '';
+            }
+        }
+        echo "\ntitle_is_bot: "; 
+        if(count($this->title_is_bot) < 500) print_r($this->title_is_bot);
+        else echo count($this->title_is_bot);
+    }
+    private function log_bot_wiki($title)
+    {
+        if(!($f = Functions::file_open($this->wikipedia_bot_file, "a"))) return;
+        fwrite($f, $title."\n");
+        fclose($f);
+    }
     function get_other_info($rek)
     {
         $func_region = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -180,6 +197,7 @@ class WikipediaAPI
             if($html = Functions::lookup_with_cache($url, $options)) { //preferabley monthly expires
                 if(self::bot_inspired($html)) {
                     // echo("\nbot inspired: [$url]\n");
+                    self::log_bot_wiki(str_replace(" ", "_", $title));
                     return $rek;
                 }
                 $rek['other'] = array();

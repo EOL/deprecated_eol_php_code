@@ -97,6 +97,7 @@ class WikiDataAPI extends WikipediaAPI
         $this->substrs_map_categories_left  = array('Distribution maps ', 'Distributional maps ', 'Biogeographical maps ', 'SVG maps ', 'Maps of ', 'Maps from ', 'Maps by ');
         
         $this->excluded_pageids = array('75038714');
+        $this->wikipedia_bot_file = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_bot_".$this->language_code.".txt";
     }
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
     {   
@@ -297,6 +298,10 @@ class WikiDataAPI extends WikipediaAPI
         */
         
         // if($task == 'taxon_wiki_per_language_stats') $this->download_options['expire_seconds'] = false; NO NEED ANYMORE AS IT DOESN'T MAKE API CALLS ANYMORE.
+        
+        // /* new Nov 24, 2019 - exclude previously recognize as bot-created wikis
+        self::retrieve_info_on_bot_wikis(); //this will build -> $this->title_is_bot
+        // */
         
         if(!@$this->trans['editors'][$this->language_code]) {
             $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -633,7 +638,11 @@ class WikiDataAPI extends WikipediaAPI
                              $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
                              $rek['com_category'] = self::get_commons_category($arr->claims); //P373
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
-                             if($this->what == "wikipedia") $rek = self::get_other_info($rek); //uncomment in normal operation
+                             if($this->what == "wikipedia") {
+                                 if($title = $rek['sitelinks']->title) {
+                                     if(!isset($this->title_is_bot[$title])) $rek = self::get_other_info($rek); //uncomment in normal operation
+                                 }
+                             }
                              if($this->what == "wikimedia") {
                                  if($url = @$rek['com_category'])   $rek['obj_category'] = self::get_commons_info($url);
                                  if($url = @$rek['com_gallery'])    $rek['obj_gallery'] = self::get_commons_info($url);
