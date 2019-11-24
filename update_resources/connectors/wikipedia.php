@@ -102,7 +102,7 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
 
-$use_MultipleConnJenkinsAPI = array("min", "ceb", "war"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg"
+$use_MultipleConnJenkinsAPI = array("min", "war"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb"
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
