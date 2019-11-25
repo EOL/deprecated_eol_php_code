@@ -160,7 +160,7 @@ class BrazilianFloraAPI
                                 $save['source'] = $this->species_page.$taxon_id;
                                 $save['measurementRemarks'] = "$key:$term";//json_encode(array($key => array($term)));
                                 $save['bibliographicCitation'] = $this->citation_4MoF;
-                                if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+                                if($mValue && $mType) $this->func->pre_add_string_types($save, $mValue, $mType, "true");
                             }
                         }
                     }
@@ -223,7 +223,7 @@ class BrazilianFloraAPI
             $save['source'] = $this->species_page.$taxon_id;
             $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/locationID'].")";
             $save['bibliographicCitation'] = $this->citation_4MoF;
-            if($mValue && $mType) $this->func->add_string_types($save, $mValue, $mType, "true");
+            if($mValue && $mType) $this->func->pre_add_string_types($save, $mValue, $mType, "true");
             //===========================================================================================================================================================
             if($domains = self::occurrenceRemarks_has_phytogeographicDomain($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) {
                 foreach($domains as $domain) {
@@ -236,7 +236,7 @@ class BrazilianFloraAPI
                     $save['source'] = $this->species_page.$taxon_id;
                     $save['measurementRemarks'] = "phytogeographicDomain:$domain"; //"phytogeographicDomain:".implode(", ", $domains);
                     $save['bibliographicCitation'] = $this->citation_4MoF;
-                    if($mValue && $mType2) $this->func->add_string_types($save, $mValue, $mType2, "true");
+                    if($mValue && $mType2) $this->func->pre_add_string_types($save, $mValue, $mType2, "true");
                 }
             }
             //===========================================================================================================================================================
