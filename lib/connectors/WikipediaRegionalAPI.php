@@ -47,7 +47,7 @@ class WikipediaRegionalAPI
         $this->trans['Modified']['fr'] = "Modifié";
         $this->trans['Retrieved']['fr'] = "Récupéré";
     }
-
+    /* exit("\nThis is no longer being used. Replaced by wikipedia.php for sometime now0.\n");
     function generate_archive()
     {
         self::get_taxa_with_taxobox();
@@ -71,20 +71,18 @@ class WikipediaRegionalAPI
 
                 $k++;
                 if(($k % 100) == 0) echo "\n count: $k";
-                /* breakdown when caching: as of 2015June03 total is 561 loops
-                $cont = false;
-                // if($k >=  1   && $k < 187) $cont = true;
-                // if($k >=  187 && $k < 374) $cont = true;
-                // if($k >=  374 && $k < 561) $cont = true;
-                if(!$cont) continue;
-                */
+                // breakdown when caching: as of 2015June03 total is 561 loops
+                // $cont = false;
+                // // if($k >=  1   && $k < 187) $cont = true;
+                // // if($k >=  187 && $k < 374) $cont = true;
+                // // if($k >=  374 && $k < 561) $cont = true;
+                // if(!$cont) continue;
                 
                 if($recs = $j->query->embeddedin) {
                     $i = $i + count($recs);
                     echo "\n" . count($recs) . " -- " . number_format($i) . "\n";
                     self::process_pages_with_taxobox($recs);
                 }
-                
             }
             else break;
             if(!$continue) break; //ends loop; all ids are processed
@@ -136,19 +134,15 @@ class WikipediaRegionalAPI
                 if(stripos($url, "/wiki/" . $this->word_User_for_this_region . ":") !== false) continue; //string is found
                 if(stripos($url, "/wiki/User:") !== false) continue; //string is found
                 
-                
                 $rekord['title'] = self::format_wiki_substr($rec->langlinks[0]->{"*"});
                 $domain_name = self::get_domain_name($url);
-                if($html = Functions::lookup_with_cache($url, $this->download_options))
-                {
+                if($html = Functions::lookup_with_cache($url, $this->download_options)){
                     $html = self::prepare_wiki_for_parsing($html, $domain_name);
                     if(substr_count($html, "<div ") != substr_count($html, "</div>")) $rekord['not equal divs'] = true;
-                    /*
-                    <div id="content" class="mw-body" role="main">
-                    <div id="mw-content-text" lang="de" dir="ltr" class="mw-content-ltr"> --- the ending div for this is after the <div id="footer" role="contentinfo">
-                    <div id="mw-navigation">
-                    <div id="footer" role="contentinfo">
-                    */
+                    // <div id="content" class="mw-body" role="main">
+                    // <div id="mw-content-text" lang="de" dir="ltr" class="mw-content-ltr"> --- the ending div for this is after the <div id="footer" role="contentinfo">
+                    // <div id="mw-navigation">
+                    // <div id="footer" role="contentinfo">
 
                     $rekord['comprehensive_desc'] = self::get_comprehensive_desc($html);
                     $rekord['sciname']          = self::get_sciname($html);
@@ -176,6 +170,7 @@ class WikipediaRegionalAPI
             }// with valid url
         }
     }
+    */
     function prepare_wiki_for_parsing($html, $domain_name)
     {
         $html = str_ireplace('href="//', "href=xxxxxx", $html);
