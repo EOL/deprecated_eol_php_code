@@ -475,15 +475,13 @@ class FishBaseArchiveAPI
                         $var = md5($item['measurement'] . $item['value'] . $taxon_id);
                         if(!isset($this->unique_measurements[$var])) {
                             $this->unique_measurements[$var] = '';
-                                // self::add_string_types($rec, $item['value'], $item['measurement'], "true"); //working. old implementation of trait
-                            $this->func->add_string_types($rec, $item['value'], $item['measurement'], "true");
+                            self::pre_add_string_types($rec, $item['value'], $item['measurement'], "true"); //1
                         }
                         //end special -------------------------------------------------------------
                         
                     }
                 }
                 elseif($o['subject'] == "http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution") {
-                    // self::add_string_types($rec, $description, "http://eol.org/schema/terms/Present", "true"); => changed to what is below, per DATA-1630
                     $texts = self::process_distribution_text($description);
                     /*
                     [0] => Array (
@@ -508,7 +506,7 @@ class FishBaseArchiveAPI
                             $var = md5('http://eol.org/schema/terms/Present' . $text['desc'] . $taxon_id);
                             if(!isset($this->unique_measurements[$var])) {
                                 $this->unique_measurements[$var] = '';
-                                $this->func->add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true");
+                                self::pre_add_string_types($rec, $text['desc'], "http://eol.org/schema/terms/Present", "true"); //2
                             }
                             //end special -------------------------------------------------------------
                         }
@@ -555,7 +553,7 @@ class FishBaseArchiveAPI
                 $string_val = Functions::conv_to_utf8($string_val);
                 $rec["catnum"] .= "-".str_replace(" ","_",$string_val).$rec['taxon_id'];
                 if($string_uri = self::get_string_uri($string_val)) {
-                    $this->func->add_string_types($rec, $string_uri, $mtype, "true");
+                    self::pre_add_string_types($rec, $string_uri, $mtype, "true"); //3
                 }
                 // elseif($val = @$this->addtl_mappings[strtoupper(str_replace('"', "", $string_val))]) {
                 //     $rec['measurementRemarks'] = $string_val;
@@ -564,6 +562,14 @@ class FishBaseArchiveAPI
                 else $this->debug['undefined locations'][$string_val] = '';
             }
         }
+    }
+    private function pre_add_string_types($rec, $value, $measurementType, $measurementOfTaxon)
+    {
+        /* START DATA-1841 terms remapping */
+        if($new_uri = @$this->remapped_terms[$measurementType]) $measurementType = $new_uri;
+        if($new_uri = @$this->remapped_terms[$value])           $value = $new_uri;
+        /* END DATA-1841 terms remapping */
+        $this->func->add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
     }
     private function get_string_uri($string)
     {
@@ -1025,9 +1031,10 @@ class FishBaseArchiveAPI
         fclose($TMP);
         echo "\nChanges saved\n"; exit;
     }
-
+    /*
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
+        exit("\nDoes not go here anymore.\n");
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"];
         $occurrence_id = $catnum; // simply used catnum
@@ -1062,7 +1069,6 @@ class FishBaseArchiveAPI
         $this->unique_measurements[$var] = '';
         //end special -------------------------------------------------------------
     }
-
     private function add_occurrence($taxon_id, $occurrence_id, $rec)
     {
         $o = new \eol_schema\Occurrence();
@@ -1076,7 +1082,7 @@ class FishBaseArchiveAPI
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
-
+    */
     private function get_description_parts($string, $for_stats = true)
     {
         //bathydemersal; marine; depth range 50 - 700 m (Ref. 56504)
