@@ -37,9 +37,8 @@ class FEISDataConnector
     {
         /* START DATA-1841 terms remapping */
         require_library('connectors/TraitGeneric');
-        $func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
-        $this->remapped_terms = $func->initialize_terms_remapping();
-        echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
+        $this->func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
+        $this->func->initialize_terms_remapping();
         /* END DATA-1841 terms remapping */
         
         $basenames = array_keys($this->export_basenames);
@@ -215,8 +214,7 @@ class FEISDataConnector
         }
         
         /* START DATA-1841 terms remapping */
-        if($new_uri = @$this->remapped_terms[$m->measurementType]) $m->measurementType = $new_uri;
-        if($new_uri = @$this->remapped_terms[$m->measurementValue]) $m->measurementValue = $new_uri;
+        $m = $this->func->given_m_update_mType_mValue($m);
         /* END DATA-1841 terms remapping */
         
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
