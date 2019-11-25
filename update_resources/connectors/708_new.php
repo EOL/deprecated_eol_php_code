@@ -11,6 +11,8 @@ started using 708_new.php - Aug 2, 2019
 708	Friday 2019-08-02 11:19:20 AM	{"measurement_or_fact.tab":742379,"occurrence.tab":645483,"reference.tab":198537,"taxon.tab":196192} - consistent OK
 708	Friday 2019-08-02 11:38:34 AM	{"measurement_or_fact.tab":742379,"occurrence.tab":645483,"reference.tab":198537,"taxon.tab":196192} - 1st in eol->archive
 708	Friday 2019-08-09 01:26:06 AM	{"measurement_or_fact.tab":742378,"occurrence.tab":645482,"reference.tab":198537,"taxon.tab":196191} - remove in taxon.tab a blank sciname
+after DATA-1841: terms remapping -> nos. shouldn't be affected, so consistent OK
+708	Monday 2019-11-25 04:03:57 AM	{"measurement_or_fact.tab":742378,"occurrence.tab":645482,"reference.tab":198537,"taxon.tab":196191,"time_elapsed":{"sec":341.02,"min":5.68,"hr":0.09}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
