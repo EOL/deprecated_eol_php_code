@@ -130,10 +130,17 @@ class TraitGeneric
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
-        $remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24*30); //*this is not add_additional_mappings() like how was used normally in Functions().
-        echo "\nremapped_terms: ".count($remapped_terms)."\n";
-        return $remapped_terms;
+        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24*30); //*this is not add_additional_mappings() like how was used normally in Functions().
+        echo "\nremapped_terms lib: ".count($this->remapped_terms)."\n";
         /* END DATA-1841 terms remapping */
+    }
+    public function pre_add_string_types($rec, $value, $measurementType, $measurementOfTaxon)
+    {
+        // START DATA-1841 terms remapping
+        if($new_uri = @$this->remapped_terms[$measurementType]) $measurementType = $new_uri;
+        if($new_uri = @$this->remapped_terms[$value])           $value = $new_uri;
+        self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
+        // END DATA-1841 terms remapping
     }
 }
 ?>
