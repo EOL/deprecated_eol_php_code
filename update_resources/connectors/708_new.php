@@ -20,15 +20,9 @@ $timestart = time_elapsed();
 $resource_id = 708;
 if(Functions::is_production())  $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/708_25Nov2018.tar.gz';
 else                            $dwca_file = 'http://localhost/cp/Environments/legacy/708_25Nov2018.tar.gz';
-process_resource_url($dwca_file, $resource_id);
+process_resource_url($dwca_file, $resource_id, $timestart);
 
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
-
-function process_resource_url($dwca_file, $resource_id)
+function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
@@ -47,6 +41,6 @@ function process_resource_url($dwca_file, $resource_id)
     http://rs.tdwg.org/dwc/terms/taxon
     */
     $func->convert_archive($preferred_rowtypes);
-    Functions::finalize_dwca_resource($resource_id);
+    Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 }
 ?>

@@ -20,8 +20,15 @@ class New_EnvironmentsEOLDataConnector
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
-        $tables = $info['harvester']->tables;
+        /* START DATA-1841 terms remapping */
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
+        require_library('connectors/TropicosArchiveAPI');
+        $func = new TropicosArchiveAPI(NULL);
+        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24*30); //*this is not add_additional_mappings() like how was used normally in Functions().
+        echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
+        /* END DATA-1841 terms remapping */
         
+        $tables = $info['harvester']->tables;
         $ret = self::get_all_phylum_in_DH();
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
         unset($ret);
@@ -66,6 +73,11 @@ class New_EnvironmentsEOLDataConnector
             if($taxonID == "EOL:11584278") continue; //exclude
             $sciname = $this->linkage_tID_sName[$taxonID];
             $rec['http://purl.org/dc/terms/source'] = "https://eol.org/search?q=".str_replace(" ", "%20", $sciname);
+            
+            /* START DATA-1841 terms remapping */
+            $index = 'http://rs.tdwg.org/dwc/terms/measurementType';    if($new_uri = @$this->remapped_terms[$rec[$index]]) $rec[$index] = $new_uri;
+            $index = 'http://rs.tdwg.org/dwc/terms/measurementValue';   if($new_uri = @$this->remapped_terms[$rec[$index]]) $rec[$index] = $new_uri;
+            /* END DATA-1841 terms remapping */
             
             $o = new \eol_schema\MeasurementOrFact();
             $uris = array_keys($rec);
