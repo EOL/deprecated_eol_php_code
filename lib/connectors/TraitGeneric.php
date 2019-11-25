@@ -124,5 +124,16 @@ class TraitGeneric
         $this->occurrence_ids[$o->occurrenceID] = '';
         return $o->occurrenceID;
     }
+    public function initialize_terms_remapping()
+    {
+        /* START DATA-1841 terms remapping */
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
+        require_library('connectors/TropicosArchiveAPI');
+        $func = new TropicosArchiveAPI(NULL);
+        $remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24*30); //*this is not add_additional_mappings() like how was used normally in Functions().
+        echo "\nremapped_terms: ".count($remapped_terms)."\n";
+        return $remapped_terms;
+        /* END DATA-1841 terms remapping */
+    }
 }
 ?>

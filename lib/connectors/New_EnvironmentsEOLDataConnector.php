@@ -21,10 +21,9 @@ class New_EnvironmentsEOLDataConnector
     function start($info)
     {
         /* START DATA-1841 terms remapping */
-        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
-        require_library('connectors/TropicosArchiveAPI');
-        $func = new TropicosArchiveAPI(NULL);
-        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24*30); //*this is not add_additional_mappings() like how was used normally in Functions().
+        require_library('connectors/TraitGeneric');
+        $func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
+        $this->remapped_terms = $func->initialize_terms_remapping();
         echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
         /* END DATA-1841 terms remapping */
         
