@@ -35,6 +35,13 @@ class FEISDataConnector
     }
     function generate_FEIS_data()
     {
+        /* START DATA-1841 terms remapping */
+        require_library('connectors/TraitGeneric');
+        $func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
+        $this->remapped_terms = $func->initialize_terms_remapping();
+        echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
+        /* END DATA-1841 terms remapping */
+        
         $basenames = array_keys($this->export_basenames);
         $text_path = self::load_zip_contents($this->species_list_export, array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1), $basenames, ".csv");
         foreach($this->export_basenames as $type => $uri) self::csv_to_array($text_path[$type], $type, $uri);
@@ -206,6 +213,12 @@ class FEISDataConnector
             $m->measurementRemarks = $measurementRemarks;
             // not used... $m->contributor, $m->measurementMethod
         }
+        
+        /* START DATA-1841 terms remapping */
+        if($new_uri = @$this->remapped_terms[$m->measurementType]) $m->measurementType = $new_uri;
+        if($new_uri = @$this->remapped_terms[$m->measurementValue]) $m->measurementValue = $new_uri;
+        /* END DATA-1841 terms remapping */
+        
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
