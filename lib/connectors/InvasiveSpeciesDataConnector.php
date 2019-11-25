@@ -25,6 +25,12 @@ class InvasiveSpeciesDataConnector
     }
     function generate_invasiveness_data()
     {
+        /* START DATA-1841 terms remapping */
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
+        $this->func->initialize_terms_remapping();
+        /* END DATA-1841 terms remapping */
+        
         if    ($this->partner == "GISD")     self::start_GISD();
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
@@ -312,6 +318,11 @@ class InvasiveSpeciesDataConnector
             $m->measurementRemarks .= $rec['measurementRemarks'];
             // $m->contributor = ''; $m->measurementMethod = '';
         }
+        
+        /* START DATA-1841 terms remapping */
+        $m = $this->func->given_m_update_mType_mValue($m);
+        /* END DATA-1841 terms remapping */
+        
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
