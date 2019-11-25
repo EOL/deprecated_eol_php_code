@@ -43,6 +43,6 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     http://rs.tdwg.org/dwc/terms/taxon
     */
     $func->convert_archive($preferred_rowtypes);
-    Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 ?>
