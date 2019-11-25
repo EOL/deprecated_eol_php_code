@@ -44,7 +44,11 @@ class BrazilianFloraAPI
         // print_r($this->taxonID_ref_info); exit;
         self::process_Taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         // */
-        require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        $this->func->initialize_terms_remapping(); //for DATA-1841 terms remapping
+        
         self::process_Distribution($tables['http://rs.gbif.org/terms/1.0/distribution'][0]);
         self::process_SpeciesProfile($tables['http://rs.gbif.org/terms/1.0/speciesprofile'][0]);
         if($this->debug) print_r($this->debug);
@@ -586,6 +590,7 @@ class BrazilianFloraAPI
     }
     
     //=====================================================ends here
+    /*
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
@@ -606,34 +611,21 @@ class BrazilianFloraAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } // print_r($rec); exit;
-            /*Array(
-            )*/
+            // Array()
             //===========================================================================================================================================================
-            /* Data to remove: Katja has heard that records for several of the predicates are suspect. Please remove anything with the predicates below: */
+            // Data to remove: Katja has heard that records for several of the predicates are suspect. Please remove anything with the predicates below:
             $pred_2remove = array('http://eol.org/schema/terms/NativeIntroducedRange', 'http://eol.org/schema/terms/NativeProbablyIntroducedRange', 
                 'http://eol.org/schema/terms/ProbablyIntroducedRange', 'http://eol.org/schema/terms/ProbablyNativeRange', 
                 'http://eol.org/schema/terms/ProbablyWaifRange', 'http://eol.org/schema/terms/WaifRange', 'http://eol.org/schema/terms/InvasiveNoxiousStatus');
             $pred_2remove = array_merge($pred_2remove, array('http://eol.org/schema/terms/NativeRange', 'http://eol.org/schema/terms/IntroducedRange')); //will be removed, to get refreshed.
             if(in_array($rec['http://rs.tdwg.org/dwc/terms/measurementType'], $pred_2remove)) continue;
             //===========================================================================================================================================================
-            /* Metadata: For records with measurementType=A, please add lifeStage=B
-            A B
-            http://eol.org/schema/terms/SeedlingSurvival    http://purl.obolibrary.org/obo/PPO_0001007
-            http://purl.obolibrary.org/obo/FLOPO_0015519    http://purl.obolibrary.org/obo/PO_0009010
-            http://purl.obolibrary.org/obo/TO_0000207       http://purl.obolibrary.org/obo/PATO_0001701
-            */
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             $lifeStage = '';
             if($mtype == 'http://eol.org/schema/terms/SeedlingSurvival') $lifeStage = 'http://purl.obolibrary.org/obo/PPO_0001007';
             elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $lifeStage = 'http://purl.obolibrary.org/obo/PO_0009010';
             elseif($mtype == 'http://purl.obolibrary.org/obo/TO_0000207') $lifeStage = 'http://purl.obolibrary.org/obo/PATO_0001701';
 
-            /* and for records with measurementType=C, please add bodyPart=D
-            C D
-            http://purl.obolibrary.org/obo/PATO_0001729     http://purl.obolibrary.org/obo/PO_0025034
-            http://purl.obolibrary.org/obo/FLOPO_0015519    http://purl.obolibrary.org/obo/PO_0009010
-            http://purl.obolibrary.org/obo/TO_0000207       http://purl.obolibrary.org/obo/UBERON_0000468
-            */
             $bodyPart = '';
             if($mtype == 'http://purl.obolibrary.org/obo/PATO_0001729') $bodyPart = 'http://purl.obolibrary.org/obo/PO_0025034';
             elseif($mtype == 'http://purl.obolibrary.org/obo/FLOPO_0015519') $bodyPart = 'http://purl.obolibrary.org/obo/PO_0009010';
@@ -642,17 +634,7 @@ class BrazilianFloraAPI
             $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $lifeStage;
             $this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $bodyPart;
             //===========================================================================================================================================================
-            /* Value term to re-map. I think the source's text string is "Subshrub". 
-            It's a value for http://purl.obolibrary.org/obo/FLOPO_0900032, eg: for https://plants.usda.gov/core/profile?symbol=VEBR2
-            It's currently mapped to http://purl.obolibrary.org/obo/FLOPO_0900034. It should be re-mapped to http://eol.org/schema/terms/subshrub
-            ELI: it seems this has now been corrected. Current data uses http://eol.org/schema/terms/subshrub already. No need to code this requirement.
-            */
             //===========================================================================================================================================================
-            /* debug only - for 'Additional data' investigation
-            if($mtype == 'http://eol.org/schema/terms/NativeRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
-            if($mtype == 'http://eol.org/schema/terms/IntroducedRange') $this->debug['NorI'][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
-            $this->debug['mtype'][$mtype] = '';
-            */
             //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
@@ -680,8 +662,7 @@ class BrazilianFloraAPI
                 $k++;
             }
             // print_r($rec); exit("\ndebug...\n");
-            /*Array(
-            )*/
+            // Array()
             $uris = array_keys($rec);
             $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID', 'http:/eol.org/globi/terms/bodyPart');
             if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
@@ -695,6 +676,7 @@ class BrazilianFloraAPI
             // if($i >= 10) break; //debug only
         }
     }
+    */
     /*
     private function create_taxon($rec)
     {

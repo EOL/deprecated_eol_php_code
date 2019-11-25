@@ -350,9 +350,7 @@ class FishBaseArchiveAPI
     {
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        /* START DATA-1841 terms remapping */
-        $this->func->initialize_terms_remapping();
-        /* END DATA-1841 terms remapping */
+        $this->func->initialize_terms_remapping(); //for DATA-1841 terms remapping
         
         /*
         [dc_identifier] => FB-pic-2-13870
