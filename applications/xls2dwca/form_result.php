@@ -56,7 +56,7 @@ if($url) {
                                 // $temp_folder = DOC_ROOT . "tmp/" . $arr[1];          //orig
                                 $temp_folder = $GLOBALS['MAIN_TMP_PATH'] . $arr[1];     //new
                                 recursive_rmdir($temp_folder); // remove dir e.g. dwca_xxxxx
-                                echo "<hr>[temp_folder deleted: $temp_folder]<hr>";
+                                debug("<hr>[temp_folder deleted: $temp_folder]<hr>");
                             }
                             
                             //start copy to /resources/xls2dwca/ folder
