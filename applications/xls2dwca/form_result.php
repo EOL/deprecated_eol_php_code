@@ -44,13 +44,17 @@ if($url) {
                     $archive_tmp_dir = $archive_converter->convert_to_new_schema_archive();
                     if($archive_converter->errors()) {
                         $errors = $archive_converter->errors();
+                        debug("with errors [$archive_tmp_dir]");
                         recursive_rmdir($archive_tmp_dir);
                     }
                     else {
                         if(preg_match("/\/(dwca_[0-9]+)$/", $archive_tmp_dir, $arr)) {
-                            $final_archive_gzip_file = DOC_ROOT . "tmp/" . $arr[1] . ".tar.gz";
+                            // $final_archive_gzip_file = DOC_ROOT . "tmp/" . $arr[1] . ".tar.gz";          //orig
+                            $final_archive_gzip_file = $GLOBALS['MAIN_TMP_PATH'] . $arr[1] . ".tar.gz";     //new
+
                             if($arr[1]) {
-                                $temp_folder = DOC_ROOT . "tmp/" . $arr[1];
+                                // $temp_folder = DOC_ROOT . "tmp/" . $arr[1];          //orig
+                                $temp_folder = $GLOBALS['MAIN_TMP_PATH'] . $arr[1];     //new
                                 recursive_rmdir($temp_folder); // remove dir e.g. dwca_xxxxx
                                 echo "<hr>[temp_folder deleted: $temp_folder]<hr>";
                             }

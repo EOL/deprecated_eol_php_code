@@ -180,6 +180,7 @@ class ContentManager
             }
         }
         if (is_file($temp_file_path)) {
+          debug("temp_file_path: [$temp_file_path]");
           debug("ContentManager: is file (suffix $suffix)");
           $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
           debug("ContentManager: gave extension: $temp_file_path_with_extension");
@@ -367,6 +368,9 @@ class ContentManager
         elseif(preg_match("/Microsoft Office Document/i", $file_type))                  $new_suffix = "xls";
         // not sure why this is happening, but when downloading JPG from EOL content servers I was getting this type
         elseif(preg_match("/Minix filesystem/i", $file_type))                           $new_suffix = "jpg";
+
+        elseif($file_type == 'composite document file v2 document, little endian, os: windows, version 5.0, code page: 0') $new_suffix = "xls"; //new Nov 26, 2019
+        else debug("May need to investigate. file_type [$file_type] is unknown.");                                                              //new Nov 26, 2019
 
         return $new_suffix;
     }
