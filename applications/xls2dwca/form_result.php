@@ -6,10 +6,8 @@ $GLOBALS['ENV_DEBUG'] = false;
 $url = $_REQUEST['url'];
 $upload = $_FILES["file_upload"];
 
-
 $suffix = null;
-if(@$upload['tmp_name'])
-{
+if(@$upload['tmp_name']) {
     $url = $upload['tmp_name'];
     if(preg_match("/\.([^\.]+)$/", $upload['name'], $arr)) $suffix = strtolower(trim($arr[1]));
 }
@@ -25,37 +23,31 @@ echo "<br>suffix = [$suffix]<br>";
 
 $final_archive_gzip_url = null;
 $errors = array();
-if($url)
-{
+if($url) {
     if($temp_dir = ContentManager::download_temp_file_and_assign_extension($url, $suffix, array('suffix' => $suffix, 'timeout' => 900))) //15 minutes timeout (900 seconds)
     {
-        if(is_dir($temp_dir))
-        {
+        if(is_dir($temp_dir)) {
             $errors[] = "The file provided ". $temp_dir ." is not an Excel file";
             recursive_rmdir($temp_dir);
-        }else
-        {
+        }
+        else {
             $path_parts = pathinfo($temp_dir);
             $extension = @$path_parts['extension'];
             $archive_tmp_dir = @$path_parts['dirname'] ."/". @$path_parts['filename'];
-            if($extension == 'xlsx' || $extension == 'xls')
-            {
+            if($extension == 'xlsx' || $extension == 'xls') {
                 require_library('ExcelToText');
                 $archive_converter = new ExcelToText($temp_dir);
-                if($archive_converter->errors())
-                {
+                if($archive_converter->errors()) {
                     $errors = $archive_converter->errors();
-                }elseif($archive_converter->is_new_schema_spreadsheet())
-                {
+                }
+                elseif($archive_converter->is_new_schema_spreadsheet()) {
                     $archive_tmp_dir = $archive_converter->convert_to_new_schema_archive();
-                    if($archive_converter->errors())
-                    {
+                    if($archive_converter->errors()) {
                         $errors = $archive_converter->errors();
                         recursive_rmdir($archive_tmp_dir);
-                    }else
-                    {
-                        if(preg_match("/\/(dwca_[0-9]+)$/", $archive_tmp_dir, $arr))
-                        {
+                    }
+                    else {
+                        if(preg_match("/\/(dwca_[0-9]+)$/", $archive_tmp_dir, $arr)) {
                             $final_archive_gzip_file = DOC_ROOT . "tmp/" . $arr[1] . ".tar.gz";
                             if($arr[1]) {
                                 $temp_folder = DOC_ROOT . "tmp/" . $arr[1];
@@ -71,19 +63,20 @@ if($url)
                             $final_archive_gzip_url = WEB_ROOT . "applications/content_server/resources/xls2dwca/" . $arr[1] . ".tar.gz";
                         }
                     }
-                }else $errors[] = "Unable to determine the template of the provided Excel file. Are you sure this matches the EOL template provided at https://github.com/eliagbayani/EOL-connector-data-files/raw/master/schema/eol_import_spreadsheet.xlsx ?";
-            }else $errors[] = "The file provided is not an Excel file";
+                }
+                else $errors[] = "Unable to determine the template of the provided Excel file. Are you sure this matches the EOL template provided at https://github.com/eliagbayani/EOL-connector-data-files/raw/master/schema/eol_import_spreadsheet.xlsx ?";
+            }
+            else $errors[] = "The file provided is not an Excel file";
             unlink($temp_dir);
         }
-    }else
-    {
-        $errors[] = "There was a problem with the uploaded $suffix file.";
     }
-}else $errors[] = "No file was provided";
+    else {
+        $errors[] = "There was a problem with the uploaded $suffix file. 100";
+    }
+}
+else $errors[] = "No file was provided";
 
-
-if($final_archive_gzip_url)
-{
+if($final_archive_gzip_url) {
     echo "<br>=======================================================<br>";
     echo "The archive is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
         You can use this as the resource URL in the EOL Content Partner Registry (in the Resources section),
@@ -96,14 +89,12 @@ if($final_archive_gzip_url)
     echo "<br>=======================================================<br><br>";
 }else
 {
-    echo "There were problems processing this file:<br><br>";
-    if($errors)
-    {
-        foreach($errors as $error)
-        {
+    echo "There were problems processing this file 200:<br><br>";
+    if($errors) {
+        foreach($errors as $error) {
             echo "$error<br>";
         }
-    }else echo "An unknown error occurred<br>";
+    }
+    else echo "An unknown error occurred<br>";
 }
-
 ?>
