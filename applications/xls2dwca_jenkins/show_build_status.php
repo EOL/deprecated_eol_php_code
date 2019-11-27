@@ -24,7 +24,7 @@ else {
     if(file_exists($from)) {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         $to_delete = DOC_ROOT . "applications/xls2dwca_jenkins/temp/" . pathinfo($params['destination'], PATHINFO_BASENAME); //to delete the temporary spreadsheet (.xlsx .xls)
-        if(unlink($to_delete)) $ctrler->display_message(array('type' => "highlight", 'msg' => "Temp file deleted: [$to_delete]"));
+        if(unlink($to_delete)) {} //$ctrler->display_message(array('type' => "highlight", 'msg' => "Temp file deleted: [$to_delete]"));             //for debug
         else                   $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: Temp file NOT deleted: [$to_delete]"));
         // print_r($params);
         Functions::file_rename($from, $final_archive_gzip_url);
