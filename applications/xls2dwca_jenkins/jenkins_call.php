@@ -67,5 +67,4 @@ function compute_destination($newfile, $orig_file)
     $final = "$filename.$ext";
     return $final;
 }
-
 ?>

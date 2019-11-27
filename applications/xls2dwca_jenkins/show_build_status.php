@@ -50,7 +50,10 @@ else {
         }
         // echo "<a href='../../applications/tools.php'>Back to Tools</a>";
     }
-    else $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state xyz. &nbsp; $str"));
+    else {
+        $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state xyz. &nbsp; $str"));
+        $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: 'from' file does not exist [$from]."));
+    }
 }
 if($build_status) echo "<hr><b>Build status:</b><pre>".$build_status."</pre><hr>";
 else {
@@ -59,7 +62,6 @@ else {
     }
     else echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";
 }
-
 if($build_status) {
     if($ctrler->is_build_aborted($build_status)) echo "<p>Process aborted. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
 }
