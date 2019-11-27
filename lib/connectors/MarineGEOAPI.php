@@ -15,6 +15,8 @@ class MarineGEOAPI
         $this->api['coll_num'] = 'http://www.boldsystems.org/index.php/API_Public/specimen?ids=COLL_NUM&format=json';
         
         $this->input['path'] = '/Volumes/AKiTiO4/other_files/MarineGeo/'; //input.xlsx
+        $this->input['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
+        
         $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
 
         /* Labels */
@@ -26,7 +28,7 @@ class MarineGEOAPI
         $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
         $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
     }
-    function start()
+    function start($filename = false)
     {   
         /* may not be needed since output.xls is based on input.xls
         $coll_num = 'KB17-277';
@@ -36,11 +38,14 @@ class MarineGEOAPI
         if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false))) {}
         unlink($local_xls);
         */
-
-        $input_file = $this->input['path'].'input.xlsx';
+        if(!$filename) $filename = 'input.xlsx';
+        $input_file = $this->input['path'].$filename;
         // $input_file = $this->input['path'].'input_Eli.xlsx';
-        self::read_input_file($input_file); //writes to text files for reading in next step.
-        self::create_output_file();
+        if(file_exists($input_file)) {
+            self::read_input_file($input_file); //writes to text files for reading in next step.
+            self::create_output_file();
+        }
+        else debug("\nInput file not found: [$input_file]\n");
     }
     /* =======================================START create output file======================================= */
     private function create_output_file()
