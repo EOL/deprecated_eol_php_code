@@ -7,9 +7,11 @@ $ctrler = new freshdata_controller(array());
 $task = $ctrler->get_available_job("xls2dwca_job");
 $postfix = "_xls2dwca";
 
+// /* for debugging:
 $server_http_host = $_SERVER['HTTP_HOST'];
 $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
+// */
 
 // print_r(pathinfo($newfile));
 // exit("$newfile | $orig_file"); //e.g. temp/1522675623.zip | eol_import_spreadsheet(3).xlsx.zip
