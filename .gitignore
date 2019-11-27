@@ -58,6 +58,7 @@ applications/xls2EOL/WhyReef-EOL.xml
 applications/xls2EOL/xml/*.xml
 
 applications/xls2dwca_jenkins/temp/*
+applications/specimen_export/temp/*
 applications/dwc_validator_jenkins/temp/*
 
 config/constants.php

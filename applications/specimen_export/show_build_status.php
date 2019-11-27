@@ -1,4 +1,5 @@
 <?php
+$job_name = 'xls2dwca_job';
 $postfix = "_xls2dwca";
 $str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; Or you can try it again when system resources are free. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
 // the $build_status should come from the status for uuid in question not just the currently last_build
@@ -17,7 +18,8 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     // return;
 }
 else {
-    // if(file_exists($params['destination']) && filesize($params['destination'])) --- has to be converted to the correct path... abandoned this for the one below...
+    $ctrler->display_message(array('type' => "highlight", 'msg' => "Seems done..."));
+    /*
     $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
     $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
     // print_r($params); echo "<br>from: [$from] <hr>";
@@ -42,12 +44,11 @@ else {
         }
         else {
             echo "There were problems processing this file:<br><br>";
-            /* from orig tool, not here.
-            if($errors) {
-                foreach($errors as $error) echo "$error<br>";
-            }
-            else echo "An unknown error occurred<br>";
-            */
+            // from orig tool, not here.
+            // if($errors) {
+            //     foreach($errors as $error) echo "$error<br>";
+            // }
+            // else echo "An unknown error occurred<br>";
         }
         // echo "<a href='../../applications/tools.php'>Back to Tools</a>";
     }
@@ -55,10 +56,11 @@ else {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state xyz. &nbsp; $str"));
         $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: 'from' file does not exist [$from]."));
     }
+    */
 }
 if($build_status) echo "<hr><b>Build status:</b><pre>".$build_status."</pre><hr>";
 else {
-    if($ctrler->is_task_in_queue($job_name, $params['uuid'].$postfix)) { //job_name = 'specmnXport_job' or 'xls2dwca_job'
+    if($ctrler->is_task_in_queue('xls2dwca_job', $params['uuid'].$postfix)) { //job_name = 'specmnXport_job' or 'xls2dwca_job'
         echo "<hr><b>Build status:</b><pre>This job is now in queue...</pre><hr>";
     }
     else echo "<hr><b>Build status:</b><pre>Preparing files...</pre><hr>";

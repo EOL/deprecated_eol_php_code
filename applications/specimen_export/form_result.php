@@ -6,13 +6,15 @@ ini_set('error_reporting', false);
 ini_set('display_errors', false);
 */
 
+
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+$GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
+
 // /* during development
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // */
 
-include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 
 $url = @get_val_var('url');
 
@@ -38,6 +40,11 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
             else echo "<br>uploading file - ERROR<br>";
         }
         $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+        
+        // echo "<hr>orig_file: [$orig_file]";
+        // echo "<hr>url: [$url]";
+        // echo "<hr>newfile: [$newfile]<hr>";
+        // exit;
     }
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
@@ -51,7 +58,11 @@ exit;
 
 if(Functions::is_production()) $for_DOC_ROOT = '/html/eol_php_code/';
 else                           $for_DOC_ROOT = DOC_ROOT;
+
+echo "\nwent 100\n";
 require_once("jenkins_call.php");
+echo "\nwent 200\n";
+
 
 function get_val_var($v)
 {
