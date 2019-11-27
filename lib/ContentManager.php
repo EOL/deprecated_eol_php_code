@@ -180,7 +180,7 @@ class ContentManager
             }
         }
         if (is_file($temp_file_path)) {
-          debug("temp_file_path: [$temp_file_path]");
+          // debug("temp_file_path: [$temp_file_path]");
           debug("ContentManager: is file (suffix $suffix)");
           $temp_file_path_with_extension = self::give_temp_file_right_extension($temp_file_path, $suffix, @$options['unique_key']);
           debug("ContentManager: gave extension: $temp_file_path_with_extension");

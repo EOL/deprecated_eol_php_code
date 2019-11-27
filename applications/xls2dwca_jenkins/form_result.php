@@ -12,7 +12,7 @@ ini_set('display_errors', true);
 // */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false; //set to true when debugging
 
 $url = @get_val_var('url');
 
