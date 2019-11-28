@@ -32,6 +32,7 @@ else {
             if(unlink($tmp)) $ctrler->display_message(array('type' => "highlight", 'msg' => "Deleted: [$tmp]"));
             else $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: cannot delete [$tmp]"));
         }
+        else $ctrler->display_message(array('type' => "highlight", 'msg' => "Does not exist [$tmp]"));
     }
 
     /* Summary message */
