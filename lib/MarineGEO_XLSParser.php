@@ -72,14 +72,14 @@ class MarineGEO_XLSParser
 
         // /*
         $worksheets = array_keys($labels);
-        print_r($worksheets); //exit;
+        if($GLOBALS['ENV_DEBUG']) print_r($worksheets); //exit;
         $sheetIndex = -1;
         foreach($worksheets as $worksheet) { $sheetIndex++;
             // echo "\n$sheetIndex\n";
             $objPHPExcel->setActiveSheetIndex($sheetIndex);
             
             $no_of_cols_per_worksheet = self::get_no_of_cols_per_worksheet($worksheet, $labels);
-            echo "\nno_of_cols_per_worksheet: $no_of_cols_per_worksheet\n";
+            if($GLOBALS['ENV_DEBUG']) echo "\nno_of_cols_per_worksheet: $no_of_cols_per_worksheet\n";
             for($c = 1; $c <= $no_of_cols_per_worksheet; $c++) $objPHPExcel->getActiveSheet()->getColumnDimension($alpha[$c])->setWidth(20);
             
             $objPHPExcel->getActiveSheet()->setTitle($this->sheet_mappings[$worksheet]);
@@ -87,7 +87,7 @@ class MarineGEO_XLSParser
             
             // /*
             $main_heads = array_keys($labels[$worksheet]);
-            print_r($main_heads);
+            if($GLOBALS['ENV_DEBUG']) print_r($main_heads);
             $col = 1;
             foreach($main_heads as $main_head) { //writing main heads
                 $no_of_cols = count($labels[$worksheet][$main_head]);

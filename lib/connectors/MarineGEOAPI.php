@@ -45,7 +45,6 @@ class MarineGEOAPI
         }
         else $zipYN = false;
         
-        
         if(!$filename) $filename = 'input.xlsx';
         $input_file = $this->input['path'].$filename;
         // $input_file = $this->input['path'].'input_Eli.xlsx';
@@ -74,7 +73,7 @@ class MarineGEOAPI
         echo "\ndestination = [$destination]\n\n";
         */
         Functions::file_rename($new_local, $destination);
-        print_r(pathinfo($destination));
+        if($GLOBALS['ENV_DEBUG']) print_r(pathinfo($destination));
 
         //remove these 2 that were used above if file is a zip file
         unlink($local);
@@ -131,7 +130,7 @@ class MarineGEOAPI
 
             if(!$ignoreRow) {
                 foreach($headers as $header) $input_rec[$header] = $temp[$header][$i];
-                echo "\ncount $i\n";
+                // echo "\ncount $i\n";
                 // print_r($input_rec); //exit;
                 $output_rec = self::compute_output_rec($input_rec, $sheet_name);
                 self::write_output_rec_2txt($output_rec, $sheet_name);
@@ -166,7 +165,7 @@ class MarineGEOAPI
                 $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
             }
         }
-        print_r($output_rec);
+        // print_r($output_rec);
         // exit("\nx001\n");
         return $output_rec;
     }
