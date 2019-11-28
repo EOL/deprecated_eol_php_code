@@ -60,28 +60,25 @@ class MarineGEOAPI
         $test_temp_dir = create_temp_dir();
         $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
         $output = shell_exec("unzip -o $local -d $test_temp_dir");
-        echo "<hr> [$output] <hr>";
-        /* $ext = self::get_real_extension_of_zip_file($url); --- not used anymore */
+        // echo "<hr> [$output] <hr>";
         $ext = "xls";
         $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext*");
         $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
         $destination = $this->input['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
-        // /* debug only
+        /* debug only
         echo "\n\nlocal file = [$local]";
         echo "\nlocal dir = [$test_temp_dir]";
         echo "\nnew local file = [$new_local]";
         echo "\nnew_local_ext = [$new_local_ext]\n\n";
         echo "\ndestination = [$destination]\n\n";
-        // */
+        */
         Functions::file_rename($new_local, $destination);
         print_r(pathinfo($destination));
 
-        //remove these 3 that were used above if URL is a zip file
-        // unlink($local);
-        // unlink($new_local); //$new_local is inside $test_temp_dir
-        // recursive_rmdir($test_temp_dir);
-        
-        // exit("<hr>elix<hr>");
+        //remove these 2 that were used above if file is a zip file
+        unlink($local);
+        recursive_rmdir($test_temp_dir);
+
         return pathinfo($destination, PATHINFO_BASENAME);
     }
     private function get_file_inside_dir_with_this_extension($files)

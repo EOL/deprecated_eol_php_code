@@ -22,7 +22,6 @@ else {
     /*
     $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
     $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
-    // print_r($params); echo "<br>from: [$from] <hr>";
     if(file_exists($from)) {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         $to_delete = DOC_ROOT . "applications/xls2dwca_jenkins/temp/" . pathinfo($params['destination'], PATHINFO_BASENAME); //to delete the temporary spreadsheet (.xlsx .xls)
