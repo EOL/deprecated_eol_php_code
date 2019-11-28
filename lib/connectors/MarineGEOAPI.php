@@ -38,6 +38,14 @@ class MarineGEOAPI
         if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false))) {}
         unlink($local_xls);
         */
+        
+        if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. input.xlsx.zip
+            $filename = self::process_zip_file($filename);
+            $zipYN = true;
+        }
+        else $zipYN = false;
+        
+        
         if(!$filename) $filename = 'input.xlsx';
         $input_file = $this->input['path'].$filename;
         // $input_file = $this->input['path'].'input_Eli.xlsx';
@@ -46,6 +54,41 @@ class MarineGEOAPI
             self::create_output_file();
         }
         else debug("\nInput file not found: [$input_file]\n");
+    }
+    private function process_zip_file($filename)
+    {
+        $test_temp_dir = create_temp_dir();
+        $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
+        $output = shell_exec("unzip -o $local -d $test_temp_dir");
+        echo "<hr> [$output] <hr>";
+        /* $ext = self::get_real_extension_of_zip_file($url); --- not used anymore */
+        $ext = "xls";
+        $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext*");
+        $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
+        $destination = $this->input['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
+        // /* debug only
+        echo "\n\nlocal file = [$local]";
+        echo "\nlocal dir = [$test_temp_dir]";
+        echo "\nnew local file = [$new_local]";
+        echo "\nnew_local_ext = [$new_local_ext]\n\n";
+        echo "\ndestination = [$destination]\n\n";
+        // */
+        Functions::file_rename($new_local, $destination);
+        print_r(pathinfo($destination));
+
+        //remove these 3 that were used above if URL is a zip file
+        // unlink($local);
+        // unlink($new_local); //$new_local is inside $test_temp_dir
+        // recursive_rmdir($test_temp_dir);
+        
+        // exit("<hr>elix<hr>");
+        return pathinfo($destination, PATHINFO_BASENAME);
+    }
+    private function get_file_inside_dir_with_this_extension($files)
+    {
+        $arr = glob($files);
+        return $arr[0];
+        // foreach (glob($files) as $filename) echo "\n- $filename\n";
     }
     /* =======================================START create output file======================================= */
     private function create_output_file()

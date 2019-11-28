@@ -22,7 +22,11 @@ $timestart = time_elapsed();
 
 $params['jenkins_or_cron']  = @$argv[1];
 $params['filename']         = @$argv[2];
-print_r($params);
+// print_r($params); exit;
+/*Array(
+    [jenkins_or_cron] => jenkins
+    [filename] => 1574915471.zip
+)*/
 if($val = $params['filename']) $filename = $val;
 else                           $filename = '';
 

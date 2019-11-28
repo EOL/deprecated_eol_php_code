@@ -15,6 +15,7 @@ ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 // */
 
+// echo "<pre>"; print_r($_FILES); exit("</pre>");
 
 $url = @get_val_var('url');
 
