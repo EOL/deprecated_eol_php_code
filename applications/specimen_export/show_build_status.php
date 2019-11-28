@@ -19,6 +19,19 @@ elseif($ctrler->is_build_currently_running($build_status)) {
 }
 else {
     $ctrler->display_message(array('type' => "highlight", 'msg' => "Seems done..."));
+    // print_r($params);
+    /* Array ( [task] => xls2dwca_job_1 
+               [uuid] => 1574931187 
+               [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_export/temp/1574931187.xlsx )
+    */
+    /* Delete temp files */
+    $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/';
+    $extensions = array('.xlsx', '.xls', '.zip'); //possible extensions
+    foreach($extensions as $ext) {
+        $tmp = $dirname.$params['uuid'].$ext;
+        if(file_exists($tmp)) unlink($tmp);
+    }
+    
     /*
     $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
     $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";

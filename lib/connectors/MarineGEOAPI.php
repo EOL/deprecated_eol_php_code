@@ -16,7 +16,7 @@ class MarineGEOAPI
         
         $this->input['path'] = '/Volumes/AKiTiO4/other_files/MarineGeo/'; //input.xlsx
         $this->input['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
-        
+        $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
         $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
 
         /* Labels */
@@ -50,6 +50,7 @@ class MarineGEOAPI
         $input_file = $this->input['path'].$filename;
         // $input_file = $this->input['path'].'input_Eli.xlsx';
         if(file_exists($input_file)) {
+            $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
             self::create_output_file();
         }
@@ -139,13 +140,13 @@ class MarineGEOAPI
     }
     private function initialize_file($sheet_name)
     {
-        $filename = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
         $WRITE = Functions::file_open($filename, "w");
         fclose($WRITE);
     }
     private function write_output_rec_2txt($rec, $sheet_name)
     {
-        $filename = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
         $fields = array_keys($rec);
         $WRITE = Functions::file_open($filename, "a");
         clearstatcache(); //important for filesize()

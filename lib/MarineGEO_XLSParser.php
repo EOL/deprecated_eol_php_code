@@ -13,6 +13,7 @@ class MarineGEO_XLSParser
         $this->sheet_mappings['Taxonomy Data'] = 'Taxonomy';
         $this->sheet_mappings['Specimen Details'] = 'Specimen Details';
         $this->sheet_mappings['Collection Data'] = 'Collection Data';
+        $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
     }
     private function get_no_of_cols_per_worksheet($worksheet, $labels)
     {
@@ -42,7 +43,7 @@ class MarineGEO_XLSParser
         */
         $alpha = array(1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D', 5 => 'E', 6 => 'F', 7 => 'G', 8 => 'H', 9 => 'I', 10 => 'J', 11 => 'K', 12 => 'L', 13 => 'M', 14 => 'N', 15 => 'O', 16 => 'P', 17 => 'Q', 18 => 'R', 19 => 'S', 20 => 'T', 21 => 'U', 22 => 'V', 23 => 'W', 24 => 'X ', 25 => 'Y', 26 => 'Z');
         $labels = $this->labels;
-        $output_file = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id.".xls";
+        $output_file = $this->resources['path'].$this->resource_id.".xls";
         // print_r($this->labels); exit;
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
         define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
@@ -159,7 +160,7 @@ class MarineGEO_XLSParser
     private function get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha)
     {
         $row_num = 3;
-        $filename = CONTENT_RESOURCE_LOCAL_PATH.$this->resource_id."_".str_replace(" ", "_", $worksheet).".txt";
+        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $worksheet).".txt";
         $i = 0;
         foreach(new FileIterator($filename) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++; if(($i % 10000) == 0) echo "\n [$path] ".number_format($i) . " ";
