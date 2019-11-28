@@ -28,7 +28,10 @@ else {
     $extensions = array('.xlsx', '.xls', '.zip'); //possible extensions
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;
-        if(file_exists($tmp)) unlink($tmp);
+        if(file_exists($tmp)) {
+            if(unlink($tmp)) {}
+            else echo "\nCannot delete [$tmp]\n";
+        }
     }
 
     /* Summary message */
