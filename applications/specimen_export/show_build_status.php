@@ -30,7 +30,7 @@ else {
         $tmp = $dirname.$params['uuid'].$ext;
         if(file_exists($tmp)) {
             if(unlink($tmp)) {}
-            else echo "\nCannot delete [$tmp]\n";
+            else $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: cannot delete [$tmp]"));
         }
     }
 
