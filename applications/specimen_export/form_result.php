@@ -60,10 +60,7 @@ exit;
 if(Functions::is_production()) $for_DOC_ROOT = '/html/eol_php_code/';
 else                           $for_DOC_ROOT = DOC_ROOT;
 
-echo "\nwent 100\n";
 require_once("jenkins_call.php");
-echo "\nwent 200\n";
-
 
 function get_val_var($v)
 {

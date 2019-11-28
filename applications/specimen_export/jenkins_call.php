@@ -1,10 +1,7 @@
 <?php
-echo "\naaa\n";
 require_once("../../../LiteratureEditor/Custom/lib/Functions.php");
 require_once("../../../FreshData/controllers/other.php");
 require_once("../../../FreshData/controllers/freshdata.php");
-
-echo "\nbbb\n";
 
 // /* during development
 ini_set('error_reporting', E_ALL);
@@ -12,23 +9,16 @@ ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 // */
 
-
 $ctrler = new freshdata_controller(array());
 $job_name = 'xls2dwca_job';
 $task = $ctrler->get_available_job($job_name);
-echo "\nwent 101\n";
 $postfix = "_xls2dwca";
-
 
 // /* for debugging:
 $server_http_host = $_SERVER['HTTP_HOST'];
 $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
 // */
-
-// print_r(pathinfo($newfile));
-// exit("$newfile | $orig_file"); //e.g. temp/1522675623.zip | eol_import_spreadsheet(3).xlsx.zip
-                                  //e.g. temp/1522675752.xlsx | eol_import_spreadsheet(3).xlsx
 
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
@@ -48,14 +38,12 @@ echo "<br>server_script_name: [$server_script_name]";
 echo "<hr>"; //exit;
 */
 
-
 // $cmd = PHP_PATH.' spreadsheet_2_dwca.php jenkins _ ' . "'" . $params['destination'] . "'";
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
 $cmd = PHP_PATH.' marine_geo.php jenkins ' . "'" . $newfile . "'";
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
-echo "\nwent 110\n";
 $cmd = $ctrler->generate_exec_command($params['uuid'].$postfix); //pass the desired basename of the .sh filename (e.g. xxx.sh then pass "xxx")
 $c = $ctrler->build_curl_cmd_for_jenkins($cmd, $task);
 

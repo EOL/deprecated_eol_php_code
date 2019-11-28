@@ -18,7 +18,6 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     // return;
 }
 else {
-    $ctrler->display_message(array('type' => "highlight", 'msg' => "Seems done..."));
     // print_r($params);
     /* Array ( [task] => xls2dwca_job_1 
                [uuid] => 1574931187 
@@ -31,36 +30,23 @@ else {
         $tmp = $dirname.$params['uuid'].$ext;
         if(file_exists($tmp)) unlink($tmp);
     }
-    
-    /*
-    $from                   = DOC_ROOT . "applications/content_server/resources/" . $params['uuid'] . ".tar.gz";
-    $final_archive_gzip_url = DOC_ROOT . "applications/content_server/resources/xls2dwca/" . $params['uuid'] . ".tar.gz";
-    if(file_exists($from)) {
+
+    /* Summary message */
+    // /*
+    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO/" . $params['uuid'] . ".xls";
+    if(file_exists($final_archive_gzip_url)) {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        $to_delete = DOC_ROOT . "applications/xls2dwca_jenkins/temp/" . pathinfo($params['destination'], PATHINFO_BASENAME); //to delete the temporary spreadsheet (.xlsx .xls)
-        if(unlink($to_delete)) {} //$ctrler->display_message(array('type' => "highlight", 'msg' => "Temp file deleted: [$to_delete]"));             //for debug
-        else                   $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: Temp file NOT deleted: [$to_delete]"));
-        // print_r($params);
-        Functions::file_rename($from, $final_archive_gzip_url);
         if($final_archive_gzip_url) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
             echo "=======================================================<br>";
             echo "The archive is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
                 This file will be stored on our server for a week, after which it will be removed.<br><br>
-                You can also use this URL in our 
-                <a href='../dwc_validator/index.php' target='_blank'>Archive Validator</a> to ensure its contents are valid.
-                <a href='../dwc_validator/index.php?file_url=$final_archive_gzip_url' target='_blank'>Click here</a> to validate now.<br><br>
                 Thank you. &nbsp;<a href='index.php'>Try another</a>";
             echo "<br>=======================================================<br><br>";
         }
         else {
             echo "There were problems processing this file:<br><br>";
-            // from orig tool, not here.
-            // if($errors) {
-            //     foreach($errors as $error) echo "$error<br>";
-            // }
-            // else echo "An unknown error occurred<br>";
         }
         // echo "<a href='../../applications/tools.php'>Back to Tools</a>";
     }
@@ -68,7 +54,7 @@ else {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state xyz. &nbsp; $str"));
         $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: 'from' file does not exist [$from]."));
     }
-    */
+    // */
 }
 if($build_status) echo "<hr><b>Build status:</b><pre>".$build_status."</pre><hr>";
 else {

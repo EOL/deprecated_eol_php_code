@@ -18,8 +18,8 @@
             <td>
                 <input type="hidden" name="url" size="100">
                 <font size="3">
-                    <i>Sample spreadsheet template</i><br>
-                    <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/schema/eol_import_spreadsheet.xlsx">Download</a> the EOL spreadsheet template here.
+                    <i>Sample input template</i><br>
+                    <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/input.xlsx">Download</a> the input spreadsheet template here.
                     <br>
                 </font>
             </td>
@@ -27,16 +27,16 @@
         <tr>
             <td>
                 <font size="3">XLS File Upload: </font><input type="file" name="file_upload" id="file_upload" size="100">
-                <small><br><br>(.xlsx, .xls) OR<br> Recommended (.xls.zip, .xlsx.zip)
+                <small><br><br>(.xlsx, .xls) OR recommended (.xls.zip, .xlsx.zip)
                 <br><br>
                 *It is recommended that you zip your file before uploading.</small>                
             </td>
         </tr>
         <tr align="center">
             <td>
-                <input type="submit" value="Convert to EOL-compliant archive">
+                <input type="submit" value="Generate specimen export file">
                 <input type="reset" value="Reset">
-                <input type="checkbox" name="validate">Validate
+                <!--- <input type="checkbox" name="validate">Validate --->
             </td>
         </tr>
     </table>
