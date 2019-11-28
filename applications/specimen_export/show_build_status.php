@@ -9,7 +9,8 @@ if($ctrler->did_build_fail($build_status)) {
 }
 elseif($ctrler->is_build_currently_running($build_status)) {
     $ctrler->display_message(array('type' => "highlight", 'msg' => "Processing... Page will refresh every 5 seconds."));
-    $path = "task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination']);
+    /* Very important variable is: $path below */
+    $path = "task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination'])."&true_root=".urlencode($params['true_root']);
     $ctrler->display_message(array('type' => "highlight", 'msg' => "OR you can check back later. &nbsp; You can use this <a href='$path'>link to check status</a> anytime."));
 
     $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
@@ -18,13 +19,20 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     // return;
 }
 else {
-    echo "<pre>"; print_r($params); echo "</pre>";
+    echo "<pre>"; print_r($params); echo "</pre><hr>";
     /* Array ( [task] => xls2dwca_job_1 
                [uuid] => 1574931187 
                [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_export/temp/1574931187.xlsx )
+       Array(
+           [task] => xls2dwca_job_1
+           [uuid] => 1574952226
+           [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_export/temp/1574952226.xls
+           [true_root] => /Library/WebServer/Documents/eol_php_code/
+       )
     */
     /* Delete temp files */
-    $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/';
+    $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete
+    $dirname = $params['true_root'].'applications/specimen_export/temp/';
     $extensions = array('.xlsx', '.xls', '.zip'); //possible extensions
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;

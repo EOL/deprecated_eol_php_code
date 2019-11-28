@@ -20,6 +20,7 @@ $server_script_name = $_SERVER['SCRIPT_NAME'];
 $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $server_script_name);
 // */
 
+$params['true_root'] = $true_DOC_ROOT;
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
 /* $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file); */

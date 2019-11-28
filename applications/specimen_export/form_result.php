@@ -52,8 +52,14 @@ print"<META HTTP-EQUIV='Refresh' Content='0; URL=generate.php?file=$newfile&orig
 exit;
 */
 
-if(Functions::is_production()) $for_DOC_ROOT = '/html/eol_php_code/';
-else                           $for_DOC_ROOT = DOC_ROOT;
+if(Functions::is_production()) {
+    $for_DOC_ROOT = '/html/eol_php_code/';
+    $true_DOC_ROOT = DOC_ROOT;
+}
+else {
+    $for_DOC_ROOT = DOC_ROOT;
+    $true_DOC_ROOT = $for_DOC_ROOT;
+}
 
 require_once("jenkins_call.php");
 
