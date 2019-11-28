@@ -29,7 +29,7 @@ else {
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;
         if(file_exists($tmp)) {
-            if(unlink($tmp)) {}
+            if(unlink($tmp)) $ctrler->display_message(array('type' => "highlight", 'msg' => "Deleted: [$tmp]"));
             else $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: cannot delete [$tmp]"));
         }
     }
