@@ -1,25 +1,22 @@
 <?php
 namespace php_active_record;
+include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-/* normal operation
+// /* normal operation
 ini_set('error_reporting', false);
 ini_set('display_errors', false);
-*/
+$GLOBALS['ENV_DEBUG'] = false; //set to false in production
+// */
 
-
-include_once(dirname(__FILE__) . "/../../config/environment.php");
-$GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
-
-// /* during development
+/* during development
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
-// */
+$GLOBALS['ENV_DEBUG'] = true; //set to true during development
+*/
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
 
 $url = @get_val_var('url');
-
-/* echo "<pre>"; print_r(@$_FILES); echo "</pre>"; exit; */
 
 if($url) { //URL is pasted.
     $parts = pathinfo($url);
@@ -32,11 +29,9 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
         if($_FILES["file_upload"]["error"] > 0) {}
         else {
             $orig_file = $_FILES["file_upload"]["name"];
-            // $url = "temp/" . $orig_file;
             $url = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
             if(move_uploaded_file($_FILES["file_upload"]["tmp_name"] , $url)) {
                 debug("<br>file uploaded - OK<br>");
-                // echo "<br>destination: $url<br>";
             }
             else echo "<br>uploading file - ERROR<br>";
         }

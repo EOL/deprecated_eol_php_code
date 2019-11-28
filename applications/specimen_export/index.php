@@ -1,7 +1,7 @@
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
-            <td>Excel to EOL Archive Converter (Jenkins)</td>
+            <td>Excel Specimen Export Tool</td>
         </tr>
         <tr align="center">
             <!---
@@ -18,7 +18,7 @@
             <td>
                 <input type="hidden" name="url" size="100">
                 <font size="3">
-                    <i>Sample input template</i><br>
+                    <!--- <i>Sample input template</i><br> --->
                     <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/input.xlsx">Download</a> the input spreadsheet template here.
                     <br>
                 </font>

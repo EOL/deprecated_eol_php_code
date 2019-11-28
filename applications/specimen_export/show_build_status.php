@@ -39,7 +39,7 @@ else {
         if($final_archive_gzip_url) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
             echo "=======================================================<br>";
-            echo "The archive is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
+            echo "The export is now available at <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
                 You can save this file to your computer.<br><br>
                 This file will be stored on our server for a week, after which it will be removed.<br><br>
                 Thank you. &nbsp;<a href='index.php'>Try another</a>";

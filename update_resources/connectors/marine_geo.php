@@ -13,7 +13,7 @@ php update_resources/connectors/marine_geo.php _ input.xlsx
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // /*
 $GLOBALS['ENV_DEBUG'] = false;
-$GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
+// $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 // */
 ini_set('memory_limit','7096M');
@@ -30,12 +30,9 @@ $params['filename']         = @$argv[2];
 if($val = $params['filename']) $filename = $val;
 else                           $filename = '';
 
-$resource_id = 'Dep-01';
-$func = new MarineGEOAPI($resource_id);
-
+$resource_id = 'Dep-01'; //no longer used from here
+$func = new MarineGEOAPI('');
 $func->start($filename);
-// Functions::finalize_dwca_resource($resource_id, false, false); //3rd true means delete working dir
-
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
 echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
