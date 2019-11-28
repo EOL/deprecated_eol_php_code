@@ -33,5 +33,5 @@ else                           $filename = '';
 $resource_id = 'Dep-01'; //no longer used from here
 $func = new MarineGEOAPI('');
 $func->start($filename);
-Functions::get_time_elapsed($timestart);
+// Functions::get_time_elapsed($timestart);
 ?>
