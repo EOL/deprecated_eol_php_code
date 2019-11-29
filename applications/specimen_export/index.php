@@ -16,9 +16,9 @@
             </td>
         </tr>
 
-        <tr align="center">
+        <tr>
             <td>
-                <font size="3">XLS File URL: </font><input type="text" name="form_url" size="100">
+                <font size="3">Excel File URL: </font><input type="text" name="form_url" size="100">
                 <br>
                 <font size="3">
                     <i>e.g. http://mydomain.org/spreadsheets/input.xlsx</i><br>
@@ -28,7 +28,7 @@
 
         <tr>
             <td>
-                <font size="3">XLS File Upload: </font><input type="file" name="file_upload" id="file_upload" size="100">
+                <font size="3">Excel File Upload: </font><input type="file" name="file_upload" id="file_upload" size="100">
                 <small><br><br>(.xlsx, .xls) OR recommended (.xls.zip, .xlsx.zip)
                 <br><br>
                 *It is recommended that you zip your file before uploading.</small>                

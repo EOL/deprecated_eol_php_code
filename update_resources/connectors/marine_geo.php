@@ -13,7 +13,7 @@ php update_resources/connectors/marine_geo.php _ _ https://github.com/eliagbayan
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // /*
-// $GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = false;
 // $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 // */

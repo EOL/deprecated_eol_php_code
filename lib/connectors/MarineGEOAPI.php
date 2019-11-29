@@ -63,14 +63,13 @@ class MarineGEOAPI
         // exit("\n[$form_url]\n");
         $ext = pathinfo($form_url, PATHINFO_EXTENSION);
         $target = $this->input['path'].$uuid.".".$ext;
-        
-        $cmd = "/opt/local/bin/wget $form_url -O ".$target; //wget -nc --> means 'no overwrite'
+        $cmd = WGET_PATH . " $form_url -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
         if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
             exit("\nURL path does not exist.\n");
         }
-        echo "\n---\n$shell_debug\n---\n"; //exit;
+        echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         return pathinfo($target, PATHINFO_BASENAME);
     }
     private function process_zip_file($filename)
