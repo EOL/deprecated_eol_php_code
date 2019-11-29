@@ -21,10 +21,12 @@ $form_url = @get_val_var('form_url');
 if($form_url) { //URL is pasted.
     $orig_file = pathinfo($form_url, PATHINFO_BASENAME);
     $newfile = time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+    /* good debug
     echo "<hr>form_url: [$form_url]";
     echo "<hr>orig_file: [$orig_file]";
     echo "<hr>newfile: [$newfile]<hr>";
     // exit;
+    */
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
     if(in_array($file_type, array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "application/zip"))) {
