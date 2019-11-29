@@ -20,9 +20,10 @@
             <td>
                 <font size="3">Excel File URL: </font><input type="text" name="form_url" size="100">
                 <br>
-                <font size="3">
-                    <i>e.g. http://mydomain.org/spreadsheets/input.xlsx</i><br>
-                </font>
+                <small>
+                    <i>e.g. http://mydomain.org/spreadsheets/input.xlsx</i><br><br>
+                    OR .xls, recommended (.xls.zip, .xlsx.zip)
+                </small>
             </td>
         </tr>
 

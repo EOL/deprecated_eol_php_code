@@ -67,7 +67,7 @@ class MarineGEOAPI
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
         if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
-            exit("\nURL path does not exist.\n");
+            exit("\n<i>URL path does not exist.\n$form_url</i>\n\n");
         }
         echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         return pathinfo($target, PATHINFO_BASENAME);
