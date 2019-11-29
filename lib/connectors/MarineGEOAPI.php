@@ -28,7 +28,7 @@ class MarineGEOAPI
         $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
         $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
     }
-    function start($filename = false)
+    function start($filename = false, $form_url = false, $uuid = false)
     {   
         /* may not be needed since output.xls is based on input.xls
         $coll_num = 'KB17-277';
@@ -39,6 +39,10 @@ class MarineGEOAPI
         unlink($local_xls);
         */
         
+        // /* for $form_url:
+        if($form_url) $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
+        // */
+        
         if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. input.xlsx.zip
             $filename = self::process_zip_file($filename);
             $zipYN = true;
@@ -46,14 +50,28 @@ class MarineGEOAPI
         else $zipYN = false;
         
         if(!$filename) $filename = 'input.xlsx';
-        $input_file = $this->input['path'].$filename;
-        // $input_file = $this->input['path'].'input_Eli.xlsx';
+        $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
         if(file_exists($input_file)) {
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
             self::create_output_file();
         }
         else debug("\nInput file not found: [$input_file]\n");
+    }
+    private function process_form_url($form_url, $uuid)
+    {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
+        // exit("\n[$form_url]\n");
+        $ext = pathinfo($form_url, PATHINFO_EXTENSION);
+        $target = $this->input['path'].$uuid.".".$ext;
+        
+        $cmd = "/opt/local/bin/wget $form_url -O ".$target; //wget -nc --> means 'no overwrite'
+        $cmd .= " 2>&1";
+        $shell_debug = shell_exec($cmd);
+        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
+            exit("\nURL path does not exist.\n");
+        }
+        echo "\n---\n$shell_debug\n---\n"; //exit;
+        return pathinfo($target, PATHINFO_BASENAME);
     }
     private function process_zip_file($filename)
     {
@@ -165,7 +183,7 @@ class MarineGEOAPI
                 $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
             }
         }
-        // print_r($output_rec);
+        // print_r($output_rec); //good debug
         // exit("\nx001\n");
         return $output_rec;
     }

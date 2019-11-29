@@ -41,7 +41,8 @@ echo "<hr>"; //exit;
 
 // $cmd = PHP_PATH.' spreadsheet_2_dwca.php jenkins _ ' . "'" . $params['destination'] . "'";
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
-$cmd = PHP_PATH.' marine_geo.php jenkins ' . "'" . $newfile . "'";
+if($form_url) $cmd = PHP_PATH.' marine_geo.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']; //no filename but there is form_url and uuid
+else          $cmd = PHP_PATH.' marine_geo.php jenkins ' . "'" . $newfile . "'";
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);

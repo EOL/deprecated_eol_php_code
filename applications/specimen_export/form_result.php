@@ -16,13 +16,15 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
 
-$url = @get_val_var('url');
+$form_url = @get_val_var('form_url');
 
-if($url) { //URL is pasted.
-    $parts = pathinfo($url);
-    $extension = @$parts['extension'];
-    $newfile = "temp/" . time() . "." . $extension;
-    $orig_file = $parts['basename'];
+if($form_url) { //URL is pasted.
+    $orig_file = pathinfo($form_url, PATHINFO_BASENAME);
+    $newfile = time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
+    echo "<hr>form_url: [$form_url]";
+    echo "<hr>orig_file: [$orig_file]";
+    echo "<hr>newfile: [$newfile]<hr>";
+    // exit;
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
     if(in_array($file_type, array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "application/zip"))) {
@@ -60,6 +62,9 @@ else {
     $for_DOC_ROOT = DOC_ROOT;
     $true_DOC_ROOT = $for_DOC_ROOT;
 }
+
+// if($form_url)   require_once("jenkins_call_4url.php");
+// else            require_once("jenkins_call.php");
 
 require_once("jenkins_call.php");
 

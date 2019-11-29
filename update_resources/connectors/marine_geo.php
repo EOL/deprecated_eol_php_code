@@ -9,10 +9,11 @@ curl -L -O -C - https://collections.nmnh.si.edu/ipt/archive.do?r=nmnh_extant_dwc
 */
 /* how to run:
 php update_resources/connectors/marine_geo.php _ input.xlsx
+php update_resources/connectors/marine_geo.php _ _ https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/input.xlsx eli173
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // /*
-$GLOBALS['ENV_DEBUG'] = false;
+// $GLOBALS['ENV_DEBUG'] = false;
 // $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
 // error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING); //report all errors except notice and warning
 // */
@@ -22,6 +23,9 @@ $timestart = time_elapsed();
 
 $params['jenkins_or_cron']  = @$argv[1];
 $params['filename']         = @$argv[2];
+$params['form_url']         = @$argv[3];
+$params['uuid']             = @$argv[4];
+
 // print_r($params); exit;
 /*Array(
     [jenkins_or_cron] => jenkins
@@ -29,9 +33,12 @@ $params['filename']         = @$argv[2];
 )*/
 if($val = $params['filename']) $filename = $val;
 else                           $filename = '';
-
+if($val = $params['form_url']) $form_url = $val;
+else                           $form_url = '';
+if($val = $params['uuid'])     $uuid = $val;
+else                           $uuid = '';
 $resource_id = 'Dep-01'; //no longer used from here
 $func = new MarineGEOAPI('');
-$func->start($filename);
+$func->start($filename, $form_url, $uuid);
 // Functions::get_time_elapsed($timestart);
 ?>

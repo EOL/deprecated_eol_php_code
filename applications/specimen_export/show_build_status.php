@@ -57,8 +57,8 @@ else {
         // echo "<a href='../../applications/tools.php'>Back to Tools</a>";
     }
     else {
-        $ctrler->display_message(array('type' => "highlight", 'msg' => "Build is in unknown state xyz. &nbsp; $str"));
-        $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: 'from' file does not exist [$from]."));
+        $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: Build failed. &nbsp; $str"));
+        $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: File does not exist [$final_archive_gzip_url]."));
     }
     // */
 }
