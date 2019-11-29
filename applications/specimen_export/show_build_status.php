@@ -1,7 +1,7 @@
 <?php
 $job_name = 'xls2dwca_job';
 $postfix = "_xls2dwca";
-$str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; Or you can try it again when system resources are free. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
+$str = "Copy 'Build status' and send to <i>eagbayani@eol.org</i>. &nbsp; <a href='index.php'>&lt;&lt; Back to main</a>";
 // the $build_status should come from the status for uuid in question not just the currently last_build
 $build_status = $ctrler->get_last_build_console_text($task, $params['uuid'].$postfix);
 if($ctrler->did_build_fail($build_status)) {
@@ -58,7 +58,7 @@ else {
     }
     else {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: Build failed. &nbsp; $str"));
-        $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: File does not exist [$final_archive_gzip_url]."));
+        // $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: File does not exist [$final_archive_gzip_url].")); //during development only
     }
     // */
 }
