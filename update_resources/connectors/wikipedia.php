@@ -8,6 +8,15 @@ $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false;
 
 /*
+$file = CONTENT_RESOURCE_LOCAL_PATH.'dataset_comparison.txt';
+$date_today = date("d-m-y",time());
+echo "\nLast modified on: " . date("d-m-y", filemtime($file));
+echo "\nLast accessed on: " . date("d-m-y", fileatime($file));
+echo "\nDate today: $date_today";
+exit("\n");
+*/
+
+/*
 $arr = Functions::get_undefined_uris_from_resource(false, false);
 // $arr = Functions::get_undefined_uris_from_resource_v1(false, false);
 print_r($arr); exit;
