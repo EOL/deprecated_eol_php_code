@@ -8,6 +8,12 @@ $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false;
 
 /*
+$func = new WikiDataAPI('1', 'eli', 'wikipedia', array()); //generic call
+$func->retrieve_info_on_bot_wikis();
+exit("\nend\n");
+*/
+
+/*
 $file = CONTENT_RESOURCE_LOCAL_PATH.'dataset_comparison.txt';
 $date_today = date("d-m-y",time());
 echo "\nLast modified on: " . date("d-m-y", filemtime($file));

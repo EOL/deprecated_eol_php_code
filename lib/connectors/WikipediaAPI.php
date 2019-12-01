@@ -167,15 +167,40 @@ class WikipediaAPI
         return $html;
     }
     function retrieve_info_on_bot_wikis()
-    {   $this->title_is_bot = array();
+    {   
+        /* 1st step: is to check if wikipedia_bot_file needs normalizing, meaning making each row unique. Remove duplicates. */
+        self::make_wikipedia_bot_file_unique();
+        /* 2nd step: retrieval proper */
+        self::main_retrieval(); //this creates $this->title_is_bot
+    }
+    private function main_retrieval() //this creates $this->title_is_bot
+    {
+        $this->title_is_bot = array();
         if(file_exists($this->wikipedia_bot_file)) {
             foreach(new FileIterator($this->wikipedia_bot_file) as $line_number => $row) {
-                $this->title_is_bot[trim($row)] = '';
+                if($val = trim($row)) $this->title_is_bot[$val] = '';
             }
         }
-        echo "\ntitle_is_bot: "; 
+        echo "\nTitles that are bot-created: "; 
         if(count($this->title_is_bot) < 500) print_r($this->title_is_bot);
         else echo count($this->title_is_bot);
+    }
+    private function make_wikipedia_bot_file_unique()
+    {
+        if(file_exists($this->wikipedia_bot_file)) {
+            $date_today = date("y-m-d",time());
+            $last_modified = date("y-m-d", filemtime($this->wikipedia_bot_file));
+            if($last_modified < $date_today) { //then we'll need to check and remove duplicates if there are any...
+                self::main_retrieval(); //this creates $this->title_is_bot
+                $temp_file = temp_filepath();
+                if(!($f = Functions::file_open($temp_file, "w"))) return;
+                foreach($this->title_is_bot as $row => $blank) {
+                    if($row) fwrite($f, $row."\n");
+                }
+                fclose($f);
+                Functions::file_rename($temp_file, $this->wikipedia_bot_file);
+            }
+        }
     }
     private function log_bot_wiki($title)
     {
