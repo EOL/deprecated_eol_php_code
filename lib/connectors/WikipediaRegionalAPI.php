@@ -305,7 +305,7 @@ class WikipediaRegionalAPI
         $ret_str = '';
         if($json = Functions::lookup_with_cache($url, $options)) { //always cache expires false, since this is just a term translation
             // if(preg_match("/\"(.*?)\"/ims", $json, $arr)) return ucfirst($arr[1]); //orig
-            if(preg_match("/\"(.*?)\"/ims", $json, $arr)) $ret_str = self::format_wiki_substr(ucfirst($arr[1]));
+            if(preg_match("/\"(.*?)\"/ims", $json, $arr)) $ret_str = trim(self::format_wiki_substr(ucfirst($arr[1])));
         }
         if(strlen($ret_str) <= 2) $ret_str = $source_text;
         return $ret_str;
