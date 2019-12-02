@@ -362,7 +362,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 foreach($habitats as $habitat) {
                     if(!$habitat) continue;
                     $mValue = self::get_uri($habitat,'habitat');
-                    $mType = 'http://eol.org/schema/terms/Habitat';
+                    // $mType = 'http://eol.org/schema/terms/Habitat'; //obsolete
+                    $mType = 'http://purl.obolibrary.org/obo/RO_0002303'; //DATA-1841
                     if(!$mValue) continue;
                     
                     // /* manual adjustment
@@ -779,6 +780,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uris = Functions::additional_mappings($mappings, 60*60*24); //add more mappings used in the past
         // print_r($this->uris); exit;
+        if($this->uris['Oceanic'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') echo "\nRe-mapping is good.\n";
+        else echo "\nERROR: Re-mapping failed.\n";
         echo "\nURIs total: ".count($this->uris)."\n";
     }
     /*================================================================= copied templates below ======================================================================*/

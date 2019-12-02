@@ -799,6 +799,9 @@ class TropicosArchiveAPI
     {
         $final = array();
         foreach($mappings as $term => $uri) {
+            /* debug only
+            if($uri == 'http://eol.org/schema/terms/Oceanic') exit("\nOceanic = [$term]\n");
+            */
             if($new_uri = @$remapped_terms[$uri]) $final[$term] = $new_uri;
             else                                  $final[$term] = $uri;
         }
