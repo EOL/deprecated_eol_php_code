@@ -139,7 +139,8 @@ class TraitGeneric
         // START DATA-1841 terms remapping
         if($new_uri = @$this->remapped_terms[$measurementType]) $measurementType = $new_uri;
         if($new_uri = @$this->remapped_terms[$value])           $value = $new_uri;
-        self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
+        $ret = self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
+        return $ret;
         // END DATA-1841 terms remapping
     }
     public function given_m_update_mType_mValue($m)
