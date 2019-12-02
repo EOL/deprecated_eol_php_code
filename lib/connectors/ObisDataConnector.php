@@ -4,7 +4,6 @@ namespace php_active_record;
 Partner provides two CSV files, connector parses these files and generates the EOL archive.
 We use WORMS taxonomy to get the rank info and remove those OBIS taxa with rank higher than family.
 */
-
 class ObisDataConnector
 {
     public function __construct($resource_id)
@@ -22,7 +21,6 @@ class ObisDataConnector
         $this->download_options = array('timeout' => 3600, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->excluded_ranks = array("kingdom", "subkingdom", "phylum", "subphylum", "class", "subclass", "infraclass", "superclass", "order", "suborder", "infraorder", "superorder");
     }
-
     public function build_archive()
     {
         $this->access_raw_data();
@@ -40,12 +38,9 @@ class ObisDataConnector
         self::remove_temp_dir($this->text_path["obis"]["tnames_OBIS"], "tnames_OBIS");
         self::remove_temp_dir($this->text_path["worms"]["worms_taxon"], "worms_taxon");
     }
-
-
     public function read_taxon_names()
     {
-        foreach(new FileIterator($this->text_path["obis"]["tnames_OBIS"]) as $line_number => $line)
-        {
+        foreach(new FileIterator($this->text_path["obis"]["tnames_OBIS"]) as $line_number => $line) {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
             $line_data = ContentArchiveReader::line_to_array($line, ",", "\"");
             $taxon_id = trim($line_data[0]);
@@ -56,17 +51,14 @@ class ObisDataConnector
             else echo "No name on line: $line_number\n";
         }
     }
-
     public function read_data()
     {
         $this->column_labels = array();
         $this->column_indices = array();
-        foreach(new FileIterator($this->text_path["obis"]["ranges_OBIS"]) as $line_number => $line)
-        {
+        foreach(new FileIterator($this->text_path["obis"]["ranges_OBIS"]) as $line_number => $line) {
             if($line_number % 1000 == 0) echo "$line_number :: ". time_elapsed() ." :: ". memory_get_usage() ."\n";
             $line_data = ContentArchiveReader::line_to_array($line, ",", "\"");
-            if($line_number == 0)
-            {
+            if($line_number == 0) {
                 $this->column_labels = $line_data;
                 foreach($this->column_labels as $k => $v) $this->column_indices[$v] = $k;
                 continue;
@@ -74,7 +66,6 @@ class ObisDataConnector
             $this->process_line_data($line_data);
         }
     }
-
     public function process_line_data($line_data)
     {
         $t = new \eol_schema\Taxon();
@@ -120,25 +111,21 @@ class ObisDataConnector
         $chemistry_occurrence->occurrenceID = Functions::generate_measurementID($chemistry_occurrence, $this->resource_id, 'occurrence');
         $this->archive_builder->write_object_to_file($chemistry_occurrence);
 
-        foreach($this->field_metadata as $field_name => $metadata)
-        {
+        foreach($this->field_metadata as $field_name => $metadata) {
             if($metadata['type'] == 'latlong') $occurrence = $latlong_occurrence;
             elseif($metadata['type'] == 'depth') $occurrence = $depth_occurrence;
             elseif($metadata['type'] == 'chemistry') $occurrence = $chemistry_occurrence;
             else continue;
             $value = @trim($line_data[$this->column_indices[$field_name]]);
             
-            if(in_array($field_name, array("mindepth", "maxdepth")))
-            {
-                if($value > 11000)
-                {
+            if(in_array($field_name, array("mindepth", "maxdepth"))) {
+                if($value > 11000) {
                     echo "\n $field_name = $value \n";
                     continue;
                 }
             }
             
-            if($value || $value === "0")
-            {
+            if($value || $value === "0") {
                 $m = new \eol_schema\MeasurementOrFact();
                 $m->occurrenceID = $occurrence->occurrenceID;
                 $m->measurementOfTaxon = 'true';
@@ -151,7 +138,6 @@ class ObisDataConnector
             } // else echo "Skipping $field_name on $t->taxonID\n";
         }
     }
-
     private function setup()
     {
         $this->field_metadata = array(
@@ -257,7 +243,6 @@ class ObisDataConnector
                 'unit_uri'      => 'http://purl.obolibrary.org/obo/UO_0000027')
        );
     }
-
     private function access_raw_data()
     {
         require_library('connectors/IUCNRedlistDataConnector');
@@ -268,7 +253,6 @@ class ObisDataConnector
         print_r($this->text_path);
         $this->worms_taxa = self::get_worms_taxa();
     }
-
     private function get_worms_taxa()
     {
         require_library('connectors/FishBaseAPI');
@@ -281,12 +265,10 @@ class ObisDataConnector
         unset($taxa);
         return $final;
     }
-
     private function taxon_is_valid_based_on_worms($canonical)
     {
         $canonical = trim(preg_replace('/\s*\([^)]*\)/', '', $canonical)); //remove parenthesis
-        if(!isset($this->worms_taxa[$canonical]))
-        {
+        if(!isset($this->worms_taxa[$canonical])) {
             /* DATA-1435 - we will no longer exclude taxa in OBIS that are not in the WORMS resource.
             print "\n not found in WORMS [$canonical] will exclude";
             return false;
@@ -303,7 +285,6 @@ class ObisDataConnector
         if(in_array($canonical, array("Eutheria"))) return false; // based on DATA-1435, Jen's comment Jun 24, 2014
         return true;
     }
-
     private function remove_temp_dir($path, $basename)
     {
         $parts = pathinfo($path);
@@ -311,7 +292,5 @@ class ObisDataConnector
         recursive_rmdir($parts["dirname"]);
         debug("\n temporary directory removed: " . $parts["dirname"]);
     }
-
 }
-
 ?>
