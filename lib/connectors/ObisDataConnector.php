@@ -233,12 +233,12 @@ class ObisDataConnector
                 'unit_uri'      => 'http://purl.obolibrary.org/obo/UO_0000064'),
             'mintemperature' => array(
                 'type'          => 'chemistry',
-                'uri'           => 'http://eol.org/schema/terms/SeawaterTemperature',
+                'uri'           => 'http://eol.org/schema/terms/WaterTemperature', //'http://eol.org/schema/terms/SeawaterTemperature', obsolete uri DATA-1841
                 'modifier_uri'  => 'http://semanticscience.org/resource/SIO_001113',
                 'unit_uri'      => 'http://purl.obolibrary.org/obo/UO_0000027'),
             'maxtemperature' => array(
                 'type'          => 'chemistry',
-                'uri'           => 'http://eol.org/schema/terms/SeawaterTemperature',
+                'uri'           => 'http://eol.org/schema/terms/WaterTemperature', //'http://eol.org/schema/terms/SeawaterTemperature', obsolete uri DATA-1841
                 'modifier_uri'  => 'http://semanticscience.org/resource/SIO_001114',
                 'unit_uri'      => 'http://purl.obolibrary.org/obo/UO_0000027')
        );
