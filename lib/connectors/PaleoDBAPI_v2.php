@@ -53,6 +53,14 @@ class PaleoDBAPI_v2
 
     function get_all_taxa($descendants_of_parents_without_entries = false)
     {
+        // /* DATA-1841 terms remapping
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        $this->func->initialize_terms_remapping(); //for DATA-1841 terms remapping
+        // print_r($this->func->remapped_terms);
+        echo("\nremapped_terms: ".count($this->func->remapped_terms)."\n");
+        // */
+        
         if($val = $descendants_of_parents_without_entries) $this->descendants_of_parents_without_entries = $val;
         else                                               $this->descendants_of_parents_without_entries = array();
 
@@ -549,6 +557,11 @@ class PaleoDBAPI_v2
         if(!$rec) return;
         // */
 
+        // /* DATA-1841 terms remapping
+        if($new_uri = @$this->remapped_terms[$rec['measurementType']]) $rec['measurementType'] = $new_uri;
+        if($new_uri = @$this->remapped_terms[$rec['measurementValue']]) $rec['measurementValue'] = $new_uri;
+        // */
+        
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
