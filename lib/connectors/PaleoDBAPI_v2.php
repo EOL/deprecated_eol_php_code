@@ -558,8 +558,8 @@ class PaleoDBAPI_v2
         // */
 
         // /* DATA-1841 terms remapping
-        if($new_uri = @$this->remapped_terms[$rec['measurementType']]) $rec['measurementType'] = $new_uri;
-        if($new_uri = @$this->remapped_terms[$rec['measurementValue']]) $rec['measurementValue'] = $new_uri;
+        if($new_uri = @$this->func->remapped_terms[$rec['measurementType']]) $rec['measurementType'] = $new_uri;
+        if($new_uri = @$this->func->remapped_terms[$rec['measurementValue']]) $rec['measurementValue'] = $new_uri;
         // */
         
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
