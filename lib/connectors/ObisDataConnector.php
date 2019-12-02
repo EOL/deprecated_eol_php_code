@@ -274,11 +274,9 @@ class ObisDataConnector
             return false;
             */
         }
-        else
-        {
-            if(in_array($this->worms_taxa[$canonical], $this->excluded_ranks))
-            {
-                print "\n rank not included [$canonical] - " . $this->worms_taxa[$canonical] . " will be excluded.";
+        else {
+            if(in_array($this->worms_taxa[$canonical], $this->excluded_ranks)) {
+                debug("\n rank not included [$canonical] - " . $this->worms_taxa[$canonical] . " will be excluded.");
                 return false;
             }
         }
