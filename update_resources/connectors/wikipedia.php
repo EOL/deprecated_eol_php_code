@@ -415,7 +415,9 @@ wikipedia-ast	Thursday 2019-11-14 01:18:56 PM	{"media_resource.tab":30745,"taxon
 wikipedia-az	Thursday 2019-11-14 11:29:37 AM	{"media_resource.tab":33656,"taxon.tab":19977,"time_elapsed":{"sec":26561.69,"min":442.69,"hr":7.38}}
 wikipedia-az	Thursday 2019-11-14 12:21:35 PM	{"media_resource.tab":33656,"taxon.tab":19977,"time_elapsed":{"sec":2888.26,"min":48.14,"hr":0.8}}
 
+even when everything is cached already: execution time for 'min' is: Took 3 days 6 hr
 wikipedia-min	Friday 2019-11-15 04:50:27 PM	{"media_resource.tab":233143,"taxon.tab":175486,"time_elapsed":{"sec":17561.97,"min":292.7,"hr":4.88}}
+wikipedia-min	Sunday 2019-12-01 12:32:16 PM	{"media_resource.tab":36571,"taxon.tab":33504,"time_elapsed":{"sec":284106.26,"min":4735.1,"hr":78.92,"day":3.29}}
 
 wikipedia-bg	Saturday 2019-11-16 12:44:27 AM	{"media_resource.tab":60646,"taxon.tab":41185,"time_elapsed":{"sec":50384.04,"min":839.73,"hr":14}}
 */
