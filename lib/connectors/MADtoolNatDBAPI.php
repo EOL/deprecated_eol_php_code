@@ -28,7 +28,7 @@ class MADtoolNatDBAPI
     }
     private function initialize_mapping()
     {
-        /* un-comment in real operation
+        /* seems not used at all...
         $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
@@ -43,6 +43,7 @@ class MADtoolNatDBAPI
         /* $this->occurrence_properties = self::get_occurrence_properties(); --- You can now put arbitrary columns in the occurrences file */
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        $this->func->initialize_terms_remapping(); //for DATA-1841 terms remapping
         self::initialize_mapping();
 
         // /* un-comment in real operation
@@ -155,7 +156,7 @@ class MADtoolNatDBAPI
                         $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
                     }
                     $rek['referenceID'] = self::generate_reference($dataset);
-                    $ret_MoT_true = $this->func->add_string_types($rek, $mValue, $mType, $mOfTaxon);
+                    $ret_MoT_true = $this->func->pre_add_string_types($rek, $mValue, $mType, $mOfTaxon); //1
                     $occurrenceID = $ret_MoT_true['occurrenceID'];
                     $measurementID = $ret_MoT_true['measurementID'];
 
@@ -178,7 +179,7 @@ class MADtoolNatDBAPI
                         $rek["catnum"] = $csv_type."_".$mValue_var;
                         $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //measurement_property, yes this is arbitrary field in MoF
                         $rek['referenceID'] = self::generate_reference($mapped_record['dataset']);
-                        $this->func->add_string_types($rek, $mValue_var, $mType_var, "true");
+                        $this->func->pre_add_string_types($rek, $mValue_var, $mType_var, "true"); //2
                     }
                     
                     if($val = $child_measurements) {
@@ -206,7 +207,7 @@ class MADtoolNatDBAPI
                                 if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
                                 if($val = $m['info']['mr']) $rek['measurementRemarks'] = $val;
                                 $rek['referenceID'] = self::generate_reference($dataset);
-                                $this->func->add_string_types($rek, $mValue_var, $mType_var, "child");
+                                $this->func->pre_add_string_types($rek, $mValue_var, $mType_var, "child"); //3
                             }
                         }
                     }
@@ -820,6 +821,7 @@ class MADtoolNatDBAPI
     /* ######################################################################################################################################### */
     /* ######################################################################################################################################### */
     /* ######################################################################################################################################### */
+    /* seems not used at all... Dec 2, 2019 commented.
     private function get_string_uri($string)
     {
         switch ($string) { //put here customized mapping
@@ -828,5 +830,6 @@ class MADtoolNatDBAPI
         }
         if($string_uri = @$this->uris[$string]) return $string_uri;
     }
+    */
 }
 ?>
