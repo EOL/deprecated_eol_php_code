@@ -3,9 +3,10 @@ namespace php_active_record;
 /* connector: [marine_geo.php] https://eol-jira.bibalex.org/browse/COLLAB-1004 */
 class MarineGEOAPI
 {
-    function __construct($folder = null)
+    function __construct($folder = null, $app)
     {
         $this->resource_id = $folder;
+        $this->app = $app;
         // $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         // $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->debug = array();
@@ -14,10 +15,9 @@ class MarineGEOAPI
         
         $this->api['coll_num'] = 'http://www.boldsystems.org/index.php/API_Public/specimen?ids=COLL_NUM&format=json';
         
-        $this->input['path'] = '/Volumes/AKiTiO4/other_files/MarineGeo/'; //input.xlsx
-        $this->input['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
-        $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
-        $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
+        $this->input[$app]['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
+        $this->resources[$app]['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
+        // $this->input[$app]['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data'); //was never used
 
         /* Labels specimen export */
         $this->labels['Voucher Data']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
@@ -55,7 +55,7 @@ class MarineGEOAPI
         }
         
         if(!$filename) $filename = 'input.xlsx';
-        $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
+        $input_file = $this->input[$this->app]['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
         if(file_exists($input_file)) {
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
@@ -67,7 +67,7 @@ class MarineGEOAPI
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
         // exit("\n[$form_url]\n");
         $ext = pathinfo($form_url, PATHINFO_EXTENSION);
-        $target = $this->input['path'].$uuid.".".$ext;
+        $target = $this->input[$this->app]['path'].$uuid.".".$ext;
         $cmd = WGET_PATH . " $form_url -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
@@ -80,13 +80,13 @@ class MarineGEOAPI
     private function process_zip_file($filename)
     {
         $test_temp_dir = create_temp_dir();
-        $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
+        $local = Functions::save_remote_file_to_local($this->input[$this->app]['path'].$filename);
         $output = shell_exec("unzip -o $local -d $test_temp_dir");
         // echo "<hr> [$output] <hr>";
         $ext = "xls";
         $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext*");
         $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
-        $destination = $this->input['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
+        $destination = $this->input[$this->app]['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
         /* debug only
         echo "\n\nlocal file = [$local]";
         echo "\nlocal dir = [$test_temp_dir]";
@@ -161,13 +161,13 @@ class MarineGEOAPI
     }
     private function initialize_file($sheet_name)
     {
-        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $filename = $this->resources[$this->app]['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
         $WRITE = Functions::file_open($filename, "w");
         fclose($WRITE);
     }
     private function write_output_rec_2txt($rec, $sheet_name)
     {
-        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $filename = $this->resources[$this->app]['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
         $fields = array_keys($rec);
         $WRITE = Functions::file_open($filename, "a");
         clearstatcache(); //important for filesize()
