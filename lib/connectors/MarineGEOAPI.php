@@ -39,10 +39,13 @@ class MarineGEOAPI
             $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
             $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
             $this->input['worksheets'] = array('Sheet1');
-            /* Labels specimen image export
+            /* Labels specimen image export ---> DIFFERENT ORIENTATION FROM specimen_export
             e.g. 'Sheet1' -> from image_input.xlsx
-                 'blank' = array() -> from image_output.xls */
-            $this->labels['Sheet1']['blank'] = array('Process ID', 'Sample ID', 'Field ID');
+                 'Lab Sheet' = array() -> from image_output.xls
+                 'MOOP' = array() -> from image_output.xls
+            */
+            $this->labels['Sheet1']['MOOP'] = array('Image File', 'Original Specimen', 'View Metadata', 'Caption', 'Measurement', 'Measurement Type', 'Sample Id', 'Process Id', 'License Holder', 'License', 'License Year', 'License Institution', 'License Contact', 'Photographer');
+            // $this->labels['Sheet1']['Lab Sheet'] = array('Process ID', 'Sample ID', 'Field ID');
         }
         /* ============================= END for image_export ============================= */
     }
@@ -50,16 +53,7 @@ class MarineGEOAPI
     
     /* ========================================================== END for image_export ========================================================== */
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
-    {   
-        /* may not be needed since output.xls is based on input.xls
-        $coll_num = 'KB17-277';
-        self::search_collector_no($coll_num); exit;
-        */
-        /*
-        if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false))) {}
-        unlink($local_xls);
-        */
-        
+    {
         // /* for $form_url:
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
         // */
@@ -200,33 +194,40 @@ class MarineGEOAPI
             $fields = $this->labels[$sheet_name][$subhead]; //print_r($fields); exit;
             foreach($fields as $field) {
                 if($this->app == 'specimen_export') $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
-                else                                $output_rec[$field] = self::construct_output_image($sheet_name, $field, $input_rec); //for specimen_image)export
+                else                                $output_rec[$field] = self::construct_output_image($sheet_name, $field, $input_rec);
             }
         }
         // print_r($output_rec); //good debug
-        // exit("\nx001\n");
         return $output_rec;
     }
     private function construct_output_image($sheet_name, $field, $input_rec)
-    {   // echo "\n[$sheet_name]\n"; echo "\n[$field]\n"; print_r($input_rec); exit;
-        /*
-        [Sheet1]
-        [Process ID]
-        Array(
-            [IRB] => 12307479
-            [Description] => TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032
-            [Title: (Resource Information)] => Diodon hystrix USNM 442206 photograph dorsal view
-            [Creator: (Resource Information)] => Parenti, Lynne R.
-        )
+    {   //echo "\n[$sheet_name]\n"; echo "\n[$field]\n"; print_r($input_rec); exit;
+        /*  [Sheet1]
+            [Image File]
+            Array(
+                [IRB] => 12307479
+                [Description] => TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032
+                [Title: (Resource Information)] => Diodon hystrix USNM 442206 photograph dorsal view
+                [Creator: (Resource Information)] => Parenti, Lynne R.
+            )
         */
         switch ($field) {
-            /*=====Sheet1=====*/
-            case "Process ID":      return $input_rec['Collector Number: (Version 1.2 elements (2))'];
-            case "Sample ID":       return $input_rec['Collector Number: (Version 1.2 elements (2))'];
-            case "Field ID":        return $input_rec['Institution Code: (Version 1.2 elements (1))'].":FISH:".$input_rec['Catalog No.Text: (MaNIS extensions (1))'];
-            /*=====End=====*/
+            case "Image File";          return '1';
+            case "Original Specimen";   return '2';
+            case "View Metadata";       return '3';
+            case "Caption";             return '4';
+            case "Measurement";         return '5';
+            case "Measurement Type";    return '6';
+            case "Sample Id";           return '7';
+            case "Process Id";          return '8';
+            case "License Holder";      return '9';
+            case "License";             return 'a';
+            case "License Year";        return 'b';
+            case "License Institution"; return 'c';
+            case "License Contact";     return 'd';
+            case "Photographer";        return 'e';
             default:
-                exit("\nInvestigate field [$field] not defined.\n");
+                exit("\nInvestigate field [$sheet_name] [$field] not defined.\n");
         }
     }
     private function construct_output($sheet_name, $field, $input_rec)
@@ -330,6 +331,17 @@ class MarineGEOAPI
             $arr = json_decode($json, true);
             print_r($arr);
         }
+    }
+    function test() //very initial stages.
+    {
+        /* may not be needed since output.xls is based on input.xls
+        $coll_num = 'KB17-277';
+        self::search_collector_no($coll_num); exit;
+        */
+        /*
+        if($local_xls = Functions::save_remote_file_to_local($this->ant_habitat_mapping_file, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 1, 'file_extension' => 'xlsx', 'expire_seconds' => false))) {}
+        unlink($local_xls);
+        */
     }
 }
 ?>
