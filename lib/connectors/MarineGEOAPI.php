@@ -46,6 +46,7 @@ class MarineGEOAPI
             */
             $this->labels['Sheet1']['MOOP'] = array('Image File', 'Original Specimen', 'View Metadata', 'Caption', 'Measurement', 'Measurement Type', 'Sample Id', 'Process Id', 'License Holder', 'License', 'License Year', 'License Institution', 'License Contact', 'Photographer');
             // $this->labels['Sheet1']['Lab Sheet'] = array('Process ID', 'Sample ID', 'Field ID');
+            $this->api['BOLDS specimen'] = "http://www.boldsystems.org/index.php/API_Public/specimen?container=PROJECT_CODE&format=tsv";
         }
         /* ============================= END for image_export ============================= */
     }
@@ -323,8 +324,23 @@ class MarineGEOAPI
     }
     private function generate_info_list_tsv($project) //e.g. $project = 'KANB'
     {
-        wget
+        $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
+        self::download_tsv($url, $project);
         
+    }
+    private function download_tsv($form_url, $uuid)
+    {   
+        //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
+        $ext = 'tsv';
+        $target = $this->input['path'].$uuid.".".$ext;
+        $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
+        $cmd .= " 2>&1";
+        $shell_debug = shell_exec($cmd);
+        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
+            exit("\n<i>URL path does not exist.\n$form_url</i>\n\n");
+        }
+        echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
+        return pathinfo($target, PATHINFO_BASENAME);
     }
     /* ========================================================== END for image_export ========================================================== */
     

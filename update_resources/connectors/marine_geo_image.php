@@ -9,6 +9,8 @@ php update_resources/connectors/marine_geo_image.php _ image_input.xlsx _ _ '$js
 php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
 */
 
+// print_r(pathinfo('http://www.boldsystems.org/index.php/API_Public/specimen?container=KANB&format=tsv')); exit;
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // /*
 $GLOBALS['ENV_DEBUG'] = false;
