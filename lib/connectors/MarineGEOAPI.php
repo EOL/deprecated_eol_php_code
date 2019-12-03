@@ -122,10 +122,10 @@ class MarineGEOAPI
     /* =======================================START create output file======================================= */
     private function create_output_file()
     {
-        exit("\nstop 01\n");
         require_library('MarineGEO_XLSParser');
         $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id);
-        $parser->start();
+        if($this->app == 'specimen_export') $parser->start();
+        else exit("\nstop 01\n");
     }
     /* ========================================END create output file======================================== */
     private function read_input_file($input_file)
