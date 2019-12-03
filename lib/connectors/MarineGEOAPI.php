@@ -38,6 +38,8 @@ class MarineGEOAPI
         if($app == 'specimen_image_export') {
             $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
             $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
+            $dir = $this->resources['path'].'TSVs';
+            if(!is_dir($dir)) mkdir($dir);
             $this->input['worksheets'] = array('Sheet1');
             /* Labels specimen image export ---> DIFFERENT ORIENTATION FROM specimen_export
             e.g. 'Sheet1' -> from image_input.xlsx
@@ -76,15 +78,12 @@ class MarineGEOAPI
     }
     private function process_form_url($form_url, $uuid)
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
-        // exit("\n[$form_url]\n");
         $ext = pathinfo($form_url, PATHINFO_EXTENSION);
         $target = $this->input['path'].$uuid.".".$ext;
         $cmd = WGET_PATH . " $form_url -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
-        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
-            exit("\n<i>URL path does not exist.\n$form_url</i>\n\n");
-        }
+        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$form_url</i>\n\n"); //string is found
         echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
         return pathinfo($target, PATHINFO_BASENAME);
     }
@@ -325,22 +324,18 @@ class MarineGEOAPI
     private function generate_info_list_tsv($project) //e.g. $project = 'KANB'
     {
         $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
-        self::download_tsv($url, $project);
-        
+        $local_tsv = self::download_tsv($url, $project);
+        exit("\n[$local_tsv]\n");
     }
     private function download_tsv($form_url, $uuid)
-    {   
-        //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
-        $ext = 'tsv';
-        $target = $this->input['path'].$uuid.".".$ext;
+    {
+        $target = $this->resources['path'].'TSVs/'.$uuid.".tsv";
         $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
-        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) { //string is found
-            exit("\n<i>URL path does not exist.\n$form_url</i>\n\n");
-        }
+        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$form_url</i>\n\n"); //string is found
         echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
-        return pathinfo($target, PATHINFO_BASENAME);
+        return $target;
     }
     /* ========================================================== END for image_export ========================================================== */
     
