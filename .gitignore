@@ -59,6 +59,7 @@ applications/xls2EOL/xml/*.xml
 
 applications/xls2dwca_jenkins/temp/*
 applications/specimen_export/temp/*
+applications/specimen_image_export/temp/*
 applications/specimen_export/zdev_samples/*
 applications/specimen_export/zbak/*
 applications/dwc_validator_jenkins/temp/*
