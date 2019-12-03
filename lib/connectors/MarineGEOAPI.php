@@ -19,7 +19,7 @@ class MarineGEOAPI
         $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
         $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
 
-        /* Labels */
+        /* Labels specimen export */
         $this->labels['Voucher Data']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
         $this->labels['Taxonomy Data']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
         $this->labels['Taxonomy Data']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
@@ -27,7 +27,14 @@ class MarineGEOAPI
         $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
         $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
         $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
+
+        /* ============================= START for image_export ============================= */
+        
+        /* ============================= END for image_export ============================= */
     }
+    /* ========================================================== START for image_export ========================================================== */
+    
+    /* ========================================================== END for image_export ========================================================== */
     function start($filename = false, $form_url = false, $uuid = false)
     {   
         /* may not be needed since output.xls is based on input.xls
@@ -45,9 +52,7 @@ class MarineGEOAPI
         
         if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. input.xlsx.zip
             $filename = self::process_zip_file($filename);
-            $zipYN = true;
         }
-        else $zipYN = false;
         
         if(!$filename) $filename = 'input.xlsx';
         $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
