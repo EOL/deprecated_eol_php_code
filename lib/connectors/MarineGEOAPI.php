@@ -3,9 +3,9 @@ namespace php_active_record;
 /* connector: [marine_geo.php] https://eol-jira.bibalex.org/browse/COLLAB-1004 */
 class MarineGEOAPI
 {
-    function __construct($folder = null, $app)
+    function __construct($app)
     {
-        $this->resource_id = $folder;
+        $this->resource_id = '';
         $this->app = $app;
         // $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         // $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));

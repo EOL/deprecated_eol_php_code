@@ -38,7 +38,7 @@ else                           $form_url = '';
 if($val = $params['uuid'])     $uuid = $val;
 else                           $uuid = '';
 $resource_id = 'Dep-01'; //no longer used from here
-$func = new MarineGEOAPI('');
+$func = new MarineGEOAPI('specimen_export');
 $func->start($filename, $form_url, $uuid);
 // Functions::get_time_elapsed($timestart);
 ?>
