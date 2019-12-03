@@ -51,6 +51,11 @@ class MarineGEOAPI
     }
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
     {
+        if($json) {
+            $this->manual_entry = json_decode($json); //for specimen_image_export
+            self::generate_info_list_tsv($this->manual_entry->Proj);
+        }
+        
         // /* for $form_url:
         if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
         // */
@@ -216,7 +221,7 @@ class MarineGEOAPI
             case "View Metadata";       return $ret_Title['View Metadata'];
             case "Caption";             return $ret_Title['Caption'];
             case "Measurement";         return $ret_Desc['Measurement'];
-            case "Measurement Type";    return '6';
+            case "Measurement Type";    return $ret_Desc['Measurement Type'];
             case "Sample Id";           return '7';
             case "Process Id";          return '8';
             case "License Holder";      return '9';
@@ -236,11 +241,25 @@ class MarineGEOAPI
         eg: for "Diodon hystrix USNM 442206 photograph dorsal view", -> "dorsal view" */
         $arr = explode("photograph", $str);
         $final['View Metadata'] = trim($arr[count($arr)-1]);
+        //----------------------------------------
         /* Caption:
         from the image_input file, column "Title: (Resource Information)", everything that follows the string "USNM", but include the string itself, 
         eg: "Diodon hystrix USNM 442206 photograph dorsal view", -> "USNM 442206 photograph dorsal view" */
         $arr = explode("USNM", $str);
         $final['Caption'] = 'USNM '.trim($arr[count($arr)-1]);
+        //----------------------------------------
+        /* Sample ID:
+        from the image_input file, column "Title: (Resource Information)", find the number that follows the string "USNM". Using the string menu-selected for Department by the user, 
+        construct a triple of the form: "USNM:FISH:442211". Then, in the BOLD API result, find the row containing that triple. Take the string from the "sampleid" column.
+        */
+        if(preg_match_all('((?:[0-9]+,)*[0-9]+(?:\.[0-9]+)?)', $final['Caption'], $arr)) {
+            $numerical_part = $arr[0][0];
+            $triple = "USNM:".$this->manual_entry->Dept.":$numerical_part";
+            $final['Sample ID'] = @$this->info_list_tsv[$triple];
+            // exit("\n[$triple]\n");
+        }
+        // print_r($this->manual_entry); exit;
+        //----------------------------------------
         return $final;
     }
     private function parse_Description($orig)
@@ -258,14 +277,14 @@ class MarineGEOAPI
         $final = array();
         $tmp = explode("=", $str);
         $str = $tmp[1];
-        echo "\n[$str]\n";
+        // echo "\n[$str]\n";
         // if(preg_match_all('!\d+\.*\d*!', $str, $arr)) {
         if(preg_match_all('((?:[0-9]+,)*[0-9]+(?:\.[0-9]+)?)', $str, $arr)) {
-            print_r($arr);
+            // print_r($arr);
             $number_str = $arr[0][0];
-            echo "\n[$number_str]\n";
+            // echo "\n[$number_str]\n";
             $str = trim(str_replace($number_str, '', $str));
-            echo "\n[$str]\n";
+            // echo "\n[$str]\n";
             $unit = '';
             $chars = array(".", ";", ",", " ");
             for($i = 0; $i <= strlen($str); $i++) {
@@ -273,7 +292,7 @@ class MarineGEOAPI
                 if(in_array($char, $chars)) break;
                 $unit .= $char;
             }
-            echo "\n[$unit]\n";
+            // echo "\n[$unit]\n";
             $final['Measurement'] = "$number_str $unit";
         }
         else exit("\nTest this value: [$str]\n");
@@ -283,9 +302,29 @@ class MarineGEOAPI
         take only what follows the last separator before the "=". 
         eg: for "TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032" -> TL */
         $str = $orig;
-        
+        // $str = "TL=4,357.2 mm"; //debug only
+        $tmp = explode("=", $str);
+        if($tmp[0] && @$tmp[1]) {
+            $str = trim($tmp[0]);
+            // echo ("\n[$str]\n");
+            $chars = array(".", ";", ",");
+            foreach($chars as $char) {
+                if(stripos($str, $char) !== false) { //string is found
+                    $arr = explode($char, $str);
+                    // print_r($arr);
+                    $final['Measurement Type'] = end($arr); // exit("\n".$final['Measurement Type']."\n");
+                    break;
+                }
+            }
+            if(!@$final['Measurement Type']) $final['Measurement Type'] = $str;
+        }
         //----------------------------------------
         return $final;
+    }
+    private function generate_info_list_tsv($project) //e.g. $project = 'KANB'
+    {
+        wget
+        
     }
     /* ========================================================== END for image_export ========================================================== */
     
