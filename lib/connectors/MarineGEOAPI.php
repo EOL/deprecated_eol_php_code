@@ -199,7 +199,7 @@ class MarineGEOAPI
                 else                                $output_rec[$field] = self::construct_output_image($sheet_name, $field, $input_rec);
             }
         }
-        print_r($output_rec); exit("\nstopx\n");
+        // print_r($output_rec); exit("\nstopx\n");
         return $output_rec;
     }
     private function construct_output_image($sheet_name, $field, $input_rec)
@@ -226,7 +226,6 @@ class MarineGEOAPI
             case "Sample Id";           return $ret_Title['Sample Id'];
             case "Process Id";          return $ret_Title['Process Id'];
             case "License Holder";      return ''; //leave blank per Jira
-            {"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}
             case "License";             return $this->manual_entry->Lic;
             case "License Year";        return $this->manual_entry->Lic_yr;
             case "License Institution"; return $this->manual_entry->Lic_inst;
@@ -243,6 +242,12 @@ class MarineGEOAPI
         from the image_input file, column "Creator: (Resource Information)", take the whole string. If it contains a comma followed by a space (only once in the string), 
         use this as a separator, reverse the order of the segments, and separate them by a space, eg: "Pitassy, Diane E." -> "Diane E. Pitassy". 
         If the string contains multiple commas, just leave it as is. */
+        // $str = "Parenti, Lynne R., Eli"; //debug only
+        $arr = explode(",", $str);
+        $arr = array_map('trim', $arr);
+        if(count($arr) <= 2) $final['Photographer'] = trim($arr[1].' '.$arr[0]);
+        else $final['Photographer'] = $str;
+        return $final;
     }
     private function parse_Title($str)
     {   /* View Metadata:
