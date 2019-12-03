@@ -209,12 +209,13 @@ class MarineGEOAPI
             )
         */
         $ret_Title = self::parse_Title($input_rec['Title: (Resource Information)']);
+        $ret_Desc = self::parse_Description($input_rec['Description']);
         switch ($field) {
             case "Image File";          return "https://collections.nmnh.si.edu/search/fishes/search.php?action=10&width=640&irn=".$input_rec['IRB'];
             case "Original Specimen";   return 'Yes';
             case "View Metadata";       return $ret_Title['View Metadata'];
             case "Caption";             return $ret_Title['Caption'];
-            case "Measurement";         return '5';
+            case "Measurement";         return $ret_Desc['Measurement'];
             case "Measurement Type";    return '6';
             case "Sample Id";           return '7';
             case "Process Id";          return '8';
@@ -235,13 +236,55 @@ class MarineGEOAPI
         eg: for "Diodon hystrix USNM 442206 photograph dorsal view", -> "dorsal view" */
         $arr = explode("photograph", $str);
         $final['View Metadata'] = trim($arr[count($arr)-1]);
-        
         /* Caption:
         from the image_input file, column "Title: (Resource Information)", everything that follows the string "USNM", but include the string itself, 
         eg: "Diodon hystrix USNM 442206 photograph dorsal view", -> "USNM 442206 photograph dorsal view" */
         $arr = explode("USNM", $str);
         $final['Caption'] = 'USNM '.trim($arr[count($arr)-1]);
+        return $final;
+    }
+    private function parse_Description($orig)
+    {   /* Measurement: e.g. "TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032"
+        from the image_input file, column "Description", look for "=" followed by (possibly whitespace followed by) a number, which may contain a decimal. 
+        The number may be followed by (possibly whitespace followed by) up to three characters representing a unit. 
+        That will be followed by ".", ";", "," and/or " " OR it could be the end of the input field. Take the number and the whitespace + up to 3chars, if present. 
+        eg: for "TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032" -> 457.3 mm */
+        // $str = "TL=4,357.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032";
+        // $str = "TL=4,357.2 mm; Photographed";
+        // $str = "TL=4,357.2 mm, Photographed";
+        // $str = "TL=4,357.2 mm Photographed";
+        // $str = "TL=4,357.2 mm";
+        $str = $orig;
+        $final = array();
+        $tmp = explode("=", $str);
+        $str = $tmp[1];
+        echo "\n[$str]\n";
+        // if(preg_match_all('!\d+\.*\d*!', $str, $arr)) {
+        if(preg_match_all('((?:[0-9]+,)*[0-9]+(?:\.[0-9]+)?)', $str, $arr)) {
+            print_r($arr);
+            $number_str = $arr[0][0];
+            echo "\n[$number_str]\n";
+            $str = trim(str_replace($number_str, '', $str));
+            echo "\n[$str]\n";
+            $unit = '';
+            $chars = array(".", ";", ",", " ");
+            for($i = 0; $i <= strlen($str); $i++) {
+                $char = substr($str,$i,1);
+                if(in_array($char, $chars)) break;
+                $unit .= $char;
+            }
+            echo "\n[$unit]\n";
+            $final['Measurement'] = "$number_str $unit";
+        }
+        else exit("\nTest this value: [$str]\n");
+        //----------------------------------------
+        /* Measurement Type:
+        in the pattern match above, take whatever is to the left of the "=". If that string contains a separator ".", ";" or "," 
+        take only what follows the last separator before the "=". 
+        eg: for "TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032" -> TL */
+        $str = $orig;
         
+        //----------------------------------------
         return $final;
     }
     /* ========================================================== END for image_export ========================================================== */
