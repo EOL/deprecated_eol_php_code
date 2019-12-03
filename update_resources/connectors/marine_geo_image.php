@@ -5,8 +5,8 @@ Instructions here: https://eol-jira.bibalex.org/browse/COLLAB-1004?focusedCommen
 */
 /* how to run:
 $json = '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}';
-php update_resources/connectors/marine_geo.php _ image_input.xlsx _ _ '$json'
-php update_resources/connectors/marine_geo.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
+php update_resources/connectors/marine_geo_image.php _ image_input.xlsx _ _ '$json'
+php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

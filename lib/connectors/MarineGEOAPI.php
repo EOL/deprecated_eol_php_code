@@ -10,16 +10,19 @@ class MarineGEOAPI
         // $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         // $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->debug = array();
-        $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //orig expires quarterly
-        // $this->download_options['expire_seconds'] = false; //debug only
         
+        $this->download_options = array('cache' => 1, 'resource_id' => 'MarineGEO', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //orig expires quarterly
+        // $this->download_options['expire_seconds'] = false; //debug only
+
         $this->api['coll_num'] = 'http://www.boldsystems.org/index.php/API_Public/specimen?ids=COLL_NUM&format=json';
         
-        $this->input[$app]['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
-        $this->resources[$app]['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
-        // $this->input[$app]['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data'); //was never used
+        $this->input['specimen_export']['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
+        $this->resources['specimen_export']['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
+        $this->input['specimen_export']['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
 
-        /* Labels specimen export */
+        /* Labels specimen export
+        e.g. 'Voucher Data' -> from input.xlsx
+             'Specimen Info Metadata' = array() -> from output.xls */
         $this->labels['Voucher Data']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
         $this->labels['Taxonomy Data']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
         $this->labels['Taxonomy Data']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
@@ -29,7 +32,14 @@ class MarineGEOAPI
         $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
 
         /* ============================= START for image_export ============================= */
+        $this->input['specimen_image_export']['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
+        $this->resources['specimen_image_export']['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
+        $this->input['specimen_image_export']['worksheets'] = array('Sheet1');
         
+        /* Labels specimen image export
+        e.g. 'Sheet1' -> from image_input.xlsx
+             'blank' = array() -> from image_output.xls */
+        $this->labels2['Sheet1']['blank'] = array('Process ID', 'Sample ID', 'Field ID');
         /* ============================= END for image_export ============================= */
     }
     /* ========================================================== START for image_export ========================================================== */
@@ -126,7 +136,7 @@ class MarineGEOAPI
         // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
         // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
         
-        $sheet_names = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
+        $sheet_names = $this->input[$this->app]['worksheets'];
         foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
     }
     private function read_worksheet($sheet_name, $input_file, $parser)
