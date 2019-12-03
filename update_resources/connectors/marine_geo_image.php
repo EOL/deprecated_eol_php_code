@@ -41,6 +41,6 @@ else                           $json = '';
 
 $resource_id = ''; //no longer used from here
 $func = new MarineGEOAPI('specimen_image_export');
-$func->start_image_export($filename, $form_url, $uuid, $json);
+$func->start($filename, $form_url, $uuid, $json);
 // Functions::get_time_elapsed($timestart);
 ?>

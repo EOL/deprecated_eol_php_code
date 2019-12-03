@@ -16,36 +16,40 @@ class MarineGEOAPI
 
         $this->api['coll_num'] = 'http://www.boldsystems.org/index.php/API_Public/specimen?ids=COLL_NUM&format=json';
         
-        $this->input['specimen_export']['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
-        $this->resources['specimen_export']['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
-        $this->input['specimen_export']['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
-
-        /* Labels specimen export
-        e.g. 'Voucher Data' -> from input.xlsx
-             'Specimen Info Metadata' = array() -> from output.xls */
-        $this->labels['Voucher Data']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
-        $this->labels['Taxonomy Data']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
-        $this->labels['Taxonomy Data']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
-        $this->labels['Specimen Details']['Specimen Details Metadata'] = array('Sample ID','Sex','Reproduction','Life Stage','Extra Info','Notes');
-        $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
-        $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
-        $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
+        /* ============================= START for specimen_export ============================= */
+        if($app == 'specimen_export') {
+            $this->input['path'] = DOC_ROOT.'/applications/specimen_export/temp/'; //input.xlsx
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
+            $this->input['worksheets'] = array('Voucher Data', 'Specimen Details', 'Taxonomy Data', 'Collection Data');
+            /* Labels specimen export
+            e.g. 'Voucher Data' -> from input.xlsx
+                 'Specimen Info Metadata' = array() -> from output.xls */
+            $this->labels['Voucher Data']['Specimen Info Metadata'] = array('Sample ID','Field ID','Museum ID','Collection Code','Institution Storing');
+            $this->labels['Taxonomy Data']['Taxonomy Metadata'] = array('Sample ID','Phylum','Class','Order','Family','Subfamily','Tribe','Genus','Species','Subspecies','Identifier','Identifier Email');
+            $this->labels['Taxonomy Data']['Extended Fields (BOLD 3.1)'] = array('Identification Method','Taxonomy Notes');
+            $this->labels['Specimen Details']['Specimen Details Metadata'] = array('Sample ID','Sex','Reproduction','Life Stage','Extra Info','Notes');
+            $this->labels['Specimen Details']['Specimen Details Metadata Extended Fields (BOLD 3.1)'] = array('Voucher Status','Tissue Descriptor','External URLs','Associated Taxa','Associated Specimens');
+            $this->labels['Collection Data']['Collection Info Metadata'] = array('Sample ID','Collectors','Collection Date','Country/Ocean','State/Province','Region','Sector','Exact Site','Lat','Lon','Elev');
+            $this->labels['Collection Data']['Collection Info Metadata Extended Fields (BOLD 3.1)'] = array('Depth','Elevation Precision','Depth Precision','GPS Source','Coordinate Accuracy','Event Time','Collection Date Accuracy','Habitat','Sampling Protocol','Collection Notes','Site Code','Collection Event ID');
+        }
+        /* ============================= END for specimen_export ============================= */
 
         /* ============================= START for image_export ============================= */
-        $this->input['specimen_image_export']['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
-        $this->resources['specimen_image_export']['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
-        $this->input['specimen_image_export']['worksheets'] = array('Sheet1');
-        
-        /* Labels specimen image export
-        e.g. 'Sheet1' -> from image_input.xlsx
-             'blank' = array() -> from image_output.xls */
-        $this->labels2['Sheet1']['blank'] = array('Process ID', 'Sample ID', 'Field ID');
+        if($app == 'specimen_image_export') {
+            $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
+            $this->input['worksheets'] = array('Sheet1');
+            /* Labels specimen image export
+            e.g. 'Sheet1' -> from image_input.xlsx
+                 'blank' = array() -> from image_output.xls */
+            $this->labels['Sheet1']['blank'] = array('Process ID', 'Sample ID', 'Field ID');
+        }
         /* ============================= END for image_export ============================= */
     }
     /* ========================================================== START for image_export ========================================================== */
     
     /* ========================================================== END for image_export ========================================================== */
-    function start($filename = false, $form_url = false, $uuid = false)
+    function start($filename = false, $form_url = false, $uuid = false, $json = false)
     {   
         /* may not be needed since output.xls is based on input.xls
         $coll_num = 'KB17-277';
@@ -57,15 +61,15 @@ class MarineGEOAPI
         */
         
         // /* for $form_url:
-        if($form_url) $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
+        if($form_url && $form_url != '_') $filename = self::process_form_url($form_url, $uuid); //this will download (wget) and save file in /specimen_export/temp/
         // */
         
         if(pathinfo($filename, PATHINFO_EXTENSION) == "zip") { //e.g. input.xlsx.zip
             $filename = self::process_zip_file($filename);
         }
         
-        if(!$filename) $filename = 'input.xlsx';
-        $input_file = $this->input[$this->app]['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
+        if(!$filename) $filename = 'input.xlsx'; //kinda debug mode. not used in real operation. But ok to stay un-commented.
+        $input_file = $this->input['path'].$filename; //e.g. $filename is 'input_Eli.xlsx'
         if(file_exists($input_file)) {
             $this->resource_id = pathinfo($input_file, PATHINFO_FILENAME);
             self::read_input_file($input_file); //writes to text files for reading in next step.
@@ -77,7 +81,7 @@ class MarineGEOAPI
     {   //wget -nc https://content.eol.org/data/media/91/b9/c7/740.027116-1.jpg -O /Volumes/AKiTiO4/other_files/bundle_images/xxx/740.027116-1.jpg
         // exit("\n[$form_url]\n");
         $ext = pathinfo($form_url, PATHINFO_EXTENSION);
-        $target = $this->input[$this->app]['path'].$uuid.".".$ext;
+        $target = $this->input['path'].$uuid.".".$ext;
         $cmd = WGET_PATH . " $form_url -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
@@ -90,13 +94,13 @@ class MarineGEOAPI
     private function process_zip_file($filename)
     {
         $test_temp_dir = create_temp_dir();
-        $local = Functions::save_remote_file_to_local($this->input[$this->app]['path'].$filename);
+        $local = Functions::save_remote_file_to_local($this->input['path'].$filename);
         $output = shell_exec("unzip -o $local -d $test_temp_dir");
         // echo "<hr> [$output] <hr>";
         $ext = "xls";
         $new_local = self::get_file_inside_dir_with_this_extension($test_temp_dir."/*.$ext*");
         $new_local_ext = pathinfo($new_local, PATHINFO_EXTENSION);
-        $destination = $this->input[$this->app]['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
+        $destination = $this->input['path'].pathinfo($filename, PATHINFO_FILENAME).".$new_local_ext";
         /* debug only
         echo "\n\nlocal file = [$local]";
         echo "\nlocal dir = [$test_temp_dir]";
@@ -122,6 +126,7 @@ class MarineGEOAPI
     /* =======================================START create output file======================================= */
     private function create_output_file()
     {
+        exit("\nstop 01\n");
         require_library('MarineGEO_XLSParser');
         $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id);
         $parser->start();
@@ -136,7 +141,7 @@ class MarineGEOAPI
         // $temp = $parser->convert_sheet_to_array($input_file); //automatically gets 1st sheet
         // $temp = $parser->convert_sheet_to_array($input_file, '3'); //gets the 4th sheet. '0' gets the 1st sheet.
         
-        $sheet_names = $this->input[$this->app]['worksheets'];
+        $sheet_names = $this->input['worksheets'];
         foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
     }
     private function read_worksheet($sheet_name, $input_file, $parser)
@@ -171,13 +176,13 @@ class MarineGEOAPI
     }
     private function initialize_file($sheet_name)
     {
-        $filename = $this->resources[$this->app]['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
         $WRITE = Functions::file_open($filename, "w");
         fclose($WRITE);
     }
     private function write_output_rec_2txt($rec, $sheet_name)
     {
-        $filename = $this->resources[$this->app]['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
+        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $sheet_name).".txt";
         $fields = array_keys($rec);
         $WRITE = Functions::file_open($filename, "a");
         clearstatcache(); //important for filesize()
@@ -192,14 +197,37 @@ class MarineGEOAPI
         $output_rec = array();
         $subheads = array_keys($this->labels[$sheet_name]);
         foreach($subheads as $subhead) {
-            $fields = $this->labels[$sheet_name][$subhead]; //print_r($fields);
+            $fields = $this->labels[$sheet_name][$subhead]; //print_r($fields); exit;
             foreach($fields as $field) {
-                $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
+                if($this->app == 'specimen_export') $output_rec[$field] = self::construct_output($sheet_name, $field, $input_rec);
+                else                                $output_rec[$field] = self::construct_output_image($sheet_name, $field, $input_rec); //for specimen_image)export
             }
         }
         // print_r($output_rec); //good debug
         // exit("\nx001\n");
         return $output_rec;
+    }
+    private function construct_output_image($sheet_name, $field, $input_rec)
+    {   // echo "\n[$sheet_name]\n"; echo "\n[$field]\n"; print_r($input_rec); exit;
+        /*
+        [Sheet1]
+        [Process ID]
+        Array(
+            [IRB] => 12307479
+            [Description] => TL=457.2 mm. Photographed during Kaneohe Bay, Hawaii, Bioblitz expedition, 2017. Specimen voucher field number: KB17-032
+            [Title: (Resource Information)] => Diodon hystrix USNM 442206 photograph dorsal view
+            [Creator: (Resource Information)] => Parenti, Lynne R.
+        )
+        */
+        switch ($field) {
+            /*=====Sheet1=====*/
+            case "Process ID":      return $input_rec['Collector Number: (Version 1.2 elements (2))'];
+            case "Sample ID":       return $input_rec['Collector Number: (Version 1.2 elements (2))'];
+            case "Field ID":        return $input_rec['Institution Code: (Version 1.2 elements (1))'].":FISH:".$input_rec['Catalog No.Text: (MaNIS extensions (1))'];
+            /*=====End=====*/
+            default:
+                exit("\nInvestigate field [$field] not defined.\n");
+        }
     }
     private function construct_output($sheet_name, $field, $input_rec)
     {   /* Array(
