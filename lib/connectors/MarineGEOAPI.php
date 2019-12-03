@@ -49,9 +49,6 @@ class MarineGEOAPI
         }
         /* ============================= END for image_export ============================= */
     }
-    /* ========================================================== START for image_export ========================================================== */
-    
-    /* ========================================================== END for image_export ========================================================== */
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
     {
         // /* for $form_url:
@@ -197,7 +194,7 @@ class MarineGEOAPI
                 else                                $output_rec[$field] = self::construct_output_image($sheet_name, $field, $input_rec);
             }
         }
-        // print_r($output_rec); //good debug
+        print_r($output_rec); exit("\nstopx\n");
         return $output_rec;
     }
     private function construct_output_image($sheet_name, $field, $input_rec)
@@ -211,11 +208,12 @@ class MarineGEOAPI
                 [Creator: (Resource Information)] => Parenti, Lynne R.
             )
         */
+        $ret_Title = self::parse_Title($input_rec['Title: (Resource Information)']);
         switch ($field) {
-            case "Image File";          return '1';
-            case "Original Specimen";   return '2';
-            case "View Metadata";       return '3';
-            case "Caption";             return '4';
+            case "Image File";          return "https://collections.nmnh.si.edu/search/fishes/search.php?action=10&width=640&irn=".$input_rec['IRB'];
+            case "Original Specimen";   return 'Yes';
+            case "View Metadata";       return $ret_Title['View Metadata'];
+            case "Caption";             return $ret_Title['Caption'];
             case "Measurement";         return '5';
             case "Measurement Type";    return '6';
             case "Sample Id";           return '7';
@@ -230,6 +228,24 @@ class MarineGEOAPI
                 exit("\nInvestigate field [$sheet_name] [$field] not defined.\n");
         }
     }
+    /* ========================================================== START for image_export ========================================================== */
+    private function parse_Title($str)
+    {   /* View Metadata:
+        from the image_input file, column "Title: (Resource Information)", everything that follows the string " photograph ", 
+        eg: for "Diodon hystrix USNM 442206 photograph dorsal view", -> "dorsal view" */
+        $arr = explode("photograph", $str);
+        $final['View Metadata'] = trim($arr[count($arr)-1]);
+        
+        /* Caption:
+        from the image_input file, column "Title: (Resource Information)", everything that follows the string "USNM", but include the string itself, 
+        eg: "Diodon hystrix USNM 442206 photograph dorsal view", -> "USNM 442206 photograph dorsal view" */
+        $arr = explode("USNM", $str);
+        $final['Caption'] = 'USNM '.trim($arr[count($arr)-1]);
+        
+        return $final;
+    }
+    /* ========================================================== END for image_export ========================================================== */
+    
     private function construct_output($sheet_name, $field, $input_rec)
     {   /* Array(
         [Collector Number: (Version 1.2 elements (2))] => KB17-277
