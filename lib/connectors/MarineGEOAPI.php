@@ -272,10 +272,7 @@ class MarineGEOAPI
             $ret = @$this->info_catalognum_sampleid[$triple]; //catalognum from API is the $triple
             $final['Sample Id'] = @$ret['sampleid'];
             $final['Process Id'] = @$ret['processid'];
-            
-            // exit("\n[$triple]\n");
         }
-        // print_r($this->manual_entry); exit;
         //----------------------------------------
         return $final;
     }
