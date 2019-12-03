@@ -215,6 +215,7 @@ class MarineGEOAPI
         */
         $ret_Title = self::parse_Title($input_rec['Title: (Resource Information)']);
         $ret_Desc = self::parse_Description($input_rec['Description']);
+        $ret_Creator = self::parse_Creator($input_rec['Creator: (Resource Information)']);
         switch ($field) {
             case "Image File";          return "https://collections.nmnh.si.edu/search/fishes/search.php?action=10&width=640&irn=".$input_rec['IRB'];
             case "Original Specimen";   return 'Yes';
@@ -222,19 +223,27 @@ class MarineGEOAPI
             case "Caption";             return $ret_Title['Caption'];
             case "Measurement";         return $ret_Desc['Measurement'];
             case "Measurement Type";    return $ret_Desc['Measurement Type'];
-            case "Sample Id";           return '7';
-            case "Process Id";          return '8';
-            case "License Holder";      return '9';
-            case "License";             return 'a';
-            case "License Year";        return 'b';
-            case "License Institution"; return 'c';
-            case "License Contact";     return 'd';
-            case "Photographer";        return 'e';
+            case "Sample Id";           return $ret_Title['Sample Id'];
+            case "Process Id";          return $ret_Title['Process Id'];
+            case "License Holder";      return ''; //leave blank per Jira
+            {"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}
+            case "License";             return $this->manual_entry->Lic;
+            case "License Year";        return $this->manual_entry->Lic_yr;
+            case "License Institution"; return $this->manual_entry->Lic_inst;
+            case "License Contact";     return $this->manual_entry->Lic_cont;
+            case "Photographer";        return $ret_Creator['Photographer'];
             default:
                 exit("\nInvestigate field [$sheet_name] [$field] not defined.\n");
         }
     }
     /* ========================================================== START for image_export ========================================================== */
+    private function parse_Creator($str)
+    {
+        /* Photographer:
+        from the image_input file, column "Creator: (Resource Information)", take the whole string. If it contains a comma followed by a space (only once in the string), 
+        use this as a separator, reverse the order of the segments, and separate them by a space, eg: "Pitassy, Diane E." -> "Diane E. Pitassy". 
+        If the string contains multiple commas, just leave it as is. */
+    }
     private function parse_Title($str)
     {   /* View Metadata:
         from the image_input file, column "Title: (Resource Information)", everything that follows the string " photograph ", 
@@ -255,7 +264,10 @@ class MarineGEOAPI
         if(preg_match_all('((?:[0-9]+,)*[0-9]+(?:\.[0-9]+)?)', $final['Caption'], $arr)) {
             $numerical_part = $arr[0][0];
             $triple = "USNM:".$this->manual_entry->Dept.":$numerical_part";
-            $final['Sample ID'] = @$this->info_list_tsv[$triple];
+            $ret = @$this->info_catalognum_sampleid[$triple]; //catalognum from API is the $triple
+            $final['Sample Id'] = @$ret['sampleid'];
+            $final['Process Id'] = @$ret['processid'];
+            
             // exit("\n[$triple]\n");
         }
         // print_r($this->manual_entry); exit;
@@ -325,7 +337,20 @@ class MarineGEOAPI
     {
         $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
         $local_tsv = self::download_tsv($url, $project);
-        exit("\n[$local_tsv]\n");
+        $i = 0;
+        foreach(new FileIterator($local_tsv) as $line_number => $line) {
+            $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                if($val = $rec['catalognum']) $this->info_catalognum_sampleid[$val] = array('sampleid' => $rec['sampleid'], 'processid' => $rec['processid']);
+            }
+        }
     }
     private function download_tsv($form_url, $uuid)
     {
@@ -334,7 +359,7 @@ class MarineGEOAPI
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
         if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$form_url</i>\n\n"); //string is found
-        echo "\n---\n".trim($shell_debug)."\n---\n"; //exit;
+        echo "\n---\n".trim($shell_debug)."\n---\n";
         return $target;
     }
     /* ========================================================== END for image_export ========================================================== */
