@@ -20,7 +20,7 @@ class MarineGEO_XLSParser
         elseif($app == 'specimen_image_export') {
             $this->output['worksheets'] = array('Lab Sheet', 'MOOP');
             $this->sheet_mappings['Lab Sheet'] = 'Lab Sheet';
-            $this->sheet_mappings['MOOP'] = 'MOOP';
+            $this->sheet_mappings['Sheet1'] = 'MOOP';
             $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
         }
     }

@@ -125,8 +125,7 @@ class MarineGEOAPI
     private function create_output_file()
     {
         if($this->app == 'specimen_image_export') {
-            $this->labels['Sheet1']['Lab Sheet'] = $this->labels_Lab_Sheet;
-            $this->labels['Sheet1'] = array('Lab Sheet' => $this->labels_Lab_Sheet, 'MOOP' => $this->labels['Sheet1']['MOOP']);
+            $this->labels['Sheet1'] = array('Lab Sheet' => $this->labels_Lab_Sheet, 'Sheet1' => $this->labels['Sheet1']['MOOP']);
             // print_r($this->labels); exit;
         }
         require_library('MarineGEO_XLSParser');
