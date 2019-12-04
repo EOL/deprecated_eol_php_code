@@ -6,11 +6,11 @@ require_once("../../../LiteratureEditor/Custom/lib/Functions.php");
 require_once("../../../FreshData/controllers/other.php");
 require_once("../../../FreshData/controllers/freshdata.php");
 
-/* during development
+// /* during development
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true;
-*/
+// */
 
 $params =& $_GET;
 $task = $params['task'];

@@ -1,16 +1,15 @@
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
-            <td>Excel Specimen Export Tool
-            <br>
-            <small>NMNH specimen export to BOLD specimen import<br><a href='https://eol-jira.bibalex.org/browse/COLLAB-1004'>(work in progress)</a></small>
+            <td>Excel Specimen Image Export Tool
+            <small><br><a href='https://eol-jira.bibalex.org/browse/COLLAB-1004?focusedCommentId=64188&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64188'>(work in progress)</a></small>
             </td>
         </tr>
         <tr align="center">
             <td>
                 <font size="3">
                     <!--- <i>Sample input template</i><br> --->
-                    <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/input.xlsx">Download</a> the input spreadsheet template here.
+                    <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO_sie/image_input.xlsx">Download</a> the input spreadsheet template here.
                     <br>
                 </font>
             </td>
@@ -21,7 +20,7 @@
                 <font size="3">Excel File URL: </font><input type="text" name="form_url" size="100">
                 <br>
                 <small>
-                    <i>e.g. http://mydomain.org/spreadsheets/input.xlsx</i><br><br>
+                    <i>e.g. http://mydomain.org/spreadsheets/image_input.xlsx</i><br><br>
                     OR .xls, recommended (.xls.zip, .xlsx.zip)
                 </small>
             </td>
@@ -42,9 +41,12 @@
                 <!--- <input type="checkbox" name="validate">Validate --->
             </td>
         </tr>
+        <tr align="left">
+            <td><small>
+            <?php 
+            echo "<a href='../specimen_export/'>Specimen Export Tool</a>";
+            ?>
+            <small></td>
+        </tr>
     </table>
 </form>
-<hr>
-<?php 
-// require_once("../tools.php") 
-?>

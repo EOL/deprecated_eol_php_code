@@ -42,9 +42,12 @@
                 <!--- <input type="checkbox" name="validate">Validate --->
             </td>
         </tr>
+        <tr align="left">
+            <td><small>
+            <?php 
+            echo "<a href='../specimen_image_export/'>Specimen Image Export Tool</a>";
+            ?>
+            </small></td>
+        </tr>
     </table>
 </form>
-<hr>
-<?php 
-// require_once("../tools.php") 
-?>

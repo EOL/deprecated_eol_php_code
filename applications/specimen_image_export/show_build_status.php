@@ -21,12 +21,12 @@ else {
     // echo "<pre>"; print_r($params); echo "</pre><hr>"; //good debug
     /* Array(  [task] => xls2dwca_job_1
                [uuid] => 1574952226
-               [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_export/temp/1574952226.xls
+               [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_image_export/temp/1574952226.xls
                [true_root] => /Library/WebServer/Documents/eol_php_code/)
     */
     /* Delete temp files */
     $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete
-    $dirname = $params['true_root'].'applications/specimen_export/temp/';
+    $dirname = $params['true_root'].'applications/specimen_image_export/temp/';
     $extensions = array('.xlsx', '.xls', '.zip'); //possible extensions
     foreach($extensions as $ext) {
         $tmp = $dirname.$params['uuid'].$ext;
@@ -39,7 +39,7 @@ else {
 
     /* Summary message */
     // /*
-    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO/" . $params['uuid'] . ".xls";
+    $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO_sie/" . $params['uuid'] . ".xls";
     if(file_exists($final_archive_gzip_url)) {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         if($final_archive_gzip_url) {

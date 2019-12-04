@@ -3,11 +3,11 @@ require_once("../../../LiteratureEditor/Custom/lib/Functions.php");
 require_once("../../../FreshData/controllers/other.php");
 require_once("../../../FreshData/controllers/freshdata.php");
 
-/* during development
+// /* during development
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true when debugging
-*/
+// */
 
 $ctrler = new freshdata_controller(array());
 $job_name = 'xls2dwca_job';
@@ -23,10 +23,10 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 $params['true_root'] = $true_DOC_ROOT;
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
-/* $params['destination'] = dirname(__FILE__) . "/temp/" . compute_destination($newfile, $orig_file); */
-/* $params['destination'] = $for_DOC_ROOT . "/applications/specimen_export/temp/" . compute_destination($newfile, $orig_file); */
+$json = '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}';
+$params['json'] = $json;
 
-   $params['destination'] = $for_DOC_ROOT . "/applications/specimen_export/" . $newfile;
+   $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile;
    //always use DOC_ROOT so u can switch from jenkins to cmdline. BUT DOC_ROOT won't work here either since /config/boot.php is not called here. So use $for_DOC_ROOT instead.
 
 /* for more debugging...
@@ -39,10 +39,12 @@ echo "<br>server_script_name: [$server_script_name]";
 echo "<hr>"; //exit;
 */
 
-// $cmd = PHP_PATH.' spreadsheet_2_dwca.php jenkins _ ' . "'" . $params['destination'] . "'";
+// php update_resources/connectors/marine_geo_image.php _ image_input.xlsx _ _ '$json'
+// php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
+
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
-if($form_url) $cmd = PHP_PATH.' marine_geo.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']; //no filename but there is form_url and uuid
-else          $cmd = PHP_PATH.' marine_geo.php jenkins ' . "'" . $newfile . "'";
+if($form_url) $cmd = PHP_PATH.' marine_geo_image.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
+else          $cmd = PHP_PATH.' marine_geo_image.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);
