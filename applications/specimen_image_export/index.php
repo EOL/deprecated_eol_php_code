@@ -8,8 +8,7 @@
         <tr align="center">
             <td>
                 <font size="3">
-                    <!--- <i>Sample input template</i><br> --->
-                    <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO_sie/image_input.xlsx">Download</a> the input spreadsheet template here.
+                    Download the input spreadsheet template <a href="https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO_sie/image_input.xlsx">here</a>.
                     <br>
                 </font>
             </td>
@@ -20,20 +19,23 @@
                 <font size="3">Excel File URL: </font><input type="text" name="form_url" size="100">
                 <br>
                 <small>
-                    <i>e.g. http://mydomain.org/spreadsheets/image_input.xlsx</i><br><br>
-                    OR .xls, recommended (.xls.zip, .xlsx.zip)
+                    <i>e.g. http://mydomain.org/spreadsheets/image_input.xlsx</i>
                 </small>
             </td>
         </tr>
-
         <tr>
             <td>
                 <font size="3">Excel File Upload: </font><input type="file" name="file_upload" id="file_upload" size="100">
-                <small><br><br>(.xlsx, .xls) OR recommended (.xls.zip, .xlsx.zip)
-                <br><br>
-                *It is recommended that you zip your file before uploading.</small>                
             </td>
         </tr>
+        <tr>
+            <td>
+                <small>(.xlsx, .xls) OR recommended (.xls.zip, .xlsx.zip)
+                <br><br>
+                *It is recommended that you zip your file before uploading.</small>
+            </td>
+        </tr>
+
         <tr align="center">
             <td>
                 <input type="submit" value="Generate specimen export file">
