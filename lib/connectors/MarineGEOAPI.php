@@ -49,6 +49,13 @@ class MarineGEOAPI
             $this->labels['Sheet1']['MOOP'] = array('Image File', 'Original Specimen', 'View Metadata', 'Caption', 'Measurement', 'Measurement Type', 'Sample Id', 'Process Id', 'License Holder', 'License', 'License Year', 'License Institution', 'License Contact', 'Photographer');
             $this->labels_Lab_Sheet = array('Process ID', 'Sample ID', 'Field ID');
             $this->api['BOLDS specimen'] = "http://www.boldsystems.org/index.php/API_Public/specimen?container=PROJECT_CODE&format=tsv";
+            
+            $this->dept_map['FISH'] = 'fishes';
+            $this->dept_map['MAMMALS'] = 'mammals';
+            $this->dept_map['Amphibians & Reptiles'] = 'herps';
+            $this->dept_map['Birds'] = 'birds';
+            $this->dept_map['Botany'] = 'botany';
+            $this->dept_map['Paleobiology'] = 'paleo';
         }
         /* ============================= END for image_export ============================= */
     }
@@ -225,7 +232,7 @@ class MarineGEOAPI
         $ret_Desc = self::parse_Description($input_rec['Description']);
         $ret_Creator = self::parse_Creator($input_rec['Creator: (Resource Information)']);
         switch ($field) {
-            case "Image File";          return "https://collections.nmnh.si.edu/search/fishes/search.php?action=10&width=640&irn=".$input_rec['IRB'];
+            case "Image File";          return "https://collections.nmnh.si.edu/search/".$this->dept_map[$this->manual_entry->Dept]."/search.php?action=10&width=640&irn=".$input_rec['IRB'];
             case "Original Specimen";   return 'Yes';
             case "View Metadata";       return $ret_Title['View Metadata'];
             case "Caption";             return $ret_Title['Caption'];
