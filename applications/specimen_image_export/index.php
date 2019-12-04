@@ -65,7 +65,11 @@
                          <select name='Lic'>
                          <?php
                          $licenses = array('CreativeCommons – Attribution (by)', 'CreativeCommons – Attribution Share-alike (by-sa)', 'CreativeCommons – Attribution Non-Commercial (by-nc)', 'CreativeCommons – Attribution Non-Commercial Share-alike (by-nc-sa)');
-                         foreach($licenses as $license) echo "<option value='$license'>$license</option>";
+                         foreach($licenses as $license) {
+                             $var = '';
+                             if($license == 'CreativeCommons – Attribution Non-Commercial (by-nc)') $var = 'selected';
+                             echo "<option value='$license' $var>$license</option>";
+                         }
                          ?>
                         </select>
                     </td>
