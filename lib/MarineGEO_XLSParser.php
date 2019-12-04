@@ -21,7 +21,6 @@ class MarineGEO_XLSParser
             $this->output['worksheets'] = array('Lab Sheet', 'MOOP');
             $this->sheet_mappings['Lab Sheet'] = 'Lab Sheet';
             $this->sheet_mappings['MOOP'] = 'MOOP';
-
             $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
         }
     }
@@ -64,25 +63,9 @@ class MarineGEO_XLSParser
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
         define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
         
-        /*
-        const cache_in_memory               = 'Memory';
-        const cache_in_memory_gzip          = 'MemoryGZip';
-        const cache_in_memory_serialized    = 'MemorySerialized';
-        const cache_igbinary                = 'Igbinary';
-        const cache_to_discISAM             = 'DiscISAM';
-        const cache_to_apc                  = 'APC';
-        const cache_to_memcache             = 'Memcache';
-        const cache_to_phpTemp              = 'PHPTemp';
-        const cache_to_wincache             = 'Wincache';
-        const cache_to_sqlite               = 'SQLite';
-        const cache_to_sqlite3              = 'SQLite3';
-        */
-        
         //set cache method
         $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_in_memory; //options for memory in CachedObjectStorageFactory.php
-        if (!\PHPExcel_Settings::setCacheStorageMethod($cacheMethod)) {
-            die($cacheMethod . " caching method is not available" . EOL);
-        }
+        if (!\PHPExcel_Settings::setCacheStorageMethod($cacheMethod)) die($cacheMethod . " caching method is not available" . EOL);
 
         $objPHPExcel = new \PHPExcel();
 
@@ -101,28 +84,7 @@ class MarineGEO_XLSParser
             $objPHPExcel->getActiveSheet()->setTitle($this->sheet_mappings[$worksheet]);
             // $objPHPExcel->getActiveSheet()->setCellValue('A1', "xxx");
             
-            /*
-            $main_heads = array_keys($labels[$worksheet]);
-            if($GLOBALS['ENV_DEBUG']) print_r($main_heads);
-            $col = 1;
-            foreach($main_heads as $main_head) { //writing main heads
-                $no_of_cols = count($labels[$worksheet][$main_head]);
-                // echo "\ncols# $no_of_cols\n";
-                $objPHPExcel->getActiveSheet()->mergeCells($alpha[$col]."1:".$alpha[$col+$no_of_cols-1]."1");
-                $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."1", $main_head);
-                $objPHPExcel->getActiveSheet()->getStyle($alpha[$col]."1")->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-                $col = $col+$no_of_cols;
-            }
-
-            $col = 1;
-            foreach($main_heads as $main_head) { //writing sub-heads
-                $heads = $labels[$worksheet][$main_head];
-                foreach($heads as $head) {
-                    $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."2", $head);
-                    $col++;
-                }
-            }
-            */
+            /* here to place if there are main_heads */
             
             $col = 1;
             $heads = $labels[$worksheet];
@@ -134,26 +96,21 @@ class MarineGEO_XLSParser
             $main_heads = array();
             $row_num = 2;
             self::get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha, $row_num);
-            
             $objPHPExcel->createSheet();
         }//loop worksheets
 
         $objPHPExcel->removeSheetByIndex(2);
-        
         //save Excel file
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
-
-        // /*
+        // /* to save to .xls
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save($output_file);
         // */
-        /*
+        /* to save to .xlxs
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save($output_file);
         */
-        
         return;
-        
     }
     public function create_specimen_export()
     {
@@ -244,15 +201,12 @@ class MarineGEO_XLSParser
             
             $row_num = 3;
             self::get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha, $row_num);
-            
             $objPHPExcel->createSheet();
         }//loop worksheets
 
         $objPHPExcel->removeSheetByIndex(4);
-        
         //save Excel file
         require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
-
         // /*
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
         $objWriter->save($output_file);
@@ -261,7 +215,6 @@ class MarineGEO_XLSParser
         $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
         $objWriter->save($output_file);
         */
-        
         return;
         // */
         
