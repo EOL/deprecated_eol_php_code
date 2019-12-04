@@ -51,12 +51,12 @@
                 <tr><td>Department</td>
                     <td>
                          <select name='Dept'>
-                          <option value="herps">Amphibians & Reptiles</option>
-                          <option value="birds">Birds</option>
-                          <option value="botany">Botany</option>
+                          <option value="herps" disabled>Amphibians & Reptiles</option>
+                          <option value="birds" disabled>Birds</option>
+                          <option value="botany" disabled>Botany</option>
                           <option value="fishes" selected>Fishes</option>
-                          <option value="mammals">Mammals</option>
-                          <option value="paleo">Paleobiology</option>
+                          <option value="mammals" disabled>Mammals</option>
+                          <option value="paleo" disabled>Paleobiology</option>
                         </select>
                     </td>
                 </tr>
