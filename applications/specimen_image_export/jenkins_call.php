@@ -23,7 +23,7 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 $params['true_root'] = $true_DOC_ROOT;
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
-echo "<pre>"; print_r($form); //exit("</pre>");
+echo "<pre>"; print_r($form); echo "</pre>";
 /*Array(
     [form_url] => 
     [Proj] => KANB
@@ -35,10 +35,10 @@ echo "<pre>"; print_r($form); //exit("</pre>");
 )*/
 $dept_map['fishes'] = 'FISH';
 $dept_map['mammals'] = 'MAMMALS';
-$dept_map['herps'] = 'Amphibians & Reptiles';
-$dept_map['birds'] = 'Birds';
-$dept_map['botany'] = 'Botany';
-$dept_map['paleo'] = 'Paleobiology';
+$dept_map['herps'] = 'HERPS'; //'AMPHIBIANS & REPTILES';
+$dept_map['birds'] = 'BIRDS';
+$dept_map['botany'] = 'BOTANY';
+$dept_map['paleo'] = 'PALEOBIOLOGY';
 
 $json = '{"Proj":"'.$form['Proj'].'", "Dept":"'.$dept_map[$form['Dept']].'", "Lic":"'.$form['Lic'].'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
 $params['json'] = $json;

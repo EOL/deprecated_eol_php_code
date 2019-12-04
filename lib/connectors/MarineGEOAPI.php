@@ -52,10 +52,10 @@ class MarineGEOAPI
             
             $this->dept_map['FISH'] = 'fishes';
             $this->dept_map['MAMMALS'] = 'mammals';
-            $this->dept_map['Amphibians & Reptiles'] = 'herps';
-            $this->dept_map['Birds'] = 'birds';
-            $this->dept_map['Botany'] = 'botany';
-            $this->dept_map['Paleobiology'] = 'paleo';
+            $this->dept_map['HERPS'] = 'herps'; //Amphibians & Reptiles
+            $this->dept_map['BIRDS'] = 'birds';
+            $this->dept_map['BOTANY'] = 'botany';
+            $this->dept_map['PALEOBIOLOGY'] = 'paleo';
         }
         /* ============================= END for image_export ============================= */
     }

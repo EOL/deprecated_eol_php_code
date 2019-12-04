@@ -47,7 +47,7 @@
         <tr>
             <td>
                 <table>
-                <tr><td>Project:</td> <td><input type='text' name='Proj'></td></tr>
+                <tr><td>Project:</td> <td><input type='text' name='Proj'><small>e.g. KANB</small></td></tr>
                 <tr><td>Department</td>
                     <td>
                          <select name='Dept'>
@@ -71,7 +71,7 @@
                     </td>
                 </tr>
                 <tr><td>License Year:</td> <td><input type='text' name='Lic_yr'></td></tr>
-                <tr><td>License Institution:</td> <td><input type='text' name='Lic_inst'></td></tr>
+                <tr><td>License Institution:</td> <td><input type='text' name='Lic_inst'><small>e.g. Smithsonian Institution National Museum of Natural History</small></td></tr>
                 <tr><td>License Contact:</td> <td><input type='text' name='Lic_cont'></td></tr>
                 </table>
             </td>
