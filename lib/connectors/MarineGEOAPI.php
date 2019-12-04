@@ -1,11 +1,11 @@
 <?php
 namespace php_active_record;
-/* connector: [marine_geo.php] https://eol-jira.bibalex.org/browse/COLLAB-1004 */
+/* connectors: [marine_geo.php] [marine_geo_image.php] https://eol-jira.bibalex.org/browse/COLLAB-1004 */
 class MarineGEOAPI
 {
     function __construct($app)
     {
-        $this->resource_id = '';
+        $this->resource_id = ''; //will be initialized in start()
         $this->app = $app;
         // $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         // $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
@@ -47,7 +47,7 @@ class MarineGEOAPI
                  'MOOP' = array() -> from image_output.xls
             */
             $this->labels['Sheet1']['MOOP'] = array('Image File', 'Original Specimen', 'View Metadata', 'Caption', 'Measurement', 'Measurement Type', 'Sample Id', 'Process Id', 'License Holder', 'License', 'License Year', 'License Institution', 'License Contact', 'Photographer');
-            // $this->labels['Sheet1']['Lab Sheet'] = array('Process ID', 'Sample ID', 'Field ID');
+            $this->labels_Lab_Sheet = array('Process ID', 'Sample ID', 'Field ID');
             $this->api['BOLDS specimen'] = "http://www.boldsystems.org/index.php/API_Public/specimen?container=PROJECT_CODE&format=tsv";
         }
         /* ============================= END for image_export ============================= */
@@ -124,10 +124,15 @@ class MarineGEOAPI
     /* =======================================START create output file======================================= */
     private function create_output_file()
     {
+        if($this->app == 'specimen_image_export') {
+            $this->labels['Sheet1']['Lab Sheet'] = $this->labels_Lab_Sheet;
+            $this->labels['Sheet1'] = array('Lab Sheet' => $this->labels_Lab_Sheet, 'MOOP' => $this->labels['Sheet1']['MOOP']);
+            // print_r($this->labels); exit;
+        }
         require_library('MarineGEO_XLSParser');
-        $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id);
-        if($this->app == 'specimen_export') $parser->start();
-        else exit("\nstop 01\n");
+        $parser = new MarineGEO_XLSParser($this->labels, $this->resource_id, $this->app);
+        if($this->app == 'specimen_export') $parser->create_specimen_export(); //creates to final xls
+        elseif($this->app == 'specimen_image_export') $parser->create_specimen_image_export(); //creates the final xls
     }
     /* ========================================END create output file======================================== */
     private function read_input_file($input_file)
@@ -142,10 +147,7 @@ class MarineGEOAPI
         $sheet_names = $this->input['worksheets'];
         foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
         
-        if($this->app == 'specimen_image_export') {
-            $uuid = pathinfo($input_file, PATHINFO_FILENAME);
-            self::generate_Lab_Sheet_Worksheet($uuid);
-        }
+        if($this->app == 'specimen_image_export') self::generate_Lab_Sheet_Worksheet();
     }
     private function read_worksheet($sheet_name, $input_file, $parser)
     {
@@ -247,7 +249,7 @@ class MarineGEOAPI
     {
         $this->info_catalognum = NULL; //purge
         $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", 'Lab_Sheet').".txt";
-        $fields = array('processid', 'sampleid', 'fieldnum');
+        $fields = $this->labels_Lab_Sheet; //array('processid', 'sampleid', 'fieldnum');
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, implode("\t", $fields) . "\n");
         foreach($this->info_processid as $processid => $rek) {

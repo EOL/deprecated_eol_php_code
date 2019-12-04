@@ -4,16 +4,26 @@ namespace php_active_record;
 class MarineGEO_XLSParser
 {
     const SUBJECTS = "";
-    function __construct($labels, $resource_id)
+    function __construct($labels, $resource_id, $app)
     {
         $this->labels = $labels;
         $this->resource_id = $resource_id;
-        $this->output['worksheets'] = array('Voucher Info', 'Taxonomy', 'Specimen Details', 'Collection Data');
-        $this->sheet_mappings['Voucher Data'] = 'Voucher Info';
-        $this->sheet_mappings['Taxonomy Data'] = 'Taxonomy';
-        $this->sheet_mappings['Specimen Details'] = 'Specimen Details';
-        $this->sheet_mappings['Collection Data'] = 'Collection Data';
-        $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
+        $this->app = $app;
+        if($app == 'specimen_export') {
+            $this->output['worksheets'] = array('Voucher Info', 'Taxonomy', 'Specimen Details', 'Collection Data');
+            $this->sheet_mappings['Voucher Data'] = 'Voucher Info';
+            $this->sheet_mappings['Taxonomy Data'] = 'Taxonomy';
+            $this->sheet_mappings['Specimen Details'] = 'Specimen Details';
+            $this->sheet_mappings['Collection Data'] = 'Collection Data';
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO/";
+        }
+        elseif($app == 'specimen_image_export') {
+            $this->output['worksheets'] = array('Lab Sheet', 'MOOP');
+            $this->sheet_mappings['Lab Sheet'] = 'Lab Sheet';
+            $this->sheet_mappings['MOOP'] = 'MOOP';
+
+            $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
+        }
     }
     private function get_no_of_cols_per_worksheet($worksheet, $labels)
     {
@@ -22,8 +32,132 @@ class MarineGEO_XLSParser
         foreach($main_heads as $key => $fields) $final = $final + count($fields);
         return $final;
     }
-    public function start()
+    public function create_specimen_image_export()
     {
+        // print_r($this->labels); exit;
+        /*Array(
+            [Sheet1] => Array(
+                    [Lab Sheet] => Array(
+                            [0] => Process ID
+                            [1] => Sample ID
+                            [2] => Field ID
+                    [MOOP] => Array(
+                            [0] => Image File
+                            [1] => Original Specimen
+                            [2] => View Metadata
+                            [3] => Caption
+                            [4] => Measurement
+                            [5] => Measurement Type
+                            [6] => Sample Id
+                            [7] => Process Id
+                            [8] => License Holder
+                            [9] => License
+                            [10] => License Year
+                            [11] => License Institution
+                            [12] => License Contact
+                            [13] => Photographer
+        */
+        $alpha = array(1 => 'A', 2 => 'B', 3 => 'C', 4 => 'D', 5 => 'E', 6 => 'F', 7 => 'G', 8 => 'H', 9 => 'I', 10 => 'J', 11 => 'K', 12 => 'L', 13 => 'M', 14 => 'N', 15 => 'O', 16 => 'P', 17 => 'Q', 18 => 'R', 19 => 'S', 20 => 'T', 21 => 'U', 22 => 'V', 23 => 'W', 24 => 'X ', 25 => 'Y', 26 => 'Z');
+        $labels = $this->labels['Sheet1'];
+        $output_file = $this->resources['path'].$this->resource_id.".xls";
+        // print_r($this->labels); exit;
+        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel.php';
+        define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
+        
+        /*
+        const cache_in_memory               = 'Memory';
+        const cache_in_memory_gzip          = 'MemoryGZip';
+        const cache_in_memory_serialized    = 'MemorySerialized';
+        const cache_igbinary                = 'Igbinary';
+        const cache_to_discISAM             = 'DiscISAM';
+        const cache_to_apc                  = 'APC';
+        const cache_to_memcache             = 'Memcache';
+        const cache_to_phpTemp              = 'PHPTemp';
+        const cache_to_wincache             = 'Wincache';
+        const cache_to_sqlite               = 'SQLite';
+        const cache_to_sqlite3              = 'SQLite3';
+        */
+        
+        //set cache method
+        $cacheMethod = \PHPExcel_CachedObjectStorageFactory::cache_in_memory; //options for memory in CachedObjectStorageFactory.php
+        if (!\PHPExcel_Settings::setCacheStorageMethod($cacheMethod)) {
+            die($cacheMethod . " caching method is not available" . EOL);
+        }
+
+        $objPHPExcel = new \PHPExcel();
+
+        // /*
+        $worksheets = array_keys($labels);
+        if($GLOBALS['ENV_DEBUG']) print_r($worksheets); //exit;
+        $sheetIndex = -1;
+        foreach($worksheets as $worksheet) { $sheetIndex++;
+            // echo "\n$sheetIndex\n";
+            $objPHPExcel->setActiveSheetIndex($sheetIndex);
+            
+            $no_of_cols_per_worksheet = self::get_no_of_cols_per_worksheet($worksheet, $labels);
+            if($GLOBALS['ENV_DEBUG']) echo "\nno_of_cols_per_worksheet: $no_of_cols_per_worksheet\n";
+            for($c = 1; $c <= $no_of_cols_per_worksheet; $c++) $objPHPExcel->getActiveSheet()->getColumnDimension($alpha[$c])->setWidth(20);
+            
+            $objPHPExcel->getActiveSheet()->setTitle($this->sheet_mappings[$worksheet]);
+            // $objPHPExcel->getActiveSheet()->setCellValue('A1', "xxx");
+            
+            /*
+            $main_heads = array_keys($labels[$worksheet]);
+            if($GLOBALS['ENV_DEBUG']) print_r($main_heads);
+            $col = 1;
+            foreach($main_heads as $main_head) { //writing main heads
+                $no_of_cols = count($labels[$worksheet][$main_head]);
+                // echo "\ncols# $no_of_cols\n";
+                $objPHPExcel->getActiveSheet()->mergeCells($alpha[$col]."1:".$alpha[$col+$no_of_cols-1]."1");
+                $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."1", $main_head);
+                $objPHPExcel->getActiveSheet()->getStyle($alpha[$col]."1")->getAlignment()->setHorizontal(\PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+                $col = $col+$no_of_cols;
+            }
+
+            $col = 1;
+            foreach($main_heads as $main_head) { //writing sub-heads
+                $heads = $labels[$worksheet][$main_head];
+                foreach($heads as $head) {
+                    $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."2", $head);
+                    $col++;
+                }
+            }
+            */
+            
+            $col = 1;
+            $heads = $labels[$worksheet];
+            foreach($heads as $head) {
+                $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col]."1", $head);
+                $col++;
+            }
+            
+            $main_heads = array();
+            $row_num = 2;
+            self::get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha, $row_num);
+            
+            $objPHPExcel->createSheet();
+        }//loop worksheets
+
+        $objPHPExcel->removeSheetByIndex(2);
+        
+        //save Excel file
+        require_once DOC_ROOT . '/vendor/PHPExcel/Classes/PHPExcel/IOFactory.php';
+
+        // /*
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+        $objWriter->save($output_file);
+        // */
+        /*
+        $objWriter = \PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $objWriter->save($output_file);
+        */
+        
+        return;
+        
+    }
+    public function create_specimen_export()
+    {
+        // print_r($this->labels); exit;
         /*Array(
             [Voucher Data] => Array(
                     [Specimen Info Metadata] => Array(
@@ -108,7 +242,8 @@ class MarineGEO_XLSParser
             }
             // */
             
-            self::get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha);
+            $row_num = 3;
+            self::get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha, $row_num);
             
             $objPHPExcel->createSheet();
         }//loop worksheets
@@ -157,9 +292,8 @@ class MarineGEO_XLSParser
         $objWriter->save($output_file);
         */
     }
-    private function get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha)
+    private function get_txt_file_write_2excel($objPHPExcel, $worksheet, $main_heads, $labels, $alpha, $row_num)
     {
-        $row_num = 3;
         $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", $worksheet).".txt";
         $i = 0;
         foreach(new FileIterator($filename) as $line_number => $line) { // 'true' will auto delete temp_filepath
@@ -181,8 +315,18 @@ class MarineGEO_XLSParser
             // print_r($rec); //exit("\nstopx\n");
             // /* start writing to excel
             $col = 1;
-            foreach($main_heads as $main_head) { //writing sub-heads
-                $heads = $labels[$worksheet][$main_head];
+            if($main_heads) {
+                foreach($main_heads as $main_head) { //writing sub-heads
+                    $heads = $labels[$worksheet][$main_head];
+                    foreach($heads as $head) {
+                        $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col].$row_num, $rec[$head]);
+                        $col++;
+                    }
+                }
+            }
+            else {
+                // print_r($labels); exit;
+                $heads = $labels[$worksheet];
                 foreach($heads as $head) {
                     $objPHPExcel->getActiveSheet()->setCellValue($alpha[$col].$row_num, $rec[$head]);
                     $col++;
