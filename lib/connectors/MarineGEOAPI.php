@@ -54,9 +54,11 @@ class MarineGEOAPI
     }
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
     {
-        if($json) {
-            $this->manual_entry = json_decode($json); //for specimen_image_export
-            self::generate_info_list_tsv($this->manual_entry->Proj);
+        if($this->app == 'specimen_image_export') {
+            if($json) {
+                $this->manual_entry = json_decode($json); //for specimen_image_export
+                self::generate_info_list_tsv($this->manual_entry->Proj);
+            }
         }
         
         // /* for $form_url:
@@ -139,6 +141,11 @@ class MarineGEOAPI
         
         $sheet_names = $this->input['worksheets'];
         foreach($sheet_names as $sheet_name) self::read_worksheet($sheet_name, $input_file, $parser);
+        
+        if($this->app == 'specimen_image_export') {
+            $uuid = pathinfo($input_file, PATHINFO_FILENAME);
+            self::generate_Lab_Sheet_Worksheet($uuid);
+        }
     }
     private function read_worksheet($sheet_name, $input_file, $parser)
     {
@@ -236,6 +243,19 @@ class MarineGEOAPI
         }
     }
     /* ========================================================== START for image_export ========================================================== */
+    private function generate_Lab_Sheet_Worksheet()
+    {
+        $this->info_catalognum = NULL; //purge
+        $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", 'Lab_Sheet').".txt";
+        $fields = array('processid', 'sampleid', 'fieldnum');
+        $WRITE = Functions::file_open($filename, "w");
+        fwrite($WRITE, implode("\t", $fields) . "\n");
+        foreach($this->info_processid as $processid => $rek) {
+            $save = array($processid, $rek['sampleid'], $rek['fieldnum']);
+            fwrite($WRITE, implode("\t", $save) . "\n");
+        }
+        fclose($WRITE);
+    }
     private function parse_Creator($str)
     {
         /* Photographer:
@@ -269,7 +289,7 @@ class MarineGEOAPI
         if(preg_match_all('((?:[0-9]+,)*[0-9]+(?:\.[0-9]+)?)', $final['Caption'], $arr)) {
             $numerical_part = $arr[0][0];
             $triple = "USNM:".$this->manual_entry->Dept.":$numerical_part";
-            $ret = @$this->info_catalognum_sampleid[$triple]; //catalognum from API is the $triple
+            $ret = @$this->info_catalognum[$triple]; //catalognum from API is the $triple
             $final['Sample Id'] = @$ret['sampleid'];
             $final['Process Id'] = @$ret['processid'];
         }
@@ -350,7 +370,13 @@ class MarineGEOAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
-                if($val = $rec['catalognum']) $this->info_catalognum_sampleid[$val] = array('sampleid' => $rec['sampleid'], 'processid' => $rec['processid']);
+                if($val = $rec['catalognum']) $this->info_catalognum[$val] = array('sampleid' => $rec['sampleid'], 'processid' => $rec['processid']);
+                /* Lab Sheet Worksheet:
+                Process ID: List all the Process ID values used in the first worksheet.
+                Sample ID: List each Sample ID with its corresponding Process ID from the other worksheet, or you can use the process ID value to find the row and take the string from the "sampleid" column
+                Field ID: use the process ID value to find the row and take the string from the "fieldnum" column
+                */
+                if($val = $rec['processid']) $this->info_processid[$val] = array('sampleid' => $rec['sampleid'], 'fieldnum' => $rec['fieldnum']);
             }
         }
     }
