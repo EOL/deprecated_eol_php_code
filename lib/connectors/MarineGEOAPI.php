@@ -265,9 +265,11 @@ class MarineGEOAPI
         $fields = $this->labels_Lab_Sheet; //array('processid', 'sampleid', 'fieldnum');
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, implode("\t", $fields) . "\n");
-        foreach($this->info_processid as $processid => $rek) {
-            $save = array($processid, $rek['sampleid'], $rek['fieldnum']);
-            fwrite($WRITE, implode("\t", $save) . "\n");
+        if($loop = @$this->info_processid) {
+            foreach($loop as $processid => $rek) {
+                $save = array($processid, $rek['sampleid'], $rek['fieldnum']);
+                fwrite($WRITE, implode("\t", $save) . "\n");
+            }
         }
         fclose($WRITE);
     }
