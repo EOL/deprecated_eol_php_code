@@ -37,9 +37,16 @@ class MarineGEOAPI
         /* ============================= START for image_export ============================= */
         if($app == 'specimen_image_export') {
             $this->input['path'] = DOC_ROOT.'/applications/specimen_image_export/temp/'; //input.xlsx
+            $dir = $this->input['path'];
+            if(!is_dir($dir)) mkdir($dir);
+            
             $this->resources['path'] = CONTENT_RESOURCE_LOCAL_PATH."MarineGEO_sie/";
+            $dir = $this->resources['path'];
+            if(!is_dir($dir)) mkdir($dir);
+            
             $dir = $this->resources['path'].'TSVs';
             if(!is_dir($dir)) mkdir($dir);
+            
             $this->input['worksheets'] = array('Sheet1');
             /* Labels specimen image export ---> DIFFERENT ORIENTATION FROM specimen_export
             e.g. 'Sheet1' -> from image_input.xlsx
