@@ -35,7 +35,47 @@
                 *It is recommended that you zip your file before uploading.</small>
             </td>
         </tr>
-
+        <!---
+        Project: a short text string, eg: "KANB"
+        Department: a short text string, which we can constrain to a menu of options, eg: "FISH"
+        License: a text string, which we can constrain to a menu of options, eg: "CreativeCommons – Attribution Non-Commercial (by-nc)"
+        License Year: a four digit number, unless you'd like to constrain it further. (I'm told a range of dates might happen, 1940, etc.)
+        License Institution: a text string, which we can constrain to a menu of options, eg: "Smithsonian Institution National Museum of Natural History"
+        License Contact: a short text string, eg: "williamsjt@si.edu" . <== optional field
+        $json = '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}';
+        --->
+        <tr>
+            <td>
+                <table>
+                <tr><td>Project:</td> <td><input type='text' name='Proj'></td></tr>
+                <tr><td>Department</td>
+                    <td>
+                         <select name='Dept'>
+                          <option value="herps">Amphibians & Reptiles</option>
+                          <option value="birds">Birds</option>
+                          <option value="botany">Botany</option>
+                          <option value="fishes" selected>Fishes</option>
+                          <option value="mammals">Mammals</option>
+                          <option value="paleo">Paleobiology</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr><td>License:</td>
+                    <td>
+                         <select name='Lic'>
+                         <?php
+                         $licenses = array('CreativeCommons – Attribution (by)', 'CreativeCommons – Attribution Share-alike (by-sa)', 'CreativeCommons – Attribution Non-Commercial (by-nc)', 'CreativeCommons – Attribution Non-Commercial Share-alike (by-nc-sa)');
+                         foreach($licenses as $license) echo "<option value='$license'>$license</option>";
+                         ?>
+                        </select>
+                    </td>
+                </tr>
+                <tr><td>License Year:</td> <td><input type='text' name='Lic_yr'></td></tr>
+                <tr><td>License Institution:</td> <td><input type='text' name='Lic_inst'></td></tr>
+                <tr><td>License Contact:</td> <td><input type='text' name='Lic_cont'></td></tr>
+                </table>
+            </td>
+        </tr>
         <tr align="center">
             <td>
                 <input type="submit" value="Generate specimen export file">
@@ -44,11 +84,7 @@
             </td>
         </tr>
         <tr align="left">
-            <td><small>
-            <?php 
-            echo "<a href='../specimen_export/'>Specimen Export Tool</a>";
-            ?>
-            <small></td>
+            <td><small><?php echo "<a href='../specimen_export/'>Specimen Export Tool</a>"; ?><small></td>
         </tr>
     </table>
 </form>

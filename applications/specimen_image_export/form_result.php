@@ -52,7 +52,7 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
     }
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
-else exit("<hr>File maybe too big for the system. Please browse a new file to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+else exit("<hr>Please browse an Excel file OR enter its URL to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 
 /* replaced by Jenkins call
 print "<br><b>Processing, please wait...</b><br><hr>";
@@ -71,6 +71,8 @@ else {
 
 // if($form_url)   require_once("jenkins_call_4url.php");
 // else            require_once("jenkins_call.php");
+
+$form = $_POST;
 
 require_once("jenkins_call.php");
 
