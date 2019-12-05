@@ -36,9 +36,7 @@
         </tr>
         <tr>
             <td>
-                <small>(.xlsx, .xls) OR recommended (.xls.zip, .xlsx.zip)
-                <br><br>
-                *It is recommended that you zip your file before submitting.</small>
+                <small>(.xlsx or .xls) OR (.xlsx.zip, .xls.zip)</small>
             </td>
         </tr>
 
