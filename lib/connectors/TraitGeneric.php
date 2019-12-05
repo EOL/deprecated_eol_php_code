@@ -145,6 +145,7 @@ class TraitGeneric
     }
     public function given_m_update_mType_mValue($m)
     {
+        echo "\nFrom lib: ".count($this->remapped_terms)."\n";
         if($new_uri = @$this->remapped_terms[$m->measurementType]) $m->measurementType = $new_uri;
         if($new_uri = @$this->remapped_terms[$m->measurementValue]) $m->measurementValue = $new_uri;
         return $m;

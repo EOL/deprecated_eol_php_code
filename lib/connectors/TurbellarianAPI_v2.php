@@ -60,7 +60,12 @@ class TurbellarianAPI_v2
         
         // /* main operation
         $all_ids = self::get_all_ids();
-        foreach($all_ids as $code) self::process_page($code);
+        // $all_ids = array(2645,2571,9350); debug only
+        $i = 0;
+        foreach($all_ids as $code) { $i++;
+            self::process_page($code);
+            // if($i >= 10) break; //debug only
+        }
         // */
 
         //2645 2571 9350
@@ -546,9 +551,8 @@ class TurbellarianAPI_v2
         
         /* START DATA-1841 terms remapping */
         $m = $this->func->given_m_update_mType_mValue($m);
+        // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
         /* END DATA-1841 terms remapping */
-        echo "\n".count($this->func->remapped_terms)."\n";
-        // exit;
         
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         if(!isset($this->measurement_ids[$m->measurementID])) {
