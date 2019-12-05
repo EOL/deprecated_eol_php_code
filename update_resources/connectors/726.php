@@ -9,7 +9,8 @@ taxon:              988     989     969     968
 occurrence:                 2839    2839    2838
 
 726	Wednesday 2019-09-18 08:58:15 AM	{"measurement_or_fact.tab":21485,"occurrence.tab":2838,"taxon.tab":968} //used parent-child in MoF
-726	Thursday 2019-12-05 09:04:09 AM	    {"measurement_or_fact.tab":21485,"occurrence.tab":2838,"taxon.tab":968,"time_elapsed":false}
+726	Thursday 2019-12-05 09:04:09 AM	    {"measurement_or_fact.tab":21485,"occurrence.tab":2838,"taxon.tab":968,"time_elapsed":false} Mac mini
+726	Thursday 2019-12-05 09:09:30 AM	    {"measurement_or_fact.tab":21485,"occurrence.tab":2838,"taxon.tab":968,"time_elapsed":{"sec":17.5,"min":0.29,"hr":0}} eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
