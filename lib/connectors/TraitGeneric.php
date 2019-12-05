@@ -137,6 +137,7 @@ class TraitGeneric
     public function pre_add_string_types($rec, $value, $measurementType, $measurementOfTaxon)
     {
         // START DATA-1841 terms remapping
+        // echo "\nFrom lib: ".count($this->remapped_terms)."\n"; //just for testing
         if($new_uri = @$this->remapped_terms[$measurementType]) $measurementType = $new_uri;
         if($new_uri = @$this->remapped_terms[$value])           $value = $new_uri;
         $ret = self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
