@@ -222,6 +222,10 @@ class MarineGEOAPI
             }
         }
         // print_r($output_rec); exit("\nstopx\n");
+        if($this->app == 'specimen_image_export') {
+            // echo "\n$sheet_name\n"; print_r($output_rec); //good debug
+            $this->save_ProcessID_from_MOOP[$output_rec['Process Id']] = '';
+        }
         return $output_rec;
     }
     private function construct_output_image($sheet_name, $field, $input_rec)
@@ -262,13 +266,15 @@ class MarineGEOAPI
     {
         $this->info_catalognum = NULL; //purge
         $filename = $this->resources['path'].$this->resource_id."_".str_replace(" ", "_", 'Lab_Sheet').".txt";
-        $fields = $this->labels_Lab_Sheet; //array('processid', 'sampleid', 'fieldnum');
+        $fields = $this->labels_Lab_Sheet;
         $WRITE = Functions::file_open($filename, "w");
         fwrite($WRITE, implode("\t", $fields) . "\n");
         if($loop = @$this->info_processid) {
             foreach($loop as $processid => $rek) {
-                $save = array($processid, $rek['sampleid'], $rek['fieldnum']);
-                fwrite($WRITE, implode("\t", $save) . "\n");
+                if(isset($this->save_ProcessID_from_MOOP[$processid])) {
+                    $save = array($processid, $rek['sampleid'], $rek['fieldnum']);
+                    fwrite($WRITE, implode("\t", $save) . "\n");
+                }
             }
         }
         fclose($WRITE);
