@@ -9,7 +9,7 @@ taxon:              988     989     969     968
 occurrence:                 2839    2839    2838
 
 726	Wednesday 2019-09-18 08:58:15 AM	{"measurement_or_fact.tab":21485,"occurrence.tab":2838,"taxon.tab":968} //used parent-child in MoF
-
+726	Thursday 2019-12-05 09:04:09 AM	    {"measurement_or_fact.tab":21485,"occurrence.tab":2838,"taxon.tab":968,"time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -18,11 +18,5 @@ $timestart = time_elapsed();
 $resource_id = 726;
 $func = new RotifersTypeSpecimenAPI($resource_id);
 $func->get_all_taxa();
-Functions::finalize_dwca_resource($resource_id, false, true);
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing.\n";
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>

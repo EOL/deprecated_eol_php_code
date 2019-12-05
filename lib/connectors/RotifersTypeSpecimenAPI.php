@@ -29,8 +29,13 @@ class RotifersTypeSpecimenAPI
     }
     function get_all_taxa()
     {
-        $this->institution_uris = self::get_institution_uris();
+        /* START DATA-1841 terms remapping */
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
+        $this->func->initialize_terms_remapping();
+        /* END DATA-1841 terms remapping */
         
+        $this->institution_uris = self::get_institution_uris();
         self::load_zip_contents();
         print_r($this->text_path);
 
@@ -481,6 +486,11 @@ class RotifersTypeSpecimenAPI
         else            $m->measurementValue = $value;
         
         $m->measurementMethod = '';
+        
+        /* START DATA-1841 terms remapping */
+        $m = $this->func->given_m_update_mType_mValue($m);
+        /* END DATA-1841 terms remapping */
+        
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
