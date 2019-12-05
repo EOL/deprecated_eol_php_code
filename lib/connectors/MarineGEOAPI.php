@@ -271,7 +271,7 @@ class MarineGEOAPI
         fwrite($WRITE, implode("\t", $fields) . "\n");
         if($loop = @$this->info_processid) {
             foreach($loop as $processid => $rek) {
-                if(isset($this->save_ProcessID_from_MOOP[$processid])) {
+                if(isset($this->save_ProcessID_from_MOOP[$processid])) { //this will limit only 'Process Id' that appears in MOOP.
                     $save = array($processid, $rek['sampleid'], $rek['fieldnum']);
                     fwrite($WRITE, implode("\t", $save) . "\n");
                 }
