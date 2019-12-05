@@ -155,7 +155,7 @@ class RotifersTypeSpecimenAPI
         if(!isset($this->habitats[$rec["taxon_id"]][$value_uri])) {
             $this->habitats[$rec["taxon_id"]][$value_uri] = 1;
             if($val = $habitat) {
-                $rec['parentMeasurementID'] = self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat", null, $value_uri);
+                $rec['parentMeasurementID'] = self::add_string_types($rec, "Habitat", $val, "http://purl.obolibrary.org/obo/RO_0002303", null, $value_uri); //old mtype = 'http://eol.org/schema/terms/Habitat'
             }
             if($val = $rec["sciname"]) self::add_string_types($rec, "Scientific name", $val, "http://rs.tdwg.org/dwc/terms/scientificName");
             return true;
@@ -170,29 +170,29 @@ class RotifersTypeSpecimenAPI
             case "Periphyton, and POM (littoral stones, gravel)": return "http://eol.org/schema/terms/periphyton";
             //http://eol.org/schema/terms/particulateOrganicMatter
             case "Macrophytes": return "http://eol.org/schema/terms/macrophytes";
-            case "Stream, freshwater": return "http://eol.org/schema/terms/freshwaterStream";
+            case "Stream, freshwater": return "http://purl.obolibrary.org/obo/ENVO_01000253"; //"http://eol.org/schema/terms/freshwaterStream";
             case "Stream bottom: POM (sand, gravel)": return "http://purl.obolibrary.org/obo/ENVO_00000383";
             case "Riparian wetland": return "http://eol.org/schema/terms/riparianWetland";
             case "Sedges (Carex sp.), 'open water' between plants": return "http://eol.org/schema/terms/betweenSedgesInOpenWater";
-            case "River, freshwater (lowland)": return "http://eol.org/schema/terms/lowlandFreshwaterRiver";
+            case "River, freshwater (lowland)": return "http://purl.obolibrary.org/obo/ENVO_01000253"; //"http://eol.org/schema/terms/lowlandFreshwaterRiver";
             case "Stream bottom: POM (gravel, stones)": return "http://purl.obolibrary.org/obo/ENVO_00000383";
             case "Periphyton (littoral vegetation, roots of terrestrial vegetation)": return "http://eol.org/schema/terms/periphyton";
             //http://eol.org/schema/terms/littoralVegetation
             case "Periphyton (littoral vegetation)": return "http://eol.org/schema/terms/periphyton";
             //http://eol.org/schema/terms/littoralVegetation
             case "Lake, freshwater (tropical)": return "http://eol.org/schema/terms/tropicalFreshwaterLake";
-            case "Pond, freshwater": return "http://eol.org/schema/terms/freshwaterPond";
+            case "Pond, freshwater": return "http://purl.obolibrary.org/obo/ENVO_00000033"; //"http://eol.org/schema/terms/freshwaterPond";
             case "Open water (tychoplanktonic)": return false; // DO NOT USE
-            case "Lake, freshwater": return "http://eol.org/schema/terms/freshwaterLake";
-            case "Open water": return "http://eol.org/schema/terms/openWater";
-            case "Tap water": return "http://eol.org/schema/terms/tapWater";
+            case "Lake, freshwater": return "http://purl.obolibrary.org/obo/ENVO_01000252"; //"http://eol.org/schema/terms/freshwaterLake";
+            case "Open water": return "http://purl.obolibrary.org/obo/ENVO_00002030"; //"http://eol.org/schema/terms/openWater";
+            case "Tap water": return "http://purl.obolibrary.org/obo/ENVO_00003096"; //"http://eol.org/schema/terms/tapWater";
             case "Pond, peat bog": return "http://purl.obolibrary.org/obo/ENVO_00000044";
             case "Moss (Sphagnum, peat moss)": return "http://eol.org/schema/terms/moss";
             case "Pond, freshwater (eutrophic)": return "http://eol.org/schema/terms/eutrophicFreshwaterPond";
             case "Lake, freshwater (alpine glacier margin, ultraoligotrophic)": return "http://eol.org/schema/terms/ultraoligotrophicAlpineFreshwaterLake";
             case "Sand (littoral, glacial flour)": return "http://eol.org/schema/terms/littoralGlacialSand";
             case "Lagoon, mixosaline": return "http://eol.org/schema/terms/mixosalineLagoon";
-            case "Algae, planktonic (parasitic in colonies of Uroglena)": return "http://eol.org/schema/terms/planktonicAlgae";
+            case "Algae, planktonic (parasitic in colonies of Uroglena)": return "https://www.wikidata.org/entity/Q184755"; //"http://eol.org/schema/terms/planktonicAlgae";
             case "Swimming pool": return "http://eol.org/schema/terms/swimmingPool";
             case "Biofilm on tiles": return "http://eol.org/schema/terms/tileSurface";
             case "Lake, freshwater (eutrophic)": return "http://eol.org/schema/terms/eutrophicFreshwaterLake";
