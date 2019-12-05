@@ -82,7 +82,7 @@
         </tr>
         <tr align="center">
             <td>
-                <input type="submit" value="Generate specimen export file">
+                <input type="submit" value="Generate specimen image export file">
                 <input type="reset" value="Reset">
                 <!--- <input type="checkbox" name="validate">Validate --->
             </td>
