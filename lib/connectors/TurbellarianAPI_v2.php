@@ -9,7 +9,7 @@ class TurbellarianAPI_v2
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
-        $this->domain = "http://turbellaria.umaine.edu";
+        $this->domain = "http://turbellaria.umaine.edu/turbellaria";
         $this->taxa_url = $this->domain . "/turb3.php?action=1&code=";
         $this->rights_holder = "National Science Foundation - Turbellarian Taxonomic Database";
         $this->agents = array();
@@ -24,13 +24,13 @@ class TurbellarianAPI_v2
         // $this->download_options['expire_seconds'] = false;
         if(Functions::is_production()) $this->download_options['resource_id'] = $this->resource_id;
         
-        $this->page['main'] = "http://turbellaria.umaine.edu/turbella.php";
-        $this->page['action_1']  = "http://turbellaria.umaine.edu/turb3.php?action=1&code=";
-        $this->page['action_2']  = "http://turbellaria.umaine.edu/turb3.php?action=2&code=";
-        $this->page['action_23'] = "http://turbellaria.umaine.edu/turb3.php?action=23&code=";
-        $this->page['action_16']  = "http://turbellaria.umaine.edu/turb3.php?action=16&code=";
-        $this->page['action_15']  = "http://turbellaria.umaine.edu/turb3.php?action=15&code=";
-        $this->page['action_6']   = "http://turbellaria.umaine.edu/turb3.php?action=6&code=";
+        $this->page['main'] = $this->domain."/turbella.php";
+        $this->page['action_1']  = $this->domain."/turb3.php?action=1&code=";
+        $this->page['action_2']  = $this->domain."/turb3.php?action=2&code=";
+        $this->page['action_23'] = $this->domain."/turb3.php?action=23&code=";
+        $this->page['action_16']  = $this->domain."/turb3.php?action=16&code=";
+        $this->page['action_15']  = $this->domain."/turb3.php?action=15&code=";
+        $this->page['action_6']   = $this->domain."/turb3.php?action=6&code=";
         
         $this->action['direct_images'] = 2;
         $this->action['downline_images'] = 23;
@@ -44,6 +44,12 @@ class TurbellarianAPI_v2
 
     function start()
     {
+        /* START DATA-1841 terms remapping */
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
+        $this->func->initialize_terms_remapping();
+        /* END DATA-1841 terms remapping */
+        
         $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uri_values = Functions::additional_mappings($mappings); //add more mappings used in the past
@@ -390,7 +396,7 @@ class TurbellarianAPI_v2
                     elseif($what == 'downline_synonyms') {
                         // echo "\n[$url]";
                         /* good for debugging
-                        if($url == "http://turbellaria.umaine.edu/turb3.php?action=6&code=56") $debug = true;
+                        if($url == $this->domain."/turb3.php?action=6&code=56") $debug = true;
                         else                                                                   $debug = false;
                         */
                         $debug = false;
@@ -537,6 +543,13 @@ class TurbellarianAPI_v2
         $m->measurementType = $mtype;
         $m->measurementValue = (string) $value;
         if($val = $ref_ids) $m->referenceID = implode("; ", $val);
+        
+        /* START DATA-1841 terms remapping */
+        $m = $this->func->given_m_update_mType_mValue($m);
+        /* END DATA-1841 terms remapping */
+        echo "\n".count($this->func->remapped_terms)."\n";
+        // exit;
+        
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->measurement_ids[$m->measurementID] = '';
@@ -686,7 +699,7 @@ class TurbellarianAPI_v2
         // echo "\n".strip_tags($str)."\n";
         
         if(preg_match("/action=10&(.*?)\"/ims", $str, $arr)) {
-            $url = "http://turbellaria.umaine.edu/turb3.php?action=10&".$arr[1];
+            $url = $this->domain."/turb3.php?action=10&".$arr[1];
             // echo "\nref url: [$url]\n"; //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=7144&code=3749
                                            //e.g. http://turbellaria.umaine.edu/turb3.php?action=10&litrec=21896&code=3749
             if(preg_match("/elix(.*?)&code=/ims", "elix".$url, $arr)) $url = $arr[1];
