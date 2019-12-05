@@ -736,7 +736,8 @@ class TurbellarianAPI_v2
                 }
             }
         }
-        exit("\nInvestigate there should be ref here.\n");
+        echo("\n[$str]\nInvestigate there should be ref here.\n");
+        return array();
     }
     private function get_invalid_names($html) //get Red and Green highlighted taxa
     {
