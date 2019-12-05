@@ -55,12 +55,17 @@ class USDAPlants2019
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
-    {   $tables = $info['harvester']->tables;
+    {   
+        require_library('connectors/TraitGeneric'); 
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        /* START DATA-1841 terms remapping */
+        $this->func->initialize_terms_remapping();
+        /* END DATA-1841 terms remapping */
+        
+        $tables = $info['harvester']->tables;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
-        
-        require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         
         self::initialize_mapping(); //for location string mappings
         self::process_per_state();
@@ -159,6 +164,12 @@ class USDAPlants2019
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
+            
+            /* START DATA-1841 terms remapping */
+            $o = $this->func->given_m_update_mType_mValue($o);
+            // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+            /* END DATA-1841 terms remapping */
+            
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
@@ -352,7 +363,8 @@ class USDAPlants2019
         $save['source'] = $rec['source_url'];
         $save['measurementRemarks'] = $string_value;
         // $save['measurementID'] = '';
-        $this->func->add_string_types($save, $mValue, $mType, "true");
+        // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+        $this->func->pre_add_string_types($save, $mValue, $mType, "true");
     }
     private function write_NorI_measurement($NorI_data, $rec)
     {   /*Array([0] => Array(
@@ -376,7 +388,8 @@ class USDAPlants2019
                 $save['source'] = $rec['source_url'];
                 // $save['measurementID'] = '';
                 $save['measurementRemarks'] = $mRemarks;
-                $this->func->add_string_types($save, $mValue, $mType, "true");
+                // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+                $this->func->pre_add_string_types($save, $mValue, $mType, "true");
             }
         }
     }
