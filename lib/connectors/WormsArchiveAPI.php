@@ -220,6 +220,10 @@ class WormsArchiveAPI
         // /* block for DATA-1827 tasks ===========================================================================================
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        /* START DATA-1841 terms remapping */
+        $this->func->initialize_terms_remapping();
+        /* END DATA-1841 terms remapping */
+        echo "\nFrom local: ".count($this->func->remapped_terms)."\n";
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
@@ -919,7 +923,7 @@ class WormsArchiveAPI
                 $save['source'] = $this->taxon_page.$taxon_id;
                 $save = self::adjustments_4_measurementAccuracy($save, $rec);
                 $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
-                $this->func->add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
+                $this->func->pre_add_string_types($save, $info['mValueURL'], $info['mTypeURL'], "true");
                 // print_r($save); exit;
                 // break; //do this if you want to proceed create DwCA
                 continue; //part of real operation. Can go next row now
@@ -972,7 +976,7 @@ class WormsArchiveAPI
                 $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue', 'Body size');
                 // print("\nsuper child of [$measurementID]: ".$super_child."\n".$mTypev."\n");
                 
-                $this->func->add_string_types($save, $mValuev, $mTypev, "true");
+                $this->func->pre_add_string_types($save, $mValuev, $mTypev, "true");
                 // print_r($save); exit;
                 // break; //do this if you want to proceed create DwCA
                 continue; //part of real operation. Can go next row now
@@ -1008,7 +1012,7 @@ class WormsArchiveAPI
                 $save['measurementUnit'] = self::format_measurementUnit($rec); //no instruction here
                 $mTypev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementType'], 'mType', 'child of Body size');
                 $mValuev = self::get_uri_from_value($rec['http://rs.tdwg.org/dwc/terms/measurementValue'], 'mValue', "child of Body size-".$rec['http://rs.tdwg.org/dwc/terms/measurementType']);
-                $this->func->add_string_types($save, $mValuev, $mTypev, "child");
+                $this->func->pre_add_string_types($save, $mValuev, $mTypev, "child");
                 // break; //do this if you want to proceed create DwCA
                 continue; //part of real operation. Can go next row now
             }
