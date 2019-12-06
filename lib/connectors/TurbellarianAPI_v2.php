@@ -275,9 +275,10 @@ class TurbellarianAPI_v2
     private function write_taxon($t)
     {
         if(self::starts_with_small_letter($t['name'])) {
-            print_r($t);
             if(!@$t['acceptedNameUsageID']) { //if synonym no need to investigate
-                exit("\nInvestigate, small letter sciname\n");
+                print_r($t);
+                echo("\nInvestigate, small letter sciname\n");
+                return;
             }
         }
         
