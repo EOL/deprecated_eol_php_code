@@ -183,8 +183,11 @@ class TurbellarianAPI_v2
                 if(self::starts_with_small_letter($value['name'])) $taxon['name'] = $main_name." ".$value['name'];
                 else {
                     // [6940] => [name] => St.Naumi
-                    if(in_array($code, array(6940))) {}
-                    else exit("\nInvestigate does not start with small letter [$code] \n");
+                    if(in_array($code, array(6940,6305))) {}
+                    else {
+                        echo("\nInvestigate does not start with small letter [$code] \n");
+                        return;
+                    }
                 }
                 $taxon['parent_id'] = $main_code;
                 $taxon['author'] = $value['author'];
