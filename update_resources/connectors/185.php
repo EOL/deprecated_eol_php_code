@@ -5,7 +5,7 @@ estimated execution time:
 
 This is now the new connector: https://eol-jira.bibalex.org/browse/TRAM-709 (June 2018)
 185	Thursday 2018-08-02 09:23:38 PM	{"agent.tab":4,"measurement_or_fact.tab":9419,"media_resource.tab":3187,"occurrence.tab":4955,"reference.tab":2283,"taxon.tab":11308} eol-archive
-185	Friday 2019-12-06 07:06:21 AM	{"agent.tab":4,"measurement_or_fact.tab":9352,"media_resource.tab":3285,"occurrence.tab":4961,"reference.tab":2296,"taxon.tab":11249,"time_elapsed":{"sec":2230.16,"min":37.17,"hr":0.62}}
+185	Friday 2019-12-06 09:39:40 AM	{"agent.tab":4,"measurement_or_fact.tab":9352,"media_resource.tab":3285,"occurrence.tab":4961,"reference.tab":2296,"taxon.tab":11249,"time_elapsed":{"sec":166.89,"min":2.78,"hr":0.05}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
