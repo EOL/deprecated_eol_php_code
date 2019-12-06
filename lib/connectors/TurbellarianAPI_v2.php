@@ -183,8 +183,9 @@ class TurbellarianAPI_v2
                 if(self::starts_with_small_letter($value['name'])) $taxon['name'] = $main_name." ".$value['name'];
                 else {
                     // [6940] => [name] => St.Naumi
-                    if(in_array($code, array(6940,6305))) {}
+                    if(in_array($code, array(6940))) {}
                     else {
+                        print_r($img);
                         echo("\nInvestigate does not start with small letter [$code] \n");
                         return;
                     }
@@ -274,6 +275,11 @@ class TurbellarianAPI_v2
     }
     private function write_taxon($t)
     {
+        if(!isset($t['name'])) {
+            print_r($t);
+            echo("\nInvestigate, name is blank. Unsuccesfully parsed.\n");
+            return;
+        }
         if(self::starts_with_small_letter($t['name'])) {
             if(!@$t['acceptedNameUsageID']) { //if synonym no need to investigate
                 print_r($t);
