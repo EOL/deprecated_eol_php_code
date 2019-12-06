@@ -1203,12 +1203,12 @@ class WormsArchiveAPI
             //other traits:
             if(stripos($description, "parasit") !== false) self::additional_traits_DATA_1767($rec, 'https://www.wikidata.org/entity/Q12806437', 'http://www.wikidata.org/entity/Q1053008'); //string is found
             if(stripos($description, "detritus feeder") !== false) self::additional_traits_DATA_1767($rec, 'http://wikidata.org/entity/Q2750657', 'http://www.wikidata.org/entity/Q1053008'); //string is found
-            if(stripos($description, "benthic") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_01000024', 'http://eol.org/schema/terms/Habitat'); //string is found
-            if(stripos($description, "pelagic") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_01000023', 'http://eol.org/schema/terms/Habitat'); //string is found
-            if(stripos($description, "sand") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_00002118', 'http://eol.org/schema/terms/Habitat'); //string is found
-            if(stripos($description, "intertidal") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_00000316', 'http://eol.org/schema/terms/Habitat'); //string is found
-            if(stripos($description, "tropical") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TropicalOcean', 'http://eol.org/schema/terms/Habitat'); //string is found
-            if(stripos($description, "temperate") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TemperateOcean', 'http://eol.org/schema/terms/Habitat'); //string is found
+            if(stripos($description, "benthic") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_01000024', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
+            if(stripos($description, "pelagic") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_01000023', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
+            if(stripos($description, "sand") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_00002118', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
+            if(stripos($description, "intertidal") !== false) self::additional_traits_DATA_1767($rec, 'http://purl.obolibrary.org/obo/ENVO_00000316', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
+            if(stripos($description, "tropical") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TropicalOcean', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
+            if(stripos($description, "temperate") !== false) self::additional_traits_DATA_1767($rec, 'http://eol.org/schema/terms/TemperateOcean', 'http://purl.obolibrary.org/obo/RO_0002303'); //string is found
             // */
             
             if($type == "http://purl.org/dc/dcmitype/StillImage") {
