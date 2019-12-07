@@ -489,8 +489,8 @@ class MarineGEOAPI
             case "Elev":            return $input_rec['Maximum Elevation: (Version 1.2 elements (4))'];
             //2nd half
             case "Depth":                       return $input_rec['Maximum Depth: (Version 1.2 elements (4))'];
-            case "Elevation Precision":         return $input_rec['Maximum Elevation: (Version 1.2 elements (4))']-$input_rec['Minimum Elevation: (Version 1.2 elements (4))'];
-            case "Depth Precision":             return $input_rec['Maximum Depth: (Version 1.2 elements (4))']-$input_rec['Minimum Depth: (Version 1.2 elements (4))'];
+            case "Elevation Precision":         return self::possible_subtraction($input_rec['Maximum Elevation: (Version 1.2 elements (4))'], $input_rec['Minimum Elevation: (Version 1.2 elements (4))']);
+            case "Depth Precision":             return self::possible_subtraction($input_rec['Maximum Depth: (Version 1.2 elements (4))'], $input_rec['Minimum Depth: (Version 1.2 elements (4))']);
             case "GPS Source":                  return ''; //to be mapped
             case "Coordinate Accuracy":         return ''; //to be mapped
             case "Event Time":                  return '';
@@ -504,6 +504,10 @@ class MarineGEOAPI
             default:
                 exit("\nInvestigate field [$field] not defined.\n");
         }
+    }
+    private function possible_subtraction($max, $min)
+    {
+        if(is_numeric($max) && is_numeric($min)) return $max - $min;
     }
     private function prepend_guids($guids) /* //"http://n2t.net/".$input_rec['GUID: (GUIDs)']; */
     {
@@ -528,7 +532,7 @@ class MarineGEOAPI
         if($separator_foundYN) {
             if (($key = array_search($guids, $arr)) !== false) {
                 unset($arr[$key]);
-                print_r($arr);
+                // print_r($arr);
             }
         }
         // start prepending if value starts with "ark:/". Please pre-pend "http://n2t.net/"
