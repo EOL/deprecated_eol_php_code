@@ -722,7 +722,7 @@ class WikiDataAPI extends WikipediaAPI
                         [count] => 4290
                     )
             */
-            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "taxon_wiki_per_language_count_" . date("Y_m_d") . ".txt";
+            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "taxon_wiki_per_language_count_" . date("Y_m") . ".txt"; //previously Y_m_d
             $handle = fopen($txtfile, "w");
             $arr = array('language', 'count');
             fwrite($handle, implode("\t", $arr) . "\n");
