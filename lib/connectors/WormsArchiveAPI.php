@@ -178,13 +178,6 @@ class WormsArchiveAPI
         exit("\n[$str]\n");
         */
 
-        require_library('connectors/TraitGeneric');
-        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        /* START DATA-1841 terms remapping */
-        $this->func->initialize_terms_remapping();
-        /* END DATA-1841 terms remapping */
-        echo "\nFrom local: ".count($this->func->remapped_terms)."\n";
-
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -225,14 +218,12 @@ class WormsArchiveAPI
         }
 
         // /* block for DATA-1827 tasks ===========================================================================================
-        /* moved above
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        START DATA-1841 terms remapping
+        /* START DATA-1841 terms remapping */
         $this->func->initialize_terms_remapping();
-        END DATA-1841 terms remapping
+        /* END DATA-1841 terms remapping */
         echo "\nFrom local: ".count($this->func->remapped_terms)."\n";
-        */
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
@@ -240,7 +231,7 @@ class WormsArchiveAPI
         echo "\n02 of 8\n";  self::get_mIDs_2exclude($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         echo "\n03 of 8\n";  self::get_measurements($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         // print_r($this->debug);
-        unset($this->func); unset($this->childOf); unset($this->parentOf); unset($this->ToExcludeMeasurementIDs);
+        unset($this->childOf); unset($this->parentOf); unset($this->ToExcludeMeasurementIDs);
         unset($this->BodysizeDimension); unset($this->FeedingType); unset($this->lifeStageOf); unset($this->measurementIDz);
         // $this->archive_builder->finalize(TRUE); return; //debug only - delete row in normal operation
         // */ =====================================================================================================================
