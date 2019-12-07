@@ -178,6 +178,13 @@ class WormsArchiveAPI
         exit("\n[$str]\n");
         */
 
+        require_library('connectors/TraitGeneric');
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        /* START DATA-1841 terms remapping */
+        $this->func->initialize_terms_remapping();
+        /* END DATA-1841 terms remapping */
+        echo "\nFrom local: ".count($this->func->remapped_terms)."\n";
+
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -218,12 +225,14 @@ class WormsArchiveAPI
         }
 
         // /* block for DATA-1827 tasks ===========================================================================================
+        /* moved above
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        /* START DATA-1841 terms remapping */
+        START DATA-1841 terms remapping
         $this->func->initialize_terms_remapping();
-        /* END DATA-1841 terms remapping */
+        END DATA-1841 terms remapping
         echo "\nFrom local: ".count($this->func->remapped_terms)."\n";
+        */
         
         $this->match2map = self::csv2array($this->match2mapping_file, 'match2map'); //mapping csv to array
         $this->value_uri_map = self::tsv2array($this->value_uri_mapping_file);
