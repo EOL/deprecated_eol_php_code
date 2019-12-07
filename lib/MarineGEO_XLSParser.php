@@ -288,6 +288,7 @@ class MarineGEO_XLSParser
             $row_num++;
             // */
         }
+        unlink($filename); //delete temp .txt files
     }
     function cell_value($obj, $col, $row, $ext)
     {

@@ -459,7 +459,7 @@ class MarineGEOAPI
             case "Notes":                   return $input_rec['Note: (Note Details)'];
             case "Voucher Status":          return ''; //No Equivalent
             case "Tissue Descriptor":       return ''; //to be mapped
-            case "External URLs":           return "http://n2t.net/".$input_rec['GUID: (GUIDs)'];
+            case "External URLs":           return self::prepend_guids($input_rec['GUID: (GUIDs)']); //"http://n2t.net/".$input_rec['GUID: (GUIDs)'];
             case "Associated Taxa":         return ''; //No Equivalent
             case "Associated Specimens":    return ''; //No Equivalent
             /*=====Taxonomy Data=====*/
@@ -504,6 +504,41 @@ class MarineGEOAPI
             default:
                 exit("\nInvestigate field [$field] not defined.\n");
         }
+    }
+    private function prepend_guids($guids) /* //"http://n2t.net/".$input_rec['GUID: (GUIDs)']; */
+    {
+        $arr = array();
+        $separators = array(',', ';', '|');
+        $used_separator = ",";
+        $separator_foundYN = false;
+        foreach($separators as $sep) {
+            $arr = array_merge($arr, explode($sep, $guids));
+            if(stripos($guids, $sep) !== false) { //string is found
+                $used_separator = $sep;
+                $separator_foundYN = true;
+            }
+        }
+        $arr = array_map('trim', $arr);
+        // print_r($arr);
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+        // print_r($arr);
+        // if a $separator_foundYN is true, then delete from $final the original $guids
+        if($separator_foundYN) {
+            if (($key = array_search($guids, $arr)) !== false) {
+                unset($arr[$key]);
+                print_r($arr);
+            }
+        }
+        // start prepending if value starts with "ark:/". Please pre-pend "http://n2t.net/"
+        $final = array();
+        foreach($arr as $val) {
+            if(substr($val,0,5) == 'ark:/') $final[] = "http://n2t.net/".$val;
+            else                            $final[] = $val;
+        }
+        // print_r($final);
+        return implode(" $used_separator ", $final);
     }
     private function format_Collection_Date($input_rec)
     {

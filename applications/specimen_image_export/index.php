@@ -73,7 +73,17 @@
                     </td>
                 </tr>
                 <tr><td>License Year:</td> <td><input type='text' name='Lic_yr'></td></tr>
-                <tr><td>License Institution:</td> <td><input type='text' name='Lic_inst'><small>e.g. Smithsonian Institution National Museum of Natural History</small></td></tr>
+                <tr>
+                    <td>License Institution:</td> 
+                    <td>
+                        <!--- <input type='text' name='Lic_inst'> --->
+                        <select name='Lic_inst'>
+                            <option value=""></option>
+                            <option value="Smithsonian Institution National Museum of Natural History">Smithsonian Institution National Museum of Natural History</option>
+                            <option value="NOAA Fisheries">NOAA Fisheries</option>
+                        </select>
+                    </td>
+                </tr>
                 <tr><td>License Contact:</td> <td><input type='text' name='Lic_cont'></td></tr>
                 </table>
             </td>
