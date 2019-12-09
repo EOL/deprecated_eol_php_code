@@ -110,6 +110,7 @@ class DwCA_Utility
             if(Functions::is_production()) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
+        elseif(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
         else $info = self::start(); //default doesn't expire. Your call.
 
         $temp_dir = $info['temp_dir'];
@@ -126,11 +127,13 @@ class DwCA_Utility
         // print_r($index); exit; //good debug to see the all-lower case URIs
         foreach($index as $row_type) {
             /* ----------customized start------------ */
+            /* used already - obsolete
             if(substr($this->resource_id,0,3) == 'SC_') {
                 if($this->resource_id == 'SC_australia') {}
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
-            elseif($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
+            */
+            if($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
             elseif(in_array($this->resource_id, array('BF', 'gbif_classification'))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
@@ -170,10 +173,10 @@ class DwCA_Utility
             }
         }
         */
-        if(substr($this->resource_id,0,3) == 'SC_') { //for DATA-1841 terms remapping
+        if(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') { //for DATA-1841 terms remapping. "c_" resources (3) came from DATA-1840.
             require_library('connectors/SpeciesChecklistAPI');
             $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
-            $func->start_terms_remap($info); //this is for DATA-1841 terms remapping
+            $func->start_terms_remap($info);
         }
         if($this->resource_id == '708') {
             require_library('connectors/New_EnvironmentsEOLDataConnector');

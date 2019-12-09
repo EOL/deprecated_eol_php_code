@@ -17,9 +17,74 @@ class SpeciesChecklistAPI
         $this->mapping['nationalchecklists'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/DATA-1817/national-checklists-sourcefixes.tsv';
         $this->mapping['water-body-checklists'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/DATA-1817/water-body-checklists-sourcefixes.tsv';
     }
+    /*================================================================= terms remap STARTS HERE ======================================================================*/
+    function start_terms_remap($info)
+    {
+        $remapped['http://www.marineregions.org/gazetteer.php?p=details&id=mexico'] = 'http://www.geonames.org/3996063';
+        $remapped['http://www.marineregions.org/gazetteer.php?p=details&id=indonesia'] = 'http://www.geonames.org/1643084';
+        $remapped['http://www.marineregions.org/gazetteer.php?p=details&id=united_states'] = 'http://www.geonames.org/6252001';
+        
+        $tables = $info['harvester']->tables;
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], $remapped);
+    }
+    private function process_measurementorfact($meta, $remapped)
+    {   //print_r($meta);
+        echo "\nprocess_measurementorfact...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => M100000
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => CT100000
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://eol.org/schema/parentMeasurementID] => 
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Present
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://www.marineregions.org/gazetteer.php?p=details&id=3314
+                [http://purl.org/dc/terms/source] => https://www.gbif.org/occurrence/map?taxon_key=7576430&geometry=POLYGON((13.4%2045.725%2C%2013.569%2045.777%2C%2013.524%2045.407%2C%2014.621%2045.215%2C%2015.779%2043.756%2C%2017.468%2043.013%2C%2018.633%2042.369%2C%2019.358%2041.915%2C%2019.62%2041.791%2C%2019.452%2041.579%2C%2019.462%2041.312%2C%2019.403%2040.893%2C%2019.378%2040.535%2C%2019.305%2040.432%2C%2019.656%2040.127%2C%2019.956%2039.89%2C%2019.88%2039.804%2C%2018.432%2040.011%2C%2018.315%2040.375%2C%2017.944%2040.642%2C%2017.551%2040.802%2C%2017.104%2041.055%2C%2016.675%2041.19%2C%2016.235%2041.343%2C%2015.937%2041.632%2C%2016.181%2041.885%2C%2015.576%2041.92%2C%2014.972%2042.008%2C%2014.503%2042.272%2C%2014.087%2042.588%2C%2013.859%2043.037%2C%2013.635%2043.484%2C%2013.245%2043.703%2C%2012.71%2043.976%2C%2012.32%2044.381%2C%2012.365%2044.808%2C%2012.442%2044.99%2C%2012.221%2045.195%2C%2012.195%2045.327%2C%2012.242%2045.453%2C%2012.407%2045.515%2C%2012.913%2045.638%2C%2013.132%2045.68%2C%2013.4%2045.725))
+                [http://purl.org/dc/terms/contributor] => Compiler: Anne E Thessen
+                [http://eol.org/schema/reference/referenceID] => R01|R02
+            )*/
+            //===========================================================================================================================================================
+            $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            if($val = @$remapped[$mValue]) $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
+            else {
+                /* All terms of the form "http://www.marineregions.org/gazetteer.php?p=details&id=4351" should be changed to the form "http://www.marineregions.org/mrgid/4351", 
+                so I guess the mapping is
+                "gazetteer.php?p=details&id=" --> "mrgid/" */
+                $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = str_replace('gazetteer.php?p=details&id=', 'mrgid/', $mValue);
+            }
+            //===========================================================================================================================================================
+            $o = new \eol_schema\MeasurementOrFact_specific();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            
+            /* START DATA-1841 terms remapping */
+            // $o = $this->func->given_m_update_mType_mValue($o);
+            // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+            /* END DATA-1841 terms remapping */
+            
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
+        }
+    }
+    /*================================================================= terms remap ENDS HERE ======================================================================*/
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
+        exit("\nObsolete\n");
         // /* buildup lookup table for adjustment mapping here: https://eol-jira.bibalex.org/browse/DATA-1817?focusedCommentId=63662&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63662
         self::build_lookup_adjustment_tbl();
         // */
