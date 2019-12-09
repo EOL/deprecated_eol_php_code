@@ -156,6 +156,7 @@ class DwCA_Utility
             $func = new GloBIDataAPI($this->archive_builder, 'globi');
             $func->start($info); //didn't use like above bec. memory can't handle 'occurrence' and 'association' TSV files
         }
+        /* this has been run already. Other connector(s) are created for further adjustments on DwCA's. e.g. DATA-1841
         if(substr($this->resource_id,0,3) == 'SC_') {
             if($this->resource_id == 'SC_australia') { //customized for DATA-1833
                 require_library('connectors/SC_Australia2019');
@@ -167,6 +168,12 @@ class DwCA_Utility
                 $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
                 $func->start($info);
             }
+        }
+        */
+        if(substr($this->resource_id,0,3) == 'SC_') { //for DATA-1841 terms remapping
+            require_library('connectors/SpeciesChecklistAPI');
+            $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
+            $func->start_terms_remap($info); //this is for DATA-1841 terms remapping
         }
         if($this->resource_id == '708') {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
