@@ -15,6 +15,13 @@ exit("\n$new\n");
 exit("\nend test\n");
 */
 
+exit("\nThis has been run already. Other connectors were created to further adjust the DwCA's. See below:\n");
+/* There is the:
+DATA-1833 - sc_australia.php
+DATA-1840 - natl_checklist_replacement.php
+DATA-1841 - species_checklist_terms_remapped.php
+*/
+
 echo "\nBoth main operation and utility report were already run.\n\n";
 // /* main operation
 require_library('connectors/SpeciesChecklistAPI');
