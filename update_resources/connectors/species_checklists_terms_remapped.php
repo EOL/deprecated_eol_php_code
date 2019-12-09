@@ -10,13 +10,13 @@ require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
 generate_new_dwca($func); //main script to remap terms in all resources under 'water-body-checklists-2019'.
 
-/* 3 specific countries mentioned in DATA-1841 */
+/* 3 specific countries mentioned in DATA-1841
 $urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_mexico.tar.gz';
 $urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_indonesia.tar.gz';
 $urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_unitedstates.tar.gz';
 print_r($urls);
 foreach($urls as $url) process_resource_url($url);
-// */
+*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -43,7 +43,7 @@ function generate_new_dwca($func)
         $i = 0;
         foreach($urls as $url) { $i++; echo "\n[$i]";
             process_resource_url($url);
-            break; //run 1 url only. debug only
+            // break; //run 1 url only. debug only
         }
     }
 }
