@@ -10,7 +10,11 @@ elseif($_POST) {
     print_r($_POST);
 }
 
-echo "\nCode is: [$auth_code]\n";
+if(!isset($auth_code)) {
+    echo "\nNo auth_code yet.\n";
+    return;
+}
+echo "\nauth_code is: [$auth_code]\n";
 
 $site = "https://www.inaturalist.org";
 $app_id = 'cfe0aa14b145d1b2b527e5d8076d32839db7d773748d5182308cade1c4475b38';
