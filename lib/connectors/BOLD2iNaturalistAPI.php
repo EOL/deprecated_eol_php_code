@@ -38,7 +38,7 @@ class BOLD2iNaturalistAPI
             $this->labels_Lab_Sheet = array('Process ID', 'Sample ID', 'Field ID');
             */
 
-            $this->api['BOLDS specimen'] = "http://www.boldsystems.org/index.php/API_Public/specimen?container=PROJECT_CODE&format=tsv";
+            $this->api['BOLDS specimen'] = "http://www.boldsystems.org/index.php/API_Public/specimen?container=PROJECT_CODE&taxon=TAXON_STR&format=tsv";
             $this->dept_map['FISH'] = 'fishes';
             $this->dept_map['MAMMALS'] = 'mammals';
             $this->dept_map['HERPS'] = 'herps'; //Amphibians & Reptiles
@@ -55,8 +55,12 @@ class BOLD2iNaturalistAPI
         if($this->app == 'bold2inat') {
             if($json) {
                 $this->manual_entry = json_decode($json); //for specimen_image_export
-                self::generate_info_list_tsv($this->manual_entry->Proj);
-                self::process_project_tsv_file($this->manual_entry->Proj);
+                // print_r($this->manual_entry); exit;
+                if($recs_count = self::generate_info_list_tsv($this->manual_entry->Proj, $this->manual_entry->Taxon)) {
+                    echo "\nTSV file total rows: $recs_count\n";
+                    self::process_project_tsv_file($this->manual_entry->Proj, $this->manual_entry->Taxon);
+                }
+                else echo "\nNo records found. Please modify search parameters.\n";
             }
         }
 
@@ -79,9 +83,9 @@ class BOLD2iNaturalistAPI
         */
     }
     // ==========================================START bold2inat==============================================
-    private function process_project_tsv_file($proj)
+    private function process_project_tsv_file($proj, $taxon)
     {
-        $local_tsv = $this->resources['path'].'TSVs/'.$proj.".tsv";
+        $local_tsv = $this->resources['path'].'TSVs/'.$proj."_$taxon.tsv";
         $i = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
             $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
@@ -435,10 +439,12 @@ class BOLD2iNaturalistAPI
         //----------------------------------------
         return $final;
     }
-    private function generate_info_list_tsv($project) //e.g. $project = 'KANB'
+    private function generate_info_list_tsv($project, $taxon) //e.g. $project = 'KANB'
     {
         $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
-        $local_tsv = self::download_tsv($url, $project);
+        $url = str_replace('TAXON_STR', $taxon, $url);
+        
+        $local_tsv = self::download_tsv($url, $project, $taxon);
         $i = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
             $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
@@ -459,10 +465,12 @@ class BOLD2iNaturalistAPI
                 if($val = $rec['processid']) $this->info_processid[$val] = array('sampleid' => $rec['sampleid'], 'fieldnum' => $rec['fieldnum']);
             }
         }
+        $i = $i - 1;
+        return $i;
     }
-    private function download_tsv($form_url, $uuid)
+    private function download_tsv($form_url, $project, $taxon)
     {
-        $target = $this->resources['path'].'TSVs/'.$uuid.".tsv";
+        $target = $this->resources['path'].'TSVs/'.$project."_$taxon.tsv";
         $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
