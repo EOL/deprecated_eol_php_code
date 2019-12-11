@@ -100,7 +100,8 @@ class BOLD2iNaturalistAPI
                 $rek = array();
                 if($rek = self::get_name_from_names($rec)) {
                     debug("\nSearching for '$rek[sciname]' with rank '$rek[rank]'\n");
-                    $rek['iNatID'] = self::get_iNat_ID($rek);
+                    $rek['iNat_taxonID'] = self::get_iNat_taxonID($rek);
+                    $rek['iNat_desc'] = self::get_iNat_desc($rec);
                     print_r($rek); //exit;
                     
                 }
@@ -108,7 +109,15 @@ class BOLD2iNaturalistAPI
             }
         }
     }
-    private function get_iNat_ID($rek)
+    private function get_iNat_desc($rec)
+    {
+        $tmp = trim("$rec[exactsite]. $rec[collection_note].");
+        if($val = $rec['identification_provided_by']) $tmp .= " Identified by: $val.";
+        $tmp = Functions::remove_whitespace(trim($tmp));
+        $tmp = str_replace("..", ".", $tmp);
+        return $tmp;
+    }
+    private function get_iNat_taxonID($rek)
     {   /* Array(
             [sciname] => Zebrasoma flavescens
             [rank] => species
@@ -150,6 +159,13 @@ class BOLD2iNaturalistAPI
                 $final = array_map('trim', $final);
                 return $final;
             }
+        }
+    }
+    private function show_total_rows($file)
+    {
+        if(file_exists($file)) {
+            $total = shell_exec("wc -l < ".escapeshellarg($file));
+            return trim($total);
         }
     }
     // ==========================================END bold2inat==============================================
@@ -465,7 +481,12 @@ class BOLD2iNaturalistAPI
                 if($val = $rec['processid']) $this->info_processid[$val] = array('sampleid' => $rec['sampleid'], 'fieldnum' => $rec['fieldnum']);
             }
         }
-        $i = $i - 1;
+        
+        $k = self::show_total_rows($local_tsv);
+        $k = $k - 1; //don't count the headers
+        echo "\ntotal k: [$k]\n";
+        
+        $i = $i - 1 - 1;
         return $i;
     }
     private function download_tsv($form_url, $project, $taxon)
