@@ -41,7 +41,7 @@ $arr['redirect_uri'] = $redirect_uri;
 $arr['grant_type'] = 'authorization_code';
 
 if($ret = curl_post_request($url, $arr)) {
-    echo "\nPOST ok\n";
+    echo "\n<br>POST ok<br>\n";
     print_r($ret);
     /* # response will be a chunk of JSON looking like
     # {
@@ -58,7 +58,7 @@ if($ret = curl_post_request($url, $arr)) {
      "created_at":1575989930}
     */
 }
-else echo "\nERROR: POST failed\n";
+else echo "\n<br>ERROR: POST failed\n";
 echo '</pre>';
 
 function curl_post_request($url, $parameters_array = array())
@@ -75,7 +75,7 @@ function curl_post_request($url, $parameters_array = array())
     curl_setopt($ch, CURLOPT_AUTOREFERER, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
     // echo("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
-    echo("\nSending post request to $url with these params: ");
+    echo("\n<br>Sending post request to $url with these params: <br>");
     foreach($parameters_array as $key => $val) {
         if(in_array($key, array('redirect_uri', 'grant_type'))) echo "\n$key = $val";
         else echo "\n$key = ".substr($val,0,3)."...";
@@ -86,7 +86,7 @@ function curl_post_request($url, $parameters_array = array())
         curl_close($ch);
         return $result;
     }
-    echo "Curl error ($url): " . curl_error($ch);
+    echo "\n<br>Curl error ($url): " . curl_error($ch);
     return false;
 }
 ?>
