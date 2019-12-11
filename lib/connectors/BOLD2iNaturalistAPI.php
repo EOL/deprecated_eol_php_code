@@ -11,8 +11,8 @@ class BOLD2iNaturalistAPI
         // $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->debug = array();
         
-        $this->download_options = array('cache' => 1, 'resource_id' => 'MarineGEO', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //orig expires quarterly
-        // $this->download_options['expire_seconds'] = false; //debug only
+        $this->download_options = array('cache' => 1, 'resource_id' => 'MarineGEO', 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 2000000); //orig expires quarterly
+        $this->download_options['expire_seconds'] = false; //probably permanent
 
         $this->api['coll_num'] = 'http://www.boldsystems.org/index.php/API_Public/specimen?ids=COLL_NUM&format=json';
         
@@ -45,6 +45,8 @@ class BOLD2iNaturalistAPI
             $this->dept_map['BIRDS'] = 'birds';
             $this->dept_map['BOTANY'] = 'botany';
             $this->dept_map['PALEOBIOLOGY'] = 'paleo';
+            
+            $this->inat_service['taxa'] = 'https://api.inaturalist.org/v1/taxa?q=NAME_STR&rank=RANK_STR';
         }
         /* ============================= END for bold2inat ============================= */
     }
@@ -80,6 +82,7 @@ class BOLD2iNaturalistAPI
     private function process_project_tsv_file($proj)
     {
         $local_tsv = $this->resources['path'].'TSVs/'.$proj.".tsv";
+        $i = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
             $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;
@@ -89,7 +92,59 @@ class BOLD2iNaturalistAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
-                print_r($rec); exit;
+                // print_r($rec); exit;
+                $rek = array();
+                if($rek = self::get_name_from_names($rec)) {
+                    debug("\nSearching for '$rek[sciname]' with rank '$rek[rank]'\n");
+                    $rek['iNatID'] = self::get_iNat_ID($rek);
+                    print_r($rek); //exit;
+                    
+                }
+                else exit("\nInvestigate: cannot get name.\n");
+            }
+        }
+    }
+    private function get_iNat_ID($rek)
+    {   /* Array(
+            [sciname] => Zebrasoma flavescens
+            [rank] => species
+        )*/
+        $url = str_replace('NAME_STR', $rek['sciname'], $this->inat_service['taxa']);
+        $url = str_replace('RANK_STR', $rek['rank'], $url);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $arr = json_decode($json, true);
+            foreach($arr['results'] as $r) {
+                if($r['name'] == $rek['sciname']) return $r['id'];
+            }
+        }
+    }
+    private function get_name_from_names($rec)
+    {
+        /*   [phylum_taxID] => 18
+             [phylum_name] => Chordata
+             [class_taxID] => 77
+             [class_name] => Actinopterygii
+             [order_taxID] => 747044
+             [order_name] => Acanthuriformes
+             [family_taxID] => 440
+             [family_name] => Acanthuridae
+             [subfamily_taxID] => 34529
+             [subfamily_name] => Acanthurinae
+             [genus_taxID] => 3674
+             [genus_name] => Zebrasoma
+             [species_taxID] => 47230
+             [species_name] => Zebrasoma flavescens
+             [subspecies_taxID] => 
+             [subspecies_name] => 
+        */
+        $keys = array('subspecies_name', 'species_name', 'genus_name', 'subfamily_name', 'family_name', 'order_name', 'class_name', 'phylum_name');
+        foreach($keys as $key) {
+            if($val = $rec[$key]) {
+                $final = array();
+                $final['sciname'] = $val;
+                $final['rank'] = str_replace('_name', '', $key);
+                $final = array_map('trim', $final);
+                return $final;
             }
         }
     }
