@@ -14,7 +14,7 @@ if(!isset($auth_code)) {
     echo "\nNo auth_code yet.\n";
     return;
 }
-echo "\nauth_code is: [$auth_code]\n";
+echo "\nauth_code generated is: [$auth_code]\n";
 
 $site = "https://www.inaturalist.org";
 $app_id = 'cfe0aa14b145d1b2b527e5d8076d32839db7d773748d5182308cade1c4475b38';
@@ -43,6 +43,20 @@ $arr['grant_type'] = 'authorization_code';
 if($ret = curl_post_request($url, $arr)) {
     echo "\nPOST ok\n";
     print_r($ret);
+    /* # response will be a chunk of JSON looking like
+    # {
+    #   "access_token":"xxx",
+    #   "token_type":"bearer",
+    #   "expires_in":null,
+    #   "refresh_token":null,
+    #   "scope":"write"
+    # }
+    
+    {"access_token":"4334a67655996f81d11b5bf8f2283c2a73f2a4afce6eb6b8dd3b70bb1199162c",
+     "token_type":"Bearer",
+     "scope":"write login",
+     "created_at":1575989930}
+    */
 }
 else echo "\nERROR: POST failed\n";
 echo '</pre>';
@@ -60,7 +74,13 @@ function curl_post_request($url, $parameters_array = array())
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_AUTOREFERER, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-    echo("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
+    // echo("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
+    echo("Sending post request to $url with these params: ");
+    foreach($parameters_array as $key => $val) {
+        if(in_array($key, array('redirect_uri', 'grant_type'))) echo "\nkey = $val";
+        else echo "\nkey = ".substr($val,0,3)."...";
+    }
+    
     $result = curl_exec($ch);
     if(0 == curl_errno($ch)) {
         curl_close($ch);
