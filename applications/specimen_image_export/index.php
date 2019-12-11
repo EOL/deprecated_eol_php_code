@@ -96,7 +96,7 @@
             </td>
         </tr>
         <tr align="left">
-            <td><small><?php echo "<a href='../specimen_export/'>Specimen Export Tool</a>"; ?><small></td>
+            <td><small><?php echo "<a href='../specimen_export/'>Specimen Export Tool</a> | <a href='../BOLD2iNAT/'>BOLD-to-iNat Tool</a>"; ?><small></td>
         </tr>
     </table>
 </form>

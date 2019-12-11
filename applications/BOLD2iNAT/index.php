@@ -1,10 +1,11 @@
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
-            <td>Excel Specimen Image Export Tool
-            <small><br><a href='https://eol-jira.bibalex.org/browse/COLLAB-1004?focusedCommentId=64188&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64188'>(work in progress)</a></small>
+            <td>BOLD-to-iNat Tool
+            <small><br><a href='https://eol-jira.bibalex.org/browse/COLLAB-1004?focusedCommentId=64212&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64212'>(work in progress)</a></small>
             </td>
         </tr>
+        <!---
         <tr align="center">
             <td>
                 <font size="3">
@@ -13,7 +14,6 @@
                 </font>
             </td>
         </tr>
-
         <tr>
             <td>
                 <font size="3">Excel File URL: </font><input type="text" name="form_url" size="100">
@@ -33,6 +33,7 @@
                 <small>(.xlsx or .xls) OR (.xlsx.zip, .xls.zip)</small>
             </td>
         </tr>
+        --->
         <!---
         Project: a short text string, eg: "KANB"
         Department: a short text string, which we can constrain to a menu of options, eg: "FISH"
@@ -90,13 +91,13 @@
         </tr>
         <tr align="center">
             <td>
-                <input type="submit" value="Generate specimen image export file">
+                <input type="submit" value="Add BOLD Observations to iNaturalist">
                 <input type="reset" value="Reset">
                 <!--- <input type="checkbox" name="validate">Validate --->
             </td>
         </tr>
         <tr align="left">
-            <td><small><?php echo "<a href='../specimen_export/'>Specimen Export Tool</a>"; ?><small></td>
+            <td><small><?php echo "<a href='../specimen_image_export/'>Specimen Image Export Tool</a>"; ?><small></td>
         </tr>
     </table>
 </form>
