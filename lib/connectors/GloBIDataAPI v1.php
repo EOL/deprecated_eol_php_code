@@ -12,16 +12,10 @@ class GloBIDataAPI
     function start($info)
     {
         $tables = $info['harvester']->tables; 
-        
-        //step 1 is build info list
-        self::process_association($tables['http://eol.org/schema/association'][0], 'build info');       //generates $this->targetOccurrenceIDS $this->toDeleteOccurrenceIDS
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');  //generates $this->taxonIDS AND assigns taxonID to $this->targetOccurrenceIDS
-        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);                          //assigns kingdom value to $this->taxonIDS
-        //step 2 write extension
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //this is just to copy occurrence
-        self::process_association($tables['http://eol.org/schema/association'][0], 'create extension'); //main operation in DATA-1812: For every record, create an additional record in reverse.
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is just to copy occurrence
+        self::process_association($tables['http://eol.org/schema/association'][0]); //main operation in DATA-1812: For every record, create an additional record in reverse.
     }
-    private function process_association($meta, $what)
+    private function process_association($meta)
     {   //print_r($meta);
         $OR = self::get_orig_reverse_uri();
         $i = 0;
@@ -52,61 +46,32 @@ class GloBIDataAPI
                 [http://purl.org/dc/terms/contributor] => 
                 [http://eol.org/schema/reference/referenceID] => globi:ref:1
             )*/
-            $associationType = $rec['http://eol.org/schema/associationType'];
-            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-            $targetOccurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
-            if($what == 'build info') {
-                // http://purl.obolibrary.org/obo/RO_0002623 (flowers visited by)
-                // http://purl.obolibrary.org/obo/RO_0002622 (visits flowers of)
-                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002622'))) {
-                    $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
-                }
-                
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002437') { //delete all records of this associationType
-                    $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
-                    $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
-                }
+            
+            $o = new \eol_schema\Association();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
             }
-            elseif($what == 'create extension') {
-                /* first change request */
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002437') continue; //delete all records of this associationType
-                /* second change request 
-                if association_type == RO_0002623 (flowers visited by) AND targetOccurrenceID has a taxon with Plantae in the kingdom column
-                then: replace association_type with RO_0002622
-
-                if association_type == RO_0002622 (visits flowers of) AND targetOccurrenceID has a taxon with Animalia in the kingdom column
-                then: replace association_type with RO_0002623
-                */
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623' && self::target_has_Plantae_taxon($targetOccurrenceID)) $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622' && self::target_has_Animalia_taxon($targetOccurrenceID)) $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
-                /* end second change request */
-                //-----------------------------------------------------------------------------
-                $o = new \eol_schema\Association();
-                $uris = array_keys($rec);
-                foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $o->$field = $rec[$uri];
-                }
-                if($o->associationType == 'http://eol.org/schema/terms/DispersalVector') $o->associationType = 'http://eol.org/schema/terms/IsDispersalVectorFor'; //DATA-1841
+            if($o->associationType == 'http://eol.org/schema/terms/DispersalVector') $o->associationType = 'http://eol.org/schema/terms/IsDispersalVectorFor'; //DATA-1841
+            $this->archive_builder->write_object_to_file($o);
+            
+            /* now do the reverse when applicable:
+            So what's needed in the resource: The only changes needed should be in the associations file. 
+            For every record, create an additional record, with all the same metadata, and the same two occurrenceIDs, but switching which appears in which 
+            column (occurrenceID and targetOccurrenceID). The value in relationshipType should change to the "reverse relationship". I'll make you a mapping.
+            */
+            if($reverse_type = @$OR[$o->associationType]) {
+                $o->associationID = 'ReverseOf_'.$o->associationID;
+                $o->occurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
+                $o->targetOccurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                $o->associationType = $reverse_type;
                 $this->archive_builder->write_object_to_file($o);
-
-                /* now do the reverse when applicable:
-                So what's needed in the resource: The only changes needed should be in the associations file. 
-                For every record, create an additional record, with all the same metadata, and the same two occurrenceIDs, but switching which appears in which 
-                column (occurrenceID and targetOccurrenceID). The value in relationshipType should change to the "reverse relationship". I'll make you a mapping.
-                */
-                if($reverse_type = @$OR[$o->associationType]) {
-                    $o->associationID = 'ReverseOf_'.$o->associationID;
-                    $o->occurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
-                    $o->targetOccurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-                    $o->associationType = $reverse_type;
-                    $this->archive_builder->write_object_to_file($o);
-                }
-                // if($i >= 10) break; //debug only
             }
+            // if($i >= 10) break; //debug only
         }
     }
-    private function process_occurrence($meta, $what)
+    private function process_occurrence($meta)
     {   //print_r($meta);
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -153,64 +118,15 @@ class GloBIDataAPI
                 [http:/eol.org/globi/terms/physiologicalState] => 
                 [http:/eol.org/globi/terms/bodyPart] => 
             )*/
-            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-            if($what == 'build info') {
-                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-                if(isset($this->targetOccurrenceIDS[$occurrenceID])) {
-                    $this->taxonIDS[$taxonID] = '';
-                    $this->targetOccurrenceIDS[$occurrenceID] = $taxonID;
-                }
-            }
-            elseif($what == 'create extension') {
-                if(isset($this->toDeleteOccurrenceIDS[$occurrenceID])) continue;
-                
-                $o = new \eol_schema\Occurrence_specific();
-                $uris = array_keys($rec);
-                foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $o->$field = $rec[$uri];
-                }
-                $this->archive_builder->write_object_to_file($o);
-            }
             
-            // if($i >= 10) break; //debug only
-        }
-    }
-    private function process_taxon($meta)
-    {   //print_r($meta);
-        $i = 0;
-        foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
-            if($meta->ignore_header_lines && $i == 1) continue;
-            if(!$row) continue;
-            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
-            $tmp = explode("\t", $row);
-            $rec = array(); $k = 0;
-            foreach($meta->fields as $field) {
-                if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
-                $k++;
+            $o = new \eol_schema\Occurrence_specific();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
             }
-            // print_r($rec); exit;
-            /*Array(
-                [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:750524
-                [http://rs.tdwg.org/dwc/terms/scientificName] => Copestylum vesicularium
-                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 
-                [http://rs.tdwg.org/dwc/terms/kingdom] => Animalia
-                [http://rs.tdwg.org/dwc/terms/phylum] => Arthropoda
-                [http://rs.tdwg.org/dwc/terms/class] => Insecta
-                [http://rs.tdwg.org/dwc/terms/order] => Diptera
-                [http://rs.tdwg.org/dwc/terms/family] => Syrphidae
-                [http://rs.tdwg.org/dwc/terms/genus] => Copestylum
-                [http://rs.tdwg.org/dwc/terms/taxonRank] => species
-                [http://rs.tdwg.org/ac/terms/furtherInformationURL] => http://eol.org/pages/750524
-                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => 
-                [http://rs.tdwg.org/dwc/terms/taxonRemarks] => 
-                [http://rs.tdwg.org/dwc/terms/namePublishedIn] => 
-                [http://eol.org/schema/reference/referenceID] => 
-            )*/
-            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if(isset($this->taxonIDS[$taxonID])) $this->taxonIDS[$taxonID] = substr($rec['http://rs.tdwg.org/dwc/terms/kingdom'],0,1);
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
         }
     }
     private function get_orig_reverse_uri()

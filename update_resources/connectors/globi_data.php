@@ -10,6 +10,7 @@ globi_associations	Sunday 2019-12-01 08:41:08 PM	{"association.tab":3484127,"occ
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+$GLOBALS['ENV_DEBUG'] = true;
 
 // /* //main operation
 require_library('connectors/DwCA_Utility');
