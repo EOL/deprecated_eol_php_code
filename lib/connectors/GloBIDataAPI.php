@@ -219,6 +219,7 @@ class GloBIDataAPI
             if($char = $this->taxonIDS[$taxonID]) {
                 return $char; // An or Pl => Animalia or Plantae
             }
+            elseif($taxonID == 'EOL:5536407') return 'Pl';
             else exit("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
         }
         else exit("\nInvestigate: this targetOccurrenceID [$targetOccurrenceID] does not have taxonID \n");
