@@ -77,8 +77,8 @@ class GloBIDataAPI
                 if association_type == RO_0002622 (visits flowers of) AND targetOccurrenceID has a taxon with Animalia in the kingdom column
                 then: replace association_type with RO_0002623
                 */
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623' && self::target_has_Plantae_taxon($targetOccurrenceID)) $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622' && self::target_has_Animalia_taxon($targetOccurrenceID)) $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
+                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623' && self::target_taxon_kingdom($targetOccurrenceID)=='Pl') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
+                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622' && self::target_taxon_kingdom($targetOccurrenceID)=='An') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
                 /* end second change request */
                 //-----------------------------------------------------------------------------
                 $o = new \eol_schema\Association();
@@ -210,8 +210,18 @@ class GloBIDataAPI
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if(isset($this->taxonIDS[$taxonID])) $this->taxonIDS[$taxonID] = substr($rec['http://rs.tdwg.org/dwc/terms/kingdom'],0,1);
+            if(isset($this->taxonIDS[$taxonID])) $this->taxonIDS[$taxonID] = substr($rec['http://rs.tdwg.org/dwc/terms/kingdom'],0,2);
         }
+    }
+    private function target_taxon_kingdom($targetOccurrenceID) //targetOccurrenceID points to a taxon with this kingdom value
+    {
+        if($taxonID = $this->targetOccurrenceIDS[$targetOccurrenceID]) {
+            if($char = $this->taxonIDS[$taxonID]) {
+                return $char; // An or Pl => Animalia or Plantae
+            }
+            else exit("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+        }
+        else exit("\nInvestigate: this targetOccurrenceID [$targetOccurrenceID] does not have taxonID \n");
     }
     private function get_orig_reverse_uri()
     {
