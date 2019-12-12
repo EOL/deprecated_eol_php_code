@@ -12,6 +12,11 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
 
+exit("\nThis has been run already. Another connector was created to further adjust the DwCA. See below:\n");
+/* There is this one, which supercedes sc_australia.php
+DATA-1841 - species_checklist_terms_remapped.php
+*/
+
 $resource_id = 'SC_australia';
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/legacy_SC_australia.tar.gz';
 process_resource_url($dwca_file, $resource_id, $timestart);

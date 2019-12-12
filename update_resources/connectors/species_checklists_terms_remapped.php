@@ -8,15 +8,17 @@ $timestart = time_elapsed();
 // /* main operation
 require_library('connectors/SpeciesChecklistAPI');
 $func = new SpeciesChecklistAPI(false, false);
+/*
 generate_new_dwca($func); //main script to remap terms in all resources under 'water-body-checklists-2019'.
+*/
 
-/* 3 specific countries mentioned in DATA-1841
-$urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_mexico.tar.gz';
-$urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_indonesia.tar.gz';
+// /* 3 specific countries mentioned in DATA-1841
+// $urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_mexico.tar.gz';
+// $urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_indonesia.tar.gz';
 $urls[] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/SC_unitedstates.tar.gz';
 print_r($urls);
 foreach($urls as $url) process_resource_url($url);
-*/
+// */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -54,7 +56,11 @@ function process_resource_url($dwca_file)
     $resource_id = ''.get_basename($dwca_file);
     echo " Processing [$resource_id]...";
     $func = new DwCA_Utility($resource_id, $dwca_file);
-    $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://rs.tdwg.org/dwc/terms/occurrence", "http://eol.org/schema/reference/reference");
+
+    if(stripos($dwca_file, "SC_unitedstates") !== false) { //string is found -- "taxon"
+        $preferred_rowtypes = array("http://eol.org/schema/reference/reference");
+    }
+    else $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://rs.tdwg.org/dwc/terms/occurrence", "http://eol.org/schema/reference/reference"); //for the rest
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true);
 }

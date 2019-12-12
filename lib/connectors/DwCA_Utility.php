@@ -176,7 +176,7 @@ class DwCA_Utility
         if(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') { //for DATA-1841 terms remapping. "c_" resources (3) came from DATA-1840.
             require_library('connectors/SpeciesChecklistAPI');
             $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
-            $func->start_terms_remap($info);
+            $func->start_terms_remap($info, $this->resource_id);
         }
         if($this->resource_id == '708') {
             require_library('connectors/New_EnvironmentsEOLDataConnector');

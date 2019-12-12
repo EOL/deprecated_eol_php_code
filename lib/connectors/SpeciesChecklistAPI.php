@@ -18,14 +18,97 @@ class SpeciesChecklistAPI
         $this->mapping['water-body-checklists'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/DATA-1817/water-body-checklists-sourcefixes.tsv';
     }
     /*================================================================= terms remap STARTS HERE ======================================================================*/
-    function start_terms_remap($info)
+    function start_terms_remap($info, $resource_id)
     {
         $remapped['http://www.marineregions.org/gazetteer.php?p=details&id=mexico'] = 'http://www.geonames.org/3996063';
         $remapped['http://www.marineregions.org/gazetteer.php?p=details&id=indonesia'] = 'http://www.geonames.org/1643084';
         $remapped['http://www.marineregions.org/gazetteer.php?p=details&id=united_states'] = 'http://www.geonames.org/6252001';
         
         $tables = $info['harvester']->tables;
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], $remapped);
+        if($resource_id == 'SC_unitedstates') { //per https://eol-jira.bibalex.org/browse/DATA-1841?focusedCommentId=64217&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64217
+            self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+            self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], $remapped);
+        }
+        else { //for the rest
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], $remapped);
+        }
+    }
+    private function process_taxon($meta)
+    {   //print_r($meta);
+        echo "\nprocess_taxon...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => T100000
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => T100001
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Zenaida macroura
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => species
+            )*/
+            //===========================================================================================================================================================
+            /* There are a lot of messy data in the names file of this resource. Could you please filter out anything where ScientificName:
+            -is longer than 50 characters
+            -begins with a space or a numeral */
+            $sciname = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+            if(strlen($sciname) > 50 || is_numeric(substr($sciname,0,1)) || substr($sciname,0,1) == " ") {
+                $this->delete_taxonID[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = '';
+                continue;
+            }
+            //===========================================================================================================================================================
+            $o = new \eol_schema\Taxon();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+        }
+    }
+    private function process_occurrence($meta)
+    {   //print_r($meta);
+        echo "\nprocess_occurrence...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => CT100000
+                [http://rs.tdwg.org/dwc/terms/taxonID] => T100000
+            )*/
+            //===========================================================================================================================================================
+            if(isset($this->delete_taxonID[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) {
+                $this->delete_occurrenceID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                continue;
+            }
+            //===========================================================================================================================================================
+            $o = new \eol_schema\Occurrence();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+        }
     }
     private function process_measurementorfact($meta, $remapped)
     {   //print_r($meta);
@@ -54,6 +137,8 @@ class SpeciesChecklistAPI
                 [http://purl.org/dc/terms/contributor] => Compiler: Anne E Thessen
                 [http://eol.org/schema/reference/referenceID] => R01|R02
             )*/
+            //===========================================================================================================================================================
+            if(isset($this->delete_occurrenceID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
             //===========================================================================================================================================================
             $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             if($val = @$remapped[$mValue]) $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = $val;
