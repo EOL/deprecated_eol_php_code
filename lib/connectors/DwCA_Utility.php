@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/gbif_dir_fix_dir_31585/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/gbif_dir_fix_dir_31585/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/'
         );
         */
         
@@ -133,6 +133,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only
             if($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
             elseif(in_array($this->resource_id, array('BF', 'gbif_classification'))) break; //all extensions will be processed elsewhere.
