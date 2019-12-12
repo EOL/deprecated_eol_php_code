@@ -1,6 +1,10 @@
 <?php
 namespace php_active_record;
-/* https://eol-jira.bibalex.org/browse/DATA-1841?focusedCommentId=64113&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64113 */
+/* https://eol-jira.bibalex.org/browse/DATA-1841?focusedCommentId=64113&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64113 
+SC_unitedstates	Friday 2019-08-09 08:08:26 AM	{"measurement_or_fact.tab":337666,"occurrence.tab":168833,"reference.tab":2,"taxon.tab":215817}
+SC_unitedstates	Monday 2019-12-09 10:18:07 AM	{"measurement_or_fact_specific.tab":337666,"occurrence.tab":168833,"reference.tab":2,"taxon.tab":215817,"time_elapsed":false}
+SC_unitedstates	Wednesday 2019-12-11 10:10:34 PM{"measurement_or_fact_specific.tab":337650,"occurrence.tab":168817,"reference.tab":2,"taxon.tab":215560,"time_elapsed":false} weird names removed per Jen
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
