@@ -29,7 +29,7 @@ class Eol_v3_API
         $this->api['Pages2'][1] = '.json?details=true&xxx_per_page=75&xxx_page=';
         $this->api['Pages3'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?details=true'; //for GBIF_classificationAPI.php
         $this->api['Pages4'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?details=true&images_per_page=50&images_page=PAGE_NO'; //for DATA-1842: EOL image bundles for Katie
-
+        $this->api['Pages5'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?taxonomy=true'; //for https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64218&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64218
         $this->api['search_name'] = 'https://eol.org/api/search/1.0.json?q=SCINAME&page=PAGE_NO&exact=true';
         /* https://eol.org/api/search/1.0.json?q=Sphinx&page=1&exact=true */
 
@@ -181,9 +181,9 @@ class Eol_v3_API
         }
     }
     /* ---------------------------------------------------------- END image bundles ------------------------------------------------------------ */
-    function search_eol_page_id($eol_page_id, $options = array())
+    function search_eol_page_id($eol_page_id, $options = array(), $PagesX = 'Pages3')
     {   if(!$options) $options = $this->download_options;
-        $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages3']);
+        $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api[$PagesX]);
         if($json = Functions::lookup_with_cache($url, $options)) {
             $arr = json_decode($json, true);
             return $arr;
