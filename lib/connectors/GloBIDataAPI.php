@@ -7,6 +7,18 @@ class GloBIDataAPI
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        
+        require_library('connectors/Eol_v3_API');
+        $this->func_eol_v3 = new Eol_v3_API();
+        
+        $this->api['iNat taxon'] = 'https://api.inaturalist.org/v1/taxa/TAXON_ID';
+        $this->api['GBIF taxon'] = 'http://api.gbif.org/v1/species/TAXON_ID';
+        $this->download_options = array(
+            'resource_id'        => 'iNat',  //resource_id here is just a folder name in cache
+            'expire_seconds'     => 60*60*24*30*2, //maybe 2 months to expire
+            'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
+        $this->download_options_gbif = $this->download_options;
+        $this->download_options_gbif['resource_id'] = 'gbif';
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -20,6 +32,7 @@ class GloBIDataAPI
         //step 2 write extension
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //this is just to copy occurrence
         self::process_association($tables['http://eol.org/schema/association'][0], 'create extension'); //main operation in DATA-1812: For every record, create an additional record in reverse.
+        print_r($this->debug);
     }
     private function process_association($meta, $what)
     {   //print_r($meta);
@@ -210,19 +223,125 @@ class GloBIDataAPI
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if(isset($this->taxonIDS[$taxonID])) $this->taxonIDS[$taxonID] = substr($rec['http://rs.tdwg.org/dwc/terms/kingdom'],0,2);
+            $kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
+            if(isset($this->taxonIDS[$taxonID])) {
+                $this->taxonIDS[$taxonID]['kingdom'] = substr($kingdom,0,2);
+                $this->taxonIDS[$taxonID]['sciname'] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+            }
         }
     }
     private function target_taxon_kingdom($targetOccurrenceID) //targetOccurrenceID points to a taxon with this kingdom value
     {
         if($taxonID = $this->targetOccurrenceIDS[$targetOccurrenceID]) {
-            if($char = $this->taxonIDS[$taxonID]) {
+            if($char = $this->taxonIDS[$taxonID]['kingdom']) {
                 return $char; // An or Pl => Animalia or Plantae
             }
-            elseif($taxonID == 'EOL:5536407') return 'Pl';
-            else exit("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+            elseif(in_array($taxonID, array('EOL:23306280', 'EOL:5051697', 'EOL:5536407', 'EOL:5231462', 'EOL:6922431', 'EOL:5540593', 'EOL_V2:5170411', 'EOL:107287', 
+            'EOL_V2:5169796', 'EOL:2879598', 'IRMNG:11155392', 'EOL:5356331', 'EOL:703626', 'EOL:2865819', 'EOL_V2:5544078', 'EOL:5164786', 'EOL_V2:5426294', 
+            'EOL:5024066', 'WD:Q5389420', 'EOL:29378842', 'EOL:40469587', 'EOL:71360', 'EOL:5744742', 'EOL:5631615', 'EOL_V2:6346627', 'EOL_V2:5350526', 'EOL_V2:5178076', 
+            'EOL_V2:5349701', 'EOL_V2:5387667', 'EOL:5187953', 'EOL_V2:5664483', 'EOL_V2:5177870', 'EOL_V2:5386317', 'EOL_V2:5223689', 'EOL_V2:5666458', 'EOL_V2:5745926', 
+            'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) return 'Pl';
+            elseif(in_array($taxonID, array('EOL:5425400', 'EOL:55106', 'EOL:3832795', 'FBC:FB:SpecCode:5038', 'EOL:3682636', 'EOL:31599461', 'EOL:54655', 
+            'EOL_V2:6272187', 'EOL_V2:3121417'))) return 'An';
+            else {
+                /*Array(
+                    [does not have kingdom] => Array(
+                            [INAT_TAXON:48460] => Life
+                        )
+                )
+                */
+                if(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
+                    if($val = self::get_kingdom_from_EOLtaxonID($taxonID)) return $val;
+                }
+                elseif(substr($taxonID,0,11) == 'INAT_TAXON:') { //e.g. INAT_TAXON:900074
+                    if($val = self::get_kingdom_from_iNATtaxonID($taxonID)) return $val;
+                }
+                
+                if($sciname = @$this->taxonIDS[$taxonID]['sciname']) {
+                    if(stripos($sciname, " trees") !== false) return 'Pl'; //string is found
+                    if(stripos($sciname, " shrubs") !== false) return 'Pl'; //string is found
+                    if(stripos($sciname, " plants") !== false) return 'Pl'; //string is found
+                }
+                
+                $this->debug['does not have kingdom'][$taxonID] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+            }
         }
         else exit("\nInvestigate: this targetOccurrenceID [$targetOccurrenceID] does not have taxonID \n");
+    }
+    function get_kingdom_from_iNATtaxonID($taxonID, $options = array())
+    {
+        $id = str_replace('INAT_TAXON:', '', $taxonID);
+        if(!$options) $options = $this->download_options;
+        $url = str_replace("TAXON_ID", $id, $this->api['iNat taxon']);
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $arr = json_decode($json, true);
+            $arr = $arr['results']; // print_r($arr); exit;
+            foreach($arr as $a) {
+                if(!@$a['ancestors']) continue;
+                foreach(@$a['ancestors'] as $anc) {
+                    if($anc['rank'] == 'kingdom' && $anc['name'] == 'Animalia') return 'An';
+                    elseif($anc['rank'] == 'kingdom' && $anc['name'] == 'Plantae') return 'Pl';
+                    elseif($anc['rank'] == 'kingdom') {
+                        $this->debug['kingdom from iNat NOT Pl nor An'][$anc['name']] = '';
+                        return $anc['name'];
+                    }
+                }
+            }
+        }
+        else debug("\nnot found [$id] in iNaturalist()\n");
+        return false;
+    }
+    function get_kingdom_from_EOLtaxonID($taxonID)
+    {
+        if(stripos($taxonID, "EOL:") !== false) $id = str_replace('EOL:', '', $taxonID); //string is found
+        if(stripos($taxonID, "EOL_V2:") !== false) $id = str_replace('EOL_V2:', '', $taxonID); //string is found
+        if($arr = $this->func_eol_v3->search_eol_page_id($id, array(), 'Pages5')) {
+            if($arr = $arr['taxonConcept']['taxonConcepts']) {
+                // print_r($arr);
+                foreach($arr as $rec) {
+                    /*[0] => Array(
+                                [identifier] => 8331858
+                                [scientificName] => Blepharis capensis (L.f.) Pers.
+                                [name] => Blepharis capensis (L.f.) Pers.
+                                [nameAccordingTo] => EOL Dynamic Hierarchy 0.9
+                                [canonicalForm] => <i>Blepharis capensis</i>
+                                [sourceIdentifier] => -967795
+                                [taxonRank] => species
+                            )
+                    */
+                    if($rec['nameAccordingTo'] == 'Plant Forms, Habitat and Distribution') {
+                        echo " [Pl]";
+                        return 'Pl';
+                    }
+                }
+                /* Let us try GBIF */
+                foreach($arr as $rec) {
+                    if($rec['nameAccordingTo'] == 'GBIF classification') {
+                        $gbif_id = $rec['sourceIdentifier'];
+                        if($kingdom = self::get_kingdom_from_gbif($gbif_id)) {
+                            // echo "\nkingdom from GBIF: [$kingdom]\n";
+                            $this->debug['kingdom from GBIF'][$kingdom] = '';
+                            if($kingdom == 'Plantae') return 'Pl';
+                            if($kingdom == 'Animalia') return 'An';
+                            return $kingdom;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        // exit("\nNot found...\n");
+        return false;
+    }
+    function get_kingdom_from_gbif($gbif_id, $options = array())
+    {
+        if(!$options) $options = $this->download_options_gbif;
+        $url = str_replace("TAXON_ID", $gbif_id, $this->api['GBIF taxon']);
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $arr = json_decode($json, true);
+            // print_r($arr); exit("\n-end gbif-\n");
+            if($val = @$arr['kingdom']) return $val;
+        }
     }
     private function get_orig_reverse_uri()
     {

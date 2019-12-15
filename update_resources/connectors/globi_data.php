@@ -12,6 +12,26 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true;
 
+// https://api.inaturalist.org/v1/taxa/900074
+// http://api.gbif.org/v1/species/3934982
+
+/* testing
+require_library('connectors/GloBIDataAPI');
+$func = new GloBIDataAPI(false, 'globi');
+
+$id = 'EOL:23326858';
+$id = 'EOL:5356331';
+$id = 'EOL:5409252'; //sample which goes to gbif
+// $kingdom = $func->get_kingdom_from_EOLtaxonID($id);
+
+$id = 'INAT_TAXON:76884';
+$kingdom = $func->get_kingdom_from_iNATtaxonID($id);
+
+echo "\n[$kingdom]\n";
+exit("\n-end test-\n");
+*/
+
+
 // /* //main operation
 require_library('connectors/DwCA_Utility');
 $resource_id = "globi_associations";
