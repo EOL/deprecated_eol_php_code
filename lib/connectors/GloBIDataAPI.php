@@ -28,10 +28,11 @@ class GloBIDataAPI
         //step 1 is build info list
         self::process_association($tables['http://eol.org/schema/association'][0], 'build info');       //generates $this->targetOccurrenceIDS $this->toDeleteOccurrenceIDS
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');  //generates $this->taxonIDS AND assigns taxonID to $this->targetOccurrenceIDS
-        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);                          //assigns kingdom value to $this->taxonIDS
+        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info');            //assigns kingdom value to $this->taxonIDS
         //step 2 write extension
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //this is just to copy occurrence
         self::process_association($tables['http://eol.org/schema/association'][0], 'create extension'); //main operation in DATA-1812: For every record, create an additional record in reverse.
+        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create extension');
         print_r($this->debug);
     }
     private function process_association($meta, $what)
@@ -177,6 +178,7 @@ class GloBIDataAPI
             elseif($what == 'create extension') {
                 if(isset($this->toDeleteOccurrenceIDS[$occurrenceID])) continue;
                 
+                $this->taxonIDhasOccurrence['http://rs.tdwg.org/dwc/terms/taxonID'] = ''; //so we can only create taxon with occurrence.
                 $o = new \eol_schema\Occurrence_specific();
                 $uris = array_keys($rec);
                 foreach($uris as $uri) {
@@ -189,7 +191,7 @@ class GloBIDataAPI
             // if($i >= 10) break; //debug only
         }
     }
-    private function process_taxon($meta)
+    private function process_taxon($meta, $what)
     {   //print_r($meta);
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -223,10 +225,22 @@ class GloBIDataAPI
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            $kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
-            if(isset($this->taxonIDS[$taxonID])) {
-                $this->taxonIDS[$taxonID]['kingdom'] = substr($kingdom,0,2);
-                $this->taxonIDS[$taxonID]['sciname'] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+            if($what == 'build info') {
+                $kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
+                if(isset($this->taxonIDS[$taxonID])) {
+                    $this->taxonIDS[$taxonID]['kingdom'] = substr($kingdom,0,2);
+                    $this->taxonIDS[$taxonID]['sciname'] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                }
+            }
+            elseif($what == 'create extension') {
+                if(!isset($this->taxonIDhasOccurrence[$taxonID])) continue;
+                $o = new \eol_schema\Taxon();
+                $uris = array_keys($rec);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
             }
         }
     }

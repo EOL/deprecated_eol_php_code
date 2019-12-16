@@ -6,6 +6,9 @@ globi_associations	Thursday 2019-07-04 06:20:42 AM	{"association.tab":3097726,"o
 globi_associations	Tuesday 2019-09-24 02:36:25 PM	{"association.tab":3251759,"occurrence_specific.tab":2438087,"reference.tab":467632,"taxon.tab":217885} MacMini
 globi_associations	Wednesday 2019-09-25 01:40:19 AM{"association.tab":3251759,"occurrence_specific.tab":2438087,"reference.tab":467632,"taxon.tab":217885} eol-archive
 globi_associations	Sunday 2019-12-01 08:41:08 PM	{"association.tab":3484127,"occurrence_specific.tab":2642172,"reference.tab":457021,"taxon.tab":234408} eol-archive Consistent OK
+
+decrease in associations is per: https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64218&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64218
+globi_associations	Sunday 2019-12-15 11:30:58 PM	{"association.tab":2603503,"occurrence_specific.tab":2091804,"reference.tab":457021,"taxon.tab":234408}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -39,8 +42,8 @@ $dwca = 'https://depot.globalbioticinteractions.org/snapshot/target/eol-globi-da
 // $dwca = 'http://localhost/cp/GloBI_2019/eol-globi-datasets-1.0-SNAPSHOT-darwin-core-aggregated.zip';
 $func = new DwCA_Utility($resource_id, $dwca);
 
-$preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/Taxon', 'http://eol.org/schema/reference/Reference'); //orig in partners meta XML. Overwritten below.
-$preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
+/*reminder upper-case used in meta.xml e.g. 'http://rs.tdwg.org/dwc/terms/Taxon', 'http://eol.org/schema/reference/Reference' */
+$preferred_rowtypes = array('http://eol.org/schema/reference/reference'); //was forced to lower case in DwCA_Utility.php
 
 $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, true, true, $timestart);
