@@ -233,14 +233,15 @@ class GloBIDataAPI
                 }
             }
             elseif($what == 'create extension') {
-                if(!isset($this->taxonIDhasOccurrence[$taxonID])) continue;
-                $o = new \eol_schema\Taxon();
-                $uris = array_keys($rec);
-                foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $o->$field = $rec[$uri];
+                if(isset($this->taxonIDhasOccurrence[$taxonID])) {
+                    $o = new \eol_schema\Taxon();
+                    $uris = array_keys($rec);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o->$field = $rec[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o);
                 }
-                $this->archive_builder->write_object_to_file($o);
             }
         }
     }
