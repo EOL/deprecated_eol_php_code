@@ -58,8 +58,12 @@ start below of new traits, no synonyms, only accepted taxa
 26	Thursday 2019-09-19 11:46:55 AM	{"agent.tab":1597,"association.tab":73215,"measurement_or_fact_specific.tab":3376634,"media_resource.tab":85232,"occurrence_specific.tab":2160600,"reference.tab":608368,"taxon.tab":340007,"vernacular_name.tab":79081}
 26	Thursday 2019-10-17 08:47:04 AM	{"agent.tab":1603,"association.tab":76387,"measurement_or_fact_specific.tab":3406848,"media_resource.tab":85431,"occurrence_specific.tab":2180297,"reference.tab":612137,"taxon.tab":341924,"vernacular_name.tab":79111,"time_elapsed":{"min":43.71,"hr":0.73}} consistent OK
 26	Sunday 2019-11-10 12:50:29 AM	{"agent.tab":1612,"association.tab":76363,"measurement_or_fact_specific.tab":3410186,"media_resource.tab":85602,"occurrence_specific.tab":2182490,"reference.tab":614535,"taxon.tab":342039,"vernacular_name.tab":79130,"time_elapsed":{"sec":2548.89,"min":42.48,"hr":0.71}}
-Based on new: http://www.marinespecies.org/export/eol/WoRMS2EoL.zip. It seems the association data is gone.
-26	Friday 2019-12-06 07:34:50 AM	{"agent.tab":1615,                        "measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2669.63,"min":44.49,"hr":0.74}}
+
+Based on new Dec 2019: http://www.marinespecies.org/export/eol/WoRMS2EoL.zip.
+'http://rs.tdwg.org/dwc/terms/measurementType' == 'Feedingtype' does not exist anymore
+So this means there is no more association data from WoRMS.
+26	Friday 2019-12-06 07:34:50 AM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2669.63,"min":44.49,"hr":0.74}}
+26	Sunday 2019-12-15 11:54:39 PM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2863.38,"min":47.72,"hr":0.8}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 

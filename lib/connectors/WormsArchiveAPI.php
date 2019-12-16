@@ -808,6 +808,17 @@ class WormsArchiveAPI
             } // print_r($rec); exit;
             $rec = array_map('trim', $rec); //worked OK - important!
 
+            // /* Eli Dec 16. To remove 3 parentMoF without entry. From: https://editors.eol.org/eol_php_code/applications/content_server/resources/26_undefined_parentMeasurementIDs.txt
+            $mID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            if(in_array($mID, array('749320_160945', '749321_160945', '749346_120936', '749347_120936', '749374_583525', '749375_583525'))) continue;
+            // 160945   749320_160945       Functional group        meiobenthos     
+            // 160945   749321_160945   749320_160945   Functional group > Stage        adult       
+            // 120936   749346_120936       Functional group        meiobenthos     
+            // 120936   749347_120936   749346_120936   Functional group > Stage        adult       
+            // 583525   749374_583525       Functional group        meiobenthos     
+            // 583525   749375_583525   749374_583525   Functional group > Stage        adult       
+            // */
+
             /* just for testing...
             $mtype = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             // if($mtype == 'Body size > Gender' && !$rec['parentMeasurementID']) print_r($rec);
