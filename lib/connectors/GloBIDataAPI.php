@@ -37,6 +37,7 @@ class GloBIDataAPI
     }
     private function process_association($meta, $what)
     {   //print_r($meta);
+        echo "\nprocess_association [$what]\n";
         $OR = self::get_orig_reverse_uri();
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -122,6 +123,7 @@ class GloBIDataAPI
     }
     private function process_occurrence($meta, $what)
     {   //print_r($meta);
+        echo "\nprocess_occurrence [$what]\n";
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -168,8 +170,8 @@ class GloBIDataAPI
                 [http:/eol.org/globi/terms/bodyPart] => 
             )*/
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             if($what == 'build info') {
-                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 if(isset($this->targetOccurrenceIDS[$occurrenceID])) {
                     $this->taxonIDS[$taxonID] = '';
                     $this->targetOccurrenceIDS[$occurrenceID] = $taxonID;
@@ -178,7 +180,7 @@ class GloBIDataAPI
             elseif($what == 'create extension') {
                 if(isset($this->toDeleteOccurrenceIDS[$occurrenceID])) continue;
                 
-                $this->taxonIDhasOccurrence['http://rs.tdwg.org/dwc/terms/taxonID'] = ''; //so we can only create taxon with occurrence.
+                $this->taxonIDhasOccurrence[$taxonID] = ''; //so we can only create taxon with occurrence.
                 $o = new \eol_schema\Occurrence_specific();
                 $uris = array_keys($rec);
                 foreach($uris as $uri) {
@@ -193,6 +195,7 @@ class GloBIDataAPI
     }
     private function process_taxon($meta, $what)
     {   //print_r($meta);
+        echo "\nprocess_taxon [$what]\n";
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
