@@ -245,6 +245,7 @@ class WormsArchiveAPI
         unset($harvester);
         echo "\n8 of 8\n";  $this->archive_builder->finalize(TRUE);
 
+        print_r($this->debug);
         // remove temp dir
         recursive_rmdir($temp_dir);
         echo ("\n temporary directory removed: " . $temp_dir);
@@ -842,6 +843,7 @@ class WormsArchiveAPI
                 $mID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
                 $super_parent = self::get_super_parent($mID);
                 if($value_str = @$this->FeedingType[$super_parent]) {
+                    $this->debug['FeedingType'][$value_str] = '';
                     if(in_array($value_str, array('carnivore', 'unknown', 'omnivore', 'commensal', 'on sessile prey', 'predator', 'scavenger'))) continue; //were not initialized in ticket, no instruction.
                     $predicate         = $this->fType_URI[$value_str]['reg'];
                     $predicate_reverse = $this->fType_URI[$value_str]['rev'];
