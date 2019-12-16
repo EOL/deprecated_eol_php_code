@@ -9,6 +9,7 @@ globi_associations	Sunday 2019-12-01 08:41:08 PM	{"association.tab":3484127,"occ
 
 decrease in associations is per: https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64218&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64218
 globi_associations	Sunday 2019-12-15 11:30:58 PM	{"association.tab":2603503,"occurrence_specific.tab":2091804,"reference.tab":457021,"taxon.tab":234408}
+globi_associations	Monday 2019-12-16 01:56:00 PM	{"association.tab":2603503,"occurrence_specific.tab":2091804,"reference.tab":457021,"taxon.tab":199329,"time_elapsed":{"sec":1613.86,"min":26.9,"hr":0.45}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

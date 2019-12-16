@@ -64,6 +64,7 @@ Based on new Dec 2019: http://www.marinespecies.org/export/eol/WoRMS2EoL.zip.
 So this means there is no more association data from WoRMS.
 26	Friday 2019-12-06 07:34:50 AM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2669.63,"min":44.49,"hr":0.74}}
 26	Sunday 2019-12-15 11:54:39 PM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2863.38,"min":47.72,"hr":0.8}}
+26	Monday 2019-12-16 01:39:12 PM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406165,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2689.37,"min":44.82,"hr":0.75}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
