@@ -59,7 +59,7 @@ class USDAPlants2019
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
-        $this->func->initialize_terms_remapping();
+        $this->func->initialize_terms_remapping(0); //param is $expire_seconds. 0 means expire now.
         /* END DATA-1841 terms remapping */
         
         $tables = $info['harvester']->tables;
