@@ -84,7 +84,7 @@ class ConservationEvidenceDataAPI
                 // print_r($rec); exit;
                 self::process_record($rec);
             } //main records
-            // if($i > 2) break; //debug only
+            if($i > 5) break; //debug only
         } //main loop
         fclose($file);
     }
