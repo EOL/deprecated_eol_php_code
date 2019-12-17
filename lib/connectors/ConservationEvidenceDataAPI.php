@@ -16,7 +16,7 @@ class ConservationEvidenceDataAPI
         $this->download_options = array(
             'resource_id'        => 'Conservation_Evidence',
             'expire_seconds'     => 60*60*24*30*3, //expires quarterly
-            'download_wait_time' => 3000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 0.5, 'cache' => 1);
+            'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 0.5, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0; //debug only
         $this->source_csv_species_list = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/ConservationEvidence/uniquetaxa_2019_03_06.csv';
         // $this->source_csv_path = DOC_ROOT."../other_files/natdb_harvest/";
@@ -84,7 +84,7 @@ class ConservationEvidenceDataAPI
                 // print_r($rec); exit;
                 self::process_record($rec);
             } //main records
-            if($i > 5) break; //debug only
+            // if($i > 2) break; //debug only
         } //main loop
         fclose($file);
     }

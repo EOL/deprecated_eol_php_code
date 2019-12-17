@@ -9,5 +9,5 @@ $timestart = time_elapsed();
 $resource_id = "con_evi"; //for "Conservation Evidence" resource
 $func = new ConservationEvidenceDataAPI($resource_id);
 $func->start(); //main operation
-Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
