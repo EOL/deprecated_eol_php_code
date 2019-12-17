@@ -14,7 +14,7 @@ class ConservationEvidenceDataAPI
         $this->debug = array();
         $this->for_mapping = array();
         $this->download_options = array(
-            'resource_id'        => $this->resource_id,
+            'resource_id'        => 'Conservation_Evidence',
             'expire_seconds'     => 60*60*24*30, //expires in 1 day
             'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 0.5, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0; //debug only
@@ -101,7 +101,8 @@ class ConservationEvidenceDataAPI
         $taxon_id = self::create_taxon($rec);
         $url = str_replace('BINOMIAL', $rec['binom'], $this->api['species']);
         if($ret = self::access_api($url)) {
-            print_r($ret); //exit;
+            // print_r($ret['results']); exit;
+            if($val = @$ret['results']) self::create_measurements($val, $taxon_id);
         }
     }
     private function access_api($url)
@@ -126,6 +127,35 @@ class ConservationEvidenceDataAPI
             $this->taxon_ids[$taxon->taxonID] = '';
         }
         return $taxon_id;
+    }
+    private function create_measurements($recs, $taxon_id)
+    {   /*Array(
+            [0] => Array(
+                    [id] => 69
+                    [title] => Reduce management intensity on permanent grasslands (several interventions at once)
+                    [url] => http://staging.conservationevidence.com/actions/69
+                    [type] => Action
+                )
+            [1] => Array(
+                    [id] => 131
+                    [title] => Delay mowing or first grazing date on pasture or grassland
+                    [url] => http://staging.conservationevidence.com/actions/131
+                    [type] => Action
+                )
+        measurementType=> "conservation_action"
+        measurementValue=> url, from the API results, eg: "http://staging.conservationevidence.com/actions/486"
+        measurementRemarks=> title, from the API results, eg: "Provide artificial nesting sites for waders"
+        */
+        foreach($recs as $rec) {
+            $mValue = $rec['url'];
+            $mType = 'conservation_action';
+            $rek = array();
+            $rek["taxon_id"] = $taxon_id;
+            $rek["catnum"] = $taxon_id."_".$rec['id'];
+            $mOfTaxon = "";
+            $rek['measurementRemarks'] = $rec['title'];
+            $ret = $this->func->pre_add_string_types($rek, $mValue, $mType, $mOfTaxon);
+        }
     }
     //====================================================================Conservation Evidence ends here. Copied templates below.
     private function main_write_archive()
