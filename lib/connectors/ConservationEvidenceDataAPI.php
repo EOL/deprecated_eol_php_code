@@ -15,8 +15,8 @@ class ConservationEvidenceDataAPI
         $this->for_mapping = array();
         $this->download_options = array(
             'resource_id'        => 'Conservation_Evidence',
-            'expire_seconds'     => 60*60*24*30, //expires in 1 day
-            'download_wait_time' => 2000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 0.5, 'cache' => 1);
+            'expire_seconds'     => 60*60*24*30*3, //expires quarterly
+            'download_wait_time' => 3000000, 'timeout' => 60*5, 'download_attempts' => 1, 'delay_in_minutes' => 0.5, 'cache' => 1);
         // $this->download_options['expire_seconds'] = 0; //debug only
         $this->source_csv_species_list = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/ConservationEvidence/uniquetaxa_2019_03_06.csv';
         // $this->source_csv_path = DOC_ROOT."../other_files/natdb_harvest/";
@@ -85,7 +85,7 @@ class ConservationEvidenceDataAPI
                 // print_r($rec); exit;
                 self::process_record($rec);
             } //main records
-            // if($i > 5) break; //debug only
+            // if($i > 2) break; //debug only
         } //main loop
         fclose($file);
     }
@@ -152,9 +152,21 @@ class ConservationEvidenceDataAPI
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
             $rek["catnum"] = $taxon_id."_".$rec['id'];
-            $mOfTaxon = "";
+            $mOfTaxon = "true";
             $rek['measurementRemarks'] = $rec['title'];
+            $rek['bibliographicCitation'] = self::get_biblio_from_site($rec['url']);
+            // $rek['source'] = $rec['url']; //Eli's own initiative...
             $ret = $this->func->pre_add_string_types($rek, $mValue, $mType, $mOfTaxon);
+        }
+    }
+    private function get_biblio_from_site($url)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //should not expire
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            if(preg_match("/Please cite as\:(.*?)<\/p>/ims", $html, $arr)) {
+                return Functions::remove_whitespace(trim(strip_tags($arr[1])));
+            }
         }
     }
     //====================================================================Conservation Evidence ends here. Copied templates below.
@@ -494,17 +506,6 @@ class ConservationEvidenceDataAPI
         }
         return $final;
     }
-    /* working but no longer needed, since you can now put arbitrary fields in occurrence extension.
-    function get_occurrence_properties()
-    {
-        if($xml = Functions::lookup_with_cache("https://editors.eol.org/other_files/ontology/occurrence_extension.xml", $this->download_options)) {
-            if(preg_match_all("/<property name=\"(.*?)\"/ims", $xml, $arr)) {
-                print_r($arr[1]);
-                return $arr[1];
-            }
-        }
-    }
-    */
     private function generate_reference($dataset)
     {
         if($ref = @$this->refs[$dataset]) {
