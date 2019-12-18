@@ -17,13 +17,19 @@ http://rs.gbif.org/terms/1.0/vernacularname: 4879
 
 544	Saturday 2017-10-07 09:33:30 PM	{"agent.tab":1,  "media_resource.tab":19103,"taxon.tab":20654,"vernacular_name.tab":4879}
 544	Thursday 2017-11-23 07:49:49 AM	{                "media_resource.tab":19088,"taxon.tab":11393,"vernacular_name.tab":4878} - eol-archive
-544	Thursday 2018-04-05 05:35:40 AM	{"agent.tab":334,"media_resource.tab":19189,"taxon.tab":20646,"vernacular_name.tab":4950}
 
+544	Thursday 2018-04-05 05:35:40 AM	{"agent.tab":334,"media_resource.tab":19189,"taxon.tab":20646,"vernacular_name.tab":4950}
 544	Saturday 2018-05-05 06:01:01 AM	{"agent.tab":339,"media_resource.tab":19258,"taxon.tab":20696,"vernacular_name.tab":5008}
 544	Saturday 2018-05-05 06:01:26 AM	{"agent.tab":339,"media_resource.tab":19258,"taxon.tab":11458,"vernacular_name.tab":5008}
-
 544	Tuesday 2018-06-05 05:53:26 AM	{"agent.tab":323,"media_resource.tab":17612,"taxon.tab":19785,"vernacular_name.tab":4224}
 544	Tuesday 2018-06-05 05:53:51 AM	{"agent.tab":323,"media_resource.tab":17612,"taxon.tab":10823,"vernacular_name.tab":4224}
+544	Monday 2018-09-17 08:35:15 AM	{"agent.tab":308,"media_resource.tab":16799,"taxon.tab":10383,"vernacular_name.tab":4521}
+544	Monday 2018-12-17 10:22:45 AM	{"agent.tab":286,"media_resource.tab":14945,"taxon.tab":9180,"vernacular_name.tab":4429}
+
+544	Monday 2019-06-17 08:12:01 AM	{"agent.tab":284,"media_resource.tab":14781,"taxon.tab":9107,"vernacular_name.tab":4392}
+544	Thursday 2019-10-17 07:37:15 AM	{"agent.tab":290,"media_resource.tab":14999,"taxon.tab":9184,"vernacular_name.tab":4517,"time_elapsed":false}
+544	Sunday 2019-11-17 09:17:36 AM	{"agent.tab":290,"media_resource.tab":14999,"taxon.tab":9184,"vernacular_name.tab":4517,"time_elapsed":false}
+544	Tuesday 2019-12-17 07:34:10 AM	{"agent.tab":290,"media_resource.tab":14999,"taxon.tab":9184,"vernacular_name.tab":4517,"time_elapsed":false}
 */
 
 ini_set('error_reporting', E_ALL);
