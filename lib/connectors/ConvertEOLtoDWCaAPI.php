@@ -40,7 +40,8 @@ class ConvertEOLtoDWCaAPI
             recursive_rmdir($paths["temp_dir"]); // remove temp dir
         }
         else { //is XML file
-            $params['path'] = DOC_ROOT . "tmp/";
+            // $params['path'] = DOC_ROOT . "tmp/"; //obsolete
+            $params['path'] = $GLOBALS['MAIN_TMP_PATH'];
             $local_xml_file = Functions::save_remote_file_to_local($params['eol_xml_file'], array('file_extension' => "xml", "cache" => 1, "expire_seconds" => $expire_seconds, "timeout" => 7200, "download_attempts" => 2, "delay_in_minutes" => 2)); 
             /* expire_seconds is irrelevant if there is no cache => 1 in save_remote_file_to_local() */ 
             $params['filename'] = pathinfo($local_xml_file, PATHINFO_BASENAME);
@@ -55,6 +56,11 @@ class ConvertEOLtoDWCaAPI
     {
         $file = $params["path"] . $params["filename"];
         $reader = new \XMLReader();
+        echo "\nReading file [$file]...\n";
+        if(!file_exists($file)) { //new Dec 18, 2019
+            echo "\nInvestigate: file not found: [$file]\n";
+            return;
+        }
         $reader->open($file);
         $i = 0;
         while(@$reader->read()) {
