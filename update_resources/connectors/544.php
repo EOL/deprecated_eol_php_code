@@ -27,9 +27,11 @@ http://rs.gbif.org/terms/1.0/vernacularname: 4879
 544	Monday 2018-12-17 10:22:45 AM	{"agent.tab":286,"media_resource.tab":14945,"taxon.tab":9180,"vernacular_name.tab":4429}
 
 544	Monday 2019-06-17 08:12:01 AM	{"agent.tab":284,"media_resource.tab":14781,"taxon.tab":9107,"vernacular_name.tab":4392}
+544	Thursday 2019-10-17 07:36:53 AM	{"agent.tab":290,"media_resource.tab":14991,"taxon.tab":17075,"vernacular_name.tab":4521,"time_elapsed":false}
 544	Thursday 2019-10-17 07:37:15 AM	{"agent.tab":290,"media_resource.tab":14999,"taxon.tab":9184,"vernacular_name.tab":4517,"time_elapsed":false}
 544	Sunday 2019-11-17 09:17:36 AM	{"agent.tab":290,"media_resource.tab":14999,"taxon.tab":9184,"vernacular_name.tab":4517,"time_elapsed":false}
 544	Tuesday 2019-12-17 07:34:10 AM	{"agent.tab":290,"media_resource.tab":14999,"taxon.tab":9184,"vernacular_name.tab":4517,"time_elapsed":false}
+
 */
 
 ini_set('error_reporting', E_ALL);
