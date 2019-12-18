@@ -101,16 +101,9 @@ $nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false m
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
 $func->convert_archive_normalized();
-Functions::finalize_dwca_resource($resource_id, false, true);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 //---------------------new end
-
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n";
-echo "elapsed time = $elapsed_time_sec seconds             \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\n\n Done processing.";
-
+/* The End */
 
 function remove_bhl_images_already_existing_in_eol_group($resource_id)
 {
