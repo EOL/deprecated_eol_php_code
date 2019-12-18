@@ -13,7 +13,7 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":695, "sci":"Aves"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":164, "sci":"Arthropoda"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1642, "sci":"Mammalia"}'
 
-php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7631, "sci":"Chiroptera"}'
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7631, "sci":"Chiroptera"}' //only has 17K+ images
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":747, "sci":"Lepidoptera"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
