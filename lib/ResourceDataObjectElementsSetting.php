@@ -394,7 +394,5 @@ class ResourceDataObjectElementsSetting
         Functions::delete_if_exists($params["eol_xml_file"]);
     }
     //END of https://eol-jira.bibalex.org/browse/DATA-1702 ===========================================================
-
-
 }
 ?>
