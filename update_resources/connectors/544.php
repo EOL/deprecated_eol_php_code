@@ -119,6 +119,7 @@ Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 
 function remove_bhl_images_already_existing_in_eol_group($resource_id)
 {
+    echo "\nStart: remove_bhl_images_already_existing_in_eol_group...\n";
     // $file = "http://localhost/cp_new/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
     // $file = "http://dl.dropbox.com/u/7597512/BHL_images/BHL_images_in_EOLGroup.txt"; //can no longer be accessed publicly. But file is still there in dropbox.
     $file = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/BHL/BHL_images/BHL_images_in_EOLGroup.txt";
@@ -130,12 +131,14 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     $xml_string = Functions::remove_invalid_bytes_in_XML($xml_string);
     $xml = simplexml_load_string($xml_string);
     $i = 0;
+    $total = count($xml->taxon);
     $deleted_ids = array();
     $deleted = 0;
     foreach($xml->taxon as $taxon) {
         $i++;
+        if(($i % 100) == 0) echo "\n$i of $total\n";
         $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
-        echo "\n[" . $dwc->ScientificName."]";
+        // echo "\n[" . $dwc->ScientificName."]";
         $j = 0;
         $deleted_do_keys = array();
         foreach($taxon->dataObject as $do) {
@@ -145,7 +148,7 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
             if(in_array($do_id, $do_ids)) {
                 $deleted++;
                 $deleted_ids[$do_id] = 1;
-                print "\n --- deleting $do_id";
+                // print "\n --- deleting $do_id";
                 $deleted_do_keys[] = $j-1;
             }
         }
@@ -162,6 +165,7 @@ function remove_bhl_images_already_existing_in_eol_group($resource_id)
     if(!($WRITE = Functions::file_open($resource_path, "w"))) return;
     fwrite($WRITE, $xml_string);
     fclose($WRITE);
+    echo "\nEnd: remove_bhl_images_already_existing_in_eol_group\n";
 }
 
 function bhl_image_count() // just for stats
