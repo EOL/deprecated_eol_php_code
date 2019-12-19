@@ -85,7 +85,7 @@ $months_to_be_broken_down = array(0 => array("year" => 2011, "month" => 8),
                                   3 => array("year" => 2012, "month" => 11),
                                   4 => array("year" => 2013, "month" => 1),
                                   5 => array("year" => 2013, "month" => 3));
-FlickrAPI::get_photostream_photos($auth_token, $resource_file, $user_id, $start_year, $months_to_be_broken_down);
+FlickrAPI::get_photostream_photos($auth_token, $resource_file, $user_id, $start_year, $months_to_be_broken_down, NULL, $resource_id);
 // FlickrAPI::get_all_eol_photos($auth_token, $resource_file, $user_id); // old
 
 // write the resource footer

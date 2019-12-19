@@ -23,6 +23,8 @@ define("FLICKR_BHL_ID", "61021753@N02"); // BHL: BioDivLibrary's photostream - h
 define("FLICKR_SMITHSONIAN_ID", "51045845@N08"); // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
 define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flickr.com/photos/92803392@N02 - no resource here, just a way to get all images for a certain Flickr user e.g EFB-1126
 
+define("ANDREAS_KAY_ID", "75374522@N06"); // Andreas Kay photostream (DATA-1843) - https://www.flickr.com/photos/andreaskay/ OR https://www.flickr.com/photos/75374522@N06/
+
 // $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache";    //old cache path
 // $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";                           //old cache path
 $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/" . $GLOBALS['MAIN_CACHE_PATH'] . "flickr_cache";
@@ -30,6 +32,7 @@ $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/" . $GLOBALS['MAIN_CACHE_PATH'] . "
 $GLOBALS['expire_seconds'] = 60*60*24*20; //0 -> expires now, false -> doesn't expire, 60*60*24*30 -> expires in 30 days orig
 // $GLOBALS['expire_seconds'] = false; //may use false permanently. Will check again next month to confirm. 
 // ON 2ND THOUGHT IT SHOULD ALWAYS BE false. Since mostly only new photos are what we're after. Very seldom, a photo gets updated in its lifetime.
+$GLOBALS['expire_seconds'] = 60*60*24*30*3; //maybe quarterly is the way to go moving forward.
 
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
@@ -37,8 +40,9 @@ $GLOBALS['max_photos_per_taxon'] = false;
 
 class FlickrAPI
 {
-    public static function get_all_eol_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_date = NULL, $end_date = NULL)
+    public static function get_all_eol_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_date = NULL, $end_date = NULL, $resource_id = NULL)
     {
+        $GLOBALS['resource_id'] = $resource_id;
         self::create_cache_path();
         $all_taxa = array();
         $used_image_ids = array();
@@ -102,13 +106,41 @@ class FlickrAPI
         $page_taxa = array();
         if(isset($response->photos->photo)) {
             foreach($response->photos->photo as $photo) {
+                // print_r($photo); //exit("\nstop1 [".$GLOBALS['resource_id']."]\n"); //good debug
+                /*stdClass Object(
+                    [id] => 5567584423
+                    [owner] => 61021753@N02 -> this is the photostream id. e.g. BHL: BioDivLibrary's photostream - http://www.flickr.com/photos/61021753@N02
+                    [secret] => 910fb05c55
+                    [server] => 5107
+                    [farm] => 6
+                    [title] => animalkingdomarr00cuvier_0149
+                    [ispublic] => 1
+                    [isfriend] => 0
+                    [isfamily] => 0
+                    [lastupdate] => 1531528495
+                    [media] => photo
+                    [media_status] => ready
+                    [url_o] => https://live.staticflickr.com/5107/5567584423_d681513a3c_o.jpg
+                    [height_o] => 3733
+                    [width_o] => 2262
+                )*/
+                
+                // /* start: DATA-1843
+                if($GLOBALS['resource_id'] == 15) { //meaning regular Flickr resource
+                    if($photo->owner == ANDREAS_KAY_ID) continue; //exclude images from this photostream
+                }
+                // end: DATA-1843 */
+                
                 if(@$used_image_ids[$photo->id]) continue;
                 $count_taxa++;
                 if(($count_taxa % 100) == 0) echo "taxon: $count_taxa ($photo->id): ".time_elapsed()."\n";
 
                 $taxa = self::get_taxa_for_photo($photo->id, $photo->secret, $photo->lastupdate, $auth_token, $user_id);
                 if($taxa) {
-                    foreach($taxa as $t) $page_taxa[] = $t;
+                    foreach($taxa as $t) {
+                        // print_r($t); exit("\nstop2 [".$GLOBALS['resource_id']."]\n"); //good debug
+                        $page_taxa[] = $t;
+                    }
                 }
 
                 $used_image_ids[$photo->id] = true;
@@ -418,7 +450,7 @@ class FlickrAPI
     {
         $extras = "last_update,media,url_o";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
-        if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID))) {
+        if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID, ANDREAS_KAY_ID))) {
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
             $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
@@ -577,7 +609,8 @@ class FlickrAPI
         return false;
     }
 
-    public static function get_photostream_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_year = NULL, $months_to_be_broken_down = NULL, $max_photos_per_taxon = NULL)
+    public static function get_photostream_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_year = NULL, $months_to_be_broken_down = NULL, 
+                                                  $max_photos_per_taxon = NULL, $resource_id = NULL)
     {
         if($user_id == FLICKR_BHL_ID) {
             $file = CONTENT_RESOURCE_LOCAL_PATH.'bhl_images_with_box_coordinates.txt';
@@ -587,14 +620,17 @@ class FlickrAPI
         if($max_photos_per_taxon) $GLOBALS['max_photos_per_taxon'] = $max_photos_per_taxon;
         $all_taxa = array();
         $date_range = self::get_date_ranges($start_year);
+        // print_r($date_range);
         echo "\n count: " . count($date_range);
         if($months_to_be_broken_down) {
             foreach($months_to_be_broken_down as $date) $date_range = array_merge($date_range, self::get_date_ranges($date["year"], $date["month"]));
             echo "\n count: " . count($date_range);
         }
+        // print_r($date_range); exit;
+        
         foreach($date_range as $range) {
             echo "\n\n From: " . $range["start"] . " To: " . $range["end"] . "\n";
-            $taxa = self::get_all_eol_photos($auth_token, $resource_file, $user_id, $range["start_timestamp"], $range["end_timestamp"]);
+            $taxa = self::get_all_eol_photos($auth_token, $resource_file, $user_id, $range["start_timestamp"], $range["end_timestamp"], $resource_id);
             $all_taxa = array_merge($all_taxa, $taxa);
         }
         ksort($GLOBALS['taxa']);

@@ -28,7 +28,8 @@ if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resour
 fwrite($resource_file, \SchemaDocument::xml_header());
 
 // query Flickr and write results to file
-FlickrAPI::get_all_eol_photos($auth_token, $resource_file);
+// FlickrAPI::get_all_eol_photos($auth_token, $resource_file); //orig
+FlickrAPI::get_all_eol_photos($auth_token, $resource_file, NULL, NULL, NULL, $resource_id);
 
 // write the resource footer
 fwrite($resource_file, \SchemaDocument::xml_footer());
