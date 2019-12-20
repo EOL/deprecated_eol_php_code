@@ -37,8 +37,8 @@ $auth_token = FLICKR_AUTH_TOKEN;
 FlickrAPI::get_photostream_photos($auth_token, NULL, $user_id, NULL, NULL, NULL, $resource_id);
 
 $photo_id = 48862446481; //option 1 & 2
-$photo_id = 48861925383; //option 3
-$photo_id = 48850307862; //with binomial with '?' and another good binomial
+// $photo_id = 48861925383; //option 3
+// $photo_id = 48850307862; //with binomial with '?' and another good binomial
 $photo = FlickrAPI::photos_get_info($photo_id, "0ab954923d");
 $p = $photo->photo;
 print_r($p);
