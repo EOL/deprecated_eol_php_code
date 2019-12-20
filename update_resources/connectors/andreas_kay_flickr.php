@@ -38,6 +38,7 @@ print_r($p);
 
 // /* ---------- start ----------
 $photo_id = 48862446481;
+$photo_id = $p->id;
 $photo = FlickrAPI::get_taxa_for_photo($photo_id, "0ab954923d", $p->dates->lastupdate, NULL, '75374522@N06');
 // $p = $photo->photo;
 // print_r($p);
