@@ -33,7 +33,7 @@ if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOK
 */
 $auth_token = FLICKR_AUTH_TOKEN;
 
-// /* ---------- start ----------
+/* ---------- start ----------
 FlickrAPI::get_photostream_photos($auth_token, NULL, $user_id, NULL, NULL, NULL, $resource_id);
 
 $photo_id = 48862446481; //option 1 & 2
@@ -45,7 +45,6 @@ print_r($p);
 // echo "\n".$photo->photo->id;
 // exit("\nelix\n");
 
-
 $photo_id = 48862446481;
 $photo_id = $p->id;
 $photo = FlickrAPI::get_taxa_for_photo($photo_id, "0ab954923d", $p->dates->lastupdate, NULL, '75374522@N06');
@@ -53,7 +52,7 @@ $photo = FlickrAPI::get_taxa_for_photo($photo_id, "0ab954923d", $p->dates->lastu
 // print_r($p);
 // echo "\n".$photo->photo->id;
 exit("\nelix\n");
-// ---------- end ---------- */
+---------- end ---------- */
 
 
 
@@ -86,7 +85,9 @@ Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONT
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 // exit("\nstop here first\n");
 
+/* not needed for Andreas Kay, from copied template
 remove_bhl_images_already_existing_in_eol_group($resource_id);
+*/
 Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 544.gz.xml, otherwise remain commented
 
 //---------------------new start
