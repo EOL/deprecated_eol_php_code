@@ -24,19 +24,17 @@ class CachingTemplateAPI_AndreasKay
     }
     public function get_GNRD_output($tc_id, $pseudoBinomialsYN) //this is the function called remotely. $tc_id is the name string.
     {
-        if($arr = self::retrieve_GNRD_output($tc_id))
-        {
-            if(@$rec->verbatim || @$rec->scientificName) return $arr;
+        if($obj = self::retrieve_GNRD_output($tc_id)) {
+            if(@$obj->names[0]->verbatim || @$obj->names[0]->scientificName) return $obj;
             else {
                 echo "\ndito 100\n";
-                if($pseudoBinomialsYN) { //write report for Katja. Names that are pseudo binimials but GNRD doesn't recognize the name
+                if($pseudoBinomialsYN) { //write report for Katja. Names that are pseudo binimials but GNRD doesn't recognize it
                     $file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/".$this->resource_id."_pseudo_binomials_not_in_GNRD.txt";
                     if(!($WRITE = Functions::file_open($file, "w"))) return;
                     fwrite($WRITE, $tc_id . "\n");
                     fclose($WRITE);
                 }
             }
-            
         }
         else exit("\nInvestigate: went here [$tc_id]\n");
     }
