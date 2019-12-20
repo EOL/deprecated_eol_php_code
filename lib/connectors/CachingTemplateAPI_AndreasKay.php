@@ -30,7 +30,7 @@ class CachingTemplateAPI_AndreasKay
                 echo "\ndito 100\n";
                 if($pseudoBinomialsYN) { //write report for Katja. Names that are pseudo binimials but GNRD doesn't recognize it
                     $file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/".$this->resource_id."_pseudo_binomials_not_in_GNRD.txt";
-                    if(!($WRITE = Functions::file_open($file, "w"))) return;
+                    if(!($WRITE = Functions::file_open($file, "a"))) return;
                     fwrite($WRITE, $tc_id . "\n");
                     fclose($WRITE);
                 }
