@@ -16,27 +16,30 @@ define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 $resource_id = 'andreas_kay_flickr';
 
 // /* start main block
 $user_id = "75374522@N06"; //Andreas Kay photostream - https://www.flickr.com/photos/andreaskay/ OR https://www.flickr.com/photos/75374522@N06/
 $start_year = 2011; //Andreas Kay joined Flickr 2012. Less 1 to get 2011, just in case.
 
+/* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
+*/
+$auth_token = FLICKR_AUTH_TOKEN;
 
 // /* ---------- start ----------
+FlickrAPI::get_photostream_photos($auth_token, NULL, $user_id, NULL, NULL, NULL, $resource_id);
+
 $photo_id = 48862446481;
 $photo = FlickrAPI::photos_get_info($photo_id, "0ab954923d");
 $p = $photo->photo;
 print_r($p);
 // echo "\n".$photo->photo->id;
 // exit("\nelix\n");
-// ---------- end ---------- */
 
 
-// /* ---------- start ----------
 $photo_id = 48862446481;
 $photo_id = $p->id;
 $photo = FlickrAPI::get_taxa_for_photo($photo_id, "0ab954923d", $p->dates->lastupdate, NULL, '75374522@N06');
