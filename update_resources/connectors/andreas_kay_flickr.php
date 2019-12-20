@@ -16,6 +16,10 @@ define('DOWNLOAD_WAIT_TIME', '300000'); // .3 seconds wait time
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $timestart = time_elapsed();
+
+$temp = CONTENT_RESOURCE_LOCAL_PATH . "/reports";
+if(!is_dir($temp)) mkdir($temp);
+
 $GLOBALS['ENV_DEBUG'] = true;
 $resource_id = 'andreas_kay_flickr';
 

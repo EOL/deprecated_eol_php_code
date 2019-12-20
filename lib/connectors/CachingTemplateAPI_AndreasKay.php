@@ -22,10 +22,23 @@ class CachingTemplateAPI_AndreasKay
         if(!is_dir($this->main_path)) mkdir($this->main_path);
         $this->api['GNRD'] = "https://gnrd.globalnames.org/name_finder.json?text=";
     }
-    public function get_GNRD_output($tc_id) //this is the function called remotely. $tc_id is the name string.
+    public function get_GNRD_output($tc_id, $pseudoBinomialsYN) //this is the function called remotely. $tc_id is the name string.
     {
-        $arr = self::retrieve_GNRD_output($tc_id);
-        return $arr;
+        if($arr = self::retrieve_GNRD_output($tc_id))
+        {
+            if(@$rec->verbatim || @$rec->scientificName) return $arr;
+            else {
+                echo "\ndito 100\n";
+                if($pseudoBinomialsYN) { //write report for Katja. Names that are pseudo binimials but GNRD doesn't recognize the name
+                    $file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/".$this->resource_id."_pseudo_binomials_not_in_GNRD.txt";
+                    if(!($WRITE = Functions::file_open($file, "w"))) return;
+                    fwrite($WRITE, $tc_id . "\n");
+                    fclose($WRITE);
+                }
+            }
+            
+        }
+        else exit("\nInvestigate: went here [$tc_id]\n");
     }
     private function retrieve_GNRD_output($tc_id)
     {
@@ -59,9 +72,10 @@ class CachingTemplateAPI_AndreasKay
         $saved = array();
 
         $url = $this->api['GNRD'].str_replace(' ', '+', $tc_id);
+        echo "\naccessing [$url]\n";
         $json = Functions::lookup_with_cache($url, $this->download_options);
         $obj = json_decode($json);
-        // print_r($obj); exit("\nstop 500\n");
+        print_r($obj); //exit("\nstop 500\n");
         /*stdClass Object(
             [token_url] => https://gnrd.globalnames.org/name_finder.json?token=38aaa487ru
             [input_url] => 
@@ -81,11 +95,27 @@ class CachingTemplateAPI_AndreasKay
                 )
         )*/
         if($obj->status == 200) return $obj; //sometimes it goes here.
-        if($obj->status == 303) {            //status 303 means you need to run 2nd token_url
+        elseif($obj->status == 303) {            //status 303 means you need to run 2nd token_url
+            echo "\naccessing [$obj->token_url]\n";
             $json = Functions::lookup_with_cache($obj->token_url, $this->download_options);
-            $obj = json_decode($json);
-            // print_r($obj);
-            return $obj;
+            $obj2 = json_decode($json);
+            print_r($obj2);
+            if($obj2->status == 200) return $obj2;
+            elseif($obj2->status == 303) {
+                echo "\nstill 303\n";
+                if($obj->token_url == $obj2->token_url) {
+                    $options = $this->download_options;
+                    $options['expire_seconds'] = 0;
+                    $json = Functions::lookup_with_cache($obj->token_url, $options);
+                    $obj3 = json_decode($json);
+                    print_r($obj3);
+                    if($obj3->status == 200) return $obj3;
+                    elseif($obj3->status == 303) {
+                        echo "\nstill 303 303\n";
+                    }
+                }
+                exit;
+            }
             
             /* No longer needed for Andreas Kay resource. But maybe needed for other resources who'll use this template.
             print_r($obj); exit;
