@@ -23,10 +23,122 @@ class CachingTemplateAPI_AndreasKay
         $this->api['simple text'] = "https://gnrd.globalnames.org/name_finder.json?text=PLUS_SEPARATED_STRINGS";
         $this->api['scinames']    = 'https://gnrd.globalnames.org/name_finder.json?text=PLUS_SEPARATED_STRINGS&preferred_data_sources=12&unique=true';
     }
-    public function check_name_in_GlobalNamesRecognitionDiscovery($str, $pseudoBinomialsYN)
+    /* ======================================= start Andreas Kay functions ======================================= */
+    public function AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)
+    {
+        $GLOBALS['allowsQuestionMarksYN'] = $allowsQuestionMarksYN;
+        $parameters = self::step1and2_look_for_binomials($tags, false); //2nd param false means NOT pseudo binomials
+        if(@$parameters['scientificName']) {
+            echo "\nStep 1 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+            // print_r($parameters); exit("\n111\n");
+            return $parameters;
+        }
+        else {
+            echo "\nStep 1 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+            $parameters = self::step1and2_look_for_binomials($tags, true); //2nd param true means pseudo binomials
+            if(@$parameters['scientificName']) {
+                echo "\nStep 2 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                return $parameters;
+            }
+            else {
+                echo "\nStep 2 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                $parameters = self::step3_look_for_any_name_among_tags($tags);
+                if(@$parameters['scientificName']) {
+                    echo "\nStep 3 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                    return $parameters;
+                }
+                else {
+                    echo "\nStep 3 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                    return false;
+                }
+            }
+        }
+    }
+    private function step3_look_for_any_name_among_tags($tags)
+    {
+        if($name = self::pick_a_name_among_tags($tags)) {
+            $final['scientificName'][] = $name;
+            return $final;
+        }
+    }
+    private function step1and2_look_for_binomials($tags, $pseudoBinomialsYN)
+    {
+        $binomials = self::get_binomials_from_tags($tags, $pseudoBinomialsYN);
+        foreach($binomials as $name) if($name) $final['scientificName'][] = $name;
+        return @$final;
+    }
+    private function get_binomials_from_tags($tags, $pseudoBinomialsYN)
+    {   /*[9] => stdClass Object(
+            [id] => 75329200-48862446481-3048
+            [author] => 75374522@N06
+            [authorname] => In Memoriam: Ecuador Megadiverso
+            [raw] => rainforest
+            [_content] => rainforest
+            [machine_tag] => 0
+        )*/
+
+        /* debug only, good test during development
+        $tags[] = (object) array('raw' => 'Gadus morhua');
+        $tags[] = (object) array('raw' => 'Lates niloticus');
+        */
+        /* debug only, good test during development
+        unset($tags[8]);
+        $tags[] = (object) array('raw' => 'Gadusxyz sp.'); //debug only, good test during development
+        */
+        /* debug only, good test during development
+        $tags = array();
+        $tags[] = (object) array('raw' => 'Gadus sp.?'); //debug only, good test during development
+        */
+        /* debug only, good test during development
+        unset($tags[8]);
+        */
+        // print_r($tags); exit;
+        
+        $final = array();
+        foreach($tags as $tag) {
+            if($GLOBALS['allowsQuestionMarksYN']) {
+                $tag->raw = str_replace('?', '', $tag->raw);
+            }
+            else {
+                if(stripos($tag->raw, "?") !== false) continue; //string is found
+            }
+            
+            $arr = explode(" ", trim($tag->raw));
+            $arr = array_map('trim', $arr);
+            if(count($arr) == 2) {
+                if(ctype_upper(substr($arr[0],0,1))) {
+                    if(ctype_lower(substr($arr[1],0,1))) {
+                        
+                        if(!$pseudoBinomialsYN) {
+                            if(!in_array($arr[1], array('sp.', 'sp'))) { // print_r($arr);
+                                $binomial = implode(" ", $arr);
+                                $final[] = self::check_name_in_GlobalNamesRecognitionDiscovery($binomial, false);
+                            }
+                            else continue;
+                        }
+                        else { //a pseudo binomial
+                            if(in_array($arr[1], array('sp.', 'sp'))) { // print_r($arr);
+                                $binomial = $arr[0];
+                                $final[] = self::check_name_in_GlobalNamesRecognitionDiscovery($binomial, true);
+                            }
+                            else continue;
+                        }
+                        
+                    }
+                    else continue;
+                }
+                else continue;
+            }
+            else continue;
+        }
+        // print_r($final); exit("\n111\n");
+        $final = array_map('trim', $final);
+        return $final;
+    }
+    /* ======================================== end Andreas Kay functions ======================================== */
+    private function check_name_in_GlobalNamesRecognitionDiscovery($str, $pseudoBinomialsYN)
     {
         $obj = self::get_GNRD_output($str, $pseudoBinomialsYN);
-        // print_r($obj);
         /*stdClass Object(
             [token_url] => https://gnrd.globalnames.org/name_finder.json?token=5r08vf81iv
             [input_url] => 
@@ -64,7 +176,7 @@ class CachingTemplateAPI_AndreasKay
         */
         if($recs = @$obj->names) {
             foreach($recs as $rec) {
-                print_r($rec); //exit("\n222\n");
+                // print_r($rec); //exit("\n222\n");
                 if($rec->verbatim == $rec->scientificName) return $rec->scientificName;
             }
         }
@@ -142,6 +254,12 @@ class CachingTemplateAPI_AndreasKay
                     [no_bayes] => 
                 )
         )*/
+        
+        if($obj = self::process_obj_output($obj)) return $obj;
+        else return false;
+    }
+    private function process_obj_output($obj)
+    {
         if($obj->status == 200) return $obj;    //sometimes it goes here.
         elseif($obj->status == 303) {           //status 303 means you need to run 2nd token_url
             echo "\naccessing [$obj->token_url]\n";
@@ -187,13 +305,72 @@ class CachingTemplateAPI_AndreasKay
         $filename = $main_path . "$cache1/$cache2/$tc_id.json";
         return $filename;
     }
-    function get_all_scinames_from_tags($tags)
+    private function pick_a_name_among_tags($tags)
     {
-        // print_r($tags); exit;
+        foreach($tags as $tag) @$words .= " $tag->raw";
+        $words = Functions::remove_whitespace(trim($words));
+        echo "\nwords: [$words]\n";
+        $words = str_replace(' ', '+', $words);
+        $url = str_replace('PLUS_SEPARATED_STRINGS', $words, $this->api['scinames']);
+        echo "\naccessing [$url]\n";
+        $json = Functions::lookup_with_cache($url, $this->download_options);
+        $obj = json_decode($json);
+        if($obj = self::process_obj_output($obj)) {
+            if($considered_scinames_by_GNRD = self::get_considered_scinames_by_GNRD($obj)) {}
+            else return false; //meaning no scinames found in Flickr tags
+            
+            $classification_paths = array();
+            if($verified_names = @$obj->verified_names) {
+                foreach($verified_names as $verified) {
+                    $classification_paths[$verified->results->classification_path] = '';
+                    foreach($verified->preferred_results as $another) {
+                        if($path = @$another->classification_path) $classification_paths[$path] = '';
+                    }
+                }
+            }
+            // print_r($classification_paths);
+            /*Array(
+                [Eucarya|Opisthokonta|Metazoa|Eumetazoa|Triploblastica|Bilateria|Eubilateria|Protostomia|Ecdysozoa|Panarthropoda|Arthropoda|Mandibulata|Pancrustacea|Hexapoda|Insecta|Endopterygota|Coleopterida|Coleoptera|Polyphaga|Cucujiformia|Chrysomeloidea|Chrysomelidae|Cassidinae] => 
+                [Animalia|Arthropoda|Insecta|Coleoptera|Chrysomeloidea|Chrysomelidae] => 
+                [Animalia|Arthropoda|Insecta|Coleoptera] => 
+            )*/
+            $classification_paths = array_keys($classification_paths);
+            /* Now get the most number of members in the classification. Most number means, most specific taxon. */
+            $i = -1;
+            $old_count = 0;
+            /* just for testing...
+            $test[] = $classification_paths[1];
+            $test[] = $classification_paths[0];
+            $test[] = $classification_paths[2];
+            $classification_paths = $test;
+            */
+            // print_r($classification_paths);
+            foreach($classification_paths as $path) { $i++;
+                $arr = explode("|", $path);
+                $current_count = count($arr);
+                if($current_count > $old_count) $choice = $i;
+                $old_count = $current_count;
+            }
+            echo "\nfinal choice: [$choice]\n";
+            $final_path = $classification_paths[$choice];
+            $final_path = explode("|", $final_path);
+            // print_r($final_path);
+            $taxon = array_pop($final_path);
+            // echo "\n$taxon\n";
+            /* Last check is if the $taxon is in $considered_scinames_by_GNRD */
+            if(in_array($taxon, $considered_scinames_by_GNRD)) return $taxon;
+        }
+        else return false;
+        // exit("\n");
         // Cassidinae
         // Chrysomelidae
         // Coleoptera
         // https://gnrd.globalnames.org/name_finder.json?text=Cassidinae+Chrysomelidae+Coleoptera&preferred_data_sources=12&unique=true
+    }
+    private function get_considered_scinames_by_GNRD($obj)
+    {
+        foreach($obj->names as $n) $final[$n->scientificName] = '';
+        return array_keys($final);
     }
 }
 ?>

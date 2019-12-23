@@ -27,17 +27,18 @@ $resource_id = 'andreas_kay_flickr';
 $user_id = "75374522@N06"; //Andreas Kay photostream - https://www.flickr.com/photos/andreaskay/ OR https://www.flickr.com/photos/75374522@N06/
 $start_year = 2011; //Andreas Kay joined Flickr 2012. Less 1 to get 2011, just in case.
 
-// /* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
+/* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
-// */
+*/
 
 // /* ---------- start test*** ----------
-$auth_token = FLICKR_AUTH_TOKEN;
+// exit("\n".FLICKR_AUTH_TOKEN."\n");
+$auth_token = FLICKR_AUTH_TOKEN; //72157606690941918-97c1c060a2d18b5b
 FlickrAPI::get_photostream_photos($auth_token, NULL, $user_id, NULL, NULL, NULL, $resource_id);
 
 $photo_id = 48862446481; //option 1 & 2
-// $photo_id = 48861925383; //option 3
+$photo_id = 48861925383; //option 3
 // $photo_id = 48850307862; //with binomial with '?' and another good binomial
 $photo = FlickrAPI::photos_get_info($photo_id, "0ab954923d");
 $p = $photo->photo;
