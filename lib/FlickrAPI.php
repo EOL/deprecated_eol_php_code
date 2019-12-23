@@ -156,6 +156,7 @@ class FlickrAPI
     
     public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "", $user_id = NULL)
     {
+        $GLOBALS['photo_id'] = $photo_id;
         /* good tests when developing: andreas_kay_flickr.php
         if(isset($GLOBALS["func"])) echo "\nremote func OK\n";
         else echo "\nproblem with remote func\n";
