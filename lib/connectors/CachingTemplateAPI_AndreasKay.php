@@ -369,6 +369,7 @@ class CachingTemplateAPI_AndreasKay
     }
     private function get_considered_scinames_by_GNRD($obj)
     {
+        $final = array();
         foreach($obj->names as $n) $final[$n->scientificName] = '';
         return array_keys($final);
     }

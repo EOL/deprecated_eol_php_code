@@ -27,10 +27,10 @@ $resource_id = 'andreas_kay_flickr';
 $user_id = "75374522@N06"; //Andreas Kay photostream - https://www.flickr.com/photos/andreaskay/ OR https://www.flickr.com/photos/75374522@N06/
 $start_year = 2011; //Andreas Kay joined Flickr 2012. Less 1 to get 2011, just in case.
 
-/* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
+// /* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
-*/
+// */
 
 /* ---------- start test*** ----------
 // exit("\n".FLICKR_AUTH_TOKEN."\n");
@@ -83,10 +83,10 @@ Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONT
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml");
 // exit("\nstop here first\n");
 
-/* not needed for Andreas Kay, from copied template
+/* not needed for Andreas Kay, this line is from copied template
 remove_bhl_images_already_existing_in_eol_group($resource_id);
 */
-Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 544.gz.xml, otherwise remain commented
+// Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate andreas_kay_flickr.xml.gz, otherwise remain commented
 
 //---------------------new start
 require_library('ResourceDataObjectElementsSetting');
