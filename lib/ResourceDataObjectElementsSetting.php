@@ -382,7 +382,7 @@ class ResourceDataObjectElementsSetting
         elseif($dataset == "Moorea Biocode") $deleteYN = false; //DATA-1810, need to process more, can't delete folder just yet.
         else                                 $deleteYN = true;
         Functions::finalize_dwca_resource($resource_id, false, $deleteYN);
-        Functions::set_resource_status_to_harvest_requested($resource_id);
+        // Functions::set_resource_status_to_harvest_requested($resource_id); //Obsolete now.
         
         /* no longer needed, it was a wrong sol'n to the problem. The problem was the missing validation in process_synonym() in ConvertEOLtoDWCaAPI.php. Validation now added.
         if($NMNH_resourceYN) {
