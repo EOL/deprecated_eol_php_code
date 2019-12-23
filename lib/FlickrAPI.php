@@ -213,7 +213,9 @@ class FlickrAPI
             print_r($photo->tags->tag);
         }
         */
-        
+        if($user_id == ANDREAS_KAY_ID) {
+            if($photo->tags->tag) @$GLOBALS['func']->count['media with machine tags']++;
+        }
         foreach($photo->tags->tag as $tag)
         {
             $string = trim($tag->raw);
@@ -261,12 +263,18 @@ class FlickrAPI
         if($user_id == ANDREAS_KAY_ID) {
             // print_r($parameters);
             if(!$parameters['scientificName']) {
+                @$GLOBALS['func']->count['lack machine tags']++;
+                
                 // echo "\nNO sciname\n";
                 $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, false); //2nd params is $allowsQuestionMarksYN
                 if(!$parameters['scientificName']) $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, true); //2nd params is $allowsQuestionMarksYN
             }
             // echo "\nFrom Andreas...\n";
-            if(!$parameters['scientificName']) return false;
+            if(!$parameters['scientificName']) {
+                @$GLOBALS['func']->count['media with tags but nothing we can match']++;
+                return false;
+                
+            }
         }
         // ------------ start DATA-1843 ------------ */
         
