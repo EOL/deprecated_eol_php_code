@@ -75,7 +75,7 @@ class FlickrAPI
                         else $all_taxa[] = $t;
                     }
                 }
-                // if($i > 3) break; //debug - process just a subset and check the resource file...
+                if($i > 3) break; //debug - process just a subset and check the resource file...
             }
         }
         else {
