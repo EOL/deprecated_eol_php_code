@@ -102,5 +102,12 @@ $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_i
 $func->convert_archive_normalized();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 //---------------------new end
+
+//---------------------start: make rows in report unique.
+require_library('connectors/CachingTemplateAPI_AndreasKay');
+$func = new CachingTemplateAPI_AndreasKay($resource_id);
+$func->make_unique_rows();
+//---------------------end
+
 /* The End */
 ?>
