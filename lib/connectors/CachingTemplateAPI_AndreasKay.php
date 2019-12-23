@@ -266,23 +266,24 @@ class CachingTemplateAPI_AndreasKay
             $json = Functions::lookup_with_cache($obj->token_url, $this->download_options);
             $obj2 = json_decode($json);
             if($obj2->status == 200) {
-                if($GLOBALS['ENV_DEBUG']) print_r($obj2);
                 return $obj2;
             }
             elseif($obj2->status == 303) {
-                echo "\nstill 303\n";
+                echo "\nstill 303 1\n";
+                if($GLOBALS['ENV_DEBUG']) print_r($obj2);
                 if($obj->token_url == $obj2->token_url) {
-                    $options = $this->download_options;
-                    $options['expire_seconds'] = 0;
-                    $json = Functions::lookup_with_cache($obj->token_url, $options);
-                    $obj3 = json_decode($json);
-                    if($obj3->status == 200) {
-                        if($GLOBALS['ENV_DEBUG']) print_r($obj3);
-                        return $obj3;
-                    }
+                    $obj3 = self::try_again_obj($obj2);
+                    if($obj3->status == 200) return $obj3;
                     elseif($obj3->status == 303) {
+                        echo "\nstill 303 2\n";
                         if($GLOBALS['ENV_DEBUG']) print_r($obj3);
-                        exit("\nMight need to investigate: still 303 303\n");
+                        sleep(10);
+                        $obj4 = self::try_again_obj($obj3);
+                        if($obj4->status == 200) return $obj4;
+                        elseif($obj4->status == 303) {
+                            echo "\nstill 303 3\n";
+                            if($GLOBALS['ENV_DEBUG']) print_r($obj4);
+                            exit("\nMight need to investigate: still 303\ntoken_url: [$obj4->token_url]\n");
                     }
                 }
                 exit("\nMight not go here anymore...\n");
@@ -296,6 +297,14 @@ class CachingTemplateAPI_AndreasKay
             */
         }
         else return false;
+    }
+    private function try_again_obj($obj)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = 0;
+        $json = Functions::lookup_with_cache($obj->token_url, $options);
+        $obj_new = json_decode($json);
+        return $obj_new;
     }
     private function generate_path_filename($tc_id)
     {
