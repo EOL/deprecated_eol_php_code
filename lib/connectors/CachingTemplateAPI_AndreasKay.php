@@ -284,6 +284,7 @@ class CachingTemplateAPI_AndreasKay
                             echo "\nstill 303 3\n";
                             if($GLOBALS['ENV_DEBUG']) print_r($obj4);
                             exit("\nMight need to investigate: still 303\ntoken_url: [$obj4->token_url]\n");
+                        }
                     }
                 }
                 exit("\nMight not go here anymore...\n");
@@ -298,6 +299,8 @@ class CachingTemplateAPI_AndreasKay
         }
         else return false;
     }
+    
+    
     private function try_again_obj($obj)
     {
         $options = $this->download_options;
