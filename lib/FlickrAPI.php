@@ -262,19 +262,19 @@ class FlickrAPI
 
         // /* ------------ start DATA-1843 ------------
         if($user_id == ANDREAS_KAY_ID) {
-            // print_r($parameters);
-            if(!$parameters['scientificName']) {
+            // print_r($parameters); exit;
+            if(!self::is_there_clear_sciname_in_tags($parameters)) {
                 @$GLOBALS['func']->count['lack machine tags']++;
                 
                 // echo "\nNO sciname\n";
                 $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, false); //2nd params is $allowsQuestionMarksYN
                 if(!$parameters['scientificName']) $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, true); //2nd params is $allowsQuestionMarksYN
-            }
-            // echo "\nFrom Andreas...\n";
-            if(!$parameters['scientificName']) {
-                @$GLOBALS['func']->count['media with tags but nothing we can match']++;
-                return false;
-                
+
+                // echo "\nFrom Andreas...\n";
+                if(!$parameters['scientificName']) {
+                    @$GLOBALS['func']->count['media with tags but nothing we can match']++;
+                    return false;
+                }
             }
         }
         // ------------ start DATA-1843 ------------ */
@@ -364,6 +364,17 @@ class FlickrAPI
         */
         
         return $taxa;
+    }
+    private static function is_there_clear_sciname_in_tags($p)
+    {
+        if($p['scientificName']) return true;
+        if($p['genus']) return true;
+        if($p['family']) return true;
+        if($p['order']) return true;
+        if($p['class']) return true;
+        if($p['phylum']) return true;
+        if($p['kingdom']) return true;
+        return false;
     }
     public static function get_data_objects($photo, $user_id)
     {
