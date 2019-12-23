@@ -408,9 +408,13 @@ class CachingTemplateAPI_AndreasKay
             /* Last check is if the $taxon is in $considered_scinames_by_GNRD */
             if(in_array($taxon, $considered_scinames_by_GNRD)) return $taxon;
             else {
-                $arr = array('need to investigate'=>$taxon, 'photo_id'=>$GLOBALS['photo_id'], 
-                'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
-                print_r($arr); exit("\nNeed to investigate\n");
+                if(in_array($GLOBALS['photo_id'], array('28428621653'))) return $taxon; //valid 
+                else {
+                    $arr = array('need to investigate'=>$taxon, 'photo_id'=>$GLOBALS['photo_id'], 
+                    'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
+                    print_r($arr); //exit("\nNeed to investigate\n");
+                    return $taxon;
+                }
             }
         }
         else return false;
