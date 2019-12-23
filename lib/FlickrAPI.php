@@ -75,7 +75,7 @@ class FlickrAPI
                         else $all_taxa[] = $t;
                     }
                 }
-                if($i > 2) break; //debug - process just a subset and check the resource file...
+                // if($i > 2) break; //debug - process just a subset and check the resource file...
             }
         }
         else {
@@ -675,7 +675,7 @@ class FlickrAPI
             echo "\n\n From: " . $range["start"] . " To: " . $range["end"] . "\n";
             $taxa = self::get_all_eol_photos($auth_token, $resource_file, $user_id, $range["start_timestamp"], $range["end_timestamp"], $resource_id);
             $all_taxa = array_merge($all_taxa, $taxa);
-            if($i > 5) break; //debug only
+            // if($i > 5) break; //debug - process just a subset and check the resource file...
         }
         ksort($GLOBALS['taxa']);
         print_r($GLOBALS['taxa']);
