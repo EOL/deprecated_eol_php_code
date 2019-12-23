@@ -41,6 +41,8 @@ $photo_id = 48862446481; //option 1 & 2
 $photo_id = 48861925383; //option 3
 // $photo_id = 48850307862; //with binomial with '?' and another good binomial
 $photo_id = 6947028345; //weird error
+// = 6920574207;
+$photo_id = 6781953620;
 $photo = FlickrAPI::photos_get_info($photo_id, "0ab954923d");
 $p = $photo->photo;
 print_r($p);
