@@ -29,26 +29,26 @@ class CachingTemplateAPI_AndreasKay
         $GLOBALS['allowsQuestionMarksYN'] = $allowsQuestionMarksYN;
         $parameters = self::step1and2_look_for_binomials($tags, false); //2nd param false means NOT pseudo binomials
         if(@$parameters['scientificName']) {
-            echo "\nStep 1 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+            debug("\nStep 1 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n");
             // print_r($parameters); exit("\n111\n");
             return $parameters;
         }
         else {
-            echo "\nStep 1 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+            debug("\nStep 1 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n");
             $parameters = self::step1and2_look_for_binomials($tags, true); //2nd param true means pseudo binomials
             if(@$parameters['scientificName']) {
-                echo "\nStep 2 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                debug("\nStep 2 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n");
                 return $parameters;
             }
             else {
-                echo "\nStep 2 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                debug("\nStep 2 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n");
                 $parameters = self::step3_look_for_any_name_among_tags($tags);
                 if(@$parameters['scientificName']) {
-                    echo "\nStep 3 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                    debug("\nStep 3 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n");
                     return $parameters;
                 }
                 else {
-                    echo "\nStep 3 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n";
+                    debug("\nStep 3 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n");
                     return false;
                 }
             }
@@ -232,7 +232,7 @@ class CachingTemplateAPI_AndreasKay
         $saved = array();
         $sciname = str_replace(' ', '+', $tc_id);
         $url = str_replace('PLUS_SEPARATED_STRINGS', $sciname, $this->api['simple text']);
-        echo "\naccessing [$url]\n";
+        debug("\naccessing [$url]\n");
         $json = Functions::lookup_with_cache($url, $this->download_options);
         $obj = json_decode($json);
         // print_r($obj); //exit("\nstop 500\n");
@@ -262,11 +262,11 @@ class CachingTemplateAPI_AndreasKay
     {
         if($obj->status == 200) return $obj;    //sometimes it goes here.
         elseif($obj->status == 303) {           //status 303 means you need to run 2nd token_url
-            echo "\naccessing [$obj->token_url]\n";
+            debug("\naccessing [$obj->token_url]\n");
             $json = Functions::lookup_with_cache($obj->token_url, $this->download_options);
             $obj2 = json_decode($json);
             if($obj2->status == 200) {
-                print_r($obj2);
+                if($GLOBALS['ENV_DEBUG']) print_r($obj2);
                 return $obj2;
             }
             elseif($obj2->status == 303) {
@@ -277,7 +277,7 @@ class CachingTemplateAPI_AndreasKay
                     $json = Functions::lookup_with_cache($obj->token_url, $options);
                     $obj3 = json_decode($json);
                     if($obj3->status == 200) {
-                        print_r($obj3);
+                        if($GLOBALS['ENV_DEBUG']) print_r($obj3);
                         return $obj3;
                     }
                     elseif($obj3->status == 303) exit("\nMight need to investigate: still 303 303\n");
@@ -309,10 +309,10 @@ class CachingTemplateAPI_AndreasKay
     {
         foreach($tags as $tag) @$words .= " $tag->raw";
         $words = Functions::remove_whitespace(trim($words));
-        echo "\nwords: [$words]\n";
+        // echo "\nwords: [$words]\n";
         $words = str_replace(' ', '+', $words);
         $url = str_replace('PLUS_SEPARATED_STRINGS', $words, $this->api['scinames']);
-        echo "\naccessing [$url]\n";
+        debug("\naccessing [$url]\n");
         $json = Functions::lookup_with_cache($url, $this->download_options);
         $obj = json_decode($json);
         if($obj = self::process_obj_output($obj)) {
@@ -351,7 +351,7 @@ class CachingTemplateAPI_AndreasKay
                 if($current_count > $old_count) $choice = $i;
                 $old_count = $current_count;
             }
-            echo "\nfinal choice: [$choice]\n";
+            // echo "\nfinal choice: [$choice]\n";
             $final_path = $classification_paths[$choice];
             $final_path = explode("|", $final_path);
             // print_r($final_path);
