@@ -40,6 +40,7 @@ FlickrAPI::get_photostream_photos($auth_token, NULL, $user_id, NULL, NULL, NULL,
 $photo_id = 48862446481; //option 1 & 2
 $photo_id = 48861925383; //option 3
 // $photo_id = 48850307862; //with binomial with '?' and another good binomial
+$photo_id = 6947028345; //weird error
 $photo = FlickrAPI::photos_get_info($photo_id, "0ab954923d");
 $p = $photo->photo;
 print_r($p);
@@ -52,7 +53,7 @@ $photo = FlickrAPI::get_taxa_for_photo($photo_id, "0ab954923d", $p->dates->lastu
 // $p = $photo->photo;
 // print_r($p);
 // echo "\n".$photo->photo->id;
-exit("\n-end test-\n");
+exit("\n-end test here-\n");
 ---------- end ---------- */
 
 // create new _temp file
@@ -88,7 +89,7 @@ Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml",
 /* not needed for Andreas Kay, this line is from copied template
 remove_bhl_images_already_existing_in_eol_group($resource_id);
 */
-// Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate andreas_kay_flickr.xml.gz, otherwise remain commented
+Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate andreas_kay_flickr.xml.gz, otherwise remain commented
 
 //---------------------new start
 require_library('ResourceDataObjectElementsSetting');
