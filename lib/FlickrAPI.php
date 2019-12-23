@@ -156,6 +156,12 @@ class FlickrAPI
     
     public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "", $user_id = NULL)
     {
+        /* good tests when developing: andreas_kay_flickr.php
+        if(isset($GLOBALS["func"])) echo "\nremote func OK\n";
+        else echo "\nproblem with remote func\n";
+        exit("\ntest: ".ANDREAS_KAY_ID."\n");
+        */
+        
         // /* old orig
         $eli = 0;
         if($file_json_object = self::check_cache('photosGetInfo', $photo_id, $last_update)) {
@@ -167,6 +173,7 @@ class FlickrAPI
             $photo = @$photo_response->photo;
             $eli = 2;
         }
+        // print_r($photo); exit("\nhere $eli\n"); //good debug
         // */
 
         if(!$photo) debug("\n\nERROR:Photo $photo_id is not available\n\n");
@@ -185,6 +192,7 @@ class FlickrAPI
         
         if(@!$GLOBALS["flickr_licenses"][$photo->license]) return false;
         
+        // echo "\nreached 100\n";
         $parameters = array();
         $parameters["subspecies"] = array();
         $parameters["trinomial"] = array();
@@ -247,8 +255,22 @@ class FlickrAPI
                 }
             }
 
+        } //end tags loop
+
+        // /* ------------ start DATA-1843 ------------
+        if($user_id == ANDREAS_KAY_ID) {
+            // print_r($parameters);
+            if(!$parameters['scientificName']) {
+                echo "\nNO sciname\n";
+                $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, false); //2nd params is $allowsQuestionMarksYN
+                if(!$parameters['scientificName']) $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, true); //2nd params is $allowsQuestionMarksYN
+            }
+            echo "\nFrom Andreas...\n";
+            if(!$parameters['scientificName']) return false;
         }
+        // ------------ start DATA-1843 ------------ */
         
+        // echo "\nreached 101\n";
         $taxon_parameters = array();
         $return_false = false;
         foreach($parameters as $key => $value) {
@@ -266,6 +288,7 @@ class FlickrAPI
         // return false if there were multiple rank values, and not multiple scientificNames
         if($return_false && !$taxon_parameters) return false;
         
+        // echo "\nreached 102 return\n";
         // if there weren't two scientific names it will get here
         if(!$taxon_parameters) {
             $temp_params = array();
@@ -277,8 +300,12 @@ class FlickrAPI
             if(@$temp_params["trinomial"]) $temp_params["scientificName"] = $temp_params["trinomial"];
             if(@!$temp_params["scientificName"] && @$temp_params["genus"] && @$temp_params["species"] && !preg_match("/ /", $temp_params["genus"]) && !preg_match("/ /", $temp_params["species"])) $temp_params["scientificName"] = $temp_params["genus"]." ".$temp_params["species"];
             if(@!$temp_params["genus"] && @preg_match("/^([^ ]+) /", $temp_params["scientificName"], $arr)) $temp_params["genus"] = $arr[1];
-            if(@!$temp_params["scientificName"] && @!$temp_params["genus"] && @!$temp_params["family"] && @!$temp_params["order"] && @!$temp_params["class"] && @!$temp_params["phylum"] && @!$temp_params["kingdom"]) return false;
-            
+            if(@!$temp_params["scientificName"] && @!$temp_params["genus"] && @!$temp_params["family"] && @!$temp_params["order"] && @!$temp_params["class"] 
+                                                && @!$temp_params["phylum"] && @!$temp_params["kingdom"])
+            {
+                // echo "\nreached 103 return\n";
+                return false;
+            }
             $taxon_parameters[] = $temp_params;
         }
 
@@ -289,6 +316,7 @@ class FlickrAPI
                     if(!@$GLOBALS['taxa'][$scientificName]) $GLOBALS['taxa'][$scientificName] = array();
                     if(count(@$GLOBALS['taxa'][$scientificName]) >= $GLOBALS['max_photos_per_taxon']) {
                         echo "\n Info: " . $scientificName . " has " . $GLOBALS['max_photos_per_taxon'] . " photos now \n";
+                        // echo "\nreached 104 return\n";
                         return false;
                     }
                     if(!in_array($photo->id, @$GLOBALS['taxa'][$scientificName])) $GLOBALS['taxa'][$scientificName][] = $photo->id;
@@ -296,6 +324,7 @@ class FlickrAPI
             }
         }
         
+        // echo "\nreached 105 return\n";
         // get the data objects and add them to the parameter arrays
         $data_objects = self::get_data_objects($photo, $user_id);
         if($data_objects) {
@@ -317,10 +346,16 @@ class FlickrAPI
             exit("\n-test ends-\n");
         }
         */
+
+        /* good debug. We used this block when testing for Andreas Kay resource DATA-1583
+        // if($taxa[0]->scientificName == 'Miconia crocea') {
+            print_r($taxa);
+            exit("\n-test ends-\n");
+        // }
+        */
         
         return $taxa;
     }
-    
     public static function get_data_objects($photo, $user_id)
     {
         $data_objects = array();
@@ -617,6 +652,14 @@ class FlickrAPI
             if(file_exists($file)) unlink($file);
         }
         
+        if($user_id == ANDREAS_KAY_ID) {
+            require_library('connectors/CachingTemplateAPI_AndreasKay');
+            $GLOBALS['func'] = new CachingTemplateAPI_AndreasKay($resource_id);
+            echo ("\ncorrect...\n");
+            /* comment in real operation. Only used during development. Specifically when running "test***" in andreas_kay_flickr.php.
+            return;
+            */
+        }
         if($max_photos_per_taxon) $GLOBALS['max_photos_per_taxon'] = $max_photos_per_taxon;
         $all_taxa = array();
         $date_range = self::get_date_ranges($start_year);
