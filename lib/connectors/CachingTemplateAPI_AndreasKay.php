@@ -269,19 +269,19 @@ class CachingTemplateAPI_AndreasKay
                 return $obj2;
             }
             elseif($obj2->status == 303) {
-                echo "\nstill 303 1\n";
+                debug("\nstill 303 1\n");
                 if($GLOBALS['ENV_DEBUG']) print_r($obj2);
                 if($obj->token_url == $obj2->token_url) {
                     $obj3 = self::try_again_obj($obj2);
                     if($obj3->status == 200) return $obj3;
                     elseif($obj3->status == 303) {
-                        echo "\nstill 303 2\n";
+                        debug("\nstill 303 2\n");
                         if($GLOBALS['ENV_DEBUG']) print_r($obj3);
                         sleep(10);
                         $obj4 = self::try_again_obj($obj3);
                         if($obj4->status == 200) return $obj4;
                         elseif($obj4->status == 303) {
-                            echo "\nstill 303 3\n";
+                            debug("\nstill 303 3\n");
                             if($GLOBALS['ENV_DEBUG']) print_r($obj4);
                             exit("\nMight need to investigate: still 303\ntoken_url: [$obj4->token_url]\n");
                         }
