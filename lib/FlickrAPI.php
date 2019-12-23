@@ -356,6 +356,23 @@ class FlickrAPI
         }
         */
 
+        /* new Dec 23, 2019. Sets a more specific name from tags -----------------------
+        e.g. taxonomy:order=lepidoptera
+             taxonomy:class=insecta
+        Should get scientificName = 'Insecta', with rank = 'class'
+        [0] => SchemaTaxon Object(
+                    [identifier] => 
+                    [source] => 
+                    [kingdom] => 
+                    [phylum] => 
+                    [class] => Insecta
+                    [order] => Lepidoptera
+                    [family] => 
+                    [scientificName] => 
+        */
+        $taxa = self::sets_more_specific_name_from_tags($taxa);
+        /* ----------------------------------------------------------------------------- */
+
         /* good debug. We used this block when testing for Andreas Kay resource DATA-1583
         // if($taxa[0]->scientificName == 'Miconia crocea') {
             print_r($taxa);
@@ -363,6 +380,43 @@ class FlickrAPI
         // }
         */
         
+        return $taxa;
+    }
+    private static function sets_more_specific_name_from_tags($taxa)
+    {   $i = -1;
+        foreach($taxa as $t) { $i++;
+            if($t->scientificName) return $taxa;
+            else {
+                if($val = $t->genus) {
+                    $taxa[$i]->genus = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'genus';   return $taxa;
+                }
+                else {
+                    if($val = $t->family) {
+                        $taxa[$i]->family = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'family';   return $taxa;
+                    }
+                    else {
+                        if($val = $t->order) {
+                            $taxa[$i]->order = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'order';   return $taxa;
+                        }
+                        else {
+                            if($val = $t->class) {
+                                $taxa[$i]->class = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'class';   return $taxa;
+                            }
+                            else {
+                                if($val = $t->phylum) {
+                                    $taxa[$i]->phylum = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'phylum';   return $taxa;
+                                }
+                                else {
+                                    if($val = $t->kingdom) {
+                                        $taxa[$i]->kingdom = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'kingdom';   return $taxa;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         return $taxa;
     }
     private static function is_there_clear_sciname_in_tags($p)
