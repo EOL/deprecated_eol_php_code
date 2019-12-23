@@ -655,6 +655,7 @@ class FlickrAPI
         if($user_id == ANDREAS_KAY_ID) {
             require_library('connectors/CachingTemplateAPI_AndreasKay');
             $GLOBALS['func'] = new CachingTemplateAPI_AndreasKay($resource_id);
+            $GLOBALS['func']->initialize_report();
             echo ("\ncorrect...\n");
             /* comment in real operation. Only used during development. Specifically when running "test***" in andreas_kay_flickr.php.
             return;
