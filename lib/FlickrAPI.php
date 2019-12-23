@@ -75,7 +75,7 @@ class FlickrAPI
                         else $all_taxa[] = $t;
                     }
                 }
-                if($i > 3) break; //debug - process just a subset and check the resource file...
+                if($i > 2) break; //debug - process just a subset and check the resource file...
             }
         }
         else {
@@ -261,11 +261,11 @@ class FlickrAPI
         if($user_id == ANDREAS_KAY_ID) {
             // print_r($parameters);
             if(!$parameters['scientificName']) {
-                echo "\nNO sciname\n";
+                // echo "\nNO sciname\n";
                 $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, false); //2nd params is $allowsQuestionMarksYN
                 if(!$parameters['scientificName']) $parameters = $GLOBALS['func']->AndreasKay_addtl_taxon_assignment($photo->tags->tag, true); //2nd params is $allowsQuestionMarksYN
             }
-            echo "\nFrom Andreas...\n";
+            // echo "\nFrom Andreas...\n";
             if(!$parameters['scientificName']) return false;
         }
         // ------------ start DATA-1843 ------------ */
@@ -670,11 +670,12 @@ class FlickrAPI
             echo "\n count: " . count($date_range);
         }
         // print_r($date_range); exit;
-        
-        foreach($date_range as $range) {
+        $i = 0; //debug only
+        foreach($date_range as $range) { $i++;
             echo "\n\n From: " . $range["start"] . " To: " . $range["end"] . "\n";
             $taxa = self::get_all_eol_photos($auth_token, $resource_file, $user_id, $range["start_timestamp"], $range["end_timestamp"], $resource_id);
             $all_taxa = array_merge($all_taxa, $taxa);
+            if($i > 5) break; //debug only
         }
         ksort($GLOBALS['taxa']);
         print_r($GLOBALS['taxa']);
