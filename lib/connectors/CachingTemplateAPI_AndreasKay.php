@@ -22,6 +22,14 @@ class CachingTemplateAPI_AndreasKay
         if(!is_dir($this->main_path)) mkdir($this->main_path);
         $this->api['simple text'] = "https://gnrd.globalnames.org/name_finder.json?text=PLUS_SEPARATED_STRINGS";
         $this->api['scinames']    = 'https://gnrd.globalnames.org/name_finder.json?text=PLUS_SEPARATED_STRINGS&preferred_data_sources=12&unique=true';
+        $this->file['pseudo_binomials_not_in_GNRD'] = CONTENT_RESOURCE_LOCAL_PATH . "/reports/".$this->resource_id."_pseudo_binomials_not_in_GNRD_temp.txt";
+        
+        $this->count['media with machine tags'] = 0;
+        $this->count['lack machine tags'] = 0; //meaning without taxon tags format
+        $this->count['lack machine tags but with binomials that we matched to taxon names'] = 0;
+        $this->count['lack machine tags but with pseudo binomials that we matched to taxon names'] = 0;
+        $this->count['lack machine tags but with non-binomials that we matched to taxon names'] = 0;
+        $this->count['media with tags but nothing we can match'] = 0;
     }
     /* ======================================= start Andreas Kay functions ======================================= */
     public function AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)
@@ -177,7 +185,9 @@ class CachingTemplateAPI_AndreasKay
         if($recs = @$obj->names) {
             foreach($recs as $rec) {
                 // print_r($rec); //exit("\n222\n");
-                if($rec->verbatim == $rec->scientificName) return $rec->scientificName;
+                if($rec->verbatim == $rec->scientificName) {
+                    return $rec->scientificName;
+                }
             }
         }
         else {
@@ -189,16 +199,35 @@ class CachingTemplateAPI_AndreasKay
         if($obj = self::retrieve_GNRD_output($tc_id)) {
             if(@$obj->names[0]->verbatim || @$obj->names[0]->scientificName) return $obj;
             else {
-                echo "\ndito 100\n";
                 if($pseudoBinomialsYN) { //write report for Katja. Names that are pseudo binimials but GNRD doesn't recognize it
-                    $file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/".$this->resource_id."_pseudo_binomials_not_in_GNRD.txt";
-                    if(!($WRITE = Functions::file_open($file, "a"))) return;
+                    // echo "\nWriting report...";
+                    $file = $this->file['pseudo_binomials_not_in_GNRD'];
+                    $WRITE = Functions::file_open($file, "a");
                     fwrite($WRITE, $tc_id . "\n");
                     fclose($WRITE);
                 }
             }
         }
         else exit("\nInvestigate: went here [$tc_id]\n");
+    }
+    public function initialize_report()
+    {
+        $WRITE = Functions::file_open($this->file['pseudo_binomials_not_in_GNRD'], "w");
+        fclose($WRITE);
+    }
+    public function make_unique_rows()
+    {
+        $file = $this->file['pseudo_binomials_not_in_GNRD'];
+        $destination = str_replace('_temp', '', $file);
+        $lines = file($file);
+        $lines = array_map('trim', $lines);
+        $lines = array_filter($lines); //remove null arrays
+        $lines = array_unique($lines); //make unique
+        $lines = array_values($lines); //reindex key
+        asort($lines); //print_r($lines);
+        $WRITE = Functions::file_open($destination, "w");
+        fwrite($WRITE, implode("\n", $lines)."\n");
+        fclose($WRITE);
     }
     private function retrieve_GNRD_output($tc_id)
     {
