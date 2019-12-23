@@ -32,7 +32,7 @@ $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
 // */
 
-/* ---------- start test*** ----------
+// /* ---------- start test*** ----------
 $auth_token = FLICKR_AUTH_TOKEN;
 FlickrAPI::get_photostream_photos($auth_token, NULL, $user_id, NULL, NULL, NULL, $resource_id);
 
@@ -51,11 +51,8 @@ $photo = FlickrAPI::get_taxa_for_photo($photo_id, "0ab954923d", $p->dates->lastu
 // $p = $photo->photo;
 // print_r($p);
 // echo "\n".$photo->photo->id;
-exit("\nelix\n");
----------- end ---------- */
-
-
-
+exit("\n-end test-\n");
+// ---------- end ---------- */
 
 // create new _temp file
 if(!($resource_file = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml", "w+"))) return;
