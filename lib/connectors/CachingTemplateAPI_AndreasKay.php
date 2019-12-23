@@ -280,7 +280,10 @@ class CachingTemplateAPI_AndreasKay
                         if($GLOBALS['ENV_DEBUG']) print_r($obj3);
                         return $obj3;
                     }
-                    elseif($obj3->status == 303) exit("\nMight need to investigate: still 303 303\n");
+                    elseif($obj3->status == 303) {
+                        if($GLOBALS['ENV_DEBUG']) print_r($obj3);
+                        exit("\nMight need to investigate: still 303 303\n");
+                    }
                 }
                 exit("\nMight not go here anymore...\n");
             }
