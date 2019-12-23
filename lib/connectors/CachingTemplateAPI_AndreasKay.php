@@ -366,7 +366,7 @@ class CachingTemplateAPI_AndreasKay
             $classification_paths = array();
             if($verified_names = @$obj->verified_names) {
                 foreach($verified_names as $verified) {
-                    $classification_paths[$verified->results->classification_path] = '';
+                    if($val = $verified->results->classification_path) $classification_paths[$val] = '';
                     foreach($verified->preferred_results as $another) {
                         if($path = @$another->classification_path) $classification_paths[$path] = '';
                     }
@@ -379,6 +379,7 @@ class CachingTemplateAPI_AndreasKay
                 [Animalia|Arthropoda|Insecta|Coleoptera] => 
             )*/
             $classification_paths = array_keys($classification_paths);
+            if(!$classification_paths) return false;
             /* Now get the most number of members in the classification. Most number means, most specific taxon. */
             $i = -1;
             $old_count = 0;
@@ -403,6 +404,10 @@ class CachingTemplateAPI_AndreasKay
             // echo "\n$taxon\n";
             /* Last check is if the $taxon is in $considered_scinames_by_GNRD */
             if(in_array($taxon, $considered_scinames_by_GNRD)) return $taxon;
+            else {
+                $arr = array('need to investigate'=>$taxon, 'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
+                print_r($arr); exit("\nNeed to investigate\n");
+            }
         }
         else return false;
         // exit("\n");
