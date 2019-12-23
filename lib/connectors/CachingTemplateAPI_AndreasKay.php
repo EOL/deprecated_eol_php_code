@@ -38,7 +38,7 @@ class CachingTemplateAPI_AndreasKay
         $parameters = self::step1and2_look_for_binomials($tags, false); //2nd param false means NOT pseudo binomials
         if(@$parameters['scientificName']) {
             debug("\nStep 1 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n");
-            // print_r($parameters); exit("\n111\n");
+            $this->count['lack machine tags but with binomials that we matched to taxon names']++;
             return $parameters;
         }
         else {
@@ -46,6 +46,7 @@ class CachingTemplateAPI_AndreasKay
             $parameters = self::step1and2_look_for_binomials($tags, true); //2nd param true means pseudo binomials
             if(@$parameters['scientificName']) {
                 debug("\nStep 2 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n");
+                $this->count['lack machine tags but with pseudo binomials that we matched to taxon names']++;
                 return $parameters;
             }
             else {
@@ -53,10 +54,12 @@ class CachingTemplateAPI_AndreasKay
                 $parameters = self::step3_look_for_any_name_among_tags($tags);
                 if(@$parameters['scientificName']) {
                     debug("\nStep 3 OK ".$GLOBALS['allowsQuestionMarksYN'].".\n");
+                    $this->count['lack machine tags but with non-binomials that we matched to taxon names']++;
                     return $parameters;
                 }
                 else {
                     debug("\nStep 3 failed ".$GLOBALS['allowsQuestionMarksYN'].".\n");
+                    // $this->count['media with tags but nothing we can match']++;
                     return false;
                 }
             }

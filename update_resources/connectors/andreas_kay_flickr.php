@@ -73,6 +73,8 @@ $months_to_be_broken_down = array(0 => array("year" => 2011, "month" => 8),
 $months_to_be_broken_down = array(); //for Andreas Kay, so far.
 FlickrAPI::get_photostream_photos($auth_token, $resource_file, $user_id, $start_year, $months_to_be_broken_down, NULL, $resource_id);
 
+print_r(@$GLOBALS['func']->count);
+
 // write the resource footer
 fwrite($resource_file, \SchemaDocument::xml_footer());
 fclose($resource_file);
