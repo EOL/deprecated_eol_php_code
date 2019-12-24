@@ -465,7 +465,7 @@ class CachingTemplateAPI_AndreasKay
         $words = explode(' ', $name);
         if(count($words) >= 2) {
             if(ctype_upper(substr($words[0],0,1))) {
-                if(ctype_lower(substr($words[strlen($words)-1],0,1))) return true;
+                if(ctype_lower(substr($words[count($words)-1],0,1))) return true;
             }
         }
         return false;
