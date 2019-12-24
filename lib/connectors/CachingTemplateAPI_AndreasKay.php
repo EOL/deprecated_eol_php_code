@@ -323,7 +323,6 @@ class CachingTemplateAPI_AndreasKay
                 }
                 exit("\nMight not go here anymore...\n");
             }
-            
             /* No longer needed for Andreas Kay resource. But maybe needed for other resources who'll use this template.
             print_r($obj); exit;
             $WRITE = Functions::file_open($filename, "w");
@@ -333,8 +332,6 @@ class CachingTemplateAPI_AndreasKay
         }
         else return false;
     }
-    
-    
     private function try_again_obj($obj)
     {
         $options = $this->download_options;
@@ -342,17 +339,6 @@ class CachingTemplateAPI_AndreasKay
         $json = Functions::lookup_with_cache($obj->token_url, $options);
         $obj_new = json_decode($json);
         return $obj_new;
-    }
-    private function generate_path_filename($tc_id)
-    {
-        $main_path = $this->main_path;
-        $md5 = md5($tc_id);
-        $cache1 = substr($md5, 0, 2);
-        $cache2 = substr($md5, 2, 2);
-        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
-        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
-        $filename = $main_path . "$cache1/$cache2/$tc_id.json";
-        return $filename;
     }
     private function pick_a_name_among_tags($tags)
     {
@@ -365,7 +351,10 @@ class CachingTemplateAPI_AndreasKay
         $json = Functions::lookup_with_cache($url, $this->download_options);
         $obj = json_decode($json);
         if($obj = self::process_obj_output($obj)) {
-            if($considered_scinames_by_GNRD = self::get_considered_scinames_by_GNRD($obj)) {}
+            if($considered_scinames_by_GNRD = self::get_considered_scinames_by_GNRD($obj)) {
+                /* return all binomials, if any */
+                
+            }
             else return false; //meaning no scinames found in Flickr tags
             
             $classification_paths = array();
@@ -458,6 +447,17 @@ class CachingTemplateAPI_AndreasKay
         $final = array();
         foreach($obj->names as $n) $final[$n->scientificName] = '';
         return array_keys($final);
+    }
+    private function generate_path_filename($tc_id)
+    {
+        $main_path = $this->main_path;
+        $md5 = md5($tc_id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($main_path . $cache1))           mkdir($main_path . $cache1);
+        if(!file_exists($main_path . "$cache1/$cache2")) mkdir($main_path . "$cache1/$cache2");
+        $filename = $main_path . "$cache1/$cache2/$tc_id.json";
+        return $filename;
     }
 }
 ?>
