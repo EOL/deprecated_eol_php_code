@@ -355,7 +355,7 @@ class CachingTemplateAPI_AndreasKay
         if($obj = self::process_obj_output($obj)) {
             if($considered_scinames_by_GNRD = self::get_considered_scinames_by_GNRD($obj)) {
                 /* return all binomials, if any and be done with it */
-                if($binomials = self:get_valid_binomials($considered_scinames_by_GNRD)) return $binomials;
+                if($binomials = self::get_valid_binomials($considered_scinames_by_GNRD)) return $binomials;
             }
             else return false; //meaning no scinames found in Flickr tags
             
