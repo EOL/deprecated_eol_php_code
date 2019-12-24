@@ -8,6 +8,8 @@ Note: this is a template copied from 544.php
 
 Interestingly this: https://www.flickr.com/photos/andreaskay/
   is synonymous to: https://www.flickr.com/photos/75374522@N06/
+Stats:
+andreas_kay_flickr	Tuesday 2019-12-24 04:47:42 AM	{"agent.tab":1,"media_resource.tab":27828,"taxon.tab":3283,"time_elapsed":{"sec":76.01,"min":1.27,"hr":0.02}}
 */
 
 ini_set('error_reporting', E_ALL);
@@ -101,13 +103,11 @@ $nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false m
 
 // end main block */
 
-//---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca
-// /*
+//---------------------new start convert_archive_normalized() meaning remove taxa without objects, only leave taxa with objects in final dwca - Works OK
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
 $func->convert_archive_normalized();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-// */
 //---------------------new end
 
 //---------------------start: make rows in report unique.
