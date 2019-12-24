@@ -22,6 +22,7 @@ class CachingTemplateAPI_AndreasKay
         if(!is_dir($this->main_path)) mkdir($this->main_path);
         $this->api['simple text'] = "https://gnrd.globalnames.org/name_finder.json?text=PLUS_SEPARATED_STRINGS";
         $this->api['scinames']    = 'https://gnrd.globalnames.org/name_finder.json?text=PLUS_SEPARATED_STRINGS&preferred_data_sources=12&unique=true';
+        // https://gnrd.globalnames.org/name_finder.json?text=Andreas+Kay+Ecuador+Microlepidoptera+Mindo+moth+Cosmopterix+Cosmopterigidae&preferred_data_sources=12&unique=true
         $this->file['pseudo_binomials_not_in_GNRD'] = CONTENT_RESOURCE_LOCAL_PATH . "/reports/".$this->resource_id."_pseudo_binomials_not_in_GNRD_temp.txt";
         
         $this->count['media with machine tags'] = 0;
@@ -394,17 +395,30 @@ class CachingTemplateAPI_AndreasKay
             }
             // echo "\nfinal choice: [$choice]\n";
             $final_path = $classification_paths[$choice];
-            $final_path = explode("|", $final_path);
-            // print_r($final_path);
-            $taxon = array_pop($final_path);
-            // echo "\n$taxon\n";
+            $final_path = explode("|", $final_path); // print_r($final_path);
+            $taxon = array_pop($final_path); // echo "\n$taxon\n";
             /* Last check is if the $taxon is in $considered_scinames_by_GNRD */
             if(in_array($taxon, $considered_scinames_by_GNRD)) return array($taxon);
             else {
-                if(in_array($GLOBALS['photo_id'], array('28428621653'))) return array($taxon); //valid 
+                /*Array(
+                    [need to investigate] => Lepidoptera
+                    [photo_id] => 43386412480
+                    [considered_scinames_by_GNRD] => Array(
+                            [0] => Microlepidoptera
+                            [1] => Cosmopterix
+                            [2] => Cosmopterigidae
+                        )
+                    [words] => Andreas+Kay+Ecuador+Microlepidoptera+Mindo+moth+Cosmopterix+Cosmopterigidae
+                    [classification_paths] => Array(
+                            [0] => Animalia|Bilateria|Protostomia|Ecdysozoa|Arthropoda|Hexapoda|Insecta|Pterygota|Neoptera|Holometabola|Lepidoptera
+                            [1] => Animalia|Arthropoda|Insecta|Lepidoptera|Gelechioidea|Cosmopterigidae|Cosmopterix
+                            [2] => Animalia|Arthropoda|Insecta|Lepidoptera|Gelechioidea|Cosmopterigidae
+                        )
+                )*/
+                /* Now, check each classification_path which has the most no. of occurrences from "considered_scinames_by_GNRD" */
+                $taxon = self::name_from_the_most_no_of_occurrences($considered_scinames_by_GNRD, $classification_paths);
+                if(in_array($taxon, $considered_scinames_by_GNRD)) return array($taxon);
                 else {
-                    /*
-                    */
                     $arr = array('need to investigate'=>$taxon, 'photo_id'=>$GLOBALS['photo_id'], 
                                  'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
                     print_r($arr); //exit("\nNeed to investigate\n");
@@ -418,6 +432,24 @@ class CachingTemplateAPI_AndreasKay
         // Chrysomelidae
         // Coleoptera
         // https://gnrd.globalnames.org/name_finder.json?text=Cassidinae+Chrysomelidae+Coleoptera&preferred_data_sources=12&unique=true
+    }
+    private function name_from_the_most_no_of_occurrences($scinames, $paths)
+    {
+        $i = -1; $score = array();
+        foreach($paths as $path) { $i++;
+            $arr_path = explode("|", $path);
+            foreach($scinames as $sciname) {
+                if(in_array($sciname, $arr_path)) @$score[$i]++;
+            }
+        }
+        // get index with highest value:
+        arsort($score);
+        $index = key($score);
+        // get last name in chosen_path
+        $chosen_path = $paths[$index]; // echo "\n$chosen_path\n";
+        $arr = explode("|", $chosen_path);
+        $taxon = array_pop($arr);
+        return $taxon;
     }
     private function get_valid_binomials($names)
     {
