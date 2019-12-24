@@ -345,7 +345,15 @@ class CachingTemplateAPI_AndreasKay
     }
     private function pick_names_among_tags($tags)
     {
-        foreach($tags as $tag) @$words .= " $tag->raw";
+        $words = '';
+        foreach($tags as $tag) {
+            if($val = $tag->raw) @$words .= " $tag->raw";
+        }
+        if(!$words) {
+            $arr = array('Investigate this:' => $tags);
+            print_r($arr);
+            return false;
+        }
         $words = Functions::remove_whitespace(trim($words));
         // echo "\nwords: [$words]\n";
         $words = str_replace(' ', '+', $words);
