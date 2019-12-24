@@ -67,8 +67,10 @@ class CachingTemplateAPI_AndreasKay
     }
     private function step3_look_for_any_name_among_tags($tags)
     {
-        if($name = self::pick_a_name_among_tags($tags)) {
-            $final['scientificName'][] = $name;
+        if($names = self::pick_names_among_tags($tags)) {
+            foreach($names as $name) {
+                if($name) $final['scientificName'][] = $name;
+            }
             return $final;
         }
     }
@@ -340,7 +342,7 @@ class CachingTemplateAPI_AndreasKay
         $obj_new = json_decode($json);
         return $obj_new;
     }
-    private function pick_a_name_among_tags($tags)
+    private function pick_names_among_tags($tags)
     {
         foreach($tags as $tag) @$words .= " $tag->raw";
         $words = Functions::remove_whitespace(trim($words));
@@ -352,8 +354,8 @@ class CachingTemplateAPI_AndreasKay
         $obj = json_decode($json);
         if($obj = self::process_obj_output($obj)) {
             if($considered_scinames_by_GNRD = self::get_considered_scinames_by_GNRD($obj)) {
-                /* return all binomials, if any */
-                
+                /* return all binomials, if any and be done with it */
+                if($binomials = self:get_valid_binomials($considered_scinames_by_GNRD)) return $binomials;
             }
             else return false; //meaning no scinames found in Flickr tags
             
@@ -397,41 +399,16 @@ class CachingTemplateAPI_AndreasKay
             $taxon = array_pop($final_path);
             // echo "\n$taxon\n";
             /* Last check is if the $taxon is in $considered_scinames_by_GNRD */
-            if(in_array($taxon, $considered_scinames_by_GNRD)) return $taxon;
+            if(in_array($taxon, $considered_scinames_by_GNRD)) return array($taxon);
             else {
-                if(in_array($GLOBALS['photo_id'], array('28428621653'))) return $taxon; //valid 
+                if(in_array($GLOBALS['photo_id'], array('28428621653'))) return array($taxon); //valid 
                 else {
-                    /*Array
-                    (
-                        [need to investigate] => Variimorda
-                        [photo_id] => 37170462840
-                        [considered_scinames_by_GNRD] => Array
-                            (
-                                [0] => Coleoptera
-                                [1] => Mordellidae
-                                [2] => Variimorda pustulosa
-                            )
-
-                        [words] => Andreas+Kay+beetle+Coleoptera+Ecuador+Mordellidae+Orkidea+Lodge+Tumbling+Flower+Beetle+Variimorda+pustulosa?
-                        [classification_paths] => Array
-                            (
-                                [0] => Animalia|Arthropoda|Insecta|Coleoptera
-                                [1] => Animalia|Arthropoda|Insecta|Coleoptera|Tenebrionoidea|Mordellidae
-                                [2] => Biota|Animalia|Arthropoda|Hexapoda|Insecta|Coleoptera|Mordellidae|Variimorda
-                            )
-                    )
-                    first:
-                    run "considered_scinames_by_GNRD" againts our original first step: "AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)"
+                    /*
                     */
-                    if(AndreasKay_addtl_taxon_assignment) {
-                        
-                    }
-                    else {
-                        $arr = array('need to investigate'=>$taxon, 'photo_id'=>$GLOBALS['photo_id'], 
-                                     'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
-                        print_r($arr); //exit("\nNeed to investigate\n");
-                    }
-                    return $taxon;
+                    $arr = array('need to investigate'=>$taxon, 'photo_id'=>$GLOBALS['photo_id'], 
+                                 'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
+                    print_r($arr); //exit("\nNeed to investigate\n");
+                    return array($taxon);
                 }
             }
         }
@@ -441,6 +418,23 @@ class CachingTemplateAPI_AndreasKay
         // Chrysomelidae
         // Coleoptera
         // https://gnrd.globalnames.org/name_finder.json?text=Cassidinae+Chrysomelidae+Coleoptera&preferred_data_sources=12&unique=true
+    }
+    private function get_valid_binomials($names)
+    {
+        foreach($names as $name) {
+            if(self::is_binomial($name)) $final[] = $name;
+        }
+        return @$final;
+    }
+    private function is_binomial($name)
+    {
+        $words = explode(' ', $name);
+        if(count($words) == 2) {
+            if(ctype_upper(substr($words[0],0,1))) {
+                if(ctype_lower(substr($words[1],0,1))) return true;
+            }
+        }
+        return false;
     }
     private function get_considered_scinames_by_GNRD($obj)
     {
