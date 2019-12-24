@@ -75,7 +75,9 @@ class CachingTemplateAPI_AndreasKay
     private function step1and2_look_for_binomials($tags, $pseudoBinomialsYN)
     {
         $binomials = self::get_binomials_from_tags($tags, $pseudoBinomialsYN);
-        foreach($binomials as $name) if($name) $final['scientificName'][] = $name;
+        foreach($binomials as $name) {
+            if($name) $final['scientificName'][] = $name;
+        }
         return @$final;
     }
     private function get_binomials_from_tags($tags, $pseudoBinomialsYN)
@@ -410,9 +412,36 @@ class CachingTemplateAPI_AndreasKay
             else {
                 if(in_array($GLOBALS['photo_id'], array('28428621653'))) return $taxon; //valid 
                 else {
-                    $arr = array('need to investigate'=>$taxon, 'photo_id'=>$GLOBALS['photo_id'], 
-                    'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
-                    print_r($arr); //exit("\nNeed to investigate\n");
+                    /*Array
+                    (
+                        [need to investigate] => Variimorda
+                        [photo_id] => 37170462840
+                        [considered_scinames_by_GNRD] => Array
+                            (
+                                [0] => Coleoptera
+                                [1] => Mordellidae
+                                [2] => Variimorda pustulosa
+                            )
+
+                        [words] => Andreas+Kay+beetle+Coleoptera+Ecuador+Mordellidae+Orkidea+Lodge+Tumbling+Flower+Beetle+Variimorda+pustulosa?
+                        [classification_paths] => Array
+                            (
+                                [0] => Animalia|Arthropoda|Insecta|Coleoptera
+                                [1] => Animalia|Arthropoda|Insecta|Coleoptera|Tenebrionoidea|Mordellidae
+                                [2] => Biota|Animalia|Arthropoda|Hexapoda|Insecta|Coleoptera|Mordellidae|Variimorda
+                            )
+                    )
+                    first:
+                    run "considered_scinames_by_GNRD" againts our original first step: "AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)"
+                    */
+                    if(AndreasKay_addtl_taxon_assignment) {
+                        
+                    }
+                    else {
+                        $arr = array('need to investigate'=>$taxon, 'photo_id'=>$GLOBALS['photo_id'], 
+                                     'considered_scinames_by_GNRD'=>$considered_scinames_by_GNRD, 'words'=>$words, 'classification_paths'=>$classification_paths);
+                        print_r($arr); //exit("\nNeed to investigate\n");
+                    }
                     return $taxon;
                 }
             }
