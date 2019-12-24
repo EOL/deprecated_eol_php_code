@@ -357,6 +357,7 @@ class CachingTemplateAPI_AndreasKay
             if($considered_scinames_by_GNRD = self::get_considered_scinames_by_GNRD($obj)) {
                 /* return all binomials, if any and be done with it */
                 if($binomials = self::get_valid_binomials($considered_scinames_by_GNRD)) return $binomials;
+                if(count($considered_scinames_by_GNRD) == 1) return $considered_scinames_by_GNRD;
             }
             else return false; //meaning no scinames found in Flickr tags
             
@@ -435,6 +436,7 @@ class CachingTemplateAPI_AndreasKay
     }
     private function name_from_the_most_no_of_occurrences($scinames, $paths)
     {
+        // print_r($scinames); print_r($paths);
         $i = -1; $score = array();
         foreach($paths as $path) { $i++;
             $arr_path = explode("|", $path);
@@ -454,16 +456,16 @@ class CachingTemplateAPI_AndreasKay
     private function get_valid_binomials($names)
     {
         foreach($names as $name) {
-            if(self::is_binomial($name)) $final[] = $name;
+            if(self::is_binomial_or_trinomial($name)) $final[] = $name;
         }
         return @$final;
     }
-    private function is_binomial($name)
+    private function is_binomial_or_trinomial($name)
     {
         $words = explode(' ', $name);
-        if(count($words) == 2) {
+        if(count($words) >= 2) {
             if(ctype_upper(substr($words[0],0,1))) {
-                if(ctype_lower(substr($words[1],0,1))) return true;
+                if(ctype_lower(substr($words[strlen($words)-1],0,1))) return true;
             }
         }
         return false;
