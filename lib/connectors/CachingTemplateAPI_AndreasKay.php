@@ -31,6 +31,7 @@ class CachingTemplateAPI_AndreasKay
         $this->count['lack machine tags but with pseudo binomials that we matched to taxon names'] = 0;
         $this->count['lack machine tags but with non-binomials that we matched to taxon names'] = 0;
         $this->count['media with tags but nothing we can match'] = 0;
+        $this->count['photo_id no sciname'] = array();
     }
     /* ======================================= start Andreas Kay functions ======================================= */
     public function AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)

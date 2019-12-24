@@ -273,6 +273,7 @@ class FlickrAPI
                 // echo "\nFrom Andreas...\n";
                 if(!$parameters['scientificName']) {
                     @$GLOBALS['func']->count['media with tags but nothing we can match']++;
+                    @$GLOBALS['func']->count['photo_id no sciname'][$GLOBALS['photo_id']] = '';
                     return false;
                 }
             }
