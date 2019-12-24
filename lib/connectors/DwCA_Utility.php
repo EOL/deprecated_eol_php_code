@@ -317,7 +317,7 @@ class DwCA_Utility
     function convert_archive_normalized() //this same as above two, but this removes taxa that don't have objects. Only taxa with objects will remain in taxon.tab.
     {
         echo "\ndoing this: convert_archive_normalized()\n";
-        $info = self::start();
+        $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0));
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];

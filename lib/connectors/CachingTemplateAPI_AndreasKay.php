@@ -351,8 +351,8 @@ class CachingTemplateAPI_AndreasKay
             if($val = $tag->raw) @$words .= " $tag->raw";
         }
         if(!$words) {
-            $arr = array('Investigate this:' => $tags);
-            print_r($arr);
+            // $arr = array('Investigate this:' => $tags);
+            // print_r($arr);
             return false;
         }
         $words = Functions::remove_whitespace(trim($words));
