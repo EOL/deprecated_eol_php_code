@@ -231,7 +231,12 @@ class FlickrAPI
             elseif(preg_match("/^taxonomy:class=(.+)$/i", $string, $arr)) $parameters["class"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:phylum=(.+)$/i", $string, $arr)) $parameters["phylum"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:kingdom=(.+)$/i", $string, $arr)) $parameters["kingdom"][] = ucfirst(trim($arr[1]));
-            elseif(preg_match("/^taxonomy:common=(.+)$/i", $string, $arr)) $parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($arr[1])));
+            elseif(preg_match("/^taxonomy:common=(.+)$/i", $string, $arr))  {
+                /* DATA-1804 - vernaculars removed from Flickr Group (resource_id = 15) */
+                if($GLOBALS['resource_id'] != 15) {
+                    $parameters["commonNames"][] = new \SchemaCommonName(array("name" => trim($arr[1])));
+                }
+            }
             
             /* Photos from Smithsonian photostream that have tag "taxonomy:binomial" is already being shared in the EOL Flickr group.
             So here we will only get those photos with tag "taxonomy:species" only, without "taxonomy:binomial" */
@@ -386,30 +391,30 @@ class FlickrAPI
     private static function sets_more_specific_name_from_tags($taxa)
     {   $i = -1;
         foreach($taxa as $t) { $i++;
-            if($t->scientificName) return $taxa;
+            if($t->scientificName) {}
             else {
                 if($val = $t->genus) {
-                    $taxa[$i]->genus = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'genus';   return $taxa;
+                    $taxa[$i]->genus = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'genus';
                 }
                 else {
                     if($val = $t->family) {
-                        $taxa[$i]->family = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'family';   return $taxa;
+                        $taxa[$i]->family = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'family';
                     }
                     else {
                         if($val = $t->order) {
-                            $taxa[$i]->order = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'order';   return $taxa;
+                            $taxa[$i]->order = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'order';
                         }
                         else {
                             if($val = $t->class) {
-                                $taxa[$i]->class = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'class';   return $taxa;
+                                $taxa[$i]->class = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'class';
                             }
                             else {
                                 if($val = $t->phylum) {
-                                    $taxa[$i]->phylum = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'phylum';   return $taxa;
+                                    $taxa[$i]->phylum = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'phylum';
                                 }
                                 else {
                                     if($val = $t->kingdom) {
-                                        $taxa[$i]->kingdom = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'kingdom';   return $taxa;
+                                        $taxa[$i]->kingdom = ''; $taxa[$i]->scientificName = $val; $taxa[$i]->rank = 'kingdom';
                                     }
                                 }
                             }
