@@ -4,6 +4,7 @@ namespace php_active_record;
 This is a generic script that will convert EOL XML to EOL DWC-A
 
 20	Thursday 2019-12-26 10:52:17 AM	{"agent.tab":2031,"media_resource.tab":28979,"reference.tab":1420,"taxon.tab":8830,"time_elapsed":{"sec":32.97,"min":0.55,"hr":0.01}}
+327	Thursday 2019-12-26 11:20:32 AM	{"agent.tab":120,"media_resource.tab":31927,"reference.tab":5025,"taxon.tab":17539,"vernacular_name.tab":4678,"time_elapsed":{"sec":29.3,"min":0.49,"hr":0.01}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
