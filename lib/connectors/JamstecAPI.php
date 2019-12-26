@@ -12,16 +12,36 @@ class JamstecAPI
         $this->debug = array();
         $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'timeout' => 3600, 'download_attempts' => 1, 'expire_seconds' => 60*60*24*30*3); //orig expires quarterly
         // $this->download_options['expire_seconds'] = false; //debug only
-        
-        $this->meta['Species'] = "https://editors.eol.org/other_files/JAMSTEC/Species/EOLmetadata_Species_20190624.xlsx";
-        $this->meta['Genus'] = "https://editors.eol.org/other_files/JAMSTEC/Genus/EOLmetadata_Genus_20190624.xlsx";
-        $this->meta['Family'] = "https://editors.eol.org/other_files/JAMSTEC/Family/EOLmetadata_Family_20190624.xlsx";
-        $this->meta['Subfamily'] = "https://editors.eol.org/other_files/JAMSTEC/Subfamily/EOLmetadata_Subfamily_20190624.xlsx";
+
         $this->image_path = "https://editors.eol.org/other_files/JAMSTEC/";
+        $this->meta['Species']      = $this->image_path . "Species/EOLmetadata_Species_20190624.xlsx";
+        $this->meta['Genus']        = $this->image_path . "Genus/EOLmetadata_Genus_20190624.xlsx";
+        $this->meta['Family']       = $this->image_path . "Family/EOLmetadata_Family_20190624.xlsx";
+        $this->meta['Subfamily']    = $this->image_path . "Subfamily/EOLmetadata_Subfamily_20190624.xlsx";
         $this->licenses['CC-BY-NC'] = 'http://creativecommons.org/licenses/by-nc/4.0/';
+        
+        if(Functions::is_production()) {
+            $this->zip['source file'] = '/extra/other_files/JAMSTEC/Downloads/Family.zip';
+            $this->zip['extract to']  = '/extra/other_files/JAMSTEC/';
+        }
+        else {
+            $this->zip['source file'] = '/Volumes/AKiTiO4/other_files/JAMSTEC/Downloads/Family.zip';
+            $this->zip['extract to']  = '/Volumes/AKiTiO4/other_files/JAMSTEC/';
+        }
+        /*
+        unzip -o /path/to/Family.zip -d /path/to/extract/to/
+        */
+    }
+    private function extract_files()
+    {
+        $cmd = "unzip -o ".$this->zip['source file']." -d ".$this->zip['extract to'];
+        echo "\n$cmd\n";
+        $output = shell_exec($cmd);
+        if(is_dir($this->zip['extract to'].'Species')) debug("\nExtracted OK\n");
     }
     function start()
-    {   self::build_Name_taxonID_list();
+    {   self::extract_files();
+        self::build_Name_taxonID_list();
         self::main();
         self::create_rest_of_hierarchy();
         $this->archive_builder->finalize(TRUE);

@@ -50,13 +50,10 @@ class FlickrAPI
         
         // Get metadata about the EOL Flickr pool
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, $auth_token, $user_id, $start_date, $end_date);
-        if($response && isset($response->photos->total))
-        {
+        if($response && isset($response->photos->total)) {
             $total = $response->photos->total;
-            
             // number of API calls to be made
             $total_pages = ceil($total / $per_page);
-            
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++) {
                 /* when running 2 or more connectors...
@@ -66,7 +63,6 @@ class FlickrAPI
                 if($i >= $m && $i < $m*2)   $cont = true;
                 if(!$cont) continue;
                 */
-                
                 echo "getting page $i: ".time_elapsed()."\n";
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id, $start_date, $end_date);
                 if($page_taxa) {
@@ -81,16 +77,12 @@ class FlickrAPI
         else {
             if(isset($response->stat)) print_r($response);
         }
-        
         return $all_taxa;
     }
-    
     public static function get_eol_photos($per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
         global $used_image_ids;
-        
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
-        
         if(isset($response->photos->photo)) {
             echo "\n page " . $response->photos->page . " of " . $response->photos->pages . " | total taxa =  " . $response->photos->total . "\n";
             echo "\n -- response count: " . count($response);
@@ -101,7 +93,6 @@ class FlickrAPI
             sleep(120);
             $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
         }
-        
         static $count_taxa = 0;
         $page_taxa = array();
         if(isset($response->photos->photo)) {
@@ -153,7 +144,6 @@ class FlickrAPI
         }
         return $page_taxa;
     }
-    
     public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "", $user_id = NULL)
     {
         $GLOBALS['photo_id'] = $photo_id;
@@ -217,10 +207,8 @@ class FlickrAPI
         if($user_id == ANDREAS_KAY_ID) {
             if($photo->tags->tag) @$GLOBALS['func']->count['media with machine tags']++;
         }
-        foreach($photo->tags->tag as $tag)
-        {
+        foreach($photo->tags->tag as $tag) {
             $string = trim($tag->raw);
-            
             if(preg_match("/^taxonomy:subspecies=(.+)$/i", $string, $arr)) $parameters["subspecies"][] = strtolower(trim($arr[1]));
             elseif(preg_match("/^taxonomy:trinomial=(.+)$/i", $string, $arr)) $parameters["trinomial"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:species=(.+)$/i", $string, $arr)) $parameters["species"][] = strtolower(trim($arr[1]));
@@ -481,8 +469,7 @@ class FlickrAPI
             if($val = @$photo->bhl_addtl['longitude'])   $data_object_parameters["additionalInformation"] .= "<longitude>$val</longitude>";    //http://www.w3.org/2003/01/geo/wgs84_pos#long
         }
 
-        if(@$photo->geoperms->ispublic = 1)
-        {
+        if(@$photo->geoperms->ispublic = 1) {
             $geo_point_parameters = array();
             if(isset($photo->location->latitude)) $geo_point_parameters["latitude"] = $photo->location->latitude;
             if(isset($photo->location->longitude)) $geo_point_parameters["longitude"] = $photo->location->longitude;
@@ -503,16 +490,11 @@ class FlickrAPI
             
             $data_object_parameters["thumbnailURL"] = $data_object_parameters["mediaURL"];
             $data_object_parameters["mediaURL"] = NULL;
-            if($file_json_object = self::check_cache('photosGetSizes', $photo->id)) {
-                $sizes = $file_json_object;
-            }
-            else {
-                $sizes = self::photos_get_sizes($photo->id);
-            }
+            if($file_json_object = self::check_cache('photosGetSizes', $photo->id)) $sizes = $file_json_object;
+            else                                                                    $sizes = self::photos_get_sizes($photo->id);
             
             if(@$sizes) {
-                foreach($sizes->sizes->size as $size)
-                {
+                foreach($sizes->sizes->size as $size) {
                     if($size->label == "Video Player") {
                         $data_object_parameters["identifier"] .= "_video";
                         $data_object_parameters["dataType"] = "http://purl.org/dc/dcmitype/MovingImage";
@@ -529,7 +511,6 @@ class FlickrAPI
         }
         return $data_objects;
     }
-    
     public static function photos_get_sizes($photo_id, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.photos.getSizes", array("photo_id" => $photo_id, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
@@ -538,19 +519,16 @@ class FlickrAPI
         self::add_to_cache('photosGetSizes', $photo_id, $response);
         return json_decode($response);
     }
-    
     public static function people_get_info($user_id, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.people.getInfo", array("user_id" => $user_id, "auth_token" => $auth_token), 1);
         return Functions::get_hashed_response($url);
     }
-    
     public static function people_get_public_photos($user_id, $auth_token = "")
     {
         $url = self::generate_rest_url("flickr.people.getPublicPhotos", array("user_id" => $user_id, "auth_token" => $auth_token), 1);
         return Functions::get_hashed_response($url);
     }
-    
     public static function photos_get_info($photo_id, $secret, $auth_token = "", $download_options = array('timeout' => 30, 'resource_id' => 'flickr')) // this is also being called by FlickrUserAlbumAPI.php
     {
         $download_options['expire_seconds'] = $GLOBALS['expire_seconds'];
@@ -560,7 +538,6 @@ class FlickrAPI
         self::add_to_cache('photosGetInfo', $photo_id, $response);
         return json_decode($response);
     }
-    
     public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
         $extras = "last_update,media,url_o";
@@ -572,13 +549,11 @@ class FlickrAPI
         // echo "\nccc=[$url]\n"; //debug
         return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 30 days; rsource_id here is just a folder name in cache
     }
-    
     public static function auth_get_frob()
     {
         $url = self::generate_rest_url("flickr.auth.getFrob", array(), 1);
         return Functions::get_hashed_response($url);
     }
-    
     public static function auth_check_token($auth_token)
     {
         /* this is deliberately designed to not cache request */
@@ -590,22 +565,16 @@ class FlickrAPI
         return simplexml_load_string($response);
         */
     }
-    
     public static function auth_get_token($frob)
     {
         $url = self::generate_rest_url("flickr.auth.getToken", array("frob" => $frob), 1);
         return Functions::get_hashed_response($url);
     }
-    
     public static function photo_url($photo_id, $secret, $server, $farm)
     {
         $photo_url = "http://farm".$farm.".static.flickr.com/".$server."/".$photo_id."_".$secret.".jpg";
-        if($file_json_object = self::check_cache('photosGetSizes', $photo_id)) {
-            $sizes = $file_json_object;
-        }else {
-            $sizes = self::photos_get_sizes($photo_id);
-        }
-        
+        if($file_json_object = self::check_cache('photosGetSizes', $photo_id)) $sizes = $file_json_object;
+        else                                                                   $sizes = self::photos_get_sizes($photo_id);
         if(@$sizes) {
             if(isset($sizes->sizes)) {
                 foreach($sizes->sizes->size as $size) {
@@ -616,14 +585,12 @@ class FlickrAPI
         }
         return $photo_url;
     }
-    
     public static function valid_auth_token($auth_token)
     {
         $response = self::auth_check_token($auth_token);
         if(@$response->auth->token) return true;
         return false;
     }
-    
     public static function login_url()
     {
         $parameters = self::request_parameters(false);
@@ -631,7 +598,6 @@ class FlickrAPI
         $encoded_parameters = self::encode_parameters($parameters);
         return FLICKR_AUTH_PREFIX . implode("&", $encoded_parameters) . "&api_sig=" . self::generate_signature($parameters);
     }
-    
     public static function generate_rest_url($method, $params, $sign)
     {
         $parameters = self::request_parameters($method);
@@ -642,21 +608,18 @@ class FlickrAPI
         $url = str_ireplace("http://", "https://", $url);
         return $url;
     }
-    
     public static function encode_parameters($parameters)
     {
         $encoded_paramameters = array();
         foreach($parameters as $k => $v) $encoded_paramameters[] = urlencode($k).'='.urlencode($v);
         return $encoded_paramameters;
     }
-    
     public static function request_parameters($method)
     {
         $parameters = array("api_key" => FLICKR_API_KEY);
         if($method) $parameters["method"] = $method;
         return $parameters;
     }
-    
     public static function generate_signature($parameters)
     {
         $signature = FLICKR_SHARED_SECRET;
@@ -666,7 +629,6 @@ class FlickrAPI
         }
         return md5($signature);
     }
-    
     public static function add_to_cache($dir_name, $photo_id, $photo_response)
     {
         $filter_dir = substr($photo_id, -2);
@@ -681,7 +643,6 @@ class FlickrAPI
         fwrite($FILE, $photo_response);
         fclose($FILE);
     }
-    
     public static function check_cache($dir_name, $photo_id, $last_update = null)
     {
         $filter_dir = substr($photo_id, -2);
@@ -699,16 +660,13 @@ class FlickrAPI
         }
         return false;
     }
-
     public static function is_sciname_synonym($sciname)
     {
         $expire_seconds = false;
-        
         /* debug
         if($sciname == "Falco chrysaetos") $expire_seconds = true;
         else                               $expire_seconds = false;
         */
-        
         /*              http://eol.org/api/search/1.0.xml?q=Xanthopsar+flavus&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl= */
         $search_call = "http://eol.org/api/search/1.0.xml?q=" . $sciname .  "&page=1&exact=false&filter_by_taxon_concept_id=&filter_by_hierarchy_entry_id=&filter_by_string=&cache_ttl=";
         if($xml = Functions::lookup_with_cache($search_call, array('timeout' => 30, 'expire_seconds' => $expire_seconds, 'resource_id' => 'eol_api'))) //resource_id here is just a folder name in cache
@@ -725,7 +683,6 @@ class FlickrAPI
         }
         return false;
     }
-
     public static function get_photostream_photos($auth_token = "", $resource_file = null, $user_id = NULL, $start_year = NULL, $months_to_be_broken_down = NULL, 
                                                   $max_photos_per_taxon = NULL, $resource_id = NULL)
     {
@@ -764,7 +721,6 @@ class FlickrAPI
         print_r($GLOBALS['taxa']);
         return $all_taxa;
     }
-
     public static function get_date_ranges($start_year, $month = NULL)
     {
         $range = array();
@@ -780,8 +736,7 @@ class FlickrAPI
                 }
             }
         }
-        else
-        {
+        else {
             $month = Functions::format_number_with_leading_zeros($month, 2);
             for ($day = 1; $day <= 30; $day++) {
                 $start_date = $start_year . "-" . $month . "-" . Functions::format_number_with_leading_zeros($day, 2);
@@ -802,14 +757,12 @@ class FlickrAPI
         }
         return $range;
     }
-
     public static function get_timestamp_range($start_date, $end_date)
     {
         $date_start = new \DateTime($start_date);
         $date_end = new \DateTime($end_date);
         return array("start" => $start_date, "end" => $end_date, "start_timestamp" => $date_start->getTimestamp(), "end_timestamp" => $date_end->getTimestamp());
     }
-    
     public static function create_cache_path()
     {
         if(!file_exists($GLOBALS['flickr_cache_path'])) mkdir($GLOBALS['flickr_cache_path']);
@@ -889,7 +842,5 @@ class FlickrAPI
         ) */
     }
     //========== end =======================================================================================================================
-
 }
-
 ?>
