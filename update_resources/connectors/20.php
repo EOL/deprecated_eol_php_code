@@ -13,7 +13,7 @@ $resource_id = 20;
 $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://www.pensoft.net/J_FILES/EoLData/ZooKeys.xml");
 echo "\n processing resource: $resource_path \n";
 
-if($local_path = Functions::save_remote_file_to_local($resource_path, array('cache' => 1, 'download_wait_time' => 1000000, 'timeout' => 86400, 'download_attempts' => 3, 'delay_in_minutes' => 2))) //debug - cache should be 0 in normal operation
+if($local_path = Functions::save_remote_file_to_local($resource_path, array('cache' => 1, 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 86400, 'download_attempts' => 1, 'delay_in_minutes' => 1))) //debug - cache should be 0 in normal operation
 {
     $func = new ResourceDataObjectElementsSetting($resource_id, $local_path);
     $dataObjects = get_values($local_path);
@@ -26,7 +26,7 @@ if($local_path = Functions::save_remote_file_to_local($resource_path, array('cac
 
     unlink($local_path);
 }
-
+else exit("\nFile not found. Will terminate.\n");
 //start creating the archive file using the generated EOL XML file above
 require_library('connectors/ConvertEOLtoDWCaAPI');
 
@@ -67,7 +67,6 @@ function get_values($resource_path)
         return $dataObjects;
     }
 }
-
 function remove_elements($resource_path)
 {
     if($xml = Functions::get_hashed_response($resource_path, array('download_wait_time' => 1000000, 'timeout' => 600, 'download_attempts' => 5))) {
