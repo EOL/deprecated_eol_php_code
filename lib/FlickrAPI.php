@@ -607,9 +607,11 @@ class FlickrAPI
         }
         
         if(@$sizes) {
-            foreach($sizes->sizes->size as $size) {
-                if(preg_match("/(video|mp4)/i", $size->label)) continue;
-                $photo_url = $size->source;
+            if(isset($sizes->sizes)) {
+                foreach($sizes->sizes->size as $size) {
+                    if(preg_match("/(video|mp4)/i", $size->label)) continue;
+                    $photo_url = $size->source;
+                }
             }
         }
         return $photo_url;
