@@ -50,13 +50,10 @@ class FlickrAPI
         
         // Get metadata about the EOL Flickr pool
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", 1, 1, $auth_token, $user_id, $start_date, $end_date);
-        if($response && isset($response->photos->total))
-        {
+        if($response && isset($response->photos->total)) {
             $total = $response->photos->total;
-            
             // number of API calls to be made
             $total_pages = ceil($total / $per_page);
-            
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++) {
                 /* when running 2 or more connectors...
@@ -66,7 +63,6 @@ class FlickrAPI
                 if($i >= $m && $i < $m*2)   $cont = true;
                 if(!$cont) continue;
                 */
-                
                 echo "getting page $i: ".time_elapsed()."\n";
                 $page_taxa = self::get_eol_photos($per_page, $i, $auth_token, $user_id, $start_date, $end_date);
                 if($page_taxa) {
@@ -81,16 +77,12 @@ class FlickrAPI
         else {
             if(isset($response->stat)) print_r($response);
         }
-        
         return $all_taxa;
     }
-    
     public static function get_eol_photos($per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
         global $used_image_ids;
-        
         $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
-        
         if(isset($response->photos->photo)) {
             echo "\n page " . $response->photos->page . " of " . $response->photos->pages . " | total taxa =  " . $response->photos->total . "\n";
             echo "\n -- response count: " . count($response);
@@ -101,7 +93,6 @@ class FlickrAPI
             sleep(120);
             $response = self::pools_get_photos(FLICKR_EOL_GROUP_ID, "", $per_page, $page, $auth_token, $user_id, $start_date, $end_date);
         }
-        
         static $count_taxa = 0;
         $page_taxa = array();
         if(isset($response->photos->photo)) {
@@ -153,7 +144,6 @@ class FlickrAPI
         }
         return $page_taxa;
     }
-    
     public static function get_taxa_for_photo($photo_id, $secret, $last_update, $auth_token = "", $user_id = NULL)
     {
         $GLOBALS['photo_id'] = $photo_id;
@@ -217,10 +207,8 @@ class FlickrAPI
         if($user_id == ANDREAS_KAY_ID) {
             if($photo->tags->tag) @$GLOBALS['func']->count['media with machine tags']++;
         }
-        foreach($photo->tags->tag as $tag)
-        {
+        foreach($photo->tags->tag as $tag) {
             $string = trim($tag->raw);
-            
             if(preg_match("/^taxonomy:subspecies=(.+)$/i", $string, $arr)) $parameters["subspecies"][] = strtolower(trim($arr[1]));
             elseif(preg_match("/^taxonomy:trinomial=(.+)$/i", $string, $arr)) $parameters["trinomial"][] = ucfirst(trim($arr[1]));
             elseif(preg_match("/^taxonomy:species=(.+)$/i", $string, $arr)) $parameters["species"][] = strtolower(trim($arr[1]));
