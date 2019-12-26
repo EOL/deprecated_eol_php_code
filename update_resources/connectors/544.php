@@ -35,7 +35,8 @@ http://rs.gbif.org/terms/1.0/vernacularname: 4879
 
 544	Wednesday 2019-12-18 02:34:14 PM{"agent.tab":292,"media_resource.tab":15063,"taxon.tab":17097,"vernacular_name.tab":4542,"time_elapsed":false}
 544	Wednesday 2019-12-18 02:34:36 PM{"agent.tab":290,"media_resource.tab":14999,"taxon.tab":9184,"vernacular_name.tab":4517,"time_elapsed":{"sec":1690.83,"min":28.18,"hr":0.47}}
-
+544	Wednesday 2019-12-25 09:20:10 PM{"agent.tab":315,"media_resource.tab":16609,"taxon.tab":17614,"vernacular_name.tab":5257,"time_elapsed":false}
+544	Wednesday 2019-12-25 09:20:33 P	{"agent.tab":315,"media_resource.tab":16609,"taxon.tab":9715,"vernacular_name.tab":5257,"time_elapsed":{"sec":1619.08,"min":26.98,"hr":0.45}}
 */
 
 ini_set('error_reporting', E_ALL);

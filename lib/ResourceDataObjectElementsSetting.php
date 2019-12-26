@@ -368,7 +368,7 @@ class ResourceDataObjectElementsSetting
         $xml = str_ireplace("dwc:scientificName", "dwc:ScientificName", $xml); //echo "\nDone str replace ScientificName\n\n";
         return $xml;
     }
-    public function call_xml_2_dwca($resource_id, $dataset, $NMNH_resourceYN = true)
+    public function call_xml_2_dwca($resource_id, $dataset, $NMNH_resourceYN = true, $timestart = false)
     {
         require_library('connectors/ConvertEOLtoDWCaAPI');
         $params["eol_xml_file"] = CONTENT_RESOURCE_LOCAL_PATH."/$resource_id".".xml";
