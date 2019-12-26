@@ -442,14 +442,16 @@ class ConvertEOLtoDWCaAPI
                 return $i;
             }
         }
-        else echo "\nwent here\n";
-        if($val = $taxon_id) $rec["identifier"] = $val;
         else {
-            if(in_array($params["dataset"], array("NMNH XML files"))) return $i; //meaning if there is no taxon id and sciname then ignore record
+            // echo "\nwent here\n";
+            if($val = $taxon_id) $rec["identifier"] = $val;
             else {
-                echo "\n -- try to figure how to get taxon_id for this resource: $params[dataset] -- \n";
-                // print_r($t); print_r($t_dc); print_r($t_dwc); exit; //debug
-                return $i;
+                if(in_array($params["dataset"], array("NMNH XML files"))) return $i; //meaning if there is no taxon id and sciname then ignore record
+                else {
+                    // echo "\n -- try to figure how to get taxon_id for this resource: $params[dataset] -- \n";
+                    // print_r($t); print_r($t_dc); print_r($t_dwc); exit; //debug
+                    return $i;
+                }
             }
         }
 
