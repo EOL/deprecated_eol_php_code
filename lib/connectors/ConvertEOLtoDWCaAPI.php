@@ -144,10 +144,10 @@ class ConvertEOLtoDWCaAPI
                 if(!Functions::valid_uri_url($rec['mediaURL'])) continue; //Media objects must have accessURI
             }
 
-            if($this->resource_id == 802) { //TaiEOL Insecta TRAM-703
+            if($this->resource_id == 889) { //TaiEOL Insecta TRAM-703
                 // print_r($o); print_r($rec);
                 if($url = @$rec['source']) {
-                    if($val = self::get_802_image_url($url)) $rec['mediaURL'] = $val;
+                    if($val = self::get_889_image_url($url)) $rec['mediaURL'] = $val;
                     else continue;
                 }
                 else continue;
@@ -272,8 +272,8 @@ class ConvertEOLtoDWCaAPI
         // print_r($records);
         return $records;
     }
-    //=================================================== start customized functions [802] ===========================================
-    private function get_802_image_url($url)
+    //=================================================== start customized functions [889] ===========================================
+    private function get_889_image_url($url)
     {
         if(!$url) return;
         $options = $this->download_options;
@@ -285,7 +285,7 @@ class ConvertEOLtoDWCaAPI
             }
         }
     }
-    //==================================================== end customized functions [802] ============================================
+    //==================================================== end customized functions [889] ============================================
     //=================================================== start customized functions [330] ===========================================
     private function get_res330_contributorID($url)
     {
