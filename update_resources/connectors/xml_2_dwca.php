@@ -26,6 +26,10 @@ $xml[20]['xmlYN'] = false;
 $xml[327]['xmlYN'] = false;
 $xml['taiwan_eol']['xmlYN'] = true;
 
+$xml[20]['expire_seconds'] = false;
+$xml[327]['expire_seconds'] = false;
+$xml['taiwan_eol']['expire_seconds'] = 60*60*24*30;
+
 if(!$xml[$resource_id]) exit("\nResource ID [$resource_id] not yet initialized.\n");
 
 // $params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://...");
