@@ -13,6 +13,8 @@ $timestart = time_elapsed();
 
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
 $cmdline_params['resource_id']      = @$argv[2]; //useful here
+$cmdline_params['expire_seconds']   = @$argv[3]; //useful here
+
 
 if($val = @$cmdline_params['resource_id']) $resource_id = $val;
 else exit("\nNo resource_id passed. Will terminate.\n");
@@ -26,9 +28,11 @@ $xml[20]['xmlYN'] = false;
 $xml[327]['xmlYN'] = false;
 $xml['taiwan_eol']['xmlYN'] = true;
 
-$xml[20]['expire_seconds'] = false;
+$xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
-$xml['taiwan_eol']['expire_seconds'] = 60*60*24*30;
+$xml['taiwan_eol']['expire_seconds'] = 60*60*24*30; //expires in a month
+
+if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 
 if(!$xml[$resource_id]) exit("\nResource ID [$resource_id] not yet initialized.\n");
 
@@ -39,6 +43,6 @@ $params["dataset"]      = "";
 $params["resource_id"]  = $resource_id;
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
-$func->export_xml_to_archive($params, $xml[$resource_id]['xmlYN'], false); // 2nd param true => means it is an XML file, not an archive file nor a zip file. Third param false, NO expire.
+$func->export_xml_to_archive($params, $xml[$resource_id]['xmlYN'], $xml[$resource_id]['expire_seconds']); // 2nd param true => means it is an XML file, not an archive file nor a zip file. Third param false, NO expire.
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
