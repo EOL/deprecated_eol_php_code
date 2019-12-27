@@ -144,6 +144,10 @@ class ConvertEOLtoDWCaAPI
                 if(!Functions::valid_uri_url($rec['mediaURL'])) continue; //Media objects must have accessURI
             }
 
+            if($this->resource_id == 'TaiEOL') {
+                if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') continue; //images are already offline, so as its dc:source. So no way to get the image URL.
+            }
+            
             if($this->resource_id == 889) { //TaiEOL Insecta TRAM-703
                 // print_r($o); print_r($rec);
                 if($url = @$rec['source']) {

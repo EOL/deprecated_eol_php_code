@@ -29,21 +29,29 @@ else exit("\nNo resource_id passed. Will terminate.\n");
 // $resource_id = 20; //debug
 $xml[20]['url'] = 'https://opendata.eol.org/dataset/e09787e8-1428-401a-a10d-c28872f2dc93/resource/f2c6d809-abd9-4b98-9b00-39546dcb4eac/download/20.xml.zip'; //ZooKeys
 $xml[327]['url'] = 'https://opendata.eol.org/dataset/1220f735-a568-47e2-adee-f1bbf65c4ffe/resource/fd17f8dd-74f7-43eb-a547-b3f65deec976/download/327.xml.zip'; //Flora of Zimbabwe
-$xml['TaiEOL']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44903.xml'; //Taiwan Encyclopedia of Life (TaiEOL)
-$xml['547']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44902.xml'; //Fish Database of Taiwan
-$xml['889']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69268.xml'; //TaiEOL Insecta
+$xml['TaiEOL']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44903.xml'; //Taiwan Encyclopedia of Life (TaiEOL) --- mediaURL false
+$xml['547']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44902.xml'; //Fish Database of Taiwan --- mediaURL OK
+$xml['889']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69268.xml'; //TaiEOL- NCHU Museum of Entomology --- mediaURL scraped
+$xml['890']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69297.xml'; //Butterflies of Taiwan --- mediaURL OK
+
+$xml['TaiEOL']['images'] = false;
+$xml['547']['images'] = true;
+$xml['889']['images'] = true; //mediaURL scraped
+$xml['890']['images'] = true;
 
 $xml[20]['xmlYN'] = false;
 $xml[327]['xmlYN'] = false;
 $xml['TaiEOL']['xmlYN'] = true;
 $xml['547']['xmlYN'] = true;
 $xml['889']['xmlYN'] = true;
+$xml['890']['xmlYN'] = true;
 
 $xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
 $xml['TaiEOL']['expire_seconds'] = 60*60*24*30; //expires in a month
 $xml['547']['expire_seconds'] = false;
 $xml['889']['expire_seconds'] = false;
+$xml['890']['expire_seconds'] = false;
 
 if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 
@@ -54,6 +62,7 @@ $params["eol_xml_file"] = $xml[$resource_id]['url'];
 $params["filename"]     = $resource_id.".xml";
 $params["dataset"]      = "";
 $params["resource_id"]  = $resource_id;
+$params["with_imagesYN"]  = $xml[$resource_id]['images'];
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, $xml[$resource_id]['xmlYN'], $xml[$resource_id]['expire_seconds']); // 2nd param true => means it is an XML file, not an archive file nor a zip file. Third param false, NO expire.
