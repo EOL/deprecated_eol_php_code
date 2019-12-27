@@ -22,15 +22,15 @@ else exit("\nNo resource_id passed. Will terminate.\n");
 // $resource_id = 20; //debug
 $xml[20]['url'] = 'https://opendata.eol.org/dataset/e09787e8-1428-401a-a10d-c28872f2dc93/resource/f2c6d809-abd9-4b98-9b00-39546dcb4eac/download/20.xml.zip';
 $xml[327]['url'] = 'https://opendata.eol.org/dataset/1220f735-a568-47e2-adee-f1bbf65c4ffe/resource/fd17f8dd-74f7-43eb-a547-b3f65deec976/download/327.xml.zip';
-$xml['taiwan_eol']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44903.xml';
+$xml['TaiEOL']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44903.xml';
 
 $xml[20]['xmlYN'] = false;
 $xml[327]['xmlYN'] = false;
-$xml['taiwan_eol']['xmlYN'] = true;
+$xml['TaiEOL']['xmlYN'] = true;
 
 $xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
-$xml['taiwan_eol']['expire_seconds'] = 60*60*24*30; //expires in a month
+$xml['TaiEOL']['expire_seconds'] = 60*60*24*30; //expires in a month
 
 if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 
