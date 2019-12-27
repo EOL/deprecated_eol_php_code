@@ -29,7 +29,7 @@ $xml['taiwan_eol']['xmlYN'] = true;
 if(!$xml[$resource_id]) exit("\nResource ID [$resource_id] not yet initialized.\n");
 
 // $params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://...");
-$params["eol_xml_file"] = $xml[$resource_id];
+$params["eol_xml_file"] = $xml[$resource_id]['url'];
 $params["filename"]     = $resource_id.".xml";
 $params["dataset"]      = "";
 $params["resource_id"]  = $resource_id;
