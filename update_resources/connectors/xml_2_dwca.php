@@ -18,8 +18,14 @@ if($val = @$cmdline_params['resource_id']) $resource_id = $val;
 else exit("\nNo resource_id passed. Will terminate.\n");
 
 // $resource_id = 20; //debug
-$xml[20] = 'https://opendata.eol.org/dataset/e09787e8-1428-401a-a10d-c28872f2dc93/resource/f2c6d809-abd9-4b98-9b00-39546dcb4eac/download/20.xml.zip';
-$xml[327] = 'https://opendata.eol.org/dataset/1220f735-a568-47e2-adee-f1bbf65c4ffe/resource/fd17f8dd-74f7-43eb-a547-b3f65deec976/download/327.xml.zip';
+$xml[20]['url'] = 'https://opendata.eol.org/dataset/e09787e8-1428-401a-a10d-c28872f2dc93/resource/f2c6d809-abd9-4b98-9b00-39546dcb4eac/download/20.xml.zip';
+$xml[327]['url'] = 'https://opendata.eol.org/dataset/1220f735-a568-47e2-adee-f1bbf65c4ffe/resource/fd17f8dd-74f7-43eb-a547-b3f65deec976/download/327.xml.zip';
+$xml['taiwan_eol']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44903.xml';
+
+$xml[20]['xmlYN'] = false;
+$xml[327]['xmlYN'] = false;
+$xml['taiwan_eol']['xmlYN'] = true;
+
 if(!$xml[$resource_id]) exit("\nResource ID [$resource_id] not yet initialized.\n");
 
 // $params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://...");
@@ -29,6 +35,6 @@ $params["dataset"]      = "";
 $params["resource_id"]  = $resource_id;
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
-$func->export_xml_to_archive($params, false, false); // 2nd param true => means it is an XML file, not an archive file nor a zip file. Third param, NO expire.
+$func->export_xml_to_archive($params, $xml[$resource_id]['xmlYN'], false); // 2nd param true => means it is an XML file, not an archive file nor a zip file. Third param false, NO expire.
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
