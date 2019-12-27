@@ -5,8 +5,14 @@ This is a generic script that will convert EOL XML to EOL DWC-A
 
 20	Thursday 2019-12-26 10:52:17 AM	{"agent.tab":2031,"media_resource.tab":28979,"reference.tab":1420,"taxon.tab":8830,"time_elapsed":{"sec":32.97,"min":0.55,"hr":0.01}}
 327	Thursday 2019-12-26 11:20:32 AM	{"agent.tab":120,"media_resource.tab":31927,"reference.tab":5025,"taxon.tab":17539,"vernacular_name.tab":4678,"time_elapsed":{"sec":29.3,"min":0.49,"hr":0.01}}
+
 TaiEOL	Thursday 2019-12-26 09:57:10 PM	{"agent.tab":15,"media_resource.tab":3823,"taxon.tab":1292,"vernacular_name.tab":807,"time_elapsed":{"sec":4.74,"min":0.08,"hr":0}}
-802	Thursday 2019-12-26 10:15:40 PM	{"agent.tab":2,"media_resource.tab":1394,"taxon.tab":149,"vernacular_name.tab":49,"time_elapsed":{"sec":3.34,"min":0.06,"hr":0}}
+TaiEOL	Friday 2019-12-27 10:22:27 AM	{"agent.tab":10,"media_resource.tab":3409,"taxon.tab":1292,"vernacular_name.tab":807,"time_elapsed":{"sec":2.65,"min":0.04,"hr":0}} images removed
+547	Friday 2019-12-27 10:22:34 AM	{"agent.tab":96,"media_resource.tab":13754,"taxon.tab":2954,"vernacular_name.tab":2940,"time_elapsed":{"sec":6.86,"min":0.11,"hr":0}}
+889	Friday 2019-12-27 10:22:38 AM	{"agent.tab":2,"media_resource.tab":1394,"taxon.tab":149,"vernacular_name.tab":49,"time_elapsed":{"sec":3.99,"min":0.07,"hr":0}}
+890	Friday 2019-12-27 10:22:39 AM	{"agent.tab":1,"media_resource.tab":629,"taxon.tab":365,"vernacular_name.tab":364,"time_elapsed":{"sec":1.05,"min":0.02,"hr":0}}
+888	Friday 2019-12-27 10:22:40 AM	{"agent.tab":10,"media_resource.tab":400,"taxon.tab":146,"vernacular_name.tab":146,"time_elapsed":{"sec":1,"min":0.02,"hr":0}}
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
