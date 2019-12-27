@@ -33,11 +33,13 @@ $xml['TaiEOL']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_expor
 $xml['547']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_44902.xml'; //Fish Database of Taiwan --- mediaURL OK
 $xml['889']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69268.xml'; //TaiEOL- NCHU Museum of Entomology --- mediaURL scraped
 $xml['890']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69297.xml'; //Butterflies of Taiwan --- mediaURL OK
+$xml['888']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69267.xml'; //Dragonflies of Taiwan --- mediaURL OK 
 
 $xml['TaiEOL']['images'] = false;
 $xml['547']['images'] = true;
 $xml['889']['images'] = true; //mediaURL scraped
 $xml['890']['images'] = true;
+$xml['888']['images'] = true;
 
 $xml[20]['xmlYN'] = false;
 $xml[327]['xmlYN'] = false;
@@ -45,6 +47,7 @@ $xml['TaiEOL']['xmlYN'] = true;
 $xml['547']['xmlYN'] = true;
 $xml['889']['xmlYN'] = true;
 $xml['890']['xmlYN'] = true;
+$xml['888']['xmlYN'] = true;
 
 $xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
@@ -52,6 +55,7 @@ $xml['TaiEOL']['expire_seconds'] = 60*60*24*30; //expires in a month
 $xml['547']['expire_seconds'] = false;
 $xml['889']['expire_seconds'] = false;
 $xml['890']['expire_seconds'] = false;
+$xml['888']['expire_seconds'] = false;
 
 if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 
