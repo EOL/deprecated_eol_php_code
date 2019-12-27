@@ -10,7 +10,9 @@ This connector will just change all text objects with subject #Description to #T
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 6;
-
+exit("\nThis has been run already.
+\n6.xml is stored in: https://opendata.eol.org/dataset/arkive/resource/e03c421b-6d75-4586-97cd-b607907bbe65
+\nxml_2_dwca.php is now used to generate 6.tar.gz\n\n");
 /* change subject mapping from #Description to #TaxonBiology */
 require_library('ResourceDataObjectElementsSetting');
 $resource_path = "http://dl.dropbox.com/u/7597512/resources/6.xml.gz";
