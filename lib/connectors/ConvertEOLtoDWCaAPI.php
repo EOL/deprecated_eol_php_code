@@ -144,6 +144,16 @@ class ConvertEOLtoDWCaAPI
                 if(!Functions::valid_uri_url($rec['mediaURL'])) continue; //Media objects must have accessURI
             }
 
+            if($this->resource_id == 802) { //TaiEOL Insecta TRAM-703
+                // print_r($o); print_r($rec);
+                if($url = @$rec['source']) {
+                    if($val = self::get_802_image_url($url)) $rec['mediaURL'] = $val;
+                    else continue;
+                }
+                else continue;
+                // print_r($rec); exit;
+            }
+            
             if($this->resource_id == 24) { //AntWeb per https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=61546&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-61546
                 if($val = @$rec['mediaURL']) $rec['source'] = self::compute_AntWeb_source_from_mediaURL($val); //source becomes furtherInformationURL in DwCA
                 else                         $rec['source'] = self::compute_AntWeb_source_from_sciname($sciname); //for text objects
@@ -262,6 +272,20 @@ class ConvertEOLtoDWCaAPI
         // print_r($records);
         return $records;
     }
+    //=================================================== start customized functions [802] ===========================================
+    private function get_802_image_url($url)
+    {
+        if(!$url) return;
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($html = Functions::lookup_with_cache($url, $options)) { 
+            if(preg_match("/\"og\:image\" content=\"(.*?)\"/ims", $html, $arr)) {
+                // <meta property="og:image" content="http://data.taieol.tw/files/eoldata/imagecache/taieol_img/images/39/calophya_mangiferae-2-001-007-g-2.jpg" />
+                if($val = @$arr[1]) return $val;
+            }
+        }
+    }
+    //==================================================== end customized functions [802] ============================================
     //=================================================== start customized functions [330] ===========================================
     private function get_res330_contributorID($url)
     {
