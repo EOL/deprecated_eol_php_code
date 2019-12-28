@@ -431,6 +431,25 @@ wikipedia-min	Friday 2019-11-15 04:50:27 PM	{"media_resource.tab":233143,"taxon.
 wikipedia-min	Sunday 2019-12-01 12:32:16 PM	{"media_resource.tab":36571,"taxon.tab":33504,"time_elapsed":{"sec":284106.26,"min":4735.1,"hr":78.92,"day":3.29}}
 
 wikipedia-bg	Saturday 2019-11-16 12:44:27 AM	{"media_resource.tab":60646,"taxon.tab":41185,"time_elapsed":{"sec":50384.04,"min":839.73,"hr":14}}
+
+---------------------------------------------------------------------------------
+Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
+
+Success	100%	wikipedia-az (Azerbaijani)	26 days - #4	N/A	40 min	Schedule a Build for wikipedia-az (Azerbaijani)	 
+Success	100%	wikipedia-ast (Asturian)	26 days - #5	N/A	42 min	Schedule a Build for wikipedia-ast (Asturian)	 
+Success	100%	wikipedia-ceb (Cebuano)	1 mo 3 days - #16	N/A	1 day 5 hr	Schedule a Build for wikipedia-ceb (Cebuano)	 
+Success	100%	wikipedia-war (Waray)	1 mo 3 days - #12	N/A	8 min 12 sec	Schedule a Build for wikipedia-war (Waray)	 
+Success	100%	wikipedia-min (Minangkabau)	1 mo 3 days - #14	N/A	2 min 11 sec	Schedule a Build for wikipedia-min (Minangkabau)	 
+Success	100%	wikipedia-bg (Bulgarian)	1 mo 12 days - #3	N/A	13 hr	Schedule a Build for wikipedia-bg (Bulgarian)	 
+Success	100%	wikipedia - sh	1 mo 12 days - #8	N/A	18 min	Schedule a Build for wikipedia - sh	 
+Success	100%	wikipedia-cy (Welsh)	1 mo 13 days - #2	N/A	7 hr 26 min	Schedule a Build for wikipedia-cy (Welsh)	 
+Success	100%	wikipedia - ms (Malay)	1 mo 22 days - #2	N/A	16 min	Schedule a Build for wikipedia - ms (Malay)	 
+Success	100%	wikipedia - hy (Armenian)	1 mo 22 days - #1	N/A	2 hr 1 min	Schedule a Build for wikipedia - hy (Armenian)	 
+Success	100%	wikipedia - eu (Basque)	1 mo 23 days - #1	N/A	1 day 7 hr	Schedule a Build for wikipedia - eu (Basque)	 
+Success	100%	wikipedia-hu (Hungarian)	1 mo 28 days - #1	N/A	10 hr	Schedule a Build for wikipedia-hu (Hungarian)	 
+Success	100%	Wikipedia - id	1 mo 29 days - #2	N/A	5 hr 22 min	Schedule a Build for Wikipedia - id	 
+Success	100%	Wikipedia - sr	2 mo 1 day - #1	N/A	4 hr 31 min	Schedule a Build for Wikipedia - sr	 
+Success	100%	Wikipedia - vo	8 mo 14 days - #1	N/A	13 min	Schedule a Build for Wikipedia - vo	 
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
