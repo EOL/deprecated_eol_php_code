@@ -87,10 +87,9 @@ class GloBIDataAPI
                 if($associationType == 'http://purl.obolibrary.org/obo/RO_0002437') continue; //delete all records of this associationType
                 /* second change request 
                 if association_type == RO_0002623 (flowers visited by) AND targetOccurrenceID has a taxon with Plantae in the kingdom column
-                then: replace association_type with RO_0002622
-
+                    then: replace association_type with RO_0002622
                 if association_type == RO_0002622 (visits flowers of) AND targetOccurrenceID has a taxon with Animalia in the kingdom column
-                then: replace association_type with RO_0002623
+                    then: replace association_type with RO_0002623
                 */
                 if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623' && self::target_taxon_kingdom($targetOccurrenceID)=='Pl') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
                 if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622' && self::target_taxon_kingdom($targetOccurrenceID)=='An') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
