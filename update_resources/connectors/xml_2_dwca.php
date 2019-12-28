@@ -40,12 +40,14 @@ $xml['547']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_t
 $xml['889']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69268.xml'; //TaiEOL- NCHU Museum of Entomology --- mediaURL scraped
 $xml['890']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69297.xml'; //Butterflies of Taiwan --- mediaURL OK
 $xml['888']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69267.xml'; //Dragonflies of Taiwan --- mediaURL OK 
-
+$xml['6']['url'] = 'https://opendata.eol.org/dataset/7fa7309c-52e5-4071-a10b-e1f3ed444477/resource/e03c421b-6d75-4586-97cd-b607907bbe65/download/6.xml'; //Arkive (6) XML
+/* Not used but values are correct
 $xml['TaiEOL']['images'] = false;
 $xml['547']['images'] = true;
 $xml['889']['images'] = true; //mediaURL scraped
 $xml['890']['images'] = true;
 $xml['888']['images'] = true;
+*/
 
 $xml[20]['xmlYN'] = false;
 $xml[327]['xmlYN'] = false;
@@ -54,6 +56,7 @@ $xml['547']['xmlYN'] = true;
 $xml['889']['xmlYN'] = true;
 $xml['890']['xmlYN'] = true;
 $xml['888']['xmlYN'] = true;
+$xml['6']['xmlYN'] = true;
 
 $xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
@@ -62,6 +65,7 @@ $xml['547']['expire_seconds'] = false;
 $xml['889']['expire_seconds'] = false;
 $xml['890']['expire_seconds'] = false;
 $xml['888']['expire_seconds'] = false;
+$xml['6']['expire_seconds'] = false;
 
 if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 
@@ -72,7 +76,7 @@ $params["eol_xml_file"] = $xml[$resource_id]['url'];
 $params["filename"]     = $resource_id.".xml";
 $params["dataset"]      = "";
 $params["resource_id"]  = $resource_id;
-$params["with_imagesYN"]  = $xml[$resource_id]['images'];
+$params["with_imagesYN"]  = @$xml[$resource_id]['images'];
 
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 $func->export_xml_to_archive($params, $xml[$resource_id]['xmlYN'], $xml[$resource_id]['expire_seconds']); // 2nd param true => means it is an XML file, not an archive file nor a zip file. Third param false, NO expire.
