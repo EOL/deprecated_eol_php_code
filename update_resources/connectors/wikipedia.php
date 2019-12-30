@@ -5,7 +5,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 
 /*
 $func = new WikiDataAPI('1', 'eli', 'wikipedia', array()); //generic call

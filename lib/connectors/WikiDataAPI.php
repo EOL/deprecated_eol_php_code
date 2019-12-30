@@ -705,7 +705,7 @@ class WikiDataAPI extends WikipediaAPI
                 }
                 
                 // break; //debug get first taxon wiki only //use this when developing*** wikimedia and wikipedia
-                if($k > 10) break; //10000
+                // if($k > 10) break; //10000
                 // if($exit_now) break;
                 
             } //end of taxon wiki
