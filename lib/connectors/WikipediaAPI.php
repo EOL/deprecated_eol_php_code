@@ -5,6 +5,37 @@ class WikipediaAPI
     function __construct()
     {
     }
+    function some_initialization()
+    {   //some default translations:
+        $trans['Page']['en'] = "Page";
+        $trans['Modified']['en'] = "Modified";
+        $trans['Retrieved']['en'] = "Retrieved";
+        $trans['Page']['de'] = "Seite";
+        $trans['Modified']['de'] = "Bearbeitungsstand";
+        $trans['Retrieved']['de'] = "Abgerufen";
+        $trans['Page']['es'] = "Página";
+        $trans['Modified']['es'] = "Modificado";
+        $trans['Retrieved']['es'] = "Recuperado";
+        $trans['Page']['fr'] = "Page";
+        $trans['Modified']['fr'] = "Modifié";
+        $trans['Retrieved']['fr'] = "Récupéré";
+        
+        /* *** e.g. szl -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $trans['Page']['szl'] = "Page";
+        $trans['Modified']['szl'] = "Modified";
+        $trans['Retrieved']['szl'] = "Retrieved";
+        $trans['Wikipedia authors and editors']['szl'] = "Wikipedia authors and editors";
+        */
+        
+        // assignments for languages without default values:
+        $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
+        $terms = array('Wikipedia authors and editors', 'Page', 'Modified', 'Retrieved');
+        foreach($terms as $term) {
+            if($val = @$trans[$term][$this->language_code]) $this->pre_trans[$term] = $val;
+            else                                            $this->pre_trans[$term] = $func->translate_source_target_lang($term, "en", $this->language_code);
+        }
+        $this->trans['editors'][$this->language_code] = $this->pre_trans['Wikipedia authors and editors'];
+    }
     function taxon_wiki_per_language_stats($sitelinks)
     {
         // print_r($sitelinks); exit;
@@ -239,7 +270,7 @@ class WikipediaAPI
                 $rek['other']['permalink']        = $func_region->get_permalink($html);
                 $rek['other']['last_modified']    = $func_region->get_last_modified($html);
                 $rek['other']['phrase']           = $func_region->get_wikipedia_phrase($html);
-                $rek['other']['citation']         = $func_region->get_citation($rek['other']['title'], $rek['other']['permalink'], $rek['other']['last_modified'], $rek['other']['phrase']);
+                $rek['other']['citation']         = $func_region->get_citation($rek['other']['title'], $rek['other']['permalink'], $rek['other']['last_modified'], $rek['other']['phrase'], $this->pre_trans);
                 
                 // /* if TaxonBiology == Description; then disregard TaxonBiology
                 $var1 = trim(strip_tags($rek['other']['comprehensive_desc']));
@@ -325,6 +356,12 @@ class WikipediaAPI
         /* <span id="Spolja.C5.A1nje_veze"></span><span id="Spoljašnje_veze">Spoljašnje veze</span> */
         $left = '<span id="Spolja'; $right = '</span>';
         $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
+        
+        if($this->language_code == 'af') {
+            $left = '<div role="navigation"'; $right = '</div>';
+            $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
+        }
+        
         return $desc;
     }
     private function remove_all_in_between_inclusive($left, $right, $html)
@@ -367,6 +404,15 @@ class WikipediaAPI
                     }
                 }
             }
+        }
+        return $html;
+    }
+    private function delete_this_point_and_beyond($str, $html) //working but not yet used
+    {
+        $html = "123456789"; $str="56"; //good debug
+        if($pos = strpos($html, $str)) {
+            $html = substr($html,0,$pos);
+            exit("\n$pos\n[$html]\n");
         }
         return $html;
     }
@@ -548,6 +594,69 @@ class WikipediaAPI
         elseif(preg_match("/<table class=\"sinottico\"(.*?)<\/table>/ims", $html, $arr)) { //for it, 
             $substr = '<table class="sinottico"'.$arr[1].'</table>';
             $html = str_ireplace($substr, '', $html);
+        }
+        
+        if($this->language_code == "lt") {
+            if(preg_match("/<table class=\"toccolours\"(.*?)<\/tbody><\/table>/ims", $html, $arr)) {
+                $substr = '<table class="toccolours"'.$arr[1].'</tbody></table>';
+                $html = str_ireplace($substr, '', $html);
+            }
+            if(preg_match_all("/<small>(.*?)<\/small>/ims", $html, $arr)) {
+                foreach($arr[1] as $item) {
+                    $substr = '<small>'.$item.'</small>';
+                    $html = str_ireplace($substr, '', $html);
+                }
+            }
+            if(preg_match("/<table border=\"0\" align=\"right\" width=\"250\" cellpadding=\"4\" cellspacing=\"0\" class=\"noprint\"(.*?)<\/tbody><\/table>/ims", $html, $arr)) { //for ka)
+                $substr = '<table border="0" align="right" width="250" cellpadding="4" cellspacing="0" class="noprint"'.$arr[1].'</tbody></table>';
+                $html = str_ireplace($substr, '', $html);
+            }
+            if(preg_match("/<div class=\"noprint\"(.*?)<\/i><\/div>/ims", $html, $arr)) {
+                $substr = '<div class="noprint"'.$arr[1].'</i></div>';
+                $html = str_ireplace($substr, '', $html);
+            }
+            
+            if(preg_match_all("/<div id=\"Vorlage_Lesenswert\">(.*?)<\/div>/ims", $html, $arr)) {
+                foreach($arr[1] as $item) {
+                    $substr = '<div id="Vorlage_Lesenswert">'.$item.'</div>';
+                    $html = str_ireplace($substr, '', $html);
+                }
+            }
+        }
+        
+        if(in_array($this->language_code, array("ka", "lt"))) {
+            if(preg_match_all("/<div class=\"noresize\">(.*?)<\/div>/ims", $html, $arr)) { //for ka)
+                foreach($arr[1] as $item) {
+                    $substr = '<div class="noresize">'.$item.'</div>';
+                    $html = str_ireplace($substr, '', $html);
+                }
+            }
+            if(preg_match_all("/<img (.*?)>/ims", $html, $arr)) { //for ka)
+                foreach($arr[1] as $item) {
+                    if(stripos($item, 'distribution') !== false) { //string is found
+                        $substr = '<img '.$item.'>';
+                        $html = str_ireplace($substr, '', $html);
+                    }
+                }
+            }
+            if(preg_match_all("/<tr class=\"\"(.*?)<\/tr>/ims", $html, $arr)) { //for ka)
+                foreach($arr[1] as $item) {
+                    $substr = '<tr class=""'.$item.'</tr>';
+                    $html = str_ireplace($substr, '', $html);
+                }
+            }
+            if(preg_match("/<table width=\"100%\" class=\"plainlinks\"(.*?)<\/table>/ims", $html, $arr)) { //for ka)
+                $substr = '<table width="100%" class="plainlinks"'.$arr[1].'</table>';
+                $html = str_ireplace($substr, '', $html);
+            }
+            if(preg_match("/<table class=\"infobox\"(.*?)<\/tbody><\/table>/ims", $html, $arr)) { //for ka)
+                $substr = '<table class="infobox"'.$arr[1].'</tbody></table>';
+                $html = str_ireplace($substr, '', $html);
+            }
+
+            $left = '<img alt="Šis straipsnis';
+            $right = '/>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
         }
         
         if($this->language_code == "fr") {

@@ -320,13 +320,14 @@ class WikipediaRegionalAPI
         //<div id="siteSub">De Wikipedia, la enciclopedia libre</div>
         if(preg_match("/<div id=\"siteSub\">(.*?)<\/div>/ims", $html, $arr)) return ucfirst(trim($arr[1]));
     }
-    function get_citation($title, $permalink, $last_modified, $phrase)
+    function get_citation($title, $permalink, $last_modified, $phrase, $translated_terms = array())
     {
         /* orig
         if($this->language_code == 'de')
         {return "Seite '" . $title . "'. In: Wikipedia, Die freie Enzyklopädie. Bearbeitungsstand: " . $last_modified . ". URL: " . $permalink . " (Abgerufen: " . date("d. F Y, h:i T") . ")";}
         */
-        return self::translate("Page") . " '" . $title . "'. $phrase. " . self::translate("Modified") . ": " . $last_modified . ". URL: " . $permalink . " (" . self::translate("Retrieved") . ": " . date("d. F Y, h:i T") . ")";
+        if(!$translated_terms) return self::translate("Page") . " '" . $title . "'. $phrase. " . self::translate("Modified") . ": " . $last_modified . ". URL: " . $permalink . " (" . self::translate("Retrieved") . ": " . date("d. F Y, h:i T") . ")";
+        else                   return $translated_terms["Page"] . " '" . $title . "'. $phrase. " . $translated_terms["Modified"] . ": " . $last_modified . ". URL: " . $permalink . " (" . $translated_terms["Retrieved"] . ": " . date("d. F Y, h:i T") . ")";
     }
     /* not used since it will call another extra webpage
     private function get_citation_v1($html)

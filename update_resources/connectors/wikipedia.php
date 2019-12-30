@@ -5,7 +5,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+$GLOBALS['ENV_DEBUG'] = true;
 
 /*
 $func = new WikiDataAPI('1', 'eli', 'wikipedia', array()); //generic call
@@ -209,30 +209,57 @@ function delete_temp_files_and_others($language)
 /* http://opendata.eol.org/dataset/wikipedia_5k
 Data and Resources
 
-wikipedia-en.tar.gz English *
-wikipedia-es.tar.gz Spanish *
-wikipedia-it.tar.gz Italian *
-wikipedia-de.tar.gz German *
-wikipedia-fr.tar.gz French *
-wikipedia-zh.tar.gz Chinese
-wikipedia-ru.tar.gz Russian
-wikipedia-pt.tar.gz Portuguese
-wikipedia-ja.tar.gz Japanese
-wikipedia-ko.tar.gz Korean
+wikipedia-en (Enlish)
+wikipedia-de (German)
+wikipedia-es (Spanish)
+wikipedia-fr (French)
+wikipedia-it (Italian)
+wikipedia-ja (Japanese)
+wikipedia-ko (Korean)
+wikipedia-pt (Portuguese)
+wikipedia-ru (Russian)
+wikipedia-zh (Chinese)
+wikipedia-nl (Dutch)
+wikipedia-pl (Polish)
+wikipedia-vi (Vietnamese)
+wikipedia-cs (Czech)
+wikipedia-tr (Turkish)
+wikipedia-fi (Finnish)
+wikipedia-no (Norwegian)
+wikipedia-ro (Romanian)
+wikipedia-uk (Ukranian)
+wikipedia-ca (Catalan)
+wikipedia-sv (Swedish)
+wikipedia-sr (Serbian)
+wikipedia-id (Indonesian)
+wikipedia-hu (Hungarian)
+wikipedia-sh (Serbo-Croatian)
+wikipedia-ms (Malay)
+wikipedia-hy (Armenian)
+wikipedia-eu (Basque)
+wikipedia-min (Minangkabau)
+wikipedia-bg (Bulgarian)
+wikipedia-cy (Welsh)
+wikipedia-az (Azerbaijani)
+wikipedia-ast (Asturian)
 
-Done:
-wikipedia-nl.tar.gz Dutch
-wikipedia-pl.tar.gz Polish
-wikipedia-sv.tar.gz Swedish
-wikipedia-vi.tar.gz Vietnamese
-wikipedia-uk.tar.gz Ukrainian
+-ar Arabic --- *I still have ignored for now Arabic (ar) and Persian (fa).
+-fa Persian --- *I still have ignored for now Arabic (ar) and Persian (fa).
+-eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
 
-To do: DATA-1800
-(and war, ceb) and many others...
+Next batch:
+-szl Silesian
+-af Afrikaans
+-ka Georgian
+-lt Lithuanian
 
-Next batch: Serbian si, Indonesia id, Hungarian hu, Serbo-Croatian sh, Basque (eu), Malay (ms), Armenian (hy)
-Cebuano (ceb), Waray-Waray (war), Minangkabau (min), Bulgarian (bg), 
-Welsh (cy), Azerbaijani (az), Asturian (ast)
+Next batch:
+-he Hebrew
+-et Estonian
+-nv Navajo
+-hr Croatian
+pnb Western Punjabi
+-gl Galician
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}

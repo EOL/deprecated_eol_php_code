@@ -77,6 +77,8 @@ class WikiDataAPI extends WikipediaAPI
         $this->trans['editors']['en'] = "Wikipedia authors and editors";
         $this->trans['editors']['de'] = "Wikipedia Autoren und Herausgeber";
         $this->trans['editors']['es'] = "Autores y editores de Wikipedia";
+        self::some_initialization();
+        // print_r($this->trans); print_r($this->pre_trans); exit;
         
         $this->passed_already = false; //use to create a fake meta.xml
         
@@ -601,6 +603,7 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939; //tiger - Panthera tigris
                 // $arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216; //Bald Eagle
                 // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; //sunflower
+                // $arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687; //Rosa genus of plant
                 */
                 
                 // /* taxon_wiki_per_language_stats
@@ -702,7 +705,7 @@ class WikiDataAPI extends WikipediaAPI
                 }
                 
                 // break; //debug get first taxon wiki only //use this when developing*** wikimedia and wikipedia
-                // if($k > 10) break; //10000
+                if($k > 10) break; //10000
                 // if($exit_now) break;
                 
             } //end of taxon wiki
