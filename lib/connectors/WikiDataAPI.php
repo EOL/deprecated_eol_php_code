@@ -99,7 +99,7 @@ class WikiDataAPI extends WikipediaAPI
         $this->substrs_map_categories_left  = array('Distribution maps ', 'Distributional maps ', 'Biogeographical maps ', 'SVG maps ', 'Maps of ', 'Maps from ', 'Maps by ');
         
         $this->excluded_pageids = array('75038714');
-        $this->wikipedia_bot_file = CONTENT_RESOURCE_LOCAL_PATH . "wikipedia_bot_".$this->language_code.".txt";
+        $this->wikipedia_bot_file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/wikipedia_bot_".$this->language_code.".txt";
     }
     function save_all_media_filenames($task, $range_from, $range_to, $actual_task = false) //one of pre-requisite steps | only for wikimedia
     {   
@@ -725,7 +725,7 @@ class WikiDataAPI extends WikipediaAPI
                         [count] => 4290
                     )
             */
-            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "taxon_wiki_per_language_count_" . date("Y_m") . ".txt"; //previously Y_m_d
+            $txtfile = CONTENT_RESOURCE_LOCAL_PATH . "/reports/taxon_wiki_per_language_count_" . date("Y_m") . ".txt"; //previously Y_m_d
             $handle = fopen($txtfile, "w");
             $arr = array('language', 'count');
             fwrite($handle, implode("\t", $arr) . "\n");
