@@ -118,7 +118,7 @@ $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, a
 */
 
 $use_MultipleConnJenkinsAPI = array("min", "war"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb"
-$use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
+// $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
 
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
@@ -260,6 +260,8 @@ Next batch:
 Next batch:
 -et Estonian
 -nv Navajo
+
+Next batch:
 -hr Croatian
 pnb Western Punjabi
 -gl Galician
