@@ -247,6 +247,8 @@ wikipedia-ast (Asturian)
 
 -ar Arabic --- *I still have ignored for now Arabic (ar) and Persian (fa).
 -fa Persian --- *I still have ignored for now Arabic (ar) and Persian (fa).
+-he Hebrew --- same as Arabic and Persian
+
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
 
 Next batch:
@@ -256,7 +258,6 @@ Next batch:
 -lt Lithuanian
 
 Next batch:
--he Hebrew
 -et Estonian
 -nv Navajo
 -hr Croatian

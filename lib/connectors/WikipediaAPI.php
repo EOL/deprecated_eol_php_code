@@ -21,10 +21,10 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** e.g. szl -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $trans['Page']['szl'] = "Page";
-        $trans['Modified']['szl'] = "Modified";
-        $trans['Retrieved']['szl'] = "Retrieved";
-        $trans['Wikipedia authors and editors']['szl'] = "Wikipedia authors and editors";
+        $trans['Page']['nv'] = "Page";
+        $trans['Modified']['nv'] = "Modified";
+        $trans['Retrieved']['nv'] = "Retrieved";
+        $trans['Wikipedia authors and editors']['nv'] = "Wikipedia authors and editors";
         */
         
         // assignments for languages without default values:
@@ -418,6 +418,10 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == "nv") {
+            $html = self::code_the_steps('<table class="wikitable"', '</table>', $html);
+            $html = self::code_the_steps('<table class="navbox collapsible"', '</table>', $html);
+        }
         if($this->language_code == "ast") { /* for hu Eli updates: 11-08-2019 */
             $html = str_replace("</table>\n", "</table>", $html);
             $left = '<table border="1" cellspacing="0" cellpadding="2" style="margin-left: 1em; margin-bottom: 0.5em;float:right">';
