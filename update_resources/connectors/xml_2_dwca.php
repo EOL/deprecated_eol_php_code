@@ -41,6 +41,8 @@ $xml['889']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_t
 $xml['890']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69297.xml'; //Butterflies of Taiwan --- mediaURL OK
 $xml['888']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_taxonpage_69267.xml'; //Dragonflies of Taiwan --- mediaURL OK 
 $xml['6']['url'] = 'https://opendata.eol.org/dataset/7fa7309c-52e5-4071-a10b-e1f3ed444477/resource/e03c421b-6d75-4586-97cd-b607907bbe65/download/6.xml'; //Arkive (6) XML
+$xml['339']['url'] = 'http://data.rbge.org.uk/service/static/Rhododendron_curtis_images_eol_transfer.xml'; //Rhododendron Images from Curtis Botanical
+
 /* Not used but values are correct
 $xml['TaiEOL']['images'] = false;
 $xml['547']['images'] = true;
@@ -57,6 +59,7 @@ $xml['889']['xmlYN'] = true;
 $xml['890']['xmlYN'] = true;
 $xml['888']['xmlYN'] = true;
 $xml['6']['xmlYN'] = true;
+$xml['339']['xmlYN'] = true;
 
 $xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
@@ -66,10 +69,11 @@ $xml['889']['expire_seconds'] = false;
 $xml['890']['expire_seconds'] = false;
 $xml['888']['expire_seconds'] = false;
 $xml['6']['expire_seconds'] = false;
+$xml['339']['expire_seconds'] = 60*60*24*30;
 
 if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 
-if(!$xml[$resource_id]) exit("\nResource ID [$resource_id] not yet initialized.\n");
+if(!@$xml[$resource_id]) exit("\nResource ID [$resource_id] not yet initialized. Will terminate.\n\n");
 
 // $params["eol_xml_file"] = Functions::get_accesspoint_url_if_available($resource_id, "http://...");
 $params["eol_xml_file"] = $xml[$resource_id]['url'];
