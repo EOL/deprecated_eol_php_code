@@ -6,8 +6,8 @@ Connector reads the XML provided by partner and
 moves the <agent>s with role = 'source' to bibliographicCitation
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+exit("\nObsolete. Use xml_2_dwca.php instead.\n");
 require_library('ResourceDataObjectElementsSetting');
-
 $timestart = time_elapsed();
 $resource_id = 20;
 $resource_path = Functions::get_accesspoint_url_if_available($resource_id, "http://www.pensoft.net/J_FILES/EoLData/ZooKeys.xml");
