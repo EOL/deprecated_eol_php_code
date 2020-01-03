@@ -463,12 +463,12 @@ wikipedia-min	Sunday 2019-12-01 12:32:16 PM	{"media_resource.tab":36571,"taxon.t
 wikipedia-bg	Saturday 2019-11-16 12:44:27 AM	{"media_resource.tab":60646,"taxon.tab":41185,"time_elapsed":{"sec":50384.04,"min":839.73,"hr":14}}
 
 different batch:
-wikipedia-szl	Monday 2019-12-30 09:10:41 PM	{"media_resource.tab":84818,"taxon.tab":51729,"time_elapsed":{"sec":4974.49,"min":82.91,"hr":1.38}}
-wikipedia-af	Monday 2019-12-30 09:32:55 PM	{"media_resource.tab":24930,"taxon.tab":15715,"time_elapsed":{"sec":1324.55,"min":22.08,"hr":0.37}}
-wikipedia-ka	Monday 2019-12-30 09:53:27 PM	{"media_resource.tab":20898,"taxon.tab":12929,"time_elapsed":{"sec":1226.34,"min":20.44,"hr":0.34}}
-wikipedia-lt	Monday 2019-12-30 10:13:07 PM	{"media_resource.tab":15664,"taxon.tab":12845,"time_elapsed":{"sec":1171.69,"min":19.53,"hr":0.33}}
-wikipedia-et	Tuesday 2019-12-31 01:17:03 AM	{"media_resource.tab":14231,"taxon.tab":11499,"time_elapsed":{"sec":11027.62,"min":183.79,"hr":3.06}}
-wikipedia-nv	Tuesday 2019-12-31 04:43:56 AM	{"media_resource.tab":8385,"taxon.tab":10836,"time_elapsed":{"sec":12404.83,"min":206.75,"hr":3.45}}
+wikipedia-szl (Silesian)	Monday 2019-12-30 09:10:41 PM	{"media_resource.tab":84818,"taxon.tab":51729,"time_elapsed":{"sec":4974.49,"min":82.91,"hr":1.38}}
+wikipedia-af (Afrikaans)	Monday 2019-12-30 09:32:55 PM	{"media_resource.tab":24930,"taxon.tab":15715,"time_elapsed":{"sec":1324.55,"min":22.08,"hr":0.37}}
+wikipedia-ka (Georgian)	Monday 2019-12-30 09:53:27 PM	{"media_resource.tab":20898,"taxon.tab":12929,"time_elapsed":{"sec":1226.34,"min":20.44,"hr":0.34}}
+wikipedia-lt (Lithuanian)	Monday 2019-12-30 10:13:07 PM	{"media_resource.tab":15664,"taxon.tab":12845,"time_elapsed":{"sec":1171.69,"min":19.53,"hr":0.33}}
+wikipedia-et (Estonian)	Tuesday 2019-12-31 01:17:03 AM	{"media_resource.tab":14231,"taxon.tab":11499,"time_elapsed":{"sec":11027.62,"min":183.79,"hr":3.06}}
+wikipedia-nv (Navajo)	Tuesday 2019-12-31 04:43:56 AM	{"media_resource.tab":8385,"taxon.tab":10836,"time_elapsed":{"sec":12404.83,"min":206.75,"hr":3.45}}
 
 ---------------------------------------------------------------------------------
 Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
