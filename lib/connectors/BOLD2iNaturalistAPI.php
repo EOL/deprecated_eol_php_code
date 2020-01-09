@@ -97,16 +97,93 @@ class BOLD2iNaturalistAPI
                     $rec[$fld] = $line[$k]; $k++;
                 }
                 // print_r($rec); exit;
+                /*Array(
+                    [processid] => KANB003-17
+                    [sampleid] => AH9BK85
+                    [recordID] => 8341167
+                    [catalognum] => USNM:FISH:442211
+                    [fieldnum] => KB17-037
+                    [institution_storing] => Smithsonian Institution National Museum of Natural History
+                    [collection_code] => 
+                    [bin_uri] => BOLD:AAB6123
+                    [phylum_taxID] => 18
+                    [phylum_name] => Chordata
+                    [class_taxID] => 77
+                    [class_name] => Actinopterygii
+                    [order_taxID] => 775026
+                    [order_name] => Ovalentaria
+                    [family_taxID] => 1854
+                    [family_name] => Pomacentridae
+                    [subfamily_taxID] => 64350
+                    [subfamily_name] => Pomacentrinae
+                    [genus_taxID] => 3584
+                    [genus_name] => Abudefduf
+                    [species_taxID] => 11479
+                    [species_name] => Abudefduf sordidus
+                    [subspecies_taxID] => 
+                    [subspecies_name] => 
+                    [identification_provided_by] => Diane E. Pitassy
+                    [identification_method] => 
+                    [identification_reference] => (Forsskål, 1775)
+                    [tax_note] => 
+                    [voucher_status] => vouchered:registered collection
+                    [tissue_type] => 
+                    [collection_event_id] => 
+                    [collectors] => J. Zill, L. Parenti, K. Cole, Z. Jaafar, D. Pitassy & H. Banshaw
+                    [collectiondate_start] => 
+                    [collectiondate_end] => 
+                    [collectiontime] => 
+                    [collection_note] => Collected between 0-5 meters.
+                    [site_code] => 
+                    [sampling_protocol] => 
+                    [lifestage] => 
+                    [sex] => 
+                    [reproduction] => 
+                    [habitat] => 
+                    [associated_specimens] => 
+                    [associated_taxa] => 
+                    [extrainfo] => SL=155 mm.
+                    [notes] => 
+                    [lat] => 21.444
+                    [lon] => -157.796
+                    [coord_source] => 
+                    [coord_accuracy] => 
+                    [elev] => 
+                    [depth] => 
+                    [elev_accuracy] => 
+                    [depth_accuracy] => 5
+                    [country] => United States
+                    [province_state] => Hawaii
+                    [region] => 
+                    [sector] => 
+                    [exactsite] => Hawaii, Oahu, Kaneohe Bay, Coconut Island, windwar
+                    [image_ids] => 3206805
+                    [image_urls] => http://www.boldsystems.org/pics/KANB/USNM_442211_photograph_KB17_037_155mmSL_LRP_17_07+1507842962.JPG
+                    [media_descriptors] => Lateral
+                    [captions] => USNM 442211 photograph lateral view
+                    [copyright_holders] => 
+                    [copyright_years] => 2017
+                    [copyright_licenses] => CreativeCommons ? Attribution Non-Commercial (by-nc)
+                    [copyright_institutions] => Smithsonian Institution National Museum of Natural History
+                    [photographers] => Diane E. Pitassy
+                )*/
                 $rek = array();
                 if($rek = self::get_name_from_names($rec)) {
                     debug("\nSearching for '$rek[sciname]' with rank '$rek[rank]'\n");
                     $rek['iNat_taxonID'] = self::get_iNat_taxonID($rek);
                     $rek['iNat_desc'] = self::get_iNat_desc($rec);
+                    $rek['coordinates'] = self::get_coordinates($rec);
                     print_r($rek); //exit;
                     
                 }
                 else exit("\nInvestigate: cannot get name.\n");
             }
+        }
+    }
+    private function get_coordinates($rec)
+    {
+        if($rec['lat'] && $rec['lon']) {
+            return array('lat' => $rec['lat'], 'lon' => $rec['lon']);
         }
     }
     private function get_iNat_desc($rec)
