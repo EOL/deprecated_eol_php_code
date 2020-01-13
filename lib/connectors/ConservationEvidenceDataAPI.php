@@ -101,7 +101,8 @@ class ConservationEvidenceDataAPI
         $url = str_replace('BINOMIAL', $rec['binom'], $this->api['species']);
         if($ret = self::access_api($url)) {
             // print_r($ret['results']); exit;
-            if($val = @$ret['results']) self::create_measurements($val, $taxon_id);
+            $source_url = str_replace('BINOMIAL', urlencode($rec['binom']), $this->source_url);
+            if($val = @$ret['results']) self::create_measurements($val, $taxon_id, $source_url);
         }
     }
     private function access_api($url)
@@ -132,7 +133,7 @@ class ConservationEvidenceDataAPI
         if($str == "NA") return "";
         else return $str;
     }
-    private function create_measurements($recs, $taxon_id)
+    private function create_measurements($recs, $taxon_id, $source_url)
     {   /*Array(
             [0] => Array(
                     [id] => 69
@@ -152,14 +153,14 @@ class ConservationEvidenceDataAPI
         */
         foreach($recs as $rec) {
             $mValue = $rec['url'];
-            $mType = 'conservation_action';
+            $mType = 'http://purl.obolibrary.org/obo/ENVO_01001171'; //'conservation_action';
             $rek = array();
             $rek["taxon_id"] = $taxon_id;
             $rek["catnum"] = $taxon_id."_".$rec['id'];
             $mOfTaxon = "true";
             $rek['measurementRemarks'] = $rec['title'];
             $rek['bibliographicCitation'] = self::get_biblio_from_site($rec['url']);
-            // $rek['source'] = $rec['url']; //Eli's own initiative...
+            $rek['source'] = $source_url;
             $ret = $this->func->pre_add_string_types($rek, $mValue, $mType, $mOfTaxon);
         }
     }
