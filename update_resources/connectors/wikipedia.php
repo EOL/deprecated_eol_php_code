@@ -248,6 +248,7 @@ wikipedia-ast (Asturian)
 -ar Arabic --- *I still have ignored for now Arabic (ar) and Persian (fa).
 -fa Persian --- *I still have ignored for now Arabic (ar) and Persian (fa).
 -he Hebrew --- same as Arabic and Persian
+-pnb Western Punjabi --- same as Arabic and Persian
 
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
 
@@ -260,9 +261,21 @@ Next batch:
 -nv Navajo
 
 Next batch:
--hr Croatian
-pnb Western Punjabi
--gl Galician
+-hr Croatian    https://en.wikipedia.org/wiki/Croatian_language
+-gl Galician    https://en.wikipedia.org/wiki/Galician_language
+-br Breton      https://en.wikipedia.org/wiki/Breton_language
+
+Next batch:
+-la Latin   7292 https://en.wikipedia.org/wiki/Latin_language
+-da Danish  7246 https://en.wikipedia.org/wiki/Danish_language
+ml	6662
+be	6435
+th	6412
+ms	4364
+kk	4293
+lv	4280
+is	4221
+hy	4146
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}

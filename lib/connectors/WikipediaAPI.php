@@ -20,11 +20,11 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $trans['Page']['nv'] = "Page";
-        $trans['Modified']['nv'] = "Modified";
-        $trans['Retrieved']['nv'] = "Retrieved";
-        $trans['Wikipedia authors and editors']['nv'] = "Wikipedia authors and editors";
+        /* *** e.g. szl, nv, pnb, br -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $trans['Page']['br'] = "Page";
+        $trans['Modified']['br'] = "Modified";
+        $trans['Retrieved']['br'] = "Retrieved";
+        $trans['Wikipedia authors and editors']['br'] = "Wikipedia authors and editors";
         */
         
         // assignments for languages without default values:
@@ -362,6 +362,8 @@ class WikipediaAPI
             $desc = self::remove_all_in_between_inclusive($left, $right, $desc);
         }
         
+        $desc = str_replace("<hr /> <hr />", "<hr />", $desc);
+        
         return $desc;
     }
     private function remove_all_in_between_inclusive($left, $right, $html)
@@ -418,6 +420,65 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'br') {
+            
+            //remove un-important section. Messes up below if not removed.
+            $left = '<div style="margin:0 10px;float: left;">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //remove 'under construction' section. e.g. Plantae https://br.wikipedia.org/wiki/Plant
+            $left = '<div style="border:1px solid #E47B10;'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //remove infobox
+            // $left = '<table align="right" rules="all"'; $right = '<p>';
+            // $html = self::remove_all_in_between_inclusive($left, $right, $html);
+
+            $left = '<table align="right" rules="all"'; $right = '</td></tr></tbody></table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            $left = '</th></tr>'; $right = '</td></tr></tbody></table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            // exit("\n$html\n");
+            
+        }
+        
+        if($this->language_code == 'gl') {
+            //remove infobox
+            $left = '<table class="toccolours"'; $right = '</table></div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //remove extra info below. e.g. sunflower https://gl.wikipedia.org/wiki/Xirasol
+            $left = '<table>'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //remove external links e.g. Gadus morhua https://gl.wikipedia.org/wiki/Bacallau
+            $left = '<span class="mw-headline" id="Ligazóns_externas">'; $right = '</span>.</cite>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            $left = '<span class="mw-headline" id="Ligazóns_externas">'; $right = '</li></ul>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+        }
+        
+        if($this->language_code == 'hr') {
+            $left = '<table style="vertical-align:center; background:transparent;">'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //remove 'External links' section
+            $left = '<span class="mw-headline" id="Vanjske_poveznice">'; $right = '</tbody></table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            $left = '<span class="mw-headline" id="Vanjske_poveznice">'; $right = '<h2>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            
+            //remove un-needed box on top. e.g. Mus musculus https://hr.wikipedia.org/wiki/Doma%C4%87i_mi%C5%A1
+            $left = '<table border="0" class="messagebox plainlinks"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+        }
+        
         if($this->language_code == "nv") {
             $html = self::code_the_steps('<table class="wikitable"', '</table>', $html);
             $html = self::code_the_steps('<table class="navbox collapsible"', '</table>', $html);
