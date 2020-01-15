@@ -150,7 +150,8 @@ class CachingTemplateAPI_AndreasKay
                 if(stripos($tag->raw, "?") !== false) continue; //string is found
             }
             
-            $arr = explode(" ", trim($tag->raw));
+            $tag_raw = trim($tag->raw);
+            $arr = explode(" ", $tag_raw);
             $arr = array_map('trim', $arr);
             if(count($arr) == 2) {
                 if(ctype_upper(substr($arr[0],0,1))) {
@@ -167,9 +168,9 @@ class CachingTemplateAPI_AndreasKay
                             if(in_array($arr[1], array('sp.', 'sp'))) { // print_r($arr);
                                 $genus_part = $arr[0];
                                 // print_r($this->katja_assignment); exit("\nstop munax\n");
-                                if($val = @$this->katja_assignment[trim($tag->raw)]) {
+                                if($val = @$this->katja_assignment[$tag_raw]) {
                                     $final[] = $val;
-                                    echo "\nMapped OK [$genus_part][$val]\n";
+                                    echo "\nMapped OK [$tag_raw][$val]\n";
                                 }
                                 else $final[] = self::check_name_in_GlobalNamesRecognitionDiscovery($genus_part, true);
                             }
