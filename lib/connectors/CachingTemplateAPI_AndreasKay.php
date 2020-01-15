@@ -60,10 +60,8 @@ class CachingTemplateAPI_AndreasKay
                 $this->katja_assignment[$rec['tag']] = $rec['scientificName'];
             }
         }
-        print_r($this->katja_assignment);
-        echo "\nMappings = [$i]\n";
+        print_r($this->katja_assignment); echo "\nMappings = [$i]\n"; //good debug
         unlink($local_tsv);
-        exit("\ntemporarily exits...\n");
     }
     public function AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)
     {
@@ -169,7 +167,7 @@ class CachingTemplateAPI_AndreasKay
                             if(in_array($arr[1], array('sp.', 'sp'))) { // print_r($arr);
                                 $genus_part = $arr[0];
                                 // print_r($this->katja_assignment); exit("\nstop munax\n");
-                                if($val = @$this->katja_assignment[$genus_part]) {
+                                if($val = @$this->katja_assignment[trim($tag->raw)]) {
                                     $final[] = $val;
                                     echo "\nMapped OK [$genus_part][$val]\n";
                                 }
