@@ -60,7 +60,10 @@ class CachingTemplateAPI_AndreasKay
                 $this->katja_assignment[$rec['tag']] = $rec['scientificName'];
             }
         }
+        print_r($this->katja_assignment);
+        echo "\nMappings = [$i]\n";
         unlink($local_tsv);
+        exit("\ntemporarily exits...\n");
     }
     public function AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)
     {
