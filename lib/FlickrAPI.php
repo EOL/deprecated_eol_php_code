@@ -271,7 +271,7 @@ class FlickrAPI
                 }
             }
         }
-        // ------------ start DATA-1843 ------------ */
+        // ------------ end DATA-1843 ------------ */
         
         // echo "\nreached 101\n";
         $taxon_parameters = array();
@@ -695,6 +695,7 @@ class FlickrAPI
             require_library('connectors/CachingTemplateAPI_AndreasKay');
             $GLOBALS['func'] = new CachingTemplateAPI_AndreasKay($resource_id);
             $GLOBALS['func']->initialize_report();
+            $GLOBALS['func']->generate_mapping_4_non_GNRD_names(); //per https://eol-jira.bibalex.org/browse/DATA-1843?focusedCommentId=64322&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64322
             echo ("\ncorrect...\n");
             /* comment in real operation. Only used during development. Specifically when running "test***" in andreas_kay_flickr.php.
             return;

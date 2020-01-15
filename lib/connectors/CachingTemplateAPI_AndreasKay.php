@@ -32,8 +32,36 @@ class CachingTemplateAPI_AndreasKay
         $this->count['lack machine tags but with non-binomials that we matched to taxon names'] = 0;
         $this->count['media with tags but nothing we can match'] = 0;
         $this->count['photo_id no sciname'] = array();
+        
+        $this->file['MissingPseudobinomials'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AndreasKay_Flickr/MissingPseudobinomials.txt';
     }
     /* ======================================= start Andreas Kay functions ======================================= */
+    function generate_mapping_4_non_GNRD_names()
+    {
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        $local_tsv = Functions::save_remote_file_to_local($this->file['MissingPseudobinomials'], $options);
+        $i = 0;
+        foreach(new FileIterator($local_tsv) as $line_number => $line) {
+            $line = explode("\t", $line); $i++; 
+            if($i == 1) $fields = $line;
+            else {
+                if(!$line[0]) break;
+                $rec = array(); $k = 0;
+                foreach($fields as $fld) {
+                    $rec[$fld] = $line[$k]; $k++;
+                }
+                // print_r($rec); exit;
+                /*Array(
+                    [tag] => Agra sp.
+                    [EOLid] => 36162
+                    [scientificName] => Agra
+                )*/
+                $this->katja_assignment[$rec['tag']] = $rec['scientificName'];
+            }
+        }
+        unlink($local_tsv);
+    }
     public function AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)
     {
         $GLOBALS['allowsQuestionMarksYN'] = $allowsQuestionMarksYN;
@@ -95,6 +123,7 @@ class CachingTemplateAPI_AndreasKay
         )*/
 
         /* debug only, good test during development
+        $tags[] = (object) array('raw' => 'Gadus sp.');
         $tags[] = (object) array('raw' => 'Gadus morhua');
         $tags[] = (object) array('raw' => 'Lates niloticus');
         */
@@ -135,8 +164,13 @@ class CachingTemplateAPI_AndreasKay
                         }
                         else { //a pseudo binomial
                             if(in_array($arr[1], array('sp.', 'sp'))) { // print_r($arr);
-                                $binomial = $arr[0];
-                                $final[] = self::check_name_in_GlobalNamesRecognitionDiscovery($binomial, true);
+                                $genus_part = $arr[0];
+                                // print_r($this->katja_assignment); exit("\nstop munax\n");
+                                if($val = @$this->katja_assignment[$genus_part]) {
+                                    $final[] = $val;
+                                    echo "\nMapped OK [$genus_part][$val]\n";
+                                }
+                                else $final[] = self::check_name_in_GlobalNamesRecognitionDiscovery($genus_part, true);
                             }
                             else continue;
                         }
