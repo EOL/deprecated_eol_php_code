@@ -483,6 +483,10 @@ wikipedia-lt (Lithuanian)	Monday 2019-12-30 10:13:07 PM	{"media_resource.tab":15
 wikipedia-et (Estonian)	Tuesday 2019-12-31 01:17:03 AM	{"media_resource.tab":14231,"taxon.tab":11499,"time_elapsed":{"sec":11027.62,"min":183.79,"hr":3.06}}
 wikipedia-nv (Navajo)	Tuesday 2019-12-31 04:43:56 AM	{"media_resource.tab":8385,"taxon.tab":10836,"time_elapsed":{"sec":12404.83,"min":206.75,"hr":3.45}}
 
+next batch:
+wikipedia-gl	Wednesday 2020-01-15 01:29:21 AM	{"media_resource.tab":10738,"taxon.tab":8595,"time_elapsed":{"sec":8959.67,"min":149.33,"hr":2.49}}
+wikipedia-br	Wednesday 2020-01-15 02:00:51 AM	{"media_resource.tab":12758,"taxon.tab":9382,"time_elapsed":{"sec":10780.27,"min":179.67,"hr":2.99}}
+wikipedia-hr	Wednesday 2020-01-15 02:07:17 AM	{"media_resource.tab":13051,"taxon.tab":10114,"time_elapsed":{"sec":11335.24,"min":188.92,"hr":3.15}}
 ---------------------------------------------------------------------------------
 Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
 
