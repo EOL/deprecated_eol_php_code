@@ -56,7 +56,7 @@ class KatieXMLformatAPI
                     [name] => Chiroptera
                 )*/
                 self::create_xml($rec);
-                if($i >= 5) break; //debug
+                // if($i >= 5) break; //debug
             }
         }
         unlink($local_tsv);
