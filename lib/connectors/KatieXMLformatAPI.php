@@ -7,20 +7,21 @@ class KatieXMLformatAPI
     function __construct($resource_id)
     {
         if(Functions::is_production()) {
-            $this->file['source'] = 'http://editors.eol.org/other_files/bundle_images/DATA_1845/chiroptera_crops_all_transf_eli.csv';
             $this->path['destination'] = '/extra/other_files/bundle_images/xml/';
             $this->prefix = 'https://editors.eol.org/other_files/';
         }
         else {
-            $this->file['source'] = 'http://localhost/other_files/bundle_images/DATA_1845/chiroptera_crops_all_transf_eli.csv';
             $this->path['destination'] = '/Volumes/AKiTiO4/other_files/bundle_images/xml/';
             $this->prefix = 'http://localhost/other_files/';
         }
-        if(!file_exists($this->path['destination'])) mkdir($this->path['destination']);
-
-        $filename = 'xml_for_Chiroptera_download.txt'; //this changes on whatever batch is given by Katie
-        $this->report_file = str_replace('xml/', '', $this->path['destination']) . $filename;
         
+        // /* these entries change based on whatever batch is given by Katie
+        $this->file['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/chiroptera_crops_all_transf_eli.csv';
+        $filename = 'xml_for_Chiroptera.txt';
+        // */
+        
+        if(!file_exists($this->path['destination'])) mkdir($this->path['destination']);
+        $this->report_file = str_replace('xml/', '', $this->path['destination']) . $filename;
         $this->download_options = array(
             'resource_id'        => $resource_id,  //resource_id here is just a folder name in cache
             'expire_seconds'     => false, //should not expire
@@ -55,10 +56,12 @@ class KatieXMLformatAPI
                     [name] => Chiroptera
                 )*/
                 self::create_xml($rec);
-                if($i >= 5) break;
+                if($i >= 5) break; //debug
             }
         }
         unlink($local_tsv);
+        $report_file = self::format_url_path($this->report_file);
+        echo "\nreport_file: $report_file\n";
     }
     private function create_xml($rec)
     {
@@ -156,7 +159,7 @@ class KatieXMLformatAPI
     }
     private function format_url_path($local_path)
     {
-        $arr = explode('other_files', $local_path);
+        $arr = explode('other_files/', $local_path);
         return $this->prefix.$arr[1];
     }
     /*
