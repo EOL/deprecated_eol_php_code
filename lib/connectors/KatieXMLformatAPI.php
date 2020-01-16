@@ -7,7 +7,7 @@ class KatieXMLformatAPI
     function __construct($resource_id)
     {
         if(Functions::is_production()) {
-            $this->file['source'] = 'http://localhost/other_files/bundle_images/DATA_1845/chiroptera_crops_all_transf_eli.csv';
+            $this->file['source'] = 'http://editors.eol.org/other_files/bundle_images/DATA_1845/chiroptera_crops_all_transf_eli.csv';
             $this->path['destination'] = '/extra/other_files/bundle_images/xml/';
             $this->prefix = 'https://editors.eol.org/other_files/';
         }
@@ -16,8 +16,10 @@ class KatieXMLformatAPI
             $this->path['destination'] = '/Volumes/AKiTiO4/other_files/bundle_images/xml/';
             $this->prefix = 'http://localhost/other_files/';
         }
-        
         if(!file_exists($this->path['destination'])) mkdir($this->path['destination']);
+
+        $filename = 'xml_for_Chiroptera_download.txt'; //this changes on whatever batch is given by Katie
+        $this->report_file = str_replace('xml/', '', $this->path['destination']) . $filename;
         
         $this->download_options = array(
             'resource_id'        => $resource_id,  //resource_id here is just a folder name in cache
@@ -26,6 +28,7 @@ class KatieXMLformatAPI
     }
     public function start()
     {
+        if($FILE = Functions::file_open($this->report_file, 'w')) fclose($FILE); //initialize report file
         $local_tsv = Functions::save_remote_file_to_local($this->file['source'], $this->download_options);
         $i = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
@@ -52,7 +55,7 @@ class KatieXMLformatAPI
                     [name] => Chiroptera
                 )*/
                 self::create_xml($rec);
-                exit("\nstop muna\n");
+                if($i >= 5) break;
             }
         }
         unlink($local_tsv);
@@ -145,6 +148,10 @@ class KatieXMLformatAPI
                 fwrite($FILE, $xml_str);
                 fclose($FILE);
             }
+        }
+        if($FILE = Functions::file_open($this->report_file, 'a')) {
+            fwrite($FILE, $url_path."\n");
+            fclose($FILE);
         }
     }
     private function format_url_path($local_path)
