@@ -6,7 +6,7 @@ php5.6 taxon_image_bundles_part2.php jenkins '{"eol_page_id":7631, "sci":"Chirop
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
+// $GLOBALS['ENV_DEBUG'] = true; //true only locally
 
 require_library('connectors/KatieXMLformatAPI');
 $resource_id = 'Katie';
