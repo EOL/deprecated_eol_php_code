@@ -1,6 +1,5 @@
 <?php
 namespace php_active_record;
-
 /* connector for INOTAXA
 estimated execution time: 1.3 hours
 
@@ -25,23 +24,19 @@ http://127.0.0.1:3000/harvest_events/8/taxa/620
 http://127.0.0.1:3000/harvest_events/8/taxa/515
 */
 
+As of Jan 17, 2020
+This connector has been obsolete for sometime now.
+Use xml_2_dwca.php instead.
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/InotaxaAPI');
-$GLOBALS['ENV_DEBUG'] = false;
+// $GLOBALS['ENV_DEBUG'] = false;
 
 $taxa = InotaxaAPI::get_all_taxa();
 $xml = \SchemaDocument::get_taxon_xml($taxa);
-
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . "63.xml";
-
-if(!($OUT = fopen($resource_path, "w+")))
-{
-  debug(__CLASS__ .":". __LINE__ .": Couldn't open file: " .$resource_path);
-  return;
-}
+if(!($OUT = Functions::file_open($resource_path, "w+"))) return;
 fwrite($OUT, $xml);
 fclose($OUT);
-
 echo "\n time: ". Functions::time_elapsed()."\n";
 ?>
