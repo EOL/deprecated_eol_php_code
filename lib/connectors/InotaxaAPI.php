@@ -4,7 +4,7 @@ namespace php_active_record;
 Partner provided a non EOL-compliant XML file for all their species.
 Connector parses this XML and generates the EOL-compliant XML.
 You can download a copy of the XML here: 
-http://dl.dropbox.com/u/7597512/INOTAXA/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml
+https://github.com/eliagbayani/EOL-connector-data-files/raw/master/INOTAXA/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml
 */
 
 define("SUBJECT_LIST", "Associations,Behaviour,Biology,Conservation,ConservationStatus,Cyclicity,Cytology,Description,DiagnosticDescription,Diseases,Dispersal,Distribution,Ecology,Evolution,GeneralDescription,Genetics,Growth,Habitat,Key,Legislation,LifeCycle,LifeExpectancy,Management,Migration,MolecularBiology,Morphology,Physiology,PopulationBiology,Procedures,Reproduction,RiskStatement,Size,TaxonBiology,Threats,Trends,TrophicStrategy,Uses");
@@ -15,27 +15,22 @@ define("MEDIA_URL_PREFIX", "http://www.nhm.ac.uk/hosted-sites/inotaxa/images/img
 class InotaxaAPI
 {
     public static function get_all_taxa()
-    {    
+    {
         $all_taxa = array();
-                
         $path= DOC_ROOT . "/update_resources/connectors/files/INOTAXA/";
-        $urls = array( 0 => array( "path" => $path . "BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"                           , "active" => 1),
-                       1 => array( "path" => $path . "Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml"                      , "active" => 0),
-                       2 => array( "path" => "http://pandanus.eol.org/public/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"    , "active" => 0)
-                     );        
-
-        foreach($urls as $url)
-        {
-            if($url["active"])
-            {
+        $urls = array( 0 => array( "path" => $path . "BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml", "active" => 0),
+                       1 => array( "path" => "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/INOTAXA/BCA_coleoptv4p3_taXMLit_v4-03-UTF8.xml"        , "active" => 1),
+                       2 => array( "path" => "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/INOTAXA/Zootaxa_986_Hamilton_taXMLit_v4-03-UTF8.xml"   , "active" => 1)
+                     );
+        foreach($urls as $url) {
+            if($url["active"]) {
                 $page_taxa = self::get_inotaxa_taxa($url["path"]);                                
                 /*debug
                 print"<hr>website: " . $url["path"] . "<br>";
                 print"page_taxa count: " . $url["path"] . " -- " . count($page_taxa) . "<hr>";                
-                */                
+                */
                 //print"<pre>page_taxa: ";print_r($page_taxa);print"</pre>";                        
-                if($page_taxa)
-                {                    
+                if($page_taxa) {
                     $all_taxa = array_merge($all_taxa,$page_taxa);                                    
                     //or use this => foreach($page_taxa as $t) $all_taxa[] = $t;
                 }
@@ -45,8 +40,6 @@ class InotaxaAPI
         //print"total: " . count($all_taxa) . "<br>\n"; //debug       
         return $all_taxa;
     }
-
-
     public static function get_inotaxa_taxa($url,$debug=NULL)
     {    
         global $taxon_identifier;

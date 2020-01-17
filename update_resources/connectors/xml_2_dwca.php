@@ -13,7 +13,7 @@ TaiEOL	Friday 2019-12-27 10:22:27 AM	{"agent.tab":10,"media_resource.tab":3409,"
 890	Friday 2019-12-27 10:22:39 AM	{"agent.tab":1,"media_resource.tab":629,"taxon.tab":365,"vernacular_name.tab":364,"time_elapsed":{"sec":1.05,"min":0.02,"hr":0}}
 888	Friday 2019-12-27 10:22:40 AM	{"agent.tab":10,"media_resource.tab":400,"taxon.tab":146,"vernacular_name.tab":146,"time_elapsed":{"sec":1,"min":0.02,"hr":0}}
 339	Tuesday 2019-12-31 12:36:31 AM	{"agent.tab":2,"media_resource.tab":59,"taxon.tab":57,"time_elapsed":{"sec":3.7,"min":0.06,"hr":0}}
-63	Friday 2020-01-17 02:07:25 AM	{"agent.tab":3,"media_resource.tab":2750,"reference.tab":343,"taxon.tab":871,"time_elapsed":{"sec":2.52,"min":0.04,"hr":0}}
+63	Friday 2020-01-17 02:18:28 AM	{"agent.tab":3,"media_resource.tab":2750,"reference.tab":343,"taxon.tab":871,"time_elapsed":{"sec":2.59,"min":0.04,"hr":0}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -44,6 +44,7 @@ $xml['888']['url'] = 'http://eoldata.taibif.tw/files/eoldata/eol/taieol_export_t
 $xml['6']['url'] = 'https://opendata.eol.org/dataset/7fa7309c-52e5-4071-a10b-e1f3ed444477/resource/e03c421b-6d75-4586-97cd-b607907bbe65/download/6.xml'; //Arkive (6) XML
 $xml['339']['url'] = 'http://data.rbge.org.uk/service/static/Rhododendron_curtis_images_eol_transfer.xml'; //Rhododendron Images from Curtis Botanical
 $xml['63']['url'] = 'https://opendata.eol.org/dataset/b526f101-ea5d-4d28-a5ab-19ea5aac7c73/resource/a38bb047-3bdb-4caa-a45d-57fef8cfaee5/download/63.xml'; //INOTAXA
+$xml['116']['url'] = 'https://opendata.eol.org/dataset/11dff9b4-0779-45cd-ade6-0ab223ddd5aa/resource/ffe53549-0eb1-4ed8-9e13-bb88b1d2ba93/download/116.xml'; //The Dutch Ascidians Homepage
 
 /* Not used but values are correct
 $xml['TaiEOL']['images'] = false;
@@ -63,6 +64,7 @@ $xml['888']['xmlYN'] = true;
 $xml['6']['xmlYN'] = true;
 $xml['339']['xmlYN'] = true;
 $xml['63']['xmlYN'] = true;
+$xml['116']['xmlYN'] = true;
 
 $xml[20]['expire_seconds'] = false; //no expire
 $xml[327]['expire_seconds'] = false;
@@ -74,6 +76,7 @@ $xml['888']['expire_seconds'] = false;
 $xml['6']['expire_seconds'] = false;
 $xml['339']['expire_seconds'] = 60*60*24*30;
 $xml['63']['expire_seconds'] = false;
+$xml['116']['expire_seconds'] = false;
 
 if($val = @$cmdline_params['expire_seconds']) $xml[$resource_id]['expire_seconds'] = $val;
 
