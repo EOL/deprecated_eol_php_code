@@ -14,6 +14,7 @@ TaiEOL	Friday 2019-12-27 10:22:27 AM	{"agent.tab":10,"media_resource.tab":3409,"
 888	Friday 2019-12-27 10:22:40 AM	{"agent.tab":10,"media_resource.tab":400,"taxon.tab":146,"vernacular_name.tab":146,"time_elapsed":{"sec":1,"min":0.02,"hr":0}}
 339	Tuesday 2019-12-31 12:36:31 AM	{"agent.tab":2,"media_resource.tab":59,"taxon.tab":57,"time_elapsed":{"sec":3.7,"min":0.06,"hr":0}}
 63	Friday 2020-01-17 02:18:28 AM	{"agent.tab":3,"media_resource.tab":2750,"reference.tab":343,"taxon.tab":871,"time_elapsed":{"sec":2.59,"min":0.04,"hr":0}}
+116	Friday 2020-01-17 03:14:19 AM	{"agent.tab":1,"media_resource.tab":642,"reference.tab":64,"taxon.tab":228,"time_elapsed":{"sec":1.3,"min":0.02,"hr":0}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
