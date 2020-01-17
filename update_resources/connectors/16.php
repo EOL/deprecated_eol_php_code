@@ -27,12 +27,14 @@ if($local_path = Functions::save_remote_file_to_local($resource_path, $download_
         // exit($xml);
         $local_xml_file = CONTENT_RESOURCE_LOCAL_PATH . "mushroomobserver_eol.xml";
         $f = Functions::file_open($local_xml_file, "w");
-        fwrite($f, $xml);
-        fclose($f); exit("\nManual edit using TextMate next.\n");
+        fwrite($f, $xml); fclose($f);
+        unlink($local_path);
+        exit("\nManual edit using TextMate next.\n"); //XML is a bit messed up atm. Needs manual editing. Open XML using browser to see what sections to be removed.
     }
     unlink($local_path);
 }
 else exit("\nFile not found. Will terminate.\n");
+exit("\nCheck XML before proceeding.\n");
 */
 
 /* Step 2: */
