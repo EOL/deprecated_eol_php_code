@@ -208,3 +208,7 @@ vendor/google_client_library/json/sheets.googleapis.com-php-quickstart.json
 update_resources/connectors/files/wikimedia/.gitignore
 applications/content_server/resources_2
 applications/iNaturalist_OAuth2/readmeli_secret.txt
+update_resources/connectors/173_42.php
+update_resources/connectors/173_45.php
+update_resources/connectors/173_58.php
+lib/connectors/StatsAPI.php
