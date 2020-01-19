@@ -47,6 +47,7 @@
             <td>
                 <table>
                 <tr><td>Project:</td> <td><input type='text' name='Proj' required><small>e.g. KANB</small></td></tr>
+                <tr><td>Taxon (optional):</td> <td><input type='text' name='Taxon' required><small>e.g. Lutjanus</small></td></tr>
                 <tr><td>Department</td>
                     <td>
                          <select name='Dept'>

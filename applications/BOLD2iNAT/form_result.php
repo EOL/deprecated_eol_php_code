@@ -16,21 +16,19 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
 
+/*
 $form_url = @get_val_var('form_url');
-
 if($form_url) { //URL is pasted.
     $orig_file = pathinfo($form_url, PATHINFO_BASENAME);
     $newfile = time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-    
     if(!in_array(pathinfo($form_url, PATHINFO_EXTENSION), array('xls', 'xlsx', 'zip'))) exit("\nERROR: Wrong file format.\n\n");
     // print_r(pathinfo($form_url)); exit;
-    
-    /* good debug
+    // good debug
     echo "<hr>form_url: [$form_url]";
     echo "<hr>orig_file: [$orig_file]";
     echo "<hr>newfile: [$newfile]<hr>";
     // exit;
-    */
+    //
 }
 elseif($file_type = @$_FILES["file_upload"]["type"]) {
     if(in_array($file_type, array("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "application/vnd.ms-excel", "application/zip"))) {
@@ -44,7 +42,6 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
             else echo "<br>uploading file - ERROR<br>";
         }
         $newfile = "temp/" . time() . "." . pathinfo($orig_file, PATHINFO_EXTENSION);
-        
         // echo "<hr>orig_file: [$orig_file]";
         // echo "<hr>url: [$url]";
         // echo "<hr>newfile: [$newfile]<hr>";
@@ -53,6 +50,7 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
     else exit("<hr>$file_type<hr>Invalid file. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 }
 else exit("<hr>Please browse an Excel file OR enter its URL to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
+*/
 
 /* replaced by Jenkins call
 print "<br><b>Processing, please wait...</b><br><hr>";

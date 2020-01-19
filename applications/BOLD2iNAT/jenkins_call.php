@@ -40,7 +40,7 @@ $dept_map['birds'] = 'BIRDS';
 $dept_map['botany'] = 'BOTANY';
 $dept_map['paleo'] = 'PALEOBIOLOGY';
 
-$json = '{"Proj":"'.$form['Proj'].'", "Dept":"'.$dept_map[$form['Dept']].'", "Lic":"'.$form['Lic'].'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
+$json = '{"Proj":"'.$form['Proj'].'", "Taxon":"'.$form['Taxon'].'", "Dept":"'.$dept_map[$form['Dept']].'", "Lic":"'.$form['Lic'].'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
 $params['json'] = $json;
 
    $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile;
@@ -60,8 +60,8 @@ echo "<hr>"; //exit;
 // php update_resources/connectors/marine_geo_image.php _ _ 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/MarineGEO/image_input.xlsx' uuid001 '$json'
 
 $newfile = pathinfo($newfile, PATHINFO_BASENAME);
-if($form_url) $cmd = PHP_PATH.' marine_geo_image.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
-else          $cmd = PHP_PATH.' marine_geo_image.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
+if($form_url) $cmd = PHP_PATH.' bold2inat.php jenkins _ ' . "'" . $form_url . "' ".$params['uuid']. " '".$params['json']."'"; //no filename but there is form_url and uuid
+else          $cmd = PHP_PATH.' bold2inat.php jenkins ' . "'" . $newfile . "' _ _ ". "'".$params['json']."'";
 
 $cmd .= " 2>&1";
 $ctrler->write_to_sh($params['uuid'].$postfix, $cmd);

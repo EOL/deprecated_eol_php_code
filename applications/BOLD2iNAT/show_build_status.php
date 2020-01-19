@@ -18,11 +18,20 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     // return;
 }
 else {
-    // echo "<pre>"; print_r($params); echo "</pre><hr>"; //good debug
+    echo "<pre>"; print_r($params); echo "</pre><hr>elix"; //good debug
     /* Array(  [task] => xls2dwca_job_1
                [uuid] => 1574952226
                [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_image_export/temp/1574952226.xls
                [true_root] => /Library/WebServer/Documents/eol_php_code/)
+
+Array
+(
+    [true_root] => /Library/WebServer/Documents/eol_php_code/
+    [uuid] => 
+    [json] => {"Proj":"KANB", "Taxon":"Pomacentrinae", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":""}
+    [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_image_export/
+)
+
     */
     /* Delete temp files */
     $dirname = pathinfo($params['destination'], PATHINFO_DIRNAME).'/'; //obsolete
@@ -39,15 +48,16 @@ else {
 
     /* Summary message */
     // /*
+    /* from copied template. 
     $final_archive_gzip_url = CONTENT_RESOURCE_LOCAL_PATH . "MarineGEO_sie/" . $params['uuid'] . ".xls";
     if(file_exists($final_archive_gzip_url)) {
+    */
+    if(true) { //todo: create your Success criteria event
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
         if($final_archive_gzip_url) {
             $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
             echo "=======================================================<br>";
-            echo "The export is now available in <a href='$final_archive_gzip_url'>$final_archive_gzip_url</a><br><br>
-                You can save this file to your computer.<br><br>
-                This file will be stored on our server for a week, after which it will be removed.<br><br>
+            echo "Success...<br><br>
                 <a href='index.php'>Try another</a>";
             echo "<br>=======================================================<br><br>";
         }
@@ -58,7 +68,6 @@ else {
     }
     else {
         $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: Build failed. &nbsp; $str"));
-        // $ctrler->display_message(array('type' => "highlight", 'msg' => "ERROR: File does not exist [$final_archive_gzip_url].")); //during development only
     }
     // */
 }
