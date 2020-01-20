@@ -16,7 +16,7 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
 
-/*
+/* from copied template
 $form_url = @get_val_var('form_url');
 if($form_url) { //URL is pasted.
     $orig_file = pathinfo($form_url, PATHINFO_BASENAME);
@@ -51,6 +51,9 @@ elseif($file_type = @$_FILES["file_upload"]["type"]) {
 }
 else exit("<hr>Please browse an Excel file OR enter its URL to continue. <br> <a href='javascript:history.go(-1)'> &lt;&lt; Go back</a><hr>");
 */
+// /* current section from copied template section
+$newfile = time(); //implemented mainly just a unique ID
+// */
 
 /* replaced by Jenkins call
 print "<br><b>Processing, please wait...</b><br><hr>";
