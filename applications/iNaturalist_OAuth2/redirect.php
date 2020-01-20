@@ -57,6 +57,13 @@ if($ret = curl_post_request($url, $arr)) {
      "scope":"write login",
      "created_at":1575989930}
     */
+    
+    print "<br><b>Processing, please wait...</b><br><hr>";
+    // print"<META HTTP-EQUIV='Refresh' Content='0; URL=../BOLD2iNAT/index.php?inat_json=$ret'>";
+    print"<META HTTP-EQUIV='Refresh' Content='0; URL=http://localhost/eol_php_code/applications/BOLD2iNAT/index.php?inat_json=$ret'>";
+    exit;
+    
+    
 }
 else echo "\n<br>ERROR: POST failed\n";
 echo '</pre>';
