@@ -66,6 +66,7 @@ if($ret = curl_post_request($url, $arr)) {
     <script>
     document.forms.fn.submit()
     </script>
+    <?php
 }
 else echo "\n<br>ERROR: POST failed\n";
 echo '</pre>';
