@@ -57,13 +57,15 @@ if($ret = curl_post_request($url, $arr)) {
      "scope":"write login",
      "created_at":1575989930}
     */
-    
-    print "<br><b>Processing, please wait...</b><br><hr>";
-    // print"<META HTTP-EQUIV='Refresh' Content='0; URL=../BOLD2iNAT/index.php?inat_json=$ret'>";
-    // print"<META HTTP-EQUIV='Refresh' Content='0; URL=https://editors.eol.org/eol_php_code/applications/BOLD2iNAT/index.php?inat_json=$ret'>";
-    print"<META HTTP-EQUIV='Refresh' Content='0; URL=http://localhost/eol_php_code/applications/BOLD2iNAT/index.php?inat_json=$ret'>";
-    // exit;
-    
+
+    ?>
+    <form name='fn' action="http://localhost/eol_php_code/applications/BOLD2iNAT/index.php" method="post">
+      <input type='text' name='inat_response' value='<?php echo $ret ?>'>
+      <input type='submit'>
+    </form>
+    <script>
+    document.forms.fn.submit()
+    </script>
 }
 else echo "\n<br>ERROR: POST failed\n";
 echo '</pre>';

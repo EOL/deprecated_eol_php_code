@@ -1,3 +1,14 @@
+<?php
+print_r(@$_POST);
+
+if(isset($_POST["inat_response"])) {
+    $json = $_POST["inat_response"];
+    $arr = json_decode($json);
+    print_r($arr);
+}
+else echo "<hr>No post params<hr>";
+// exit("\ntest\n");
+?>
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
