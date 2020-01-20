@@ -58,7 +58,7 @@ class BOLD2iNaturalistAPI
                 // print_r($this->manual_entry); exit;
                 if($recs_count = self::generate_info_list_tsv($this->manual_entry->Proj, $this->manual_entry->Taxon)) {
                     echo "\nTSV file total rows: $recs_count\n";
-                    self::process_project_tsv_file($this->manual_entry->Proj, $this->manual_entry->Taxon);
+                    self::process_project_tsv_file($this->manual_entry->Proj, $this->manual_entry->Taxon); //main loop for the TSV file
                 }
                 else echo "\nNo records found. Please modify search parameters.\n";
             }
@@ -85,8 +85,9 @@ class BOLD2iNaturalistAPI
     // ==========================================START bold2inat==============================================
     private function process_project_tsv_file($proj, $taxon)
     {
+        $taxon = str_replace(' ', '_', $taxon);
         $local_tsv = $this->resources['path'].'TSVs/'.$proj."_$taxon.tsv";
-        $i = 0;
+        $i = 0; $count = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
             $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
             if($i == 1) $fields = $line;
@@ -174,11 +175,12 @@ class BOLD2iNaturalistAPI
                     $rek['iNat_desc'] = self::get_iNat_desc($rec);
                     $rek['coordinates'] = self::get_coordinates($rec);
                     print_r($rek); //exit;
-                    
+                    $count++;
                 }
-                else exit("\nInvestigate: cannot get name.\n");
+                // else exit("\nInvestigate: cannot get name.\n"); //Should be commented. Since there are recs now that should be excluded.
             }
         }
+        echo "\nTotal records: [$count]\n";
     }
     private function get_coordinates($rec)
     {
@@ -228,6 +230,22 @@ class BOLD2iNaturalistAPI
              [subspecies_name] => 
         */
         $keys = array('subspecies_name', 'species_name', 'genus_name', 'subfamily_name', 'family_name', 'order_name', 'class_name', 'phylum_name');
+
+        // /* New: further filter the names vs. the form-manual-entered Taxon value.
+        if($this->manual_entry->Taxon) {
+            $cont = false;
+            foreach($keys as $key) {
+                if($val = $rec[$key]) {
+                    if(stripos($val, $this->manual_entry->Taxon) !== false) { //string is found
+                        $cont = true;
+                        break;
+                    }
+                }
+            }
+            if(!$cont) return false;
+        }
+        // */
+
         foreach($keys as $key) {
             if($val = $rec[$key]) {
                 $final = array();
@@ -535,8 +553,7 @@ class BOLD2iNaturalistAPI
     private function generate_info_list_tsv($project, $taxon) //e.g. $project = 'KANB'
     {
         $url = str_replace('PROJECT_CODE', $project, $this->api['BOLDS specimen']);
-        $url = str_replace('TAXON_STR', $taxon, $url);
-        
+        $url = str_replace('TAXON_STR', str_replace(' ', '_', $taxon), $url);
         $local_tsv = self::download_tsv($url, $project, $taxon);
         $i = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
@@ -568,6 +585,7 @@ class BOLD2iNaturalistAPI
     }
     private function download_tsv($form_url, $project, $taxon)
     {
+        $taxon = str_replace(' ', '_', $taxon);
         $target = $this->resources['path'].'TSVs/'.$project."_$taxon.tsv";
         $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";

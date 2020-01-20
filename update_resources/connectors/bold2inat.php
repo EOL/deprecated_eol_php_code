@@ -25,6 +25,13 @@ ini_set('memory_limit','7096M');
 require_library('connectors/BOLD2iNaturalistAPI');
 $timestart = time_elapsed();
 
+/* test
+$json = '{"access_token":"9700e251a7fe77c83efc7c6819abbe65cda07ae41f874403036d97b91c4b15b6","token_type":"Bearer","scope":"write login","created_at":1579520773}';
+$arr = json_decode($json, true);
+print_r($arr);
+exit("\n\n");
+*/
+
 $params['jenkins_or_cron']  = @$argv[1];
 $params['filename']         = @$argv[2];
 $params['form_url']         = @$argv[3];

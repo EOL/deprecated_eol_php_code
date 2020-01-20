@@ -1,13 +1,28 @@
 <?php
-print_r(@$_POST);
-
 if(isset($_POST["inat_response"])) {
     $json = $_POST["inat_response"];
-    $arr = json_decode($json);
-    print_r($arr);
+    $post_params = json_decode($json);
+    print_r($post_params);
 }
-else echo "<hr>No post params<hr>";
-// exit("\ntest\n");
+else {
+    $client_id = 'cfe0aa14b145d1b2b527e5d8076d32839db7d773748d5182308cade1c4475b38';
+    // $redirect_uri = 'https%3A%2F%2Feditors.eol.org%2Feol_php_code%2Fapplications%2FiNaturalist_OAuth2%2Fredirect.php';
+    $redirect_uri = 'https://editors.eol.org/eol_php_code/applications/iNaturalist_OAuth2/redirect.php';
+    $response_type = 'code';
+    ?>
+    <form name='fn' action="https://www.inaturalist.org/oauth/authorize?response_type=code" method="get">
+      <input type='hidden' name='client_id' value='<?php echo $client_id ?>'>
+      <input type='hidden' name='redirect_uri' value='<?php echo $redirect_uri ?>'>
+      <input type='hidden' name='response_type' value='<?php echo $response_type ?>'>
+    </form>
+    <script>
+    // document.forms.fn.submit()
+    </script>
+    <?php
+    echo "<hr><br>Tool instance not yet authorized";
+    echo "<p>Click <a href='#' onClick='document.forms.fn.submit()'>AUTHORIZE</a> to proceed.</p><hr>";
+    exit;
+}
 ?>
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
