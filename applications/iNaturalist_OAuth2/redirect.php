@@ -60,7 +60,7 @@ if($ret = curl_post_request($url, $arr)) {
     
     print "<br><b>Processing, please wait...</b><br><hr>";
     // print"<META HTTP-EQUIV='Refresh' Content='0; URL=../BOLD2iNAT/index.php?inat_json=$ret'>";
-    print"<META HTTP-EQUIV='Refresh' Content='0; URL=http://localhost/eol_php_code/applications/BOLD2iNAT/index.php?inat_json=$ret'>";
+    print"<META HTTP-EQUIV='Refresh' Content='0; URL=http://editors.eol.org/eol_php_code/applications/BOLD2iNAT/index.php?inat_json=$ret'>";
     exit;
     
     
