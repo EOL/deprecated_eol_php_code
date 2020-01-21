@@ -185,14 +185,14 @@ class BOLD2iNaturalistAPI
                     $rek['iNat_place_guess'] = $rec['exactsite'];
                     $rek['image_urls'] = self::get_image_urls($rec);
                     $count++;
-                    self::save_observation_and_images_2iNat($rek);
+                    self::save_observation_and_images_2iNat($rek, $rec);
                 }
                 // else exit("\nInvestigate: cannot get name.\n"); //Should be commented. Since there are recs now that should be excluded.
             }
         }
         echo "\nTotal records: [$count]\n";
     }
-    private function save_observation_and_images_2iNat($rek)
+    private function save_observation_and_images_2iNat($rek, $rec)
     {   echo "\nStart saving...\n";
         //step 1: save image(s) locally
         foreach($rek['image_urls'] as $url) {
@@ -202,6 +202,13 @@ class BOLD2iNaturalistAPI
         //step 2: save observation to iNat
         $observation_id = self::save_observation_2iNat($rek);
         //step 3: save image(s) to iNat
+        self::save_images_2iNat($observation_id, $rec);
+    }
+    private function save_images_2iNat($observation_id, $rec)
+    {
+        // print_r($rec); echo "\n$observation_id\n"; exit;
+        //step 1: build info
+        $info = self::build_image_info($rec);
     }
     private function save_observation_2iNat($rek)
     {   // print_r($rek); exit("\n--elix--\n");
@@ -263,19 +270,21 @@ class BOLD2iNaturalistAPI
               -d '$json' \
               https://api.inaturalist.org/v1/observations";
         $cmd .= " 2>&1";
-        echo "\n$cmd\n";
+        echo "\n$cmd\n"; //good debug
 
         // /*
         $shell_debug = shell_exec($cmd);
-        echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+        // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
         if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
         else {
             $ret = self::parse_shell_debug($shell_debug);
             if(isset($ret->error)) return false;
             if(isset($ret->id)) {
-                echo "\nSaved new record. Observation ID: ".$ret->id."\n";
-                self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
-                return $ret->id;
+                if($ret->id) {
+                    echo "\nSaved new record. Observation ID: ".$ret->id."\n";
+                    self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
+                    return $ret->id;
+                }
             }
         }
         // */
@@ -349,6 +358,26 @@ class BOLD2iNaturalistAPI
         if(stripos($shell_debug, "ERROR 404: Not Found") !== false) echo("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
         echo "\n---\n".trim($shell_debug)."\n---\n";
     }
+    private function build_image_info($rec)
+    {
+        $fields = array('image_ids', 'image_urls', 'media_descriptors', 'captions', 'copyright_holders', 'copyright_years', 'copyright_licenses', 'copyright_institutions', 'photographers');
+        foreach($fields as $fld) {
+            if($val = $rec[$fld]) {
+                $arr = explode("|", $val);
+                $arr = array_map('trim', $arr);
+                $i = -1;
+                foreach($arr as $a) { $i++;
+                    $info[$i][$fld] = $a;
+                }
+            }
+        }
+        $i = -1;
+        foreach($info as $r) { $i++;
+            // print_r($r);
+            $info[$i]['license'] = self::get_license($r['copyright_licenses']);
+        }
+        print_r($info); exit;
+    }
     private function get_image_urls($rec)
     {   /* These fields are pipe "|" delimited if there are multiple images:
         image_ids	image_urls	media_descriptors	captions	copyright_holders	copyright_years	copyright_licenses	copyright_institutions	photographers
@@ -362,7 +391,7 @@ class BOLD2iNaturalistAPI
     }
     private function get_license($str)
     {
-        if(preg_match("/\((.*?)\)/ims", $tmp, $arr)) {
+        if(preg_match("/\((.*?)\)/ims", $str, $arr)) {
             $tmp = trim(strtoupper($arr[1]));
             if($tmp) {
                 if(substr($tmp,0,3) == 'CC-') return $tmp;
