@@ -12,7 +12,7 @@ php update_resources/connectors/bold2inat.php _ _ _ _ '$json'
 php update_resources/connectors/bold2inat.php _ _ _ _ '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":"", "Taxon":"Abudefduf"}'
 
 Sample with >1 image_urls 'Sebastapistes coniorta'
-First record created: https://www.inaturalist.org/observations.json?id=37811483
+First record created: https://www.inaturalist.org/observations.json?id=37814858
 {"id":37811483,"site_id":1,"created_at":"2020-01-21T00:28:38-10:00","created_at_details":{"date":"2020-01-21","day":21,"month":1,"year":2020,"hour":0,"week":4},...
 */
 
