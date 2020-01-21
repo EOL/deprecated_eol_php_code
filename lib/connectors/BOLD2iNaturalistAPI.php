@@ -185,24 +185,23 @@ class BOLD2iNaturalistAPI
                     $rek['iNat_place_guess'] = $rec['exactsite'];
                     $rek['image_urls'] = self::get_image_urls($rec);
                     $count++;
-                    $rek = self::save_observation_image_2iNat($rek);
-                    print_r($rek); //exit;
+                    self::save_observation_and_images_2iNat($rek);
                 }
                 // else exit("\nInvestigate: cannot get name.\n"); //Should be commented. Since there are recs now that should be excluded.
             }
         }
         echo "\nTotal records: [$count]\n";
     }
-    private function save_observation_image_2iNat($rek)
+    private function save_observation_and_images_2iNat($rek)
     {   echo "\nStart saving...\n";
         //step 1: save image(s) locally
         foreach($rek['image_urls'] as $url) {
             $rek['local_paths'][] = self::save_image_to_local($url);
         }
+        print_r($rek); //exit;
         //step 2: save observation to iNat
-        self::save_observation_2iNat($rek);
+        $observation_id = self::save_observation_2iNat($rek);
         //step 3: save image(s) to iNat
-        return $rek;
     }
     private function save_observation_2iNat($rek)
     {   // print_r($rek); exit("\n--elix--\n");
@@ -239,30 +238,85 @@ class BOLD2iNaturalistAPI
         observation[geoprivacy]=obscured&
         observation[observation_field_values_attributes][0][observation_field_id]=
         */
-        $arr['observation'] = array(
+        $input_arr['observation'] = array(
             'species_guess' => $rek['sciname'],
             'taxon_id' => $rek['iNat_taxonID'],
             'description' => $rek['iNat_desc'],
             'latitude' => $rek['coordinates']['lat'],
             'longitude' => $rek['coordinates']['lon'],
-            'place_guess' => $rek['iNat_place_guess']
-        );
-        $json = json_encode($arr);
+            'place_guess' => $rek['iNat_place_guess']);
+        
+        /* Check if observation was already added in iNat */
+        $observation_local_id = md5(json_encode($input_arr));
+        echo "\nobservation_local_id: [$observation_local_id]";
+        if($iNat_observation_id = self::observation_already_saved_in_iNat($observation_local_id)) {
+            echo " --> already saved in iNat\n";
+            return $iNat_observation_id;
+        }
+        else echo " --> new, proceed saving to iNat...\n";
+        /* Start adding observation via API */
+        $json = json_encode($input_arr);
         $YOUR_JWT = $this->manual_entry->JWT;
         $token_type = $this->manual_entry->token_type;
         $cmd = "curl --verbose \
               --header 'Authorization: $token_type $YOUR_JWT' \
               -d '$json' \
               https://api.inaturalist.org/v1/observations";
-        
         $cmd .= " 2>&1";
         echo "\n$cmd\n";
 
-        // /*
+        self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
+
+        /*
         $shell_debug = shell_exec($cmd);
-        // if(stripos($shell_debug, "ERROR 404: Not Found") !== false) echo("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
-        echo "\n---\n".trim($shell_debug)."\n---\n";
-        // */
+        echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+        if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
+        else {
+            $ret = self::parse_shell_debug($shell_debug);
+            if(isset($ret->error)) return false;
+            if(isset($ret->id)) {
+                echo "\nObservation ID: ".$ret->id."\n";
+                self::flag_local_sys_this_observation_is_saved_in_iNat($ret->id, $observation_local_id);
+                return $ret->id;
+            }
+        }
+        */
+    }
+    private function parse_shell_debug($str)
+    {
+        // the last row before the json api output:
+        // * Connection #0 to host api.inaturalist.org left intact
+        if(preg_match("/left intact(.*?)xxx/ims", $str.'xxx', $arr)) {
+            $json = trim($arr[1]);
+            $arr = json_decode($json);
+            // print_r($arr);
+            return $arr;
+        }
+    }
+    private function flag_local_sys_this_observation_was_saved_in_iNat($iNat_observ_id, $observation_id)
+    {
+        $path = self::build_path($observation_id);
+        if(file_exists($path)) {
+        }
+        else exit("\nInvestigate went here [$iNat_observ_id] [$observation_id]\n");
+    }
+    private function observation_already_saved_in_iNat($observation_id)
+    {
+        $path = self::build_path($observation_id);
+        if(file_exists($path)) {
+            $iNat_observation_id = trim(file_get_contents($path));
+            return $iNat_observation_id;
+        }
+        return false;
+    }
+    private function build_path($id)
+    {
+        $options['cache_path'] = $this->path['image_folder'];
+        $filename = "$id.txt";
+        $md5 = $id;
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        return $options['cache_path'] . "$cache1/$cache2/$filename";
     }
     private function save_image_to_local($url)
     {
