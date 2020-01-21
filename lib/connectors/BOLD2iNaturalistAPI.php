@@ -274,7 +274,7 @@ class BOLD2iNaturalistAPI
             if(isset($ret->error)) return false;
             if(isset($ret->id)) {
                 echo "\nSaved new record. Observation ID: ".$ret->id."\n";
-                self::flag_local_sys_this_observation_is_saved_in_iNat($ret->id, $observation_local_id);
+                self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
                 return $ret->id;
             }
         }
@@ -306,6 +306,7 @@ class BOLD2iNaturalistAPI
     private function observation_already_saved_in_iNat($observation_id)
     {
         $path = self::build_path($observation_id);
+        echo "\ndebug: $path\n"; //debug only
         if(file_exists($path)) {
             $iNat_observation_id = trim(file_get_contents($path));
             return $iNat_observation_id;
