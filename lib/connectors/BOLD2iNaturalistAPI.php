@@ -202,13 +202,75 @@ class BOLD2iNaturalistAPI
         //step 2: save observation to iNat
         $observation_id = self::save_observation_2iNat($rek);
         //step 3: save image(s) to iNat
-        self::save_images_2iNat($observation_id, $rec);
+        self::save_images_2iNat($observation_id, $rec, $rek);
     }
-    private function save_images_2iNat($observation_id, $rec)
+    private function save_images_2iNat($observation_id, $rec, $rek)
     {
         // print_r($rec); echo "\n$observation_id\n"; exit;
         //step 1: build info
-        $info = self::build_image_info($rec);
+        $info = self::build_image_info($rec, $rek['local_paths']);
+        //step 2: save image(s)
+        self::upload_images_2iNat($observation_id, $info);
+    }
+    private function upload_images_2iNat($observation_id, $info)
+    {   //print_r($info); exit("\n--[$observation_id]--\n");
+        /*Array(
+            [0] => Array(
+                    [image_ids] => 3206817
+                    [image_urls] => http://www.boldsystems.org/pics/KANB/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
+                    [media_descriptors] => Lateral
+                    [captions] => USNM 442246 photograph lateral view
+                    [copyright_years] => 2017
+                    [copyright_licenses] => CreativeCommons � Attribution Non-Commercial (by-nc)
+                    [copyright_institutions] => Smithsonian Institution National Museum of Natural History
+                    [photographers] => Diane E. Pitassy
+                    [license] => CC-BY-NC
+                    [local_path] => /Volumes/AKiTiO4/other_files/MarineGeo/Bold2iNat/0c/ac/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
+                )
+        )*/
+        foreach($info as $r) {
+            /*curl --verbose \
+              --header 'Authorization: YOUR_JWT' \
+              -F observation_photo[observation_id]=OBSERVATION_ID \
+              -F file=@/path/to/local/photo.jpg \
+              https://api.inaturalist.org/v1/observation_photos
+            */
+            
+            /* Start adding observation via API */
+            $YOUR_JWT = $this->manual_entry->JWT;
+            $token_type = $this->manual_entry->token_type;
+
+            /* caused 'server internal error'
+            -F observation_photo[uuid]=$r[uuid] \
+            */
+
+            $cmd = "curl --verbose \
+                --header 'Authorization: $token_type $YOUR_JWT' \
+                -F observation_photo[observation_id]=$observation_id \
+                -F file=@$r[local_path] \
+                https://api.inaturalist.org/v1/observation_photos";
+
+            $cmd .= " 2>&1";
+            echo "\n$cmd\n"; //good debug
+            
+            // /*
+            $shell_debug = shell_exec($cmd);
+            echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+            if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
+            else {
+                $ret = self::parse_shell_debug($shell_debug);
+                if(isset($ret->error)) return false;
+                if(isset($ret->id)) {
+                    if($ret->id) {
+                        echo "\nSaved new record. Photo ID: ".$ret->id."\n";
+                        // self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
+                        return $ret->id;
+                    }
+                }
+            }
+            // */
+            
+        }
     }
     private function save_observation_2iNat($rek)
     {   // print_r($rek); exit("\n--elix--\n");
@@ -296,7 +358,7 @@ class BOLD2iNaturalistAPI
         if(preg_match("/left intact(.*?)xxx/ims", $str.'xxx', $arr)) {
             $json = trim($arr[1]);
             $arr = json_decode($json);
-            // print_r($arr);
+            print_r($arr);
             return $arr;
         }
     }
@@ -358,7 +420,7 @@ class BOLD2iNaturalistAPI
         if(stripos($shell_debug, "ERROR 404: Not Found") !== false) echo("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
         echo "\n---\n".trim($shell_debug)."\n---\n";
     }
-    private function build_image_info($rec)
+    private function build_image_info($rec, $local_paths)
     {
         $fields = array('image_ids', 'image_urls', 'media_descriptors', 'captions', 'copyright_holders', 'copyright_years', 'copyright_licenses', 'copyright_institutions', 'photographers');
         foreach($fields as $fld) {
@@ -373,10 +435,12 @@ class BOLD2iNaturalistAPI
         }
         $i = -1;
         foreach($info as $r) { $i++;
-            // print_r($r);
             $info[$i]['license'] = self::get_license($r['copyright_licenses']);
+            $info[$i]['local_path'] = $local_paths[$i];
+            $info[$i]['uuid'] = $this->manual_entry->Proj."_".$r['image_ids'];
         }
-        print_r($info); exit;
+        // print_r($info); exit;
+        return $info;
     }
     private function get_image_urls($rec)
     {   /* These fields are pipe "|" delimited if there are multiple images:

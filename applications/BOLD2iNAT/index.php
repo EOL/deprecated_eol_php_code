@@ -1,4 +1,5 @@
 <?php
+exit("\nUnder construction...\n");
 if(isset($_POST["inat_response"])) {
     $json = $_POST["inat_response"];
     $post_params = json_decode($json);
