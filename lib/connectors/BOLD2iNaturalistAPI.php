@@ -194,10 +194,12 @@ class BOLD2iNaturalistAPI
     }
     private function save_observation_image_2iNat($rek)
     {   echo "\nStart saving...\n";
-        //step 1: save images locally
+        //step 1: save image(s) locally
         foreach($rek['image_urls'] as $url) {
-            $rek['local_paths'] = self::save_image_to_local($url);
+            $rek['local_paths'][] = self::save_image_to_local($url);
         }
+        //step 2: save observation to iNat
+        //step 3: save image(s) to iNat
         return $rek;
     }
     private function save_image_to_local($url)
