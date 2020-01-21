@@ -250,7 +250,7 @@ class BOLD2iNaturalistAPI
         $observation_local_id = md5(json_encode($input_arr));
         echo "\nobservation_local_id: [$observation_local_id]";
         if($iNat_observation_id = self::observation_already_saved_in_iNat($observation_local_id)) {
-            echo " --> already saved in iNat\n";
+            echo " --> already saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
             return $iNat_observation_id;
         }
         else echo " --> new, proceed saving to iNat...\n";
@@ -265,9 +265,7 @@ class BOLD2iNaturalistAPI
         $cmd .= " 2>&1";
         echo "\n$cmd\n";
 
-        self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
-
-        /*
+        // /*
         $shell_debug = shell_exec($cmd);
         echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
         if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
@@ -275,12 +273,12 @@ class BOLD2iNaturalistAPI
             $ret = self::parse_shell_debug($shell_debug);
             if(isset($ret->error)) return false;
             if(isset($ret->id)) {
-                echo "\nObservation ID: ".$ret->id."\n";
+                echo "\nSaved new record. Observation ID: ".$ret->id."\n";
                 self::flag_local_sys_this_observation_is_saved_in_iNat($ret->id, $observation_local_id);
                 return $ret->id;
             }
         }
-        */
+        // */
     }
     private function parse_shell_debug($str)
     {
@@ -293,10 +291,15 @@ class BOLD2iNaturalistAPI
             return $arr;
         }
     }
-    private function flag_local_sys_this_observation_was_saved_in_iNat($iNat_observ_id, $observation_id)
+    private function flag_local_sys_this_observation_was_saved_in_iNat($iNat_observ_id, $local_observation_id)
     {
-        $path = self::build_path($observation_id);
-        if(file_exists($path)) {
+        $path = self::build_path($local_observation_id);
+        if(!file_exists($path)) { //should not exist at this point
+            if($FILE = Functions::file_open($path, 'w')) {
+                fwrite($FILE, $iNat_observ_id);
+                fclose($FILE);
+                echo "\nLocal sys flagged: [$path]\n";
+            }
         }
         else exit("\nInvestigate went here [$iNat_observ_id] [$observation_id]\n");
     }
@@ -316,6 +319,8 @@ class BOLD2iNaturalistAPI
         $md5 = $id;
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
+        if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
+        if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         return $options['cache_path'] . "$cache1/$cache2/$filename";
     }
     private function save_image_to_local($url)
