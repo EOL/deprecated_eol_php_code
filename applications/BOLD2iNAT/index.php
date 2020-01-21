@@ -25,12 +25,13 @@ else {
     </script>
     <?php
     echo "<hr><br>Tool instance not yet authorized";
-    echo "<p>Click <a href='#' onClick='document.forms.fn.submit()'>AUTHORIZE</a> to proceed.</p><hr>";
+    echo "<p>Click <a href='#' onClick='document.forms.fn.submit()'>AUTHORIZE</a>  to proceed.</p><hr>";
     exit;
 }
 ?>
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <input type='text' name='JWT' value='<?php echo $post_params->access_token ?>'>
+    <input type='text' name='token_type' value='<?php echo $post_params->token_type ?>'>
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
             <td>BOLD-to-iNat Tool

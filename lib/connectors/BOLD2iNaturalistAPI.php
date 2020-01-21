@@ -63,7 +63,7 @@ class BOLD2iNaturalistAPI
         if($this->app == 'bold2inat') {
             if($json) {
                 $this->manual_entry = json_decode($json); //for specimen_image_export
-                // print_r($this->manual_entry); exit;
+                // print_r($this->manual_entry); exit("\n-end 1-\n");
                 if($recs_count = self::generate_info_list_tsv($this->manual_entry->Proj, $this->manual_entry->Taxon)) {
                     echo "\nTSV file total rows: $recs_count\n";
                     self::process_project_tsv_file($this->manual_entry->Proj, $this->manual_entry->Taxon); //main loop for the TSV file
@@ -182,6 +182,7 @@ class BOLD2iNaturalistAPI
                     $rek['iNat_taxonID'] = self::get_iNat_taxonID($rek);
                     $rek['iNat_desc'] = self::get_iNat_desc($rec);
                     $rek['coordinates'] = self::get_coordinates($rec);
+                    $rek['iNat_place_guess'] = $rec['exactsite'];
                     $rek['image_urls'] = self::get_image_urls($rec);
                     $count++;
                     $rek = self::save_observation_image_2iNat($rek);
@@ -199,8 +200,69 @@ class BOLD2iNaturalistAPI
             $rek['local_paths'][] = self::save_image_to_local($url);
         }
         //step 2: save observation to iNat
+        self::save_observation_2iNat($rek);
         //step 3: save image(s) to iNat
         return $rek;
+    }
+    private function save_observation_2iNat($rek)
+    {   // print_r($rek); exit("\n--elix--\n");
+        /*Array(
+            [sciname] => Lutjanus fulvus
+            [rank] => species
+            [iNat_taxonID] => 121459
+            [iNat_desc] => Hawaii, Oahu, Kaneohe Bay, He`eia fish pond. Collected between 0-3 meters. Identified by: Zeehan Jaafar.
+            [coordinates] => Array(
+                    [lat] => 21.4372
+                    [lon] => -157.806
+                )
+            [image_urls] => Array(
+                    [0] => http://www.boldsystems.org/pics/KANB/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
+                )
+            [local_paths] => Array(
+                    [0] => /Volumes/AKiTiO4/other_files/MarineGeo/Bold2iNat/0c/ac/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
+                )
+        )*/
+        /* from Ken-ichi:
+        curl --verbose \
+          --header 'Authorization: YOUR_JWT' \
+          -d '{"observation": {"description": "test observation"}}' \
+          https://api.inaturalist.org/v1/observations
+        */
+        /* other fields from iNat, not used atm.
+        observation[observed_on_string]=2013-01-03&
+        observation[time_zone]=Eastern+Time+(US+%26+Canada)&
+        observation[tag_list]=foo,bar&
+        observation[place_guess]=clinton,+ct&
+        observation[map_scale]=11&
+        observation[location_is_exact]=false&
+        observation[positional_accuracy]=7798&
+        observation[geoprivacy]=obscured&
+        observation[observation_field_values_attributes][0][observation_field_id]=
+        */
+        $arr['observation'] = array(
+            'species_guess' => $rek['sciname'],
+            'taxon_id' => $rek['iNat_taxonID'],
+            'description' => $rek['iNat_desc'],
+            'latitude' => $rek['coordinates']['lat'],
+            'longitude' => $rek['coordinates']['lon'],
+            'place_guess' => $rek['iNat_place_guess']
+        );
+        $json = json_encode($arr);
+        $YOUR_JWT = $this->manual_entry->JWT;
+        $token_type = $this->manual_entry->token_type;
+        $cmd = "curl --verbose \
+              --header 'Authorization: $token_type $YOUR_JWT' \
+              -d '$json' \
+              https://api.inaturalist.org/v1/observations";
+        
+        $cmd .= " 2>&1";
+        echo "\n$cmd\n";
+
+        // /*
+        $shell_debug = shell_exec($cmd);
+        // if(stripos($shell_debug, "ERROR 404: Not Found") !== false) echo("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
+        echo "\n---\n".trim($shell_debug)."\n---\n";
+        // */
     }
     private function save_image_to_local($url)
     {
@@ -228,12 +290,24 @@ class BOLD2iNaturalistAPI
         echo "\n---\n".trim($shell_debug)."\n---\n";
     }
     private function get_image_urls($rec)
-    {
+    {   /* These fields are pipe "|" delimited if there are multiple images:
+        image_ids	image_urls	media_descriptors	captions	copyright_holders	copyright_years	copyright_licenses	copyright_institutions	photographers
+        */
         if($val = $rec['image_urls']) {
             $arr = explode("|", $val);
             $arr = array_map('trim', $arr);
             // print_r($arr);
             return $arr;
+        }
+    }
+    private function get_license($str)
+    {
+        if(preg_match("/\((.*?)\)/ims", $tmp, $arr)) {
+            $tmp = trim(strtoupper($arr[1]));
+            if($tmp) {
+                if(substr($tmp,0,3) == 'CC-') return $tmp;
+                else                          return 'CC-'.$tmp;
+            }
         }
     }
     private function get_coordinates($rec)
