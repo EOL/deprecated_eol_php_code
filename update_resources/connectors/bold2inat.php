@@ -11,6 +11,7 @@ php update_resources/connectors/bold2inat.php _ _ 'https://github.com/eliagbayan
 php update_resources/connectors/bold2inat.php _ _ _ _ '$json'
 php update_resources/connectors/bold2inat.php _ _ _ _ '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":"", "Taxon":"Abudefduf"}'
 
+Sample with >1 image_urls 'Sebastapistes coniorta'
 */
 
 // print_r(pathinfo('http://www.boldsystems.org/index.php/API_Public/specimen?container=KANB&format=tsv')); exit;
@@ -26,9 +27,12 @@ require_library('connectors/BOLD2iNaturalistAPI');
 $timestart = time_elapsed();
 
 /* test
-$json = '{"access_token":"9700e251a7fe77c83efc7c6819abbe65cda07ae41f874403036d97b91c4b15b6","token_type":"Bearer","scope":"write login","created_at":1579520773}';
-$arr = json_decode($json, true);
-print_r($arr);
+// $json = '{"access_token":"9700e251a7fe77c83efc7c6819abbe65cda07ae41f874403036d97b91c4b15b6","token_type":"Bearer","scope":"write login","created_at":1579520773}';
+// $arr = json_decode($json, true);
+// print_r($arr);
+$url = 'http://www.boldsystems.org/pics/KANB/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG';
+print_r(pathinfo($url));
+echo "\n".pathinfo($url, PATHINFO_BASENAME)."\n";
 exit("\n\n");
 */
 

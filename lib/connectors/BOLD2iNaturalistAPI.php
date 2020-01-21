@@ -47,6 +47,14 @@ class BOLD2iNaturalistAPI
             $this->dept_map['PALEOBIOLOGY'] = 'paleo';
             
             $this->inat_service['taxa'] = 'https://api.inaturalist.org/v1/taxa?q=NAME_STR&rank=RANK_STR';
+            
+            //create working folders
+            if(Functions::is_production()) $path = "/extra/other_files/MarineGeo/";
+            else                           $path = "/Volumes/AKiTiO4/other_files/MarineGeo/";
+            if(!is_dir($path)) mkdir($path);
+            $path = $path."Bold2iNat/";
+            if(!is_dir($path)) mkdir($path);
+            $this->path['image_folder'] = $path;
         }
         /* ============================= END for bold2inat ============================= */
     }
@@ -174,13 +182,57 @@ class BOLD2iNaturalistAPI
                     $rek['iNat_taxonID'] = self::get_iNat_taxonID($rek);
                     $rek['iNat_desc'] = self::get_iNat_desc($rec);
                     $rek['coordinates'] = self::get_coordinates($rec);
-                    print_r($rek); //exit;
+                    $rek['image_urls'] = self::get_image_urls($rec);
                     $count++;
+                    $rek = self::save_observation_image_2iNat($rek);
+                    print_r($rek); //exit;
                 }
                 // else exit("\nInvestigate: cannot get name.\n"); //Should be commented. Since there are recs now that should be excluded.
             }
         }
         echo "\nTotal records: [$count]\n";
+    }
+    private function save_observation_image_2iNat($rek)
+    {   echo "\nStart saving...\n";
+        //step 1: save images locally
+        foreach($rek['image_urls'] as $url) {
+            $rek['local_paths'] = self::save_image_to_local($url);
+        }
+        return $rek;
+    }
+    private function save_image_to_local($url)
+    {
+        $options['cache_path'] = $this->path['image_folder'];
+        $filename = pathinfo($url, PATHINFO_BASENAME);
+        $md5 = md5($filename);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
+        if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
+        $cache_path = $options['cache_path'] . "$cache1/$cache2/$filename";
+        if(file_exists($cache_path)) echo("\nFile already exists\n");
+        else {
+            echo("\nCreating file\n");
+            self::save_image($url, $cache_path);
+        }
+        return $cache_path;
+    }
+    private function save_image($url, $target)
+    {   //wget -nc http://www.boldsystems.org/pics/KANB/USNM_442211_photograph_KB17_037_155mmSL_LRP_17_07+1507842962.JPG -O /Volumes/AKiTiO4/other_files/xxx/file.ext
+        $cmd = WGET_PATH . " $url -O ".$target; //wget -nc --> means 'no overwrite'
+        $cmd .= " 2>&1";
+        $shell_debug = shell_exec($cmd);
+        if(stripos($shell_debug, "ERROR 404: Not Found") !== false) echo("\n<i>URL path does not exist.\n$url</i>\n\n"); //string is found
+        echo "\n---\n".trim($shell_debug)."\n---\n";
+    }
+    private function get_image_urls($rec)
+    {
+        if($val = $rec['image_urls']) {
+            $arr = explode("|", $val);
+            $arr = array_map('trim', $arr);
+            // print_r($arr);
+            return $arr;
+        }
     }
     private function get_coordinates($rec)
     {
@@ -579,7 +631,6 @@ class BOLD2iNaturalistAPI
         $k = self::show_total_rows($local_tsv);
         $k = $k - 1; //don't count the headers
         echo "\ntotal k: [$k]\n";
-        
         $i = $i - 1 - 1;
         return $i;
     }

@@ -40,7 +40,7 @@ $dept_map['birds'] = 'BIRDS';
 $dept_map['botany'] = 'BOTANY';
 $dept_map['paleo'] = 'PALEOBIOLOGY';
 
-$json = '{"Proj":"'.$form['Proj'].'", "Taxon":"'.$form['Taxon'].'", "Dept":"'.$dept_map[$form['Dept']].'", "Lic":"'.$form['Lic'].'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
+$json = '{"JWT":"'.$form['JWT'].'", "Proj":"'.$form['Proj'].'", "Taxon":"'.$form['Taxon'].'", "Dept":"'.$dept_map[$form['Dept']].'", "Lic":"'.$form['Lic'].'", "Lic_yr":"'.$form['Lic_yr'].'", "Lic_inst":"'.$form['Lic_inst'].'", "Lic_cont":"'.$form['Lic_cont'].'"}';
 $params['json'] = $json;
 
    $params['destination'] = $for_DOC_ROOT . "/applications/specimen_image_export/" . $newfile;

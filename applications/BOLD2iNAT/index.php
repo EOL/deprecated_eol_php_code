@@ -3,6 +3,11 @@ if(isset($_POST["inat_response"])) {
     $json = $_POST["inat_response"];
     $post_params = json_decode($json);
     print_r($post_params);
+    /*stdClass Object ( [access_token] => 1019173383d3203b03880573618827659203eac68c46dcba4eb48b5d33d47151 
+    [token_type] => Bearer 
+    [scope] => write login 
+    [created_at] => 1579587745 )
+    */
 }
 else {
     $client_id = 'cfe0aa14b145d1b2b527e5d8076d32839db7d773748d5182308cade1c4475b38';
@@ -25,6 +30,7 @@ else {
 }
 ?>
 <form action="form_result.php" method="post" enctype="multipart/form-data">
+    <input type='text' name='JWT' value='<?php echo $post_params->access_token ?>'>
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
             <td>BOLD-to-iNat Tool
