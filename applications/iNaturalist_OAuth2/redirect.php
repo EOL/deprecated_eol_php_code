@@ -1,20 +1,20 @@
 <?php
 echo '<pre>';
 if($_GET) {
-    echo "\nGet:\n";
-    print_r($_GET);
+    // echo "\nGet:\n";
+    // print_r($_GET);
     $auth_code = $_GET['code'];
 }
 elseif($_POST) {
-    echo "\nPost:\n";
-    print_r($_POST);
+    // echo "\nPost:\n";
+    // print_r($_POST);
 }
 
 if(!isset($auth_code)) {
     echo "\nNo auth_code yet.\n";
     return;
 }
-echo "\nauth_code generated is: [$auth_code]\n";
+// echo "\nauth_code generated is: [$auth_code]\n";
 
 $site = "https://www.inaturalist.org";
 $app_id = 'cfe0aa14b145d1b2b527e5d8076d32839db7d773748d5182308cade1c4475b38';
@@ -41,8 +41,8 @@ $arr['redirect_uri'] = $redirect_uri;
 $arr['grant_type'] = 'authorization_code';
 
 if($ret = curl_post_request($url, $arr)) {
-    echo "\n<br>POST ok<br>\n";
-    print_r($ret);
+    // echo "\n<br>POST ok<br>\n";
+    // print_r($ret);
     /* # response will be a chunk of JSON looking like
     # {
     #   "access_token":"xxx",
@@ -59,6 +59,7 @@ if($ret = curl_post_request($url, $arr)) {
     */
 
     ?>
+    Please wait, loading ...
     <form name='fn' action="http://localhost/eol_php_code/applications/BOLD2iNAT/index.php" method="post">
       <input type='text' name='inat_response' value='<?php echo $ret ?>'>
       <input type='submit'>

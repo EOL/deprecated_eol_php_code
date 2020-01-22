@@ -12,6 +12,7 @@ php update_resources/connectors/bold2inat.php _ _ _ _ '$json'
 php update_resources/connectors/bold2inat.php _ _ _ _ '{"Proj":"KANB", "Dept":"FISH", "Lic":"CreativeCommons – Attribution Non-Commercial (by-nc)", "Lic_yr":"", "Lic_inst":"", "Lic_cont":"", "Taxon":"Abudefduf"}'
 
 Sample with >1 image_urls 'Sebastapistes coniorta'
+Sample with 2 observations 'Abudefduf sordidus'
 
 First record created: https://www.inaturalist.org/observations.json?id=37814858
 */

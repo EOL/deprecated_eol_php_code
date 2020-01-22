@@ -18,7 +18,7 @@ elseif($ctrler->is_build_currently_running($build_status)) {
     // return;
 }
 else {
-    echo "<pre>"; print_r($params); echo "</pre><hr>elix"; //good debug
+    // echo "<pre>"; print_r($params); echo "</pre><hr>elix"; //good debug
     /* Array(  [task] => xls2dwca_job_1
                [uuid] => 1574952226
                [destination] => /Library/WebServer/Documents/eol_php_code//applications/specimen_image_export/temp/1574952226.xls
