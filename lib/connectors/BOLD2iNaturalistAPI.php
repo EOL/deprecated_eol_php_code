@@ -247,6 +247,7 @@ class BOLD2iNaturalistAPI
             if($iNat_photo_id = self::item_already_saved_in_iNat($photo_local_id)) {
                 echo " --> Photo already saved in iNat. iNat Photo ID:[$iNat_photo_id]\n";
                 /* return $iNat_photo_id; */ //Fatal to do a return here. It will break the loop.
+                continue;
             }
             else echo " --> New photo, proceed saving to iNat...\n";
             
@@ -279,6 +280,7 @@ class BOLD2iNaturalistAPI
                         echo "\nSaved new photo. Photo ID: ".$ret->id."\n";
                         self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $photo_local_id);
                         /* return $ret->id; */ //Fatal to do a return here. It will break the loop.
+                        continue;
                     }
                 }
             }
