@@ -1,14 +1,21 @@
 <?php
+session_start();
 exit("\nUnder construction...\n");
 if(isset($_POST["inat_response"])) {
     $json = $_POST["inat_response"];
+    $_SESSION["inat_response"] = $json;
     $post_params = json_decode($json);
-    print_r($post_params);
+    // print_r($post_params); echo " -- Used Post."; //good debug
     /*stdClass Object ( [access_token] => 1019173383d3203b03880573618827659203eac68c46dcba4eb48b5d33d47151 
     [token_type] => Bearer 
     [scope] => write login 
     [created_at] => 1579587745 )
     */
+}
+elseif(isset($_SESSION["inat_response"])) {
+    $json = $_SESSION["inat_response"];
+    $post_params = json_decode($json);
+    // print_r($post_params); echo " -- Used Session."; //good debug
 }
 else {
     $client_id = 'cfe0aa14b145d1b2b527e5d8076d32839db7d773748d5182308cade1c4475b38';
@@ -25,18 +32,20 @@ else {
     // document.forms.fn.submit()
     </script>
     <?php
-    echo "<hr><br>Tool instance not yet authorized";
+    echo "<hr><br><b>'BOLD-to-iNat Tool'</b> is not yet authorized by iNaturalist.";
     echo "<p>Click <a href='#' onClick='document.forms.fn.submit()'>AUTHORIZE</a>  to proceed.</p><hr>";
     exit;
 }
 ?>
 <form action="form_result.php" method="post" enctype="multipart/form-data">
-    <input type='text' name='JWT' value='<?php echo $post_params->access_token ?>'>
-    <input type='text' name='token_type' value='<?php echo $post_params->token_type ?>'>
+    <input type='hidden' name='JWT' value='<?php echo $post_params->access_token ?>'>
+    <input type='hidden' name='token_type' value='<?php echo $post_params->token_type ?>'>
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
             <td>BOLD-to-iNat Tool
-            <small><br><a href='https://eol-jira.bibalex.org/browse/COLLAB-1004?focusedCommentId=64212&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64212'>(work in progress)</a></small>
+            <small><br>
+                <a href='https://xxx'></a>
+            </small>
             </td>
         </tr>
         <!---
