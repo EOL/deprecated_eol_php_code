@@ -54,6 +54,11 @@ $arr = json_decode($str, true);
 print_r($arr);
 exit("\n\n");
 */
+/* test
+$a['id'] = 'abc';
+echo "\n".json_encode($a)."\n";
+exit("\n\n");
+*/
 
 $params['jenkins_or_cron']  = @$argv[1];
 $params['filename']         = @$argv[2];
