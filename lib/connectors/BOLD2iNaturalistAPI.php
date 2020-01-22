@@ -265,11 +265,11 @@ class BOLD2iNaturalistAPI
                 https://api.inaturalist.org/v1/observation_photos";
 
             $cmd .= " 2>&1";
-            echo "\n$cmd\n"; //good debug
+            // echo "\n$cmd\n"; //good debug
             
             // /*
             $shell_debug = shell_exec($cmd);
-            echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+            // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
             if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
             else {
                 $ret = self::parse_shell_debug($shell_debug);
@@ -278,7 +278,7 @@ class BOLD2iNaturalistAPI
                     if($ret->id) {
                         echo "\nSaved new photo. Photo ID: ".$ret->id."\n";
                         self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $photo_local_id);
-                        return $ret->id;
+                        /* return $ret->id; */ //Fatal to do a return here. It will break the loop.
                     }
                 }
             }
@@ -346,7 +346,7 @@ class BOLD2iNaturalistAPI
               -d '$json' \
               https://api.inaturalist.org/v1/observations";
         $cmd .= " 2>&1";
-        echo "\n$cmd\n"; //good debug
+        // echo "\n$cmd\n"; //good debug
 
         // /*
         $shell_debug = shell_exec($cmd);
@@ -372,7 +372,7 @@ class BOLD2iNaturalistAPI
         if(preg_match("/left intact(.*?)xxx/ims", $str.'xxx', $arr)) {
             $json = trim($arr[1]);
             $arr = json_decode($json);
-            print_r($arr);
+            // print_r($arr);
             return $arr;
         }
     }
