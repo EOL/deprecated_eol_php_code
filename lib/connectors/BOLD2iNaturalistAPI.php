@@ -236,7 +236,21 @@ class BOLD2iNaturalistAPI
               https://api.inaturalist.org/v1/observation_photos
             */
             
-            /* Start adding observation via API */
+            $id_arr = array();
+            $id_arr['observation_id'] = $observation_id;
+            $id_arr['image_id'] = $r['image_ids'];
+            $id_arr['image_url'] = $r['image_urls'];
+            
+            /* Check if photo was already added in iNat */
+            $photo_local_id = md5(json_encode($id_arr));
+            echo "\nphoto_local_id: [$photo_local_id]";
+            if($iNat_photo_id = self::item_already_saved_in_iNat($photo_local_id)) {
+                echo " --> Photo already saved in iNat. iNat Photo ID:[$iNat_photo_id]\n";
+                return $iNat_photo_id;
+            }
+            else echo " --> New photo, proceed saving to iNat...\n";
+            
+            /* Start adding photo via API */
             $YOUR_JWT = $this->manual_entry->JWT;
             $token_type = $this->manual_entry->token_type;
 
@@ -262,8 +276,8 @@ class BOLD2iNaturalistAPI
                 if(isset($ret->error)) return false;
                 if(isset($ret->id)) {
                     if($ret->id) {
-                        echo "\nSaved new record. Photo ID: ".$ret->id."\n";
-                        // self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
+                        echo "\nSaved new photo. Photo ID: ".$ret->id."\n";
+                        self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $photo_local_id);
                         return $ret->id;
                     }
                 }
@@ -318,11 +332,11 @@ class BOLD2iNaturalistAPI
         /* Check if observation was already added in iNat */
         $observation_local_id = md5(json_encode($input_arr));
         echo "\nobservation_local_id: [$observation_local_id]";
-        if($iNat_observation_id = self::observation_already_saved_in_iNat($observation_local_id)) {
-            echo " --> already saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
+        if($iNat_observation_id = self::item_already_saved_in_iNat($observation_local_id)) {
+            echo " --> Observation already saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
             return $iNat_observation_id;
         }
-        else echo " --> new, proceed saving to iNat...\n";
+        else echo " --> New observation, proceed saving to iNat...\n";
         /* Start adding observation via API */
         $json = json_encode($input_arr);
         $YOUR_JWT = $this->manual_entry->JWT;
@@ -344,7 +358,7 @@ class BOLD2iNaturalistAPI
             if(isset($ret->id)) {
                 if($ret->id) {
                     echo "\nSaved new record. Observation ID: ".$ret->id."\n";
-                    self::flag_local_sys_this_observation_was_saved_in_iNat($ret->id, $observation_local_id);
+                    self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $observation_local_id);
                     return $ret->id;
                 }
             }
@@ -362,27 +376,29 @@ class BOLD2iNaturalistAPI
             return $arr;
         }
     }
-    private function flag_local_sys_this_observation_was_saved_in_iNat($iNat_observ_id, $local_observation_id)
+    private function flag_local_sys_this_item_was_saved_in_iNat($iNat_item_id, $local_item_id)
     {
-        $path = self::build_path($local_observation_id);
+        $path = self::build_path($local_item_id);
         if(!file_exists($path)) { //should not exist at this point
             if($FILE = Functions::file_open($path, 'w')) {
-                fwrite($FILE, $iNat_observ_id);
+                fwrite($FILE, $iNat_item_id);
                 fclose($FILE);
                 echo "\nLocal sys flagged: [$path]\n";
             }
         }
-        else exit("\nInvestigate went here [$iNat_observ_id] [$observation_id]\n");
+        else exit("\nInvestigate went here [$iNat_item_id] [$local_item_id]\n");
+        // $iNat_observ_id, $local_observation_id
     }
-    private function observation_already_saved_in_iNat($observation_id)
+    private function item_already_saved_in_iNat($item_id)
     {
-        $path = self::build_path($observation_id);
+        $path = self::build_path($item_id);
         echo "\ndebug: $path\n"; //debug only
         if(file_exists($path)) {
-            $iNat_observation_id = trim(file_get_contents($path));
-            return $iNat_observation_id;
+            $iNat_item_id = trim(file_get_contents($path));
+            return $iNat_item_id;
         }
         return false;
+        // $observation_id
     }
     private function build_path($id)
     {
