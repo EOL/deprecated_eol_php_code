@@ -29,8 +29,9 @@ class BOLD2iNaturalistAPI
             $dir = $this->resources['path'];
             if(!is_dir($dir)) mkdir($dir);
             
-            $dir = $this->resources['path'].'TSVs';
-            if(!is_dir($dir)) mkdir($dir);
+            // no need anymore
+            // $dir = $this->resources['path'].'TSVs';
+            // if(!is_dir($dir)) mkdir($dir);
             
             /* not used here...
             $this->input['worksheets'] = array('Sheet1');
@@ -49,12 +50,19 @@ class BOLD2iNaturalistAPI
             $this->inat_service['taxa'] = 'https://api.inaturalist.org/v1/taxa?q=NAME_STR&rank=RANK_STR';
             
             //create working folders
-            if(Functions::is_production()) $path = "/extra/other_files/MarineGeo/";
-            else                           $path = "/Volumes/AKiTiO4/other_files/MarineGeo/";
-            if(!is_dir($path)) mkdir($path);
-            $path = $path."Bold2iNat/";
+            if(Functions::is_production()) $main_path = "/extra/other_files/MarineGeo/";
+            else                           $main_path = "/Volumes/AKiTiO4/other_files/MarineGeo/";
+            if(!is_dir($main_path)) mkdir($main_path);
+            
+            $path = $main_path."Bold2iNat/";
             if(!is_dir($path)) mkdir($path);
             $this->path['image_folder'] = $path;
+            
+            $path = $main_path."TSVs/";
+            if(!is_dir($path)) mkdir($path);
+            $this->path['TSV_folder'] = $path;
+            
+            
             
             $this->html['by processid'] = 'http://www.boldsystems.org/index.php/Public_RecordView?processid=PROCESS_ID';
         }
@@ -96,7 +104,7 @@ class BOLD2iNaturalistAPI
     private function process_project_tsv_file($proj, $taxon)
     {
         $taxon = str_replace(' ', '_', $taxon);
-        $local_tsv = $this->resources['path'].'TSVs/'.$proj."_$taxon.tsv";
+        $local_tsv = $this->path['TSV_folder'].$proj."_$taxon.tsv";
         $i = 0; $count = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
             $line = explode("\t", $line); $i++; if(($i % 200000) == 0) echo "\n".number_format($i);
@@ -957,7 +965,7 @@ class BOLD2iNaturalistAPI
     private function download_tsv($form_url, $project, $taxon)
     {
         $taxon = str_replace(' ', '_', $taxon);
-        $target = $this->resources['path'].'TSVs/'.$project."_$taxon.tsv";
+        $target = $this->path['TSV_folder'].$project."_$taxon.tsv";
         $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
