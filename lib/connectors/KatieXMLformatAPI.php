@@ -68,7 +68,10 @@ class KatieXMLformatAPI
         $main = new \SimpleXMLElement("<annotation></annotation>");
         $main->addChild('folder', $rec['folder']);
         $main->addChild('filename', $rec['filename']);
-        $main->addChild('path', $rec['path']);
+        
+        $rec_path = self::format_path($rec['path']);
+        $main->addChild('path', $rec_path);
+
         $source = $main->addChild('source');
             $source->addChild('database', 'Unknown');
         $size = $main->addChild('size');
@@ -119,6 +122,15 @@ class KatieXMLformatAPI
         // Header('Content-type: text/xml');
         // echo $main->asXML();
         self::save_xml($main->asXML(), $rec);
+    }
+    private function format_path($str)
+    {
+        $str = trim($str);
+        if(substr($str,0,1) == "/") {
+            $new = trim(substr($str,1,strlen($str)));
+            return $new;
+        }
+        else return $str;
     }
     private function save_xml($xml_str, $rec)
     {   /*Array(
