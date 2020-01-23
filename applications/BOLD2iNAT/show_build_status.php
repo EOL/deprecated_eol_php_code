@@ -10,7 +10,8 @@ if($ctrler->did_build_fail($build_status)) {
 elseif($ctrler->is_build_currently_running($build_status)) {
     $ctrler->display_message(array('type' => "highlight", 'msg' => "Processing... Page will refresh every 5 seconds."));
     /* Very important variable is: $path below */
-    $path = "task_status.php?task=$task&uuid=$params[uuid]&destination=".urlencode($params['destination'])."&true_root=".urlencode($params['true_root']);
+    /* IMPORTANT: take note that adding params to task_status.php at the end is erroneous. ADD NEW PARAMS where e.g. Proj_and_Taxon is added. */
+    $path = "task_status.php?task=$task&uuid=$params[uuid]&Proj_and_Taxon=$params[Proj_and_Taxon]&destination=".urlencode($params['destination'])."&true_root=".urlencode($params['true_root']);
     $ctrler->display_message(array('type' => "highlight", 'msg' => "OR you can check back later. &nbsp; You can use this <a href='$path'>link to check status</a> anytime."));
     $actual_link = "http://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     $actual_link = str_ireplace("form_result.php", $path, $actual_link);
@@ -58,7 +59,16 @@ Array
         if(true) {
             // $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
             echo "=======================================================<br>";
+            
+            // $filename = $this->manual_entry->Proj."_".str_replace(' ','_',$this->manual_entry->Taxon).".tsv";
+            // $tsvfile = $this->path['summary_folder'] . $filename;
+
+            // echo "\n".$params['json']."\n";
+            
+            // print_r($params);
+            
             echo "Success...<br><br>
+                <a href='../../../other_files/MarineGeo/summary/".$params['Proj_and_Taxon'].".tsv'>See summary report.</a><br><br>
                 <a href='index.php'>Try another</a>";
             echo "<br>=======================================================<br><br>";
         }

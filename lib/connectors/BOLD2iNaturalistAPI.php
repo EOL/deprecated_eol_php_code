@@ -61,18 +61,69 @@ class BOLD2iNaturalistAPI
             $path = $main_path."TSVs/";
             if(!is_dir($path)) mkdir($path);
             $this->path['TSV_folder'] = $path;
-            
-            
+
+            $path = $main_path."summary/";
+            if(!is_dir($path)) mkdir($path);
+            $this->path['summary_folder'] = $path;
             
             $this->html['by processid'] = 'http://www.boldsystems.org/index.php/Public_RecordView?processid=PROCESS_ID';
         }
         /* ============================= END for bold2inat ============================= */
+    }
+    private function summary_report($what, $arr = array())
+    {
+        $filename = $this->manual_entry->Proj."_".str_replace(' ','_',$this->manual_entry->Taxon).".tsv";
+        $tsvfile = $this->path['summary_folder'] . $filename;
+        $headers = array('scientificName', 'rank', 'iNat_taxonID', 'iNat_Observation_ID', 'date_collected', 'iNat_desc', 'lat', 'lon', 'iNat_place_guess', 'iNat_photo_record_IDs', 
+        'iNat_photo_IDs', 'image_urls');
+        if($what == 'initialize') {
+            $WRITE = Functions::file_open($tsvfile, "w");
+            fwrite($WRITE, implode("\t", $headers) . "\n");
+            fclose($WRITE);
+        }
+        elseif($what == 'write row') {
+            $rek = $arr['rek'];
+            $ret_photo_record_ids = $arr['ret_photo_record_ids'];
+            /*
+            Array(
+                [sciname] => Abudefduf sordidus
+                [rank] => species
+                [iNat_taxonID] => 123922
+                [iNat_desc] => Hawaii, Oahu, Kaneohe Bay, He`eia fish pond. Collected between 0-3 meters. Identified by: Zeehan Jaafar.
+                [coordinates] => Array(
+                        [lat] => 21.4372
+                        [lon] => -157.806
+                    )
+                [iNat_place_guess] => Hawaii, Oahu, Kaneohe Bay, He`eia fish pond.
+                [image_urls] => Array(
+                        [0] => http://www.boldsystems.org/pics/KANB/USNM_442262_photograph_KB17_089_110mmSL_LRP_17_13+1507843006.JPG
+                    )
+                [date_collected] => 2017-05-23
+            )
+            Array(
+                [0] => Array(
+                        [iNat_item_id] => 55686716
+                        [photo_id] => 60119007
+                    )
+            )
+            */
+            foreach($ret_photo_record_ids as $r) {
+                $photo_record_ids[] = $r['iNat_item_id'];
+                $photo_ids[] = $r['photo_id'];
+            }
+            $row = array($rek['sciname'], $rek['rank'], $rek['iNat_taxonID'], $rek['observation_id'], $rek['date_collected'], $rek['iNat_desc'], 
+            $rek['coordinates']['lat'], $rek['coordinates']['lon'], $rek['iNat_place_guess'], implode("|", $photo_record_ids), implode("|", $photo_ids), implode("|", $rek['image_urls']));
+            $WRITE = Functions::file_open($tsvfile, "a");
+            fwrite($WRITE, implode("\t", $row) . "\n");
+            fclose($WRITE);
+        }
     }
     function start($filename = false, $form_url = false, $uuid = false, $json = false)
     {
         if($this->app == 'bold2inat') {
             if($json) {
                 $this->manual_entry = json_decode($json); //for specimen_image_export
+                self::summary_report('initialize');
                 // print_r($this->manual_entry); exit("\n-end 1-\n");
                 if($recs_count = self::generate_info_list_tsv($this->manual_entry->Proj, $this->manual_entry->Taxon)) {
                     echo "\nTSV file total rows: $recs_count\n";
@@ -210,16 +261,15 @@ class BOLD2iNaturalistAPI
         foreach($rek['image_urls'] as $url) {
             $rek['local_paths'][] = self::save_image_to_local($url);
         }
-        print_r($rek); //exit;
+        // print_r($rek); //good debug
         //step 2: save observation to iNat
         $observation_id = self::save_observation_2iNat($rek, $rec);
         //step 3: save image(s) to iNat
         $ret_photo_record_ids = self::save_images_2iNat($observation_id, $rec, $rek);
         
-        echo "\nobservation_id: [$observation_id]\n";
-        print_r($ret_photo_record_ids);
-        
-        // self::write_row_in_report($rek, $observation_id, $ret_photo_record_ids);
+        echo "\nobservation_id: [$observation_id]\n"; print_r($ret_photo_record_ids); //good debug
+        $rek['observation_id'] = $observation_id;
+        self::summary_report('write row', array('rek' => $rek, 'ret_photo_record_ids' => $ret_photo_record_ids));
     }
     private function save_images_2iNat($observation_id, $rec, $rek)
     {

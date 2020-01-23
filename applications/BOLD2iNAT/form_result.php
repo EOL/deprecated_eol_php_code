@@ -15,7 +15,7 @@ $GLOBALS['ENV_DEBUG'] = true; //set to true during development
 */
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
-
+$form_url = '';
 /* from copied template
 $form_url = @get_val_var('form_url');
 if($form_url) { //URL is pasted.
