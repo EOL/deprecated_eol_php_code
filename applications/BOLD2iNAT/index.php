@@ -103,6 +103,7 @@ else {
                         </select>
                     </td>
                 </tr>
+                <!---
                 <tr><td>License:</td>
                     <td>
                          <select name='Lic'>
@@ -121,7 +122,6 @@ else {
                 <tr>
                     <td>License Institution:</td> 
                     <td>
-                        <!--- <input type='text' name='Lic_inst'> --->
                         <select name='Lic_inst'>
                             <option value=""></option>
                             <option value="Smithsonian Institution National Museum of Natural History">Smithsonian Institution National Museum of Natural History</option>
@@ -130,9 +130,11 @@ else {
                     </td>
                 </tr>
                 <tr><td>License Contact:</td> <td><input type='text' name='Lic_cont'></td></tr>
+                --->
                 </table>
             </td>
         </tr>
+        
         <tr align="center">
             <td>
                 <input type="submit" value="Add BOLD Observations to iNaturalist">
