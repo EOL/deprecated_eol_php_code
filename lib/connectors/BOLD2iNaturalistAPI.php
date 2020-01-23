@@ -200,9 +200,14 @@ class BOLD2iNaturalistAPI
         }
         print_r($rek); //exit;
         //step 2: save observation to iNat
-        $observation_id = self::save_observation_2iNat($rek);
+        $observation_id = self::save_observation_2iNat($rek, $rec);
         //step 3: save image(s) to iNat
-        self::save_images_2iNat($observation_id, $rec, $rek);
+        $ret_photo_record_ids = self::save_images_2iNat($observation_id, $rec, $rek);
+        
+        echo "\nobservation_id: [$observation_id]\n";
+        print_r($ret_photo_record_ids);
+        
+        // self::write_row_in_report($rek, $observation_id, $ret_photo_record_ids);
     }
     private function save_images_2iNat($observation_id, $rec, $rek)
     {
@@ -210,7 +215,8 @@ class BOLD2iNaturalistAPI
         //step 1: build info
         $info = self::build_image_info($rec, $rek['local_paths']);
         //step 2: save image(s)
-        self::upload_images_2iNat($observation_id, $info);
+        $ret_photo_record_ids = self::upload_images_2iNat($observation_id, $info);
+        return $ret_photo_record_ids; //for stats
     }
     private function upload_images_2iNat($observation_id, $info)
     {   //print_r($info); exit("\n--[$observation_id]--\n");
@@ -228,6 +234,7 @@ class BOLD2iNaturalistAPI
                     [local_path] => /Volumes/AKiTiO4/other_files/MarineGeo/Bold2iNat/0c/ac/USNM_442246_photograph_KB17_073_110.5mmSL_LRP_17_13+1507842990.JPG
                 )
         )*/
+        $ret_photo_record_ids = array();
         foreach($info as $r) {
             /*curl --verbose \
               --header 'Authorization: YOUR_JWT' \
@@ -244,9 +251,11 @@ class BOLD2iNaturalistAPI
             /* Check if photo was already added in iNat */
             $photo_local_id = md5(json_encode($id_arr));
             echo "\nphoto_local_id: [$photo_local_id]";
-            if($iNat_photo_id = self::item_already_saved_in_iNat($photo_local_id)) {
+            if($ret_arr = self::item_already_saved_in_iNat($photo_local_id, 'photo')) {
+                $iNat_photo_id = $ret_arr['iNat_item_id'];
                 echo " --> Photo already saved in iNat. iNat Photo ID:[$iNat_photo_id]\n";
                 /* return $iNat_photo_id; */ //Fatal to do a return here. It will break the loop.
+                $ret_photo_record_ids[] = $ret_arr;
                 continue;
             }
             else echo " --> New photo, proceed saving to iNat...\n";
@@ -278,8 +287,13 @@ class BOLD2iNaturalistAPI
                 if(isset($ret->id)) {
                     if($ret->id) {
                         echo "\nSaved new photo. Photo ID: ".$ret->id."\n";
-                        self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $photo_local_id);
+                        // self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $photo_local_id, 'photo');
+                        self::flag_local_sys_this_item_was_saved_in_iNat($ret, $photo_local_id, 'photo');
                         /* return $ret->id; */ //Fatal to do a return here. It will break the loop.
+                        $ret_arr = array();
+                        $ret_arr['iNat_item_id'] = $ret->id;
+                        $ret_arr['photo_id'] = $ret->photo_id;
+                        $ret_photo_record_ids[] = $ret_arr;
                         continue;
                     }
                 }
@@ -287,8 +301,9 @@ class BOLD2iNaturalistAPI
             // */
             
         }
+        return $ret_photo_record_ids;
     }
-    private function save_observation_2iNat($rek)
+    private function save_observation_2iNat($rek, $rec)
     {   // print_r($rek); exit("\n--elix--\n");
         /*Array(
             [sciname] => Lutjanus fulvus
@@ -330,17 +345,20 @@ class BOLD2iNaturalistAPI
             'latitude' => $rek['coordinates']['lat'],
             'longitude' => $rek['coordinates']['lon'],
             'place_guess' => $rek['iNat_place_guess']);
-        
+            
+        $id_arr = $rec;
         /* Check if observation was already added in iNat */
-        $observation_local_id = md5(json_encode($input_arr));
+        $json = self::customize_json_encode_observation($id_arr);
+        // echo "\njson = [$json]\n";  exit;
+        $observation_local_id = md5($json);
         echo "\nobservation_local_id: [$observation_local_id]";
-        if($iNat_observation_id = self::item_already_saved_in_iNat($observation_local_id)) {
+        if($iNat_observation_id = self::item_already_saved_in_iNat($observation_local_id, 'observation')) {
             echo " --> Observation already saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
             return $iNat_observation_id;
         }
         else echo " --> New observation, proceed saving to iNat...\n";
         /* Start adding observation via API */
-        $json = json_encode($input_arr);
+        $json = Functions::json_real_encode($input_arr);
         $YOUR_JWT = $this->manual_entry->JWT;
         $token_type = $this->manual_entry->token_type;
         $cmd = "curl --verbose \
@@ -360,7 +378,7 @@ class BOLD2iNaturalistAPI
             if(isset($ret->id)) {
                 if($ret->id) {
                     echo "\nSaved new record. Observation ID: ".$ret->id."\n";
-                    self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $observation_local_id);
+                    self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $observation_local_id, 'observation');
                     return $ret->id;
                 }
             }
@@ -378,26 +396,41 @@ class BOLD2iNaturalistAPI
             return $arr;
         }
     }
-    private function flag_local_sys_this_item_was_saved_in_iNat($iNat_item_id, $local_item_id)
+    private function flag_local_sys_this_item_was_saved_in_iNat($iNat_item_id, $local_item_id, $what)
     {
+        if($what == 'observation') {
+            $arr['iNat_item_id'] = $iNat_item_id;
+            $json = json_encode($arr);
+        }
+        elseif($what == 'photo') {
+            $ret = $iNat_item_id;
+            $arr['iNat_item_id'] = $ret->id;
+            $arr['photo_id'] = $ret->photo_id;
+            $json = json_encode($arr);
+        }
         $path = self::build_path($local_item_id);
         if(!file_exists($path)) { //should not exist at this point
             if($FILE = Functions::file_open($path, 'w')) {
-                fwrite($FILE, $iNat_item_id);
-                fclose($FILE);
+                fwrite($FILE, $json); fclose($FILE);
                 echo "\nLocal sys flagged: [$path]\n";
             }
         }
         else exit("\nInvestigate went here [$iNat_item_id] [$local_item_id]\n");
         // $iNat_observ_id, $local_observation_id
     }
-    private function item_already_saved_in_iNat($item_id)
+    private function item_already_saved_in_iNat($item_id, $what)
     {
         $path = self::build_path($item_id);
         echo "\ndebug: $path\n"; //debug only
         if(file_exists($path)) {
-            $iNat_item_id = trim(file_get_contents($path));
-            return $iNat_item_id;
+            $json = trim(file_get_contents($path));
+            $arr = json_decode($json, true);
+            if($what == 'observation') {
+                return $arr['iNat_item_id'];
+            }
+            elseif($what == 'photo') {
+                return $arr; //array('iNat_item_id' => xx, 'photo_id' => yy)
+            }
         }
         return false;
         // $observation_id
@@ -423,9 +456,9 @@ class BOLD2iNaturalistAPI
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$filename";
-        if(file_exists($cache_path)) echo("\nFile already exists\n");
+        if(file_exists($cache_path)) {} //echo("\nFile already exists\n");
         else {
-            echo("\nCreating file\n");
+            echo("\nSaving photo to local...\n");
             self::save_image($url, $cache_path);
         }
         return $cache_path;
@@ -560,6 +593,17 @@ class BOLD2iNaturalistAPI
         if(file_exists($file)) {
             $total = shell_exec("wc -l < ".escapeshellarg($file));
             return trim($total);
+        }
+    }
+    private function customize_json_encode_observation($arr)
+    {
+        if($json = Functions::json_real_encode($arr)) return $json;
+        else {
+            $arr['copyright_licenses'] = '';
+            if($json = Functions::json_real_encode($arr)) return $json;
+            else {
+                exit("\nInvestigate: problem with arr-to-json\n");
+            }
         }
     }
     // ==========================================END bold2inat==============================================

@@ -2635,6 +2635,28 @@ class Functions
            middle rec of 3 recs is: 2nd rec (total recs is odd no.)
         */
     }
-
+    public static function json_real_encode($arr)
+    {
+        $json = json_encode($arr);
+        if($error = json_last_error()) echo "\nJSON error: ";
+        switch ($error) {
+            case JSON_ERROR_NONE:
+                // echo ' - No errors';
+                break;
+            case JSON_ERROR_DEPTH:
+                echo ' - Maximum stack depth exceeded'; break;
+            case JSON_ERROR_STATE_MISMATCH:
+                echo ' - Underflow or the modes mismatch'; break;
+            case JSON_ERROR_CTRL_CHAR:
+                echo ' - Unexpected control character found'; break;
+            case JSON_ERROR_SYNTAX:
+                echo ' - Syntax error, malformed JSON'; break;
+            case JSON_ERROR_UTF8:
+                echo ' - Malformed UTF-8 characters, possibly incorrectly encoded'; break;
+            default:
+                echo ' - Unknown error'; break;
+        }
+        return $json;
+    }
 }
 ?>

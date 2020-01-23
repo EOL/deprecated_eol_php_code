@@ -54,8 +54,9 @@ Array
     */
     if(true) { //todo: create your Success criteria event
         $ctrler->display_message(array('type' => "highlight", 'msg' => "Job completed OK."));
-        if($final_archive_gzip_url) {
-            $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
+        // if($final_archive_gzip_url) {
+        if(true) {
+            // $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
             echo "=======================================================<br>";
             echo "Success...<br><br>
                 <a href='index.php'>Try another</a>";

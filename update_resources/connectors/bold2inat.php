@@ -13,7 +13,7 @@ php update_resources/connectors/bold2inat.php _ _ _ _ '{"Proj":"KANB", "Dept":"F
 
 Sample with >1 image_urls                       ---> 'Sebastapistes coniorta'
 Sample with 2 observations, each has a photo    ---> 'Abudefduf sordidus'
-Sample with 1 observation                       ---> 'Diodon hystrix'
+Sample with 1 observation, 3 photos             ---> 'Diodon hystrix'
 
 First record created: https://www.inaturalist.org/observations.json?id=37814858
 */
