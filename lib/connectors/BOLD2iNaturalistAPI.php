@@ -262,7 +262,7 @@ class BOLD2iNaturalistAPI
             
             /* Check if photo was already added in iNat */
             $photo_local_id = md5(json_encode($id_arr));
-            echo "\nphoto_local_id: [$photo_local_id]";
+            // echo "\nphoto_local_id: [$photo_local_id]";
             if($ret_arr = self::item_already_saved_in_iNat($photo_local_id, 'photo')) {
                 $iNat_photo_id = $ret_arr['iNat_item_id'];
                 echo " --> Photo ALREADY saved in iNat. iNat Photo ID:[$iNat_photo_id]\n";
@@ -369,7 +369,7 @@ class BOLD2iNaturalistAPI
         $json = self::customize_json_encode_observation($id_arr);
         // echo "\njson = [$json]\n";  exit;
         $observation_local_id = md5($json);
-        echo "\nobservation_local_id: [$observation_local_id]";
+        // echo "\nobservation_local_id: [$observation_local_id]";
         if($iNat_observation_id = self::item_already_saved_in_iNat($observation_local_id, 'observation')) {
             echo " --> Observation ALREADY saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
             return $iNat_observation_id;
