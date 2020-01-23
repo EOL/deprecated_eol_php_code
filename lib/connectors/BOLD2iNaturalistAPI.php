@@ -55,6 +55,8 @@ class BOLD2iNaturalistAPI
             $path = $path."Bold2iNat/";
             if(!is_dir($path)) mkdir($path);
             $this->path['image_folder'] = $path;
+            
+            $this->html['by processid'] = 'http://www.boldsystems.org/index.php/Public_RecordView?processid=PROCESS_ID';
         }
         /* ============================= END for bold2inat ============================= */
     }
@@ -178,12 +180,14 @@ class BOLD2iNaturalistAPI
                 )*/
                 $rek = array();
                 if($rek = self::get_name_from_names($rec)) {
+                    // print_r($rec); exit;
                     debug("\nSearching for '$rek[sciname]' with rank '$rek[rank]'\n");
                     $rek['iNat_taxonID'] = self::get_iNat_taxonID($rek);
                     $rek['iNat_desc'] = self::get_iNat_desc($rec);
                     $rek['coordinates'] = self::get_coordinates($rec);
                     $rek['iNat_place_guess'] = $rec['exactsite'];
                     $rek['image_urls'] = self::get_image_urls($rec);
+                    $rek['date_collected'] = self::get_date_collected_from_html($rec);
                     $count++;
                     self::save_observation_and_images_2iNat($rek, $rec);
                 }
@@ -253,7 +257,7 @@ class BOLD2iNaturalistAPI
             echo "\nphoto_local_id: [$photo_local_id]";
             if($ret_arr = self::item_already_saved_in_iNat($photo_local_id, 'photo')) {
                 $iNat_photo_id = $ret_arr['iNat_item_id'];
-                echo " --> Photo already saved in iNat. iNat Photo ID:[$iNat_photo_id]\n";
+                echo " --> Photo ALREADY saved in iNat. iNat Photo ID:[$iNat_photo_id]\n";
                 /* return $iNat_photo_id; */ //Fatal to do a return here. It will break the loop.
                 $ret_photo_record_ids[] = $ret_arr;
                 continue;
@@ -267,7 +271,6 @@ class BOLD2iNaturalistAPI
             /* caused 'server internal error'
             -F observation_photo[uuid]=$r[uuid] \
             */
-
             $cmd = "curl --verbose \
                 --header 'Authorization: $token_type $YOUR_JWT' \
                 -F observation_photo[observation_id]=$observation_id \
@@ -286,7 +289,7 @@ class BOLD2iNaturalistAPI
                 if(isset($ret->error)) return false;
                 if(isset($ret->id)) {
                     if($ret->id) {
-                        echo "\nSaved new photo. Photo ID: ".$ret->id."\n";
+                        echo "\nSaved NEW photo. Photo ID: ".$ret->id."\n";
                         // self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $photo_local_id, 'photo');
                         self::flag_local_sys_this_item_was_saved_in_iNat($ret, $photo_local_id, 'photo');
                         /* return $ret->id; */ //Fatal to do a return here. It will break the loop.
@@ -344,8 +347,15 @@ class BOLD2iNaturalistAPI
             'description' => $rek['iNat_desc'],
             'latitude' => $rek['coordinates']['lat'],
             'longitude' => $rek['coordinates']['lon'],
-            'place_guess' => $rek['iNat_place_guess']);
-            
+            'place_guess' => $rek['iNat_place_guess'],
+            'observed_on_string' => $rek['date_collected']
+        );
+        
+        // http://v3.boldsystems.org/index.php/API_Public/specimen?format=tsv&ids=KANB014-17
+       // http://v3.boldsystems.org/index.php/API_Public/specimen?format=json&ids=KANB003-17
+       // http://www.boldsystems.org/index.php/API_Public/specimen?ids=KANB003-17&format=json
+        // ids=ACRJP618-11|ACRJP619-11 returns records matching these Process IDs.
+        
         $id_arr = $rec;
         /* Check if observation was already added in iNat */
         $json = self::customize_json_encode_observation($id_arr);
@@ -353,7 +363,7 @@ class BOLD2iNaturalistAPI
         $observation_local_id = md5($json);
         echo "\nobservation_local_id: [$observation_local_id]";
         if($iNat_observation_id = self::item_already_saved_in_iNat($observation_local_id, 'observation')) {
-            echo " --> Observation already saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
+            echo " --> Observation ALREADY saved in iNat. iNat Observation ID:[$iNat_observation_id]\n";
             return $iNat_observation_id;
         }
         else echo " --> New observation, proceed saving to iNat...\n";
@@ -377,7 +387,7 @@ class BOLD2iNaturalistAPI
             if(isset($ret->error)) return false;
             if(isset($ret->id)) {
                 if($ret->id) {
-                    echo "\nSaved new record. Observation ID: ".$ret->id."\n";
+                    echo "\nSaved NEW observation. Observation ID: ".$ret->id."\n";
                     self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $observation_local_id, 'observation');
                     return $ret->id;
                 }
@@ -603,6 +613,25 @@ class BOLD2iNaturalistAPI
             if($json = Functions::json_real_encode($arr)) return $json;
             else {
                 exit("\nInvestigate: problem with arr-to-json\n");
+            }
+        }
+    }
+    private function get_date_collected_from_html($rec)
+    {
+        /*td width="126"><b>Date Collected:</b></td>
+        <td>2017-05-23</td></tr>*/
+        $process_id = $rec['processid'];
+        if($val = @$this->info_date_collected[$process_id]) return $val;
+        
+        $url = str_replace('PROCESS_ID', $process_id, $this->html['by processid']);
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            if(preg_match("/Date Collected\:<\/b>(.*?)<\/tr>/ims", $html, $arr)) {
+                if($date = trim(strip_tags($arr[1]))) {
+                    $this->info_date_collected[$process_id] = $date;
+                    return $date;
+                }
             }
         }
     }
