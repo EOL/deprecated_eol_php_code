@@ -59,15 +59,8 @@ Array
         if(true) {
             // $final_archive_gzip_url = str_replace(DOC_ROOT, WEB_ROOT, $final_archive_gzip_url);
             echo "=======================================================<br>";
-            
-            // $filename = $this->manual_entry->Proj."_".str_replace(' ','_',$this->manual_entry->Taxon).".tsv";
-            // $tsvfile = $this->path['summary_folder'] . $filename;
-
-            // echo "\n".$params['json']."\n";
-            
             // print_r($params);
-            
-            echo "Success...<br><br>
+            echo "Process done.<br><br>
                 <a href='../../../other_files/MarineGeo/summary/".$params['Proj_and_Taxon'].".tsv'>See summary report.</a><br><br>
                 <a href='index.php'>Try another</a>";
             echo "<br>=======================================================<br><br>";
