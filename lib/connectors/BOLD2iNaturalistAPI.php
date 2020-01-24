@@ -261,12 +261,15 @@ class BOLD2iNaturalistAPI
         foreach($rek['image_urls'] as $url) {
             $rek['local_paths'][] = self::save_image_to_local($url);
         }
-        // print_r($rek); //good debug
+        print_r($rek); //good debug
         //step 2: save observation to iNat
         $observation_id = self::save_observation_2iNat($rek, $rec);
         //step 3: save image(s) to iNat
-        $ret_photo_record_ids = self::save_images_2iNat($observation_id, $rec, $rek);
-        
+        $ret_photo_record_ids = array();
+        if($observation_id) {
+            $ret_photo_record_ids = self::save_images_2iNat($observation_id, $rec, $rek);
+        }
+        else echo "\nInvestigate: blank observation_id\n";
         echo "\nobservation_id: [$observation_id]\n"; print_r($ret_photo_record_ids); //good debug
         $rek['observation_id'] = $observation_id;
         self::summary_report('write row', array('rek' => $rek, 'ret_photo_record_ids' => $ret_photo_record_ids));
@@ -434,7 +437,7 @@ class BOLD2iNaturalistAPI
               -d '$json' \
               https://api.inaturalist.org/v1/observations";
         $cmd .= " 2>&1";
-        // echo "\n$cmd\n"; //good debug
+        echo "\n$cmd\n"; //good debug
 
         // /*
         $shell_debug = shell_exec($cmd);
@@ -449,7 +452,9 @@ class BOLD2iNaturalistAPI
                     self::flag_local_sys_this_item_was_saved_in_iNat($ret->id, $observation_local_id, 'observation');
                     return $ret->id;
                 }
+                else echo "\nInvestigate: observation ID is blank from iNat API result\n";
             }
+            else echo "\nInvestigate: no observation ID detected from iNat API result\n";
         }
         // */
     }
@@ -460,7 +465,7 @@ class BOLD2iNaturalistAPI
         if(preg_match("/left intact(.*?)xxx/ims", $str.'xxx', $arr)) {
             $json = trim($arr[1]);
             $arr = json_decode($json);
-            // print_r($arr);
+            print_r($arr);
             return $arr;
         }
     }
