@@ -438,7 +438,7 @@ class BOLD2iNaturalistAPI
 
         // /*
         $shell_debug = shell_exec($cmd);
-        // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+        echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
         if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
         else {
             $ret = self::parse_shell_debug($shell_debug);
