@@ -333,7 +333,7 @@ class BOLD2iNaturalistAPI
             -F observation_photo[uuid]=$r[uuid] \
             */
             // $cmd = "curl --verbose \
-            $cmd = "curl \
+            $cmd = "curl -s \
                 --header 'Authorization: $token_type $YOUR_JWT' \
                 -F observation_photo[observation_id]=$observation_id \
                 -F file=@$r[local_path] \
@@ -434,7 +434,7 @@ class BOLD2iNaturalistAPI
         $YOUR_JWT = $this->manual_entry->JWT;
         $token_type = $this->manual_entry->token_type;
         // $cmd = "curl --verbose \
-        $cmd = "curl \
+        $cmd = "curl -s \
               --header 'Authorization: $token_type $YOUR_JWT' \
               -d '$json' \
               https://api.inaturalist.org/v1/observations";
@@ -460,9 +460,9 @@ class BOLD2iNaturalistAPI
         }
         // */
     }
-    private function parse_shell_debug($str)
+    private function parse_shell_debug($json)
     {   
-        // /* First option: worked locally but gives this error in eol-archive:
+        /* First option: worked locally but gives this error in eol-archive:
         // JSON [decode] error: Syntax error, malformed JSON
         // Investigate: iNat API result is invalid json string.
         
@@ -478,11 +478,14 @@ class BOLD2iNaturalistAPI
             else exit("\nInvestigate: iNat API result is invalid json string.\n");
         }
         else exit("\nInvestigate: iNat API shell_debug is invalid.\n");
-        // */
-        
-        /*
-        //{"id":37916196,"site_id":1,
         */
+        
+        if($arr = Functions::json_encode_decode($json, 'decode')) {
+            print_r($arr); //debug only
+            return $arr;
+        }
+        else exit("\nInvestigate: iNat API result is invalid json string.\n");
+
     }
     private function flag_local_sys_this_item_was_saved_in_iNat($iNat_item_id, $local_item_id, $what)
     {
