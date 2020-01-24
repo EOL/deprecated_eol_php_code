@@ -2635,11 +2635,12 @@ class Functions
            middle rec of 3 recs is: 2nd rec (total recs is odd no.)
         */
     }
-    public static function json_real_encode($arr)
+    public static function json_encode_decode($arrayOrstring, $what)
     {
-        $json = json_encode($arr);
-        if($error = json_last_error()) echo "\nJSON error:";
-        else                           echo "\nJSON:";
+        if($what == 'encode')       $ret = json_encode($arrayOrstring); //arr to json
+        elseif($what == 'decode')   $ret = json_decode($arrayOrstring); //json to arr
+        if($error = json_last_error()) echo "\nJSON [$what] error:";
+        else                           echo "\nJSON [$what] OK:";
         switch ($error) {
             case JSON_ERROR_NONE:
                 echo ' no errors'; break;
@@ -2656,7 +2657,8 @@ class Functions
             default:
                 echo ' Unknown error'; break;
         }
-        return $json;
+        echo "\n";
+        return $ret;
     }
 }
 ?>

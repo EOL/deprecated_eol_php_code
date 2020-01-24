@@ -429,7 +429,7 @@ class BOLD2iNaturalistAPI
         }
         else echo " --> New observation, proceed saving to iNat...\n";
         /* Start adding observation via API */
-        $json = Functions::json_real_encode($input_arr);
+        $json = Functions::json_encode_decode($input_arr, 'encode');
         $YOUR_JWT = $this->manual_entry->JWT;
         $token_type = $this->manual_entry->token_type;
         $cmd = "curl --verbose \
@@ -464,10 +464,13 @@ class BOLD2iNaturalistAPI
         // * Connection #0 to host api.inaturalist.org left intact
         if(preg_match("/left intact(.*?)xxx/ims", $str.'xxx', $arr)) {
             $json = trim($arr[1]);
-            $arr = json_decode($json);
-            print_r($arr);
-            return $arr;
+            if($arr = Functions::json_encode_decode($json, 'decode')) {
+                print_r($arr); //debug only
+                return $arr;
+            }
+            else exit("\nInvestigate: iNat API result is invalid json string.\n");
         }
+        else exit("\nInvestigate: iNat API shell_debug is invalid.\n");
     }
     private function flag_local_sys_this_item_was_saved_in_iNat($iNat_item_id, $local_item_id, $what)
     {
@@ -670,10 +673,10 @@ class BOLD2iNaturalistAPI
     }
     private function customize_json_encode_observation($arr)
     {
-        if($json = Functions::json_real_encode($arr)) return $json;
+        if($json = Functions::json_encode_decode($arr, 'encode')) return $json;
         else {
             $arr['copyright_licenses'] = '';
-            if($json = Functions::json_real_encode($arr)) return $json;
+            if($json = Functions::json_encode_decode($arr, 'encode')) return $json;
             else {
                 exit("\nInvestigate: problem with arr-to-json. Inform eagbayani@eol.org\n");
             }
