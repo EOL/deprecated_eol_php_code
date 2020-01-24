@@ -62,7 +62,7 @@ if($ret = curl_post_request($url, $arr)) {
 
     ?>
     Please wait, loading ...
-    <form name='fn' action="http://editors.eol.org/eol_php_code/applications/BOLD2iNAT/index.php" method="post">
+    <form name='fn' action="https://editors.eol.org/eol_php_code/applications/BOLD2iNAT/index.php" method="post">
       <input type='text' name='inat_response' value='<?php echo $ret ?>'>
       <input type='submit'>
     </form>
