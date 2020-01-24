@@ -107,6 +107,8 @@ class BOLD2iNaturalistAPI
                     )
             )
             */
+            $photo_record_ids = array();
+            $photo_ids = array();
             foreach($ret_photo_record_ids as $r) {
                 $photo_record_ids[] = $r['iNat_item_id'];
                 $photo_ids[] = $r['photo_id'];
@@ -271,7 +273,7 @@ class BOLD2iNaturalistAPI
         if($observation_id && $rek['image_urls']) {
             $ret_photo_record_ids = self::save_images_2iNat($observation_id, $rec, $rek);
         }
-        else echo "\nInvestigate: blank observation_id\n";
+        else echo "\nNote: There are no photos\n";
         echo "\nobservation_id: [$observation_id]\n"; print_r($ret_photo_record_ids); //good debug
         $rek['observation_id'] = $observation_id;
         self::summary_report('write row', array('rek' => $rek, 'ret_photo_record_ids' => $ret_photo_record_ids));
