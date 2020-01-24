@@ -343,6 +343,7 @@ class BOLD2iNaturalistAPI
             // echo "\n$cmd\n"; //good debug
             
             // /*
+            sleep(1);
             $shell_debug = shell_exec($cmd);
             // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
             if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
@@ -442,6 +443,7 @@ class BOLD2iNaturalistAPI
         // echo "\n$cmd\n"; //good debug
 
         // /*
+        sleep(1);
         $shell_debug = shell_exec($cmd);
         // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
         if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
