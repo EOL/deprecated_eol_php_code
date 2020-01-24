@@ -479,7 +479,7 @@ class BOLD2iNaturalistAPI
         }
         else exit("\nInvestigate: iNat API shell_debug is invalid.\n");
         */
-        
+        $json = trim($json);
         if($arr = Functions::json_encode_decode($json, 'decode')) {
             print_r($arr); //debug only
             return $arr;
