@@ -332,7 +332,7 @@ class BOLD2iNaturalistAPI
             /* caused 'server internal error'
             -F observation_photo[uuid]=$r[uuid] \
             */
-            // $cmd = "curl --verbose \
+            // $cmd = "curl --verbose \         ----- never use this, only if you want to see diagnostics
             $cmd = "curl -s \
                 --header 'Authorization: $token_type $YOUR_JWT' \
                 -F observation_photo[observation_id]=$observation_id \
@@ -433,13 +433,13 @@ class BOLD2iNaturalistAPI
         $json = Functions::json_encode_decode($input_arr, 'encode');
         $YOUR_JWT = $this->manual_entry->JWT;
         $token_type = $this->manual_entry->token_type;
-        // $cmd = "curl --verbose \
+        // $cmd = "curl --verbose \    ----- never use this, only if you want to see diagnostics
         $cmd = "curl -s \
               --header 'Authorization: $token_type $YOUR_JWT' \
               -d '$json' \
               https://api.inaturalist.org/v1/observations";
         $cmd .= " 2>&1";
-        echo "\n$cmd\n"; //good debug
+        // echo "\n$cmd\n"; //good debug
 
         // /*
         $shell_debug = shell_exec($cmd);
