@@ -8,11 +8,11 @@ ini_set('display_errors', false);
 $GLOBALS['ENV_DEBUG'] = false; //set to false in production
 // */
 
-/* during development
+// /* during development
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);
 $GLOBALS['ENV_DEBUG'] = true; //set to true during development
-*/
+// */
 
 // echo "<pre>"; print_r($_FILES); exit("</pre>");
 $form_url = '';
