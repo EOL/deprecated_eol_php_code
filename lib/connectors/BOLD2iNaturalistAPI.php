@@ -113,8 +113,12 @@ class BOLD2iNaturalistAPI
                 $photo_record_ids[] = $r['iNat_item_id'];
                 $photo_ids[] = $r['photo_id'];
             }
+            
+            $imploded_image_urls = '';
+            if($val = @$rek['image_urls']) $imploded_image_urls = implode("|", $val);
+            
             $row = array($rek['sciname'], $rek['rank'], $rek['iNat_taxonID'], $rek['observation_id'], $rek['date_collected'], $rek['iNat_desc'], 
-            $rek['coordinates']['lat'], $rek['coordinates']['lon'], $rek['iNat_place_guess'], implode("|", $photo_record_ids), implode("|", $photo_ids), implode("|", $rek['image_urls']));
+            $rek['coordinates']['lat'], $rek['coordinates']['lon'], $rek['iNat_place_guess'], implode("|", $photo_record_ids), implode("|", $photo_ids), $imploded_image_urls);
             $WRITE = Functions::file_open($tsvfile, "a");
             fwrite($WRITE, implode("\t", $row) . "\n");
             fclose($WRITE);
@@ -274,7 +278,8 @@ class BOLD2iNaturalistAPI
             $ret_photo_record_ids = self::save_images_2iNat($observation_id, $rec, $rek);
         }
         else echo "\nNote: There are no photos\n";
-        echo "\nobservation_id: [$observation_id]\n"; print_r($ret_photo_record_ids); //good debug
+        echo "\nobservation_id: [$observation_id]\n";
+        if($ret_photo_record_ids) print_r($ret_photo_record_ids); //good debug
         $rek['observation_id'] = $observation_id;
         self::summary_report('write row', array('rek' => $rek, 'ret_photo_record_ids' => $ret_photo_record_ids));
     }
