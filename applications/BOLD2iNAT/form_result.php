@@ -74,7 +74,6 @@ else {
 // else            require_once("jenkins_call.php");
 
 $form = $_POST;
-
 require_once("jenkins_call.php");
 
 function get_val_var($v)

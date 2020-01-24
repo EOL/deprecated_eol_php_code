@@ -480,7 +480,7 @@ class BOLD2iNaturalistAPI
         if(!file_exists($path)) { //should not exist at this point
             if($FILE = Functions::file_open($path, 'w')) {
                 fwrite($FILE, $json); fclose($FILE);
-                echo "\nLocal sys flagged: [$path]\n";
+                debug("\nLocal sys flagged: [$path]\n");
             }
         }
         else exit("\nInvestigate went here [$iNat_item_id] [$local_item_id]\n");
@@ -489,7 +489,7 @@ class BOLD2iNaturalistAPI
     private function item_already_saved_in_iNat($item_id, $what)
     {
         $path = self::build_path($item_id);
-        echo "\ndebug: $path\n"; //debug only
+        debug("\ndebug: $path\n"); //debug only
         if(file_exists($path)) {
             $json = trim(file_get_contents($path));
             $arr = json_decode($json, true);
@@ -670,7 +670,7 @@ class BOLD2iNaturalistAPI
             $arr['copyright_licenses'] = '';
             if($json = Functions::json_real_encode($arr)) return $json;
             else {
-                exit("\nInvestigate: problem with arr-to-json\n");
+                exit("\nInvestigate: problem with arr-to-json. Inform eagbayani@eol.org\n");
             }
         }
     }
@@ -1008,7 +1008,7 @@ class BOLD2iNaturalistAPI
         
         $k = self::show_total_rows($local_tsv);
         $k = $k - 1; //don't count the headers
-        echo "\ntotal k: [$k]\n";
+        // echo "\ntotal k: [$k]\n"; //debug
         $i = $i - 1 - 1;
         return $i;
     }

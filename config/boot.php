@@ -139,7 +139,7 @@ function environment_defined($environment_name)
 
 function prepare_jenkins($argv, $root)
 {
-    print_r($argv);
+    // print_r($argv); //good debug
     if($jenkins_or_cron = @$argv[1]) {
         // echo "\ngoes here 01\n";
         if($jenkins_or_cron == "jenkins") {

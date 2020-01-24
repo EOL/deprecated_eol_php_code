@@ -62,7 +62,7 @@ Array
             // print_r($params);
             echo "Process done.<br><br>
                 <a href='../../../other_files/MarineGeo/summary/".$params['Proj_and_Taxon'].".tsv'>See summary report.</a><br><br>
-                <a href='index.php'>Try another</a>";
+                <a href='index.php'>Back to menu</a>";
             echo "<br>=======================================================<br><br>";
         }
         else {

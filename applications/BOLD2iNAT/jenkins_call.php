@@ -23,7 +23,10 @@ $server_script_name = str_replace("form_result.php", "generate_jenkins.php", $se
 $params['true_root'] = $true_DOC_ROOT;
 $params['uuid'] = pathinfo($newfile, PATHINFO_FILENAME);
 
+/* IMPORTANT: un-comment during development
 echo "<pre>"; print_r($form); echo "</pre>";
+*/
+
 /*Array(
     [form_url] => 
     [Proj] => KANB
