@@ -332,7 +332,8 @@ class BOLD2iNaturalistAPI
             /* caused 'server internal error'
             -F observation_photo[uuid]=$r[uuid] \
             */
-            $cmd = "curl --verbose \
+            // $cmd = "curl --verbose \
+            $cmd = "curl \
                 --header 'Authorization: $token_type $YOUR_JWT' \
                 -F observation_photo[observation_id]=$observation_id \
                 -F file=@$r[local_path] \
@@ -343,7 +344,7 @@ class BOLD2iNaturalistAPI
             
             // /*
             $shell_debug = shell_exec($cmd);
-            // echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
+            echo "\n*------*\n".trim($shell_debug)."\n*------*\n"; //good debug
             if(stripos($shell_debug, '{"error":{"original":{"error"') !== false) echo("\n<i>Has error: Invetigate build no. in Jenkins.</i>\n\n"); //string is found
             else {
                 $ret = self::parse_shell_debug($shell_debug);
@@ -432,7 +433,8 @@ class BOLD2iNaturalistAPI
         $json = Functions::json_encode_decode($input_arr, 'encode');
         $YOUR_JWT = $this->manual_entry->JWT;
         $token_type = $this->manual_entry->token_type;
-        $cmd = "curl --verbose \
+        // $cmd = "curl --verbose \
+        $cmd = "curl \
               --header 'Authorization: $token_type $YOUR_JWT' \
               -d '$json' \
               https://api.inaturalist.org/v1/observations";
@@ -459,11 +461,16 @@ class BOLD2iNaturalistAPI
         // */
     }
     private function parse_shell_debug($str)
-    {
+    {   
+        // /* First option: worked locally but gives this error in eol-archive:
+        // JSON [decode] error: Syntax error, malformed JSON
+        // Investigate: iNat API result is invalid json string.
+        
         // the last row before the json api output:
         // * Connection #0 to host api.inaturalist.org left intact
-        if(preg_match("/left intact(.*?)xxx/ims", $str.'xxx', $arr)) {
-            $json = trim($arr[1]);
+        // if(preg_match("/left intact(.*?)xxx/ims", $str.'xxx', $arr)) {
+        if(preg_match("/\{\"id\"\:(.*?)xxx/ims", $str.'xxx', $arr)) {
+            $json = trim('{"id":'.$arr[1]);
             if($arr = Functions::json_encode_decode($json, 'decode')) {
                 print_r($arr); //debug only
                 return $arr;
@@ -471,6 +478,11 @@ class BOLD2iNaturalistAPI
             else exit("\nInvestigate: iNat API result is invalid json string.\n");
         }
         else exit("\nInvestigate: iNat API shell_debug is invalid.\n");
+        // */
+        
+        /*
+        //{"id":37916196,"site_id":1,
+        */
     }
     private function flag_local_sys_this_item_was_saved_in_iNat($iNat_item_id, $local_item_id, $what)
     {
