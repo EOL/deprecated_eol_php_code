@@ -1,11 +1,11 @@
 <?php
 session_start();
-exit("\nUnder construction...\n");
+// exit("\nUnder construction...\n");
 if(isset($_POST["inat_response"])) {
     $json = $_POST["inat_response"];
     $_SESSION["inat_response"] = $json;
     $post_params = json_decode($json);
-    // print_r($post_params); echo " -- Used Post."; //good debug
+    print_r($post_params); echo " -- Used Post."; //good debug
     /*stdClass Object ( [access_token] => 1019173383d3203b03880573618827659203eac68c46dcba4eb48b5d33d47151 
     [token_type] => Bearer 
     [scope] => write login 
@@ -15,7 +15,7 @@ if(isset($_POST["inat_response"])) {
 elseif(isset($_SESSION["inat_response"])) {
     $json = $_SESSION["inat_response"];
     $post_params = json_decode($json);
-    // print_r($post_params); echo " -- Used Session."; //good debug
+    print_r($post_params); echo " -- Used Session."; //good debug
 }
 else {
     $client_id = 'cfe0aa14b145d1b2b527e5d8076d32839db7d773748d5182308cade1c4475b38';
