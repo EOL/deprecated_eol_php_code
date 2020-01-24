@@ -1,6 +1,6 @@
 <?php
 session_start();
-// exit("\nUnder construction...\n");
+exit("\nUnder construction...\n");
 if(isset($_POST["inat_response"])) {
     $json = $_POST["inat_response"];
     $_SESSION["inat_response"] = $json;
