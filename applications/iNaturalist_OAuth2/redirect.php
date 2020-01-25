@@ -2,8 +2,9 @@
 echo '<pre>';
 if($_GET) {
     // echo "\nGet:\n";
-    // print_r($_GET);
+    print_r($_GET);
     $auth_code = $_GET['code'];
+    exit("\nstop muna\n");
 }
 elseif($_POST) {
     // echo "\nPost:\n";
