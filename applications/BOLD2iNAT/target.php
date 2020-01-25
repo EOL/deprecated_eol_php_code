@@ -94,13 +94,13 @@ function curl_post_request($url, $parameters_array = array())
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
     curl_setopt($ch, CURLOPT_AUTOREFERER, true);
     curl_setopt($ch, CURLOPT_MAXREDIRS, 5);
-    // echo("Sending post request to $url with params ".print_r($parameters_array, 1).": only attempt");
+    /*
     echo("\n<br>Sending post request to $url with these params: <br>");
     foreach($parameters_array as $key => $val) {
         if(in_array($key, array('redirect_uri', 'grant_type'))) echo "\n$key = $val";
         else echo "\n$key = ".substr($val,0,3)."...";
     }
-    
+    */
     $result = curl_exec($ch);
     if(0 == curl_errno($ch)) {
         curl_close($ch);
