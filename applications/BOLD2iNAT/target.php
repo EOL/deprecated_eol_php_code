@@ -1,20 +1,21 @@
 <?php
 echo '<pre>';
 if($_GET) {
-    // echo "\nGet:\n";
-    // print_r($_GET);
-    $auth_code = $_GET['code'];
-    // exit("\nstop muna\n");
 }
 elseif($_POST) {
     // echo "\nPost:\n";
     // print_r($_POST);
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    if($username != 'nmnh_fishes') echo "\nWrong Username\n";
+    if($password != 'fishes2020') echo "\nWrong Password\n";
+    if($password != 'fishes2020' || $username != 'nmnh_fishes') exit("\n<a href='index.php'>Try again</a>\n");
 }
 
-if(!isset($auth_code)) {
-    echo "\nNo auth_code yet.\n";
-    return;
-}
+// if(!isset($auth_code)) {
+//     echo "\nNo auth_code yet.\n";
+//     return;
+// }
 // echo "\nauth_code generated is: [$auth_code]\n";
 
 $site = "https://www.inaturalist.org";
@@ -37,13 +38,18 @@ puts response = RestClient.post("#{site}/oauth/token", payload)
 $url = $site.'/oauth/token';
 $arr['client_id'] = $app_id;
 $arr['client_secret'] = $app_secret;
-$arr['code'] = $auth_code;
-$arr['redirect_uri'] = $redirect_uri;
-$arr['grant_type'] = 'authorization_code';
+// $arr['code'] = $auth_code;
+// $arr['redirect_uri'] = $redirect_uri;
+$arr['grant_type'] = 'password'; //'authorization_code';
+$arr['username'] = $username;
+$arr['password'] = $password;
+
+
+
 
 if($ret = curl_post_request($url, $arr)) {
     // echo "\n<br>POST ok<br>\n";
-    // print_r($ret);
+    print_r($ret);
     /* # response will be a chunk of JSON looking like
     # {
     #   "access_token":"xxx",

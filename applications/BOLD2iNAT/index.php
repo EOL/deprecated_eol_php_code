@@ -23,6 +23,7 @@ else {
     $redirect_uri = 'https://editors.eol.org/eol_php_code/applications/iNaturalist_OAuth2/redirect.php';
     $response_type = 'code';
     ?>
+    <!--- working OK
     <form name='fn' action="https://www.inaturalist.org/oauth/authorize?response_type=code" method="get">
       <input type='hidden' name='client_id' value='<?php echo $client_id ?>'>
       <input type='hidden' name='redirect_uri' value='<?php echo $redirect_uri ?>'>
@@ -31,9 +32,30 @@ else {
     <script>
     // document.forms.fn.submit()
     </script>
+    --->
     <?php
+    /* working OK
     echo "<hr><br><b>'BOLD-to-iNat Tool'</b> is not yet authorized by iNaturalist.";
     echo "<p>Click <a href='#' onClick='document.forms.fn.submit()'>AUTHORIZE</a>  to proceed.</p><hr>";
+    */
+    ?>
+
+    <form name='fn' action="target.php" method="post">
+    <table>
+    <tr>
+        <td>NMNH Fishes Department iNaturalist Username: </td>
+        <td><input type='text' name='username' value='' required></td>
+    </tr>
+    <tr>
+        <td>iNaturalist Password: </td>
+        <td><input type='password' name='password' value='' required></td>
+    </tr>
+    <tr><td colspan='2'><input type='submit' value='Submit'></td></tr>
+    </table>
+    </form>
+    
+
+    <?php
     exit;
 }
 ?>
