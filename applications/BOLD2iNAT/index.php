@@ -47,7 +47,7 @@ else {
         <td><input type='text' name='username' value='' required></td>
     </tr>
     <tr>
-        <td>iNaturalist Password: </td>
+        <td>Password: </td>
         <td><input type='password' name='password' value='' required></td>
     </tr>
     <tr><td colspan='2'><input type='submit' value='Submit'></td></tr>

@@ -49,7 +49,7 @@ $arr['password'] = $password;
 
 if($ret = curl_post_request($url, $arr)) {
     // echo "\n<br>POST ok<br>\n";
-    print_r($ret);
+    // print_r($ret);
     /* # response will be a chunk of JSON looking like
     # {
     #   "access_token":"xxx",
