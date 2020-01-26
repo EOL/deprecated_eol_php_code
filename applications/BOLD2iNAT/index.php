@@ -64,10 +64,20 @@ else {
     <input type='hidden' name='token_type' value='<?php echo $post_params->token_type ?>'>
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
-            <td>BOLD-to-iNat Tool
-            <small><br>
-                <a href='https://xxx'></a>
-            </small>
+            <td>BOLD SYSTEMS -- to -- iNaturalist</td>
+        </tr>
+        <tr align="center">
+            <td>
+                <table align='center'>
+                <tr align="center">
+                    <td width="50%" bgcolor='darkgreen'><img src='http://www.boldsystems.org/libhtml_v4/images/BOLDlogo.png' height='25'></td>
+                    <td width="50%"><img src='https://static.inaturalist.org/sites/1-logo.svg?1573071870' height='25'></td>
+                </tr>
+                <tr align="center">
+                    <td colspan='2'>This tool uploads observations from BOLD Systems to iNaturalist.
+                    </td>
+                </tr>
+                </table>
             </td>
         </tr>
         <!---
