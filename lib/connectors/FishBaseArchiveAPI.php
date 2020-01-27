@@ -476,7 +476,7 @@ class FishBaseArchiveAPI
                         $var = md5($item['measurement'] . $item['value'] . $taxon_id);
                         if(!isset($this->unique_measurements[$var])) {
                             $this->unique_measurements[$var] = '';
-                            $rec = assign_adult_2_specific_mtypes($item['measurement'], $rec);
+                            $rec = self::assign_adult_2_specific_mtypes($item['measurement'], $rec);
                             $this->func->pre_add_string_types($rec, $item['value'], $item['measurement'], "true"); //1
                         }
                         //end special -------------------------------------------------------------
@@ -555,7 +555,6 @@ class FishBaseArchiveAPI
         http://purl.obolibrary.org/obo/VT_0015039
         http://purl.org/obo/owlATOL_0001658
         http://purl.org/obo/owlATOL_0001659
-        OR
         http://purl.org/obo/owlATOL_0001660
         Thanks!
         */
