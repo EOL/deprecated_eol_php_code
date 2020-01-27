@@ -476,6 +476,7 @@ class FishBaseArchiveAPI
                         $var = md5($item['measurement'] . $item['value'] . $taxon_id);
                         if(!isset($this->unique_measurements[$var])) {
                             $this->unique_measurements[$var] = '';
+                            $rec = assign_adult_2_specific_mtypes($item['measurement'], $rec);
                             $this->func->pre_add_string_types($rec, $item['value'], $item['measurement'], "true"); //1
                         }
                         //end special -------------------------------------------------------------
@@ -545,6 +546,23 @@ class FishBaseArchiveAPI
             }
             // if($k > 10) break; //debug
         }
+    }
+    private function assign_adult_2_specific_mtypes($mtype, $rec)
+    {
+        /*I've been reviewing the smallest size records in this resource and based on the text descriptions I think all the size measures we are harvesting should be treated as adult sizes. 
+        Please set lifeStage= http://www.ebi.ac.uk/efo/EFO_0001272 for all records of measurementType =
+        http://purl.obolibrary.org/obo/VT_0001259
+        http://purl.obolibrary.org/obo/VT_0015039
+        http://purl.org/obo/owlATOL_0001658
+        http://purl.org/obo/owlATOL_0001659
+        OR
+        http://purl.org/obo/owlATOL_0001660
+        Thanks!
+        */
+        $mtypes = array('http://purl.obolibrary.org/obo/VT_0001259', 'http://purl.obolibrary.org/obo/VT_0015039', 'http://purl.org/obo/owlATOL_0001658', 
+                        'http://purl.org/obo/owlATOL_0001659', 'http://purl.org/obo/owlATOL_0001660');
+        if(in_array($mtype, $mtypes)) $rec['lifeStage'] = 'http://www.ebi.ac.uk/efo/EFO_0001272';
+        return $rec;
     }
     private function create_trait($location_strings, $rec)
     {
