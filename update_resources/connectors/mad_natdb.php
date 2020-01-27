@@ -14,6 +14,7 @@ natdb	Monday 2019-10-14 06:12:34 AM	{"measurement_or_fact_specific.tab":132656,"
 Start DATA-1481 terms remapping
 natdb	Monday 2019-12-02 08:12:33 AM	{"measurement_or_fact_specific.tab":132656,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":260.54,"min":4.34,"hr":0.07000000000000001}}
 natdb	Wednesday 2020-01-15 09:24:06 AM{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.58,"min":4.18,"hr":0.07000000000000001}}
+natdb	Monday 2020-01-27 04:12:46 AM	{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":251.15,"min":4.19,"hr":0.07000000000000001}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/MADtoolNatDBAPI');
