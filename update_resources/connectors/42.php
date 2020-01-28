@@ -26,6 +26,7 @@ measurements                            173768      175317  176490  176490
 Start: expected increase in trait (addt'l mappings from Jen) and expected decrease in vernaculars (per https://eol-jira.bibalex.org/browse/DATA-1639?focusedCommentId=63465&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63465)
 42	Thursday 2019-05-30 10:15:14 AM	{"agent.tab":146,"measurement_or_fact_specific.tab":177712,"media_resource.tab":135702,"occurrence_specific.tab":161031,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":157469} consistent OK
 42	Monday 2019-11-25 08:54:51 AM	{"agent.tab":146,"measurement_or_fact_specific.tab":177712,"media_resource.tab":135702,"occurrence_specific.tab":161031,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":157469,"time_elapsed":false} consistent OK
+42	Monday 2020-01-27 10:18:01 AM	{"agent.tab":146,"measurement_or_fact_specific.tab":177712,"media_resource.tab":135702,"occurrence_specific.tab":161031,"reference.tab":32237,"taxon.tab":95593,"vernacular_name.tab":157469,"time_elapsed":{"sec":7116.05,"min":118.6,"hr":1.98}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

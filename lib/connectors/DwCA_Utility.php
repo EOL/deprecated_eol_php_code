@@ -189,6 +189,11 @@ class DwCA_Utility
             $func = new USDAPlants2019($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if($this->resource_id == '707') {
+            require_library('connectors/BirdsADW_Data');
+            $func = new BirdsADW_Data($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
         if(in_array($this->resource_id, array('parent_basal_values_Carnivora', 'parent_basal_values'))) {
             require_library('connectors/SDRreportLib');
             $func = new SDRreportLib($this->archive_builder, $this->resource_id);
