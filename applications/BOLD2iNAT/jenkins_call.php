@@ -43,7 +43,11 @@ $dept_map['birds'] = 'BIRDS';
 $dept_map['botany'] = 'BOTANY';
 $dept_map['paleo'] = 'PALEOBIOLOGY';
 
+if(isset($form['Proj_refresh'])) $Proj_refresh = 1;
+else                             $Proj_refresh = 0;
+
 $json = '{"JWT":"'.$form['JWT'].'" , "token_type":"'.$form['token_type'].'", "Proj":"'.$form['Proj'].'", "Taxon":"'.$form['Taxon'].'", "Dept":"'.$dept_map[$form['Dept']].'"
+        , "Proj_refresh":"'.$Proj_refresh.'"
         , "Lic":"'.@$form['Lic'].'", "Lic_yr":"'.@$form['Lic_yr'].'", "Lic_inst":"'.@$form['Lic_inst'].'", "Lic_cont":"'.@$form['Lic_cont'].'"}';
 $params['json'] = $json;
 
