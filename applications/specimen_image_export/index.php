@@ -48,6 +48,14 @@
             <td>
                 <table>
                 <tr><td>Project:</td> <td><input type='text' name='Proj' required><small>e.g. KANB</small></td></tr>
+                <tr><td></td>
+                    <td>
+                        Refresh download <input type='checkbox' name='Proj_refresh'>
+                        <br><small>Check tickbox if you want to get a fresh download of the project dataset.
+                        <br>Otherwise it will use the saved dataset from previous run.
+                        </small>
+                    </td>
+                </tr>
                 <tr><td>Department</td>
                     <td>
                          <select name='Dept'>
