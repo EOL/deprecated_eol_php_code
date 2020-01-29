@@ -2841,9 +2841,9 @@ class WikiDataAPI extends WikipediaAPI
         $url = "https://www.wikidata.org/wiki/Special:EntityData/" . $id . ".json";
         $options = $this->download_options;
         if(@$options['resource_id']) unset($options['resource_id']);
-        /* this is now commented as of Jan 29,2020. Bec. coverage for an $id can change.
-        $options['expire_seconds'] = false; //can always be false, bec. valued by ID normally don't change
-        */
+        // /* as of Jan 29,2020. Previously value = false. Not anymore, since EntityData can change. Not often but it can change.
+        $options['expire_seconds'] = 60*60*24*30*3; //3 months
+        // */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
             return $obj;
