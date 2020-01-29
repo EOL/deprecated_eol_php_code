@@ -681,7 +681,7 @@ class WikiDataAPI extends WikipediaAPI
                                  */
                              }
                          }
-                         // else echo "\nNo sitelinks\n"; //debug only
+                         else debug("\nNo sitelinks\n"); //debug only
                          // print_r($rek); //exit("\nstop muna\n");
                          // if($i >= 20) break; //debug
                          // ===============================*/ //end normal operation
@@ -2841,7 +2841,9 @@ class WikiDataAPI extends WikipediaAPI
         $url = "https://www.wikidata.org/wiki/Special:EntityData/" . $id . ".json";
         $options = $this->download_options;
         if(@$options['resource_id']) unset($options['resource_id']);
+        /* this is now commented as of Jan 29,2020. Bec. coverage for an $id can change.
         $options['expire_seconds'] = false; //can always be false, bec. valued by ID normally don't change
+        */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);
             return $obj;

@@ -366,12 +366,18 @@ class WikipediaAPI
         
         return $desc;
     }
-    private function remove_all_in_between_inclusive($left, $right, $html)
+    private function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
     {
         if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
             foreach($arr[1] as $str) {
-                $substr = $left.$str.$right;
-                $html = str_ireplace($substr, '', $html);
+                if($includeRight) { //original
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, '', $html);
+                }
+                else { //meaning exclude right
+                    $substr = $left.$str.$right;
+                    $html = str_ireplace($substr, $right, $html);
+                }
             }
         }
         return $html;
@@ -420,6 +426,42 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'da') {
+            //remove section
+            $left = '<span class="mw-headline" id="Eksterne_henvisninger">'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="lovende" style="display:none">'; $right = '</span>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            $left = '<b>Søsterprojekter med yderligere information'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            $left = '<td style="padding: 0.25em 0.5em;">'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //external links
+            $left = '<span class="mw-headline" id="Eksterne_links">'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'la') {
+            
+            //other collabsible section
+            $left = '<div style="padding:0.2em 0.1em 0.1em 0.2em; font-size:80%">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //infobox
+            $left = '<div style="width:18em; float:right; clear:right; margin:0 0 2em 1em; box-shadow:8px 8px 8px #CCC; text-align:center; background:'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false); //4th param is if $right is included to be removed or not. This case is false, means not removed.
+            
+            //remove
+            $left = '<span class="mw-headline" id="Nexus_externi">'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //remove
+            $left = '<span class="mw-headline" id="Nexus_externus">'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'br') {
             
             //remove un-important section. Messes up below if not removed.
