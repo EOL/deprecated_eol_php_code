@@ -406,7 +406,8 @@ class MarineGEOAPI
     private function download_tsv($form_url, $uuid)
     {
         $target = $this->resources['path'].'TSVs/'.$uuid.".tsv";
-        $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
+        if($this->manual_entry->Proj_refresh) $cmd = WGET_PATH . " '$form_url' -O ".$target;     //wget -nc --> means 'will overwrite'
+        else                                  $cmd = WGET_PATH . " -nc '$form_url' -O ".$target; //wget -nc --> means 'no overwrite'
         $cmd .= " 2>&1";
         $shell_debug = shell_exec($cmd);
         if(stripos($shell_debug, "ERROR 404: Not Found") !== false) exit("\n<i>URL path does not exist.\n$form_url</i>\n\n"); //string is found
