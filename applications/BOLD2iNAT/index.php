@@ -50,7 +50,7 @@ else {
         <td>Password: </td>
         <td><input type='password' name='password' value='' required></td>
     </tr>
-    <tr><td colspan='2'><input type='submit' value='Submit'></td></tr>
+    <tr><td></td><td><input type='submit' value='Submit'></td></tr>
     </table>
     </form>
     
@@ -62,9 +62,10 @@ else {
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <input type='hidden' name='JWT' value='<?php echo $post_params->access_token ?>'>
     <input type='hidden' name='token_type' value='<?php echo $post_params->token_type ?>'>
+    <input type='hidden' name='Dept' value='fishes'>
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
-            <td>BOLD SYSTEMS -- to -- iNaturalist</td>
+            <td><b>BOLD SYSTEMS -- to -- iNaturalist</b></td>
         </tr>
         <tr align="center">
             <td>
@@ -123,6 +124,7 @@ else {
                 <table>
                 <tr><td>Project:</td> <td><input type='text' name='Proj' required><small>e.g. KANB</small></td></tr>
                 <tr><td>Taxon (optional):</td> <td><input type='text' name='Taxon'><small>e.g. Lutjanus</small></td></tr>
+                <!---
                 <tr><td>Department</td>
                     <td>
                          <select name='Dept'>
@@ -135,7 +137,6 @@ else {
                         </select>
                     </td>
                 </tr>
-                <!---
                 <tr><td>License:</td>
                     <td>
                          <select name='Lic'>

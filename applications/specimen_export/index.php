@@ -1,9 +1,11 @@
 <form action="form_result.php" method="post" enctype="multipart/form-data">
     <table border="1" cellpadding="15" cellspacing="1" align="center" width="40%">
         <tr align="center">
-            <td>Excel Specimen Export Tool
+            <td><b>Excel Specimen Export Tool</b>
+            <!---
             <br>
             <small>NMNH specimen export to BOLD specimen import<br><a href='https://eol-jira.bibalex.org/browse/COLLAB-1004'>(work in progress)</a></small>
+            --->
             </td>
         </tr>
         <tr align="center">
