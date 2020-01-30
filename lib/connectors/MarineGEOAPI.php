@@ -450,7 +450,7 @@ class MarineGEOAPI
             case "Field ID":                return $input_rec['Collector Number: (Version 1.2 elements (2))'];
             case "Museum ID":               return $input_rec['Institution Code: (Version 1.2 elements (1))'].":FISH:".$input_rec['Catalog No.Text: (MaNIS extensions (1))'];
             case "Collection Code":         return '';
-            case "Institution Storing":     return ''; //to be mapped
+            case "Institution Storing":     return self::map_institution_code($input_rec['Institution Code: (Version 1.2 elements (1))']);
             /*=====Specimen Details=====*/
             case "Sample ID":               return $input_rec['Collector Number: (Version 1.2 elements (2))'];
             case "Sex":                     return $input_rec['Sex: (Sex/Stage)'];
@@ -473,7 +473,7 @@ class MarineGEOAPI
             case "Genus":                   return $input_rec['Genus: (Version 1.2 elements (1))'];
             case "Species":                 return $input_rec['Species: (Version 1.2 elements (2))'];
             case "Subspecies":              return ''; //get from API
-            case "Identifier":              return $input_rec['Identified By: (Version 1.2 elements (2))'];
+            case "Identifier":              return self::format_Identifier_person($input_rec['Identified By: (Version 1.2 elements (2))']);
             case "Identifier Email":        return ''; //No Equivalent
             case "Identification Method":   return ''; //No Equivalent
             case "Taxonomy Notes":          return ''; //No Equivalent
@@ -504,6 +504,25 @@ class MarineGEOAPI
             /*=====End=====*/
             default:
                 exit("\nInvestigate field [$field] not defined.\n");
+        }
+    }
+    private function format_Identifier_person($person) //e.g. 'Pitassy, Diane E.'
+    {
+        if(stripos($person, ",") !== false) { //string is found
+            $arr = explode(",", $person);
+            $arr = array_map('trim', $arr);
+            return trim($arr[1]." ".$arr[0]);
+        }
+    }
+    private function map_institution_code($institution_code) //e.g. 'USNM'
+    {   /* from column: Institution Code: (Version 1.2 elements (1))
+           value: USNM
+        */
+        switch($institution_code) {
+            case "USNM": return 'Smithsonian Institution National Museum of Natural History';
+            default:
+                echo("\nInvestigate institution_code [$institution_code] no mapping yet.\n");
+                return $institution_code;
         }
     }
     private function possible_subtraction($max, $min)
@@ -547,7 +566,31 @@ class MarineGEOAPI
     }
     private function format_Collection_Date($input_rec)
     {
-        return $input_rec['Day Collected: (Version 1.2 elements (3))'].";".$input_rec['Month Collected: (Version 1.2 elements (3))'].";".$input_rec['Year Collected: (Version 1.2 elements (2))'];
+        $day = $input_rec['Day Collected: (Version 1.2 elements (3))'];
+        $month = $input_rec['Month Collected: (Version 1.2 elements (3))'];
+        $year = $input_rec['Year Collected: (Version 1.2 elements (2))'];
+        if($month && $day && $year) {
+            $s = $month."/".$day."/".$year;
+            $date = strtotime($s);
+            return strtoupper(date('d-M-Y', $date));
+        }
+        elseif($month && $year) {
+            $s = $month."/"."1"."/".$year;
+            $date = strtotime($s);
+            return strtoupper(date('M-Y', $date));
+        }
+        elseif($month && $day) {
+            $s = $month."/".$day."/"."1972";
+            $date = strtotime($s);
+            return strtoupper(date('d-M', $date));
+        }
+        elseif($month) {
+            $s = $month."/"."1"."/"."1972";
+            $date = strtotime($s);
+            return strtoupper(date('M', $date));
+        }
+        elseif($year) return $year;
+        elseif($day) return $day;
     }
     private function search_collector_no($coll_num)
     {
