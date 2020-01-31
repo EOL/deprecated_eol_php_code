@@ -5,6 +5,22 @@ estimated execution time: 20 - 27 mins. with references
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_NCBI_API');
+
+/* test
+$a[11] = '';
+$a[13] = '';
+$a[15] = '';
+
+$b[11] = '';
+$b[24] = '';
+$b[26] = '';
+
+$c = ($a + $b);
+print_r($c);
+
+exit("\n-end test-\n");
+*/
+
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
 // $resource_id = "NCBI_Taxonomy_Harvest"; $with_comnames = true; //orig
