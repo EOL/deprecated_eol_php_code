@@ -29,6 +29,7 @@ class DWH_NCBI_API
         //start TRAM-796 -----------------------------------------------------------
         $this->prune_further = array(10239, 12884, 3193, 4751, 33208, 29178);
         $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/"; //this folder is from TRAM-795
+        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest_no_vernaculars/"; //this folder is from TRAM-795
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
     }
     // ----------------------------------------------------------------- start TRAM-796 -----------------------------------------------------------------
@@ -52,7 +53,9 @@ class DWH_NCBI_API
         */
         self::main_tram_796(); //exit("\nstop muna\n");
         self::browse_citations($this->reference_ids_2write); //no need for return value here
-        self::write_vernaculars_DH(); //exit("\nstopx\n");
+        /* vernaculars removed due to harvesting issue with weird chars.
+        self::write_vernaculars_DH();
+        */
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
