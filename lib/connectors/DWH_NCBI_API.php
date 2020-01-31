@@ -296,7 +296,7 @@ class DWH_NCBI_API
         return array_unique($c);
     }
     // ----------------------------------------------------------------- end TRAM-796 -----------------------------------------------------------------
-    function start()
+    function start_tram_795()
     {
         // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381
         /* test

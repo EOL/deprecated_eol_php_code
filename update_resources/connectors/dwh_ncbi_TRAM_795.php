@@ -14,7 +14,7 @@ $func = new DWH_NCBI_API($resource_id, $with_comnames);
 // $GLOBALS['ENV_DEBUG'] = true;
 
 // /* un-comment in normal operation
-$func->start();
+$func->start_tram_795();
 Functions::finalize_dwca_resource($resource_id);
 // */
 
