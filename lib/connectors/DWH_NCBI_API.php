@@ -313,7 +313,7 @@ class DWH_NCBI_API
         self::browse_citations();
         exit("\n-end tests-\n");
         */
-        self::main(); //exit("\nstop muna\n");
+        self::main_tram_795(); //exit("\nstop muna\n");
         $this->archive_builder->finalize(TRUE);
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
@@ -377,7 +377,7 @@ class DWH_NCBI_API
         fclose($file);
         return $final;
     }
-    private function main()
+    private function main_tram_795()
     {
         $filtered_ids = array();
         $taxon_refs = self::browse_citations();
@@ -589,7 +589,7 @@ class DWH_NCBI_API
         // Total rows: 2687427 Processed rows: 1508421 ------ looks OK finally
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
-    } //end main()
+    } //end main_tram_795()
     private function write_taxon($rec, $ancestry, $taxid_info, $reference_ids)
     {   /* Array(
             [tax_id] => 1
