@@ -677,7 +677,7 @@ class DWH_NCBI_API
         }
         return false;
     }
-    private function get_removed_branches_from_spreadsheet()
+    private function get_removed_branches_from_spreadsheet() //https://docs.google.com/spreadsheets/d/1eWXWK514ivl072FLm7dF2MpL9W29bs6XYDbPjHtWlxE/edit?usp=sharing
     {
         require_library('connectors/GoogleClientAPI');
         $func = new GoogleClientAPI(); //get_declared_classes(); will give you how to access all available classes
