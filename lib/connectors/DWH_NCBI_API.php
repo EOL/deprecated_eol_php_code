@@ -586,7 +586,7 @@ class DWH_NCBI_API
         // Total rows: 2687427 Processed rows: 1508421 ------ looks OK finally
         echo "\nTotal rows: $i";
         echo "\nProcessed rows: $processed";
-    }
+    } //end main()
     private function write_taxon($rec, $ancestry, $taxid_info, $reference_ids)
     {   /* Array(
             [tax_id] => 1
