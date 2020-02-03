@@ -23,9 +23,12 @@ exit("\n-end test-\n");
 
 // ini_set('memory_limit','5096M');
 $timestart = time_elapsed();
-// $resource_id = "NCBI_Taxonomy_Harvest"; $with_comnames = true; //orig
+// /*
+$resource_id = "NCBI_Taxonomy_Harvest";                $with_comnames = true;  //orig
+// */
+/*
 $resource_id = "NCBI_Taxonomy_Harvest_no_vernaculars"; $with_comnames = false; //requested by Katja, to pinpoint the problem in harvesting.
-// $resource_id = "1"; //for testing
+*/
 $func = new DWH_NCBI_API($resource_id, $with_comnames);
 // $GLOBALS['ENV_DEBUG'] = true;
 
