@@ -404,9 +404,10 @@ class DWH_NCBI_API
         fclose($file);
         return $final;
     }
-    private function is_tax_id_a_virus($ancestry)
+    private function is_tax_id_a_virus($ancestry, $division_id)
     {
         if(in_array($this->Viruses_Taxonomy_ID, $ancestry)) return true;
+        elseif($division_id == 9) return true;
         else return false;
     }
     private function does_sciname_start_with_Candidatus_et_al($sciname, $Candidatus_only_YN = false)
@@ -481,11 +482,14 @@ class DWH_NCBI_API
         */
         
         $removed_branches = self::get_removed_branches_from_spreadsheet();
-        /* additional IDs are taken from undefined_parents report after each connector run */
+        /* additional IDs are taken from undefined_parents report after each connector run
+        from 2018: OK
         $removed_branches[1296341] = '';
         $removed_branches[993557] = '';
         $removed_branches[1391733] = '';
-        echo "\nMain processing...";
+        */
+        
+        echo "\nMain processing...TRAM-795";
         $fields = $this->file['names.dmp']['fields'];
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
         $i = 0; $processed = 0;
@@ -538,8 +542,6 @@ class DWH_NCBI_API
             elseif($rec['tax_id'] == 2574718) print_r($rec);
             else continue;
             */
-            
-            
             
             /* start filtering: 
             1. Filter by division_id: Remove taxa where division_id in nodes.dmp is 7 (environmental samples) or 11 (synthetic and chimeric taxa) */
@@ -619,9 +621,10 @@ class DWH_NCBI_API
             1 or more lowercase letters or dashes: -
             */
             $rank = $taxID_info[$rec['tax_id']]['r'];
+            $division_id = $taxID_info[$rec['tax_id']]['dID'];
             if(in_array($rank, array('species'))) {
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                if(!self::is_tax_id_a_virus($ancestry)) { //taxon is NOT a descendant of Viruses
+                if(!self::is_tax_id_a_virus($ancestry, $division_id)) { //taxon is NOT a descendant of Viruses
                     $sciname = $rec['name_txt'];
                     if(!self::does_sciname_start_with_Candidatus_et_al($sciname)) {
                         if(!self::does_sciname_contains_phytoplasma_et_al($sciname)) {
@@ -642,7 +645,7 @@ class DWH_NCBI_API
             AND taxonRank of PARENT IS ("species" OR "subspecies" OR "varietas" OR "forma")
             */
             $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-            if(!self::is_tax_id_a_virus($ancestry)) { //taxon is NOT a descendant of Viruses
+            if(!self::is_tax_id_a_virus($ancestry, $division_id)) { //taxon is NOT a descendant of Viruses
                 $sciname = $rec['name_txt'];
                 if(substr_count($sciname, "phytoplasma") == 0) { //AND scientificName does NOT contain "phytoplasma"
                     $rank = $taxID_info[$rec['tax_id']]['r'];
@@ -667,7 +670,7 @@ class DWH_NCBI_API
             $rank = $taxID_info[$rec['tax_id']]['r'];
             if(in_array($rank, array("subspecies","varietas","forma"))) {
                 $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                if(!self::is_tax_id_a_virus($ancestry)) { //taxon is NOT a descendant of Viruses
+                if(!self::is_tax_id_a_virus($ancestry, $division_id)) { //taxon is NOT a descendant of Viruses
                     $sciname = $rec['name_txt']; //AND scientificName includes 1 or more numbers
                     preg_match_all('!\d+!', $sciname, $matches);
                     // print_r($matches);
@@ -709,7 +712,7 @@ class DWH_NCBI_API
         $removed_branches = $tmp;
         
         // =================================================start 2
-        echo "\nMain processing 2...";
+        echo "\nMain processing 2...TRAM-795";
         $fields = $this->file['names.dmp']['fields'];
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
         $i = 0; $processed = 0;
