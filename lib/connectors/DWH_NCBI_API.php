@@ -6,8 +6,10 @@ namespace php_active_record;
 NCBI_Taxonomy_Harvest	    Monday 2018-08-06 02:20:41 AM	{"reference.tab":47083,"taxon.tab":1465751,"vernacular_name.tab":42670}
 NCBI_Taxonomy_Harvest_DH	Monday 2018-08-06 04:47:09 AM	{"reference.tab":23592,"taxon.tab":178807,"vernacular_name.tab":167}
 NCBI_Taxonomy_Harvest_DH	Wednesday 2018-11-07 11:15:14 PM{"reference.tab":23590,"taxon.tab":177813,"vernacular_name.tab":165}
-*/
 
+php update_resources/connectors/dwh_ncbi_TRAM_795.php
+php update_resources/connectors/dwh_ncbi_TRAM_796.php
+*/
 class DWH_NCBI_API
 {
     function __construct($folder, $with_comnames = false)
@@ -28,9 +30,11 @@ class DWH_NCBI_API
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-796 -----------------------------------------------------------
         $this->prune_further = array(10239, 12884, 3193, 4751, 33208, 29178);
-        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/"; //this folder is from TRAM-795
-        $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest_no_vernaculars/"; //this folder is from TRAM-795
+        if($this->with_comnames) $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/";                //this folder is from TRAM-795
+        else                     $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest_no_vernaculars/"; //this folder is from TRAM-795
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
+        //start TRAM-981 -----------------------------------------------------------
+        $this->Viruses_Taxonomy_ID = 10239;
     }
     // ----------------------------------------------------------------- start TRAM-796 -----------------------------------------------------------------
     private function get_meta_info($row_type = false)
@@ -118,7 +122,7 @@ class DWH_NCBI_API
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
-        echo "\nStart main process...\n";
+        echo "\nStart main process...tram_796\n";
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 300000) == 0) echo "\n count:[$i] ";
@@ -186,7 +190,12 @@ class DWH_NCBI_API
             }
         } //end loop
 
-        echo "\nStart main process 2...\n"; $i = 0;
+        // /* Added during TRAM-981
+        $tmp = $removed_branches + $filtered_ids;
+        $removed_branches = $tmp;
+        // */
+        
+        echo "\nStart main process 2...tram_796\n"; $i = 0;
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++; if(($i % 300000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -267,31 +276,26 @@ class DWH_NCBI_API
         }
         return false;
     }
-    private function more_ids_to_remove()
+    private function more_ids_to_remove() //updated for TRAM-981
     {
         //parentNameUsageID -> 1_undefined_parent_ids.txt
-        $a = array(224471, 131, 702, 32032, 310966, 84563, 1938003, 32029, 1567, 2038, 32036, 190972, 29402, 33055, 38777, 41206, 42686, 50055, 54758, 57173, 58337, 59507, 65500, 70302, 70300, 70301, 
-        2383, 116105, 100668, 1017280, 108525, 112008, 215777, 118011, 119861, 120947, 120946, 120948, 137460, 265980, 262406, 169055, 32004, 174924, 186475, 198346, 189384, 349742, 196614, 
-        1861843, 745004, 265570, 215802, 221239, 1400857, 223385, 2030919, 212791, 237321, 744998, 257502, 265670, 330062, 269252, 269258, 269260, 283918, 285105, 946234, 306266, 1048752, 561442, 
-        1233498, 314672, 318476, 327159, 448125, 332518, 332652, 335967, 336377, 336809, 337328, 1502180, 347014, 213485, 362860, 374666, 376743, 1803510, 492233, 386607, 388394, 391607, 447792, 
-        395928, 398772, 482135, 582472, 404402, 412032, 415014, 417293, 131190, 85683, 445219, 448157, 455252, 457933, 467084, 1609595, 467747, 470491, 568400, 540501, 384638, 486506, 495819, 
-        89152, 1434025, 511434, 39491, 767528, 909656, 573657, 652708, 712991, 745410, 1273155, 1145345, 754249, 741759, 907288, 1381133, 670955, 1551504, 1434023, 693993, 700227, 700205, 
-        698791, 700216, 1433992, 744995, 1246645, 1543703, 62654, 712976, 869714, 1191175, 651591, 1649470, 1052821, 648176, 905826, 347538, 1686313, 1715798, 1433993, 991903, 133814, 1125862, 
-        1541670, 1068873, 1050716, 1608298, 1076625, 1076628, 1078904, 1501224, 1227554, 29346, 1632780, 62672, 1176416, 1647181, 1154686, 1433998, 1301080, 1649508, 86188, 1562572, 1485594, 
-        1434017, 2175150, 718217, 1549619, 1734920, 1524249, 1265508, 1392389, 712934, 1321777, 1321783, 1769008, 1649455, 1825023, 2162630, 1484898, 1593364, 1940138, 1918454, 655184, 1562571, 
-        1775716, 1678397, 1783263, 1582879, 1465824, 1472763, 1931219, 1572860, 1654711, 1847725, 1930932, 1574283, 1699066, 1608830, 1920251, 1655545, 1655549, 1660250, 1933048, 749852, 1702237, 
-        1705400, 1705729, 2027874, 1868136, 1769732, 1951300, 1765682, 1840207, 1803511, 1844514, 1867035, 1980681, 1930845, 1874526, 1885577, 1885582, 1885584, 1885586, 1902578, 1902823, 1905838, 
-        588816, 204619, 1978122, 2039302, 1982970, 1983104, 1983114, 1985430, 1985432, 2023214, 2023233, 2041162, 2047984, 2066470, 2108438, 2172004, 62676, 2170555, 2202177, 1813735, 2219504, 
-        2219506);
-        
+        $a = array();
         //acceptedNameUsageID -> 1_undefined_acceptedName_ids.txt
-        $b = array(185, 290, 417, 423, 679, 683, 1627, 2341, 2343, 2347, 2366, 2707, 13774, 29295, 29349, 29577, 31975, 31985, 32043, 32044, 33927, 33939, 34025, 35781, 36494, 36589, 36852, 37449, 
-        37451, 37628, 37694, 38028, 38282, 38989, 39663, 40801, 40802, 40803, 41203, 41291, 41355, 42865, 43945, 46507, 47161, 47467, 56240, 60545, 61433, 64559, 66694, 67684, 67688, 67833, 67834, 
-        67835, 67836, 67837, 72993, 73552, 73553, 75760, 77915, 79879, 80877, 81399, 81579, 83220, 83495, 83500, 83501, 83502, 83503, 83504, 86183, 87343, 87344, 87622, 87624, 87625, 87645, 87736, 
-        87738, 87740, 87741, 87742, 87743, 87989, 87996, 87997, 88072, 89186, 89581, 89612, 90729, 94870, 96451, 97134, 97973, 97974, 100120, 100122, 100480, 107695, 107696, 107698, 107699, 107700, 
-        107701, 107702, 107703, 107706, 107830, 111849, 115133, 119159, 119160, 119931, 120303, 120996, 120997, 121133, 121421, 121716, 123822, 123828, 126824, 130493, 132093, 132566, 132568, 132569, 
-        133192, 135524, 135525, 135526, 135527, 135530, 135531, 135532, 135533, 135534, 135535, 135536, 135537, 135538, 135539, 135540, 135541, 135542, 135543, 135544, 135545, 135546, 135547, 135548, 135549, 135550, 135551, 135552, 135553, 135554, 135555, 135556, 135557, 135558, 135564, 135565, 135579, 136611, 143692, 144790, 144791, 144792, 144793, 145479, 146079, 146080, 146081, 146082, 146083, 146084, 146477, 146478, 146755, 146756, 146757, 146758, 146759, 146897, 146899, 154982, 154983, 154984, 155909, 156578, 156586, 157151, 157672, 163926, 164409, 164410, 167465, 169811, 170628, 170630, 170635, 170638, 174143, 174228, 175619, 179974, 179975, 179976, 181554, 185287, 185288, 185309, 188582, 189965, 189967, 189968, 189970, 191557, 191558, 191559, 191560, 191561, 191562, 191563, 191565, 191566, 192105, 193168, 194664, 194665, 194705, 196828, 196832, 197223, 197224, 197225, 197226, 197462, 198012, 199475, 210011, 214802, 216393, 217241, 218938, 220377, 221030, 221241, 228335, 230497, 230536, 233056, 233057, 233058, 233059, 233060, 233061, 233062, 235637, 236927, 236928, 237671, 238670, 239760, 242601, 243244, 243725, 245012, 245014, 245185, 247476, 247634, 251210, 251211, 253285, 253286, 253287, 260704, 260705, 260706, 260707, 260708, 260709, 261391, 261581, 262074, 262489, 263381, 263382, 263643, 264311, 266760, 266761, 266806, 278963, 285853, 285944, 285968, 286731, 292621, 293024, 293025, 293923, 293924, 293925, 293926, 294693, 295320, 299582, 307568, 312284, 314270, 320150, 322506, 322507, 324074, 326458, 329682, 330275, 330781, 330921, 334548, 334747, 334748, 337464, 337900, 338604, 340948, 344987, 349553, 349554, 356856, 359552, 361212, 366893, 367039, 367336, 368244, 372467, 377314, 382464, 388401, 389068, 389347, 390770, 390771, 394285, 397288, 397328, 397329, 400637, 400638, 400639, 400640, 401048, 402788, 404998, 408672, 413490, 413491, 413492, 413494, 413495, 413882, 414372, 420235, 429624, 433320, 434085, 434087, 441065, 441643, 444220, 444223, 444224, 444225, 444226, 444229, 444231, 444232, 444234, 444235, 444237, 444239, 444241, 444245, 444246, 444248, 444250, 444251, 444253, 444256, 444258, 444261, 444262, 444264, 444266, 444268, 444270, 444271, 444272, 444273, 444274, 444275, 444276, 444277, 444278, 444279, 444281, 444282, 444284, 444285, 444287, 444288, 444514, 450645, 451141, 451142, 451143, 451144, 453320, 454170, 455085, 455086, 457421, 467661, 476205, 476277, 478116, 478741, 479275, 482171, 482172, 484769, 487196, 488173, 488174, 488644, 488645, 490939, 490940, 490942, 490943, 490944, 492525, 492725, 492728, 497806, 502742, 512775, 515323, 519355, 522261, 536375, 537363, 537364, 542258, 542259, 542260, 545538, 551278, 552395, 553506, 554722, 555081, 555572, 555574, 558154, 562980, 563693, 564664, 568068, 573134, 577387, 578917, 578919, 587626, 588111, 590062, 633142, 641417, 646530, 649170, 654416, 658081, 658082, 658083, 658084, 658085, 658086, 658087, 658088, 658089, 658657, 658659, 666376, 670282, 670321, 672789, 679481, 684353, 684354, 688069, 688070, 688071, 688321, 688322, 688323, 688324, 688325, 688326, 688327, 693444, 696757, 700069, 709797, 714955, 715305, 715306, 739134, 742724, 743729, 743731, 745154, 745155, 745291, 749710, 755135, 756045, 756687, 758828, 759720, 760527, 795104, 795105, 796938, 858443, 860576, 876044, 877406, 877414, 877415, 877420, 877421, 877424, 877447, 881271, 881272, 882738, 886778, 888405, 888407, 888408, 888413, 888415, 888417, 888420, 888422, 891144, 891974, 910048, 910049, 910093, 910099, 910114, 910118, 910119, 910120, 910126, 910130, 910143, 910157, 910159, 913318, 913319, 913324, 913327, 913338, 933500, 936052, 936556, 936557, 937450, 939175, 939182, 939192, 939548, 939568, 939611, 939637, 999896, 999898, 1046938, 1046946, 1046952, 1046954, 1046955, 1046956, 1046957, 1046958, 1046959, 1046960, 1046961, 1046962, 1046963, 1046964, 1046965, 1046966, 1046967, 1046970, 1046971, 1046972, 1046973, 1046974, 1046975, 1046978, 1046982, 1046983, 1047006, 1047007, 1047010, 1047012, 1047063, 1047066, 1047067, 1047069, 1047070, 1047071, 1047072, 1047073, 1047075, 1047076, 1047077, 1047078, 1047079, 1047080, 1047081, 1049472, 1050361, 1050369, 1052823, 1052825, 1052826, 1052827, 1052828, 1052829, 1052830, 1052831, 1052832, 1052833, 1052838, 1052839, 1052841, 1054213, 1074288, 1074289, 1081614, 1085028, 1085029, 1090944, 1104448, 1104575, 1104577, 1104578, 1104580, 1104617, 1104619, 1104620, 1107891, 1109226, 1109254, 1109255, 1109256, 1109257, 1109258, 1109259, 1109268, 1109318, 1117107, 1128427, 1130284, 1130285, 1130312, 1130345, 1130346, 1130347, 1130348, 1130374, 1134440, 1134604, 1141885, 1156583, 1158751, 1162179, 1163766, 1165433, 1165998, 1168059, 1173021, 1173100, 1178581, 1179458, 1179459, 1179460, 1179461, 1179462, 1181658, 1184151, 1190231, 1190249, 1198115, 1198116, 1206100, 1210997, 1216208, 1216209, 1216210, 1216211, 1216212, 1216213, 1216214, 1216215, 1216216, 1216217, 1225905, 1225906, 1230730, 1231489, 1232438, 1232439, 1232442, 1232443, 1232444, 1232445, 1232446, 1232447, 1232448, 1232449, 1232452, 1232453, 1232454, 1232457, 1232458, 1233384, 1235799, 1240132, 1242690, 1242735, 1242831, 1242866, 1243985, 1245599, 1247924, 1248762, 1248763, 1248939, 1248940, 1248941, 1250029, 1260189, 1260190, 1260191, 1265478, 1271115, 1274550, 1274551, 1274552, 1274561, 1274565, 1277018, 1277019, 1277020, 1277023, 1277024, 1284708, 1294735, 1298881, 1298894, 1298895, 1298897, 1298899, 1298902, 1298903, 1298910, 1301252, 1302614, 1304894, 1304898, 1307893, 1311317, 1316607, 1316608, 1318599, 1323804, 1325005, 1325472, 1327253, 1327356, 1327423, 1328860, 1330035, 1330036, 1330237, 1336968, 1337832, 1349741, 1378080, 1379386, 1379389, 1379392, 1379393, 1379394, 1379397, 1379398, 1379399, 1380357, 1382716, 1387429, 1387430, 1390409, 1390429, 1390430, 1390431, 1395101, 1400053, 1406378, 1408099, 1411290, 1411306, 1411307, 1414643, 1417303, 1423364, 1426497, 1427135, 1434080, 1434822, 1435893, 1435894, 1444363, 1444364, 1444365, 1449005, 1449124, 1449127, 1449249, 1449250, 1449274, 1449278, 1449317, 1460287, 1471142, 1471143, 1471144, 1476611, 1476722, 1481020, 1481023, 1481024, 1481025, 1481026, 1481027, 1481028, 1481029, 1481030, 1481031, 1481032, 1481033, 1481034, 1481035, 1484108, 1484109, 1484120, 1484121, 1484122, 1484123, 1484433, 1486395, 1486396, 1487582, 1492922, 1495041, 1495144, 1502488, 1504761, 1504776, 1504789, 1505531, 1517682, 1517935, 1519464, 1523418, 1523421, 1523424, 1523428, 1523431, 1523432, 1524976, 1531961, 1531962, 1531963, 1532116, 1535675, 1535676, 1535678, 1535680, 1535962, 1536694, 1537252, 1540278, 1556897, 1556898, 1571821, 1571835, 1571836, 1571837, 1571868, 1571897, 1571898, 1571899, 1571900, 1571901, 1571902, 1572656, 1572657, 1576836, 1576837, 1576838, 1577223, 1577230, 1577241, 1577242, 1577243, 1577244, 1577262, 1577263, 1577264, 1577265, 1577267, 1577268, 1577269, 1577277, 1577279, 1577303, 1577304, 1577306, 1577307, 1577308, 1577312, 1577313, 1577314, 1577323, 1577324, 1577327, 1577328, 1577329, 1577330, 1577333, 1577334, 1577335, 1577336, 1577337, 1577338, 1577341, 1577343, 1577344, 1577345, 1577346, 1577347, 1577348, 1577349, 1577350, 1577351, 1577352, 1577354, 1577356, 1577357, 1577361, 1577365, 1577366, 1577369, 1577370, 1577371, 1577424, 1577427, 1577428, 1579367, 1588751, 1601953, 1601998, 1602014, 1617433, 1617653, 1617948, 1620466, 1629713, 1629714, 1629715, 1629716, 1629717, 1629718, 1629719, 1629720, 1629721, 1629722, 1635171, 1635294, 1639536, 1639588, 1640250, 1640251, 1640252, 1640514, 1644123, 1647716, 1648269, 1653063, 1655558, 1655574, 1655576, 1655578, 1655579, 1655581, 1655582, 1655585, 1655586, 1655595, 1655596, 1655598, 1655602, 1655609, 1655610, 1655618, 1655627, 1655630, 1655631, 1655633, 1657061, 1662476, 1679096, 1690483, 1690484, 1690485, 1700835, 1700836, 1701109, 1703093, 1703776, 1703777, 1719034, 1723640, 1727202, 1729450, 1732568, 1734399, 1734406, 1734407, 1734408, 1737567, 1739552, 1745252, 1766958, 1768196, 1770023, 1775998, 1779367, 1779368, 1779369, 1779370, 1779371, 1779372, 1779809, 1781242, 1783518, 1789227, 1792311, 1798814, 1798817, 1801895, 1801896, 1803813, 1803814, 1803913, 1805167, 1810840, 1811806, 1815591, 1826063, 1826750, 1827381, 1827382, 1827383, 1827384, 1827385, 1827386, 1827387, 1838287, 1844267, 1848566, 1849603, 1852704, 1852898, 1853301, 1855376, 1855399, 1856604, 1856605, 1862379, 1864862, 1871322, 1871323, 1871324, 1873700, 1883427, 1889899, 1892558, 1896227, 1897008, 1904640, 1905359, 1906665, 1913989, 1917428, 1917429, 1917430, 1917431, 1917432, 1917433, 1917434, 1917480, 1917481, 1917482, 1917483, 1918951, 1920109, 1920128, 1922228, 1922229, 1928334, 1931235, 1932700, 1940762, 1940790, 1941348, 1941349, 1953084, 1954174, 1955636, 1955772, 1955776, 1958816, 1958817, 1958821, 1958822, 1958823, 1968565, 1971620, 1982331, 1986601, 1986615, 1986616, 1986618, 1986619, 1986620, 1986621, 1986623, 1986624, 1986627, 1986631, 1986637, 1986643, 1986644, 1986645, 1986662, 1986665, 1986670, 1986671, 1986680, 1986681, 1986720, 1986722, 1986724, 1986728, 1986745, 1986758, 1986760, 1986765, 1986766, 1986768, 1986769, 1986772, 1986773, 1986788, 1986789, 1986790, 1986791, 1986792, 1986793, 1986840, 1986841, 1986842, 1986843, 1986845, 1986876, 1986877, 1987167, 1993870, 2006111, 2014174, 2014804, 2015203, 2015204, 2015205, 2015206, 2015798, 2016198, 2019410, 2021605, 2022662, 2024301, 2026734, 2032575, 2035215, 2039150, 2040999, 2053570, 2056121, 2064846, 2077315, 2079447, 2093740, 2109688, 2126330, 2137776, 2138094, 2138095, 2138096, 2138097, 
-        );
+        $b = array(88, 131, 132, 423, 679, 683, 702, 1567, 2038, 2383, 28067, 29402, 29403, 32012, 32043, 32044, 33055, 34102, 36862, 38777, 41206, 41207, 42686, 50055, 54066, 54758, 54759, 56240, 57173, 58337, 58338, 59507, 59508, 62676, 
+        64559, 65047, 65500, 67684, 67688, 77915, 83220, 92793, 93681, 100668, 100761, 107830, 108525, 108526, 112008, 114248, 118011, 119861, 119862, 126824, 135579, 137460, 137461, 143692, 169055, 174924, 174925, 186475, 189384, 
+        190972, 196614, 196616, 198346, 203804, 204619, 210011, 212743, 212791, 213485, 215802, 221239, 221240, 221279, 223232, 223385, 223386, 237321, 238670, 251534, 251535, 251536, 251537, 251538, 251539, 251540, 251541, 251542, 
+        251543, 251544, 251545, 257502, 262406, 263643, 264311, 265310, 265570, 265670, 265671, 265980, 269252, 269258, 269260, 279809, 283918, 285105, 293924, 293925, 293926, 295320, 306266, 306267, 310966, 314672, 314673, 316612, 
+        318147, 318476, 318480, 326458, 327159, 330062, 332518, 332652, 332653, 335967, 335971, 336377, 336378, 336809, 337328, 337464, 338604, 347014, 347538, 349553, 349554, 349742, 360239, 362860, 366893, 374666, 376743, 379546, 
+        382725, 386607, 386608, 388394, 388395, 391607, 391608, 391952, 393764, 395928, 395929, 398772, 400771, 404402, 404998, 412032, 412033, 415014, 417293, 417294, 427706, 445219, 447792, 448125, 448157, 448158, 455252, 457933, 
+        467084, 467747, 470491, 470492, 472825, 476277, 482135, 482171, 482172, 483197, 484769, 486506, 492233, 495819, 502742, 511434, 536375, 540501, 545538, 561442, 563693, 568068, 568400, 568987, 568988, 573657, 582472, 587626, 
+        588816, 644355, 654416, 655184, 666376, 670955, 672789, 688069, 688070, 688071, 693993, 741759, 744995, 745004, 745410, 749710, 749852, 754249, 767528, 767891, 862775, 869714, 882738, 907288, 909656, 936052, 946234, 991903, 
+        1017280, 1048752, 1068873, 1076625, 1076628, 1078904, 1114981, 1125862, 1134604, 1145345, 1146865, 1154686, 1163766, 1172428, 1176416, 1191175, 1227554, 1246645, 1265508, 1273155, 1301080, 1302410, 1381133, 1392389, 1400827, 
+        1400857, 1400859, 1408812, 1410382, 1414835, 1427135, 1433992, 1433993, 1433998, 1434017, 1434023, 1434025, 1434048, 1448937, 1449912, 1465824, 1472763, 1484898, 1485594, 1495041, 1501224, 1502180, 1505531, 1524249, 1535675, 
+        1535676, 1535678, 1535680, 1536694, 1541670, 1541743, 1543703, 1549619, 1551504, 1572860, 1574283, 1582879, 1593364, 1597779, 1608298, 1608830, 1609595, 1632780, 1647181, 1649455, 1649470, 1649508, 1654711, 1655545, 1655549, 
+        1678397, 1680826, 1682492, 1686313, 1699066, 1699619, 1702237, 1705400, 1705729, 1715798, 1734920, 1765682, 1769008, 1769732, 1775716, 1803510, 1803511, 1803512, 1825023, 1840207, 1844267, 1844514, 1847386, 1847725, 1849603, 
+        1853301, 1861843, 1867035, 1868136, 1874526, 1885577, 1885582, 1885584, 1885586, 1902578, 1902823, 1905838, 1906657, 1906659, 1906660, 1906661, 1912923, 1913444, 1918454, 1918951, 1920251, 1930845, 1930932, 1931219, 1933048, 
+        1935019, 1938003, 1940138, 1951300, 1958823, 1978122, 1980681, 1982970, 1983104, 1983114, 1993870, 2004797, 2023214, 2023233, 2026734, 2027874, 2030919, 2039302, 2040999, 2041162, 2047984, 2056121, 2066470, 2066914, 2077315, 
+        2093740, 2108438, 2126330, 2137422, 2170555, 2172004, 2175151, 2202177, 2202197);
         $c = array_merge($a, $b);
         return array_unique($c);
     }
@@ -370,12 +374,90 @@ class DWH_NCBI_API
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit;
+            /*Array(
+                [tax_id] => 1
+                [parent_tax_id] => 1
+                [rank] => no rank
+                [embl_code] => 
+                [division_id] => 8
+                [inherited div flag] => 0
+                [genetic code id] => 1
+                [inherited GC flag] => 0
+                [mitochondrial genetic code id] => 0
+                [inherited MGC flag] => 0
+                [GenBank hidden flag] => 0
+                [hidden subtree root flag] => 0
+                [comments] => 
+            )*/
             if(isset($final[$rec['tax_id']])) exit("\nInvestigate not unique tax_id in nodes.dmp\n");
             $final[$rec['tax_id']] = array("pID" => $rec['parent_tax_id'], 'r' => $rec['rank'], 'dID' => $rec['division_id']);
+            
+            /* debug only
+            if($rec['tax_id'] == 2169824) print_r($final[$rec['tax_id']]);
+            elseif($rec['tax_id'] == 2574718) print_r($final[$rec['tax_id']]);
+            elseif($rec['tax_id'] == 1448987) print_r($final[$rec['tax_id']]);
+            */
+            
             // print_r($final); exit;
         }
+        // exit("\nexit muna 01\n");
         fclose($file);
         return $final;
+    }
+    private function is_tax_id_a_virus($ancestry)
+    {
+        if(in_array($this->Viruses_Taxonomy_ID, $ancestry)) return true;
+        else return false;
+    }
+    private function does_sciname_start_with_Candidatus_et_al($sciname, $Candidatus_only_YN = false)
+    {
+        if($Candidatus_only_YN) $starts_with = array('Candidatus'); //from last section of TRAM-981
+        else                    $starts_with = array('Candidatus', "'", "(", "["); //orig
+        foreach($starts_with as $s) {
+            $count = strlen($s);
+            if(substr($sciname, 0, $count) == $s) return true;
+        }
+        return false;
+    }
+    private function does_sciname_contains_phytoplasma_et_al($sciname)
+    {
+        $strings = array(" x ", "phytoplasma");
+        foreach($strings as $str) {
+            if(stripos($sciname, $str) !== false) return true; //string is found
+        }
+        return false;
+    }
+    private function is_sciname_a_strict_binomial($sciname)
+    {   /*
+        1 uppercase letter
+        1 or more lowercase letters
+        1 whitespace
+        1 or more lowercase letters or dashes: -
+        */
+        $sciname = Functions::remove_whitespace(trim($sciname));
+        if(self::get_number_of_UpperLower_case_letter($sciname, 'upper') == 1) {
+            if(self::get_number_of_UpperLower_case_letter($sciname, 'lower') >= 1) {
+                if(substr_count($sciname, " ") == 1) {
+                    if(self::get_number_of_UpperLower_case_letter($sciname, 'lower') >= 1 || substr_count($sciname, "-") >= 1) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    private function get_number_of_UpperLower_case_letter($sciname, $what)
+    {   $count = 0;
+        for($x = 0; $x <= strlen($sciname)-1; $x++) {
+            if($what == 'upper') {
+                if(ctype_upper(substr($sciname,$x,1))) $count++;
+            }
+            elseif($what == 'lower') {
+                if(ctype_upper(substr($sciname,$x,1))) $count++;
+            }
+            
+        }
+        return $count;
     }
     private function main_tram_795()
     {
@@ -385,22 +467,24 @@ class DWH_NCBI_API
         $taxID_info['xxx'] = array("pID" => '', 'r' => '', 'dID' => '');
         $taxID_info = self::get_taxID_nodes_info();
         
+        /* test only
+        $id = 10090; $ancestry = self::get_ancestry_of_taxID($id, $taxID_info); echo "\nancestry of [$id]"; print_r($ancestry); //Mus musculus
+        if(self::is_tax_id_a_virus($ancestry)) echo "\n[$id] is a virus\n";
+        else                                  echo "\n[$id] is NOT a virus\n";
+        $id = 1448987; $ancestry = self::get_ancestry_of_taxID($id, $taxID_info); echo "\nancestry of [$id]"; print_r($ancestry);
+        if(self::is_tax_id_a_virus($ancestry)) echo "\n[$id] is a virus\n";
+        else                                  echo "\n[$id] is NOT a virus\n";
+        $id = 340016; $ancestry = self::get_ancestry_of_taxID($id, $taxID_info); echo "\nancestry of [$id]"; print_r($ancestry);
+        if(self::is_tax_id_a_virus($ancestry)) echo "\n[$id] is a virus\n";
+        else                                  echo "\n[$id] is NOT a virus\n";
+        exit("\n-end test-\n");
+        */
+        
         $removed_branches = self::get_removed_branches_from_spreadsheet();
         /* additional IDs are taken from undefined_parents report after each connector run */
         $removed_branches[1296341] = '';
         $removed_branches[993557] = '';
         $removed_branches[1391733] = '';
-        /* no need to add this, same result anyway
-        $removed_branches[1181] = '';
-        $removed_branches[1188] = '';
-        $removed_branches[56615] = '';
-        $removed_branches[59765] = '';
-        $removed_branches[169066] = '';
-        $removed_branches[242159] = '';
-        $removed_branches[252598] = '';
-        $removed_branches[797742] = '';
-        $removed_branches[1776082] = '';
-        */
         echo "\nMain processing...";
         $fields = $this->file['names.dmp']['fields'];
         $file = Functions::file_open($this->file['names.dmp']['path'], "r");
@@ -448,6 +532,15 @@ class DWH_NCBI_API
                 [unique_name] => 
                 [name_class] => synonym
             )*/
+            
+            /* debug only
+            if($rec['tax_id'] == 2169824) print_r($rec);
+            elseif($rec['tax_id'] == 2574718) print_r($rec);
+            else continue;
+            */
+            
+            
+            
             /* start filtering: 
             1. Filter by division_id: Remove taxa where division_id in nodes.dmp is 7 (environmental samples) or 11 (synthetic and chimeric taxa) */
             if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) {$filtered_ids[$rec['tax_id']] = ''; continue;}
@@ -483,6 +576,11 @@ class DWH_NCBI_API
             85262	|	Streptocarpus ionanthus (H.Wendl.) Christenh.	|		|	authority	|
             */
             
+            /* TRAM-981
+            1. Expanding 2b in TRAM-795:
+            Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr.
+            Please also apply the aff.|cf.|nr. filter to taxa of rank subspecies, varietas, or forma.
+            */
             if($rec['name_class'] == "scientific name") {
                 $rank = $taxID_info[$rec['tax_id']]['r'];
                 if(in_array($rank, array('species', 'no rank'))) {
@@ -491,14 +589,97 @@ class DWH_NCBI_API
                     elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
                     elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
                 }
+                elseif(in_array($rank, array('subspecies', 'varietas', 'forma'))) { //TRAM-981 #1
+                    if(stripos($rec['name_txt'], " aff.") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                    elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                    elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                }
             }
             elseif(in_array($rec['name_class'], $this->alternative_names)) {
-                if(stripos($rec['name_txt'], " sp.") !== false)      {continue;} //string is found
-                elseif(stripos($rec['name_txt'], " aff.") !== false) {continue;} //string is found
-                elseif(stripos($rec['name_txt'], " cf.") !== false)  {continue;} //string is found
-                elseif(stripos($rec['name_txt'], " nr.") !== false)  {continue;} //string is found
+                if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
             }
             // Total rows: xxx      Processed rows: xxx
+            
+            // /* TRAM-981 #2. Remove all taxa (regardless of rank) where scientificName includes the string "genomosp"
+            if(stripos($rec['name_txt'], "genomosp") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+            // */
+            
+            /* TRAM-981 #3. Remove species with non-binomial names, i.e., taxa with the following profile:
+            taxonRank IS "species"
+            AND taxon is NOT a descendant of Viruses (virus species names are not binomials)
+            AND scientificName does NOT start with "Candidatus" OR one of the following characters: '([
+            AND scientificName does NOT contain any of the following strings: (" x " OR "phytoplasma") [that's an x with whitespace before & after, indicating a hybrid, case insensitive]
+            AND scientificName is not a strict binomial, i.e., does not follow the pattern:
+            1 uppercase letter
+            1 or more lowercase letters
+            1 whitespace
+            1 or more lowercase letters or dashes: -
+            */
+            $rank = $taxID_info[$rec['tax_id']]['r'];
+            if(in_array($rank, array('species'))) {
+                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+                if(!self::is_tax_id_a_virus($ancestry)) { //taxon is NOT a descendant of Viruses
+                    $sciname = $rec['name_txt'];
+                    if(!self::does_sciname_start_with_Candidatus_et_al($sciname)) {
+                        if(!self::does_sciname_contains_phytoplasma_et_al($sciname)) {
+                            if(!self::is_sciname_a_strict_binomial($sciname)) {
+                                $filtered_ids[$rec['tax_id']] = '';
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            /* end - TRAM-981 #3.*/
+            
+            /* TRAM-981 #4. Remove surrogate rankless surrogates below species level, i.e., taxa with the following profile:
+            taxon is NOT a descendant of Viruses
+            AND scientificName does NOT contain "phytoplasma"
+            AND taxonRank IS "no rank"
+            AND taxonRank of PARENT IS ("species" OR "subspecies" OR "varietas" OR "forma")
+            */
+            $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+            if(!self::is_tax_id_a_virus($ancestry)) { //taxon is NOT a descendant of Viruses
+                $sciname = $rec['name_txt'];
+                if(substr_count($sciname, "phytoplasma") == 0) { //AND scientificName does NOT contain "phytoplasma"
+                    $rank = $taxID_info[$rec['tax_id']]['r'];
+                    if($rank == 'no rank') { //AND taxonRank IS "no rank"
+                        if($parent_id = @$taxID_info[$rec['tax_id']]['pID']) { //AND taxonRank of PARENT IS ("species" OR "subspecies" OR "varietas" OR "forma")
+                            $rank_of_parent = @$taxID_info[$parent_id]['r'];
+                            if(in_array($rank_of_parent, array("species","subspecies","varietas","forma"))) {
+                                $filtered_ids[$rec['tax_id']] = '';
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+            /* end - TRAM-981 #4.*/
+            
+            /* TRAM-981 #5. Remove remaining surrogate taxa below species level, i.e., taxa with the following profile:
+            rank IS ("subspecies" OR "varietas" OR "forma")
+            AND taxon is NOT a descendant of Viruses
+            AND scientificName includes 1 or more numbers
+            */
+            $rank = $taxID_info[$rec['tax_id']]['r'];
+            if(in_array($rank, array("subspecies","varietas","forma"))) {
+                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+                if(!self::is_tax_id_a_virus($ancestry)) { //taxon is NOT a descendant of Viruses
+                    $sciname = $rec['name_txt']; //AND scientificName includes 1 or more numbers
+                    preg_match_all('!\d+!', $sciname, $matches);
+                    // print_r($matches);
+                    if($val = @$matches[0]) {
+                        if(count($val) >= 1) {
+                            $filtered_ids[$rec['tax_id']] = '';
+                            continue;
+                        }
+                    }
+                }
+            }
+            /* end - TRAM-981 #5.*/
             
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
             
@@ -523,6 +704,9 @@ class DWH_NCBI_API
             $processed++;
         }
         fclose($file);
+        
+        $tmp = $removed_branches + $filtered_ids;
+        $removed_branches = $tmp;
         
         // =================================================start 2
         echo "\nMain processing 2...";
@@ -563,6 +747,8 @@ class DWH_NCBI_API
             
             /* 3. Remove branches */
             $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
+            if(count($ancestry) == 1 && $ancestry[0] == $rec['tax_id']) $this->debug['no ancestry'][$rec['tax_id']] = ''; //for stats only
+            
             if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
                 $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['tax_id']] = '';
                 continue;
@@ -608,6 +794,9 @@ class DWH_NCBI_API
         So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. Sorry, I realize I didn't make this clear in my initial instructions. 
         I have added a note about it now. */
         if(!in_array($rec['name_class'], array("common name", "genbank common name"))) {
+            
+            $rec = self::TRAM_981_last_section($rec);
+            
             $computed_ids = self::format_tax_id($rec);
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID = $computed_ids['tax_id'];
@@ -649,6 +838,28 @@ class DWH_NCBI_API
             }
             // */
         }
+    }
+    private function TRAM_981_last_section($rec)
+    {
+        /* TRAM-981 - last section:
+        Put scientificName in single quotes IF
+        1. scientificName STARTS WITH "Candidatus"
+        2. OR scientificName contains "complex" and is not a uninomial or binomial, i.e., it contains more than one white space.
+        */
+        $sciname = trim(Functions::remove_whitespace($rec['name_txt']));
+        if(self::does_sciname_start_with_Candidatus_et_al($sciname, true) || 
+            (
+                (stripos($sciname, "complex") !== false) //string is found
+                &&
+                substr_count($sciname, " ") > 1
+            )
+        )
+        {
+            $rec['name_txt'] = "'".$sciname."'";
+            // echo "\nwith single quotes: [".$rec['name_txt']."]\n"; //debug only
+        }
+        return $rec;
+        /* - end TRAM-981 - last section */
     }
     private function format_tax_id($rec)
     {   /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
