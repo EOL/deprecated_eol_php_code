@@ -9,7 +9,11 @@ require_library('connectors/DWH_NCBI_API');
 $timestart = time_elapsed();
 $resource_id = "NCBI_Taxonomy_Harvest_DH"; //orig
 // $resource_id = "2"; //for testing
-$func = new DWH_NCBI_API($resource_id);
+
+$with_comnames = true;  //orig
+$with_comnames = false; //requested by Katja, to pinpoint the problem in harvesting.
+
+$func = new DWH_NCBI_API($resource_id, $with_comnames);
 // $GLOBALS['ENV_DEBUG'] = true;
 
 // /* un-comment in normal operation
