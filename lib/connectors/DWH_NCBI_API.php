@@ -31,11 +31,11 @@ class DWH_NCBI_API
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
         $this->debug = array();
-        $this->file['names.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/names.dmp";
+        $this->file['names.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump_2020_02_03/names.dmp";
         $this->file['names.dmp']['fields'] = array("tax_id", "name_txt", "unique_name", "name_class");
-        $this->file['nodes.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/nodes.dmp";
+        $this->file['nodes.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump_2020_02_03/nodes.dmp";
         $this->file['nodes.dmp']['fields'] = array("tax_id", "parent_tax_id", "rank", "embl_code", "division_id", "inherited div flag", "genetic code id", "inherited GC flag", "mitochondrial genetic code id", "inherited MGC flag", "GenBank hidden flag", "hidden subtree root flag", "comments");
-        $this->file['citations.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump/citations.dmp";
+        $this->file['citations.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump_2020_02_03/citations.dmp";
         $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-796 -----------------------------------------------------------
@@ -45,6 +45,7 @@ class DWH_NCBI_API
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
         //start TRAM-981 -----------------------------------------------------------
         $this->Viruses_Taxonomy_ID = 10239;
+        $this->local_debug = false; //primarily during development set to true. Otherwise set to false.
     }
     // ----------------------------------------------------------------- start TRAM-796 -----------------------------------------------------------------
     private function get_meta_info($row_type = false)
@@ -127,8 +128,11 @@ class DWH_NCBI_API
         $taxID_info = self::get_taxID_nodes_info();
         $removed_branches = array(); $i = 0;
         foreach($this->prune_further as $id) $removed_branches[$id] = '';
-        $add = self::more_ids_to_remove();
+        
+        // /* IMPORTANT: for every taxdump refresh, comment this block, then run, then fill-up more_ids_to_remove_TRAM_796() as needed. Then un-comment this block and run again to finalize.
+        $add = self::more_ids_to_remove_TRAM_796();
         foreach($add as $id) $removed_branches[$id] = '';
+        // */
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
@@ -230,6 +234,8 @@ class DWH_NCBI_API
             if(isset($filtered_ids[$rec['taxonID']])) continue;
             if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
             if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
+
+            if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
             
             if($rec['taxonomicStatus'] == "accepted") {
                 /* Remove branches */
@@ -286,28 +292,40 @@ class DWH_NCBI_API
         }
         return false;
     }
-    private function more_ids_to_remove() //updated for TRAM-981
+    private function more_ids_to_remove_TRAM_796() //updated for TRAM-981
     {
         //parentNameUsageID -> 1_undefined_parent_ids.txt
         $a = array();
-        //acceptedNameUsageID -> 1_undefined_acceptedName_ids.txt
-        $b = array(88, 131, 132, 423, 679, 683, 702, 1567, 2038, 2306, 28067, 29402, 29403, 32012, 32043, 32044, 33055, 34102, 36862, 38777, 41206, 41207, 42686, 50055, 54066, 54758, 
-        54759, 56240, 57173, 58337, 58338, 59507, 59508, 62676, 64559, 65047, 67684, 67688, 77915, 83220, 92793, 93681, 100668, 100761, 107830, 112008, 114248, 118011, 119861, 119862, 
-        126824, 135579, 137460, 137461, 143692, 169055, 174924, 174925, 189384, 190972, 196614, 196616, 198346, 203804, 204619, 210011, 212743, 212791, 213485, 215802, 221239, 221240, 
-        221279, 223232, 223385, 223386, 237321, 238670, 251534, 251535, 251536, 251537, 251538, 251539, 251540, 251541, 251542, 251543, 251544, 251545, 257502, 262406, 263643, 264311, 
-        265310, 265570, 265670, 265671, 265980, 269252, 269258, 269260, 279809, 283918, 293924, 293925, 293926, 295320, 306266, 306267, 310966, 314672, 314673, 316612, 318147, 318476, 
-        318480, 326458, 327159, 330062, 332518, 332652, 332653, 335967, 335971, 336377, 336378, 336809, 337328, 338604, 347014, 349553, 349554, 349742, 359552, 360239, 362860, 374666, 376743, 382725, 386607, 386608, 388394, 388395, 391607, 391608, 391952, 393764, 395928, 395929, 398772, 400771, 404402, 404998, 412032, 412033, 415014, 417293, 417294, 427706, 445219, 447792, 448125, 448157, 448158, 454131, 455252, 467084, 467747, 470491, 470492, 472825, 482135, 482171, 482172, 483197, 484769, 486506, 492233, 495819, 502742, 511434, 536375, 540501, 561442, 568068, 568400, 568987, 568988, 573657, 582472, 588816, 644355, 654416, 655184, 666376, 670955, 693993, 741759, 744995, 745004, 745410, 749710, 749852, 754249, 767528, 767891, 862775, 869714, 907288, 909656, 936052, 991903, 1048752, 1076625, 1076628, 1076629, 1078904, 1114981, 1125862, 1145345, 1146865, 1154686, 1176416, 1191175, 1227554, 1246645, 1265508, 1273155, 1301080, 1302410, 1381133, 1392389, 1400827, 1400857, 1400859, 1408812, 1410382, 1414835, 1427135, 1433992, 1433993, 1433998, 1434017, 1434023, 1434025, 1448937, 1449912, 1465824, 1472763, 1484898, 1485594, 1495041, 1501224, 1502180, 1505531, 1524249, 1536694, 1541670, 1541743, 1543703, 1549619, 1572860, 1574283, 1582879, 1593364, 1597779, 1608298, 1608830, 1609595, 1632780, 1647181, 1649455, 1649470, 1649508, 1654711, 1655545, 1655549, 1678397, 1682492, 1686313, 1699066, 1699619, 1702237, 1705729, 1715798, 1734920, 1765682, 1769008, 1769732, 1775716, 1825023, 1840207, 1844267, 1844514, 1847725, 1861843, 1867035, 1885577, 1885582, 1885584, 1885586, 1902578, 1902823, 1905838, 1906657, 1906659, 1906660, 1906661, 1912923, 1913444, 1918454, 1920251, 1930845, 1930932, 1931219, 1933048, 1938003, 1940138, 1951300, 1957017, 1978122, 1980681, 1982970, 1983104, 1983114, 1993870, 2023214, 2023233, 2026734, 2026791, 2027874, 2030919, 2039302, 2040999, 2053538, 2056121, 2066470, 2066914, 2077315, 2081523, 2093740, 2094028, 2126330, 2137422, 2170555, 2172004, 2175151, 2202177, 2211178, 2219504, 2250257, 2302373, 2303498, 2489367, 2497653, 2507573, 2510792, 2517205, 2517210, 2565576, 2590445, 2594591, 2594592, 2607661, 2608261, 2608792, 2666346, 2666348, 2678343);
+        //acceptedNameUsageID -> 1_undefined_acceptedName_ids.txt (n = 554 as of Feb 4, 2020)
+        $b = array(88, 89, 131, 132, 290, 417, 423, 679, 683, 702, 703, 749, 757, 926, 1003, 1535, 1549, 1567, 1627, 2038, 2039, 2306, 28067, 28068, 29343, 29345, 29346, 29349, 29402, 29403, 32012, 32043, 32044, 33055, 33056, 33939, 
+        34102, 34103, 35781, 36589, 36862, 36863, 38282, 38777, 39491, 39492, 40991, 41203, 41206, 41207, 42686, 46507, 47246, 50055, 50057, 54066, 54067, 54758, 54759, 56240, 57173, 58337, 58338, 59507, 59508, 62676, 64559, 
+        65047, 65048, 65501, 67684, 67688, 71189, 72993, 77915, 79879, 80877, 83220, 84026, 85683, 86183, 86188, 89152, 90729, 92793, 93681, 100668, 100761, 101530, 101533, 101534, 107830, 108080, 112008, 112009, 114248, 118011, 
+        119861, 119862, 123820, 123822, 126824, 135579, 136611, 137460, 137461, 138072, 138073, 143692, 162154, 169055, 174924, 174925, 186490, 189384, 189385, 190972, 196614, 196616, 198346, 203804, 203907, 204619, 210011, 212743, 
+        212791, 213485, 215802, 221239, 221240, 221279, 221280, 223232, 223385, 223386, 233181, 237321, 238670, 251534, 251535, 251536, 251537, 251538, 251539, 251540, 251541, 251542, 251543, 251544, 251545, 257501, 257502, 262406, 
+        263643, 264311, 265310, 265570, 265670, 265671, 265980, 266021, 269252, 269258, 269260, 279809, 283918, 283919, 293924, 293925, 293926, 295320, 306266, 306267, 310966, 311458, 314672, 314673, 316612, 318147, 318476, 318480, 
+        326458, 327159, 327160, 330062, 332518, 332652, 332653, 335967, 335971, 336377, 336378, 336809, 336810, 337328, 338604, 347014, 349553, 349554, 349742, 359552, 360239, 362860, 363843, 364030, 374666, 374667, 376743, 376746, 
+        376748, 382725, 384638, 386487, 386607, 386608, 388394, 388395, 391607, 391608, 391952, 392597, 393764, 393765, 395928, 395929, 398772, 400771, 404402, 404998, 412032, 412033, 413882, 415014, 417293, 417294, 427706, 431677, 445219, 445220, 447792, 448125, 448157, 448158, 454131, 455252, 457575, 467084, 467085, 467598, 467747, 470491, 470492, 472825, 472834, 482135, 482171, 482172, 483197, 484769, 485180, 486506, 486507, 492233, 495819, 495820, 502742, 511434, 536375, 540501, 561442, 568068, 568400, 568987, 568988, 573657, 573658, 582472, 588816, 592379, 616952, 633142, 641636, 644355, 654416, 655184, 665467, 666376, 669502, 670955, 670956, 680363, 693227, 693993, 700201, 728055, 741759, 744995, 745004, 745410, 749710, 749852, 751577, 754249, 767528, 767891, 767892, 862775, 869714, 869715, 869716, 881286, 907288, 909656, 936052, 991903, 994692, 994695, 994696, 1010676, 1048752, 1070130, 1076625, 1076626, 1076628, 1076629, 1078904, 1078905, 1090944, 1104448, 1114981, 1125007, 1125862, 1134440, 1145345, 1146865, 1154686, 1160784, 1176416, 1191175, 1227554, 1246645, 1249552, 1265508, 1265509, 1273155, 1297617, 1301080, 1302410, 1302411, 1345115, 1345117, 1353246, 1381133, 1384589, 1392389, 1397666, 1400827, 1400857, 1400859, 1400860, 1400862, 1407055, 1408812, 1410382, 1410383, 1410606, 1414643, 1414835, 1427135, 1427364, 1433992, 1433993, 1433998, 1434017, 1434023, 1434025, 1442619, 1445552, 1448937, 1449912, 1457365, 1465824, 1472763, 1484898, 1485594, 1495041, 1499975, 1500506, 1501224, 1502180, 1505531, 1521554, 1524249, 1536694, 1541670, 1541743, 1543703, 1549619, 1572860, 1574283, 1576550, 1582879, 1593364, 1594731, 1597779, 1603555, 1607817, 1608298, 1608830, 1609595, 1617948, 1632780, 1647181, 1649455, 1649470, 1649508, 1654711, 1655433, 1655545, 1655549, 1678397, 1682492, 1686313, 1699066, 1699619, 1702214, 1702237, 1702241, 1705394, 1705729, 1705730, 1715798, 1734920, 1765682, 1765684, 1769008, 1769732, 1774968, 1774969, 1774970, 1774971, 1775716, 1778262, 1778263, 1778264, 1818881, 1825023, 1838285, 1839936, 1840207, 1844267, 1844514, 1846278, 1847725, 1860102, 1861843, 1867035, 1867040, 1885577, 1885581, 1885582, 1885583, 1885584, 1885585, 1885586, 1885587, 1902578, 1902579, 1902823, 1902826, 1902827, 1903276, 1903277, 1905838, 1905839, 1906657, 1906659, 1906660, 1906661, 1912923, 1913444, 1918454, 1920251, 1930845, 1930932, 1931219, 1933048, 1938003, 1940138, 1940235, 1951300, 1957017, 1971484, 1971485, 1978122, 1980681, 1982970, 1983104, 1983114, 1993870, 2014174, 2023214, 2023233, 2026734, 2026791, 2027874, 2030919, 2039302, 2040999, 2053538, 2056121, 2058498, 2066470, 2066471, 2066914, 2077315, 2081523, 2093740, 2094028, 2126330, 2137422, 2137423, 2163959, 2170555, 2172004, 2175151, 2202177, 2202197, 2211178, 2219504, 2250257, 2302373, 2303498, 2489367, 2497653, 2507573, 2509695, 2510792, 2517205, 2517210, 2548426, 2565576, 2565582, 2590445, 2594591, 2594592, 2607661, 2608261, 2608262, 2608792, 2608793, 2666346, 2666348, 2678343);
         $c = array_merge($a, $b);
         return array_unique($c);
     }
     // ----------------------------------------------------------------- end TRAM-796 -----------------------------------------------------------------
+    private function more_ids_to_remove_TRAM_795() //updated for TRAM-981
+    {
+        //parentNameUsageID -> 1_undefined_parent_ids.txt
+        $a = array(9900);
+        //acceptedNameUsageID -> 1_undefined_acceptedName_ids.txt
+        $b = array();
+        $c = array_merge($a, $b);
+        return array_unique($c);
+    }
     function start_tram_795()
     {
         // 19   https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=19      18  Pelobacter carbinolicus species accepted    2912; 5381
         /* test
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(936556, $taxID_info); print_r($ancestry);
-        // $ancestry = self::get_ancestry_of_taxID(503548, $taxID_info); print_r($ancestry);
+        // $ancestry = self::get_ancestry_of_taxID(984211, $taxID_info); print_r($ancestry); print_r($taxID_info[984211]);
+        // $ancestry = self::get_ancestry_of_taxID(1173450, $taxID_info); print_r($ancestry); print_r($taxID_info[1173450]);
+        $ancestry = self::get_ancestry_of_taxID(59201, $taxID_info); print_r($ancestry); print_r($taxID_info[59201]);
         exit("\n-end tests-\n");
         */
         /* test
@@ -413,7 +431,22 @@ class DWH_NCBI_API
     }
     private function does_sciname_start_with_Candidatus_et_al($sciname, $Candidatus_only_YN = false)
     {
-        if($Candidatus_only_YN) $starts_with = array('Candidatus'); //from last section of TRAM-981
+/*
+Hi Katja,
+The three Candidatus you mentioned above are represented like these in the source:
+- 2601574	|	"Candidatus Cytomitobacter" Tashyreva, Prokopchuk, and Lukes 2018	|		|	synonym	|
+- 1968910	|	"Candidatus Nitrosocaldaceae" Qin et al. 2016	|		|	authority	|
+- 1968909	|	"Candidatus Nitrosocaldales" Qin et al. 2017	|		|	authority	|
+
+They started with double quotes.
+So do you want them converted to:
+    '"Candidatus Cytomitobacter" Tashyreva, Prokopchuk, and Lukes 2018'
+Or
+    'Candidatus Cytomitobacter Tashyreva, Prokopchuk, and Lukes 2018'
+Thanks.
+*/
+        
+        if($Candidatus_only_YN) $starts_with = array('Candidatus', '"Candidatus'); //from last section of TRAM-981
         else                    $starts_with = array('Candidatus', "'", "(", "["); //orig
         foreach($starts_with as $s) {
             $count = strlen($s);
@@ -473,23 +506,15 @@ class DWH_NCBI_API
         $id = 10090; $ancestry = self::get_ancestry_of_taxID($id, $taxID_info); echo "\nancestry of [$id]"; print_r($ancestry); //Mus musculus
         if(self::is_tax_id_a_virus($ancestry)) echo "\n[$id] is a virus\n";
         else                                  echo "\n[$id] is NOT a virus\n";
-        $id = 1448987; $ancestry = self::get_ancestry_of_taxID($id, $taxID_info); echo "\nancestry of [$id]"; print_r($ancestry);
-        if(self::is_tax_id_a_virus($ancestry)) echo "\n[$id] is a virus\n";
-        else                                  echo "\n[$id] is NOT a virus\n";
-        $id = 340016; $ancestry = self::get_ancestry_of_taxID($id, $taxID_info); echo "\nancestry of [$id]"; print_r($ancestry);
-        if(self::is_tax_id_a_virus($ancestry)) echo "\n[$id] is a virus\n";
-        else                                  echo "\n[$id] is NOT a virus\n";
         exit("\n-end test-\n");
         */
         
         $removed_branches = self::get_removed_branches_from_spreadsheet();
-        /* additional IDs are taken from undefined_parents report after each connector run
-        from 2018: OK
-        $removed_branches[1296341] = '';
-        $removed_branches[993557] = '';
-        $removed_branches[1391733] = '';
-        Note: not needed anymore for TRAM-981.
-        */
+        // /* Additional IDs are taken from undefined_parents report after each connector run.
+        // IMPORTANT: for every taxdump refresh, comment this block, then run, then fill-up more_ids_to_remove_TRAM_795() as needed. Then un-comment this block and run again to finalize.
+        $add = self::more_ids_to_remove_TRAM_795();
+        foreach($add as $id) $removed_branches[$id] = '';
+        // */
         
         echo "\nMain processing...TRAM-795";
         $fields = $this->file['names.dmp']['fields'];
@@ -540,20 +565,36 @@ class DWH_NCBI_API
             )*/
             
             /* debug only
-            if($rec['tax_id'] == 2169824) print_r($rec);
-            elseif($rec['tax_id'] == 2574718) print_r($rec);
+            // if($rec['tax_id'] == 7 && $rec['name_txt'] == 'Azorhizobium caulinodans' && $rec['name_class'] == 'scientific name') {
+            // if($rec['tax_id'] == 984211) {
+            // if($rec['tax_id'] == 58712) {
+            // if($rec['tax_id'] == 58096) {
+            // if($rec['tax_id'] == 9900) { //Bison
+            // if($rec['tax_id'] == 27592) { //Bovinae. The parent of Bison
+            if($rec['tax_id'] == 9895) { //Bovidae. The parent of Bovinae
+                *next: parent of 9895 is 35500
+                print_r($rec);
+                print_r($taxID_info[$rec['tax_id']]);
+            }
             else continue;
             */
             
             /* start filtering: 
             1. Filter by division_id: Remove taxa where division_id in nodes.dmp is 7 (environmental samples) or 11 (synthetic and chimeric taxa) */
-            if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) {$filtered_ids[$rec['tax_id']] = ''; continue;}
-            // Total rows: 2687427      Processed rows: 2609534
-
+            if(in_array($taxID_info[$rec['tax_id']]['dID'], array(7,11))) {
+                if($rec['name_class'] == "scientific name") $filtered_ids[$rec['tax_id']] = '';
+                else                                        $filtered_names[$rec['name_txt']] = '';
+                continue;
+            }
+            if($this->local_debug) echo "\nreached 100\n";
             /* 2. Filter by text string
             a. Remove taxa that have the string “environmental sample” in their scientific name. This will get rid of those environmental samples that don’t have the environmental samples division for some reason. */
-            if(stripos($rec['name_txt'], "environmental sample") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-            // Total rows: 2687427      Processed rows: 2609488
+            if(stripos($rec['name_txt'], "environmental sample") !== false) {
+                if($rec['name_class'] == "scientific name") $filtered_ids[$rec['tax_id']] = '';
+                else                                        $filtered_names[$rec['name_txt']] = '';
+                continue;
+            } //string is found
+            if($this->local_debug) echo "\nreached 101\n";
             
             /* b. Remove all taxa of rank species where the scientific name includes one of the following strings: sp.|aff.|cf.|nr.
             This will get rid of a lot of the samples that haven’t been identified to species. */
@@ -594,22 +635,27 @@ class DWH_NCBI_API
                     elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
                 }
                 elseif(in_array($rank, array('subspecies', 'varietas', 'forma'))) { //TRAM-981 #1
-                    if(stripos($rec['name_txt'], " aff.") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                    if(stripos($rec['name_txt'], " aff.") !== false)     {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
                     elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
                     elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
                 }
             }
             elseif(in_array($rec['name_class'], $this->alternative_names)) {
-                if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
-                elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+                if(stripos($rec['name_txt'], " sp.") !== false)      {$filtered_names[$rec['name_txt']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " aff.") !== false) {$filtered_names[$rec['name_txt']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " cf.") !== false)  {$filtered_names[$rec['name_txt']] = ''; continue;} //string is found
+                elseif(stripos($rec['name_txt'], " nr.") !== false)  {$filtered_names[$rec['name_txt']] = ''; continue;} //string is found
             }
-            // Total rows: xxx      Processed rows: xxx
+            if($this->local_debug) echo "\nreached 102\n";
             
             // /* TRAM-981 #2. Remove all taxa (regardless of rank) where scientificName includes the string "genomosp"
-            if(stripos($rec['name_txt'], "genomosp") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+            if(stripos($rec['name_txt'], "genomosp") !== false) {
+                if($rec['name_class'] == "scientific name") $filtered_ids[$rec['tax_id']] = '';
+                else                                        $filtered_names[$rec['name_txt']] = '';
+                continue;
+            } //string is found
             // */
+            if($this->local_debug) echo "\nreached 103\n";
             
             /* TRAM-981 #3. Remove species with non-binomial names, i.e., taxa with the following profile:
             taxonRank IS "species"
@@ -631,7 +677,8 @@ class DWH_NCBI_API
                     if(!self::does_sciname_start_with_Candidatus_et_al($sciname)) {
                         if(!self::does_sciname_contains_phytoplasma_et_al($sciname)) {
                             if(!self::is_sciname_a_strict_binomial($sciname)) {
-                                $filtered_ids[$rec['tax_id']] = '';
+                                if($rec['name_class'] == "scientific name") $filtered_ids[$rec['tax_id']] = '';
+                                else                                        $filtered_names[$rec['name_txt']] = '';
                                 continue;
                             }
                         }
@@ -639,6 +686,7 @@ class DWH_NCBI_API
                 }
             }
             /* end - TRAM-981 #3.*/
+            if($this->local_debug) echo "\nreached 104\n";
             
             /* TRAM-981 #4. Remove surrogate rankless surrogates below species level, i.e., taxa with the following profile:
             taxon is NOT a descendant of Viruses
@@ -655,14 +703,44 @@ class DWH_NCBI_API
                         if($parent_id = @$taxID_info[$rec['tax_id']]['pID']) { //AND taxonRank of PARENT IS ("species" OR "subspecies" OR "varietas" OR "forma")
                             $rank_of_parent = @$taxID_info[$parent_id]['r'];
                             if(in_array($rank_of_parent, array("species","subspecies","varietas","forma"))) {
-                                $filtered_ids[$rec['tax_id']] = '';
+                                if($rec['name_class'] == "scientific name") $filtered_ids[$rec['tax_id']] = '';
+                                else                                        $filtered_names[$rec['name_txt']] = '';
                                 continue;
                             }
                         }
                     }
                 }
             }
+/*
+Hi Katja,
+Upon checking, most of the names in your droppedTaxaToInvestigate.txt have now been accounted for (DwCA still have to be updated).
+Except for those Salmonela names.
+e.g.
+984211	Salmonella enterica subsp. enterica serovar Anatum str. ATCC BAA-1592
+These names will be removed because its parent which is tax_id = 58712
+
+[tax_id] => 58712
+[name_txt] => Salmonella enterica subsp. enterica serovar Anatum
+[unique_name] => 
+[name_class] => scientific name
+[rank] => no rank
+[parentID] => 59201
+[parentID_rank] => subspecies
+[divisionID] => 0
+
+got removed under TRAM-981 #4. "Remove surrogate rankless surrogates below species level".
+- taxon is NOT a descendant of Viruses
+- AND scientificName does NOT contain "phytoplasma"
+- AND taxonRank IS "no rank"
+- AND taxonRank of PARENT IS ("species" OR "subspecies" OR "varietas" OR "forma")
+
+So all descendants of 58712, including 984211 will be removed.
+Please tell me if we need to adjust #4 or if I've incorrectly implemented it.
+Thanks.
+*/
+            
             /* end - TRAM-981 #4.*/
+            if($this->local_debug) echo "\nreached 105\n";
             
             /* TRAM-981 #5. Remove remaining surrogate taxa below species level, i.e., taxa with the following profile:
             rank IS ("subspecies" OR "varietas" OR "forma")
@@ -678,40 +756,28 @@ class DWH_NCBI_API
                     // print_r($matches);
                     if($val = @$matches[0]) {
                         if(count($val) >= 1) {
-                            $filtered_ids[$rec['tax_id']] = '';
+                            if($rec['name_class'] == "scientific name") $filtered_ids[$rec['tax_id']] = '';
+                            else                                        $filtered_names[$rec['name_txt']] = '';
                             continue;
                         }
                     }
                 }
             }
             /* end - TRAM-981 #5.*/
+            if($this->local_debug) echo "\nreached 106\n";
             
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
             
-            /* 3. Remove branches 
-            // if(in_array($rec['name_class'], array("scientific name", "common name", "genbank common name"))) {
-                $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
-                if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) {
-                    $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['tax_id']] = '';
-                    continue;
-                }
-                if($old_id != $rec['tax_id']) $this->ctr = 1;
-                else                          $this->ctr++;
-                $old_id = $rec['tax_id'];
-                
-                if($val = @$taxon_refs[$rec['tax_id']]) $reference_ids = array_keys($val);
-                else                                    $reference_ids = array();
-                
-                self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']], $reference_ids);
-            // }
-            */
-            // Total rows: 2687427      Processed rows: 1648267
+            if($this->local_debug) echo "\nreached 107\n";
+            
             $processed++;
         }
         fclose($file);
         
+        // /* We will see...
         $tmp = $removed_branches + $filtered_ids;
         $removed_branches = $tmp;
+        // */
         
         // =================================================start 2
         echo "\nMain processing 2...TRAM-795";
@@ -744,11 +810,31 @@ class DWH_NCBI_API
                 [name_class] => synonym
             )*/
 
+            /* debug only
+            // if($rec['tax_id'] == 7 && $rec['name_txt'] == 'Azorhizobium caulinodans' && $rec['name_class'] == 'scientific name') {
+            // if($rec['tax_id'] == 984211) {
+            // if($rec['tax_id'] == 58712) {
+            // if($rec['tax_id'] == 58096) {
+            // if($rec['tax_id'] == 9900) { //Bison
+            // if($rec['tax_id'] == 27592) { //Bovinae. The parent of Bison
+            if($rec['tax_id'] == 9895) { //Bovidae. The parent of Bovinae
+                *next: parent of 9895 is 35500
+                print_r($rec);
+                print_r($taxID_info[$rec['tax_id']]);
+            }
+            else continue;
+            */
+
+            if(isset($filtered_names[$rec['name_txt']])) continue;
+
             if(in_array($rec['name_class'], array("blast name", "type material", "includes", "acronym", "genbank acronym"))) continue; //ignore these names
+            if($this->local_debug) echo "\nreached 200\n";
             if(isset($filtered_ids[$rec['tax_id']])) continue;
+            if($this->local_debug) echo "\nreached 201\n";
             $parent_id = $taxID_info[$rec['tax_id']]['pID'];
             $parent_id = trim($parent_id);
             if(isset($filtered_ids[$parent_id])) continue;
+            if($this->local_debug) echo "\nreached 202\n";
             
             /* 3. Remove branches */
             $ancestry = self::get_ancestry_of_taxID($rec['tax_id'], $taxID_info);
@@ -758,7 +844,7 @@ class DWH_NCBI_API
                 $this->debug['taxon where an id in its ancestry is included among removed branches'][$rec['tax_id']] = '';
                 continue;
             }
-            
+            if($this->local_debug) echo "\nreached 203\n";
             if($val = @$taxon_refs[$rec['tax_id']]) $reference_ids = array_keys($val);
             else                                    $reference_ids = array();
 
@@ -767,6 +853,7 @@ class DWH_NCBI_API
             $this->old_id = $rec['tax_id'];
             
             self::write_taxon($rec, $ancestry, $taxID_info[$rec['tax_id']], $reference_ids);
+            if($this->local_debug) echo "\nreached 204\n";
             
             if($this->old_id != $rec['tax_id']) {}
             else {
@@ -860,6 +947,7 @@ class DWH_NCBI_API
             )
         )
         {
+            $sciname = str_replace('"', '', $sciname);
             $rec['name_txt'] = "'".$sciname."'";
             // echo "\nwith single quotes: [".$rec['name_txt']."]\n"; //debug only
         }
