@@ -65,6 +65,7 @@ So this means there is no more association data from WoRMS.
 26	Friday 2019-12-06 07:34:50 AM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2669.63,"min":44.49,"hr":0.74}}
 26	Sunday 2019-12-15 11:54:39 PM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2863.38,"min":47.72,"hr":0.8}}
 26	Monday 2019-12-16 01:39:12 PM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406165,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2689.37,"min":44.82,"hr":0.75}}
+26	Thursday 2020-02-06 04:47:05 AM	{"agent.tab":1639,"measurement_or_fact_specific.tab":3416758,"media_resource.tab":86178,"occurrence_specific.tab":2073724,"reference.tab":639196,"taxon.tab":352690,"vernacular_name.tab":79229,"time_elapsed":{"sec":2752.68,"min":45.88,"hr":0.76}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
