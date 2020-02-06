@@ -57,8 +57,8 @@ class WormsArchiveAPI
         */
         /* start DATA-1827 below */
         $this->match2mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/worms_mapping1.csv';
-        $this->value_uri_mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/metastats-csv.tsv';
-        
+        $this->value_uri_mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/metastats-csv.tsv';       //old
+        $this->value_uri_mapping_file = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/WoRMS/Feb2020/metastats-2.tsv'; //latest Feb 2020
         //mapping from here: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=63730&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63730
         $this->BsD_URI['length'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
         $this->BsD_URI['total length (tl)'] = 'http://purl.obolibrary.org/obo/CMO_0000013';
@@ -1100,6 +1100,7 @@ class WormsArchiveAPI
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k]; $k++;
                 }
+                $rec = array_map('trim', $rec);
                 // print_r($rec); exit;
                 /*Array(
                     [measurementValue] => Female
@@ -1111,7 +1112,7 @@ class WormsArchiveAPI
         unlink($local);
         
         $additional_mappings = self::initialize_mapping();
-        $final = array_merge($final, $additional_mappings);
+        $final = array_merge($additional_mappings, $final);
         echo "\nURIs total: ".count($final)."\n";
         print_r($final['Europe']);
         echo "\n-end test block-\n";
