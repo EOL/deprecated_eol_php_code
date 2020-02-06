@@ -268,8 +268,11 @@ Next batch:
 Next batch:
 -la Latin   7292 https://en.wikipedia.org/wiki/Latin_language
 -da Danish  7246 https://en.wikipedia.org/wiki/Danish_language
-ml	6662
-be	6435
+
+Next batch:
+ml	6662    https://en.wikipedia.org/wiki/Malayalam             Malayalam
+be	6435    https://en.wikipedia.org/wiki/Belarusian_language   Belarusian
+
 th	6412
 ms	4364
 kk	4293

@@ -426,6 +426,15 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'be') {
+            //infobox
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //navigation box
+            $left = '<table cellspacing="0" class="navbox'; $right = '</table></td></tr></tbody></table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+        }
         if($this->language_code == 'da') {
             //remove section
             $left = '<span class="mw-headline" id="Eksterne_henvisninger">'; $right = '<p>';
