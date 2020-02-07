@@ -426,6 +426,14 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'ms') { //Malay
+            $left = '<table border="1" cellpadding="2" cellspacing="0" width="260px" align="right" style="margin-left: 10px; bgcolor: white; margin-bottom: 5px">'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+        }
+        if($this->language_code == 'th') { //Thai
+            $left = '<table class="infobox'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+        }
         if($this->language_code == 'be') {
             //infobox
             $left = '<table class="infobox"'; $right = '<p><b>';

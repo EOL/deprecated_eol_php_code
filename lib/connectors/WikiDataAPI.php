@@ -598,6 +598,7 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
                 // $arr = self::get_object('Q729'); $arr = $arr->entities->Q729; //Animalia
                 // $arr = self::get_object('Q756'); $arr = $arr->entities->Q756; //Plantae
+                // $arr = self::get_object('Q808'); $arr = $arr->entities->Q808; //Virus
                 // $arr = self::get_object('Q80005'); $arr = $arr->entities->Q80005; //ferns
                 // $arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666; //Acacia
                 // $arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939; //tiger - Panthera tigris

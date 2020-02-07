@@ -273,8 +273,10 @@ Next batch:
 ml	6662    https://en.wikipedia.org/wiki/Malayalam             Malayalam
 be	6435    https://en.wikipedia.org/wiki/Belarusian_language   Belarusian
 
-th	6412
-ms	4364
+Next batch:
+th	6412    https://en.wikipedia.org/wiki/Thai_language     Thai
+ms	4364    https://en.wikipedia.org/wiki/Malay_language    Malay
+
 kk	4293
 lv	4280
 is	4221
@@ -493,6 +495,10 @@ wikipedia-hr	Wednesday 2020-01-15 02:07:17 AM	{"media_resource.tab":13051,"taxon
 next batch:
 wikipedia-la	Wednesday 2020-01-29 11:03:21 AM	{"media_resource.tab":8579,"taxon.tab":6704,"time_elapsed":{"sec":10414.46,"min":173.57,"hr":2.89}}
 wikipedia-da	Wednesday 2020-01-29 12:00:56 PM	{"media_resource.tab":11293,"taxon.tab":9441,"time_elapsed":{"sec":13883.67,"min":231.39,"hr":3.86}}
+next batch:
+wikipedia-ml	Friday 2020-02-07 02:11:32 AM	{"media_resource.tab":11199,"taxon.tab":9874,"time_elapsed":{"sec":10098.64,"min":168.31,"hr":2.81}}
+wikipedia-be	Friday 2020-02-07 02:12:26 AM	{"media_resource.tab":10961,"taxon.tab":8945,"time_elapsed":{"sec":10086.99,"min":168.12,"hr":2.8}}
+
 ---------------------------------------------------------------------------------
 Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
 
