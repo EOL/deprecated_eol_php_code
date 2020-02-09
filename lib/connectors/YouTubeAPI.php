@@ -41,23 +41,25 @@ Or just simply:
 /* old API key
 define("DEVELOPER_KEY", "AI39si4JyuxT-aemiIm9JxeiFbr4F3hphhrhR1n3qPkvbCrrLRohUbBSA7ngDqku8mUGEAhYZpKDTfq2tu_mDPImDAggk8At5Q");
 */
-
+/* Old API key. Replaced on Feb 9, 2020
+AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
+*/
 /* Google Developers project name: EOL Connectors
-   Public API access: API key: AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
+   Public API access: API key: YOUR_API_KEY
 
 get subscriptions:
-https://www.googleapis.com/youtube/v3/subscriptions?channelId=UCECuihlM1FFpO2lONWqY8gA&part=snippet,id,subscriberSnippet&key=AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
+https://www.googleapis.com/youtube/v3/subscriptions?channelId=UCECuihlM1FFpO2lONWqY8gA&part=snippet,id,subscriberSnippet&key=YOUR_API_KEY
 
 get playlist_id using channel_id
 https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=UCECuihlM1FFpO2lONWqY8gA&key={YOUR_API_KEY}
 
 from username to videolist to video details
-https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,statistics,status&forUsername=EncyclopediaOfLife&key=AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
-https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails,status&playlistId=UUECuihlM1FFpO2lONWqY8gA&key=AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
-https://www.googleapis.com/youtube/v3/videos?part=snippet&id=_Foofq1fhYY&key=AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U
+https://www.googleapis.com/youtube/v3/channels?part=snippet,contentDetails,statistics,status&forUsername=EncyclopediaOfLife&key=YOUR_API_KEY
+https://www.googleapis.com/youtube/v3/playlistItems?part=snippet,contentDetails,status&playlistId=UUECuihlM1FFpO2lONWqY8gA&key=YOUR_API_KEY
+https://www.googleapis.com/youtube/v3/videos?part=snippet&id=_Foofq1fhYY&key=YOUR_API_KEY
 */
 
-define("DEVELOPER_KEY", "AIzaSyCXt2WPrcQniaMomonEruEOi3EHYlGEi3U");
+define("DEVELOPER_KEY", $GLOBALS['GOOGLE_DEV_API_KEY']);
 define("YOUTUBE_EOL_USER", "EncyclopediaOfLife");
 define("YOUTUBE_API", "http://gdata.youtube.com/feeds/api");
 define("YOUTUBE_API_V3", "https://www.googleapis.com/youtube/v3");
