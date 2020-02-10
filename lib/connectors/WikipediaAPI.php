@@ -426,6 +426,60 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'is') { //Icelandic
+            //remove links section
+            $left = '<span class="mw-headline" id="Tenglar'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //remove contact section
+            $left = '<span class="mw-headline" id="Tengill'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //remove section inside infobox
+            $left = '<td style="padding:0 .5em; text-align:left;">'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //infobox
+            $left = '<table class="infobox'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'lv') { //Latvian
+            //remove section
+            $left = '<td colspan="2" style="text-align:center;font-weight:normal;text-align:left;">'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            //infobox
+            $left = '<table class="infobox'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //remove external links
+            $left = '<span class="mw-headline" id="Ārējās_saites">'; $right = '</table></td></tr></tbody></table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+
+            $left = '<span class="mw-headline" id="Ārējās_saites">'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'kk') { //Kazakh
+            // first option...
+            // $left = '<table class="infobox'; $right = '</table>';
+            // $html = self::remove_all_in_between_inclusive($left, $right, $html);
+
+            //important: remove section
+            $left = '<p><a class="mw-selflink selflink">'; $right = '</p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+
+            $left = '<p><span style="font-style: italic">'; $right = '</p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+
+            $left = '<p><span style="font-size:smaller;">'; $right = '</span></p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+            
+            $left = '<td style="padding:0 .5em; text-align:left;">'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html);
+
+            $left = '<table class="infobox'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'ms') { //Malay
             $left = '<table border="1" cellpadding="2" cellspacing="0" width="260px" align="right" style="margin-left: 10px; bgcolor: white; margin-bottom: 5px">'; $right = '</table>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html);

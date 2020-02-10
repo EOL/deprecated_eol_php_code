@@ -277,10 +277,13 @@ Next batch:
 th	6412    https://en.wikipedia.org/wiki/Thai_language     Thai
 ms	4364    https://en.wikipedia.org/wiki/Malay_language    Malay
 
-kk	4293
-lv	4280
-is	4221
-hy	4146
+Next batch:
+kk	4293    Kazakh  https://en.wikipedia.org/wiki/Kazakh_language
+lv	4280    Latvian https://en.wikipedia.org/wiki/Latvian_language
+is	4221    Icelandic   https://en.wikipedia.org/wiki/Icelandic_language
+
+
+hy	4146    Armenian    https://en.wikipedia.org/wiki/Armenian_language
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}
@@ -499,6 +502,8 @@ next batch:
 wikipedia-ml	Friday 2020-02-07 02:11:32 AM	{"media_resource.tab":11199,"taxon.tab":9874,"time_elapsed":{"sec":10098.64,"min":168.31,"hr":2.81}}
 wikipedia-be	Friday 2020-02-07 02:12:26 AM	{"media_resource.tab":10961,"taxon.tab":8945,"time_elapsed":{"sec":10086.99,"min":168.12,"hr":2.8}}
 
+wikipedia-ms	Friday 2020-02-07 10:58:56 AM	{"media_resource.tab":7383,"taxon.tab":6862,"time_elapsed":{"sec":7194.9,"min":119.92,"hr":2}}
+wikipedia-th	Friday 2020-02-07 11:42:25 AM	{"media_resource.tab":10780,"taxon.tab":8960,"time_elapsed":{"sec":9871.88,"min":164.53,"hr":2.74}}
 ---------------------------------------------------------------------------------
 Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
 

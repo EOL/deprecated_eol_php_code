@@ -603,6 +603,7 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666; //Acacia
                 // $arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939; //tiger - Panthera tigris
                 // $arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216; //Bald Eagle
+                // $arr = self::get_object('Q5113'); $arr = $arr->entities->Q5113; //Aves
                 // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; //sunflower
                 // $arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687; //Rosa genus of plant
                 */
