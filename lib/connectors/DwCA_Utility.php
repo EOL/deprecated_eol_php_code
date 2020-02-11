@@ -106,7 +106,7 @@ class DwCA_Utility
         //placeholder for customized resources with respective download_options
         if(in_array($this->resource_id, array('globi_associations', '170_final', 'BF'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
         elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
-        elseif(in_array($this->resource_id, array('gbif_classification'))) {
+        elseif(in_array($this->resource_id, array('gbif_classification', '26'))) {
             if(Functions::is_production()) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
@@ -187,6 +187,11 @@ class DwCA_Utility
         if($this->resource_id == '727') {
             require_library('connectors/USDAPlants2019');
             $func = new USDAPlants2019($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if($this->resource_id == '26') {
+            require_library('connectors/WoRMS_post_process');
+            $func = new WoRMS_post_process($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         if($this->resource_id == '707') {

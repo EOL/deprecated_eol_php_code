@@ -66,6 +66,10 @@ So this means there is no more association data from WoRMS.
 26	Sunday 2019-12-15 11:54:39 PM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406168,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2863.38,"min":47.72,"hr":0.8}}
 26	Monday 2019-12-16 01:39:12 PM	{"agent.tab":1615,"measurement_or_fact_specific.tab":3406165,"media_resource.tab":85783,"occurrence_specific.tab":2068198,"reference.tab":616890,"taxon.tab":335022,"vernacular_name.tab":79161,"time_elapsed":{"sec":2689.37,"min":44.82,"hr":0.75}}
 26	Thursday 2020-02-06 04:47:05 AM	{"agent.tab":1639,"measurement_or_fact_specific.tab":3416758,"media_resource.tab":86178,"occurrence_specific.tab":2073724,"reference.tab":639196,"taxon.tab":352690,"vernacular_name.tab":79229,"time_elapsed":{"sec":2752.68,"min":45.88,"hr":0.76}}
+26	Tuesday 2020-02-11 04:42:40 AM	{"agent.tab":1639,"measurement_or_fact_specific.tab":3414599,"media_resource.tab":86178,"occurrence_specific.tab":2073724,"reference.tab":639196,"taxon.tab":352690,"vernacular_name.tab":79229,"time_elapsed":{"sec":2806.72,"min":46.78,"hr":0.78}}
+
+Start where MoF records with parents in 26_undefined_parentMeasurementIDs.txt will be auto removed:
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
@@ -118,21 +122,33 @@ $func->investigate_missing_parents_in_MoF();
 exit("\n");
 */
 
-// /* utility ==========================
-require_library('connectors/DWCADiagnoseAPI');
-$func = new DWCADiagnoseAPI();
+// /* main operation - continued
+run_utility($resource_id);
+recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."26/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+// */
 
-$undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //2nd param true means output will write to text file
-echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
+// ==============================================================================================================================
+// /* NEW Feb 11, 2020: start auto-remove children of 26_undefined_parentMeasurementIDs.txt in MoF ------------------------------
+if(@filesize(CONTENT_RESOURCE_LOCAL_PATH.'26_undefined_parentMeasurementIDs.txt')) {
+    $resource_id = 26;
+    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/26.tar.gz';
+    require_library('connectors/DwCA_Utility');
+    $func = new DwCA_Utility($resource_id, $dwca_file);
 
-$without = $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
-echo "\nTotal taxa without parents:" . count($without)."\n"; unset($without);
+    $preferred_rowtypes = array("http://rs.tdwg.org/dwc/terms/taxon", "http://eol.org/schema/media/document", 
+                        "http://eol.org/schema/reference/reference", "http://eol.org/schema/agent/agent", "http://rs.gbif.org/terms/1.0/vernacularname");
+    // These 2 will be processed in WoRMS_post_process.php which will be called from DwCA_Utility.php
+    // http://rs.tdwg.org/dwc/terms/measurementorfact
+    // http://rs.tdwg.org/dwc/terms/occurrence
 
-$undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
-echo "\nTotal undefined parents MoF:" . count($undefined_parents)."\n";
-// ===================================== */
+    $func->convert_archive($preferred_rowtypes);
+    Functions::finalize_dwca_resource($resource_id);
 
-recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."26/"); //we can now delete folder after DWCADiagnoseAPI
+    run_utility($resource_id);
+    recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH."26/"); //we can now delete folder after run_utility() - DWCADiagnoseAPI
+}
+// ------------------------------------------------------------------------------------------------------------------------------ */
+// ==============================================================================================================================
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
@@ -140,6 +156,22 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 
+function run_utility($resource_id)
+{
+    // /* utility ==========================
+    require_library('connectors/DWCADiagnoseAPI');
+    $func = new DWCADiagnoseAPI();
+
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true); //2nd param true means output will write to text file
+    echo "\nTotal undefined parents:" . count($undefined_parents)."\n"; unset($undefined_parents);
+
+    $without = $func->get_all_taxa_without_parent($resource_id, true); //true means output will write to text file
+    echo "\nTotal taxa without parents:" . count($without)."\n"; unset($without);
+
+    $undefined_parents = $func->check_if_all_parents_have_entries($resource_id, true, false, false, 'parentMeasurementID', 'measurement_or_fact_specific.tab');
+    echo "\nTotal undefined parents MoF:" . count($undefined_parents)."\n";
+    // ===================================== */
+}
 /* as of March 7, 2017
 [ranks] => Array
     (
