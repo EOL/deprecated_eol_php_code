@@ -501,9 +501,14 @@ wikipedia-da	Wednesday 2020-01-29 12:00:56 PM	{"media_resource.tab":11293,"taxon
 next batch:
 wikipedia-ml	Friday 2020-02-07 02:11:32 AM	{"media_resource.tab":11199,"taxon.tab":9874,"time_elapsed":{"sec":10098.64,"min":168.31,"hr":2.81}}
 wikipedia-be	Friday 2020-02-07 02:12:26 AM	{"media_resource.tab":10961,"taxon.tab":8945,"time_elapsed":{"sec":10086.99,"min":168.12,"hr":2.8}}
-
+next batch:
 wikipedia-ms	Friday 2020-02-07 10:58:56 AM	{"media_resource.tab":7383,"taxon.tab":6862,"time_elapsed":{"sec":7194.9,"min":119.92,"hr":2}}
 wikipedia-th	Friday 2020-02-07 11:42:25 AM	{"media_resource.tab":10780,"taxon.tab":8960,"time_elapsed":{"sec":9871.88,"min":164.53,"hr":2.74}}
+next batch:
+wikipedia-lv	Monday 2020-02-10 11:49:36 AM	{"media_resource.tab":6742,"taxon.tab":5371,"time_elapsed":{"sec":6308.07,"min":105.13,"hr":1.75}}
+wikipedia-kk	Monday 2020-02-10 11:55:42 AM	{"media_resource.tab":7291,"taxon.tab":6207,"time_elapsed":{"sec":6668.31,"min":111.14,"hr":1.85}}
+wikipedia-is	Monday 2020-02-10 12:03:32 PM	{"media_resource.tab":7556,"taxon.tab":6525,"time_elapsed":{"sec":7141.14,"min":119.02,"hr":1.98}}
+
 ---------------------------------------------------------------------------------
 Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
 
