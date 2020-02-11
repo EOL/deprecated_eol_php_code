@@ -1416,7 +1416,9 @@ class WormsArchiveAPI
         if(in_array($occurrenceStatus, array("present", "doubtful", "")) || $occurrenceStatus == "") {
             $rec["catnum"] .= "_pr";
                                                 self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/Present");
+            /* removed Feb 11, 2020 per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64538&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64538
             if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
+            */
         }
         
         /*
@@ -1452,7 +1454,9 @@ class WormsArchiveAPI
         if((in_array($occurrenceStatus, array("present", "doubtful", ""))) && $establishmentMeans == "Alien") {
             $rec["catnum"] .= "_ir";
             self::add_string_types($rec, "true", $location, "http://eol.org/schema/terms/IntroducedRange");
+            /* removed Feb 11, 2020 per: https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64538&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64538
             if($occurrenceStatus == "doubtful") self::add_string_types($rec, "metadata", "http://rs.tdwg.org/ontology/voc/OccurrenceStatusTerm#Questionable", "http://rs.tdwg.org/dwc/terms/measurementAccuracy");
+            */
         }
     }
     private function add_string_types($rec, $label, $value, $measurementType)
