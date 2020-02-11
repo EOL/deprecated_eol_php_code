@@ -64,7 +64,7 @@ function process_resource_url($dwca_file, $resource_id, $preferred_rowtypes)
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id);
     
-    // /* Customized part ----------------------------------------
+    /* Customized part ----------------------------------------
     echo "\n---Deleting leftover files---\n";
     if($resource_id == '368_final') {
         $files = array('368.tar.gz', '368_removed_aves.tar.gz');
@@ -77,7 +77,7 @@ function process_resource_url($dwca_file, $resource_id, $preferred_rowtypes)
             else echo "\nFile does not exist anymore: [$path]\n";
         }
     }
-    // ----------------------------------------------------------- */
+    ----------------------------------------------------------- */
     
 }
 ?>
