@@ -4,8 +4,15 @@ namespace php_active_record;
 
 class KatieXMLformatAPI
 {
-    function __construct($resource_id)
+    function __construct($resource_id, $param)
     {
+        $this->param = $param;
+        // print_r($param); exit;
+        /* stdClass Object (
+            [eol_page_id] => 7631
+            [sci] => Chiroptera
+        )
+        */
         if(Functions::is_production()) {
             $this->path['destination'] = '/extra/other_files/bundle_images/xml/';
             $this->prefix = 'https://editors.eol.org/other_files/';
@@ -16,8 +23,10 @@ class KatieXMLformatAPI
         }
         
         // /* these entries change based on whatever batch is given by Katie
-        $this->file['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/chiroptera_crops_all_transf_eli.csv';
-        $filename = 'xml_for_Chiroptera.txt';
+        $this->file['Chiroptera']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/chiroptera_crops_all_transf_eli.csv';
+        $this->file['Lepidoptera_test']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/lepidoptera_crops_test_notaug_transf_foreli.tsv';
+        $this->file['Lepidoptera_train']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/lepidoptera_crops_train_aug_all_transf_foreli.tsv';
+        $filename = "xml_for_".$param->sci.".txt";
         // */
         
         if(!file_exists($this->path['destination'])) mkdir($this->path['destination']);
@@ -30,7 +39,7 @@ class KatieXMLformatAPI
     public function start()
     {
         if($FILE = Functions::file_open($this->report_file, 'w')) fclose($FILE); //initialize report file
-        $local_tsv = Functions::save_remote_file_to_local($this->file['source'], $this->download_options);
+        $local_tsv = Functions::save_remote_file_to_local($this->file[$this->param->sci]['source'], $this->download_options);
         $i = 0;
         foreach(new FileIterator($local_tsv) as $line_number => $line) {
             $line = explode("\t", $line); $i++; 
