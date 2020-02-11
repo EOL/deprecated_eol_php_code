@@ -47,10 +47,16 @@ rows of 4
 368_removed_aves	Wednesday 2019-10-02 06:07:17 AM	{"measurement_or_fact_specific.tab":2286206,"occurrence.tab":516498,"taxon.tab":378639,"vernacular_name.tab":4540}
 368_final	Wednesday 2019-10-02 06:19:59 AM	        {"measurement_or_fact_specific.tab":2286206,"occurrence.tab":516498,"taxon.tab":369789,"vernacular_name.tab":4540}
 rows of 4: Consistent OK
-368	Monday 2019-12-02 10:50:38 AM	                    {"measurement_or_fact.tab":2372980,"occurrence.tab":534984,"taxon.tab":389681,"vernacular_name.tab":6503,"time_elapsed":false}
-368	Monday 2019-12-02 11:17:09 AM	                    {"measurement_or_fact.tab":2360542,"occurrence.tab":531952,"taxon.tab":387473,"vernacular_name.tab":6489,"time_elapsed":false}
-368_removed_aves	Monday 2019-12-02 11:27:38 AM	    {"measurement_or_fact_specific.tab":2307584,"occurrence.tab":521028,"taxon.tab":382011,"vernacular_name.tab":4564,"time_elapsed":false}
-368_final	Monday 2019-12-02 11:40:19 AM	            {"measurement_or_fact_specific.tab":2307584,"occurrence.tab":521028,"taxon.tab":373124,"vernacular_name.tab":4564,"time_elapsed":false}
+368	Monday 2019-12-02 10:50:38 AM	                    {"measurement_or_fact.tab":2372980,"occurrence.tab":534984,"taxon.tab":389681,"vernacular_name.tab":6503}
+368	Monday 2019-12-02 11:17:09 AM	                    {"measurement_or_fact.tab":2360542,"occurrence.tab":531952,"taxon.tab":387473,"vernacular_name.tab":6489}
+368_removed_aves	Monday 2019-12-02 11:27:38 AM	    {"measurement_or_fact_specific.tab":2307584,"occurrence.tab":521028,"taxon.tab":382011,"vernacular_name.tab":4564}
+368_final	Monday 2019-12-02 11:40:19 AM	            {"measurement_or_fact_specific.tab":2307584,"occurrence.tab":521028,"taxon.tab":373124,"vernacular_name.tab":4564}
+
+rows of 4: Consistent OK: Removed Polychaeta (id = 7022)
+368	Tuesday 2020-02-11 09:21:54 AM	                    {"measurement_or_fact.tab":2417696,"occurrence.tab":543891,"taxon.tab":396721,"vernacular_name.tab":6979}
+368	Tuesday 2020-02-11 09:49:48 AM	                    {"measurement_or_fact.tab":2404575,"occurrence.tab":540590,"taxon.tab":394262,"vernacular_name.tab":6965}
+368_removed_aves	Tuesday 2020-02-11 10:00:35 AM	    {"measurement_or_fact_specific.tab":2344674,"occurrence.tab":527826,"taxon.tab":387880,"vernacular_name.tab":4692}
+368_final	Tuesday 2020-02-11 10:13:35 AM	            {"measurement_or_fact_specific.tab":2344674,"occurrence.tab":527826,"taxon.tab":378879,"vernacular_name.tab":4692}
 
 Reminders:
 # Three (3) connectors to run, one after the other - OK
