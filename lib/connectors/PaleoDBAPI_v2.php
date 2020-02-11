@@ -839,7 +839,7 @@ class PaleoDBAPI_v2
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => true)); //true means it will re-download, will not use cache. Set TRUE when developing
+        $paths = $func->extract_archive_file($dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => 0, 'cahce' => 0)); //true means it will re-download, will not use cache. Set TRUE when developing
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
