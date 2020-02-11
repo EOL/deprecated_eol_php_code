@@ -16,7 +16,7 @@ class RemoveAvesChildrenAPI
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
         $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "368".".tar.gz";
-        $descendant_taxon_ids = $func->get_descendants_given_parent_ids($dwca_file, array(36616)); //Aves taxon_id is 36616
+        $descendant_taxon_ids = $func->get_descendants_given_parent_ids($dwca_file, array(36616, 7022)); //Aves taxon_id is 36616 | Polychaeta = 7022
         return $descendant_taxon_ids;
     }
     function start($info)
