@@ -633,6 +633,7 @@ class WikiDataAPI extends WikipediaAPI
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
+                     if($rek['taxon_id'] != 'Q11988878') continue; //Feb 13 debug
                      echo "\n id: ".$rek['taxon_id']; //Feb 13 debug
                      if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
                          echo "\n taxon: ".$rek['taxon']; //Feb 13 debug
@@ -642,15 +643,15 @@ class WikiDataAPI extends WikipediaAPI
                              // print_r($rek); //Feb 13 debug
                              echo "\n with sitelinks"; //Feb 13 debug
                              $i++; 
-                             $rek['rank'] = self::get_taxon_rank($arr->claims);
-                             $rek['author'] = self::get_authorship($arr->claims);
-                             $rek['author_yr'] = self::get_authorship_date($arr->claims);
-                             $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']);
+                             $rek['rank'] = self::get_taxon_rank($arr->claims); echo "\nrank OK";
+                             $rek['author'] = self::get_authorship($arr->claims); echo "\nauthorship OK";
+                             $rek['author_yr'] = self::get_authorship_date($arr->claims); echo "\nauthorship_date OK";
+                             $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']); echo "\nparent OK";
                              
                              if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
-
-                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //P935
-                             $rek['com_category'] = self::get_commons_category($arr->claims); //P373
+                             echo "\nvernacular OK";
+                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); echo "\ngallery OK"; //P935
+                             $rek['com_category'] = self::get_commons_category($arr->claims); echo "\ncategory OK"; //P373
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              if($this->what == "wikipedia") {
                                  if($title = $rek['sitelinks']->title) {
