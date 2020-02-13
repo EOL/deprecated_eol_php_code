@@ -2793,8 +2793,16 @@ class WikiDataAPI extends WikipediaAPI
         }
         return false;
     }*/
-    private function get_taxon_parent($claims, $main_id)
+    private function get_taxon_parent($claims, $main_id, $first_pass = true)
     {
+        // /* Block much needed e.g. https://www.wikidata.org/wiki/Q11988878 Its ancestry goes back to itself.
+        if($first_pass) $this->monitored_parents = array($main_id);
+        else {
+            if(in_array($main_id, $this->monitored_parents)) return false;
+            else $this->monitored_parents[] = $main_id;
+        }
+        // */
+        
         $parent = array();
         if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) {
             /* Feb 13 debug
@@ -2808,7 +2816,7 @@ class WikiDataAPI extends WikipediaAPI
                 $parent['taxon_name'] = self::get_taxon_name(@$obj->entities->$id); //old working param is $obj->entities->$id->claims
                 $parent['rank'] = self::get_taxon_rank(@$obj->entities->$id->claims);
                 if($val = @$obj->entities->$id->claims) {
-                    if($val != $claims) $parent['parent'] = self::get_taxon_parent($val, $id);
+                    if($val != $claims) $parent['parent'] = self::get_taxon_parent($val, $id, false);
                 }
             }
             return $parent;
