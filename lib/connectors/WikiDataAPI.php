@@ -633,11 +633,14 @@ class WikiDataAPI extends WikipediaAPI
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
+                     echo "\n id: ".$rek['taxon_id']; //Feb 13 debug
                      if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
+                         echo "\n taxon: ".$rek['taxon']; //Feb 13 debug
                          // /* normal operation ==========================
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
                              // print_r($rek['sitelinks']); exit; good debug
                              // print_r($rek); //Feb 13 debug
+                             echo "\n with sitelinks"; //Feb 13 debug
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
@@ -688,7 +691,7 @@ class WikiDataAPI extends WikipediaAPI
                                  if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                                  */
                              }
-                             // print_r($rek); //Feb 13 debug
+                             print_r($rek); //Feb 13 debug
                          }
                          else debug("\nNo sitelinks\n"); //debug only
                          // print_r($rek); //exit("\nstop muna\n");
