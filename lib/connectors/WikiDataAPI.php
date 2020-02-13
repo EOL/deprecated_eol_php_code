@@ -633,25 +633,22 @@ class WikiDataAPI extends WikipediaAPI
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
-                     if($rek['taxon_id'] != 'Q11988878') continue; //Feb 13 debug
-                     echo "\n id: ".$rek['taxon_id']; //Feb 13 debug
+                     // if($rek['taxon_id'] != 'Q11988878') continue; //Feb 13 good debug
+                     // echo "\n id: ".$rek['taxon_id']; //Feb 13 good debug
                      if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
-                         echo "\n taxon: ".$rek['taxon']; //Feb 13 debug
+                         // echo "\n taxon: ".$rek['taxon']; //Feb 13 good debug
                          // /* normal operation ==========================
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
                              // print_r($rek['sitelinks']); exit; good debug
-                             // print_r($rek); //Feb 13 debug
-                             echo "\n with sitelinks"; //Feb 13 debug
                              $i++; 
-                             $rek['rank'] = self::get_taxon_rank($arr->claims); echo "\nrank OK";
-                             $rek['author'] = self::get_authorship($arr->claims); echo "\nauthorship OK";
-                             $rek['author_yr'] = self::get_authorship_date($arr->claims); echo "\nauthorship_date OK";
-                             $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']); echo "\nparent OK";
+                             $rek['rank'] = self::get_taxon_rank($arr->claims); //echo "\nrank OK";
+                             $rek['author'] = self::get_authorship($arr->claims); //echo "\nauthorship OK";
+                             $rek['author_yr'] = self::get_authorship_date($arr->claims); //echo "\nauthorship_date OK";
+                             $rek['parent'] = self::get_taxon_parent($arr->claims, $rek['taxon_id']); //echo "\nparent OK";
                              
                              if($this->what == "wikimedia") $rek['vernaculars'] = self::get_vernacular_names($arr->claims, $rek, $arr); //this is where vernaculars are added
-                             echo "\nvernacular OK";
-                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); echo "\ngallery OK"; //P935
-                             $rek['com_category'] = self::get_commons_category($arr->claims); echo "\ncategory OK"; //P373
+                             $rek['com_gallery'] = self::get_commons_gallery($arr->claims); //echo "\ngallery OK"; //P935
+                             $rek['com_category'] = self::get_commons_category($arr->claims); //echo "\ncategory OK"; //P373
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              if($this->what == "wikipedia") {
                                  if($title = $rek['sitelinks']->title) {
@@ -692,7 +689,6 @@ class WikiDataAPI extends WikipediaAPI
                                  if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                                  */
                              }
-                             print_r($rek); //Feb 13 debug
                          }
                          else debug("\nNo sitelinks\n"); //debug only
                          // print_r($rek); //exit("\nstop muna\n");
@@ -2795,7 +2791,7 @@ class WikiDataAPI extends WikipediaAPI
     }*/
     private function get_taxon_parent($claims, $main_id, $first_pass = true)
     {
-        // /* Block much needed e.g. https://www.wikidata.org/wiki/Q11988878 Its ancestry goes back to itself.
+        // /* Block much needed e.g. https://www.wikidata.org/wiki/Q11988878 Its ancestry goes back to itself. Without this block, will cause segmentation fault
         if($first_pass) $this->monitored_parents = array($main_id);
         else {
             if(in_array($main_id, $this->monitored_parents)) return false;
@@ -2805,7 +2801,7 @@ class WikiDataAPI extends WikipediaAPI
         
         $parent = array();
         if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) {
-            /* Feb 13 debug
+            /* Feb 13 commented. May no longer need this. Let the forwarding come naturally.
             $id = self::replace_id_if_redirected($id);
             */
             if($main_id == $id) return false; //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
