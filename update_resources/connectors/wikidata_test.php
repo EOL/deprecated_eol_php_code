@@ -58,8 +58,8 @@ tar xvzf 71.tar.gz -C 71/
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/WikiDataAPI');
 require_library('connectors/WikipediaAPI');
+require_library('connectors/WikiDataAPI');
 
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false
