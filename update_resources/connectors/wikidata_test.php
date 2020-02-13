@@ -112,7 +112,7 @@ $params['actual']           = @$argv[5];
 print_r($params);
 
 // /* main operation
-$resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons.tar.gz also exists on Nov 2017
+$resource_id = "71_test"; //Wikimedia Commons is EOL resource = 71 //historical commons.tar.gz also exists on Nov 2017
 
 /* $func = new WikiDataAPI($resource_id, "en", "taxonomy"); //3rd param is boolean taxonomy; true means will generate hierarchy resource. [wikidata-hierarchy] */
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
