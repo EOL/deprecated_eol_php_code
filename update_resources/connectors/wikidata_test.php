@@ -118,8 +118,8 @@ $resource_id = 71; //Wikimedia Commons is EOL resource = 71 //historical commons
 $func = new WikiDataAPI($resource_id, "en", "wikimedia"); //Used for Commons - total taxa = 2,208,086
 
 // /* new utility for investigation:
-// $func->investigate_latest_all_taxon_json();
-$func->open_json_files_generated_above();
+$func->investigate_latest_all_taxon_json();
+// $func->open_json_files_generated_above();
 exit("\n-end investigate_latest_all_taxon_json()-\n");
 // */
 

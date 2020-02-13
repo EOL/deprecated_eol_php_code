@@ -472,9 +472,9 @@ class WikiDataAPI extends WikipediaAPI
         */
     }
     function open_json_files_generated_above() //called from wikidata_test.php
-    {
-        for($z = 921904; $z <= 921910; $z++) { echo "\nprocessing $z ";
-            $json_file = CONTENT_RESOURCE_LOCAL_PATH."/$z".".json";
+    {   $test_dir = CONTENT_RESOURCE_LOCAL_PATH."/Eli_Feb13/";
+        for($z = 1112000; $z <= 1113000; $z++) { echo "\nprocessing $z ";
+            $json_file = $test_dir."/$z".".json";
             if(file_exists($json_file)) { echo " exists...";
                 $json = file_get_contents($json_file);
                 $arr = json_decode($json); // print_r($arr);
@@ -503,6 +503,9 @@ class WikiDataAPI extends WikipediaAPI
     }
     function investigate_latest_all_taxon_json() //called from wikidata_test.php
     { //copied from a template - below 
+        $test_dir = CONTENT_RESOURCE_LOCAL_PATH."/Eli_Feb13/";
+        if(!is_dir($test_dir)) mkdir($test_dir);
+        
         $k = 0;
         foreach(new FileIterator($this->path['wiki_data_json']) as $line_number => $row) {
             $k++; if(($k % 1000) == 0) echo " ".number_format($k)." ";
@@ -510,8 +513,8 @@ class WikiDataAPI extends WikipediaAPI
                 /* remove the last char which is "," a comma */
                 $row = substr($row,0,strlen($row)-1); //removes last char which is "," a comma
                 debug("\n$k. size: ".strlen($row)."\n"); //elixAug2
-                if($k >= 921904 && $k <= 921910) { //investigate the problem $row
-                    $f = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH."/$k".".json", "w"); //creates json files for further investigation - open_json_files_generated_above()
+                if($k >= 1112000 && $k <= 1113000) { //investigate the problem $row
+                    $f = Functions::file_open($test_dir.$k.".json", "w"); //creates json files for further investigation in -> open_json_files_generated_above()
                     fwrite($f, $row); fclose($f); continue;
                 }
                 else continue;
