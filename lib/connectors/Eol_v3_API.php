@@ -75,10 +75,27 @@ class Eol_v3_API
                         unset($obj['modified']);
                         unset($obj['license_id']);
 
+                        // print_r($obj); exit;
+                        /*Array(
+                            [identifier] => EOL-media-18-https://www.inaturalist.org/photos/3859832
+                            [dataObjectVersionID] => 2775581
+                            [dataType] => http://purl.org/dc/dcmitype/StillImage
+                            [dataSubtype] => jpg
+                            [vettedStatus] => Trusted
+                            [mediumType] => image
+                            [dataRating] => 2.5
+                            [mimeType] => image/jpeg
+                            [license] => http://creativecommons.org/licenses/by-sa/4.0/
+                            [rightsHolder] => pbedell
+                            [source] => https://www.inaturalist.org/photos/3859832
+                            [mediaURL] => https://static.inaturalist.org/photos/3859832/original.JPG?1464645840
+                            [eolMediaURL] => https://content.eol.org/data/media/39/16/f3/18.https___www_inaturalist_org_photos_3859832.jpg
+                            [eolThumbnailURL] => https://content.eol.org/data/media/39/16/f3/18.https___www_inaturalist_org_photos_3859832.98x68.jpg
+                        )*/
+
                         // /* Eli investigates...
-                        // print_r($obj); //exit;
                         // if($obj['dataObjectVersionID'] == 1997701) {
-                        if($obj['dataObjectVersionID'] == 26991247) {
+                        if($obj['mediaURL'] == 'http://www.discoverlife.org/mp/20p?img=I_MWS21442&res=mx') {
                             print_r($obj);
                             exit("\nFound it!\n");
                         }
