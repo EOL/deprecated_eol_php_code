@@ -634,6 +634,7 @@ class WikiDataAPI extends WikipediaAPI
                          // /* normal operation ==========================
                          if($rek['sitelinks'] = self::get_taxon_sitelinks_by_lang($arr->sitelinks)) { //if true then create DwCA for it
                              // print_r($rek['sitelinks']); exit; good debug
+                             // print_r($rek); //Feb 13 debug
                              $i++; 
                              $rek['rank'] = self::get_taxon_rank($arr->claims);
                              $rek['author'] = self::get_authorship($arr->claims);
@@ -684,6 +685,7 @@ class WikiDataAPI extends WikipediaAPI
                                  if($actual >= 5000) break;   //debug - used only on batch of 5000 articles per language
                                  */
                              }
+                             // print_r($rek); //Feb 13 debug
                          }
                          else debug("\nNo sitelinks\n"); //debug only
                          // print_r($rek); //exit("\nstop muna\n");
@@ -2788,7 +2790,9 @@ class WikiDataAPI extends WikipediaAPI
     {
         $parent = array();
         if($id = (string) @$claims->P171[0]->mainsnak->datavalue->value->id) {
+            /* Feb 13 debug
             $id = self::replace_id_if_redirected($id);
+            */
             if($main_id == $id) return false; //e.g. https://www.wikidata.org/wiki/Q28431692 - parent points to itself.
             $parent['id'] = $id;
             $parent['name'] = self::lookup_value($id);
