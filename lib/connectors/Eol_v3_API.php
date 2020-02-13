@@ -103,9 +103,11 @@ class Eol_v3_API
             }
             else break;
         }
+        /* normal operation
         // last batch
         $folder_no++; //echo "\n$folder_no\n";
         self::write_2file_bundle($final, $param, $folder_no, $destination, $fields);
+        */
     }
     /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
     private function write_2file_bundle($final, $param, $folder_no, $destination, $fields)
