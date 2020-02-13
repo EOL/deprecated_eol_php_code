@@ -284,6 +284,20 @@ is	4221    Icelandic   https://en.wikipedia.org/wiki/Icelandic_language
 
 
 hy	4146    Armenian    https://en.wikipedia.org/wiki/Armenian_language
+simple	4079 --- looks like just English
+mrj	4051    Hill Mari   https://en.wikipedia.org/wiki/Hill_Mari_language
+nn	4002
+sk	3736
+hsb	3502
+sl	3449
+pms	3369
+ga	2976
+azb	2915
+bn	2865
+ta	2820
+el	2665
+
+
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}

@@ -588,6 +588,7 @@ class WikiDataAPI extends WikipediaAPI
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
                 // $arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386; //Formicidae
                 // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua (No Indonesian - id)
+                // $arr = self::get_object('Q25349'); $arr = $arr->entities->Q25349; //starfish Asteroidea
                 // $arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843; //Orca
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
@@ -602,6 +603,7 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q80005'); $arr = $arr->entities->Q80005; //ferns
                 // $arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666; //Acacia
                 // $arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939; //tiger - Panthera tigris
+                // $arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498; //wolf
                 // $arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216; //Bald Eagle
                 // $arr = self::get_object('Q5113'); $arr = $arr->entities->Q5113; //Aves
                 // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; //sunflower

@@ -70,7 +70,7 @@ So this means there is no more association data from WoRMS.
 
 Start where MoF records with parents in 26_undefined_parentMeasurementIDs.txt will be auto removed:
 26	Tuesday 2020-02-11 09:50:00 AM	{"agent.tab":1639,"measurement_or_fact_specific.tab":3414427,"media_resource.tab":86178,"occurrence_specific.tab":2073724,"reference.tab":639196,"taxon.tab":352690,"vernacular_name.tab":79229,"time_elapsed":false}
-
+26	Wednesday 2020-02-12 04:25:35 AM{"agent.tab":1639,"measurement_or_fact_specific.tab":3414427,"media_resource.tab":86178,"occurrence_specific.tab":2073724,"reference.tab":639196,"taxon.tab":352690,"vernacular_name.tab":79229,"time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 

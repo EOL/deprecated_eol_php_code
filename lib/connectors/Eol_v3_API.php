@@ -74,6 +74,17 @@ class Eol_v3_API
                         unset($obj['created']);
                         unset($obj['modified']);
                         unset($obj['license_id']);
+
+                        // /* Eli investigates...
+                        // print_r($obj); exit;
+                        if($obj['dataObjectVersionID'] == 1997701) {
+                            print_r($obj);
+                            exit("\nFound it!\n");
+                        }
+                        continue;
+                        // */
+
+                        /* normal operation
                         $final[] = $obj;
                         
                         if(!isset($fields)) $fields = array_keys($obj);
@@ -84,6 +95,7 @@ class Eol_v3_API
                             self::write_2file_bundle($final, $param, $folder_no, $destination, $fields);
                             $final = array();
                         }
+                        */
                         
                     } // exit("\ndebug\n");
                 }

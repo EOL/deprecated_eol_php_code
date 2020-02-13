@@ -20,11 +20,12 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $trans['Page']['br'] = "Page";
-        $trans['Modified']['br'] = "Modified";
-        $trans['Retrieved']['br'] = "Retrieved";
-        $trans['Wikipedia authors and editors']['br'] = "Wikipedia authors and editors";
+        /* *** e.g. szl, nv, pnb, br, mrj -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'mrj';
+        $trans['Page'][$lang] = "Page";
+        $trans['Modified'][$lang] = "Modified";
+        $trans['Retrieved'][$lang] = "Retrieved";
+        $trans['Wikipedia authors and editors'][$lang] = "Wikipedia authors and editors";
         */
         
         // assignments for languages without default values:
@@ -426,6 +427,11 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'hy') { //Armenian
+            //remove external links section
+            $left = '<span class="mw-headline" id="Արտաքին_հղումներ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'is') { //Icelandic
             //remove links section
             $left = '<span class="mw-headline" id="Tenglar'; $right = '<!--';
