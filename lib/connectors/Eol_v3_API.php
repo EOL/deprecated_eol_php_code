@@ -93,16 +93,16 @@ class Eol_v3_API
                             [eolThumbnailURL] => https://content.eol.org/data/media/39/16/f3/18.https___www_inaturalist_org_photos_3859832.98x68.jpg
                         )*/
 
-                        // /* Eli investigates...
+                        /* Eli investigates...
                         // if($obj['dataObjectVersionID'] == 1997701) {
                         if($obj['mediaURL'] == 'http://www.discoverlife.org/mp/20p?img=I_MWS21442&res=mx') {
                             print_r($obj);
                             exit("\nFound it!\n");
                         }
                         continue;
-                        // */
+                        */
 
-                        /* normal operation
+                        // /* normal operation
                         $final[] = $obj;
                         
                         if(!isset($fields)) $fields = array_keys($obj);
@@ -113,7 +113,7 @@ class Eol_v3_API
                             self::write_2file_bundle($final, $param, $folder_no, $destination, $fields);
                             $final = array();
                         }
-                        */
+                        // */
                         
                     } // exit("\ndebug\n");
                 }
@@ -121,11 +121,11 @@ class Eol_v3_API
             }
             else break;
         }
-        /* normal operation
+        // /* normal operation
         // last batch
         $folder_no++; //echo "\n$folder_no\n";
         self::write_2file_bundle($final, $param, $folder_no, $destination, $fields);
-        */
+        // */
     }
     /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
     private function write_2file_bundle($final, $param, $folder_no, $destination, $fields)
