@@ -100,6 +100,8 @@ update_resources/connectors/CDC.php
 update_resources/connectors/CDC2.php
 update_resources/connectors/files/*
 !update_resources/connectors/files/Avibase
+!update_resources/connectors/files/wikipedia
+
 update_resources/connectors/files/Avibase/cache/*.xml
 !update_resources/connectors/files/IUCN
 update_resources/connectors/files/IUCN/cache/*.html

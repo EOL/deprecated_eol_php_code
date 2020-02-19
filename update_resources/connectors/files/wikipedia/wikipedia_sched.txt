@@ -1,0 +1,21 @@
+Wikipedia languages monthly refresh sched:
+en
+es
+it
+de
+fr
+ja  ko  ru  pt
+            zh
+            nl
+            pl
+            vi
+            ca  cs  fi  no  ro  tr  uk
+            sr  sv  ast ka  hr  th  hy
+            id      az  lt  la  kk  mrj
+            hu      min et  da  lv
+            sh      bg  nv  ml  is
+            eu      szl gl  be  war
+            cy      af  br  ms  ceb
+            
+            
+            
