@@ -16,6 +16,3 @@ ja  ko  ru  pt
             sh      bg  nv  ml  is
             eu      szl gl  be  war
             cy      af  br  ms  ceb
-            
-            
-            
