@@ -282,13 +282,14 @@ kk	4293    Kazakh  https://en.wikipedia.org/wiki/Kazakh_language
 lv	4280    Latvian https://en.wikipedia.org/wiki/Latvian_language
 is	4221    Icelandic   https://en.wikipedia.org/wiki/Icelandic_language
 
-
 hy	4146    Armenian    https://en.wikipedia.org/wiki/Armenian_language
 simple	4079 --- looks like just English
 mrj	4051    Hill Mari   https://en.wikipedia.org/wiki/Hill_Mari_language
 
-nn	4002
-sk	3736
+Next batch:
+nn	4002    Norwegian (Nynorsk)     https://en.wikipedia.org/wiki/Nynorsk
+sk	3736    Slovak                  https://en.wikipedia.org/wiki/Slovak_language
+
 hsb	3502
 sl	3449
 pms	3369
@@ -529,6 +530,7 @@ wikipedia-ml	Friday 2020-02-07 02:11:32 AM	{"media_resource.tab":11199,"taxon.ta
 wikipedia-be	Friday 2020-02-07 02:12:26 AM	{"media_resource.tab":10961,"taxon.tab":8945,"time_elapsed":{"sec":10086.99,"min":168.12,"hr":2.8}}
 next batch:
 wikipedia-ms	Friday 2020-02-07 10:58:56 AM	{"media_resource.tab":7383,"taxon.tab":6862,"time_elapsed":{"sec":7194.9,"min":119.92,"hr":2}}
+wikipedia-hy	Tuesday 2019-11-05 03:27:00 AM	{"media_resource.tab":6951,"taxon.tab":6345,"time_elapsed":{"sec":7314.49,"min":121.91,"hr":2.03}}
 wikipedia-th	Friday 2020-02-07 11:42:25 AM	{"media_resource.tab":10780,"taxon.tab":8960,"time_elapsed":{"sec":9871.88,"min":164.53,"hr":2.74}}
 next batch:
 wikipedia-lv	Monday 2020-02-10 11:49:36 AM	{"media_resource.tab":6742,"taxon.tab":5371,"time_elapsed":{"sec":6308.07,"min":105.13,"hr":1.75}}
