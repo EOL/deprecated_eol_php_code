@@ -24,7 +24,7 @@ Statistics
 -----------------------------------------------------------------------------------------------------------------------
 started using 233.php - Sep 24, 2019
 233	Tuesday 2019-09-24 01:46:41 AM	{"agent.tab":2,"media_resource.tab":6718,"taxon.tab":2164,"vernacular_name.tab":3054}
-233	Thursday 2020-02-20 09:18:43 AM	{"agent.tab":2,"media_resource.tab":6718,"taxon.tab":2164,"vernacular_name.tab":3054,"time_elapsed":{"sec":10.56,"min":0.18,"hr":0}}
+233	Thursday 2020-02-20 09:26:09 AM	{"agent.tab":2,"media_resource.tab":6718,"taxon.tab":2164,"vernacular_name.tab":3054,"time_elapsed":{"sec":14.17,"min":0.24,"hr":0}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
