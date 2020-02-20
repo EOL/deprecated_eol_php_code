@@ -1,4 +1,4 @@
-Wikipedia languages monthly refresh sched:
+Wikipedia languages monthly refresh schedule:
 en
 es
 it
@@ -10,6 +10,7 @@ ja  ko  ru  pt
             pl
             vi
             ca  cs  fi  no  ro  tr  uk
+            |   |   |   |   |   |   |
             sr  sv  ast ka  hr  th  hy
             id      az  lt  la  kk  mrj
             hu      min et  da  lv
