@@ -20,8 +20,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'mrj';
+        /* *** e.g. szl, nv, pnb, br, mrj nn -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'nn';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -427,6 +427,27 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'sk') { //Slovak
+            //infobox
+            $left = '<table class="infobox"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //remove external links section
+            $left = '<span class="mw-headline" id="Externé_odkazy"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'nn') { //Norwegian (Nynorsk)
+            //infobox
+            $left = '<table class="toccolours"'; $right = '<p>';
+            $html1 = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //infobox
+            $left = '<table class="toccolours"'; $right = '<p><b>';
+            $html2 = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            if(strlen($html1) < strlen($html2)) $html = $html1;
+            else                                $html = $html2;
+        }
         if($this->language_code == 'hy') { //Armenian
             //remove external links section
             $left = '<span class="mw-headline" id="Արտաքին_հղումներ"'; $right = '<!--';

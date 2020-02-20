@@ -5,7 +5,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikipediaAPI');
 require_library('connectors/WikiDataAPI');
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false; //orig false in production
+// $GLOBALS['ENV_DEBUG'] = false; //orig false in production
 
 /*
 $func = new WikiDataAPI('1', 'eli', 'wikipedia', array()); //generic call
@@ -537,6 +537,7 @@ wikipedia-lv	Monday 2020-02-10 11:49:36 AM	{"media_resource.tab":6742,"taxon.tab
 wikipedia-kk	Monday 2020-02-10 11:55:42 AM	{"media_resource.tab":7291,"taxon.tab":6207,"time_elapsed":{"sec":6668.31,"min":111.14,"hr":1.85}}
 wikipedia-is	Monday 2020-02-10 12:03:32 PM	{"media_resource.tab":7556,"taxon.tab":6525,"time_elapsed":{"sec":7141.14,"min":119.02,"hr":1.98}}
 
+wikipedia-mrj	Thursday 2020-02-20 05:20:36 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":6659.51,"min":110.99,"hr":1.85}}
 ---------------------------------------------------------------------------------
 Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
 
