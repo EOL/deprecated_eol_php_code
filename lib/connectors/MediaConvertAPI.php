@@ -113,7 +113,42 @@ cp -r EOL_media_tmp_mp4 /extra/other_files
     function start_233($info)
     {   $tables = $info['harvester']->tables;
         // print_r($tables); exit;
+        self::process_vernacular($tables['http://rs.gbif.org/terms/1.0/vernacularname'][0]); //per DATA-1848
         self::process_media($tables['http://eol.org/schema/media/document'][0]);
+    }
+    private function process_vernacular($meta)
+    {   //print_r($meta);
+        echo "\nprocess_vernacular...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/vernacularName] => Mustard yellow massive column coral
+                [http://purl.org/dc/terms/language] => en
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 3552
+            )*/
+            //------------------------------------------------------------------------------------------------------
+            $comname = $rec['http://rs.tdwg.org/dwc/terms/vernacularName'];
+            $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = trim(str_ireplace('Unidentified', '', $comname));
+            //------------------------------------------------------------------------------------------------------
+            $o = new \eol_schema\VernacularName();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+        }
     }
     private function process_media($meta)
     {   //print_r($meta);

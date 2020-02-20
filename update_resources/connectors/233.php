@@ -24,6 +24,7 @@ Statistics
 -----------------------------------------------------------------------------------------------------------------------
 started using 233.php - Sep 24, 2019
 233	Tuesday 2019-09-24 01:46:41 AM	{"agent.tab":2,"media_resource.tab":6718,"taxon.tab":2164,"vernacular_name.tab":3054}
+233	Thursday 2020-02-20 09:18:43 AM	{"agent.tab":2,"media_resource.tab":6718,"taxon.tab":2164,"vernacular_name.tab":3054,"time_elapsed":{"sec":10.56,"min":0.18,"hr":0}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -32,25 +33,20 @@ $timestart = time_elapsed();
 
 $resource_id = 233;
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/legacy_EOL_233_final.tar.gz';
-process_resource_url($dwca_file, $resource_id);
+process_resource_url($dwca_file, $resource_id, $timestart);
 
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
-
-function process_resource_url($dwca_file, $resource_id)
+function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
 
     /* Orig in meta.xml has capital letters. Just a note reminder. */
-    $preferred_rowtypes = array('http://rs.gbif.org/terms/1.0/vernacularname', 'http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/agent/agent');
-    /* This 1 will be processed in MediaConvertAPI.php which will be called from DwCA_Utility.php
+    $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/agent/agent');
+    /* These 2 will be processed in MediaConvertAPI.php which will be called from DwCA_Utility.php
     http://eol.org/schema/media/Document
+    http://rs.gbif.org/terms/1.0/VernacularName
     */
     $func->convert_archive($preferred_rowtypes);
-    Functions::finalize_dwca_resource($resource_id);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true, means folder will be deleted
 }
 ?>
