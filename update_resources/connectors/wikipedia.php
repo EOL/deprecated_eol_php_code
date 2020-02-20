@@ -286,6 +286,7 @@ is	4221    Icelandic   https://en.wikipedia.org/wiki/Icelandic_language
 hy	4146    Armenian    https://en.wikipedia.org/wiki/Armenian_language
 simple	4079 --- looks like just English
 mrj	4051    Hill Mari   https://en.wikipedia.org/wiki/Hill_Mari_language
+
 nn	4002
 sk	3736
 hsb	3502
@@ -315,6 +316,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	            Saturday 2019-06-01 10:48:55 AM	{"media_resource.tab":499623,"taxon.tab":277263} -- ??? questionable decrease... WILL INVESTIGATE. All other languages are "Consistent OK"
 80	            Sunday 2019-08-04 08:21:19 AM	{"media_resource.tab":757097,"taxon.tab":398984} -- back to nomral - Consistent OK
 80	            Friday 2019-12-06 04:50:35 AM	{"media_resource.tab":760245,"taxon.tab":401004,"time_elapsed":{"sec":44547.6,"min":742.46,"hr":12.37}} OK
+80              Wednesday 2020-02-12 09:42:40 AM{"media_resource.tab":769297,"taxon.tab":405446,"time_elapsed":{"sec":35740.92,"min":595.68,"hr":9.93}} OK
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
@@ -328,6 +330,7 @@ wikipedia-es	Tuesday 2019-04-23 12:18:06 AM	{"media_resource.tab":307434,"taxon.
 wikipedia-es	Saturday 2019-06-01 04:32:50 PM	{"media_resource.tab":308901,"taxon.tab":169932} -- Consistent OK
 wikipedia-es	Monday 2019-08-05 04:07:27 AM	{"media_resource.tab":309524,"taxon.tab":170246} -- Consistent OK
 wikipedia-es	Saturday 2019-12-07 06:02:16 AM	{"media_resource.tab":312775,"taxon.tab":172104,"time_elapsed":{"sec":21455.2,"min":357.59,"hr":5.96}} OK
+wikipedia-es	Wednesday 2020-02-12 03:06:27 PM{"media_resource.tab":314378,"taxon.tab":172925,"time_elapsed":{"sec":14881.69,"min":248.03,"hr":4.13}} OK
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
@@ -341,6 +344,7 @@ wikipedia-it	Tuesday 2019-04-23 05:20:02 AM	{"media_resource.tab":68460,"taxon.t
 wikipedia-it	Saturday 2019-06-01 06:02:50 PM	{"media_resource.tab":68816,"taxon.tab":42275} -- Consistent OK
 wikipedia-it	Monday 2019-08-05 09:43:59 AM	{"media_resource.tab":69122,"taxon.tab":42450} -- Consistent OK
 wikipedia-it	Saturday 2019-12-07 11:38:19 AM	{"media_resource.tab":70036,"taxon.tab":42981,"time_elapsed":{"sec":5812.1,"min":96.87,"hr":1.61}} OK
+wikipedia-it	Wednesday 2020-02-12 04:17:22 PM{"media_resource.tab":70425,"taxon.tab":43244,"time_elapsed":{"sec":3078.6,"min":51.31,"hr":0.86}} OK
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
@@ -354,7 +358,7 @@ wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.
 957	            Saturday 2019-06-01 07:19:00 PM	{"media_resource.tab":92485,"taxon.tab":58906} -- Consistent OK
 957	            Monday 2019-08-05 04:06:18 PM	{"media_resource.tab":93118,"taxon.tab":59264} -- Consistent OK
 957	            Saturday 2019-12-07 07:05:55 PM	{"media_resource.tab":94255,"taxon.tab":59964,"time_elapsed":{"sec":6686.38,"min":111.44,"hr":1.86}} OK
-
+957	            Thursday 2020-02-13 08:55:35 AM	{"media_resource.tab":94413,"taxon.tab":60261,"time_elapsed":{"sec":6187.82,"min":103.13,"hr":1.72}} OK
 
 wikipedia-fr	Sunday 2017-12-03 12:04:24 AM	{"media_resource.tab":214962,"taxon.tab":119824}
 wikipedia-fr	Sunday 2018-04-29 04:10:02 PM	{"media_resource.tab":214956,"taxon.tab":119821}
@@ -368,6 +372,7 @@ wikipedia-fr	Wednesday 2019-04-24 01:53:21 AM{"media_resource.tab":229673,"taxon
 wikipedia-fr	Saturday 2019-06-01 10:00:05 PM	{"media_resource.tab":232256,"taxon.tab":128840} -- Consistent OK
 wikipedia-fr	Tuesday 2019-08-06 08:00:27 AM	{"media_resource.tab":233979,"taxon.tab":129714} -- Consistent OK
 wikipedia-fr	Sunday 2019-12-08 03:02:57 PM	{"media_resource.tab":236596,"taxon.tab":131404,"time_elapsed":{"sec":17997.21,"min":299.95,"hr":5}} OK
+wikipedia-fr	Friday 2020-02-14 03:23:14 AM	{"media_resource.tab":238880,"taxon.tab":132543,"time_elapsed":{"sec":16649.6,"min":277.49,"hr":4.62}} OK
 
 wikipedia-ja	Friday 2017-11-10 08:35:41 AM	{"media_resource.tab":26208,"taxon.tab":20431}
 wikipedia-ja	Saturday 2017-12-02 10:53:40 PM	{"media_resource.tab":26264,"taxon.tab":20475}
@@ -381,6 +386,7 @@ wikipedia-ja	Wednesday 2019-04-24 07:39:22 AM{"media_resource.tab":28101,"taxon.
 wikipedia-ja	Saturday 2019-06-01 10:37:00 PM	{"media_resource.tab":28191,"taxon.tab":21976} -- Consistent OK
 wikipedia-ja	Tuesday 2019-08-06 02:04:11 PM	{"media_resource.tab":28329,"taxon.tab":22058} -- Consistent OK
 wikipedia-ja	Sunday 2019-12-08 10:35:20 PM	{"media_resource.tab":28745,"taxon.tab":22370,"time_elapsed":{"sec":27134.47,"min":452.24,"hr":7.54}} OK
+wikipedia-ja	Friday 2020-02-14 10:26:53 AM	{"media_resource.tab":28788,"taxon.tab":22503,"time_elapsed":{"sec":25412.39,"min":423.54,"hr":7.06}} OK
 
 wikipedia-ko	Thursday 2017-11-30 10:29:47 PM	{"media_resource.tab":24527,"taxon.tab":16954}
 wikipedia-ko	Sunday 2017-12-03 12:48:17 AM	{"media_resource.tab":24701,"taxon.tab":17060}
@@ -393,6 +399,7 @@ wikipedia-ko	Wednesday 2019-04-24 08:10:41 AM{"media_resource.tab":29273,"taxon.
 wikipedia-ko	Saturday 2019-06-01 10:47:17 PM	{"media_resource.tab":29999,"taxon.tab":20205} -- Consistent OK
 wikipedia-ko	Tuesday 2019-08-06 02:41:24 PM	{"media_resource.tab":30430,"taxon.tab":20479} -- Consistent OK
 wikipedia-ko	Sunday 2019-12-08 11:31:00 PM	{"media_resource.tab":31582,"taxon.tab":21197,"time_elapsed":{"sec":30474.15,"min":507.9,"hr":8.47}} OK
+wikipedia-ko	Friday 2020-02-14 11:15:04 AM	{"media_resource.tab":31862,"taxon.tab":21412,"time_elapsed":{"sec":28303.91,"min":471.73,"hr":7.86}} OK
 
 wikipedia-pt	Sunday 2017-12-03 01:34:21 AM	{"media_resource.tab":192390,"taxon.tab":108840}
 wikipedia-pt	Friday 2018-05-04 01:26:59 PM	{"media_resource.tab":192384,"taxon.tab":108838}
@@ -404,6 +411,7 @@ wikipedia-pt	Wednesday 2019-04-24 01:28:22 PM{"media_resource.tab":200018,"taxon
 wikipedia-pt	Sunday 2019-06-02 12:29:35 AM	{"media_resource.tab":200968,"taxon.tab":113400} -- consistent OK
 wikipedia-pt	Tuesday 2019-08-06 07:36:33 PM	{"media_resource.tab":201181,"taxon.tab":113524} -- consistent OK
 wikipedia-pt	Monday 2019-12-09 06:58:13 AM	{"media_resource.tab":201459,"taxon.tab":113797,"time_elapsed":{"sec":14445.76,"min":240.76,"hr":4.01}} OK
+wikipedia-pt	Friday 2020-02-14 05:58:38 PM	{"media_resource.tab":200572,"taxon.tab":113431,"time_elapsed":{"sec":13086.54,"min":218.11,"hr":3.64}} decreased but still reasonable
 
 wikipedia-ru	Sunday 2017-11-12 12:03:09 PM	{"media_resource.tab":77531,"taxon.tab":47336}
 wikipedia-ru	Saturday 2017-12-02 11:31:53 PM	{"media_resource.tab":77649,"taxon.tab":47398}
@@ -417,6 +425,7 @@ wikipedia-ru	Wednesday 2019-04-24 06:38:49 PM{"media_resource.tab":83696,"taxon.
 wikipedia-ru	Saturday 2019-06-01 11:30:10 PM	{"media_resource.tab":84584,"taxon.tab":51341} -- consistent OK.
 wikipedia-ru	Wednesday 2019-08-07 01:24:05 AM{"media_resource.tab":85285,"taxon.tab":51763} -- consistent OK
 wikipedia-ru	Monday 2019-12-09 01:14:36 PM	{"media_resource.tab":86861,"taxon.tab":52711,"time_elapsed":{"sec":79890.51,"min":1331.51,"hr":22.19}} OK
+wikipedia-ru	Saturday 2020-02-15 12:27:06 AM	{"media_resource.tab":87583,"taxon.tab":53186,"time_elapsed":{"sec":75825.96,"min":1263.77,"hr":21.06}} OK
 
 wikipedia-zh	Tuesday 2017-11-14 03:41:12 PM	{"media_resource.tab":156137,"taxon.tab":91145}
 wikipedia-zh	Sunday 2017-12-03 12:33:20 AM	{"media_resource.tab":156585,"taxon.tab":91396}
@@ -431,6 +440,7 @@ wikipedia-zh	Wednesday 2019-04-24 10:03:31 PM{"media_resource.tab":177332,"taxon
 wikipedia-zh	Sunday 2019-06-02 02:57:45 AM	{"media_resource.tab":178460,"taxon.tab":104587} -- consistent OK
 wikipedia-zh	Wednesday 2019-08-07 05:45:01 AM{"media_resource.tab":180820,"taxon.tab":105668} -- consistent OK
 wikipedia-zh	Monday 2019-12-09 08:11:09 PM	{"media_resource.tab":187787,"taxon.tab":109444,"time_elapsed":{"sec":14459.96,"min":241,"hr":4.02}} OK
+wikipedia-zh	Saturday 2020-02-15 05:56:19 AM	{"media_resource.tab":187730,"taxon.tab":109498,"time_elapsed":{"sec":12381.98,"min":206.37,"hr":3.44}} OK
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
 wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118} - asked by Jen to ignore for now.
 
@@ -438,10 +448,12 @@ langs_with_multiple_connectors: "nl", "pl", "sv", "vi"
 wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
 wikipedia-nl	Sunday 2019-08-11 02:03:22 PM	{"media_resource.tab":975588,"taxon.tab":950697} OK
 wikipedia-nl	Tuesday 2019-12-17 06:19:27 PM	{"media_resource.tab":1770142,"taxon.tab":951601,"time_elapsed":{"sec":78226.17,"min":1303.77,"hr":21.73}} big increase in objects
+wikipedia-nl	Wednesday 2020-02-19 01:37:09 PM{"media_resource.tab":1773494,"taxon.tab":952431,"time_elapsed":{"sec":102373.69,"min":1706.23,"hr":28.44,"day":1.19}} consistent OK
 
 wikipedia-pl	Thursday 2019-04-18 07:30:05 PM	{"media_resource.tab":92390,"taxon.tab":56112}
 wikipedia-pl	Sunday 2019-08-11 07:14:48 PM	{"media_resource.tab":93531,"taxon.tab":56711} OK
 wikipedia-pl	Wednesday 2019-12-18 12:01:58 AM{"media_resource.tab":93983,"taxon.tab":57065,"time_elapsed":{"sec":3904.94,"min":65.08,"hr":1.08}} OK
+wikipedia-pl	Wednesday 2020-02-19 07:49:29 PM{"media_resource.tab":94500,"taxon.tab":57463,"time_elapsed":{"sec":5394.76,"min":89.91,"hr":1.5}} OK
 
 wikipedia-vi	Saturday 2019-04-27 01:40:44 AM	{"media_resource.tab":1582933,"taxon.tab":826812}
 wikipedia-vi	Wednesday 2019-08-14 07:34:50 PM{"media_resource.tab":1584541,"taxon.tab":827634} OK
