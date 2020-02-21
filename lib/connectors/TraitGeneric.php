@@ -132,6 +132,7 @@ class TraitGeneric
         $func = new TropicosArchiveAPI(NULL);
         $this->remapped_terms = $func->add_additional_mappings(true, $url, $expire_seconds); //*this is not add_additional_mappings() like how was used normally in Functions().
         echo "\nremapped_terms lib: ".count($this->remapped_terms)."\n";
+        return $this->remapped_terms;
         /* END DATA-1841 terms remapping */
     }
     public function pre_add_string_types($rec, $value, $measurementType, $measurementOfTaxon)
