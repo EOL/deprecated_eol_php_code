@@ -20,8 +20,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'nn';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'hsb';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -427,6 +427,20 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'sl') { //Slovenian
+            //infobox
+            $left = '<table class="infobox biota"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //remove external links section
+            $left = '<span class="mw-headline" id="Zunanje_povezave">'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'hsb') { //Upper Sorbian
+            //infobox
+            $left = '<table class="taxobox"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'sk') { //Slovak
             //infobox
             $left = '<table class="infobox"'; $right = '<p>';

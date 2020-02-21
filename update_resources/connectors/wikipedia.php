@@ -290,8 +290,10 @@ Next batch:
 nn	4002    Norwegian (Nynorsk)     https://en.wikipedia.org/wiki/Nynorsk
 sk	3736    Slovak                  https://en.wikipedia.org/wiki/Slovak_language
 
-hsb	3502
-sl	3449
+Next batch:
+hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
+sl	3449    Slovenian       https://en.wikipedia.org/wiki/Slovene_language
+
 pms	3369
 ga	2976
 azb	2915
