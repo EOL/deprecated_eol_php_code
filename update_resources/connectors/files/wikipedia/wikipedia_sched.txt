@@ -12,8 +12,8 @@ ja  ko  ru  pt
             ca  cs  fi  no  ro  tr  uk
             |   |   |   |   |   |   |
             sr  sv  ast ka  hr  th  hy
-            id      az  lt  la  kk  mrj
-            hu      min et  da  lv
+            id  nn  az  lt  la  kk  mrj
+            hu  sk  min et  da  lv
             sh      bg  nv  ml  is
             eu      szl gl  be  war
             cy      af  br  ms  ceb
