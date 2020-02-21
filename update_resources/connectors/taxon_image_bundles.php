@@ -35,13 +35,17 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 
 // $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 
-// /* 1K bundles
+/* 1K bundles
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination, 1000); //normal operation
-// */
-// /* 20K bundles
+*/
+/* 20K bundles
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_20K.txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination, 20000); //normal operation
+*/
+// /* 10K bundles
+$destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_10K.txt"; //false;
+$func->get_images_per_eol_page_id($param, array(), $destination, 10000); //normal operation
 // */
 
 /* working but not used for now...
