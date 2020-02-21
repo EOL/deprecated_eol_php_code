@@ -23,7 +23,7 @@ class New_EnvironmentsEOLDataConnector
         /* START DATA-1841 terms remapping */
         require_library('connectors/TraitGeneric');
         $func = new TraitGeneric(false, false); //params are false and false bec. we just need to access 1 function.
-        $this->remapped_terms = $func->initialize_terms_remapping();
+        $this->remapped_terms = $func->initialize_terms_remapping(60*60*24);
         echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
         /* END DATA-1841 terms remapping */
         
