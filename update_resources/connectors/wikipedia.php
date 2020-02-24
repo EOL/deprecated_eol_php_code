@@ -249,6 +249,7 @@ wikipedia-ast (Asturian)
 -fa Persian --- *I still have ignored for now Arabic (ar) and Persian (fa).
 -he Hebrew --- same as Arabic and Persian
 -pnb Western Punjabi --- same as Arabic and Persian
+-azb South Azerbaijani --- same as Arabic and Persian
 
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
 
@@ -294,10 +295,11 @@ Next batch:
 hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
 sl	3449    Slovenian       https://en.wikipedia.org/wiki/Slovene_language
 
-pms	3369
-ga	2976
-azb	2915
-bn	2865
+Next batch:
+pms	3369    Piedmontese     https://en.wikipedia.org/wiki/Piedmontese_language
+ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language
+bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
+
 ta	2820
 el	2665
 

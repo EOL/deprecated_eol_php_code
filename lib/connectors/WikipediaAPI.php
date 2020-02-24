@@ -20,13 +20,13 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'hsb';
+        // /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'azb';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
         $trans['Wikipedia authors and editors'][$lang] = "Wikipedia authors and editors";
-        */
+        // */
         
         // assignments for languages without default values:
         $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -134,14 +134,14 @@ class WikipediaAPI
             else                  $row .= "\t";
         }
         
-        /* good debug to write to HTML for testing ***
+        // /* good debug to write to HTML for testing ***
         if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')  $file = DOC_ROOT."Description.html";
         if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology') $file = DOC_ROOT."TaxonBiology.html";
         echo "\nfile: [$file]\n";
         $f = Functions::file_open($file, "w");
         fwrite($f, $media['description']);
         fclose($f); //exit;
-        */
+        // */
         
         if(!isset($this->object_ids[$media['identifier']])) {
             $this->object_ids[$media['identifier']] = '';
@@ -427,6 +427,21 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'bn') { //Bengali
+            //infobox
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'ga') { //Irish
+            //infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-spacing: 3px 3px; border: #aaa 1px solid; float:right; clear:right; width:200px;"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'pms') { //Piedmontese
+            //infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; clear:right; width:200px;"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'sl') { //Slovenian
             //infobox
             $left = '<table class="infobox biota"'; $right = '<p>';
