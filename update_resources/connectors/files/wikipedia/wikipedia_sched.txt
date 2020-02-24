@@ -15,5 +15,6 @@ ja  ko  ru  pt
             id  nn  az  lt  la  kk  mrj
             hu  sk  min et  da  lv
             sh      bg  nv  ml  is
-            eu      szl gl  be  war
-            cy      af  br  ms  ceb
+            eu      szl gl  be  -end-
+            cy      af  br  ms  war
+                                ceb

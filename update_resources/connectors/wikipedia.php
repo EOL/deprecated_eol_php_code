@@ -538,8 +538,11 @@ next batch:
 wikipedia-lv	Monday 2020-02-10 11:49:36 AM	{"media_resource.tab":6742,"taxon.tab":5371,"time_elapsed":{"sec":6308.07,"min":105.13,"hr":1.75}}
 wikipedia-kk	Monday 2020-02-10 11:55:42 AM	{"media_resource.tab":7291,"taxon.tab":6207,"time_elapsed":{"sec":6668.31,"min":111.14,"hr":1.85}}
 wikipedia-is	Monday 2020-02-10 12:03:32 PM	{"media_resource.tab":7556,"taxon.tab":6525,"time_elapsed":{"sec":7141.14,"min":119.02,"hr":1.98}}
-
+next batch:
 wikipedia-mrj	Thursday 2020-02-20 05:20:36 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":6659.51,"min":110.99,"hr":1.85}}
+next batch:
+wikipedia-nn	Friday 2020-02-21 03:04:41 AM	{"media_resource.tab":6438,"taxon.tab":5674,"time_elapsed":{"sec":5522.48,"min":92.04,"hr":1.53}}
+wikipedia-sk	Friday 2020-02-21 03:21:29 AM	{"media_resource.tab":5664,"taxon.tab":5537,"time_elapsed":{"sec":1001.22,"min":16.69,"hr":0.28}}
 ---------------------------------------------------------------------------------
 Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
 
