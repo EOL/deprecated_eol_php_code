@@ -13,8 +13,15 @@ ja  ko  ru  pt
             |   |   |   |   |   |   |
             sr  sv  ast ka  hr  th  hy
             id  nn  az  lt  la  kk  mrj
-            hu  sk  min et  da  lv
-            sh      bg  nv  ml  is
+            hu  sk  min et  da  lv  pms
+            sh  bn  bg  nv  ml  is  ga
             eu      szl gl  be  -end-
             cy      af  br  ms  war
                                 ceb
+                                
+                                
+                                
+                                pms	3369    Piedmontese     https://en.wikipedia.org/wiki/Piedmontese_language
+                                ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language
+                                bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
+                                
