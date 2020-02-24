@@ -20,13 +20,13 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        // /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb -- to avoid re-doing lookup_cache() knowing the remote won't respond
         $lang = 'azb';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
         $trans['Wikipedia authors and editors'][$lang] = "Wikipedia authors and editors";
-        // */
+        */
         
         // assignments for languages without default values:
         $func = new WikipediaRegionalAPI($this->resource_id, $this->language_code);
@@ -134,14 +134,14 @@ class WikipediaAPI
             else                  $row .= "\t";
         }
         
-        // /* good debug to write to HTML for testing ***
+        /* good debug to write to HTML for testing ***
         if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')  $file = DOC_ROOT."Description.html";
         if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology') $file = DOC_ROOT."TaxonBiology.html";
         echo "\nfile: [$file]\n";
         $f = Functions::file_open($file, "w");
         fwrite($f, $media['description']);
         fclose($f); //exit;
-        // */
+        */
         
         if(!isset($this->object_ids[$media['identifier']])) {
             $this->object_ids[$media['identifier']] = '';
