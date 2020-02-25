@@ -9,17 +9,19 @@ ja  ko  ru  pt
             nl
             pl
             vi
-            ca  cs  fi  no  ro  tr  uk
-            |   |   |   |   |   |   |
-            sr  sv  ast ka  hr  th  hy
-            id  nn  az  lt  la  kk  mrj
-            hu  sk  min et  da  lv  pms
-            sh  bn  bg  nv  ml  is  ga
-            eu      szl gl  be  -end-
-            cy      af  br  ms  war
+            ca  cs  fi  no  ro  tr    uk
+            |   |   |   |   |   |     |
+            sr  sv  ast ka  hr  th    hy
+            id  nn  az  lt  la  kk    mrj
+            hu  sk  min et  da  lv    pms
+            sh  bn  bg  nv  ml  is    ga
+            eu      szl gl  be  -end- hsb
+            cy      af  br  ms  war   sl
                                 ceb
                                 
                                 
+                                hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
+                                sl	3449    Slovenian       https://en.wikipedia.org/wiki/Slovene_language
                                 
                                 pms	3369    Piedmontese     https://en.wikipedia.org/wiki/Piedmontese_language
                                 ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language

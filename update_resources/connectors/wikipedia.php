@@ -300,8 +300,12 @@ pms	3369    Piedmontese     https://en.wikipedia.org/wiki/Piedmontese_language
 ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language
 bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
 
+
 ta	2820
 el	2665
+
+
+
 
 
 
@@ -462,6 +466,7 @@ wikipedia-pl	Wednesday 2020-02-19 07:49:29 PM{"media_resource.tab":94500,"taxon.
 
 wikipedia-vi	Saturday 2019-04-27 01:40:44 AM	{"media_resource.tab":1582933,"taxon.tab":826812}
 wikipedia-vi	Wednesday 2019-08-14 07:34:50 PM{"media_resource.tab":1584541,"taxon.tab":827634} OK
+wikipedia-vi	Sunday 2020-02-23 08:36:50 PM	{"media_resource.tab":1585312,"taxon.tab":827677,"time_elapsed":{"sec":132729.61,"min":2212.16,"hr":36.87,"day":1.54}}
 
 wikipedia-sv	Tuesday 2019-04-30 09:04:30 PM	{"media_resource.tab":80151,"taxon.tab":51485}
 wikipedia-sv	Friday 2019-08-16 04:32:53 PM	{"media_resource.tab":80428,"taxon.tab":51666} OK
@@ -469,26 +474,34 @@ wikipedia-sv	Friday 2019-08-16 04:32:53 PM	{"media_resource.tab":80428,"taxon.ta
 Not yet with multiple connectors: "no", "fi", "ca", "uk", "tr", "ro", "cs"
 wikipedia-cs	Saturday 2019-04-27 06:30:40 AM	{"media_resource.tab":23413,"taxon.tab":17991}
 wikipedia-cs	Thursday 2019-08-15 12:27:48 AM	{"media_resource.tab":23627,"taxon.tab":18160} OK
+wikipedia-cs	Monday 2020-02-24 01:40:53 AM	{"media_resource.tab":24113,"taxon.tab":18596,"time_elapsed":{"sec":18234.27,"min":303.9,"hr":5.07}}
 
 wikipedia-tr	Saturday 2019-04-27 07:39:05 AM	{"media_resource.tab":11114,"taxon.tab":9113}
 wikipedia-tr	Wednesday 2019-08-14 10:02:10 PM{"media_resource.tab":11146,"taxon.tab":9139} OK
+wikipedia-tr	Sunday 2020-02-23 11:13:08 PM	{"media_resource.tab":11201,"taxon.tab":9359,"time_elapsed":{"sec":9368.58,"min":156.14,"hr":2.6}}
 
 wikipedia-fi	Saturday 2019-04-27 09:26:44 AM	{"media_resource.tab":39542,"taxon.tab":26545}
 wikipedia-fi	Thursday 2019-08-15 03:29:14 AM	{"media_resource.tab":40149,"taxon.tab":27013} OK
+wikipedia-fi	Monday 2020-02-24 05:25:36 AM	{"media_resource.tab":42163,"taxon.tab":28356,"time_elapsed":{"sec":31716.74,"min":528.61,"hr":8.81}}
 
 wikipedia-no	Saturday 2019-04-27 02:04:01 PM	{"media_resource.tab":61203,"taxon.tab":37024}
 wikipedia-no	Thursday 2019-08-15 07:56:33 AM	{"media_resource.tab":62169,"taxon.tab":37534} OK
+wikipedia-no	Monday 2020-02-24 10:31:26 AM	{"media_resource.tab":64683,"taxon.tab":39117,"time_elapsed":{"sec":50066.81,"min":834.45,"hr":13.91}}
 
 wikipedia-ro	Saturday 2019-04-27 02:09:48 PM	{"media_resource.tab":60752,"taxon.tab":34846}
 wikipedia-ro	Thursday 2019-08-15 07:49:25 AM	{"media_resource.tab":60891,"taxon.tab":34936} OK
+wikipedia-ro	Monday 2020-02-24 09:52:29 AM	{"media_resource.tab":61125,"taxon.tab":35235,"time_elapsed":{"sec":47730.09,"min":795.5,"hr":13.26}}
 
 wikipedia-uk	Saturday 2019-04-27 03:30:05 PM	{"media_resource.tab":33509,"taxon.tab":30899}
 wikipedia-uk	Thursday 2019-08-15 06:32:40 AM	{"media_resource.tab":37569,"taxon.tab":33991} OK
+wikipedia-uk	Monday 2020-02-24 09:06:21 AM	{"media_resource.tab":40135,"taxon.tab":36523,"time_elapsed":{"sec":44962.12,"min":749.37,"hr":12.49}}
 
 wikipedia-ca	Sunday 2019-04-28 03:07:45 AM	{"media_resource.tab":124020,"taxon.tab":70790}
 wikipedia-ca	Thursday 2019-08-15 08:52:01 PM	{"media_resource.tab":124621,"taxon.tab":71136} OK
+wikipedia-ca	Tuesday 2020-02-25 12:18:35 AM	{"media_resource.tab":124044,"taxon.tab":71415,"time_elapsed":{"sec":99695.53,"min":1661.59,"hr":27.69,"day":1.15}}
 
 wikipedia-sr	Sunday 2019-10-27 09:47:57 AM	{"media_resource.tab":19809,"taxon.tab":15500,"time_elapsed":false}
+wikipedia-sr	Tuesday 2020-02-25 04:55:39 AM	{"media_resource.tab":19539,"taxon.tab":15459,"time_elapsed":{"sec":16616.7,"min":276.95,"hr":4.62}}
 
 wikipedia-id	Tuesday 2019-10-29 02:46:33 PM	{"media_resource.tab":244932,"taxon.tab":130506,"time_elapsed":false}
 
@@ -504,65 +517,93 @@ wikipedia-cy	Thursday 2019-11-14 11:33:19 AM	{"media_resource.tab":34585,"taxon.
 
 wikipedia-ast	Thursday 2019-11-14 01:18:56 PM	{"media_resource.tab":30745,"taxon.tab":21852,"time_elapsed":{"sec":3411.17,"min":56.85,"hr":0.95}}
 wikipedia-ast	Sunday 2019-12-01 07:22:08 PM	{"media_resource.tab":30773,"taxon.tab":21869,"time_elapsed":{"sec":2550.47,"min":42.51,"hr":0.71}} Consistent OK
+wikipedia-ast	Monday 2020-02-24 12:27:28 PM	{"media_resource.tab":30760,"taxon.tab":21925,"time_elapsed":{"sec":25302.2,"min":421.7,"hr":7.03}}
 
 wikipedia-az	Thursday 2019-11-14 12:21:35 PM	{"media_resource.tab":33656,"taxon.tab":19977,"time_elapsed":{"sec":2888.26,"min":48.14,"hr":0.8}}
 wikipedia-az	Sunday 2019-12-01 07:20:43 PM	{"media_resource.tab":33670,"taxon.tab":19994,"time_elapsed":{"sec":2422.35,"min":40.37,"hr":0.67}} Consistent OK
+wikipedia-az	Monday 2020-02-24 08:01:48 PM	{"media_resource.tab":33671,"taxon.tab":20019,"time_elapsed":{"sec":27251.88,"min":454.2,"hr":7.57}}
 
 even when everything is cached already: execution time for 'min' is: Took 3 days 6 hr
 wikipedia-min	Friday 2019-11-15 04:50:27 PM	{"media_resource.tab":233143,"taxon.tab":175486,"time_elapsed":{"sec":17561.97,"min":292.7,"hr":4.88}}
 wikipedia-min	Sunday 2019-12-01 12:32:16 PM	{"media_resource.tab":36571,"taxon.tab":33504,"time_elapsed":{"sec":284106.26,"min":4735.1,"hr":78.92,"day":3.29}}
+wikipedia-min	Tuesday 2020-02-25 01:37:22 AM	{"media_resource.tab":233146,"taxon.tab":175538,"time_elapsed":{"sec":16030.08,"min":267.17,"hr":4.45}}
 
 wikipedia-bg	Saturday 2019-11-16 12:44:27 AM	{"media_resource.tab":60646,"taxon.tab":41185,"time_elapsed":{"sec":50384.04,"min":839.73,"hr":14}}
 
 different batch:
 wikipedia-szl (Silesian)	Monday 2019-12-30 09:10:41 PM	{"media_resource.tab":84818,"taxon.tab":51729,"time_elapsed":{"sec":4974.49,"min":82.91,"hr":1.38}}
 wikipedia-af (Afrikaans)	Monday 2019-12-30 09:32:55 PM	{"media_resource.tab":24930,"taxon.tab":15715,"time_elapsed":{"sec":1324.55,"min":22.08,"hr":0.37}}
-wikipedia-ka (Georgian)	Monday 2019-12-30 09:53:27 PM	{"media_resource.tab":20898,"taxon.tab":12929,"time_elapsed":{"sec":1226.34,"min":20.44,"hr":0.34}}
+
+wikipedia-ka Monday 2019-12-30 09:53:27 PM	{"media_resource.tab":20898,"taxon.tab":12929,"time_elapsed":{"sec":1226.34,"min":20.44,"hr":0.34}}
+wikipedia-ka Monday 2020-02-24 03:24:11 PM	{"media_resource.tab":20916,"taxon.tab":13013,"time_elapsed":{"sec":17555.45,"min":292.59,"hr":4.88}}
+
 wikipedia-lt (Lithuanian)	Monday 2019-12-30 10:13:07 PM	{"media_resource.tab":15664,"taxon.tab":12845,"time_elapsed":{"sec":1171.69,"min":19.53,"hr":0.33}}
+wikipedia-lt	            Monday 2020-02-24 07:27:31 PM	{"media_resource.tab":15654,"taxon.tab":12910,"time_elapsed":{"sec":14590.23,"min":243.17,"hr":4.05}}
+
 wikipedia-et (Estonian)	Tuesday 2019-12-31 01:17:03 AM	{"media_resource.tab":14231,"taxon.tab":11499,"time_elapsed":{"sec":11027.62,"min":183.79,"hr":3.06}}
+wikipedia-et	        Monday 2020-02-24 10:52:21 PM	{"media_resource.tab":14252,"taxon.tab":11591,"time_elapsed":{"sec":12278.48,"min":204.64,"hr":3.41}}
+
 wikipedia-nv (Navajo)	Tuesday 2019-12-31 04:43:56 AM	{"media_resource.tab":8385,"taxon.tab":10836,"time_elapsed":{"sec":12404.83,"min":206.75,"hr":3.45}}
+wikipedia-nv	        Tuesday 2020-02-25 03:12:31 AM	{"media_resource.tab":10063,"taxon.tab":12860,"time_elapsed":{"sec":15603.69,"min":260.06,"hr":4.33}}
 
 next batch:
-wikipedia-gl	Wednesday 2020-01-15 01:29:21 AM	{"media_resource.tab":10738,"taxon.tab":8595,"time_elapsed":{"sec":8959.67,"min":149.33,"hr":2.49}}
-wikipedia-br	Wednesday 2020-01-15 02:00:51 AM	{"media_resource.tab":12758,"taxon.tab":9382,"time_elapsed":{"sec":10780.27,"min":179.67,"hr":2.99}}
-wikipedia-hr	Wednesday 2020-01-15 02:07:17 AM	{"media_resource.tab":13051,"taxon.tab":10114,"time_elapsed":{"sec":11335.24,"min":188.92,"hr":3.15}}
-next batch:
-wikipedia-la	Wednesday 2020-01-29 11:03:21 AM	{"media_resource.tab":8579,"taxon.tab":6704,"time_elapsed":{"sec":10414.46,"min":173.57,"hr":2.89}}
-wikipedia-da	Wednesday 2020-01-29 12:00:56 PM	{"media_resource.tab":11293,"taxon.tab":9441,"time_elapsed":{"sec":13883.67,"min":231.39,"hr":3.86}}
-next batch:
+wikipedia-gl	Wednesday 2020-01-15 01:29:21 AM{"media_resource.tab":10738,"taxon.tab":8595,"time_elapsed":{"sec":8959.67,"min":149.33,"hr":2.49}}
+wikipedia-gl	Tuesday 2020-02-25 03:33:55 AM	{"media_resource.tab":10804,"taxon.tab":8640,"time_elapsed":{"sec":1277.25,"min":21.29,"hr":0.35}}
+
+wikipedia-br	Wednesday 2020-01-15 02:00:51 AM{"media_resource.tab":12758,"taxon.tab":9382,"time_elapsed":{"sec":10780.27,"min":179.67,"hr":2.99}}
+wikipedia-br	Tuesday 2020-02-25 03:59:11 AM	{"media_resource.tab":12728,"taxon.tab":9382,"time_elapsed":{"sec":1508.53,"min":25.14,"hr":0.42}}
+
+wikipedia-hr	Wednesday 2020-01-15 02:07:17 AM{"media_resource.tab":13051,"taxon.tab":10114,"time_elapsed":{"sec":11335.24,"min":188.92,"hr":3.15}}
+wikipedia-hr	Monday 2020-02-24 10:25:47 AM	{"media_resource.tab":13632,"taxon.tab":10447,"time_elapsed":{"sec":1991.1,"min":33.19,"hr":0.55}}
+
+wikipedia-la	Wednesday 2020-01-29 11:03:21 AM{"media_resource.tab":8579,"taxon.tab":6704,"time_elapsed":{"sec":10414.46,"min":173.57,"hr":2.89}}
+wikipedia-la	Monday 2020-02-24 10:49:45 AM	{"media_resource.tab":8746,"taxon.tab":6807,"time_elapsed":{"sec":1429.66,"min":23.83,"hr":0.4}}
+
+wikipedia-da	Wednesday 2020-01-29 12:00:56 PM{"media_resource.tab":11293,"taxon.tab":9441,"time_elapsed":{"sec":13883.67,"min":231.39,"hr":3.86}}
+wikipedia-da	Monday 2020-02-24 11:14:38 AM	{"media_resource.tab":11291,"taxon.tab":9443,"time_elapsed":{"sec":1487.04,"min":24.78,"hr":0.41}}
+
 wikipedia-ml	Friday 2020-02-07 02:11:32 AM	{"media_resource.tab":11199,"taxon.tab":9874,"time_elapsed":{"sec":10098.64,"min":168.31,"hr":2.81}}
+wikipedia-ml	Monday 2020-02-24 11:38:56 AM	{"media_resource.tab":11199,"taxon.tab":9874,"time_elapsed":{"sec":1450.03,"min":24.17,"hr":0.4}}
+
 wikipedia-be	Friday 2020-02-07 02:12:26 AM	{"media_resource.tab":10961,"taxon.tab":8945,"time_elapsed":{"sec":10086.99,"min":168.12,"hr":2.8}}
-next batch:
+wikipedia-be	Monday 2020-02-24 12:01:08 PM	{"media_resource.tab":10961,"taxon.tab":8945,"time_elapsed":{"sec":1322.46,"min":22.04,"hr":0.37}}
+
 wikipedia-ms	Friday 2020-02-07 10:58:56 AM	{"media_resource.tab":7383,"taxon.tab":6862,"time_elapsed":{"sec":7194.9,"min":119.92,"hr":2}}
+wikipedia-ms	Monday 2020-02-24 12:20:10 PM	{"media_resource.tab":7385,"taxon.tab":6862,"time_elapsed":{"sec":1134.02,"min":18.9,"hr":0.32}}
+
 wikipedia-hy	Tuesday 2019-11-05 03:27:00 AM	{"media_resource.tab":6951,"taxon.tab":6345,"time_elapsed":{"sec":7314.49,"min":121.91,"hr":2.03}}
+wikipedia-hy	Monday 2020-02-24 11:01:45 AM	{"media_resource.tab":7099,"taxon.tab":6491,"time_elapsed":{"sec":6913.5,"min":115.23,"hr":1.92}}
+
 wikipedia-th	Friday 2020-02-07 11:42:25 AM	{"media_resource.tab":10780,"taxon.tab":8960,"time_elapsed":{"sec":9871.88,"min":164.53,"hr":2.74}}
-next batch:
+wikipedia-th	Sunday 2020-02-23 11:33:09 PM	{"media_resource.tab":10784,"taxon.tab":8963,"time_elapsed":{"sec":1194.28,"min":19.9,"hr":0.33}}
+
 wikipedia-lv	Monday 2020-02-10 11:49:36 AM	{"media_resource.tab":6742,"taxon.tab":5371,"time_elapsed":{"sec":6308.07,"min":105.13,"hr":1.75}}
+wikipedia-lv	Monday 2020-02-24 12:07:56 AM	{"media_resource.tab":6742,"taxon.tab":5371,"time_elapsed":{"sec":1006.36,"min":16.77,"hr":0.28}}
+
 wikipedia-kk	Monday 2020-02-10 11:55:42 AM	{"media_resource.tab":7291,"taxon.tab":6207,"time_elapsed":{"sec":6668.31,"min":111.14,"hr":1.85}}
+wikipedia-kk	Sunday 2020-02-23 11:51:02 PM	{"media_resource.tab":7291,"taxon.tab":6207,"time_elapsed":{"sec":1068.04,"min":17.8,"hr":0.3}}
+
 wikipedia-is	Monday 2020-02-10 12:03:32 PM	{"media_resource.tab":7556,"taxon.tab":6525,"time_elapsed":{"sec":7141.14,"min":119.02,"hr":1.98}}
-next batch:
+wikipedia-is	Monday 2020-02-24 12:25:21 AM	{"media_resource.tab":7556,"taxon.tab":6525,"time_elapsed":{"sec":1036.59,"min":17.28,"hr":0.29}}
+
 wikipedia-mrj	Thursday 2020-02-20 05:20:36 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":6659.51,"min":110.99,"hr":1.85}}
-next batch:
+wikipedia-mrj	Monday 2020-02-24 11:22:46 AM	{"media_resource.tab":5713,"taxon.tab":5402,"time_elapsed":{"sec":1255.3,"min":20.92,"hr":0.35}}
+
 wikipedia-nn	Friday 2020-02-21 03:04:41 AM	{"media_resource.tab":6438,"taxon.tab":5674,"time_elapsed":{"sec":5522.48,"min":92.04,"hr":1.53}}
 wikipedia-sk	Friday 2020-02-21 03:21:29 AM	{"media_resource.tab":5664,"taxon.tab":5537,"time_elapsed":{"sec":1001.22,"min":16.69,"hr":0.28}}
----------------------------------------------------------------------------------
-Jenkins started with en, and ended with sv. The next batch to continue are these: as of Dec 28, 2019
 
-Success	100%	wikipedia-az (Azerbaijani)	26 days - #4	N/A	40 min	Schedule a Build for wikipedia-az (Azerbaijani)	 
-Success	100%	wikipedia-ast (Asturian)	26 days - #5	N/A	42 min	Schedule a Build for wikipedia-ast (Asturian)	 
-Success	100%	wikipedia-ceb (Cebuano)	1 mo 3 days - #16	N/A	1 day 5 hr	Schedule a Build for wikipedia-ceb (Cebuano)	 
-Success	100%	wikipedia-war (Waray)	1 mo 3 days - #12	N/A	8 min 12 sec	Schedule a Build for wikipedia-war (Waray)	 
-Success	100%	wikipedia-min (Minangkabau)	1 mo 3 days - #14	N/A	2 min 11 sec	Schedule a Build for wikipedia-min (Minangkabau)	 
-Success	100%	wikipedia-bg (Bulgarian)	1 mo 12 days - #3	N/A	13 hr	Schedule a Build for wikipedia-bg (Bulgarian)	 
-Success	100%	wikipedia - sh	1 mo 12 days - #8	N/A	18 min	Schedule a Build for wikipedia - sh	 
-Success	100%	wikipedia-cy (Welsh)	1 mo 13 days - #2	N/A	7 hr 26 min	Schedule a Build for wikipedia-cy (Welsh)	 
-Success	100%	wikipedia - ms (Malay)	1 mo 22 days - #2	N/A	16 min	Schedule a Build for wikipedia - ms (Malay)	 
-Success	100%	wikipedia - hy (Armenian)	1 mo 22 days - #1	N/A	2 hr 1 min	Schedule a Build for wikipedia - hy (Armenian)	 
-Success	100%	wikipedia - eu (Basque)	1 mo 23 days - #1	N/A	1 day 7 hr	Schedule a Build for wikipedia - eu (Basque)	 
-Success	100%	wikipedia-hu (Hungarian)	1 mo 28 days - #1	N/A	10 hr	Schedule a Build for wikipedia-hu (Hungarian)	 
-Success	100%	Wikipedia - id	1 mo 29 days - #2	N/A	5 hr 22 min	Schedule a Build for Wikipedia - id	 
-Success	100%	Wikipedia - sr	2 mo 1 day - #1	N/A	4 hr 31 min	Schedule a Build for Wikipedia - sr	 
-Success	100%	Wikipedia - vo	8 mo 14 days - #1	N/A	13 min	Schedule a Build for Wikipedia - vo	 
+wikipedia-pms	Piedmontese Monday 2020-02-24 11:59:54 AM	{"media_resource.tab":5563,"taxon.tab":5039,"time_elapsed":{"sec":1028.46,"min":17.14,"hr":0.29}}
+wikipedia-ga	Irish       Monday 2020-02-24 01:26:28 PM	{"media_resource.tab":3372,"taxon.tab":5891,"time_elapsed":{"sec":1111.38,"min":18.52,"hr":0.31}}
+wikipedia-bn	Bengali     Monday 2020-02-24 11:27:12 AM	{"media_resource.tab":4470,"taxon.tab":4891,"time_elapsed":{"sec":4487.1,"min":74.79,"hr":1.25}}
+
+wikipedia-sl	Tuesday 2020-02-25 04:47:06 AM	{"media_resource.tab":4976,"taxon.tab":5769,"time_elapsed":{"sec":4786.97,"min":79.78,"hr":1.33}}
+wikipedia-hsb	Tuesday 2020-02-25 05:05:10 AM	{"media_resource.tab":6512,"taxon.tab":4357,"time_elapsed":{"sec":5952.85,"min":99.21,"hr":1.65}}
+
+wikipedia-war	Tuesday 2019-11-19 02:12:15 PM	{"media_resource.tab":2202108,"taxon.tab":1188292,"time_elapsed":{"sec":108798.46,"min":1813.31,"hr":30.22,"day":1.26}}
+
+wikipedia-ceb	Thursday 2019-11-21 02:50:18 AM	{"media_resource.tab":235,"taxon.tab":500,"time_elapsed":{"sec":92347.22,"min":1539.12,"hr":25.65,"day":1.07}}
+wikipedia-ceb	Monday 2019-11-25 03:41:34 PM	{"media_resource.tab":235,"taxon.tab":500,"time_elapsed":{"sec":107687.93,"min":1794.8,"hr":29.91,"day":1.25}}
+---------------------------------------------------------------------------------
 */
 /*
 this is a request made by wikimedia harvester (71): this 2 are same, first is a subset of the 2nd. And one is urlencoded() other is not.
