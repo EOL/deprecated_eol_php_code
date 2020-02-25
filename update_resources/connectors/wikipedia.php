@@ -524,6 +524,8 @@ wikipedia-az	Sunday 2019-12-01 07:20:43 PM	{"media_resource.tab":33670,"taxon.ta
 wikipedia-az	Monday 2020-02-24 08:01:48 PM	{"media_resource.tab":33671,"taxon.tab":20019,"time_elapsed":{"sec":27251.88,"min":454.2,"hr":7.57}}
 
 even when everything is cached already: execution time for 'min' is: Took 3 days 6 hr
+wikipedia-min	Tuesday 2019-11-12 05:33:48 PM	{                            "taxon.tab":175486,"time_elapsed":{"sec":14126.38,"min":235.44,"hr":3.92}}
+wikipedia-min	Thursday 2019-11-14 09:33:15 AM	{"media_resource.tab":233143,"taxon.tab":175486,"time_elapsed":{"sec":15853.41,"min":264.22,"hr":4.4}}
 wikipedia-min	Friday 2019-11-15 04:50:27 PM	{"media_resource.tab":233143,"taxon.tab":175486,"time_elapsed":{"sec":17561.97,"min":292.7,"hr":4.88}}
 wikipedia-min	Sunday 2019-12-01 12:32:16 PM	{"media_resource.tab":36571,"taxon.tab":33504,"time_elapsed":{"sec":284106.26,"min":4735.1,"hr":78.92,"day":3.29}}
 wikipedia-min	Tuesday 2020-02-25 01:37:22 AM	{"media_resource.tab":233146,"taxon.tab":175538,"time_elapsed":{"sec":16030.08,"min":267.17,"hr":4.45}}
