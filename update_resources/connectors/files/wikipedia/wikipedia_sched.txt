@@ -13,11 +13,12 @@ ja  ko  ru  pt
             |   |   |   |   |   |     |
             sr  sv  ast ka  hr  th    hy
             id  nn  az  lt  la  kk    mrj
-            hu  sk  min et  da  lv    pms
-            sh  bn  bg  nv  ml  is    ga
-            eu      szl gl  be  -end- hsb
-            cy      af  br  ms  war   sl
-                                ceb
+                sk  min et  da  lv    pms
+                bn  bg  nv  ml  is    ga
+                hu  szl gl  be  -end- hsb
+                sh  af  br  ms  war   sl
+                eu  cy          ceb
+                
                                 
                                 
                                 hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
