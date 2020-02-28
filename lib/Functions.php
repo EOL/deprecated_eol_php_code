@@ -465,7 +465,8 @@ class Functions
                 $func->check_unique_ids($resource_id);
             }
             $arr['time_elapsed'] = self::get_time_elapsed($timestart);
-            self::finalize_connector_run($resource_id, json_encode($arr));
+            $str = str_replace(",", ", ", json_encode($arr));
+            self::finalize_connector_run($resource_id, $str);
         }
         if($deleteFolderYN) {
             if(is_dir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id))               recursive_rmdir(CONTENT_RESOURCE_LOCAL_PATH . $resource_id);
