@@ -505,6 +505,9 @@ wikipedia-sr	Sunday 2019-10-27 09:47:57 AM	{"media_resource.tab":19809,"taxon.ta
 wikipedia-sr	Tuesday 2020-02-25 04:55:39 AM	{"media_resource.tab":19539,"taxon.tab":15459,"time_elapsed":{"sec":16616.7,"min":276.95,"hr":4.62}}
 
 wikipedia-id (Indonesian) Tuesday 2019-10-29 02:46:33 PM{"media_resource.tab":244932,"taxon.tab":130506,"time_elapsed":false}
+wikipedia-id             Thursday 2020-02-27 12:00:57 PM{"media_resource.tab":246799,"taxon.tab":131970,"time_elapsed":{"sec":198309.24,"min":3305.15,"hr":55.09,"day":2.3}}
+Below here: starts with multiple connector v2:
+
 
 wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
 
@@ -619,7 +622,8 @@ wikipedia-ceb	Wednesday 2020-02-26 01:03:38 PM{"media_resource.tab":242,"taxon.t
 
 
 start recording stats after this row:
-wikipedia-ceb	Wednesday 2020-02-26 01:03:38 PM	{"media_resource.tab":242,"taxon.tab":517,"time_elapsed":{"sec":99250.21,"min":1654.17,"hr":27.57,"day":1.15}}
+natdb	Friday 2020-02-28 02:42:38 AM	{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.3,"min":4.17,"hr":0.07000000000000001}}
+
 
 
 
