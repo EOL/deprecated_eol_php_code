@@ -144,12 +144,16 @@ class TraitGeneric
         
         /* ------------------------- start customize ------------------------- */
         /* for: R package harvest: the MAD tool -> https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=64581&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64581
-        Oops, and another remap:
         where measurementValue = http://www.wikidata.org/entity/Q1420208,
         please make measurementType = http://eol.org/schema/terms/TrophicGuild
-        Thanks!
         */
         if($value == 'http://www.wikidata.org/entity/Q1420208') $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        
+        /* for WoRMS -> https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64582&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64582
+        where measurementValue=http://www.wikidata.org/entity/Q45879481,
+        please make measurementType = http://eol.org/schema/terms/TrophicGuild
+        */
+        if($value == 'http://www.wikidata.org/entity/Q45879481') $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
         /* ------------------------- end customize ------------------------- */
         
         $ret = self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
@@ -161,6 +165,12 @@ class TraitGeneric
         // echo "\nFrom lib: ".count($this->remapped_terms)."\n"; //just for testing
         if($new_uri = @$this->remapped_terms[$m->measurementType]) $m->measurementType = $new_uri;
         if($new_uri = @$this->remapped_terms[$m->measurementValue]) $m->measurementValue = $new_uri;
+        
+        /* ------------------------- start customize ------------------------- */ //repeated customize section above...
+        if($m->measurementValue == 'http://www.wikidata.org/entity/Q1420208') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        if($m->measurementValue == 'http://www.wikidata.org/entity/Q45879481') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        /* ------------------------- end customize ------------------------- */
+        
         return $m;
     }
 }
