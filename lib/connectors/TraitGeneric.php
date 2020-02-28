@@ -141,6 +141,17 @@ class TraitGeneric
         // echo "\nFrom lib: ".count($this->remapped_terms)."\n"; //just for testing
         if($new_uri = @$this->remapped_terms[$measurementType]) $measurementType = $new_uri;
         if($new_uri = @$this->remapped_terms[$value])           $value = $new_uri;
+        
+        /* ------------------------- start customize ------------------------- */
+        /* for: R package harvest: the MAD tool -> https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=64581&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64581
+        Oops, and another remap:
+        where measurementValue = http://www.wikidata.org/entity/Q1420208,
+        please make measurementType = http://eol.org/schema/terms/TrophicGuild
+        Thanks!
+        */
+        if($value == 'http://www.wikidata.org/entity/Q1420208') $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        /* ------------------------- end customize ------------------------- */
+        
         $ret = self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
         return $ret;
         // END DATA-1841 terms remapping
