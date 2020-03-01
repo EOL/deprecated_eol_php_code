@@ -508,16 +508,19 @@ wikipedia-id (Indonesian) Tuesday 2019-10-29 02:46:33 PM{"media_resource.tab":24
 wikipedia-id             Thursday 2020-02-27 12:00:57 PM{"media_resource.tab":246799,"taxon.tab":131970,"time_elapsed":{"sec":198309.24,"min":3305.15,"hr":55.09,"day":2.3}}
 Below here: starts with multiple connector v2:
 
-
 wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
+wikipedia-hu	Friday 2020-02-28 12:24:22 PM	{"media_resource.tab":44458,"taxon.tab":28657,"time_elapsed":{"sec":33891.53,"min":564.86,"hr":9.41}}
 
 wikipedia-sh	Sunday 2019-11-03 10:54:20 PM	{"media_resource.tab":4145,"taxon.tab":3960,"time_elapsed":{"sec":3963.9,"min":66.07,"hr":1.1}}
 wikipedia-sh	Thursday 2019-11-07 06:07:45 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":857.63,"min":14.29,"hr":0.24}}
 wikipedia-sh	Friday 2019-11-15 10:57:39 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":1130.61,"min":18.84,"hr":0.31}}
+wikipedia-sh	Friday 2020-02-28 01:26:28 PM	{"media_resource.tab":4055, "taxon.tab":4000, "time_elapsed":{"sec":3717.54, "min":61.96, "hr":1.03}}
 
 wikipedia-eu	Tuesday 2019-11-05 05:55:55 PM	{"media_resource.tab":142743,"taxon.tab":82575,"time_elapsed":{"sec":112061.2,"min":1867.69,"hr":31.13,"day":1.3}}
+wikipedia-eu	Saturday 2020-02-29 04:56:45 PM	{"media_resource.tab":142295, "taxon.tab":82493, "time_elapsed":{"sec":6504.3, "min":108.41, "hr":1.81}}
 
 wikipedia-cy	Thursday 2019-11-14 11:33:19 AM	{"media_resource.tab":34585,"taxon.tab":23238,"time_elapsed":{"sec":26810.84,"min":446.85,"hr":7.45}}
+wikipedia-cy	Friday 2020-02-28 10:05:55 AM	{"media_resource.tab":34735,"taxon.tab":23445,"time_elapsed":{"sec":25500.34,"min":425.01,"hr":7.08}}
 
 wikipedia-ast	Thursday 2019-11-14 01:18:56 PM	{"media_resource.tab":30745,"taxon.tab":21852,"time_elapsed":{"sec":3411.17,"min":56.85,"hr":0.95}}
 wikipedia-ast	Sunday 2019-12-01 07:22:08 PM	{"media_resource.tab":30773,"taxon.tab":21869,"time_elapsed":{"sec":2550.47,"min":42.51,"hr":0.71}} Consistent OK
@@ -615,16 +618,11 @@ wikipedia-sl	Tuesday 2020-02-25 04:47:06 AM	{"media_resource.tab":4976,"taxon.ta
 wikipedia-hsb	Tuesday 2020-02-25 05:05:10 AM	{"media_resource.tab":6512,"taxon.tab":4357,"time_elapsed":{"sec":5952.85,"min":99.21,"hr":1.65}}
 
 wikipedia-war	Tuesday 2019-11-19 02:12:15 PM	{"media_resource.tab":2202108,"taxon.tab":1188292,"time_elapsed":{"sec":108798.46,"min":1813.31,"hr":30.22,"day":1.26}}
+wikipedia-war	Friday 2020-02-28 03:18:10 PM	{"media_resource.tab":2201295,"taxon.tab":1187955,"time_elapsed":{"sec":105632.28,"min":1760.54,"hr":29.34,"day":1.22}}
 
 wikipedia-ceb	Thursday 2019-11-21 02:50:18 AM	{"media_resource.tab":235,"taxon.tab":500,"time_elapsed":{"sec":92347.22,"min":1539.12,"hr":25.65,"day":1.07}}
 wikipedia-ceb	Monday 2019-11-25 03:41:34 PM	{"media_resource.tab":235,"taxon.tab":500,"time_elapsed":{"sec":107687.93,"min":1794.8,"hr":29.91,"day":1.25}}
 wikipedia-ceb	Wednesday 2020-02-26 01:03:38 PM{"media_resource.tab":242,"taxon.tab":517,"time_elapsed":{"sec":99250.21,"min":1654.17,"hr":27.57,"day":1.15}}
-
-
-start recording stats after this row:
-natdb	Friday 2020-02-28 02:42:38 AM	{"measurement_or_fact_specific.tab":130356,"occurrence_specific.tab":97870,"reference.tab":11,"taxon.tab":2778,"time_elapsed":{"sec":250.3,"min":4.17,"hr":0.07000000000000001}}
-
-
 
 
 language	count
@@ -643,8 +641,6 @@ zh	97549   multiple connector v1
 eu	73404   takes a little over 1 day
 ca	65155   takes a little over 1 day
 pl	49360   multiple connector v1
-
-
 
 ---------------------------------------------------------------------------------
 */
