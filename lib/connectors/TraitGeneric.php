@@ -143,17 +143,19 @@ class TraitGeneric
         if($new_uri = @$this->remapped_terms[$value])           $value = $new_uri;
         
         /* ------------------------- start customize ------------------------- */
-        /* for: R package harvest: the MAD tool -> https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=64581&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64581
-        where measurementValue = http://www.wikidata.org/entity/Q1420208,
-        please make measurementType = http://eol.org/schema/terms/TrophicGuild
-        */
+        /* for: R package harvest: the MAD tool -> https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=64581&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64581 */
         if($value == 'http://www.wikidata.org/entity/Q1420208') $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
         
-        /* for WoRMS -> https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64582&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64582
-        where measurementValue=http://www.wikidata.org/entity/Q45879481,
-        please make measurementType = http://eol.org/schema/terms/TrophicGuild
-        */
+        /* for WoRMS -> https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64582&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64582 */
         if($value == 'http://www.wikidata.org/entity/Q45879481') $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        
+        /* for WoRMS -> https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64588&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64588 */
+        if($measurementType == 'http://purl.obolibrary.org/obo/OBA_VT0100005') {
+            if(in_array(@$rec['measurementUnit'], array('http://purl.obolibrary.org/obo/UO_0000016', 'http://purl.obolibrary.org/obo/UO_0000015', 'http://purl.obolibrary.org/obo/UO_0000017', 
+                                                        'http://purl.obolibrary.org/obo/UO_0000008'))) $measurementType = 'http://purl.obolibrary.org/obo/CMO_0000013';
+            if(in_array(@$rec['measurementUnit'], array('http://purl.obolibrary.org/obo/UO_0000009', 
+                                                        'http://purl.obolibrary.org/obo/UO_0010038'))) $measurementType = 'http://purl.obolibrary.org/obo/VT_0001259';
+        }
         /* ------------------------- end customize ------------------------- */
         
         $ret = self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
@@ -169,6 +171,12 @@ class TraitGeneric
         /* ------------------------- start customize ------------------------- */ //repeated customize section above...
         if($m->measurementValue == 'http://www.wikidata.org/entity/Q1420208') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
         if($m->measurementValue == 'http://www.wikidata.org/entity/Q45879481') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        if($m->measurementType == 'http://purl.obolibrary.org/obo/OBA_VT0100005') {
+            if(in_array(@$m->measurementUnit, array('http://purl.obolibrary.org/obo/UO_0000016', 'http://purl.obolibrary.org/obo/UO_0000015', 'http://purl.obolibrary.org/obo/UO_0000017', 
+                                                        'http://purl.obolibrary.org/obo/UO_0000008'))) $m->measurementType = 'http://purl.obolibrary.org/obo/CMO_0000013';
+            if(in_array(@$m->measurementUnit, array('http://purl.obolibrary.org/obo/UO_0000009', 
+                                                        'http://purl.obolibrary.org/obo/UO_0010038'))) $m->measurementType = 'http://purl.obolibrary.org/obo/VT_0001259';
+        }
         /* ------------------------- end customize ------------------------- */
         
         return $m;
