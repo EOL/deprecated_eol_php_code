@@ -70,7 +70,10 @@ So this means there is no more association data from WoRMS.
 
 Start where MoF records with parents in 26_undefined_parentMeasurementIDs.txt will be auto removed:
 26	Tuesday 2020-02-11 09:50:00 AM	{"agent.tab":1639,"measurement_or_fact_specific.tab":3414427,"media_resource.tab":86178,"occurrence_specific.tab":2073724,"reference.tab":639196,"taxon.tab":352690,"vernacular_name.tab":79229,"time_elapsed":false}
-26	Wednesday 2020-02-12 04:25:35 AM{"agent.tab":1639,"measurement_or_fact_specific.tab":3414427,"media_resource.tab":86178,"occurrence_specific.tab":2073724,"reference.tab":639196,"taxon.tab":352690,"vernacular_name.tab":79229,"time_elapsed":false}
+26	Wednesday 2020-02-12 04:25:35 AM{"agent.tab":1639, "measurement_or_fact_specific.tab":3414427, "media_resource.tab":86178, "occurrence_specific.tab":2073724, "reference.tab":639196, "taxon.tab":352690, "vernacular_name.tab":79229,"time_elapsed":false}
+                                    {"agent.tab":1639, "measurement_or_fact_specific.tab":3414427, "media_resource.tab":86178, "occurrence_specific.tab":2073724, "reference.tab":639196, "taxon.tab":352690, "vernacular_name.tab":79229}
+26	Monday 2020-03-02 08:55:43 AM	{"agent.tab":1644, "measurement_or_fact_specific.tab":3408286, "media_resource.tab":86519, "occurrence_specific.tab":2106782, "reference.tab":641496, "taxon.tab":353383, "vernacular_name.tab":79240, "time_elapsed":{"sec":2881.02, "min":48.02, "hr":0.8}}
+26	Monday 2020-03-02 09:28:04 AM	{"agent.tab":1644, "measurement_or_fact_specific.tab":3405872, "media_resource.tab":86519, "occurrence_specific.tab":2106782, "reference.tab":641496, "taxon.tab":353383, "vernacular_name.tab":79240, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
