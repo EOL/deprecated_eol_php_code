@@ -505,7 +505,9 @@ wikipedia-sr	Sunday 2019-10-27 09:47:57 AM	{"media_resource.tab":19809,"taxon.ta
 wikipedia-sr	Tuesday 2020-02-25 04:55:39 AM	{"media_resource.tab":19539,"taxon.tab":15459,"time_elapsed":{"sec":16616.7,"min":276.95,"hr":4.62}}
 
 wikipedia-id (Indonesian) Tuesday 2019-10-29 02:46:33 PM{"media_resource.tab":244932,"taxon.tab":130506,"time_elapsed":false}
-wikipedia-id             Thursday 2020-02-27 12:00:57 PM{"media_resource.tab":246799,"taxon.tab":131970,"time_elapsed":{"sec":198309.24,"min":3305.15,"hr":55.09,"day":2.3}}
+wikipedia-id             Thursday 2020-02-27 12:00:57 PM{"media_resource.tab":246799, "taxon.tab":131970, "time_elapsed":{"sec":198309.24,"min":3305.15,"hr":55.09,"day":2.3}}
+wikipedia-id            Monday 2020-03-02 12:29:14 PM	{"media_resource.tab":246801, "taxon.tab":131971, "time_elapsed":{"sec":11721.51, "min":195.36, "hr":3.26}}
+
 Below here: starts with multiple connector v2:
 
 wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
