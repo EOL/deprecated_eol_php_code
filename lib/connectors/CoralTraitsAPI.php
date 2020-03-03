@@ -151,6 +151,11 @@ class CoralTraitsAPI
         
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        /* START DATA-1841 terms remapping */
+        $this->func->initialize_terms_remapping();
+        /* END DATA-1841 terms remapping */
+        echo "\nFrom local: ".count($this->func->remapped_terms)."\n";
+        
         self::load_zip_contents();
         $this->meta['trait_name'] = self::initialize_spreadsheet_mapping('trait_name'); // print_r($this->meta['trait_name']['Zooxanthellate']); exit;
 
@@ -325,7 +330,7 @@ class CoralTraitsAPI
                 $rek = self::implement_addtl_mapping($rek);
                 // */
                 
-                $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], "child"); //for child measurement
+                $ret_MoT_true = $this->func->pre_add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], "child"); //for child measurement
             }
         }
     }
@@ -451,7 +456,7 @@ class CoralTraitsAPI
         $rek = self::implement_addtl_mapping($rek);
         // */
 
-        $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon); //main add trait
+        $ret_MoT_true = $this->func->pre_add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon); //main add trait
         $occurrenceID = $ret_MoT_true['occurrenceID'];
         $measurementID = $ret_MoT_true['measurementID'];
         $this->OM_ids[$occurrenceID][$measurementID] = '';
@@ -459,21 +464,21 @@ class CoralTraitsAPI
         //Special Case #3: add the other mValue
         if($rec['value'] == 'caespitose_corymbose') {
             $rek['measurementValue'] = 'http://eol.org/schema/terms/caespitose';        //start add
-            $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
+            $ret_MoT_true = $this->func->pre_add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
         //Special Case #4: add the other mValue
         if($rec['value'] == 'massive and columnar') {
             $rek['measurementValue'] = 'http://purl.obolibrary.org/obo/PORO_0000389';   //start add
-            $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
+            $ret_MoT_true = $this->func->pre_add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }
         //Special Case #5: add the other mValue
         if($rec['value'] == 'arborescent_tables') {
             $rek['measurementValue'] = 'http://eol.org/schema/terms/explanate';         //start add
-            $ret_MoT_true = $this->func->add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
+            $ret_MoT_true = $this->func->pre_add_string_types($rek, $rek['measurementValue'], $rek['measurementType'], $mOfTaxon);
             $occurrenceID = $ret_MoT_true['occurrenceID'];
             $measurementID = $ret_MoT_true['measurementID'];
         }

@@ -156,6 +156,23 @@ class TraitGeneric
             if(in_array(@$rec['measurementUnit'], array('http://purl.obolibrary.org/obo/UO_0000009', 
                                                         'http://purl.obolibrary.org/obo/UO_0010038'))) $measurementType = 'http://purl.obolibrary.org/obo/VT_0001259';
         }
+        
+        /* for CoralTraits -> https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=64583&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64583 */
+        if($measurementType == 'http://eol.org/schema/terms/Colonial') {
+            if($value == 'http://eol.org/schema/terms/yes') {
+                $measurementType = 'http://purl.obolibrary.org/obo/NCIT_C25513';
+                $value = 'http://purl.obolibrary.org/obo/ENVO_01000049';
+            }
+            else return false;
+        }
+        
+        /* for CoralTraits -> https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=64587&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64587 */
+        if($measurementType == 'http://purl.obolibrary.org/obo/OBA_VT0100005') {
+            if(    in_array(@$rec['measurementUnit'], array('http://purl.obolibrary.org/obo/UO_0000081'))) $measurementType = 'http://purl.obolibrary.org/obo/PATO_0001709';
+            elseif(in_array(@$rec['measurementUnit'], array('http://purl.obolibrary.org/obo/UO_0000017'))) $measurementType = 'http://eol.org/schema/terms/EggDiameter';
+            elseif(in_array(@$rec['measurementUnit'], array('http://purl.obolibrary.org/obo/UO_0000015'))) $measurementType = 'http://ncicb.nci.nih.gov/xml/owl/EVS/Thesaurus.owl#C25285';
+        }
+        
         /* ------------------------- end customize ------------------------- */
         
         $ret = self::add_string_types($rec, $value, $measurementType, $measurementOfTaxon);
