@@ -58,6 +58,11 @@ rows of 4: Consistent OK: Removed Polychaeta (id = 7022)
 368_removed_aves	Tuesday 2020-02-11 10:00:35 AM	    {"measurement_or_fact_specific.tab":2344674,"occurrence.tab":527826,"taxon.tab":387880,"vernacular_name.tab":4692}
 368_final	Tuesday 2020-02-11 10:13:35 AM	            {"measurement_or_fact_specific.tab":2344674,"occurrence.tab":527826,"taxon.tab":378879,"vernacular_name.tab":4692}
 
+368	Wednesday 2020-03-04 05:27:53 AM	                {"measurement_or_fact.tab":2424685, "occurrence.tab":546235, "taxon.tab":399196, "vernacular_name.tab":7004, "time_elapsed":false}
+368	Wednesday 2020-03-04 05:57:03 AM	                {"measurement_or_fact.tab":2411234, "occurrence.tab":542757, "taxon.tab":396564, "vernacular_name.tab":6991, "time_elapsed":false}
+368_removed_aves	Wednesday 2020-03-04 06:10:26 AM	{"measurement_or_fact_specific.tab":2330816, "occurrence.tab":525816, "taxon.tab":390179, "vernacular_name.tab":4718, "time_elapsed":false}
+368_final	Wednesday 2020-03-04 06:24:32 AM	        {"measurement_or_fact_specific.tab":2330816, "occurrence.tab":525816, "taxon.tab":381141, "vernacular_name.tab":4718, "time_elapsed":false}
+
 Reminders:
 # Three (3) connectors to run, one after the other - OK
 
