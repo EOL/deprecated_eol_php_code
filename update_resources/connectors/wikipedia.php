@@ -301,13 +301,9 @@ pms	3369    Piedmontese     https://en.wikipedia.org/wiki/Piedmontese_language
 ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language
 bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
 
-
+START aggregate resource:
 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
-
-
-
-
 
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
@@ -627,6 +623,7 @@ wikipedia-ceb	Thursday 2019-11-21 02:50:18 AM	{"media_resource.tab":235,"taxon.t
 wikipedia-ceb	Monday 2019-11-25 03:41:34 PM	{"media_resource.tab":235,"taxon.tab":500,"time_elapsed":{"sec":107687.93,"min":1794.8,"hr":29.91,"day":1.25}}
 wikipedia-ceb	Wednesday 2020-02-26 01:03:38 PM{"media_resource.tab":242,"taxon.tab":517,"time_elapsed":{"sec":99250.21,"min":1654.17,"hr":27.57,"day":1.15}}
 
+wikipedia-ta	Thursday 2020-03-05 05:14:42 AM	{"media_resource.tab":5129, "taxon.tab":5541, "time_elapsed":{"sec":5169.46, "min":86.16, "hr":1.44}}
 
 language	count
 sv	1331982 multiple connector v1
