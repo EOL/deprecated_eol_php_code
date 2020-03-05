@@ -112,14 +112,15 @@ exit("\nend test\n");
 
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
-/* Not yet with multiple connectors
+/* No longer have multiple connectors
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("no", "fi", "ca", "uk")); //3rd batch Norwegian Finnish Catalan Ukranian
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("tr", "ro", "cs")); //4th batch Turkish Romanian Czech
 */
 
 $use_MultipleConnJenkinsAPI = array("min", "war", "id"); //first client for MultipleConnJenkinsAPI | , "cy", "az", "ast", "bg" "ceb"
-// $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
-
+/* No longer have multiple connectors
+$use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("szl", "af", "ka", "lt"));
+*/
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
 $func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
