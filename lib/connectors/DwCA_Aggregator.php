@@ -30,53 +30,6 @@ class DwCA_Aggregator
             $this->taxon_ids = array();
         }
         */
-        $this->public_domains = array("http://creativecommons.org/licenses/publicdomain/", "https://creativecommons.org/share-your-work/public-domain/", "https://creativecommons.org/share-your-work/public-domain/cc0/");
-    }
-    function count_records_in_dwca()
-    {
-        if(!($info = self::start())) return;
-        $temp_dir = $info['temp_dir'];
-        $harvester = $info['harvester'];
-        $tables = $info['tables'];
-        $index = $info['index'];
-        $totals = array();
-        foreach($index as $row_type) {
-            $count = self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type], false); //3rd param = false means count only, no archive will be generated
-            $totals[$row_type] = $count;
-        }
-        print_r($totals);
-        // remove temp dir
-        recursive_rmdir($temp_dir);
-        echo ("\n temporary directory removed: " . $temp_dir);
-    }
-    private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => false)) //probably default expires in a month 60*60*24*30. Not false.
-    {
-        if($dwca_file) $this->dwca_file = $dwca_file;
-        
-        // /* un-comment in real operation
-        require_library('connectors/INBioAPI');
-        $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
-        // print_r($paths);
-        // */
-
-        /* development only
-        $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/'
-        );
-        */
-        
-        $archive_path = $paths['archive_path'];
-        $temp_dir = $paths['temp_dir'];
-        $harvester = new ContentArchiveReader(NULL, $archive_path);
-        $tables = $harvester->tables;
-        $index = array_keys($tables);
-        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
-            debug("Invalid archive file. Program will terminate.");
-            return false;
-        }
-        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
     function combine_DwCAs($langs)
     {
@@ -90,7 +43,7 @@ class DwCA_Aggregator
     private function convert_archive($preferred_rowtypes = false, $dwca_file)
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA.*/
         echo "\nConverting archive to EOL DwCA...\n";
-        $info = self::start($dwca_file, array('timeout' => 172800, 'expire_seconds' => 0)); //1 day expire -> 60*60*24*1
+        $info = self::start($dwca_file, array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire -> 60*60*24*1
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
@@ -143,6 +96,35 @@ class DwCA_Aggregator
         // */
         if($this->debug) print_r($this->debug);
     }
+    private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => false)) //probably default expires in a month 60*60*24*30. Not false.
+    {
+        if($dwca_file) $this->dwca_file = $dwca_file;
+        
+        // /* un-comment in real operation
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
+        // print_r($paths);
+        // */
+
+        /* development only
+        $paths = Array(
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/'
+        );
+        */
+        
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $harvester = new ContentArchiveReader(NULL, $archive_path);
+        $tables = $harvester->tables;
+        $index = array_keys($tables);
+        if(!($tables["http://rs.tdwg.org/dwc/terms/taxon"][0]->fields)) { // take note the index key is all lower case
+            debug("Invalid archive file. Program will terminate.");
+            return false;
+        }
+        return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
+    }
     private function process_table($meta, $what)
     {   //print_r($meta);
         echo "\nprocessing [$what]...\n"; $i = 0;
@@ -188,49 +170,6 @@ class DwCA_Aggregator
             // if($i >= 2) break; //debug only
         }
     }
-    //ends here 
-    
-    /* not used at the moment...
-    private function create_taxa($taxa)
-    {
-        foreach($taxa as $t)
-        {   
-            $taxon = new \eol_schema\Taxon();
-            $taxon->taxonID         = $t['AphiaID'];
-            $taxon->scientificName  = trim($t['scientificname'] . " " . $t['authority']);
-            $taxon->taxonRank       = $t['rank'];
-            $taxon->taxonomicStatus = $t['status'];
-            $taxon->source          = $this->taxon_page . $t['AphiaID'];
-            $taxon->parentNameUsageID = $t['parent_id'];
-            $taxon->acceptedNameUsageID     = $t['valid_AphiaID'];
-            $taxon->bibliographicCitation   = $t['citation'];
-            if(!isset($this->taxon_ids[$taxon->taxonID]))
-            {
-                $this->taxon_ids[$taxon->taxonID] = '';
-                $this->archive_builder->write_object_to_file($taxon);
-            }
-        }
-    }
-    */
-    
-    //=====================================================================================================================
-    //start OTHER functions
-    //=====================================================================================================================
-    function get_uri_value($raw, $uri_values) //$raw e.g. "Philippines" ---- good func but not yet used, soon...
-    {
-        if($uri = @$uri_values[$raw]) return $uri;
-        else {
-            switch ($raw) { //put here customized mapping
-                case "United States of America":    return "http://www.wikidata.org/entity/Q30";
-                case "Port of Entry":               return false; //"DO NOT USE"
-            }
-        }
-        return false;
-    }
-    
-    //=====================================================================================================================
-    //end OTHER functions
-    //=====================================================================================================================
-
+    //ends here
 }
 ?>
