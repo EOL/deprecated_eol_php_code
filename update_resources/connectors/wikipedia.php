@@ -305,6 +305,26 @@ START aggregate resource:
 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
 
+sh	2606
+mk	2583
+ur	2365
+ky	2364
+sco	2304
+zh-yue	2193
+hi	2113
+fy	2062
+tl	1803
+jv	1745
+ia	1664
+ne	1647
+oc	1621
+qu	1583
+be-x-old	1532
+koi	1531
+frr	1486
+udm	1474
+ba	1370
+an	1295
 
 wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.tab":355505}
 80	            Monday 2017-12-04 04:16:56 AM	{"media_resource.tab":672049,"taxon.tab":356043}
