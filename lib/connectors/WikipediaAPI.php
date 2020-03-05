@@ -427,6 +427,15 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        if($this->language_code == 'el') { //Greek
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //remove external links section
+            $left = '<span class="mw-headline" id="Εξωτερικοί_σύνδεσμοι"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'ta') { //Tamil
             //infobox
             $left = '<table class="infobox biota"'; $right = '<p><b>';
