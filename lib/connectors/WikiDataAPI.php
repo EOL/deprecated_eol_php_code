@@ -591,8 +591,10 @@ class WikiDataAPI extends WikipediaAPI
                 $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
                 // $arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386; //Formicidae
                 // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua (No Indonesian - id)
+                // $arr = self::get_object('Q152'); $arr = $arr->entities->Q152; //fish Pisces
                 // $arr = self::get_object('Q25349'); $arr = $arr->entities->Q25349; //starfish Asteroidea
                 // $arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843; //Orca
+                // $arr = self::get_object('Q7372'); $arr = $arr->entities->Q7372; //Shark Selachimorpha
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
                 // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
@@ -600,6 +602,7 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear - Ursus maritimus
                 // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //Angiosperms DATA-1803
                 // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
+                // $arr = self::get_object('Q10850'); $arr = $arr->entities->Q10850; //Rodentia
                 // $arr = self::get_object('Q729'); $arr = $arr->entities->Q729; //Animalia
                 // $arr = self::get_object('Q756'); $arr = $arr->entities->Q756; //Plantae
                 // $arr = self::get_object('Q808'); $arr = $arr->entities->Q808; //Virus
@@ -611,6 +614,9 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q5113'); $arr = $arr->entities->Q5113; //Aves
                 // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; //sunflower
                 // $arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687; //Rosa genus of plant
+                // $arr = self::get_object('Q635162'); $arr = $arr->entities->Q635162; //Hominidae -- Homo sapiens
+                // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460; //
+                // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845; //
                 */
                 
                 // /* taxon_wiki_per_language_stats
