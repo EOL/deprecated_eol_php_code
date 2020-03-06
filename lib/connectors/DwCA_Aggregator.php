@@ -1,6 +1,9 @@
 <?php
 namespace php_active_record;
-/* connector: [aggregate_resources.php] - first client */
+/* connector: [aggregate_resources.php] - first client 
+This lib basically combined DwCA's (.tar.gz) resources.
+First client is combining several wikipedia languages -> combine_wikipedia_DwCAs(). Started with languages "ta", "el", "ceb".
+*/
 class DwCA_Aggregator
 {
     function __construct($folder = NULL, $dwca_file = NULL)
@@ -31,7 +34,7 @@ class DwCA_Aggregator
         }
         */
     }
-    function combine_DwCAs($langs)
+    function combine_wikipedia_DwCAs($langs)
     {
         foreach($langs as $lang) {
             $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
@@ -75,10 +78,6 @@ class DwCA_Aggregator
         
         // /* ================================= start of customization =================================
         if($this->resource_id == 'wikipedia_combined_languages') {
-            // require_library('connectors/USDAPlants2019');
-            // $func = new USDAPlants2019($this->archive_builder, $this->resource_id);
-            // $func->start($info);
-            
             $tables = $info['harvester']->tables;
             // print_r($tables); exit;
             /*Array(
@@ -125,15 +124,35 @@ class DwCA_Aggregator
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
+    private function is_utf8($v)
+    {
+        $v = trim($v);
+        if(!$v) return true;
+        $return = Functions::is_utf8($v);
+        return $return;
+    }
     private function process_table($meta, $what)
     {   //print_r($meta);
         echo "\nprocessing [$what]...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            // $row = Functions::conv_to_utf8($row); //new line
+            
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            
+            /* new block
+            if($i == 1) {
+                $tmp = explode("\t", $row);
+                $column_count = count($tmp);
+            }
+            */
+            
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
             $tmp = explode("\t", $row);
+            
+            // if($column_count != count($tmp)) continue; //new line
+            
             $rec = array(); $k = 0;
             foreach($meta->fields as $field) {
                 if(!$field['term']) continue;
@@ -153,14 +172,27 @@ class DwCA_Aggregator
             if($what == "taxon")           $o = new \eol_schema\Taxon();
             elseif($what == "document")    $o = new \eol_schema\MediaResource();
             
-            $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             if($what == "taxon") {
+                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 if(stripos($rec['http://purl.org/dc/terms/source'], "wikipedia.org") !== false) $rec['http://purl.org/dc/terms/source'] = 'https://www.wikidata.org/wiki/'.$taxon_id; //string is found
                 if(!isset($this->taxon_ids[$taxon_id])) {
                     $this->taxon_ids[$taxon_id] = '';
                 }
                 else continue;
             }
+            /*
+            elseif($what == "document") {
+                $desc = @$rec['http://purl.org/dc/terms/description'];
+                if($desc) {
+                    $desc = Functions::conv_to_utf8($desc);
+                    $desc = str_ireplace(array("\t", "\n"), " ", $desc);
+                }
+                $rec['http://purl.org/dc/terms/description'] = $desc;
+            }
+            if(isset($rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])) {
+                if(!$rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) continue;
+            }
+            */
             
             foreach($uris as $uri) {
                 $field = pathinfo($uri, PATHINFO_BASENAME);
@@ -170,6 +202,5 @@ class DwCA_Aggregator
             // if($i >= 2) break; //debug only
         }
     }
-    //ends here
 }
 ?>
