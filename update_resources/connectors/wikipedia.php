@@ -303,10 +303,10 @@ bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
 
 START aggregate resource:
 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
-el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
 
-sh	2606
-mk	2583
+el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
+mk	2583    Macedonian      https://en.wikipedia.org/wiki/Macedonian_language
+
 ur	2365
 ky	2364
 sco	2304
@@ -644,6 +644,9 @@ wikipedia-ceb	Monday 2019-11-25 03:41:34 PM	{"media_resource.tab":235,"taxon.tab
 wikipedia-ceb	Wednesday 2020-02-26 01:03:38 PM{"media_resource.tab":242,"taxon.tab":517,"time_elapsed":{"sec":99250.21,"min":1654.17,"hr":27.57,"day":1.15}}
 
 wikipedia-ta	Thursday 2020-03-05 05:14:42 AM	{"media_resource.tab":5129, "taxon.tab":5541, "time_elapsed":{"sec":5169.46, "min":86.16, "hr":1.44}}
+wikipedia-ta	Friday 2020-03-06 02:59:05 AM	{"media_resource.tab":5129, "taxon.tab":5541, "time_elapsed":{"sec":1735.28, "min":28.92, "hr":0.48}}
+
+wikipedia-el	Friday 2020-03-06 03:34:04 AM	{"media_resource.tab":3922, "taxon.tab":4310, "time_elapsed":{"sec":3654.53, "min":60.91, "hr":1.02}}
 
 language	count
 sv	1331982 multiple connector v1

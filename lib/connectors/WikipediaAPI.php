@@ -427,6 +427,23 @@ class WikipediaAPI
     }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
+        //remove all the time
+        $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        
+        if($this->language_code == 'mk') { //Macedonian
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //remove external links section
+            $left = '<span class="mw-headline" id="Надворешни_врски"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            // //remove <abbr> ----- may not need this anymore since they're inside <span style="display:none; visibility:hidden"> already.
+            // $left = '<div class="plainlinks hlist navbar mini"'; $right = '</div>';
+            // $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
         if($this->language_code == 'el') { //Greek
             //infobox - general
             $left = '<table class="infobox biota"'; $right = '<p>';

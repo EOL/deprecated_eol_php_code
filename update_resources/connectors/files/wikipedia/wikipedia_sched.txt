@@ -17,14 +17,18 @@ ja  ko  ru  pt
                 bn  bg  nv  ml  is    ga
                 hu  szl gl  be  -end- hsb
                 sh  af  br  ms  war   sl
-                eu  cy          ceb
+                eu  cy  ta  el  ceb
                 
+                                STARTS IN AGGREGATE RESOURCE (first is 'ta' Tamil)
+                                ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
+                                el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
+                                ceb         Cebuano
                                 
+                    LAST LANGUAGES WITH ITS OWN DWCA:
+                    hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
+                    sl	3449    Slovenian       https://en.wikipedia.org/wiki/Slovene_language
                                 
-                                hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
-                                sl	3449    Slovenian       https://en.wikipedia.org/wiki/Slovene_language
-                                
-                                pms	3369    Piedmontese     https://en.wikipedia.org/wiki/Piedmontese_language
-                                ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language
-                                bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
+                    pms	3369    Piedmontese     https://en.wikipedia.org/wiki/Piedmontese_language
+                    ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language
+                    bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
                                 
