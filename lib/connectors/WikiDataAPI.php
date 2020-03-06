@@ -617,6 +617,7 @@ class WikiDataAPI extends WikipediaAPI
                 // $arr = self::get_object('Q635162'); $arr = $arr->entities->Q635162; //Hominidae -- Homo sapiens
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460; //
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845; //
+                // $arr = self::get_object('Q764'); $arr = $arr->entities->Q764; //Fungi
                 */
                 
                 // /* taxon_wiki_per_language_stats
@@ -807,7 +808,7 @@ class WikiDataAPI extends WikipediaAPI
         if($this->what == "wikipedia") {
             if($description = trim(@$rec['other']['comprehensive_desc'])) {
                 // Comprehensive Description
-                $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description");
+                $media['identifier']             = md5($rec['taxon_id']."Comprehensive Description".$this->language_code);
                 $media['title']                  = $rec['other']['title'];
                 $media['description']            = $description;
                 $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
@@ -822,7 +823,7 @@ class WikiDataAPI extends WikipediaAPI
                 self::create_wikipedia_object($media);
                 
                 // Brief Summary
-                $media['identifier']             = md5($rec['taxon_id']."Brief Summary");
+                $media['identifier']             = md5($rec['taxon_id']."Brief Summary".$this->language_code);
                 $media['title']                  = $rec['other']['title'] . ': Brief Summary';
                 $media['description']            = $rec['other']['brief_summary'];
                 $media['CVterm']                 = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
