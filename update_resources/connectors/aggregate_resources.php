@@ -9,7 +9,7 @@ $resource_id = 'wikipedia_combined_languages';
 require_library('connectors/DwCA_Aggregator');
 $func = new DwCA_Aggregator($resource_id);
 
-$langs = array('ta', 'el', 'ceb');
+$langs = array('ta', 'ceb'); //el
 $func->combine_wikipedia_DwCAs($langs);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>
