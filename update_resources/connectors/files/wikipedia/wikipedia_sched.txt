@@ -17,12 +17,14 @@ ja  ko  ru  pt
                 bn  bg  nv  ml  is    ga
                 hu  szl gl  be  -end- hsb
                 sh  af  br  ms  war   sl
-                eu  cy  ta  el  ceb
+                eu  cy  ta  el  ceb   mk
                 
                                 STARTS IN AGGREGATE RESOURCE (first is 'ta' Tamil)
                                 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
                                 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
                                 ceb         Cebuano
+                                mk	2583    Macedonian  https://en.wikipedia.org/wiki/Macedonian_language
+                                
                                 
                     LAST LANGUAGES WITH ITS OWN DWCA:
                     hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language

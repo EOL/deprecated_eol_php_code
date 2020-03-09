@@ -168,6 +168,9 @@ class DwCA_Aggregator
                 [http://rs.tdwg.org/dwc/terms/taxonRank] => species
                 [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Carl Linnaeus, 1758
             )*/
+            
+            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'Q18498') continue; //special case. Selected by openning MoF.tab using Numbers while set description = 'test'
+            
             $uris = array_keys($rec);
             if($what == "taxon")           $o = new \eol_schema\Taxon();
             elseif($what == "document")    $o = new \eol_schema\MediaResource();
@@ -180,17 +183,17 @@ class DwCA_Aggregator
                 }
                 else continue;
             }
-            /*
+            /* Good debug: also didn't work for Q18498
             elseif($what == "document") {
                 $desc = @$rec['http://purl.org/dc/terms/description'];
                 if($desc) {
                     $desc = Functions::conv_to_utf8($desc);
                     $desc = str_ireplace(array("\t", "\n"), " ", $desc);
                 }
-                $rec['http://purl.org/dc/terms/description'] = $desc;
-            }
-            if(isset($rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])) {
-                if(!$rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms']) continue;
+                $rec['http://purl.org/dc/terms/description'] = 'test'; //$desc;
+
+                if($val = trim(@$rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])) {}
+                else continue;
             }
             */
             
