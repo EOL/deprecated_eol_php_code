@@ -11,6 +11,7 @@ $func = new DwCA_Aggregator($resource_id);
 
 $langs = array('ta', 'ceb', 'el', 'mk');
 // $langs = array('el');
+// $langs = array('mk');
 $func->combine_wikipedia_DwCAs($langs);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>

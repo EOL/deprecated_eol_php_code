@@ -36,8 +36,8 @@ class DwCA_Aggregator
     }
     function combine_wikipedia_DwCAs($langs)
     {
-        foreach($langs as $lang) {
-            $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$lang.'.tar.gz';
+        foreach($langs as $this->lang) {
+            $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$this->lang.'.tar.gz';
             $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/media/document');
             self::convert_archive($preferred_rowtypes, $dwca_file);
         }
@@ -168,8 +168,14 @@ class DwCA_Aggregator
                 [http://rs.tdwg.org/dwc/terms/taxonRank] => species
                 [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Carl Linnaeus, 1758
             )*/
-            
-            if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'Q18498') continue; //special case. Selected by openning MoF.tab using Numbers while set description = 'test'
+
+            /* special case. Selected by openning media.tab using Numbers while set description = 'test'. Get taxonID for that row */
+            if($this->lang == 'el') {
+                if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'Q18498') continue; 
+            }
+            if($this->lang == 'mk') {
+                if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], array('Q10876', 'Q5185', 'Q10892'))) continue;
+            }
             
             $uris = array_keys($rec);
             if($what == "taxon")           $o = new \eol_schema\Taxon();
@@ -183,17 +189,17 @@ class DwCA_Aggregator
                 }
                 else continue;
             }
-            /* Good debug: also didn't work for Q18498
+            /* Good debug
             elseif($what == "document") {
                 $desc = @$rec['http://purl.org/dc/terms/description'];
                 if($desc) {
+                    $desc = str_ireplace(array("\n", "\t", "\r", chr(9), chr(10), chr(13), chr(0x0D), chr(0x0A), chr(0x0D0A)), " ", $desc);
                     $desc = Functions::conv_to_utf8($desc);
-                    $desc = str_ireplace(array("\t", "\n"), " ", $desc);
                 }
-                $rec['http://purl.org/dc/terms/description'] = 'test'; //$desc;
+                $rec['http://purl.org/dc/terms/description'] = 'eli'; //$desc;
 
                 if($val = trim(@$rec['http://ns.adobe.com/xap/1.0/rights/UsageTerms'])) {}
-                else continue;
+                else exit("\nNo license\n"); //continue;
             }
             */
             
