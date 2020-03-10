@@ -24,8 +24,10 @@ ja  ko  ru  pt
                                 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
                                 ceb         Cebuano
                                 mk	2583    Macedonian  https://en.wikipedia.org/wiki/Macedonian_language
+                                ky	2364    Kirghiz     https://en.wikipedia.org/wiki/Kyrgyz_language
                                 
                                 
+                    ================================================================================
                     LAST LANGUAGES WITH ITS OWN DWCA:
                     hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
                     sl	3449    Slovenian       https://en.wikipedia.org/wiki/Slovene_language
