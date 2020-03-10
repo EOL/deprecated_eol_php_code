@@ -431,6 +431,12 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
+        if($this->language_code == 'ky') { //Kirghiz
+            //infobox - general
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        
         if($this->language_code == 'mk') { //Macedonian
             //infobox - general
             $left = '<table class="infobox biota"'; $right = '<p><b>';

@@ -246,11 +246,14 @@ wikipedia-cy (Welsh)
 wikipedia-az (Azerbaijani)
 wikipedia-ast (Asturian)
 
--ar Arabic --- *I still have ignored for now Arabic (ar) and Persian (fa).
--fa Persian --- *I still have ignored for now Arabic (ar) and Persian (fa).
--he Hebrew --- same as Arabic and Persian
--pnb Western Punjabi --- same as Arabic and Persian
--azb South Azerbaijani --- same as Arabic and Persian
+
+-ar     Arabic              --- *I still have ignored for now Arabic (ar) and Persian (fa).
+-fa     Persian             --- *I still have ignored for now Arabic (ar) and Persian (fa).
+-he     Hebrew              --- same as Arabic and Persian
+-pnb    Western Punjabi     --- same as Arabic and Persian
+-azb    South Azerbaijani   --- same as Arabic and Persian
+-ur     Urdu                --- same as Arabic and Persian
+
 
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
 
@@ -307,8 +310,9 @@ ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
 mk	2583    Macedonian      https://en.wikipedia.org/wiki/Macedonian_language
 
-ur	2365
-ky	2364
+ky	2364    Kirghiz     https://en.wikipedia.org/wiki/Kyrgyz_language
+
+
 sco	2304
 zh-yue	2193
 hi	2113
