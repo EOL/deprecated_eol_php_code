@@ -113,10 +113,11 @@ class ContentArchiveBuilder
         }
         while(!feof($WORKING_FILE))
         {
-            if($line = fgets($WORKING_FILE, 409600))
+            if($line = fgets($WORKING_FILE, 4096000)) //Eli on Mar 10, 2020 added 0 at the end. It was only 409600 before. Used in Wikipedia media object, which can be long.
             {
                 if($line = rtrim($line, "\r\n"))
                 {
+                    // echo("\n[xx $line xx]\n"); //good debug
                     fwrite($FILE, $line);
                     $number_of_columns = substr_count($line, "\t");
                     fwrite($FILE, str_repeat("\t", $count_columns - $number_of_columns - 1));
