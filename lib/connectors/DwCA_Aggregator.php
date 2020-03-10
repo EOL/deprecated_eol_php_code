@@ -171,10 +171,10 @@ class DwCA_Aggregator
 
             /* special case. Selected by openning media.tab using Numbers while set description = 'test'. Get taxonID for that row */
             if($this->lang == 'el') {
-                if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'Q18498') continue; 
+                // if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'Q18498') continue; 
             }
             if($this->lang == 'mk') {
-                if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], array('Q10876', 'Q5185', 'Q10892'))) continue;
+                // if(in_array($rec['http://rs.tdwg.org/dwc/terms/taxonID'], array('Q10876', 'Q5185', 'Q10892', 'Q152', 'Q10798', 'Q8314', 'Q15574019'))) continue;
             }
             
             $uris = array_keys($rec);
