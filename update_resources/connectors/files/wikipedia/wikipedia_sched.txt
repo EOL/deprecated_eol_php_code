@@ -18,13 +18,16 @@ ja  ko  ru  pt
                 hu  szl gl  be  -end- hsb
                 sh  af  br  ms  war   sl
                 eu  cy  ta  el  ceb   mk
-                
+                ky  sco hi
                                 STARTS IN AGGREGATE RESOURCE (first is 'ta' Tamil)
                                 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
                                 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
                                 ceb         Cebuano
                                 mk	2583    Macedonian  https://en.wikipedia.org/wiki/Macedonian_language
                                 ky	2364    Kirghiz     https://en.wikipedia.org/wiki/Kyrgyz_language
+                                
+                                sco 2304    Scots   https://en.wikipedia.org/wiki/Scots_language
+                                hi  2113    Hindi 	https://en.wikipedia.org/wiki/Hindi
                                 
                                 
                     ================================================================================
