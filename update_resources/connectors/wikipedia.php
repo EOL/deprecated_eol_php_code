@@ -305,15 +305,17 @@ ga	2976    Irish           https://en.wikipedia.org/wiki/Irish_language
 bn	2865    Bengali         https://en.wikipedia.org/wiki/Bengali_language
 
 START aggregate resource:
-ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
-el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
-mk	2583    Macedonian      https://en.wikipedia.org/wiki/Macedonian_language
-ky	2364    Kirghiz     https://en.wikipedia.org/wiki/Kyrgyz_language
+ta  Tamil       https://en.wikipedia.org/wiki/Tamil_language
+ceb Cebuano     https://en.wikipedia.org/wiki/Cebuano_language
+el  Greek       https://en.wikipedia.org/wiki/Greek_language
+mk  Macedonian  https://en.wikipedia.org/wiki/Macedonian_language
+ky  Kirghiz     https://en.wikipedia.org/wiki/Kyrgyz_language
+
 
 sco	2304    Scots   https://en.wikipedia.org/wiki/Scots_language
+zh-yue	2193 --- passed for now. Seems it needs major code revamp
+hi	2113    Hindi 	https://en.wikipedia.org/wiki/Hindi
 
-zh-yue	2193
-hi	2113
 fy	2062
 tl	1803
 jv	1745

@@ -20,8 +20,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'azb';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'zh-yue';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -431,12 +431,25 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
+        if($this->language_code == 'hi') { //Hindi
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //remove external links section
+            $left = '<span class="mw-headline" id="बाहरी_संबंध"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'sco') { //Scots
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'ky') { //Kirghiz
             //infobox - general
             $left = '<table class="infobox"'; $right = '<p><b>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
-        
         if($this->language_code == 'mk') { //Macedonian
             //infobox - general
             $left = '<table class="infobox biota"'; $right = '<p><b>';
