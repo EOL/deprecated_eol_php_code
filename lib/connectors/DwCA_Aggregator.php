@@ -46,7 +46,7 @@ class DwCA_Aggregator
     private function convert_archive($preferred_rowtypes = false, $dwca_file)
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA.*/
         echo "\nConverting archive to EOL DwCA...\n";
-        $info = self::start($dwca_file, array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire -> 60*60*24*1
+        $info = self::start($dwca_file, array('timeout' => 172800, 'expire_seconds' => 0)); //1 day expire -> 60*60*24*1
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
