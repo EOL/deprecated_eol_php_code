@@ -653,6 +653,8 @@ wikipedia-ta	Friday 2020-03-06 02:59:05 AM	{"media_resource.tab":5129, "taxon.ta
 wikipedia-el	Friday 2020-03-06 03:34:04 AM	{"media_resource.tab":3922, "taxon.tab":4310, "time_elapsed":{"sec":3654.53, "min":60.91, "hr":1.02}}
 wikipedia-mk	Friday 2020-03-06 09:22:03 AM	{"media_resource.tab":3127, "taxon.tab":3216, "time_elapsed":{"sec":3265.6, "min":54.43, "hr":0.91}}
 wikipedia-ky	Tuesday 2020-03-10 07:51:16 AM	{"media_resource.tab":4628, "taxon.tab":4843, "time_elapsed":{"sec":4033.28, "min":67.22, "hr":1.12}}
+wikipedia-sco	Wednesday 2020-03-11 11:17:24 AM	{"media_resource.tab":2619, "taxon.tab":3070, "time_elapsed":{"sec":2798.61, "min":46.64, "hr":0.78}}
+wikipedia-hi	Wednesday 2020-03-11 11:17:29 AM	{"media_resource.tab":2566, "taxon.tab":2981, "time_elapsed":{"sec":2748.17, "min":45.8, "hr":0.76}}
 
 language	count
 sv	1331982 multiple connector v1
