@@ -308,6 +308,8 @@ class WikipediaAPI
         echo "\n----------------------------------\n";
         */
         
+        $tmp = Functions::remove_this_last_char_from_str($tmp, "|"); //first client is Q13182 for language 'hi' Hindi
+        
         if(trim(strip_tags($tmp)) == '') return '';
         return $tmp;
     }
