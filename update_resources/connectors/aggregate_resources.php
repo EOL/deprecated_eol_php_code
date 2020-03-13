@@ -8,10 +8,8 @@ $timestart = time_elapsed();
 $resource_id = 'wikipedia_combined_languages';
 require_library('connectors/DwCA_Aggregator');
 $func = new DwCA_Aggregator($resource_id);
-
-$langs = array('ta', 'ceb', 'el', 'mk', 'ky', 'sco', 'hi');
-// $langs = array('el');
-// $langs = array('mk');
+$langs = array('ta', 'ceb', 'el', 'mk', 'ky', 'sco', 'hi', 'fy', 'tl', 'jv', 'ia');
+// $langs = array('mk'); //for testing
 $func->combine_wikipedia_DwCAs($langs);
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>

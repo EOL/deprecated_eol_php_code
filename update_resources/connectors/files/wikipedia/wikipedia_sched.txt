@@ -18,7 +18,8 @@ ja  ko  ru  pt
                 hu  szl gl  be  -end- hsb
                 sh  af  br  ms  war   sl
                 eu  cy  ta  el  ceb   mk
-                ky  sco hi
+                ky  sco hi  fy        tl
+                jv  ia
                                 STARTS IN AGGREGATE RESOURCE (first is 'ta' Tamil)
                                 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
                                 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
@@ -28,6 +29,11 @@ ja  ko  ru  pt
                                 
                                 sco 2304    Scots   https://en.wikipedia.org/wiki/Scots_language
                                 hi  2113    Hindi 	https://en.wikipedia.org/wiki/Hindi
+                    
+                                fy	2062    West Frisian    https://en.wikipedia.org/wiki/West_Frisian_language
+                                tl	1803    Tagalog         https://en.wikipedia.org/wiki/Tagalog_language
+                                jv	1745    Javanese        https://en.wikipedia.org/wiki/Javanese_language
+                                ia	1664    Interlingua     https://en.wikipedia.org/wiki/Interlingua
                                 
                                 
                     ================================================================================
