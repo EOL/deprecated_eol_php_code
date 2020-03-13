@@ -20,8 +20,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'zh-yue';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'ia';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -135,7 +135,7 @@ class WikipediaAPI
         }
         
         /* good debug to write to HTML for testing ***
-        if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')  $file = DOC_ROOT."Description.html";
+        if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description')  $file = DOC_ROOT.$this->debug_taxon.".html";
         if($media['CVterm'] == 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology') $file = DOC_ROOT."TaxonBiology.html";
         echo "\nfile: [$file]\n";
         $f = Functions::file_open($file, "w");
@@ -432,7 +432,51 @@ class WikipediaAPI
         //remove all the time
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+        if($this->language_code == 'ia') { //Interlingua
+            //another infobox type
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<table width="320px" class="infobox"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'jv') { //Javanese
+            $orig_html = $html;
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p>';
+            $html1 = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //external links
+            $left = '<span class="mw-headline" id="Pranala_njaba"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'tl') { //Tagalog
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p>';
+            $html1 = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html2 = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            if(strlen($html1) < strlen($html2)) $html = $html1;
+            if(strlen($html2) < strlen($html1)) $html = $html2;
+            else                                $html = $html1;
         
+            $html = $html2; //just decided to use html2 instead
+        }
+        if($this->language_code == 'fy') { //West Frisian
+            $orig_html = $html;
+            //infobox - general
+            $left = '<table class="toccolours vatop infobox"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            if($html == $orig_html) {
+                // exit("\ngoes here\n");
+                //another infobox type
+                $left = '<div class="mw-parser-output">'; $right = '<p>'; //for Mus musculus
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+        }
         if($this->language_code == 'hi') { //Hindi
             //infobox - general
             $left = '<table class="infobox biota"'; $right = '<p><b>';

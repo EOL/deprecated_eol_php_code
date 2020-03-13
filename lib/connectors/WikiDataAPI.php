@@ -588,36 +588,38 @@ class WikiDataAPI extends WikipediaAPI
                 for debug end ======================== */
                 
                 /* force taxon in wikipedia & wikimedia. when developing. ***
-                $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; //Panthera leo
-                // $arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386; //Formicidae
-                // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; //Gadus morhua (No Indonesian - id)
-                // $arr = self::get_object('Q152'); $arr = $arr->entities->Q152; //fish Pisces
-                // $arr = self::get_object('Q25349'); $arr = $arr->entities->Q25349; //starfish Asteroidea
-                // $arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843; //Orca
-                // $arr = self::get_object('Q7372'); $arr = $arr->entities->Q7372; //Shark Selachimorpha
+                $arr = self::get_object('Q140'); $arr = $arr->entities->Q140; $this->debug_taxon = "Panthera leo";
+                // $arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498; $this->debug_taxon = "wolf";
+                // $arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386; $this->debug_taxon = 'Formicidae';
+                // $arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788; $this->debug_taxon = "Gadus morhua";
+                // $arr = self::get_object('Q152'); $arr = $arr->entities->Q152; $this->debug_taxon = "fish Pisces";
+                // $arr = self::get_object('Q25349'); $arr = $arr->entities->Q25349; $this->debug_taxon = "starfish Asteroidea";
+                // $arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843; $this->debug_taxon = "Orca";
+                // $arr = self::get_object('Q7372'); $arr = $arr->entities->Q7372; $this->debug_taxon = "Shark Selachimorpha";
                 // $arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782; //Pacific halibut - Hippoglossus stenolepis
                 // $arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525; //Vulpes pallida -- Pale fox
-                // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; //Chanos chanos
-                // $arr = self::get_object('Q311170'); $arr = $arr->entities->Q311170; //Oreochromis niloticus
-                // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; //Polar bear - Ursus maritimus
-                // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; //Angiosperms DATA-1803
-                // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; //Mus musculus - house mouse
-                // $arr = self::get_object('Q10850'); $arr = $arr->entities->Q10850; //Rodentia
-                // $arr = self::get_object('Q729'); $arr = $arr->entities->Q729; //Animalia
-                // $arr = self::get_object('Q756'); $arr = $arr->entities->Q756; //Plantae
-                // $arr = self::get_object('Q808'); $arr = $arr->entities->Q808; //Virus
-                // $arr = self::get_object('Q80005'); $arr = $arr->entities->Q80005; //ferns
-                // $arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666; //Acacia
+                // $arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261; $this->debug_taxon = "Chanos chanos";
+                // $arr = self::get_object('Q311170'); $arr = $arr->entities->Q311170; $this->debug_taxon = "Oreochromis niloticus";
+                // $arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609; $this->debug_taxon = "Polar bear";
+                // $arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314; $this->debug_taxon = "Angiosperms"; //DATA-1803
+                // $arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310; $this->debug_taxon = "Mus musculus";
+                // $arr = self::get_object('Q10850'); $arr = $arr->entities->Q10850; $this->debug_taxon = "Rodentia";
+                // $arr = self::get_object('Q729'); $arr = $arr->entities->Q729; $this->debug_taxon = "Animalia";
+                // $arr = self::get_object('Q756'); $arr = $arr->entities->Q756; $this->debug_taxon = "Plantae";
+                // $arr = self::get_object('Q808'); $arr = $arr->entities->Q808; $this->debug_taxon = "Virus";
+                // $arr = self::get_object('Q80005'); $arr = $arr->entities->Q80005; $this->debug_taxon = "ferns";
+                // $arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666; $this->debug_taxon = "Acacia";
                 // $arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939; //tiger - Panthera tigris
-                // $arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498; //wolf
-                // $arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216; //Bald Eagle
-                // $arr = self::get_object('Q5113'); $arr = $arr->entities->Q5113; //Aves
-                // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; //sunflower
-                // $arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687; //Rosa genus of plant
-                // $arr = self::get_object('Q635162'); $arr = $arr->entities->Q635162; //Hominidae -- Homo sapiens
+                // $arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216; $this->debug_taxon = "Bald Eagle";
+                // $arr = self::get_object('Q5113'); $arr = $arr->entities->Q5113; $this->debug_taxon = "Aves";
+                // $arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497; $this->debug_taxon = "sunflower";
+                // $arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687; $this->debug_taxon = "Rosa"; //genus of plant
+                // $arr = self::get_object('Q635162'); $arr = $arr->entities->Q635162; $this->debug_taxon = "Hominidae";  //-- Homo sapiens
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460; //
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845; //
-                // $arr = self::get_object('Q764'); $arr = $arr->entities->Q764; //Fungi
+                // $arr = self::get_object('Q764'); $arr = $arr->entities->Q764; $this->debug_taxon = "Fungi";
+                // $arr = self::get_object('Q10876'); $arr = $arr->entities->Q10876;
+                // $arr = self::get_object('Q13182'); $arr = $arr->entities->Q13182;
                 */
                 
                 // /* taxon_wiki_per_language_stats
@@ -2883,7 +2885,8 @@ class WikiDataAPI extends WikipediaAPI
     }
     private function get_taxon_sitelinks_by_lang($sitelinks)
     {
-        $str = $this->language_code."wiki";
+        $code = str_replace('-', '_', $this->language_code); //first client is zh-yue
+        $str = $code."wiki";
         if($obj = @$sitelinks->$str) return $obj;
         return false;
     }

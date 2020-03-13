@@ -316,10 +316,11 @@ sco	2304    Scots   https://en.wikipedia.org/wiki/Scots_language
 zh-yue	2193 --- passed for now. Seems it needs major code revamp
 hi	2113    Hindi 	https://en.wikipedia.org/wiki/Hindi
 
-fy	2062
-tl	1803
-jv	1745
-ia	1664
+fy	2062    West Frisian    https://en.wikipedia.org/wiki/West_Frisian_language
+tl	1803    Tagalog         https://en.wikipedia.org/wiki/Tagalog_language
+jv	1745    Javanese        https://en.wikipedia.org/wiki/Javanese_language
+ia	1664    Interlingua     https://en.wikipedia.org/wiki/Interlingua
+
 ne	1647
 oc	1621
 qu	1583
