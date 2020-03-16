@@ -617,6 +617,7 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Rosa")             {$arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687;} //genus of plant
                 if($this->debug_taxon == "Hominidae")        {$arr = self::get_object('Q635162'); $arr = $arr->entities->Q635162;}  //-- Homo sapiens
                 if($this->debug_taxon == "Fungi")            {$arr = self::get_object('Q764'); $arr = $arr->entities->Q764;}
+                if($this->debug_taxon == "Coronaviridae")    {$arr = self::get_object('Q1134583'); $arr = $arr->entities->Q1134583;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;

@@ -23,8 +23,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'ia';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'qu';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -436,6 +436,31 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'qu') { //
+            //infobox - general
+            $left = '<table class="toccolours"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //another infobox
+            $left = '<table class="toccolours"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'oc') { //
+            //infobox - general
+            $left = '<div class="infobox_v3 large taxobox_v3 zoologia animal bordered"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //another infobox
+            $left = '<div class="infobox_v3 large taxobox_v3 planta bordered"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //ugly navbox
+            $left = '<table class="navbox collapsible noprint autocollapse"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'ne') { //Nepali
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'be-tarask') { //redirected from be-x-old -- 
             //infobox - general
             $left = '<table class="infobox vcard"'; $right = '<p><b>';
