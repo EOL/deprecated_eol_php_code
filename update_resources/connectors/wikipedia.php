@@ -83,7 +83,7 @@ $func = new WikiDataAPI($resource_id, "en", "wikimedia");   //done - Used for Co
 /* 
 to test locall when developing:
 php update_resources/connectors/wikipedia.php _ de         //or en, es, it 
-
+php update_resources/connectors/wikipedia.php _ de generate_resource_force _ _ _ 'wolf'
 to generate stats: 'en' here can be any language...
 php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 */
@@ -95,6 +95,8 @@ $params['task']             = @$argv[3];
 $params['range_from']       = @$argv[4];
 $params['range_to']         = @$argv[5];
 $params['actual']           = @$argv[6];
+$debug_taxon                = @$argv[7];
+
 print_r($params);
 
 // /* //----------start main operation
@@ -123,7 +125,7 @@ $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("sz
 */
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
-$func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors); //generic call
+$func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon); //generic call
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
@@ -656,6 +658,10 @@ wikipedia-mk	Friday 2020-03-06 09:22:03 AM	{"media_resource.tab":3127, "taxon.ta
 wikipedia-ky	Tuesday 2020-03-10 07:51:16 AM	{"media_resource.tab":4628, "taxon.tab":4843, "time_elapsed":{"sec":4033.28, "min":67.22, "hr":1.12}}
 wikipedia-sco	Wednesday 2020-03-11 11:17:24 AM	{"media_resource.tab":2619, "taxon.tab":3070, "time_elapsed":{"sec":2798.61, "min":46.64, "hr":0.78}}
 wikipedia-hi	Wednesday 2020-03-11 11:17:29 AM    {"media_resource.tab":2566, "taxon.tab":2981, "time_elapsed":{"sec":2748.17, "min":45.8, "hr":0.76}}
+wikipedia-fy	Friday 2020-03-13 08:07:51 AM	{"media_resource.tab":2040, "taxon.tab":1756, "time_elapsed":{"sec":2454.24, "min":40.9, "hr":0.68}}
+wikipedia-tl	Friday 2020-03-13 08:19:43 AM	{"media_resource.tab":2260, "taxon.tab":2829, "time_elapsed":{"sec":3089.07, "min":51.48, "hr":0.86}}
+wikipedia-jv	Friday 2020-03-13 08:22:06 AM	{"media_resource.tab":2925, "taxon.tab":3082, "time_elapsed":{"sec":3180.4, "min":53.01, "hr":0.88}}
+wikipedia-ia	Friday 2020-03-13 08:22:39 AM	{"media_resource.tab":1730, "taxon.tab":2398, "time_elapsed":{"sec":3156.38, "min":52.61, "hr":0.88}}
 
 language	count
 sv	1331982 multiple connector v1
