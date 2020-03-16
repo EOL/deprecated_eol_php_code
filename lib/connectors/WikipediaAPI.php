@@ -6,7 +6,10 @@ class WikipediaAPI
     {
     }
     function some_initialization()
-    {   //some default translations:
+    {   //for wikipedia redirect issues
+        if($this->language_code == 'be-x-old') $this->language_code = 'be-tarask';
+        
+        //some default translations:
         $trans['Page']['en'] = "Page";
         $trans['Modified']['en'] = "Modified";
         $trans['Retrieved']['en'] = "Retrieved";
@@ -433,6 +436,19 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'be-tarask') { //redirected from be-x-old -- 
+            //infobox - general
+            $left = '<table class="infobox vcard"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox try again...
+            $left = '<table class="infobox vcard"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //remove other bottom section
+            $left = '<table cellspacing="0" class="navbox hlist"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+        }
         if($this->language_code == 'ia') { //Interlingua
             //another infobox type
             $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = '<p>';

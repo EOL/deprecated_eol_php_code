@@ -88,6 +88,40 @@ to generate stats: 'en' here can be any language...
 php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 */
 
+/* during development only *** ================================================================================
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Panthera leo'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'wolf'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Formicidae'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Gadus morhua'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'fish Pisces'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'starfish Asteroidea'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Orca'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Shark Selachimorpha'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Pacific halibut'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Pale fox'
+
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Chanos chanos'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Oreochromis niloticus'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Polar bear'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Angiosperms'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Mus musculus'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Rodentia'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Animalia'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Plantae'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Virus'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'ferns'
+
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Acacia'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Panthera tigris'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Bald Eagle'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Aves'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'sunflower'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Rosa'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Hominidae'
+php update_resources/connectors/wikipedia.php _ 'be-x-old' generate_resource_force _ _ _ 'Fungi'
+
+=============================================================================================================== */
+
 $params['jenkins_or_cron']  = @$argv[1];
 $params['language']         = @$argv[2];
 
@@ -323,10 +357,11 @@ tl	1803    Tagalog         https://en.wikipedia.org/wiki/Tagalog_language
 jv	1745    Javanese        https://en.wikipedia.org/wiki/Javanese_language
 ia	1664    Interlingua     https://en.wikipedia.org/wiki/Interlingua
 
-ne	1647
-oc	1621
-qu	1583
-be-x-old	1532
+ne	1647    Nepali      https://en.wikipedia.org/wiki/Nepali_language
+oc	1621    Occitan     https://en.wikipedia.org/wiki/Occitan_language
+qu	1583    Quechua     https://en.wikipedia.org/wiki/Quechuan_languages
+be-x-old	1532 (be-x-old:, redirects to be-tarask:)   Belarusian (Taraškievica)   https://en.wikipedia.org/wiki/Tara%C5%A1kievica
+
 koi	1531
 frr	1486
 udm	1474

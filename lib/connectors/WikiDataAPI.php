@@ -701,7 +701,7 @@ class WikiDataAPI extends WikipediaAPI
                                  */
                              }
                          }
-                         else debug("\nNo sitelinks\n"); //debug only
+                         else debug("\nNo sitelinks [$this->language_code]\n"); //debug only
                          // print_r($rek); //exit("\nstop muna\n");
                          // if($i >= 20) break; //debug
                          // ===============================*/ //end normal operation
@@ -2887,7 +2887,11 @@ class WikiDataAPI extends WikipediaAPI
     }
     private function get_taxon_sitelinks_by_lang($sitelinks)
     {
-        $code = str_replace('-', '_', $this->language_code); //first client is zh-yue
+        // ======================= start redirects ============================
+        if($this->language_code == 'be-tarask') $lang_code = 'be-x-old';
+        else                                    $lang_code = $this->language_code;
+        // ======================= end redirects =============================
+        $code = str_replace('-', '_', $lang_code); //first client is zh-yue
         $str = $code."wiki";
         if($obj = @$sitelinks->$str) return $obj;
         return false;
