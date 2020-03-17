@@ -9,17 +9,21 @@ ja  ko  ru  pt
             nl
             pl
             vi
-            ca  cs  fi  no  ro  tr    uk
-            |   |   |   |   |   |     |
-            sr  sv  ast ka  hr  th    hy
-            id  nn  az  lt  la  kk    mrj
-                sk  min et  da  lv    pms
-                bn  bg  nv  ml  is    ga
-                hu  szl gl  be  -end- hsb
-                sh  af  br  ms  war   sl
-                eu  cy  ta  el  ceb   mk
-                ky  sco hi  fy        tl
+            ca  cs  fi  no  ro  tr        uk
+            |   |   |   |   |   |         |
+            sr  sv  ast ka  hr  th        hy
+            id  nn  az  lt  la  kk        mrj
+                sk  min et  da  lv        pms
+                bn  bg  nv  ml  is        ga
+                hu  szl gl  be  ne        hsb
+                sh  af  br  ms  oc        sl
+                eu  cy  ta  el  qu        mk
+                ky  sco hi  fy  be-x-old  tl
                 jv  ia
+                
+                
+                war & ceb not scheduled
+                
                                 STARTS IN AGGREGATE RESOURCE (first is 'ta' Tamil)
                                 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
                                 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
@@ -35,6 +39,10 @@ ja  ko  ru  pt
                                 jv	1745    Javanese        https://en.wikipedia.org/wiki/Javanese_language
                                 ia	1664    Interlingua     https://en.wikipedia.org/wiki/Interlingua
                                 
+                                ne	1647    Nepali      https://en.wikipedia.org/wiki/Nepali_language
+                                oc	1621    Occitan     https://en.wikipedia.org/wiki/Occitan_language
+                                qu	1583    Quechua     https://en.wikipedia.org/wiki/Quechuan_languages
+                                be-x-old	1532 (be-x-old:, redirects to be-tarask:)   Belarusian (Taraškievica)   https://en.wikipedia.org/wiki/Tara%C5%A1kievica
                                 
                     ================================================================================
                     LAST LANGUAGES WITH ITS OWN DWCA:
