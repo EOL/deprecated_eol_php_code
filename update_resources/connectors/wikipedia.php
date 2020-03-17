@@ -699,6 +699,11 @@ wikipedia-tl	Friday 2020-03-13 08:19:43 AM	{"media_resource.tab":2260, "taxon.ta
 wikipedia-jv	Friday 2020-03-13 08:22:06 AM	{"media_resource.tab":2925, "taxon.tab":3082, "time_elapsed":{"sec":3180.4, "min":53.01, "hr":0.88}}
 wikipedia-ia	Friday 2020-03-13 08:22:39 AM	{"media_resource.tab":1730, "taxon.tab":2398, "time_elapsed":{"sec":3156.38, "min":52.61, "hr":0.88}}
 
+wikipedia-be-x-old	Monday 2020-03-16 10:49:26 AM	{"media_resource.tab":1956, "taxon.tab":2274, "time_elapsed":{"sec":2509.41, "min":41.82, "hr":0.7}}
+wikipedia-oc	Monday 2020-03-16 10:56:14 AM	{"media_resource.tab":2082, "taxon.tab":2483, "time_elapsed":{"sec":2714.91, "min":45.25, "hr":0.75}}
+wikipedia-qu	Monday 2020-03-16 11:01:44 AM	{"media_resource.tab":2826, "taxon.tab":2862, "time_elapsed":{"sec":2970.19, "min":49.5, "hr":0.83}}
+wikipedia-ne	Monday 2020-03-16 11:08:21 AM	{"media_resource.tab":3074, "taxon.tab":3338, "time_elapsed":{"sec":3501.02, "min":58.35, "hr":0.97}}
+
 language	count
 sv	1331982 multiple connector v1
 ceb	1160652 not multiple. But many bots. taxon.tab 517 only
