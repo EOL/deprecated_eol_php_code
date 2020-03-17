@@ -821,7 +821,7 @@ class WikiDataAPI extends WikipediaAPI
                 $media['taxonID']                = $t->taxonID;
                 $media['type']                   = "http://purl.org/dc/dcmitype/Text";
                 $media['format']                 = "text/html";
-                $media['language']               = $this->language_code;
+                $media['language']               = self::format_language($this->language_code);
                 $media['Owner']                  = $this->trans['editors'][$this->language_code];
                 $media['UsageTerms']             = 'http://creativecommons.org/licenses/by-sa/3.0/';
                 $media['furtherInformationURL'] = $rec['other']['permalink'];
@@ -849,6 +849,11 @@ class WikiDataAPI extends WikipediaAPI
         if($media['description']) self::create_wikipedia_object($media);
         */
         return true;
+    }
+    private function format_language($lang)
+    {
+        if($lang == 'be-tarask') return 'be';
+        else                     return $lang;
     }
     private function create_commons_objects($commons, $t)
     {
