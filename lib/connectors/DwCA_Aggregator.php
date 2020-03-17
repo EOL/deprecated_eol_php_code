@@ -37,6 +37,7 @@ class DwCA_Aggregator
     function combine_wikipedia_DwCAs($langs)
     {
         foreach($langs as $this->lang) {
+            echo "\n---Processing: [$this->lang]---\n"
             $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$this->lang.'.tar.gz';
             $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/media/document');
             self::convert_archive($preferred_rowtypes, $dwca_file);
