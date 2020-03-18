@@ -56,7 +56,7 @@ class PaleoDBAPI_v2
         // /* DATA-1841 terms remapping
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
-        $this->func->initialize_terms_remapping(); //for DATA-1841 terms remapping
+        $this->func->initialize_terms_remapping(60); //for DATA-1841 terms remapping | 60 seconds expire
         // print_r($this->func->remapped_terms);
         echo("\nremapped_terms: ".count($this->func->remapped_terms)."\n");
         // */
