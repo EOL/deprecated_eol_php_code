@@ -39,6 +39,9 @@ class New_EnvironmentsEOLDataConnector
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
+        $remove_rec_4mRemarks = array('source text: "ridge"', 'source text: "plateau"', 'source text: "plateaus"', 'source text: "crests"', 'source text: "canyon"', 'source text: "terrace"', 
+        'source text: "canyons"', 'source text: "gullies"', 'source text: "notches"', 'source text: "terraces"', 'source text: "bluff"', 'source text: "cliffs"', 'source text: "gulch"', 
+        'source text: "gully"', 'source text: "llanos"', 'source text: "plantations"', 'source text: "sierra"', 'source text: "tunnel"');
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -65,6 +68,21 @@ class New_EnvironmentsEOLDataConnector
                 [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
+
+            /* --------------------------------------------------- */
+            /* per https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=64619&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64619 */
+            if($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == 'source text: "seamounts"')              $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+            elseif($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == 'source text: "seamount"')           $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+            elseif($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == 'source text: "seamount chain"')     $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+            elseif($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == 'source text: "range of seamounts"') $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+            else { //https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=64620&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64620
+                $saveYN = true;
+                foreach($remove_rec_4mRemarks as $rem) {
+                    if($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == $rem) $saveYN = false;
+                }
+                if(!$saveYN) continue; //remove MoF record
+            }
+            /* --------------------------------------------------- */
             if(isset($this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
 
             /* fix source link */
