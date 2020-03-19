@@ -19,7 +19,7 @@ ja  ko  ru  pt
                 sh  af  br  ms  oc        sl
                 eu  cy  ta  el  qu        mk
                 ky  sco hi  fy  be-x-old  tl
-                jv  ia
+                jv  ia  koi 
                 
                 
                 war & ceb not scheduled
@@ -30,19 +30,17 @@ ja  ko  ru  pt
                                 ceb         Cebuano
                                 mk	2583    Macedonian  https://en.wikipedia.org/wiki/Macedonian_language
                                 ky	2364    Kirghiz     https://en.wikipedia.org/wiki/Kyrgyz_language
-                                
                                 sco 2304    Scots   https://en.wikipedia.org/wiki/Scots_language
                                 hi  2113    Hindi 	https://en.wikipedia.org/wiki/Hindi
-                    
                                 fy	2062    West Frisian    https://en.wikipedia.org/wiki/West_Frisian_language
                                 tl	1803    Tagalog         https://en.wikipedia.org/wiki/Tagalog_language
                                 jv	1745    Javanese        https://en.wikipedia.org/wiki/Javanese_language
                                 ia	1664    Interlingua     https://en.wikipedia.org/wiki/Interlingua
-                                
                                 ne	1647    Nepali      https://en.wikipedia.org/wiki/Nepali_language
                                 oc	1621    Occitan     https://en.wikipedia.org/wiki/Occitan_language
                                 qu	1583    Quechua     https://en.wikipedia.org/wiki/Quechuan_languages
                                 be-x-old	1532 (be-x-old:, redirects to be-tarask:)   Belarusian (Taraškievica)   https://en.wikipedia.org/wiki/Tara%C5%A1kievica
+                                koi Komi-Permyak    https://en.wikipedia.org/wiki/Komi-Permyak_language
                                 
                     ================================================================================
                     LAST LANGUAGES WITH ITS OWN DWCA:
