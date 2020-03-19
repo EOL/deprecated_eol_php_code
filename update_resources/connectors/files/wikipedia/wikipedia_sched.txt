@@ -388,6 +388,9 @@ wikipedia-oc	Monday 2020-03-16 10:56:14 AM	{"media_resource.tab":2082, "taxon.ta
 wikipedia-qu	Monday 2020-03-16 11:01:44 AM	{"media_resource.tab":2826, "taxon.tab":2862, "time_elapsed":{"sec":2970.19, "min":49.5, "hr":0.83}}
 wikipedia-ne	Monday 2020-03-16 11:08:21 AM	{"media_resource.tab":3074, "taxon.tab":3338, "time_elapsed":{"sec":3501.02, "min":58.35, "hr":0.97}}
 
+wikipedia-koi	Wednesday 2020-03-18 10:39:20 PM	{"media_resource.tab":2145, "taxon.tab":2027, "time_elapsed":{"sec":2921.08, "min":48.68, "hr":0.81}}
+
+
 language	count
 sv	1331982 multiple connector v1
 ceb	1160652 not multiple. But many bots. taxon.tab 517 only

@@ -1482,7 +1482,8 @@ class WormsArchiveAPI
         // $m->measurementID = Functions::generate_measurementID($m, $this->resource_id, 'measurement', array('occurrenceID', 'measurementType', 'measurementValue'));
 
         /* START DATA-1841 terms remapping */
-        $m = $this->func->given_m_update_mType_mValue($m);
+        $m = $this->func->given_m_update_mType_mValue($m, $this->resource_id);
+        if(!$m) return;
         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
         /* END DATA-1841 terms remapping */
 

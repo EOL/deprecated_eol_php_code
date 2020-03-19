@@ -157,6 +157,11 @@ class TraitGeneric
                                                         'http://purl.obolibrary.org/obo/UO_0010038'))) $measurementType = 'http://purl.obolibrary.org/obo/VT_0001259';
         }
         
+        /* for WoRMS -> https://eol-jira.bibalex.org/browse/DATA-1827?focusedCommentId=64617&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64617 */
+        if($measurementType == 'http://eol.org/schema/terms/EcomorphologicalGuild' && $value == 'http://purl.obolibrary.org/obo/ENVO_01000181') $measurementType = 'http://purl.obolibrary.org/obo/NCIT_C25513';
+        if(in_array($value, array('https://www.wikidata.org/entity/Q12806437', 'https://www.wikidata.org/entity/Q170430', 'http://eol.org/schema/terms/subsurfaceDepositFeeder'))) $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        if($value == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
+        
         /* for CoralTraits -> https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=64583&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64583 */
         if($measurementType == 'http://eol.org/schema/terms/Colonial') {
             if($value == 'http://eol.org/schema/terms/yes') {
@@ -179,20 +184,26 @@ class TraitGeneric
         return $ret;
         // END DATA-1841 terms remapping
     }
-    public function given_m_update_mType_mValue($m)
+    public function given_m_update_mType_mValue($m, $resource_id = false)
     {
         // echo "\nFrom lib: ".count($this->remapped_terms)."\n"; //just for testing
         if($new_uri = @$this->remapped_terms[$m->measurementType]) $m->measurementType = $new_uri;
         if($new_uri = @$this->remapped_terms[$m->measurementValue]) $m->measurementValue = $new_uri;
         
         /* ------------------------- start customize ------------------------- */ //repeated customize section above...
-        if($m->measurementValue == 'http://www.wikidata.org/entity/Q1420208') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
-        if($m->measurementValue == 'http://www.wikidata.org/entity/Q45879481') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
-        if($m->measurementType == 'http://purl.obolibrary.org/obo/OBA_VT0100005') {
+        if($m->measurementValue == 'http://www.wikidata.org/entity/Q1420208') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild'; //R package
+        if($m->measurementValue == 'http://www.wikidata.org/entity/Q45879481') $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild'; //WoRMS
+        if($m->measurementType == 'http://purl.obolibrary.org/obo/OBA_VT0100005') { //WoRMS
             if(in_array(@$m->measurementUnit, array('http://purl.obolibrary.org/obo/UO_0000016', 'http://purl.obolibrary.org/obo/UO_0000015', 'http://purl.obolibrary.org/obo/UO_0000017', 
                                                         'http://purl.obolibrary.org/obo/UO_0000008'))) $m->measurementType = 'http://purl.obolibrary.org/obo/CMO_0000013';
             if(in_array(@$m->measurementUnit, array('http://purl.obolibrary.org/obo/UO_0000009', 
                                                         'http://purl.obolibrary.org/obo/UO_0010038'))) $m->measurementType = 'http://purl.obolibrary.org/obo/VT_0001259';
+        }
+        /* ------------------------- start customize ------------------------- */ //WoRMS
+        if($m->measurementType == 'http://eol.org/schema/terms/EcomorphologicalGuild' && $m->measurementValue == 'http://purl.obolibrary.org/obo/ENVO_01000181') $m->measurementType = 'http://purl.obolibrary.org/obo/NCIT_C25513';
+        if(in_array($m->measurementValue, array('https://www.wikidata.org/entity/Q12806437', 'https://www.wikidata.org/entity/Q170430', 'http://eol.org/schema/terms/subsurfaceDepositFeeder'))) $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
+        if($resource_id == 26) {
+            if($m->measurementValue == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
         }
         /* ------------------------- end customize ------------------------- */
         
