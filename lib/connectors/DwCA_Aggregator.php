@@ -39,8 +39,11 @@ class DwCA_Aggregator
         foreach($langs as $this->lang) {
             echo "\n---Processing: [$this->lang]---\n";
             $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.'wikipedia-'.$this->lang.'.tar.gz';
-            $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/media/document');
-            self::convert_archive($preferred_rowtypes, $dwca_file);
+            if(file_exists($dwca_file)) {
+                $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/media/document');
+                self::convert_archive($preferred_rowtypes, $dwca_file);
+            }
+            else echo "\nDwCA file does not exist [$dwca_file]\n";
         }
         $this->archive_builder->finalize(TRUE);
     }
