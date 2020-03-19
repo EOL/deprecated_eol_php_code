@@ -162,7 +162,7 @@ class TraitGeneric
         if(in_array($value, array('https://www.wikidata.org/entity/Q12806437', 'https://www.wikidata.org/entity/Q170430', 'http://eol.org/schema/terms/subsurfaceDepositFeeder'))) $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
         if($value == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
         if($measurementType == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
-        
+        if(@$rec['measurementMethod'] == 'inherited from urn:lsid:marinespecies.org:taxname:123082, Echinoidea Leske, 1778') return false;
         
         /* for CoralTraits -> https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=64583&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64583 */
         if($measurementType == 'http://eol.org/schema/terms/Colonial') {
@@ -205,8 +205,8 @@ class TraitGeneric
         if($m->measurementType == 'http://eol.org/schema/terms/EcomorphologicalGuild' && $m->measurementValue == 'http://purl.obolibrary.org/obo/ENVO_01000181') $m->measurementType = 'http://purl.obolibrary.org/obo/NCIT_C25513';
         if(in_array($m->measurementValue, array('https://www.wikidata.org/entity/Q12806437', 'https://www.wikidata.org/entity/Q170430', 'http://eol.org/schema/terms/subsurfaceDepositFeeder'))) $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
         if($resource_id == 26) {
-            if($m->measurementValue == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
             if($m->measurementType == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
+            if($m->measurementMethod == 'inherited from urn:lsid:marinespecies.org:taxname:123082, Echinoidea Leske, 1778') return false;
         }
         /* ------------------------- end customize ------------------------- */
         
