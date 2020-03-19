@@ -32,10 +32,48 @@ class New_EnvironmentsEOLDataConnector
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
         unset($ret);
         print_r($this->debug);
+        self::process_measurementorfact_info($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //to get $this->occurrence_id_2delete
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //fix source links bec. of obsolete taxonIDs
         unset($this->linkage_oID_tID);
         unset($this->linkage_tID_sName);
+    }
+    private function process_measurementorfact_info($meta)
+    {   //print_r($meta);
+        $remove_rec_4mRemarks = array('source text: "ridge"', 'source text: "plateau"', 'source text: "plateaus"', 'source text: "crests"', 'source text: "canyon"', 'source text: "terrace"', 
+        'source text: "canyons"', 'source text: "gullies"', 'source text: "notches"', 'source text: "terraces"', 'source text: "bluff"', 'source text: "cliffs"', 'source text: "gulch"', 
+        'source text: "gully"', 'source text: "llanos"', 'source text: "plantations"', 'source text: "sierra"', 'source text: "tunnel"');
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 7efeff6e1f506b3523f66d644e41b75b_708
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Habitat
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000446
+                [http://rs.tdwg.org/dwc/terms/measurementMethod] => text mining
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "terrestrial"
+                [http://purl.org/dc/terms/source] => http://eol.org/pages/2
+                [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
+                [http://eol.org/schema/reference/referenceID] => 
+            )*/
+            /* --------------------------------------------------- */
+            foreach($remove_rec_4mRemarks as $rem) {
+                if($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == $rem) $this->occurrence_id_2delete[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+            }
+            /* --------------------------------------------------- */
+        }
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
@@ -245,6 +283,8 @@ class New_EnvironmentsEOLDataConnector
                 $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
                 continue;
             }
+            
+            if(isset($this->occurrence_id_2delete[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
             
             $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             
