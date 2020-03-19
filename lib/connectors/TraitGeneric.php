@@ -161,6 +161,8 @@ class TraitGeneric
         if($measurementType == 'http://eol.org/schema/terms/EcomorphologicalGuild' && $value == 'http://purl.obolibrary.org/obo/ENVO_01000181') $measurementType = 'http://purl.obolibrary.org/obo/NCIT_C25513';
         if(in_array($value, array('https://www.wikidata.org/entity/Q12806437', 'https://www.wikidata.org/entity/Q170430', 'http://eol.org/schema/terms/subsurfaceDepositFeeder'))) $measurementType = 'http://eol.org/schema/terms/TrophicGuild';
         if($value == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
+        if($measurementType == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
+        
         
         /* for CoralTraits -> https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=64583&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64583 */
         if($measurementType == 'http://eol.org/schema/terms/Colonial') {
@@ -204,6 +206,7 @@ class TraitGeneric
         if(in_array($m->measurementValue, array('https://www.wikidata.org/entity/Q12806437', 'https://www.wikidata.org/entity/Q170430', 'http://eol.org/schema/terms/subsurfaceDepositFeeder'))) $m->measurementType = 'http://eol.org/schema/terms/TrophicGuild';
         if($resource_id == 26) {
             if($m->measurementValue == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
+            if($m->measurementType == 'http://rs.tdwg.org/dwc/terms/measurementRemarks') return false;
         }
         /* ------------------------- end customize ------------------------- */
         
