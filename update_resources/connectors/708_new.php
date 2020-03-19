@@ -14,6 +14,8 @@ started using 708_new.php - Aug 2, 2019
 after DATA-1841: terms remapping -> nos. shouldn't be affected, so consistent OK
 708	Monday 2019-11-25 04:03:57 AM	{"measurement_or_fact.tab":742378,"occurrence.tab":645482,"reference.tab":198537,"taxon.tab":196191,"time_elapsed":{"sec":341.02,"min":5.68,"hr":0.09}}
 708	Thursday 2020-02-20 11:18:49 PM	{"measurement_or_fact.tab":742378,"occurrence.tab":645482,"reference.tab":198537,"taxon.tab":196191,"time_elapsed":{"sec":306.43,"min":5.11,"hr":0.09}}
+Expected for MoF to be reduced - so consistent OK
+708	Thursday 2020-03-19 03:00:34 AM	{"measurement_or_fact.tab":727108, "occurrence.tab":631535, "reference.tab":198537, "taxon.tab":196191, "time_elapsed":{"sec":580.76, "min":9.68, "hr":0.16}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
