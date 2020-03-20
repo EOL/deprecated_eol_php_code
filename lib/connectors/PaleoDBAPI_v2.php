@@ -562,6 +562,14 @@ class PaleoDBAPI_v2
         if($new_uri = @$this->func->remapped_terms[$rec['measurementValue']]) $rec['measurementValue'] = $new_uri;
         // */
         
+        /* https://eol-jira.bibalex.org/browse/DATA-1831?focusedCommentId=64627&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64627
+        One more misunderstood clade. I think the easiest filter would be to remove all trait records with this string in measurementRemarks:
+        "Inferred from Echinoidea."
+        It could probably also be done through the resource taxon hierarchy if that's easier or cleaner...
+        */
+        if(stripos($rec['measurementRemarks'], "Inferred from Echinoidea") !== false) return; //string is found
+        
+        
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"], $rec);
         unset($rec['catnum']);
         unset($rec['taxon_id']);
