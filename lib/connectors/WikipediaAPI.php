@@ -23,8 +23,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'koi';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'ba';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -369,6 +369,7 @@ class WikipediaAPI
         }
         
         $desc = str_replace("<hr /> <hr />", "<hr />", $desc);
+        $desc = str_ireplace('<p><br /> </p>', '', $desc);
         
         return $desc;
     }
@@ -436,6 +437,37 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'ba') { //
+            //infobox - general
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox - another type
+            $left = '<table cellpadding="3" cellspacing="0" style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'frr') { //
+            //infobox - general
+            $left = '<table cellpadding="2" cellspacing="1" width="300" class="taxobox float-right toptextcells" id="Vorlage_Taxobox_öömrang"'; $right = '<p>At <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox - another try
+            $left = '<table cellpadding="2" cellspacing="1" width="300" class="taxobox float-right toptextcells" id="Vorlage_Taxobox_öömrang"'; $right = '<p>Di <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox - another try
+            $left = '<table cellpadding="2" cellspacing="1" width="300" class="taxobox float-right toptextcells" id="Vorlage_Taxobox_öömrang"'; $right = '<p>Di ';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox - another try
+            $left = '<table cellpadding="2" cellspacing="1" width="300" class="taxobox float-right toptextcells" id="Vorlage_Taxobox_öömrang"'; $right = '<p>A ';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox - another try
+            $left = '<table cellpadding="2" cellspacing="1" width="300" class="taxobox float-right toptextcells" id="Vorlage_Taxobox_öömrang"'; $right = '<p>At ';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox - another try
+            $left = '<table cellpadding="2" cellspacing="1" width="300" class="taxobox float-right toptextcells" id="Vorlage_Taxobox_öömrang"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox - another try
+            $left = '<table cellpadding="2" cellspacing="1" width="300" class="taxobox float-right toptextcells" id="Vorlage_Taxobox_öömrang"'; $right = '<p><br />';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'qu') { //
             //infobox - general
             $left = '<table class="toccolours"'; $right = '<p><b>';
