@@ -63,6 +63,18 @@ rows of 4: Consistent OK: Removed Polychaeta (id = 7022)
 368_removed_aves	Wednesday 2020-03-04 06:10:26 AM	{"measurement_or_fact_specific.tab":2330816, "occurrence.tab":525816, "taxon.tab":390179, "vernacular_name.tab":4718, "time_elapsed":false}
 368_final	Wednesday 2020-03-04 06:24:32 AM	        {"measurement_or_fact_specific.tab":2330816, "occurrence.tab":525816, "taxon.tab":381141, "vernacular_name.tab":4718, "time_elapsed":false}
 
+Removed sea urchin in mRemarks in MoF
+368	Friday 2020-03-20 03:33:36 AM	                {"measurement_or_fact.tab":2423880, "occurrence.tab":547974, "taxon.tab":400901, "vernacular_name.tab":7005, "time_elapsed":false}
+368	Friday 2020-03-20 04:09:00 AM	                {"measurement_or_fact.tab":2410227, "occurrence.tab":544391, "taxon.tab":398165, "vernacular_name.tab":6992, "time_elapsed":false}
+368_removed_aves	Friday 2020-03-20 04:28:09 AM	{"measurement_or_fact_specific.tab":2329831, "occurrence.tab":527454, "taxon.tab":391782, "vernacular_name.tab":4719, "time_elapsed":false}
+368_final	Friday 2020-03-20 04:48:20 AM	        {"measurement_or_fact_specific.tab":2329831, "occurrence.tab":527454, "taxon.tab":382706, "vernacular_name.tab":4719, "time_elapsed":false}
+
+Removed sea urchin in mRemarks in MoF and in taxon.tab
+368	Friday 2020-03-20 05:23:47 AM	                {"measurement_or_fact.tab":2423880, "occurrence.tab":547974, "taxon.tab":400901, "vernacular_name.tab":7005, "time_elapsed":false}
+368	Friday 2020-03-20 05:59:34 AM	                {"measurement_or_fact.tab":2410227, "occurrence.tab":544391, "taxon.tab":398165, "vernacular_name.tab":6992, "time_elapsed":false}
+368_removed_aves	Friday 2020-03-20 06:19:00 AM	{"measurement_or_fact_specific.tab":2309208, "occurrence.tab":522016, "taxon.tab":389063, "vernacular_name.tab":4690, "time_elapsed":false}
+368_final	Friday 2020-03-20 06:38:52 AM	        {"measurement_or_fact_specific.tab":2309208, "occurrence.tab":522016, "taxon.tab":378799, "vernacular_name.tab":4690, "time_elapsed":false}
+
 Reminders:
 # Three (3) connectors to run, one after the other - OK
 
