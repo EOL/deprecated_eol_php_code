@@ -23,10 +23,10 @@ class RemoveAvesChildrenAPI
     {
         //----------------------------------------------------------------------------------------------
         $this->children_of_Aves = array();
-        $children = self::get_children_of_taxa_group(array(36616, 7022)); //Aves taxon_id is 36616 | Polychaeta = 7022
+        $children = self::get_children_of_taxa_group(array(36616, 7022, 32733)); //Aves taxon_id is 36616 | Polychaeta = 7022 | Echinoidea = 32733
         foreach($children as $child) $this->children_of_Aves[$child] = '';
         unset($children);
-        echo "\nChildren of Aves and Polychaeta: ".count($this->children_of_Aves)."\n";
+        echo "\nChildren of Aves, Polychaeta and Echinoidea: ".count($this->children_of_Aves)."\n";
         //----------------------------------------------------------------------------------------------
         $this->children_of_Ostracoda = array();
         $children = self::get_children_of_taxa_group(array(22826)); //Ostracoda taxon_id is 22826
