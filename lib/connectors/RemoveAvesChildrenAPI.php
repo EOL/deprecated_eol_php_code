@@ -23,7 +23,11 @@ class RemoveAvesChildrenAPI
     {
         //----------------------------------------------------------------------------------------------
         $this->children_of_Aves = array();
-        $children = self::get_children_of_taxa_group(array(36616, 7022, 32733)); //Aves taxon_id is 36616 | Polychaeta = 7022 | Echinoidea = 32733
+        $children = self::get_children_of_taxa_group(array(36616, 7022, 32733, 168786)); //Aves taxon_id is 36616 | Polychaeta = 7022 | Echinoidea = 32733 and 168786
+        /* Both these are Echinoidea
+        https://paleobiodb.org/classic/checkTaxonInfo?is_real_user=1&taxon_no=32733 --- Echinoidea (sea urchin)
+        https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=168786&is_real_user=1 --- Echinoidea (sea urchin)
+        */
         foreach($children as $child) $this->children_of_Aves[$child] = '';
         unset($children);
         echo "\nChildren of Aves, Polychaeta and Echinoidea: ".count($this->children_of_Aves)."\n";
