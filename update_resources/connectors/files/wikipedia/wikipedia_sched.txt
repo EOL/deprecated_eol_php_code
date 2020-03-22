@@ -19,8 +19,7 @@ ja  ko  ru  pt
                 sh  af  br  ms  oc        sl
                 eu  cy  ta  el  qu        mk
                 ky  sco hi  fy  be-x-old  tl
-                jv  ia  koi 
-                
+                jv  ia  koi frr udm       
                 
                 war & ceb not scheduled
                 
@@ -41,6 +40,12 @@ ja  ko  ru  pt
                                 qu	1583    Quechua     https://en.wikipedia.org/wiki/Quechuan_languages
                                 be-x-old	1532 (be-x-old:, redirects to be-tarask:)   Belarusian (Taraškievica)   https://en.wikipedia.org/wiki/Tara%C5%A1kievica
                                 koi Komi-Permyak    https://en.wikipedia.org/wiki/Komi-Permyak_language
+                
+                                frr North Frisian   https://en.wikipedia.org/wiki/North_Frisian_language
+                                udm Udmurt          https://en.wikipedia.org/wiki/Udmurt_language
+                                ba  Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
+                  
+                
                                 
                     ================================================================================
                     LAST LANGUAGES WITH ITS OWN DWCA:
@@ -382,13 +387,14 @@ wikipedia-fy	Friday 2020-03-13 08:07:51 AM	{"media_resource.tab":2040, "taxon.ta
 wikipedia-tl	Friday 2020-03-13 08:19:43 AM	{"media_resource.tab":2260, "taxon.tab":2829, "time_elapsed":{"sec":3089.07, "min":51.48, "hr":0.86}}
 wikipedia-jv	Friday 2020-03-13 08:22:06 AM	{"media_resource.tab":2925, "taxon.tab":3082, "time_elapsed":{"sec":3180.4, "min":53.01, "hr":0.88}}
 wikipedia-ia	Friday 2020-03-13 08:22:39 AM	{"media_resource.tab":1730, "taxon.tab":2398, "time_elapsed":{"sec":3156.38, "min":52.61, "hr":0.88}}
-
 wikipedia-be-x-old	Monday 2020-03-16 10:49:26 AM	{"media_resource.tab":1956, "taxon.tab":2274, "time_elapsed":{"sec":2509.41, "min":41.82, "hr":0.7}}
 wikipedia-oc	Monday 2020-03-16 10:56:14 AM	{"media_resource.tab":2082, "taxon.tab":2483, "time_elapsed":{"sec":2714.91, "min":45.25, "hr":0.75}}
 wikipedia-qu	Monday 2020-03-16 11:01:44 AM	{"media_resource.tab":2826, "taxon.tab":2862, "time_elapsed":{"sec":2970.19, "min":49.5, "hr":0.83}}
 wikipedia-ne	Monday 2020-03-16 11:08:21 AM	{"media_resource.tab":3074, "taxon.tab":3338, "time_elapsed":{"sec":3501.02, "min":58.35, "hr":0.97}}
-
 wikipedia-koi	Wednesday 2020-03-18 10:39:20 PM	{"media_resource.tab":2145, "taxon.tab":2027, "time_elapsed":{"sec":2921.08, "min":48.68, "hr":0.81}}
+wikipedia-ba	Friday 2020-03-20 09:02:36 AM	{"media_resource.tab":1747, "taxon.tab":2134, "time_elapsed":{"sec":2221.31, "min":37.02, "hr":0.62}}
+wikipedia-frr	Friday 2020-03-20 09:10:21 AM	{"media_resource.tab":2637, "taxon.tab":2331, "time_elapsed":{"sec":2799.58, "min":46.66, "hr":0.78}}
+wikipedia-udm	Friday 2020-03-20 09:13:40 AM	{"media_resource.tab":2069, "taxon.tab":2367, "time_elapsed":{"sec":2942.98, "min":49.05, "hr":0.82}}
 
 
 language	count
