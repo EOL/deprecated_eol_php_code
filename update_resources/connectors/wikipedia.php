@@ -89,37 +89,37 @@ php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 */
 
 /* during development only *** ================================================================================
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Panthera leo'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'wolf'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Formicidae'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Gadus morhua'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'fish Pisces'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'starfish Asteroidea'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Orca'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Shark Selachimorpha'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Pacific halibut'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Pale fox'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Panthera leo'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'wolf'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Formicidae'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Gadus morhua'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'fish Pisces'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'starfish Asteroidea'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Orca'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Shark Selachimorpha'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Pacific halibut'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Pale fox'
 
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Chanos chanos'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Oreochromis niloticus'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Polar bear'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Angiosperms'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Mus musculus'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Rodentia'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Animalia'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Plantae'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Virus'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'ferns'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Chanos chanos'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Oreochromis niloticus'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Polar bear'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Angiosperms'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Mus musculus'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Rodentia'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Animalia'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Plantae'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Virus'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'ferns'
 
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Acacia'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Panthera tigris'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Bald Eagle'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Aves'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'sunflower'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Rosa'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Hominidae'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Fungi'
-php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Coronaviridae'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Acacia'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Panthera tigris'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Bald Eagle'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Aves'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'sunflower'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Rosa'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Hominidae'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Fungi'
+php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Coronaviridae'
 
 =============================================================================================================== */
 
@@ -367,9 +367,11 @@ koi Komi-Permyak    https://en.wikipedia.org/wiki/Komi-Permyak_language
 
 frr North Frisian   https://en.wikipedia.org/wiki/North_Frisian_language
 udm Udmurt          https://en.wikipedia.org/wiki/Udmurt_language
-ba  Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
 
+ba  Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
 an  Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
+
+
 
 ---------------------------------------------------------------------------------
 */
