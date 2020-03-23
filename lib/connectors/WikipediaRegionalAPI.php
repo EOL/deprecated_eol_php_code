@@ -187,15 +187,19 @@ class WikipediaRegionalAPI
     {
         $lang = $this->language_code;
         if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-        else {
-            if($lang == 'no') {
-                $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
-                if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            }
+        elseif($lang == 'no') {
+            $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
+            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
         }
-        /* for future investigation. Initial finding is that the article is not worthy to publish
-        exit("\nInvestigate WikipediaRegionalAPI [$lang]...\n");
-        */
+        elseif($lang == 'zh-min-nan') {
+            $lang = 'nan';
+            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+        }
+        else {
+            // /* for future investigation. Initial finding is that the article is not worthy to publish
+            exit("\nInvestigate WikipediaRegionalAPI [$lang]...\n");
+            // */
+        }
     }
     function get_domain_name($url)
     {

@@ -853,6 +853,7 @@ class WikiDataAPI extends WikipediaAPI
     private function format_language($lang)
     {
         if($lang == 'be-tarask') return 'be';
+        elseif($lang == 'zh-min-nan') return 'nan';
         else                     return $lang;
     }
     private function create_commons_objects($commons, $t)
@@ -2684,6 +2685,7 @@ class WikiDataAPI extends WikipediaAPI
                 $name['comname'] = @$rec->mainsnak->datavalue->value->text;
                 $name['lang'] = @$rec->mainsnak->datavalue->value->language;
                 if($name['lang'] == "be-tarask") $name['lang'] = 'be';
+                elseif($name['lang'] == "zh-min-nan") $name['lang'] = 'nan';
                 $name['refs'] = self::get_vernacular_refs(@$rec->references);
                 if(@$name['comname']) $names[] = $name;
             }
@@ -2742,6 +2744,7 @@ class WikiDataAPI extends WikipediaAPI
             
             //manual
             if($rec['lang'] == "be-tarask") $rec['lang'] = 'be';
+            elseif($rec['lang'] == "zh-min-nan") $rec['lang'] = 'nan';
             
             $v->language        = $rec['lang'];
 

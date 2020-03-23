@@ -23,8 +23,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'ba';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'sw';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -437,6 +437,61 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'sw') { //
+            //infobox - general
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; clear:right; width:200px;"'; $right = '<p><br />';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; clear:right; width:200px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //infobox another
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; clear:right; width:250px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+        }
+        if($this->language_code == 'zh-min-nan') { //
+            //infobox - general
+            $left = '<table style="float:right; margin:0 0 .5em .5em; background-color: #fff; clear:right; border:1px #aaa solid; border-collapse:collapse; width:200px; padding:2.5px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; clear:right; width:200px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<table style="float:right; margin:0 0 .5em .5em; background-color: #fff; clear:right; border:1px #aaa solid; border-collapse:collapse; width:200px; padding:2.5px;"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'an') { //
+            //remove small icon gif
+            $left = '<img alt="Articlo d&#39;os 1000"'; $right = '>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //infobox - general
+            $left = '<table class="infobox_v2"'; $right = '<p>O <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox_v2"'; $right = '<p>As <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox_v2"'; $right = '<p>Os <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox_v2"'; $right = '<p>Un <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox_v2"'; $right = '<p>Los <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //another infobox
+            $left = '<table class="infobox_v2"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //infobox geography
+            $left = '<table class="infobox geography"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //external links
+            $left = '<span class="mw-headline" id="Vinclos_externos"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'ba') { //
             //infobox - general
             $left = '<table class="infobox"'; $right = '<p><b>';
@@ -1194,7 +1249,7 @@ class WikipediaAPI
         }
         else {
             // echo "\n--- $html ---\n";
-            echo("\n-----\nNot found, investigate [$language_code]\n[$url]\n-----\n"); //Previously exits here.
+            echo("\n-----\nNot found, investigate [$language_code]\n[$url]\n[$limit]-----\n"); //Previously exits here.
             // Cause for investigation, check final wiki if OK, since we continued process for now.
         }
         
