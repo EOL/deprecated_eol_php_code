@@ -22,7 +22,7 @@ class PaleoDBAPI_v2
         }
         
         $this->spreadsheet_options = array('resource_id' => $folder, 'cache' => 1, 'timeout' => 3600, 'file_extension' => "xlsx", 'download_attempts' => 2, 'delay_in_minutes' => 2); //set 'cache' to 0 if you don't want to cache spreadsheet
-        $this->spreadsheet_options['expire_seconds'] = 60*60*24; //60*60*24; //expires after 1 day
+        $this->spreadsheet_options['expire_seconds'] = 0; //60*60*24; //60*60*24; //expires after 1 day
         
         $this->map['acceptedNameUsageID']       = "acc";
         $this->map['phylum']                    = "phl";
