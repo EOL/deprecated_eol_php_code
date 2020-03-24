@@ -90,12 +90,6 @@ php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 
 /* during development only *** ================================================================================
 
-
-(ba)          Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
-(an)          Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
-(zh-min-nan)  Min Nan     https://en.wikipedia.org/wiki/Southern_Min
-(sw)          Swahili     https://en.wikipedia.org/wiki/Swahili_language
-
 php update_resources/connectors/wikipedia.php _ 'sw' generate_resource_force _ _ _ 'Panthera leo'
 php update_resources/connectors/wikipedia.php _ 'ba' generate_resource_force _ _ _ 'Panthera leo'
 php update_resources/connectors/wikipedia.php _ 'an' generate_resource_force _ _ _ 'Panthera leo'
@@ -386,6 +380,7 @@ ba  Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
 an  Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
 zh-min-nan  Min Nan     https://en.wikipedia.org/wiki/Southern_Min
 sw          Swahili     https://en.wikipedia.org/wiki/Swahili_language
+
 
 te          Telugu      https://en.wikipedia.org/wiki/Telugu_language
 

@@ -23,6 +23,12 @@ ja  ko  ru  pt
                 
                 war & ceb not scheduled
                 
+                (ba)          Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
+                (an)          Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
+                (zh-min-nan)  Min Nan     https://en.wikipedia.org/wiki/Southern_Min
+                (sw)          Swahili     https://en.wikipedia.org/wiki/Swahili_language
+                
+                
                                 STARTS IN AGGREGATE RESOURCE (first is 'ta' Tamil)
                                 ta	2820    Tamil       https://en.wikipedia.org/wiki/Tamil_language
                                 el	2665    Greek       https://en.wikipedia.org/wiki/Greek_language
@@ -40,13 +46,13 @@ ja  ko  ru  pt
                                 qu	1583    Quechua     https://en.wikipedia.org/wiki/Quechuan_languages
                                 be-x-old	1532 (be-x-old:, redirects to be-tarask:)   Belarusian (Taraškievica)   https://en.wikipedia.org/wiki/Tara%C5%A1kievica
                                 koi Komi-Permyak    https://en.wikipedia.org/wiki/Komi-Permyak_language
-                
                                 frr North Frisian   https://en.wikipedia.org/wiki/North_Frisian_language
                                 udm Udmurt          https://en.wikipedia.org/wiki/Udmurt_language
                                 ba  Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
                   
-                
-                                
+                  
+                  
+                  
                     ================================================================================
                     LAST LANGUAGES WITH ITS OWN DWCA:
                     hsb	3502    Upper Sorbian   https://en.wikipedia.org/wiki/Upper_Sorbian_language
@@ -396,6 +402,9 @@ wikipedia-ba	Friday 2020-03-20 09:02:36 AM	{"media_resource.tab":1747, "taxon.ta
 wikipedia-frr	Friday 2020-03-20 09:10:21 AM	{"media_resource.tab":2637, "taxon.tab":2331, "time_elapsed":{"sec":2799.58, "min":46.66, "hr":0.78}}
 wikipedia-udm	Friday 2020-03-20 09:13:40 AM	{"media_resource.tab":2069, "taxon.tab":2367, "time_elapsed":{"sec":2942.98, "min":49.05, "hr":0.82}}
 
+wikipedia-an	Monday 2020-03-23 11:37:40 AM	{"media_resource.tab":1050, "taxon.tab":1362, "time_elapsed":{"sec":2837.86, "min":47.3, "hr":0.79}}
+wikipedia-sw	Monday 2020-03-23 11:52:43 AM	{"media_resource.tab":1550, "taxon.tab":1738, "time_elapsed":{"sec":3597.61, "min":59.96, "hr":1}}
+wikipedia-zh-min-nan	Monday 2020-03-23 11:59:52 AM	{"media_resource.tab":1620, "taxon.tab":2039, "time_elapsed":{"sec":4080.6, "min":68.01, "hr":1.13}}
 
 language	count
 sv	1331982 multiple connector v1

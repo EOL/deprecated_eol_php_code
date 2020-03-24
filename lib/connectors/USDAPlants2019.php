@@ -158,6 +158,17 @@ class USDAPlants2019
             $this->debug['mtype'][$mtype] = '';
             */
             //===========================================================================================================================================================
+            /* https://eol-jira.bibalex.org/browse/DATA-1819?focusedCommentId=64646&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64646
+            where measurementType is http://purl.obolibrary.org/obo/GO_0009399
+            and measurementValue is http://purl.bioontology.org/ontology/SNOMEDCT/260413007
+            please remove the record. Thanks! */
+            $mvalue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            if($mtype == 'http://purl.obolibrary.org/obo/GO_0009399' && $mvalue == 'http://purl.bioontology.org/ontology/SNOMEDCT/260413007') {
+                $this->delete_occurrence_id[$occurrenceID] = '';
+                continue;
+            }
+            //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
@@ -220,6 +231,11 @@ class USDAPlants2019
                 [http://rs.tdwg.org/dwc/terms/verbatimLongitude] => 
                 [http://rs.tdwg.org/dwc/terms/verbatimElevation] => 
             )*/
+            //===========================================================================================================================================================
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            if(isset($this->delete_occurrence_id[$occurrenceID])) continue;
+            //===========================================================================================================================================================
+            
             $uris = array_keys($rec);
             $uris = array('http://rs.tdwg.org/dwc/terms/occurrenceID', 'http://rs.tdwg.org/dwc/terms/taxonID', 'http:/eol.org/globi/terms/bodyPart');
             if($bodyPart = @$this->occurrenceID_bodyPart[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']]) $rec['http:/eol.org/globi/terms/bodyPart'] = $bodyPart;
