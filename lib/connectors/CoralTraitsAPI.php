@@ -152,7 +152,8 @@ class CoralTraitsAPI
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
-        $this->func->initialize_terms_remapping();
+        $expire_seconds = 1; //just to be sure it doesn't use cache. It will always re-download latest copy.
+        $this->func->initialize_terms_remapping($expire_seconds);
         /* END DATA-1841 terms remapping */
         echo "\nFrom local: ".count($this->func->remapped_terms)."\n";
         
