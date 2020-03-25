@@ -454,7 +454,10 @@ class USDAPlants2019
                     foreach($arr as $a) $final[] = explode(" ", $a);
                 }
             }
-            else exit("\nInvestigate $url status not found!\n");
+            else {
+                echo("\nInvestigate $url status not found!\n");
+                return false;
+            }
         }
         return $final;
     }
