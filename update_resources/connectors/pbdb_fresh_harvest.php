@@ -75,6 +75,12 @@ Removed sea urchin in mRemarks in MoF and in taxon.tab
 368_removed_aves	Friday 2020-03-20 06:19:00 AM	{"measurement_or_fact_specific.tab":2309208, "occurrence.tab":522016, "taxon.tab":389063, "vernacular_name.tab":4690, "time_elapsed":false}
 368_final	Friday 2020-03-20 06:38:52 AM	        {"measurement_or_fact_specific.tab":2309208, "occurrence.tab":522016, "taxon.tab":378799, "vernacular_name.tab":4690, "time_elapsed":false}
 
+Just trait remap
+368	Tuesday 2020-03-24 11:53:36 AM	                {"measurement_or_fact.tab":2423880, "occurrence.tab":547974, "taxon.tab":400901, "vernacular_name.tab":7005, "time_elapsed":false}
+368	Tuesday 2020-03-24 12:28:08 PM	                {"measurement_or_fact.tab":2410227, "occurrence.tab":544391, "taxon.tab":398165, "vernacular_name.tab":6992, "time_elapsed":false}
+368_removed_aves	Tuesday 2020-03-24 12:46:33 PM	{"measurement_or_fact_specific.tab":2309208, "occurrence.tab":522016, "taxon.tab":389063, "vernacular_name.tab":4690, "time_elapsed":false}
+368_final	Tuesday 2020-03-24 01:06:17 PM	        {"measurement_or_fact_specific.tab":2309208, "occurrence.tab":522016, "taxon.tab":378799, "vernacular_name.tab":4690, "time_elapsed":false}
+----------------------------------------------------------------------------
 Reminders:
 # Three (3) connectors to run, one after the other - OK
 
