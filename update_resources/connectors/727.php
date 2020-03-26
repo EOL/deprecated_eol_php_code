@@ -24,7 +24,12 @@ started using 727.php - Aug, 2019
 727	Thursday 2019-08-29 10:39:30 AM	{"agent.tab":1,"measurement_or_fact_specific.tab":604080,"media_resource.tab":5,"occurrence_specific.tab":658770,"reference.tab":2,"taxon.tab":35605,"vernacular_name.tab":305965}
 727	Tuesday 2019-09-03 10:13:00 PM	{"agent.tab":1,"measurement_or_fact_specific.tab":604080,"media_resource.tab":5,"occurrence_specific.tab":658770,"reference.tab":2,"taxon.tab":35605,"vernacular_name.tab":305965} - updated URIs for the 10 area strings
 727	Thursday 2019-12-05 11:38:58 AM	{"agent.tab":1,"measurement_or_fact_specific.tab":604080,"media_resource.tab":5,"occurrence_specific.tab":658770,"reference.tab":2,"taxon.tab":35605,"vernacular_name.tab":305965} - DATA-1841 terms remapped - Consistent OK
-727	Tuesday 2019-12-17 03:00:54 AM	{"agent.tab":1,"measurement_or_fact_specific.tab":604080,"media_resource.tab":5,"occurrence_specific.tab":658770,"reference.tab":2,"taxon.tab":35605,"vernacular_name.tab":305965,"time_elapsed":false}
+727	Tuesday 2019-12-17 03:00:54 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":604080, "media_resource.tab":5, "occurrence_specific.tab":658770, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
+Latest:
+No trial #2
+727	Wednesday 2020-03-25 08:18:28 PM{"agent.tab":1, "measurement_or_fact_specific.tab":602198, "media_resource.tab":5, "occurrence_specific.tab":656888, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
+With trial #2 - improves a bit - but I guess consistent now.
+727	Thursday 2020-03-26 12:19:25 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":602217, "media_resource.tab":5, "occurrence_specific.tab":656907, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
