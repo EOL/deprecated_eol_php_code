@@ -1288,7 +1288,7 @@ class WikipediaAPI
         }
         else {
             // echo "\n--- $html ---\n";
-            echo("\n-----\nNot found, investigate [$language_code]\n[$url]\n[$limit]-----\n"); //Previously exits here.
+            echo("\n-----\nNot found, investigate [$language_code]\n[$url]\n[$limit]\nstrlen HTML = ".count($html)."\n-----\n"); //Previously exits here.
             // Cause for investigation, check final wiki if OK, since we continued process for now.
         }
         
