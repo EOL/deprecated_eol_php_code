@@ -20,17 +20,17 @@ ja  ko  ru  pt
                 eu          cy  ta  el  qu        mk
                 ky          sco hi  fy  be-x-old  tl
                 jv          ia  koi frr udm       ba
-                an          
-                zh-min-nan
-                sw
-
+                an          te
+                zh-min-nan  uz
+                sw          ku
+                            bs
 
                 war & ceb not scheduled
                 
                 te          Telugu      https://en.wikipedia.org/wiki/Telugu_language
                 uz          Uzbek       https://en.wikipedia.org/wiki/Uzbek_language
-                bs          Bosnian     https://en.wikipedia.org/wiki/Bosnian_language
                 ku          Kurdish     https://en.wikipedia.org/wiki/Kurdish_languages
+                bs          Bosnian     https://en.wikipedia.org/wiki/Bosnian_language
                 
                 (ba)          Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
                 (an)          Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
@@ -410,10 +410,12 @@ wikipedia-koi	Wednesday 2020-03-18 10:39:20 PM	{"media_resource.tab":2145, "taxo
 wikipedia-ba	Friday 2020-03-20 09:02:36 AM	{"media_resource.tab":1747, "taxon.tab":2134, "time_elapsed":{"sec":2221.31, "min":37.02, "hr":0.62}}
 wikipedia-frr	Friday 2020-03-20 09:10:21 AM	{"media_resource.tab":2637, "taxon.tab":2331, "time_elapsed":{"sec":2799.58, "min":46.66, "hr":0.78}}
 wikipedia-udm	Friday 2020-03-20 09:13:40 AM	{"media_resource.tab":2069, "taxon.tab":2367, "time_elapsed":{"sec":2942.98, "min":49.05, "hr":0.82}}
-
 wikipedia-an	Monday 2020-03-23 11:37:40 AM	{"media_resource.tab":1050, "taxon.tab":1362, "time_elapsed":{"sec":2837.86, "min":47.3, "hr":0.79}}
 wikipedia-sw	Monday 2020-03-23 11:52:43 AM	{"media_resource.tab":1550, "taxon.tab":1738, "time_elapsed":{"sec":3597.61, "min":59.96, "hr":1}}
 wikipedia-zh-min-nan	Monday 2020-03-23 11:59:52 AM	{"media_resource.tab":1620, "taxon.tab":2039, "time_elapsed":{"sec":4080.6, "min":68.01, "hr":1.13}}
+wikipedia-ku	Thursday 2020-03-26 07:14:52 AM	{"media_resource.tab":1522, "taxon.tab":1843, "time_elapsed":{"sec":2129.13, "min":35.49, "hr":0.59}}
+wikipedia-uz	Thursday 2020-03-26 07:16:39 AM	{"media_resource.tab":1760, "taxon.tab":2386, "time_elapsed":{"sec":2393.44, "min":39.89, "hr":0.66}}
+wikipedia-te	Thursday 2020-03-26 07:48:36 AM	{"media_resource.tab":1710, "taxon.tab":2085, "time_elapsed":{"sec":4020.35, "min":67.01, "hr":1.12}}
 
 language	count
 sv	1331982 multiple connector v1

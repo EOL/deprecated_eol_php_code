@@ -120,6 +120,7 @@ php update_resources/connectors/wikipedia.php _ 'ku' generate_resource_force _ _
 php update_resources/connectors/wikipedia.php _ 'ku' generate_resource_force _ _ _ 'Hominidae'
 php update_resources/connectors/wikipedia.php _ 'ku' generate_resource_force _ _ _ 'Fungi'
 php update_resources/connectors/wikipedia.php _ 'ku' generate_resource_force _ _ _ 'Coronaviridae'
+php update_resources/connectors/wikipedia.php _ 'ku' generate_resource_force _ _ _ 'Tracheophyta'
 
 =============================================================================================================== */
 

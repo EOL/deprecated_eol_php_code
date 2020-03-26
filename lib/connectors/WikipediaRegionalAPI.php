@@ -201,9 +201,9 @@ class WikipediaRegionalAPI
             }
             else {
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
-                echo "\n$html\n";
+                // echo "\n$html\n";
                 echo("\nInvestigate WikipediaRegionalAPI [$lang]...\n");
-                exit(-1);
+                // exit(-1);
                 // */
             }
         }
