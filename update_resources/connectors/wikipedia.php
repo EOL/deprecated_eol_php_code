@@ -374,8 +374,6 @@ zh-min-nan  Min Nan     https://en.wikipedia.org/wiki/Southern_Min
 sw          Swahili     https://en.wikipedia.org/wiki/Swahili_language
 
 te          Telugu      https://en.wikipedia.org/wiki/Telugu_language
-
-start work
 uz          Uzbek       https://en.wikipedia.org/wiki/Uzbek_language
 bs          Bosnian     https://en.wikipedia.org/wiki/Bosnian_language
 ku          Kurdish     https://en.wikipedia.org/wiki/Kurdish_languages

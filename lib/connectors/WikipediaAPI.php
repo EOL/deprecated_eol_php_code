@@ -283,7 +283,7 @@ class WikipediaAPI
                 // */
                 
             }
-            else exit("\ncannot lookup\n[$url] [$this->language_code]\n");
+            else echo("\ncannot lookup\n[$url] [$this->language_code]\n");
         }
         return $rek;
     }

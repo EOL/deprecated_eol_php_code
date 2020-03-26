@@ -9,19 +9,28 @@ ja  ko  ru  pt
             nl
             pl
             vi
-            ca  cs  fi  no  ro  tr        uk
-            |   |   |   |   |   |         |
-            sr  sv  ast ka  hr  th        hy
-            id  nn  az  lt  la  kk        mrj
-                sk  min et  da  lv        pms
-                bn  bg  nv  ml  is        ga
-                hu  szl gl  be  ne        hsb
-                sh  af  br  ms  oc        sl
-                eu  cy  ta  el  qu        mk
-                ky  sco hi  fy  be-x-old  tl
-                jv  ia  koi frr udm       
-                
+            ca  cs          fi  no  ro  tr        uk
+            |   |           |   |   |   |         |
+            sr  sv          ast ka  hr  th        hy
+            id  nn          az  lt  la  kk        mrj
+                sk          min et  da  lv        pms
+                bn          bg  nv  ml  is        ga
+                hu          szl gl  be  ne        hsb
+                sh          af  br  ms  oc        sl
+                eu          cy  ta  el  qu        mk
+                ky          sco hi  fy  be-x-old  tl
+                jv          ia  koi frr udm       ba
+                an          
+                zh-min-nan
+                sw
+
+
                 war & ceb not scheduled
+                
+                te          Telugu      https://en.wikipedia.org/wiki/Telugu_language
+                uz          Uzbek       https://en.wikipedia.org/wiki/Uzbek_language
+                bs          Bosnian     https://en.wikipedia.org/wiki/Bosnian_language
+                ku          Kurdish     https://en.wikipedia.org/wiki/Kurdish_languages
                 
                 (ba)          Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
                 (an)          Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
