@@ -434,9 +434,14 @@ class USDAPlants2019
             $this->archive_builder->write_object_to_file($v);
         }
     }
-    function parse_profile_page($url)
+    function parse_profile_page($url, $trialNo = 1)
     {   $final = false;
-        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+        if($trialNo == 1) $options = $this->download_options;
+        else {
+            $options = $this->download_options;
+            $options['expire_seconds'] = 0;
+        }
+        if($html = Functions::lookup_with_cache($url, $options)) {
             if(preg_match("/Status<\/strong>(.*?)<\/tr>/ims", $html, $arr)) {
                 $str = $arr[1];
                 $str = str_ireplace(' valign="top"', '', $str); // echo "\n$str\n";
@@ -455,8 +460,9 @@ class USDAPlants2019
                 }
             }
             else {
-                echo("\nInvestigate $url status not found!\n");
-                return false;
+                echo("\nInvestigate $url status not found! Trial no. [$trialNo]\n");
+                if($trialNo == 1) self::parse_profile_page($url, 2);
+                else return false;
             }
         }
         return $final;
