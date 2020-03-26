@@ -416,6 +416,7 @@ wikipedia-zh-min-nan	Monday 2020-03-23 11:59:52 AM	{"media_resource.tab":1620, "
 wikipedia-ku	Thursday 2020-03-26 07:14:52 AM	{"media_resource.tab":1522, "taxon.tab":1843, "time_elapsed":{"sec":2129.13, "min":35.49, "hr":0.59}}
 wikipedia-uz	Thursday 2020-03-26 07:16:39 AM	{"media_resource.tab":1760, "taxon.tab":2386, "time_elapsed":{"sec":2393.44, "min":39.89, "hr":0.66}}
 wikipedia-te	Thursday 2020-03-26 07:48:36 AM	{"media_resource.tab":1710, "taxon.tab":2085, "time_elapsed":{"sec":4020.35, "min":67.01, "hr":1.12}}
+wikipedia-bs	Thursday 2020-03-26 11:15:07 AM	{"media_resource.tab":1539, "taxon.tab":1911, "time_elapsed":{"sec":2153.54, "min":35.89, "hr":0.6}}
 
 language	count
 sv	1331982 multiple connector v1
