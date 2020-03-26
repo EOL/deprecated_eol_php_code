@@ -23,8 +23,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'sw';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'te';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -283,6 +283,7 @@ class WikipediaAPI
                 // */
                 
             }
+            else exit("\ncannot lookup\n[$url] [$this->language_code]\n");
         }
         return $rek;
     }
@@ -437,6 +438,45 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'ku') { //
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //external links
+            $left = '<span class="mw-headline" id="Girêdanên_derve"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'bs') { //
+            //infobox - general
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //external links
+            $left = '<span class="mw-headline" id="Vanjski_linkovi"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'uz') { //
+            //infobox - general
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //another infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //remove section below
+            $left = '<table class="plainlinks fmbox fmbox-system"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            //another section
+            $left = '<table class="metadata plainlinks stub"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'te') { //
+            //external links
+            $left = '<span class="mw-headline" id="బయటి_లింకులు"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'sw') { //
             //infobox - general
             $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; clear:right; width:200px;"'; $right = '<p><br />';
@@ -448,7 +488,6 @@ class WikipediaAPI
             //infobox another
             $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; clear:right; width:250px;"'; $right = '<p><b>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-            
         }
         if($this->language_code == 'zh-min-nan') { //
             //infobox - general
