@@ -28,7 +28,7 @@ started using 727.php - Aug, 2019
 Latest:
 No trial #2
 727	Wednesday 2020-03-25 08:18:28 PM{"agent.tab":1, "measurement_or_fact_specific.tab":602198, "media_resource.tab":5, "occurrence_specific.tab":656888, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
-With trial #2 - improves a bit - but I guess consistent now.
+With trial #2 - improves a bit - but I guess consistent now as latest adjustment is to remove some records. Consistent OK
 727	Thursday 2020-03-26 12:19:25 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":602217, "media_resource.tab":5, "occurrence_specific.tab":656907, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 */
 
