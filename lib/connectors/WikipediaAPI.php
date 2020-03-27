@@ -23,8 +23,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'te';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'kv';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -372,6 +372,12 @@ class WikipediaAPI
         $desc = str_replace("<hr /> <hr />", "<hr />", $desc);
         $desc = str_ireplace('<p><br /> </p>', '', $desc);
         
+        if($this->language_code == 'mn') {
+            if(substr($desc,0,43) == '<div> </td></tr> </tbody></table> <p><br />') {
+                $desc = str_ireplace('<div> </td></tr> </tbody></table> <p><br /> ', '<div><p>', $desc);
+            }
+        }
+        
         return $desc;
     }
     private function remove_all_in_between_inclusive($left, $right, $html, $includeRight = true)
@@ -438,6 +444,84 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'kv') { //
+            //section below
+            $left = '<table style="background: none; padding: 2px 0" class="metadata">'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+
+        if($this->language_code == 'mn') { //
+            //inside infobox
+            $left = '<tr style="background:#transparent;">'; $right = '</tbody>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //inside infobox - map
+            $left = '<tr style="background:pink;">'; $right = '</tbody>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //inside infobox - map
+            $left = '<tr style="background:#FFC0CB;">'; $right = '</tbody>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //external links
+            $left = '<span class="mw-headline" id="Гадны_холбоос"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //external links
+            $left = '<span class="mw-headline" id="Гадаад_холбоос"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //electronic links
+            $left = '<span class="mw-headline" id="Цахим_холбоос"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'my') { //
+            //inside infobox
+            $left = '<th colspan="2" style="text-align: center; background-color: rgb(180,250,180)">Divisions'; $right = '</th>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<td colspan="2" style="text-align: left">'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //infobox - general
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //nested <div>'s, 3 total. Start removing inner most then move outward.
+            $left = '<div style="margin-left: 60px;">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            $left = '<div class="floatleft">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            $left = '<div class="infobox sisterproject">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'io') { //
+            //infobox - general
+            $left = '<table style="background-color:#F8F8F8; border:2px solid pink; padding:5px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //remove section below
+            $left = '<table class="navbox collapsible collapsed nowraplinks noprint"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            //another section
+            $left = '<table align="center" class="noprint"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //nested <div>'s, 3 total. Start removing inner most then move outward.
+            $left = '<div class="floatnone">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            $left = '<div style="float: left;">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            $left = '<div class="noprint"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
         if($this->language_code == 'ku') { //
             //infobox - general
             $left = '<table class="infobox biota"'; $right = '<p><b>';
