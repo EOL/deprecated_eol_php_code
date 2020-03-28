@@ -123,9 +123,11 @@ php update_resources/connectors/wikipedia.php _ 'kv' generate_resource_force _ _
 php update_resources/connectors/wikipedia.php _ 'kv' generate_resource_force _ _ _ 'Tracheophyta'
 php update_resources/connectors/wikipedia.php _ 'kv' generate_resource_force _ _ _ 'Leuciscus cephalus'
 
-
-if($this->debug_taxon == "Leuciscus cephalus") {$arr = self::get_object('Q189014'); $arr = $arr->entities->Q189014;}
-
+for kv
+php update_resources/connectors/wikipedia.php _ 'kv' generate_resource_force _ _ _ 'Rhinocerotidae'
+php update_resources/connectors/wikipedia.php _ 'kv' generate_resource_force _ _ _ 'Sciuridae'
+php update_resources/connectors/wikipedia.php _ 'kv' generate_resource_force _ _ _ 'Vaccinium subg. Oxycoccus'
+php update_resources/connectors/wikipedia.php _ 'kv' generate_resource_force _ _ _ 'Litchi chinensis'
 
 =============================================================================================================== */
 
