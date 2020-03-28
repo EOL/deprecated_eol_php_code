@@ -355,55 +355,44 @@ ceb Cebuano     https://en.wikipedia.org/wiki/Cebuano_language
 el  Greek       https://en.wikipedia.org/wiki/Greek_language
 mk  Macedonian  https://en.wikipedia.org/wiki/Macedonian_language
 ky  Kirghiz     https://en.wikipedia.org/wiki/Kyrgyz_language
-
-
 sco	2304    Scots   https://en.wikipedia.org/wiki/Scots_language
 zh-yue	2193 --- passed for now. Seems it needs major code revamp
 hi	2113    Hindi 	https://en.wikipedia.org/wiki/Hindi
-
 fy	2062    West Frisian    https://en.wikipedia.org/wiki/West_Frisian_language
 tl	1803    Tagalog         https://en.wikipedia.org/wiki/Tagalog_language
 jv	1745    Javanese        https://en.wikipedia.org/wiki/Javanese_language
 ia	1664    Interlingua     https://en.wikipedia.org/wiki/Interlingua
-
 ne	1647    Nepali      https://en.wikipedia.org/wiki/Nepali_language
 oc	1621    Occitan     https://en.wikipedia.org/wiki/Occitan_language
 qu	1583    Quechua     https://en.wikipedia.org/wiki/Quechuan_languages
 be-x-old	1532 (be-x-old:, redirects to be-tarask:)   Belarusian (Taraškievica)   https://en.wikipedia.org/wiki/Tara%C5%A1kievica
-
 koi Komi-Permyak    https://en.wikipedia.org/wiki/Komi-Permyak_language
-
 frr North Frisian   https://en.wikipedia.org/wiki/North_Frisian_language
 udm Udmurt          https://en.wikipedia.org/wiki/Udmurt_language
-
 ba  Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
 an  Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
 zh-min-nan  Min Nan     https://en.wikipedia.org/wiki/Southern_Min
 sw          Swahili     https://en.wikipedia.org/wiki/Swahili_language
-
 te          Telugu      https://en.wikipedia.org/wiki/Telugu_language
 uz          Uzbek       https://en.wikipedia.org/wiki/Uzbek_language
 bs          Bosnian     https://en.wikipedia.org/wiki/Bosnian_language
 ku          Kurdish     https://en.wikipedia.org/wiki/Kurdish_languages
-
 io          Ido         https://en.wikipedia.org/wiki/Ido_language
 my          Burmese     https://en.wikipedia.org/wiki/Burmese_language
 mn          Mongolian   https://en.wikipedia.org/wiki/Mongolian_language
 kv          Komi        https://en.wikipedia.org/wiki/Komi_language
 
-lb	908
-su	903
-kn	869
-tt	837
-co	830
-sq	802
-csb	772
-mr	759
-fo	726
-os	726
-cv	705
-
-
+lb  Luxembourgish   https://en.wikipedia.org/wiki/Luxembourgish
+su  Sundanese       https://en.wikipedia.org/wiki/Sundanese_language
+kn  Kannada         https://en.wikipedia.org/wiki/Kannada
+tt  Tatar           https://en.wikipedia.org/wiki/Tatar_language
+co  Corsican        https://en.wikipedia.org/wiki/Corsican_language
+sq  Albanian        https://en.wikipedia.org/wiki/Albanian_language
+csb Kashubian       https://en.wikipedia.org/wiki/Kashubian_language
+mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
+fo  Faroese         https://en.wikipedia.org/wiki/Faroese_language
+os  Ossetian        https://en.wikipedia.org/wiki/Ossetian_language
+cv  Chuvash         https://en.wikipedia.org/wiki/Chuvash_language
 
 ---------------------------------------------------------------------------------
 */
