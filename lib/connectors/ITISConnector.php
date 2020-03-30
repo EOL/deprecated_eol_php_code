@@ -44,8 +44,10 @@ class ITISConnector
                 $this->get_comments();
                 echo "Getting comment links...\n";
                 $this->get_comment_links();
+                /* removed common names per: https://eol-jira.bibalex.org/browse/DATA-1849
                 echo "Getting vernaculars...\n";
                 $this->get_vernaculars();
+                */
                 echo "Getting synonyms...\n";
                 $this->get_synonyms();
 
