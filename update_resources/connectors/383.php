@@ -4,7 +4,9 @@ namespace php_active_record;
 
 383	Tuesday 2018-04-17 11:43:22 PM	{"measurement_or_fact.tab":232027,"occurrence.tab":232027,"reference.tab":12230,"taxon.tab":754947,"vernacular_name.tab":107152} MacMini
 383	Monday 2017-12-04 07:31:04 AM	{"measurement_or_fact.tab":233076,"occurrence.tab":233076,"reference.tab":12325,"taxon.tab":756165,"vernacular_name.tab":107909} eol-archive
-
+383	Sunday 2020-03-29 09:53:55 PM	{"measurement_or_fact.tab":290683,"occurrence.tab":290683,"reference.tab":14962,"taxon.tab":818864,"vernacular_name.tab":110633} eol-archive
+Common names removed. Consistent OK. Now scheduled to run monthly.
+383	Sunday 2020-03-29 10:16:10 PM	{"measurement_or_fact.tab":290683,"occurrence.tab":290683,"reference.tab":14962,"taxon.tab":818864}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ITISConnector');
