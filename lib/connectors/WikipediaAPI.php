@@ -377,6 +377,8 @@ class WikipediaAPI
                 $desc = str_ireplace('<div> </td></tr> </tbody></table> <p><br /> ', '<div><p>', $desc);
             }
         }
+
+        $desc = str_ireplace('<p><br />', '<p>', $desc);
         
         return $desc;
     }
@@ -444,12 +446,100 @@ class WikipediaAPI
         $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'tt') { //
+            //remove section inside infobox
+            $left = '<th class="metadata"'; $right = '</th>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<th style=";background: #EE82EE">'; $right = '</th>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<td align="center">'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //infobox
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //remove img
+            $left = '<td class="ambox-image">'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //remove section below
+            // <table class="metadata plainlinks ambox ambox-style">
+            // <table class="metadata plainlinks ambox ambox-content">
+            // <table class="metadata plainlinks ambox ambox-good">
+            $left = '<table class="metadata plainlinks ambox ambox-'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //another section below
+            $left = '<div class="floatnone">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div class="notice metadata"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'kn') { //
+            //infobox
+            $left = '<table class="infobox biota"'; $right = '</tbody></table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table class="infobox biota"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //external links
+            $left = '<span class="mw-headline" id="ಬಾಹ್ಯ_ಕೊಂಡಿಗಳು"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //remove section below
+            $left = '<table class="metadata plainlinks stub"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'su') { //
+            //inside infobox
+            $left = '<table style="background:white; margin: 0 0 0.5em 1em; border-collapse:collapse; float:right; clear:right;"'; $right = "<p><b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            //another infobox
+            $left = '<table style="background:white; margin: 0 0 0.5em 1em; border-collapse:collapse; float:right; clear:right;"'; $right = "<p>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //remove under construction section
+            $left = '<table align="center" style="border: 1px solid #79b; background: #FFFFDD; width: 80%; margin: 0 auto 1em auto; padding: .2em; text-align: justify;">'; $right = "</table>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //remove notify as stub page
+            $left = '<table width="100%" cellspacing="0" style="padding: 0px; border: 1px dotted steelblue; clear: both; background: white; margin: 5px 0px; font-size: small; font-size: 92%;">'; $right = "</table>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //remove display:none style
+            $left = '<table style="display: none"'; $right = "</table>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'lb') { //
+            //inside infobox
+            $left = '<table class="toccolours" style="width:300px; margin: 0 0 0.5em 1em; float:right; clear:right; border-collapse: collapse"'; $right = "<p>D'<b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="toccolours" style="width:300px; margin: 0 0 0.5em 1em; float:right; clear:right; border-collapse: collapse"'; $right = "D'<b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<table class="toccolours" style="width:300px; margin: 0 0 0.5em 1em; float:right; clear:right; border-collapse: collapse"'; $right = "Den <b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<table class="toccolours" style="width:300px; margin: 0 0 0.5em 1em; float:right; clear:right; border-collapse: collapse"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //remove sections above
+            $left = '<table cellspacing="8" cellpadding="0" class="hintergrundfarbe1 rahmenfarbe2"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table cellspacing="8" cellpadding="0" class="hintergrundfarbe1 rahmenfarbe1"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
         if($this->language_code == 'kv') { //
             //section below
             $left = '<table style="background: none; padding: 2px 0" class="metadata">'; $right = '</table>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         }
-
         if($this->language_code == 'mn') { //
             //inside infobox
             $left = '<tr style="background:#transparent;">'; $right = '</tbody>';
