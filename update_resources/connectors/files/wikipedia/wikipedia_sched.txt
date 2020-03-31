@@ -20,12 +20,17 @@ ja  ko  ru  pt
                 eu          cy  ta  el  qu        mk
                 ky          sco hi  fy  be-x-old  tl
                 jv          ia  koi frr udm       ba
-                an          te  io
-                zh-min-nan  uz  my
-                sw          ku  mn
-                            bs  kv
+                an          te  io  lb
+                zh-min-nan  uz  my  su
+                sw          ku  mn  kn
+                            bs  kv  tt
 
                 war & ceb not scheduled
+                
+                lb  Luxembourgish   https://en.wikipedia.org/wiki/Luxembourgish
+                su  Sundanese       https://en.wikipedia.org/wiki/Sundanese_language
+                kn  Kannada         https://en.wikipedia.org/wiki/Kannada
+                tt  Tatar           https://en.wikipedia.org/wiki/Tatar_language
                 
                 io          Ido         https://en.wikipedia.org/wiki/Ido_language
                 my          Burmese     https://en.wikipedia.org/wiki/Burmese_language
@@ -426,7 +431,10 @@ wikipedia-mn	Friday 2020-03-27 09:51:13 AM	{"media_resource.tab":1391, "taxon.ta
 wikipedia-my	Friday 2020-03-27 09:52:11 AM	{"media_resource.tab":1519, "taxon.tab":2280, "time_elapsed":{"sec":2922.94, "min":48.72, "hr":0.81}}
 wikipedia-io	Friday 2020-03-27 09:54:36 AM	{"media_resource.tab":861, "taxon.tab":2072, "time_elapsed":{"sec":3112.65, "min":51.88, "hr":0.86}}
 wikipedia-kv	Friday 2020-03-27 09:56:24 AM	{"media_resource.tab":1518, "taxon.tab":1519, "time_elapsed":{"sec":3080.63, "min":51.34, "hr":0.86}}
-
+wikipedia-lb	Monday 2020-03-30 11:09:01 PM	{"media_resource.tab":1184, "taxon.tab":1726, "time_elapsed":{"sec":1859.15, "min":30.99, "hr":0.52}}
+wikipedia-su	Monday 2020-03-30 11:11:23 PM	{"media_resource.tab":1265, "taxon.tab":1724, "time_elapsed":{"sec":1932.64, "min":32.21, "hr":0.54}}
+wikipedia-tt	Monday 2020-03-30 11:15:14 PM	{"media_resource.tab":1285, "taxon.tab":1552, "time_elapsed":{"sec":2059.34, "min":34.32, "hr":0.57}}
+wikipedia-kn	Monday 2020-03-30 11:18:27 PM	{"media_resource.tab":1539, "taxon.tab":2271, "time_elapsed":{"sec":2302.43, "min":38.37, "hr":0.64}}
 
 language	count
 sv	1331982 multiple connector v1

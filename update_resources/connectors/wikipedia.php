@@ -382,10 +382,10 @@ my          Burmese     https://en.wikipedia.org/wiki/Burmese_language
 mn          Mongolian   https://en.wikipedia.org/wiki/Mongolian_language
 kv          Komi        https://en.wikipedia.org/wiki/Komi_language
 
-lb  Luxembourgish   https://en.wikipedia.org/wiki/Luxembourgish
-su  Sundanese       https://en.wikipedia.org/wiki/Sundanese_language
-kn  Kannada         https://en.wikipedia.org/wiki/Kannada
-tt  Tatar           https://en.wikipedia.org/wiki/Tatar_language
+(lb)  Luxembourgish   https://en.wikipedia.org/wiki/Luxembourgish
+(su)  Sundanese       https://en.wikipedia.org/wiki/Sundanese_language
+(kn)  Kannada         https://en.wikipedia.org/wiki/Kannada
+(tt)  Tatar           https://en.wikipedia.org/wiki/Tatar_language
 
 co  Corsican        https://en.wikipedia.org/wiki/Corsican_language
 sq  Albanian        https://en.wikipedia.org/wiki/Albanian_language
