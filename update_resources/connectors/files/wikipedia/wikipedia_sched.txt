@@ -20,12 +20,18 @@ ja  ko  ru  pt
                 eu          cy  ta  el  qu        mk
                 ky          sco hi  fy  be-x-old  tl
                 jv          ia  koi frr udm       ba
-                an          te  io  lb
+                an          te  io  lb  co
                 zh-min-nan  uz  my  su
                 sw          ku  mn  kn
                             bs  kv  tt
 
                 war & ceb not scheduled
+
+                co  Corsican        https://en.wikipedia.org/wiki/Corsican_language
+                
+                fo  Faroese         https://en.wikipedia.org/wiki/Faroese_language
+                os  Ossetian        https://en.wikipedia.org/wiki/Ossetian_language
+                cv  Chuvash         https://en.wikipedia.org/wiki/Chuvash_language
                 
                 lb  Luxembourgish   https://en.wikipedia.org/wiki/Luxembourgish
                 su  Sundanese       https://en.wikipedia.org/wiki/Sundanese_language
@@ -435,6 +441,10 @@ wikipedia-lb	Monday 2020-03-30 11:09:01 PM	{"media_resource.tab":1184, "taxon.ta
 wikipedia-su	Monday 2020-03-30 11:11:23 PM	{"media_resource.tab":1265, "taxon.tab":1724, "time_elapsed":{"sec":1932.64, "min":32.21, "hr":0.54}}
 wikipedia-tt	Monday 2020-03-30 11:15:14 PM	{"media_resource.tab":1285, "taxon.tab":1552, "time_elapsed":{"sec":2059.34, "min":34.32, "hr":0.57}}
 wikipedia-kn	Monday 2020-03-30 11:18:27 PM	{"media_resource.tab":1539, "taxon.tab":2271, "time_elapsed":{"sec":2302.43, "min":38.37, "hr":0.64}}
+
+wikipedia-sq	Wednesday 2020-04-01 12:32:38 AM	{"media_resource.tab":1208, "taxon.tab":1774, "time_elapsed":{"sec":2156.25, "min":35.94, "hr":0.6}}
+wikipedia-mr	Wednesday 2020-04-01 12:33:58 AM	{"media_resource.tab":1224, "taxon.tab":1986, "time_elapsed":{"sec":2136.8, "min":35.61, "hr":0.59}}
+wikipedia-csb	Wednesday 2020-04-01 12:34:45 AM	{"media_resource.tab":1079, "taxon.tab":2037, "time_elapsed":{"sec":2225.38, "min":37.09, "hr":0.62}}
 
 language	count
 sv	1331982 multiple connector v1
