@@ -20,9 +20,9 @@ ja  ko  ru  pt
                 eu          cy  ta  el  qu        mk
                 ky          sco hi  fy  be-x-old  tl
                 jv          ia  koi frr udm       ba
-                an          te  io  lb  co
-                zh-min-nan  uz  my  su  sq
-                sw          ku  mn  kn  csb
+                an          te  io  lb  co        fo x
+                zh-min-nan  uz  my  su  sq        os x
+                sw          ku  mn  kn  csb       cv x
                             bs  kv  tt  mr
 
                 war & ceb not scheduled
