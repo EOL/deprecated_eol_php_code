@@ -26,6 +26,15 @@ class KatieXMLformatAPI
         $this->file['Chiroptera']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/chiroptera_crops_all_transf_eli.csv';
         $this->file['Lepidoptera_test']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/lepidoptera_crops_test_notaug_transf_foreli.tsv';
         $this->file['Lepidoptera_train']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/lepidoptera_crops_train_aug_all_transf_foreli.tsv';
+
+        //next batch: Apr 1, 2020
+        $this->file['anura_crops_test_notaug_fin']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/anura_crops_test_notaug_fin_foreli.tsv';
+        $this->file['carnivora_crops_test_notaug_fin']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/carnivora_crops_test_notaug_fin_foreli.tsv';
+        $this->file['coleoptera_crops_test_notaug_fin']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/coleoptera_crops_test_notaug_fin_foreli.tsv';
+        $this->file['multitaxa_crops_test_notaug_fin']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/multitaxa_crops_test_notaug_fin_foreli.tsv';
+        $this->file['multitaxa_crops_train_aug_all_fin']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/multitaxa_crops_train_aug_all_fin_foreli.tsv';
+        $this->file['squamata_crops_test_notaug_fin']['source'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Katie_bundle_images/squamata_crops_test_notaug_fin_foreli.tsv';
+        
         $filename = "xml_for_".$param->sci.".txt";
         // */
         
