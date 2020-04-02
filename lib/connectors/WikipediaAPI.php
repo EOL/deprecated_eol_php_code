@@ -23,8 +23,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'csb';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'cv';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -383,6 +383,7 @@ class WikipediaAPI
         // /* final test
         $test = trim(strip_tags($desc));
         if(!$test) $desc = '';
+        if(str_word_count($test) <= 4) $desc = '';
         // */
         
         return $desc;
@@ -457,6 +458,67 @@ class WikipediaAPI
         $left = '<div class="shortdescription nomobile noexcerpt noprint searchaux" style="display:none"'; $right = '</div>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
+        $left = '<div class="boilerplate metadata"'; $right = '</div>';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        
+        $left = '<div class="dablink"'; $right = '</div>';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        
+        $left = '<table class="metadata plainlinks ambox ambox-'; $right = '</table>';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        
+        if($this->language_code == 'cv') { //
+            //inside infobox
+            $left = '<table width="100%" cellspacing="0" cellpadding="0" style="background:&#91;&#91;:Шаблон:Taxobox color&#93;&#93;">'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            $left = '<tr style="" class="plainlinksneverexpand">'; $right = '</tr>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //infobox
+            $left = '<table cellpadding="3" cellspacing="0" style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section above
+            $left = '<div style="padding-left:1em; padding-bottom:.5em; margin-top:-.5em; margin-bottom:.5em; font-style:italic; border-bottom:1px #AAA solid;"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //sections below
+            $left = '<table class="metadata plainlinks navigation-box"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div class="floatleft">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div class="infobox sisterproject noprint wikisource-box"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table class="notice metadata plainlinks"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            $left = '<table class="infobox vcard"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table class="navbox collapsible autocollapse nowraplinks"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'os') { //
+            //infobox
+            $left = '<table cellpadding="3" cellspacing="0" style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'fo') { //
+            //infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<table cellpadding="0" cellspacing="0" style="background-color: #f9f9f9; border: 1px solid #aaa; padding: 5px; padding-left: 10px; text-align: left; font-size: 90%; margin-top: 1em;"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div class="noprint"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'co') { //
             //infobox
             $left = '<table style="margin: 0 0 0.5em 1em; border-collapse:collapse; float:right;"'; $right = '<p>U <b>';
@@ -467,8 +529,10 @@ class WikipediaAPI
 
             $left = '<table style="margin: 0 0 0.5em 1em; border-collapse:collapse; float:right;"'; $right = '<p>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
-            // $left = '<table style="margin: 0 0 0.5em 1em; border-collapse:collapse; float:right;"'; $right = '</td></tr></tbody></table>';
+            
+            $left = '<table align="right" rules="all" cellpadding="3" cellspacing="0" border="0" style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
             $left = '<table style="margin: 0 0 0.5em 1em; border-collapse:collapse; float:right;"'; $right = '<!--';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
             
@@ -484,9 +548,10 @@ class WikipediaAPI
             //section above
             $left = '<div class="floatleft"'; $right = '</div>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-            
-            $left = '<div class="dablink"'; $right = '</div>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            // moved up...
+            // $left = '<div class="dablink"'; $right = '</div>';
+            // $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
             //infobox
             $left = '<table class="infobox biota"'; $right = '<p><b>';

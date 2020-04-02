@@ -21,17 +21,20 @@ ja  ko  ru  pt
                 ky          sco hi  fy  be-x-old  tl
                 jv          ia  koi frr udm       ba
                 an          te  io  lb  co
-                zh-min-nan  uz  my  su
-                sw          ku  mn  kn
-                            bs  kv  tt
+                zh-min-nan  uz  my  su  sq
+                sw          ku  mn  kn  csb
+                            bs  kv  tt  mr
 
                 war & ceb not scheduled
 
-                co  Corsican        https://en.wikipedia.org/wiki/Corsican_language
-                
                 fo  Faroese         https://en.wikipedia.org/wiki/Faroese_language
                 os  Ossetian        https://en.wikipedia.org/wiki/Ossetian_language
                 cv  Chuvash         https://en.wikipedia.org/wiki/Chuvash_language
+
+                co  Corsican        https://en.wikipedia.org/wiki/Corsican_language
+                sq  Albanian        https://en.wikipedia.org/wiki/Albanian_language
+                csb Kashubian       https://en.wikipedia.org/wiki/Kashubian_language
+                mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
                 
                 lb  Luxembourgish   https://en.wikipedia.org/wiki/Luxembourgish
                 su  Sundanese       https://en.wikipedia.org/wiki/Sundanese_language

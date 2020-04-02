@@ -625,6 +625,16 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Sciuridae")                   {$arr = self::get_object('Q9482'); $arr = $arr->entities->Q9482;}
                 if($this->debug_taxon == "Vaccinium subg. Oxycoccus")   {$arr = self::get_object('Q13181'); $arr = $arr->entities->Q13181;}
                 if($this->debug_taxon == "Litchi chinensis")            {$arr = self::get_object('Q13182'); $arr = $arr->entities->Q13182;}
+                //lang co
+                if($this->debug_taxon == "Gallinula chloropus")         {$arr = self::get_object('Q18847'); $arr = $arr->entities->Q18847;}
+                if($this->debug_taxon == "Cornales")                    {$arr = self::get_object('Q21769'); $arr = $arr->entities->Q21769;}
+                if($this->debug_taxon == "Proteales")                   {$arr = self::get_object('Q21838'); $arr = $arr->entities->Q21838;}
+                if($this->debug_taxon == "Felidae")                     {$arr = self::get_object('Q25265'); $arr = $arr->entities->Q25265;}
+                if($this->debug_taxon == "Tyto alba")                   {$arr = self::get_object('Q25317'); $arr = $arr->entities->Q25317;}
+                if($this->debug_taxon == "Prunus dulcis")               {$arr = self::get_object('Q39918'); $arr = $arr->entities->Q39918;}
+                if($this->debug_taxon == "Gagea minima")                {$arr = self::get_object('Q159444'); $arr = $arr->entities->Q159444;}
+                if($this->debug_taxon == "Clematis vitalba")            {$arr = self::get_object('Q160100'); $arr = $arr->entities->Q160100;}
+                if($this->debug_taxon == "Hyoscyamus niger")            {$arr = self::get_object('Q161058'); $arr = $arr->entities->Q161058;}
                 
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
