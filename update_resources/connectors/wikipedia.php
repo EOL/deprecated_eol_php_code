@@ -98,56 +98,56 @@ php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 /* during development only *** ================================================================================ https://meta.wikimedia.org/wiki/List_of_Wikipedias
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/taxon_wiki_per_language_count_2020_02.txt
 
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Panthera leo'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'wolf'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Formicidae'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Gadus morhua'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'fish Pisces'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'starfish Asteroidea'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Orca'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Shark Selachimorpha'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Pacific halibut'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Pale fox'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Panthera leo'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'wolf'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Formicidae'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Gadus morhua'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'fish Pisces'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'starfish Asteroidea'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Orca'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Shark Selachimorpha'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Pacific halibut'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Pale fox'
 
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Chanos chanos'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Oreochromis niloticus'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Polar bear'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Angiosperms'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Mus musculus'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Rodentia'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Animalia'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Plantae'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Virus'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'ferns'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Chanos chanos'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Oreochromis niloticus'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Polar bear'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Angiosperms'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Mus musculus'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Rodentia'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Animalia'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Plantae'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Virus'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'ferns'
 
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Acacia'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Panthera tigris'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Bald Eagle'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Aves'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'sunflower'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Rosa'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Hominidae'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Fungi'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Coronaviridae'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Tracheophyta'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Leuciscus cephalus'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Acacia'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Panthera tigris'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Bald Eagle'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Aves'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'sunflower'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Rosa'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Hominidae'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Fungi'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Coronaviridae'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Tracheophyta'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Leuciscus cephalus'
 
 for co
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Gallinula chloropus'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Cornales'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Proteales'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Felidae'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Tyto alba'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Prunus dulcis'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Gagea minima'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Clematis vitalba'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Hyoscyamus niger'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Gallinula chloropus'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Cornales'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Proteales'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Felidae'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Tyto alba'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Prunus dulcis'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Gagea minima'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Clematis vitalba'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Hyoscyamus niger'
 
 for kv
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Rhinocerotidae'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Sciuridae'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Vaccinium subg. Oxycoccus'
-php update_resources/connectors/wikipedia.php _ 'nds' generate_resource_force _ _ _ 'Litchi chinensis'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Rhinocerotidae'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Sciuridae'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Vaccinium subg. Oxycoccus'
+php update_resources/connectors/wikipedia.php _ 'wa' generate_resource_force _ _ _ 'Litchi chinensis'
 
 =============================================================================================================== */
 
@@ -418,12 +418,14 @@ cv  Chuvash         https://en.wikipedia.org/wiki/Chuvash_language
 - (nds)   Low Saxon   https://en.wikipedia.org/wiki/Low_German
 
 
-lmo	615
-pa	566
-wa	564
-vls	549
-gv	546
-wuu	529
+(lmo) Lombard       https://en.wikipedia.org/wiki/Lombard_language
+(pa)  Punjabi       https://en.wikipedia.org/wiki/Punjabi_language
+(wa)  Walloon       https://en.wikipedia.org/wiki/Walloon_language
+
+(vls) West Flemish  https://en.wikipedia.org/wiki/West_Flemish
+(gv)    Manx        https://en.wikipedia.org/wiki/Manx_language
+(wuu)   Wu          https://en.wikipedia.org/wiki/Wu_Chinese
+
 mi	523
 nah	520
 dsb	508

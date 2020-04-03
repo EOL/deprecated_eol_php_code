@@ -682,7 +682,15 @@ class WikiDataAPI extends WikipediaAPI
                              debug("\n $this->language_code ".$rek['taxon_id']." - ");
                              if($this->what == "wikipedia") {
                                  if($title = $rek['sitelinks']->title) {
-                                     if(!isset($this->title_is_bot[$title])) $rek = self::get_other_info($rek); //uncomment in normal operation
+                                     if(!isset($this->title_is_bot[$title])) {
+                                         $rek = self::get_other_info($rek); //uncomment in normal operation
+                                         // /* New: manual removal of taxon ---------------------
+                                         // remove Sciuridae - https://www.wikidata.org/wiki/Q9482 | for language_code = 'pa' | for 'wikipedia' only
+                                         if($this->language_code == 'pa') {
+                                             if($rek['taxon_id'] == 'Q9482') $rek = array();
+                                         }
+                                         // ------------------------------------------------------ */
+                                     }
                                  }
                              }
                              if($this->what == "wikimedia") {
