@@ -24,10 +24,17 @@ ja  ko  ru  pt
                 zh-min-nan  uz  my  su  sq        os
                 sw          ku  mn  kn  csb       cv
                 lmo         bs  kv  tt  mr        kab
-                pa                                sah
-                wa                                nds
+                pa          mi  gv                sah
+                wa          vls wuu               nds
+                nah         
 
                 war & ceb not scheduled
+
+                (mi)    Maori           https://en.wikipedia.org/wiki/M%C4%81ori_language
+                (vls)   West Flemish    https://en.wikipedia.org/wiki/West_Flemish
+                (gv)    Manx            https://en.wikipedia.org/wiki/Manx_language
+                (wuu)   Wu              https://en.wikipedia.org/wiki/Wu_Chinese
+                (nah)   Nahuatl         https://en.wikipedia.org/wiki/Nahuatl
 
                 wikipedia-kab	Friday 2020-04-03 07:03:41 AM	{"media_resource.tab":1199, "taxon.tab":1488, "time_elapsed":{"sec":1847.4, "min":30.79, "hr":0.51}}
                 wikipedia-sah	Friday 2020-04-03 07:03:19 AM	{"media_resource.tab":672, "taxon.tab":920, "time_elapsed":{"sec":1776.84, "min":29.61, "hr":0.49}}
