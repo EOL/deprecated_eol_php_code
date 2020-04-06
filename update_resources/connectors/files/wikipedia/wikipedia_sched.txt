@@ -449,6 +449,14 @@ wikipedia-sq	Wednesday 2020-04-01 12:32:38 AM	{"media_resource.tab":1208, "taxon
 wikipedia-mr	Wednesday 2020-04-01 12:33:58 AM	{"media_resource.tab":1224, "taxon.tab":1986, "time_elapsed":{"sec":2136.8, "min":35.61, "hr":0.59}}
 wikipedia-csb	Wednesday 2020-04-01 12:34:45 AM	{"media_resource.tab":1079, "taxon.tab":2037, "time_elapsed":{"sec":2225.38, "min":37.09, "hr":0.62}}
 
+wikipedia-kab	Friday 2020-04-03 07:03:41 AM	{"media_resource.tab":1199, "taxon.tab":1488, "time_elapsed":{"sec":1847.4, "min":30.79, "hr":0.51}}
+wikipedia-sah	Friday 2020-04-03 07:03:19 AM	{"media_resource.tab":672, "taxon.tab":920, "time_elapsed":{"sec":1776.84, "min":29.61, "hr":0.49}}
+wikipedia-nds	Friday 2020-04-03 07:02:36 AM	{"media_resource.tab":1046, "taxon.tab":1115, "time_elapsed":{"sec":1676.84, "min":27.95, "hr":0.47}}
+
+wikipedia-lmo	Friday 2020-04-03 07:03:40 AM	{"media_resource.tab":954, "taxon.tab":1193, "time_elapsed":{"sec":1664.78, "min":27.75, "hr":0.46}}
+wikipedia-pa	Friday 2020-04-03 07:04:37 AM	{"media_resource.tab":848, "taxon.tab":1358, "time_elapsed":{"sec":1662.05, "min":27.7, "hr":0.46}}
+wikipedia-wa	Friday 2020-04-03 07:05:14 AM	{"media_resource.tab":919, "taxon.tab":1487, "time_elapsed":{"sec":1651.08, "min":27.52, "hr":0.46}}
+
 language	count
 sv	1331982 multiple connector v1
 ceb	1160652 not multiple. But many bots. taxon.tab 517 only
