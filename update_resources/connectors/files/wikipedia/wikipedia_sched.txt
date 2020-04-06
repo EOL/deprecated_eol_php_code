@@ -20,37 +20,40 @@ ja  ko  ru  pt
                 eu          cy  ta  el  qu        mk
                 ky          sco hi  fy  be-x-old  tl
                 jv          ia  koi frr udm       ba
-                an          te  io  lb  co        fo x
-                zh-min-nan  uz  my  su  sq        os x
-                sw          ku  mn  kn  csb       cv x
-                            bs  kv  tt  mr
+                an          te  io  lb  co        fo
+                zh-min-nan  uz  my  su  sq        os
+                sw          ku  mn  kn  csb       cv
+                lmo         bs  kv  tt  mr        kab
+                pa                                sah
+                wa                                nds
 
                 war & ceb not scheduled
 
+                wikipedia-kab	Friday 2020-04-03 07:03:41 AM	{"media_resource.tab":1199, "taxon.tab":1488, "time_elapsed":{"sec":1847.4, "min":30.79, "hr":0.51}}
+                wikipedia-sah	Friday 2020-04-03 07:03:19 AM	{"media_resource.tab":672, "taxon.tab":920, "time_elapsed":{"sec":1776.84, "min":29.61, "hr":0.49}}
+                wikipedia-nds	Friday 2020-04-03 07:02:36 AM	{"media_resource.tab":1046, "taxon.tab":1115, "time_elapsed":{"sec":1676.84, "min":27.95, "hr":0.47}}
+                wikipedia-lmo	Friday 2020-04-03 07:03:40 AM	{"media_resource.tab":954, "taxon.tab":1193, "time_elapsed":{"sec":1664.78, "min":27.75, "hr":0.46}}
+                wikipedia-pa	Friday 2020-04-03 07:04:37 AM	{"media_resource.tab":848, "taxon.tab":1358, "time_elapsed":{"sec":1662.05, "min":27.7, "hr":0.46}}
+                wikipedia-wa	Friday 2020-04-03 07:05:14 AM	{"media_resource.tab":919, "taxon.tab":1487, "time_elapsed":{"sec":1651.08, "min":27.52, "hr":0.46}}
                 fo  Faroese         https://en.wikipedia.org/wiki/Faroese_language
                 os  Ossetian        https://en.wikipedia.org/wiki/Ossetian_language
                 cv  Chuvash         https://en.wikipedia.org/wiki/Chuvash_language
-
                 co  Corsican        https://en.wikipedia.org/wiki/Corsican_language
                 sq  Albanian        https://en.wikipedia.org/wiki/Albanian_language
                 csb Kashubian       https://en.wikipedia.org/wiki/Kashubian_language
                 mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
-                
                 lb  Luxembourgish   https://en.wikipedia.org/wiki/Luxembourgish
                 su  Sundanese       https://en.wikipedia.org/wiki/Sundanese_language
                 kn  Kannada         https://en.wikipedia.org/wiki/Kannada
                 tt  Tatar           https://en.wikipedia.org/wiki/Tatar_language
-                
                 io          Ido         https://en.wikipedia.org/wiki/Ido_language
                 my          Burmese     https://en.wikipedia.org/wiki/Burmese_language
                 mn          Mongolian   https://en.wikipedia.org/wiki/Mongolian_language
                 kv          Komi        https://en.wikipedia.org/wiki/Komi_language
-                
                 te          Telugu      https://en.wikipedia.org/wiki/Telugu_language
                 uz          Uzbek       https://en.wikipedia.org/wiki/Uzbek_language
                 ku          Kurdish     https://en.wikipedia.org/wiki/Kurdish_languages
                 bs          Bosnian     https://en.wikipedia.org/wiki/Bosnian_language
-                
                 (ba)          Bashkir     https://en.wikipedia.org/wiki/Bashkir_language
                 (an)          Aragonese   https://en.wikipedia.org/wiki/Aragonese_language
                 (zh-min-nan)  Min Nan     https://en.wikipedia.org/wiki/Southern_Min
