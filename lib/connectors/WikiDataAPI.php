@@ -625,6 +625,9 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Sciuridae")                   {$arr = self::get_object('Q9482'); $arr = $arr->entities->Q9482;}
                 if($this->debug_taxon == "Vaccinium subg. Oxycoccus")   {$arr = self::get_object('Q13181'); $arr = $arr->entities->Q13181;}
                 if($this->debug_taxon == "Litchi chinensis")            {$arr = self::get_object('Q13182'); $arr = $arr->entities->Q13182;}
+                //lang vls
+                if($this->debug_taxon == "Actinopterygii")              {$arr = self::get_object('Q127282'); $arr = $arr->entities->Q127282;}
+                if($this->debug_taxon == "Esox lucius")                 {$arr = self::get_object('Q165278'); $arr = $arr->entities->Q165278;}
                 //lang co
                 if($this->debug_taxon == "Gallinula chloropus")         {$arr = self::get_object('Q18847'); $arr = $arr->entities->Q18847;}
                 if($this->debug_taxon == "Cornales")                    {$arr = self::get_object('Q21769'); $arr = $arr->entities->Q21769;}
