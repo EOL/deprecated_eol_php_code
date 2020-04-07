@@ -23,8 +23,8 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'nah';
+        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd -- to avoid re-doing lookup_cache() knowing the remote won't respond
+        $lang = 'kbd';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -451,6 +451,26 @@ class WikipediaAPI
         }
         return $html;
     }
+    private function get_pre_tag_entry($html, $right, $start_tag = "<")
+    {
+        $minus = strlen($start_tag);
+        if($pos = strpos($html, $right)) { // echo "\npos = [$pos]\n";
+            $orig_pos = $pos;
+            $char = '';
+            $sought = array();
+            while($char != $start_tag) {
+                $char = substr($html, $pos-$minus, strlen($start_tag));
+                echo "\n[$char]";
+                $sought[] = $char;
+                $pos = $pos - 1;
+                if($pos <= 1) return '';
+            }
+            $sought = array_reverse($sought);
+            $sought = implode("", $sought); // echo "\n[$sought]\n";
+            return $sought;
+        }
+        // else debug("\nNeedle not found\n");
+    }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
         //remove all the time
@@ -475,15 +495,73 @@ class WikipediaAPI
         $left = '<table class="metadata plainlinks stub"'; $right = '</table>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'kbd') { //
+            //infobox
+            $left = '<div style="float:right; clear:right; margin:0 0 0.5em 1em;">'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //external links
+            $left = '<span class="mw-headline" id="ТехьэпӀэхэр"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'dsb') { //
+            //section above
+            /*
+            $needle = 'class="plainlinks ambox ambox-'; //<table style="width:98%; margin:0.3em auto;" class="plainlinks ambox ambox-notice">
+            if($tmp = self::get_pre_tag_entry($html, $needle, '<table')) {
+                $left = $tmp . $needle; $right = '</table>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true); exit("\n[$left]\n");
+            }
+            else exit("\nelix\n");
+            */
+            
+            // <table style="width:98%; margin:0.3em auto;" class="plainlinks ambox ambox-notice">
+            $left = '<table style="width:98%; margin:0.3em auto;" class="plainlinks ambox ambox-'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //inside infobox
+            $left = '<td align="center" colspan="2" style="background-color:#eeaaaa;padding:0.1em 0.5em;">'; $right = '</td></tr></tbody></table></div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //infobox
+            $left = '<table class="taxobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<div class="noprint" style='; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $needle = 'class="plainlinks ambox ambox-style"'; //<table style="background:#E8FFE0;font-size:smaller;padding:1ex;" class="plainlinks ambox ambox-style">
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</table>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true); //exit("\n[$left]\n");
+            }
+            
+            //external links
+            $left = '<span class="mw-headline" id="Eksterne_wotkazy">'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Eksterne_wótkaze"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'mi') { //
             //infobox
             $left = '<table class="infobox biota"'; $right = '<p>Ko te <b>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
+            
+            $left = '<table class="infobox biota"'; $right = '<p>Ko <i><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
             $left = '<table class="infobox biota"'; $right = '<p><b>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-        }
+            
+            //section below
+            $left = '<tr style="background:#90EE90;">'; $right = '</tbody>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
 
+            $left = '<table class="toccolours"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'nah') { //
             //section above
             $left = '<table align="center" width="100%" id="toc">'; $right = '</table>';
