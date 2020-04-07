@@ -508,7 +508,7 @@ class WikipediaAPI
             //section above
             /*
             $needle = 'class="plainlinks ambox ambox-'; //<table style="width:98%; margin:0.3em auto;" class="plainlinks ambox ambox-notice">
-            if($tmp = self::get_pre_tag_entry($html, $needle, '<table')) {
+            if($tmp = self::get_pre_tag_entry($html, $needle, '<table')) { //TODO: using 3rd param not "<"
                 $left = $tmp . $needle; $right = '</table>';
                 $html = self::remove_all_in_between_inclusive($left, $right, $html, true); exit("\n[$left]\n");
             }
