@@ -101,72 +101,73 @@ php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 /* during development only *** ================================================================================ https://meta.wikimedia.org/wiki/List_of_Wikipedias
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/taxon_wiki_per_language_count_2020_02.txt
 
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Panthera leo'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'wolf'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Formicidae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Gadus morhua'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'fish Pisces'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'starfish Asteroidea'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Orca'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Shark Selachimorpha'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Pacific halibut'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Pale fox'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Panthera leo'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'wolf'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Formicidae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Gadus morhua'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'fish Pisces'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'starfish Asteroidea'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Orca'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Shark Selachimorpha'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Pacific halibut'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Pale fox'
 
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Chanos chanos'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Oreochromis niloticus'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Polar bear'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Angiosperms'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Mus musculus'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Rodentia'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Animalia'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Plantae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Virus'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'ferns'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Chanos chanos'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Oreochromis niloticus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Polar bear'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Angiosperms'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Mus musculus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Rodentia'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Animalia'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Plantae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Virus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'ferns'
 
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Acacia'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Panthera tigris'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Bald Eagle'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Aves'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'sunflower'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Rosa'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Hominidae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Fungi'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Coronaviridae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Tracheophyta'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Leuciscus cephalus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Acacia'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Panthera tigris'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Bald Eagle'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Aves'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'sunflower'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Rosa'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Hominidae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Fungi'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Coronaviridae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Tracheophyta'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Leuciscus cephalus'
 
 for co
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Gallinula chloropus'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Cornales'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Proteales'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Felidae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Tyto alba'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Prunus dulcis'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Gagea minima'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Clematis vitalba'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Hyoscyamus niger'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Gallinula chloropus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Cornales'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Proteales'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Felidae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Tyto alba'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Prunus dulcis'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Gagea minima'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Clematis vitalba'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Hyoscyamus niger'
 
 for kv
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Rhinocerotidae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Sciuridae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Vaccinium subg. Oxycoccus'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Litchi chinensis'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Rhinocerotidae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Sciuridae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Vaccinium subg. Oxycoccus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Litchi chinensis'
 for vls
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Actinopterygii'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Esox lucius'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Actinopterygii'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Esox lucius'
 
 for mi
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Hydroprogne caspia'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Fabaceae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Xenicus gilviventris'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Knightia excelsa'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Metrosideros excelsa'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Pterodroma macroptera'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Dacrydium cupressinum'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Himantopus novaezelandiae'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Callaeas cinereus'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Agathis australis'
-php update_resources/connectors/wikipedia.php _ 'kbd' generate_resource_force _ _ _ 'Calamus baratangensis'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Hydroprogne caspia'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Fabaceae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Xenicus gilviventris'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Knightia excelsa'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Metrosideros excelsa'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Pterodroma macroptera'
+
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Dacrydium cupressinum'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Himantopus novaezelandiae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Callaeas cinereus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Agathis australis'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Calamus baratangensis'
 
 =============================================================================================================== */
 
@@ -443,15 +444,15 @@ mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
 * (wuu) Wu              https://en.wikipedia.org/wiki/Wu_Chinese
 * (nah) Nahuatl         https://en.wikipedia.org/wiki/Nahuatl
 
-(mi)    Maori           https://en.wikipedia.org/wiki/M%C4%81ori_language
-(dsb)   Lower Sorbian   https://en.wikipedia.org/wiki/Lower_Sorbian_language
+(mi) Maori           https://en.wikipedia.org/wiki/M%C4%81ori_language
+(dsb) Lower Sorbian   https://en.wikipedia.org/wiki/Lower_Sorbian_language
+(kbd) Kabardian Circassian    https://en.wikipedia.org/wiki/Kabardian_language
+(to)      Tongan      https://en.wikipedia.org/wiki/Tongan_language
 
-kbd     Kabardian Circassian    https://en.wikipedia.org/wiki/Kabardian_language
-to      Tongan      https://en.wikipedia.org/wiki/Tongan_language
+(mdf) Moksha      https://en.wikipedia.org/wiki/Moksha_language
+(li) Limburgish   https://en.wikipedia.org/wiki/Limburgish
+as Assamese     https://en.wikipedia.org/wiki/Assamese_language
 
-mdf	488
-li	481
-as	472
 bat-smg	468
 olo	467
 mhr	465

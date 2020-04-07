@@ -23,8 +23,10 @@ class WikipediaAPI
         $trans['Modified']['fr'] = "Modifié";
         $trans['Retrieved']['fr'] = "Récupéré";
         
-        /* *** e.g. szl, nv, pnb, br, mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd -- to avoid re-doing lookup_cache() knowing the remote won't respond
-        $lang = 'kbd';
+        /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
+               li as --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+        /*
+        $lang = 'as';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -383,6 +385,10 @@ class WikipediaAPI
             $desc = self::remove_all_in_between_inclusive($left, $right, $desc, true);
         }
         
+        if($this->language_code == 'li') {
+            $desc = trim(str_replace("<div> <hr />", "", $desc));
+        }
+        
         $desc = str_ireplace('<p><br />', '<p>', $desc);
         
         // /* final test
@@ -495,6 +501,47 @@ class WikipediaAPI
         $left = '<table class="metadata plainlinks stub"'; $right = '</table>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        $left = '<div class="notice metadata"'; $right = '</div>';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+        if($this->language_code == 'as') { //
+            //external links
+            $left = '<span class="mw-headline" id="বাহ্যিক_সংযোগ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="বহিঃসংযোগ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="বহি:সংযোগ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'li') { //
+            //section above
+            $left = '<p><small>Dit artikel is gesjreve'; $right = '</p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //remove star
+            $left = '<div class="Titel_item2"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<div class="noprint"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //image below
+            $left = '<a href="/wiki/Plaetje:Wiki_letter_w.svg"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'mdf') { //
+        }
+        if($this->language_code == 'to') { //
+            //infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:#EEE; clear:right; width:200px;text-align:center;"'; $right = '<p>Ko e <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:#EEE; clear:right; width:200px;text-align:center;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'kbd') { //
             //infobox
             $left = '<div style="float:right; clear:right; margin:0 0 0.5em 1em;">'; $right = '<p><b>';
