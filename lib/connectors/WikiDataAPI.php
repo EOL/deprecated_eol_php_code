@@ -638,7 +638,18 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Gagea minima")                {$arr = self::get_object('Q159444'); $arr = $arr->entities->Q159444;}
                 if($this->debug_taxon == "Clematis vitalba")            {$arr = self::get_object('Q160100'); $arr = $arr->entities->Q160100;}
                 if($this->debug_taxon == "Hyoscyamus niger")            {$arr = self::get_object('Q161058'); $arr = $arr->entities->Q161058;}
-                
+                //lang mi
+                if($this->debug_taxon == "Hydroprogne caspia")          {$arr = self::get_object('Q27129'); $arr = $arr->entities->Q27129;}
+                if($this->debug_taxon == "Fabaceae")                    {$arr = self::get_object('Q44448'); $arr = $arr->entities->Q44448;}
+                if($this->debug_taxon == "Xenicus gilviventris")        {$arr = self::get_object('Q135589'); $arr = $arr->entities->Q135589;}
+                if($this->debug_taxon == "Knightia excelsa")            {$arr = self::get_object('Q311623'); $arr = $arr->entities->Q311623;}
+                if($this->debug_taxon == "Metrosideros excelsa")        {$arr = self::get_object('Q311747'); $arr = $arr->entities->Q311747;}
+                if($this->debug_taxon == "Pterodroma macroptera")       {$arr = self::get_object('Q313391'); $arr = $arr->entities->Q313391;}
+                if($this->debug_taxon == "Dacrydium cupressinum")       {$arr = self::get_object('Q382469'); $arr = $arr->entities->Q382469;}
+                if($this->debug_taxon == "Himantopus novaezelandiae")   {$arr = self::get_object('Q686269'); $arr = $arr->entities->Q686269;}
+                if($this->debug_taxon == "Callaeas cinereus")           {$arr = self::get_object('Q760949'); $arr = $arr->entities->Q760949;}
+                if($this->debug_taxon == "Agathis australis")           {$arr = self::get_object('Q955413'); $arr = $arr->entities->Q955413;}
+                if($this->debug_taxon == "Calamus baratangensis")       {$arr = self::get_object('Q15458835'); $arr = $arr->entities->Q15458835;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;
@@ -1994,7 +2005,8 @@ class WikiDataAPI extends WikipediaAPI
             $arr = json_decode($json, true);
             // echo "\n==========\n";
             // print_r($arr);
-            $html = $arr['parse']['text']['*'];
+            if($html = @$arr['parse']['text']['*']) {}
+            else return false;
             if(preg_match("/elix(.*?)<!--/ims", "elix".$html, $a)) {
                 $html = trim($a[1]);
                 $html = str_ireplace('href="//', 'href="http://', $html);
