@@ -30,7 +30,7 @@ ja  ko  ru  pt
                                     kbd
                                     mdf
                                     to
-
+                                    bat-smg
                 war & ceb not scheduled
                 
                 (as) Assamese       https://en.wikipedia.org/wiki/Assamese_language
@@ -40,6 +40,8 @@ ja  ko  ru  pt
                 (kbd) Kabardian Circassian  https://en.wikipedia.org/wiki/Kabardian_language
                 (mdf) Moksha                https://en.wikipedia.org/wiki/Moksha_language
                 (to) Tongan                 https://en.wikipedia.org/wiki/Tongan_language
+                (bat-smg) Samogitian        https://en.wikipedia.org/wiki/Samogitian_dialect
+                
 
                 (mi)    Maori           https://en.wikipedia.org/wiki/M%C4%81ori_language
                 (vls)   West Flemish    https://en.wikipedia.org/wiki/West_Flemish
