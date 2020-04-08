@@ -471,30 +471,30 @@ mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
 * (wuu) Wu              https://en.wikipedia.org/wiki/Wu_Chinese
 * (nah) Nahuatl         https://en.wikipedia.org/wiki/Nahuatl
 
-(as) Assamese       https://en.wikipedia.org/wiki/Assamese_language
-(dsb) Lower Sorbian https://en.wikipedia.org/wiki/Lower_Sorbian_language
-(li) Limburgish     https://en.wikipedia.org/wiki/Limburgish
-(mi) Maori          https://en.wikipedia.org/wiki/M%C4%81ori_language
+* (as) Assamese       https://en.wikipedia.org/wiki/Assamese_language
+* (dsb) Lower Sorbian https://en.wikipedia.org/wiki/Lower_Sorbian_language
+* (li) Limburgish     https://en.wikipedia.org/wiki/Limburgish
+* (mi) Maori          https://en.wikipedia.org/wiki/M%C4%81ori_language
 
 (kbd) Kabardian Circassian  https://en.wikipedia.org/wiki/Kabardian_language
 (mdf) Moksha                https://en.wikipedia.org/wiki/Moksha_language
 (to) Tongan                 https://en.wikipedia.org/wiki/Tongan_language
 (bat-smg) Samogitian        https://en.wikipedia.org/wiki/Samogitian_dialect
 
-olo	467
-mhr	465
-tg	465
-pcd	456
-ps	451
-sd	443
-vep	443
-se	437
-am	429
-si	425
-ht	415
-gn	413
-rue	412
-mt	408
+(olo) Livvi-Karelian    https://en.wikipedia.org/wiki/Livvi-Karelian_language
+(mhr) Meadow Mari       https://en.wikipedia.org/wiki/Meadow_Mari_language
+(tg) Tajik              https://en.wikipedia.org/wiki/Tajik_language
+(pcd) Picard            https://en.wikipedia.org/wiki/Picard_language
+(ps) Pashto             https://en.wikipedia.org/wiki/Pashto
+(sd) Sindhi             https://en.wikipedia.org/wiki/Sindhi_language
+(vep) Vepsian           https://en.wikipedia.org/wiki/Veps_language
+(se) Northern Sami      https://en.wikipedia.org/wiki/Northern_Sami_language
+(am) Amharic            https://en.wikipedia.org/wiki/Amharic
+(si) Sinhalese          https://en.wikipedia.org/wiki/Sinhala_language
+(ht) Haitian            https://en.wikipedia.org/wiki/Haitian_language
+(gn) Guarani            https://en.wikipedia.org/wiki/Guarani_language
+(rue) Rusyn             https://en.wikipedia.org/wiki/Rusyn_language
+(mt) Maltese            https://en.wikipedia.org/wiki/Maltese_language
 gu	388
 ckb	387
 als	370

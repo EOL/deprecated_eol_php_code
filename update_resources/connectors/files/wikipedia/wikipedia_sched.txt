@@ -31,11 +31,13 @@ ja  ko  ru  pt
                                     mdf
                                     to
                                     bat-smg
+                                    
                 war & ceb not scheduled
                 
                 (as) Assamese       https://en.wikipedia.org/wiki/Assamese_language
                 (dsb) Lower Sorbian https://en.wikipedia.org/wiki/Lower_Sorbian_language
                 (li) Limburgish     https://en.wikipedia.org/wiki/Limburgish
+                (mi)    Maori           https://en.wikipedia.org/wiki/M%C4%81ori_language
                 
                 (kbd) Kabardian Circassian  https://en.wikipedia.org/wiki/Kabardian_language
                 (mdf) Moksha                https://en.wikipedia.org/wiki/Moksha_language
@@ -43,7 +45,6 @@ ja  ko  ru  pt
                 (bat-smg) Samogitian        https://en.wikipedia.org/wiki/Samogitian_dialect
                 
 
-                (mi)    Maori           https://en.wikipedia.org/wiki/M%C4%81ori_language
                 (vls)   West Flemish    https://en.wikipedia.org/wiki/West_Flemish
                 (gv)    Manx            https://en.wikipedia.org/wiki/Manx_language
                 (wuu)   Wu              https://en.wikipedia.org/wiki/Wu_Chinese
