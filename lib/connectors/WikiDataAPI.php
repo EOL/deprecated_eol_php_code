@@ -650,6 +650,30 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Callaeas cinereus")           {$arr = self::get_object('Q760949'); $arr = $arr->entities->Q760949;}
                 if($this->debug_taxon == "Agathis australis")           {$arr = self::get_object('Q955413'); $arr = $arr->entities->Q955413;}
                 if($this->debug_taxon == "Calamus baratangensis")       {$arr = self::get_object('Q15458835'); $arr = $arr->entities->Q15458835;}
+                //lang mdf
+                if($this->debug_taxon == "Adenoncos")               {$arr = self::get_object('Q20818'); $arr = $arr->entities->Q20818;}
+                if($this->debug_taxon == "Ancistrochilus")          {$arr = self::get_object('Q20957'); $arr = $arr->entities->Q20957;}
+                if($this->debug_taxon == "Acanthephippium")         {$arr = self::get_object('Q21118'); $arr = $arr->entities->Q21118;}
+                if($this->debug_taxon == "Cucumis sativus")         {$arr = self::get_object('Q23425'); $arr = $arr->entities->Q23425;}
+                if($this->debug_taxon == "Solanum lycopersicum")    {$arr = self::get_object('Q23501'); $arr = $arr->entities->Q23501;}
+                if($this->debug_taxon == "Brassavola")              {$arr = self::get_object('Q94815'); $arr = $arr->entities->Q94815;}
+                if($this->debug_taxon == "Convolvulus arvensis")    {$arr = self::get_object('Q111346'); $arr = $arr->entities->Q111346;}
+                //lang to
+                if($this->debug_taxon == "Orchidaceae")             {$arr = self::get_object('Q25308'); $arr = $arr->entities->Q25308;}
+                if($this->debug_taxon == "Onychoprion anaethetus")  {$arr = self::get_object('Q28490'); $arr = $arr->entities->Q28490;}
+                if($this->debug_taxon == "Senna alata")             {$arr = self::get_object('Q41504'); $arr = $arr->entities->Q41504;}
+                if($this->debug_taxon == "Curcuma longa")           {$arr = self::get_object('Q42562'); $arr = $arr->entities->Q42562;}
+                if($this->debug_taxon == "Anisoptera")              {$arr = self::get_object('Q80066'); $arr = $arr->entities->Q80066;}
+                if($this->debug_taxon == "Solanum")                 {$arr = self::get_object('Q146555'); $arr = $arr->entities->Q146555;}
+                if($this->debug_taxon == "Euphorbia")               {$arr = self::get_object('Q146567'); $arr = $arr->entities->Q146567;}
+                //lang kbd
+                if($this->debug_taxon == "Aegolius funereus")     {$arr = self::get_object('Q174466'); $arr = $arr->entities->Q174466;}
+                if($this->debug_taxon == "Plegadis falcinellus")  {$arr = self::get_object('Q178811'); $arr = $arr->entities->Q178811;}
+                if($this->debug_taxon == "Turdus viscivorus")     {$arr = self::get_object('Q178942'); $arr = $arr->entities->Q178942;}
+                if($this->debug_taxon == "Meropidae")             {$arr = self::get_object('Q183147'); $arr = $arr->entities->Q183147;}
+                if($this->debug_taxon == "Anser")                 {$arr = self::get_object('Q183361'); $arr = $arr->entities->Q183361;}
+                if($this->debug_taxon == "Prunus")                {$arr = self::get_object('Q190545'); $arr = $arr->entities->Q190545;}
+                if($this->debug_taxon == "Cairina moschata")      {$arr = self::get_object('Q242851'); $arr = $arr->entities->Q242851;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;

@@ -169,6 +169,33 @@ php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _
 php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Agathis australis'
 php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Calamus baratangensis'
 
+//lang mdf
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Adenoncos'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Ancistrochilus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Acanthephippium'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Cucumis sativus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Solanum lycopersicum'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Brassavola'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Convolvulus arvensis'
+
+//lang to
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Orchidaceae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Onychoprion anaethetus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Senna alata'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Curcuma longa'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Anisoptera'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Solanum'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Euphorbia'
+
+//lang kbd
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Aegolius funereus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Plegadis falcinellus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Turdus viscivorus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Meropidae'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Anser'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Prunus'
+php update_resources/connectors/wikipedia.php _ 'as' generate_resource_force _ _ _ 'Cairina moschata'
+
 =============================================================================================================== */
 
 $params['jenkins_or_cron']  = @$argv[1];
@@ -444,14 +471,14 @@ mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
 * (wuu) Wu              https://en.wikipedia.org/wiki/Wu_Chinese
 * (nah) Nahuatl         https://en.wikipedia.org/wiki/Nahuatl
 
-(mi) Maori           https://en.wikipedia.org/wiki/M%C4%81ori_language
-(dsb) Lower Sorbian   https://en.wikipedia.org/wiki/Lower_Sorbian_language
-(kbd) Kabardian Circassian    https://en.wikipedia.org/wiki/Kabardian_language
-(to)      Tongan      https://en.wikipedia.org/wiki/Tongan_language
+(as) Assamese       https://en.wikipedia.org/wiki/Assamese_language
+(dsb) Lower Sorbian https://en.wikipedia.org/wiki/Lower_Sorbian_language
+(li) Limburgish     https://en.wikipedia.org/wiki/Limburgish
+(mi) Maori          https://en.wikipedia.org/wiki/M%C4%81ori_language
 
-(mdf) Moksha      https://en.wikipedia.org/wiki/Moksha_language
-(li) Limburgish   https://en.wikipedia.org/wiki/Limburgish
-as Assamese     https://en.wikipedia.org/wiki/Assamese_language
+(kbd) Kabardian Circassian  https://en.wikipedia.org/wiki/Kabardian_language
+(mdf) Moksha                https://en.wikipedia.org/wiki/Moksha_language
+(to) Tongan                 https://en.wikipedia.org/wiki/Tongan_language
 
 bat-smg	468
 olo	467
