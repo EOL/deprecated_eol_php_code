@@ -504,6 +504,15 @@ class WikipediaAPI
         $left = '<div class="notice metadata"'; $right = '</div>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        if($this->language_code == 'bat-smg') { //
+            //infobox
+            $left = '<table style="margin: 0 0 0.5em 1em; background-color: white; border-collapse:collapse; float:right;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<table border="0" align="right" width="200" cellpadding="4" cellspacing="0" class="noprint"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'as') { //
             //external links
             $left = '<span class="mw-headline" id="বাহ্যিক_সংযোগ"'; $right = '<!--';
@@ -533,18 +542,34 @@ class WikipediaAPI
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'mdf') { //
+            //section below
+            $left = '<div class="noprint"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'to') { //
             //infobox
             $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:#EEE; clear:right; width:200px;text-align:center;"'; $right = '<p>Ko e <b>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
 
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:#EEE; clear:right; width:200px;text-align:center;"'; $right = '<p>Ko e ngaahi <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
             $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:#EEE; clear:right; width:200px;text-align:center;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:#EEE; clear:right; width:200px;text-align:center;"'; $right = '<p>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'kbd') { //
+            //inside infobox
+            $left = '<tr style="" class="plainlinksneverexpand">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
             //infobox
             $left = '<div style="float:right; clear:right; margin:0 0 0.5em 1em;">'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<div style="float:right; clear:right; margin:0 0 0.5em 1em;">'; $right = '<p>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
             
             //external links
