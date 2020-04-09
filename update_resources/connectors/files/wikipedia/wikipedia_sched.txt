@@ -24,15 +24,21 @@ ja  ko  ru  pt
                 zh-min-nan  uz  my  su  sq        os
                 sw          ku  mn  kn  csb       cv
                 lmo         bs  kv  tt  mr        kab
-                pa          mi  gv  as            sah
-                wa          vls wuu dsb           nds
-                nah                 li
-                                    kbd
+                pa          mi  gv  as  olo       sah
+                wa          vls wuu dsb mhr       nds
+                nah                 li  tg
+                                    kbd pcd
                                     mdf
                                     to
                                     bat-smg
                                     
                 war & ceb not scheduled
+                
+                - (olo) Livvi-Karelian    https://en.wikipedia.org/wiki/Livvi-Karelian_language
+                - (mhr) Meadow Mari       https://en.wikipedia.org/wiki/Meadow_Mari_language
+                - (tg) Tajik              https://en.wikipedia.org/wiki/Tajik_language
+                - (pcd) Picard            https://en.wikipedia.org/wiki/Picard_language
+                
                 
                 (as) Assamese       https://en.wikipedia.org/wiki/Assamese_language
                 (dsb) Lower Sorbian https://en.wikipedia.org/wiki/Lower_Sorbian_language
