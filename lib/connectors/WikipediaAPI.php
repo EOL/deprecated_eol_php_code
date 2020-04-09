@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'as';
+        $lang = 'pcd';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -466,7 +466,7 @@ class WikipediaAPI
             $sought = array();
             while($char != $start_tag) {
                 $char = substr($html, $pos-$minus, strlen($start_tag));
-                echo "\n[$char]";
+                // echo "\n[$char]";
                 $sought[] = $char;
                 $pos = $pos - 1;
                 if($pos <= 1) return '';
@@ -504,6 +504,49 @@ class WikipediaAPI
         $left = '<div class="notice metadata"'; $right = '</div>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
 
+        $left = '<div class="infobox sisterproject"'; $right = '<!--';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        
+        $left = '<table style="background:none; text-align:left; padding:2px 0;" class="metadata"'; $right = '<!--';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        
+        if($this->language_code == 'pcd') { //
+            //infobox
+            $needle = 'style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #FFFFFF"'; //<table align="right" rules="all" cellpadding="3" cellspacing="0" border="0" style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #FFFFFF">
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = "<p>Ch' <b>";
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<dl><dt>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+                
+                $left = $tmp . $needle; $right = '<p>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+        }
+        if($this->language_code == 'tg') { //
+            //infobox
+            $left = '<table class="infobox"'; $right = '<h2>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<a href="/wiki/%D0%90%D0%BA%D1%81:%D0%9B%D0%BE%D0%B3%D0%BE_%D0%AD%D0%A1%D0%A2.png" class="image" title="Энсиклопедияи Советии Тоҷик"'; $right = '</i>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'mhr') { //
+            //section below
+            $left = '<table style="background:none; text-align:left; padding: 2px 0" class="metadata"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'bat-smg') { //
             //infobox
             $left = '<table style="margin: 0 0 0.5em 1em; background-color: white; border-collapse:collapse; float:right;"'; $right = '<p><b>';
