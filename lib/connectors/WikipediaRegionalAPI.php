@@ -202,7 +202,7 @@ class WikipediaRegionalAPI
                 // */
             }
             if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            else exit("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n");
+            else exit("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n$html\n");
         }
     }
     function get_domain_name($url)
