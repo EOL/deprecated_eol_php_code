@@ -15,6 +15,12 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1642, "sci":"Mammalia"}'
 
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7631, "sci":"Chiroptera"}' //only has 17K+ images
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":747, "sci":"Lepidoptera"}'
+
+Next batch as of Apr 10, 2020: Squamata (Lizards And Snakes), Anura (Frogs And Toads), Coleoptera (Beetles), and Carnivora (Carnivores)
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1704, "sci":"Squamata"}'
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1553, "sci":"Anura"}'
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":345, "sci":"Coleoptera"}'
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7662, "sci":"Carnivora"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
@@ -39,14 +45,14 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination, 1000); //normal operation
 */
-/* 20K bundles
+// /* 20K bundles
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_20K.txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination, 20000); //normal operation
-*/
-// /* 10K bundles
+// */
+/* 10K bundles
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_10K.txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination, 10000); //normal operation
-// */
+*/
 
 /* working but not used for now...
 $func->bundle_images_4download_per_eol_page_id($param, $destination); //normal operation
