@@ -674,6 +674,9 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Anser")                 {$arr = self::get_object('Q183361'); $arr = $arr->entities->Q183361;}
                 if($this->debug_taxon == "Prunus")                {$arr = self::get_object('Q190545'); $arr = $arr->entities->Q190545;}
                 if($this->debug_taxon == "Cairina moschata")      {$arr = self::get_object('Q242851'); $arr = $arr->entities->Q242851;}
+                //lang tg
+                if($this->debug_taxon == "Jasminum")              {$arr = self::get_object('Q82014'); $arr = $arr->entities->Q82014;}
+                
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;

@@ -529,8 +529,10 @@ class WikipediaAPI
         }
         if($this->language_code == 'tg') { //
             //infobox
-            $left = '<table class="infobox"'; $right = '<h2>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            // bad sol'n
+            // $left = '<table class="infobox"'; $right = '<h2>';
+            // $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
 
             $left = '<table class="infobox"'; $right = '<p><b>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
@@ -540,6 +542,9 @@ class WikipediaAPI
             
             //section below
             $left = '<a href="/wiki/%D0%90%D0%BA%D1%81:%D0%9B%D0%BE%D0%B3%D0%BE_%D0%AD%D0%A1%D0%A2.png" class="image" title="Энсиклопедияи Советии Тоҷик"'; $right = '</i>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table align="center" border="0" cellpadding="0" cellspacing="4" style="background: none;">'; $right = '</table>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         }
         if($this->language_code == 'mhr') { //
