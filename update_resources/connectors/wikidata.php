@@ -27,7 +27,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71	Thursday 2019-06-06 04:31:09 AM	 {"agent.tab":190674,"media_resource.tab":1324658,"taxon.tab":129200,"vernacular_name.tab":734354} consistent OK
 71	Friday 2019-08-09 01:56:21 AM	 {"agent.tab":191768,"media_resource.tab":1340788,"taxon.tab":129802,"vernacular_name.tab":748550} conistent OK
 71	Monday 2019-11-11 04:56:47 AM	 {"agent.tab":192916,"media_resource.tab":1373427,"taxon.tab":130672,"vernacular_name.tab":757699,"time_elapsed":{"sec":75396.18,"min":1256.6,"hr":20.94}} conistent OK
-71	Tuesday 2019-12-03 09:37:47 PM	 {"agent.tab":192942,"media_resource.tab":1373995,"taxon.tab":130888,"vernacular_name.tab":764871,"time_elapsed":{"sec":118185.92,"min":1969.77,"hr":32.83,"day":1.37}} consistent OK
+71	Tuesday 2019-12-03 09:37:47 PM	 {"agent.tab":192942, "media_resource.tab":1373995, "taxon.tab":130888, "vernacular_name.tab":764871, "time_elapsed":{"sec":118185.92,"min":1969.77,"hr":32.83,"day":1.37}} consistent OK
+71	Friday 2020-04-10 10:45:15 AM	 {"agent.tab":196927, "media_resource.tab":1415286, "taxon.tab":139471, "vernacular_name.tab":813926, "time_elapsed":{"sec":95964.61, "min":1599.41, "hr":26.66, "day":1.11}} consistent OK
 
 *this one (71_new) eventually becomes 71.tar.gz
 71_new	Wednesday 2018-10-17 05:10:07 AM{"agent.tab": 22435,"media_resource.tab": 956972,"taxon.tab": 90844}
@@ -47,7 +48,8 @@ commons Sunday 2017-11-26 01:34:01 PM   {"agent.tab":19055,"media_resource.tab":
 71_new	Thursday 2019-06-06 04:46:47 AM	{"agent.tab":190674,"media_resource.tab":1324658,"taxon.tab":129200} consistent OK
 71_new	Monday 2019-08-12 04:31:40 AM	{"agent.tab":191768,"media_resource.tab":1340788,"taxon.tab":129802} consistent OK - after fixing in DwCA_Utility the expire_seconds to zero 0
 71_new	Monday 2019-11-11 05:13:27 AM	{"agent.tab":192916,"media_resource.tab":1373427,"taxon.tab":130672,"time_elapsed":false} consistent OK
-71_new	Tuesday 2019-12-03 09:53:59 PM	{"agent.tab":192942,"media_resource.tab":1373995,"taxon.tab":130888,"time_elapsed":false} consistent OK
+71_new	Tuesday 2019-12-03 09:53:59 PM	{"agent.tab":192942, "media_resource.tab":1373995, "taxon.tab":130888, "time_elapsed":false} consistent OK
+71_new	Friday 2020-04-10 11:08:52 AM	{"agent.tab":196927, "media_resource.tab":1415286, "taxon.tab":139471, "time_elapsed":false} consistent OK
 
 when doing tests locally:
 php update_resources/connectors/wikidata.php _ generate_resource
