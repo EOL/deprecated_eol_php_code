@@ -27,7 +27,9 @@ class GloBIDataAPI
         
         //step 1 is build info list
         self::process_association($tables['http://eol.org/schema/association'][0], 'build info');       //generates $this->targetOccurrenceIDS $this->toDeleteOccurrenceIDS
+                                                                                                        //generates $this->occurrenceIDS
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');  //generates $this->taxonIDS AND assigns taxonID to $this->targetOccurrenceIDS
+                                                                                                        //                              assigns taxonID to $this->occurrenceIDS
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info');            //assigns kingdom value to $this->taxonIDS
         //step 2 write extension
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //this is just to copy occurrence
@@ -77,6 +79,21 @@ class GloBIDataAPI
                     $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
                 }
                 
+                // /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64696&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64696
+                // Another filter for this resource, please! The situation is similar to the flower visitors you fixed earlier. 
+                // And, like that case, this tweak should happen before reverse records are created
+                // 
+                // Now, apparently, plants are eating things. There are two relationship terms involved:
+                // http://purl.obolibrary.org/obo/RO_0002470 (eats)
+                // http://purl.obolibrary.org/obo/RO_0002439 (preys on)
+                // 
+                // I was going to do something more complicated, but it turns out there are barely any "true" records of carnivorous plants. 
+                // Let's just remove all records with these predicates and a source taxon with Plantae in the Kingdom column.
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) {
+                    $this->occurrenceIDS[$occurrenceID] = '';
+                }
+                // */
+                
                 if($associationType == 'http://purl.obolibrary.org/obo/RO_0002437') { //delete all records of this associationType
                     $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
                     $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
@@ -91,9 +108,24 @@ class GloBIDataAPI
                 if association_type == RO_0002622 (visits flowers of) AND targetOccurrenceID has a taxon with Animalia in the kingdom column
                     then: replace association_type with RO_0002623
                 */
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623' && self::target_taxon_kingdom($targetOccurrenceID)=='Pl') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622' && self::target_taxon_kingdom($targetOccurrenceID)=='An') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
+                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623' && self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target')=='Pl') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
+                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622' && self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target')=='An') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
                 /* end second change request */
+
+                // /* per: https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64696&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64696
+                // Another filter for this resource, please! The situation is similar to the flower visitors you fixed earlier. 
+                // And, like that case, this tweak should happen before reverse records are created
+                // 
+                // Now, apparently, plants are eating things. There are two relationship terms involved:
+                // http://purl.obolibrary.org/obo/RO_0002470 (eats)
+                // http://purl.obolibrary.org/obo/RO_0002439 (preys on)
+                // 
+                // I was going to do something more complicated, but it turns out there are barely any "true" records of carnivorous plants. 
+                // Let's just remove all records with these predicates and a source taxon with Plantae in the Kingdom column.
+                if    ($associationType == 'http://purl.obolibrary.org/obo/RO_0002470' && self::get_taxon_kingdom_4occurID($occurrenceID, 'source')=='Pl') continue;
+                elseif($associationType == 'http://purl.obolibrary.org/obo/RO_0002439' && self::get_taxon_kingdom_4occurID($occurrenceID, 'source')=='Pl') continue;
+                // */
+
                 //-----------------------------------------------------------------------------
                 $o = new \eol_schema\Association();
                 $uris = array_keys($rec);
@@ -175,6 +207,10 @@ class GloBIDataAPI
                     $this->taxonIDS[$taxonID] = '';
                     $this->targetOccurrenceIDS[$occurrenceID] = $taxonID;
                 }
+                if(isset($this->occurrenceIDS[$occurrenceID])) {
+                    $this->taxonIDS[$taxonID] = '';
+                    $this->occurrenceIDS[$occurrenceID] = $taxonID;
+                }
             }
             elseif($what == 'create extension') {
                 if(isset($this->toDeleteOccurrenceIDS[$occurrenceID])) continue;
@@ -247,9 +283,13 @@ class GloBIDataAPI
             }
         }
     }
-    private function target_taxon_kingdom($targetOccurrenceID) //targetOccurrenceID points to a taxon with this kingdom value
+    private function get_taxon_kingdom_4occurID($targetORsource_OccurrenceID, $targetORsource) //targetOccurrenceID points to a taxon with this kingdom value
     {
-        if($taxonID = $this->targetOccurrenceIDS[$targetOccurrenceID]) {
+        $taxonID = false;
+        if    ($targetORsource == 'target') $taxonID = $this->targetOccurrenceIDS[$targetORsource_OccurrenceID]
+        elseif($targetORsource == 'source') $taxonID = $this->occurrenceIDS[$targetORsource_OccurrenceID]
+        
+        if($taxonID) {
             if($char = $this->taxonIDS[$taxonID]['kingdom']) {
                 return $char; // An or Pl => Animalia or Plantae
             }
