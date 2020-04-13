@@ -16,7 +16,7 @@ class Protisten_deAPI
         $this->do_ids = array();
         $this->download_options = array('cache' => 1, 'resource_id' => $this->resource_id, 'download_wait_time' => 500000, 'timeout' => 1200, 
         // 'download_attempts' => 1, 'delay_in_minutes' => 2, 
-                                        'expire_seconds' => 60*60*24*30*3); //harvest quarterly
+                                        'expire_seconds' => 60*60*24*30*1); //harvest quarterly
         // $this->download_options['expire_seconds'] = false;
         // $this->download_options['user_agent'] = 'User-Agent: curl/7.39.0'; // did not work here, but worked OK in USDAfsfeisAPI.php
         $this->download_options['user_agent'] = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322)'; //worked OK!!!
