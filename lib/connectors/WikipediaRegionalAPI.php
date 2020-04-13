@@ -195,15 +195,18 @@ class WikipediaRegionalAPI
             elseif($lang == 'zh-min-nan') $lang = 'nan';
             elseif($lang == 'bat-smg')    $lang = 'sgs';
             else {
+                echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
+            }
+            
+            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+            else {
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
                 // echo "\n$html\n";
-                echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...\n");
+                echo("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n"); //just ignore it.
                 // exit(-1);
                 // */
+                return false;
             }
-            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
-            else echo("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n"); //just ignore it.
-            // else exit("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n");
         }
     }
     function get_domain_name($url)
