@@ -8,7 +8,8 @@ protisten	Thursday 2019-09-19 11:49:40 PM	{"agent.tab":1,"media_resource.tab":17
 protisten	Monday 2019-11-04 03:23:38 AM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089,"time_elapsed":false}
 protisten	Monday 2019-11-11 10:05:34 AM	{"agent.tab":1,"media_resource.tab":1701,"taxon.tab":1089,"time_elapsed":{"sec":19.97,"min":0.33,"hr":0.01}}
             Monday 2019-11-11 10:40:00 AM	{"agent.tab":1,"media_resource.tab":1705,"taxon.tab":1093} consistent OK
-
+protisten	Monday 2020-02-10 02:20:24 AM	{"agent.tab":1, "media_resource.tab":1708, "taxon.tab":1092, "time_elapsed":{"sec":1283.94,"min":21.4,"hr":0.36}} consistent OK
+protisten	Sunday 2020-04-12 11:40:08 PM	{"agent.tab":1, "media_resource.tab":1708, "taxon.tab":1092, "time_elapsed":{"sec":45.27, "min":0.75, "hr":0.01}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
