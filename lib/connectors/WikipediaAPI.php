@@ -268,6 +268,7 @@ class WikipediaAPI
                 $rek['other']['title'] = $title;
 
                 $desc = $func_region->get_comprehensive_desc($html);
+                if(!$desc) return $rek;
                 $desc = self::remove_edit_sections($desc, $url); //new https://eol-jira.bibalex.org/browse/DATA-1785
                 $rek['other']['comprehensive_desc'] = self::additional_desc_format($desc);
                 
