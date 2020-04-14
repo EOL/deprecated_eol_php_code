@@ -279,9 +279,14 @@ class GloBIDataAPI
                     $this->taxonIDS[$taxonID]['kingdom'] = substr($kingdom,0,2);
                     $this->taxonIDS[$taxonID]['sciname'] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
                     if(!$kingdom) {
-                        $tmp = @$rec['http://rs.tdwg.org/dwc/terms/phylum'] . "_" .  @$rec['http://rs.tdwg.org/dwc/terms/class'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/order']
-                                                                            . "_" . @$rec['http://rs.tdwg.org/dwc/terms/family'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/genus'];
-                        $this->debug['hierarchy without kingdom'][$tmp] = '';
+                        //option 1
+                        if($rec['http://rs.tdwg.org/dwc/terms/class'] == 'Actinopterygii') $this->taxonIDS[$taxonID]['kingdom'] = 'An';
+                        else {
+                            //option 2
+                            $tmp = @$rec['http://rs.tdwg.org/dwc/terms/phylum'] . "_" .  @$rec['http://rs.tdwg.org/dwc/terms/class'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/order']
+                                                                                . "_" . @$rec['http://rs.tdwg.org/dwc/terms/family'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/genus'];
+                            $this->debug['hierarchy without kingdom'][$tmp] = '';
+                        }
                     }
                 }
             }
