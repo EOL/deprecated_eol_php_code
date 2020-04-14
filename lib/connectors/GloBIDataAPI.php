@@ -362,10 +362,10 @@ class GloBIDataAPI
                 */
                 if(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
                     if(!isset($this->not_found_in_EOL[$taxonID])) {
-                        if($val = self::get_kingdom_from_EOLtaxonID($taxonID)) return $val;
+                        if($val = self::get_kingdom_from_EOLtaxonID($taxonID, $sciname)) return $val;
                         else {
                             $this->not_found_in_EOL[$taxonID] = '';
-                            echo " - not found in EOL: $targetORsource - ";
+                            // echo " - not found in EOL: $targetORsource - ";
                             $this->debug['does not have kingdom']['EOL'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
                             return;
                         }
@@ -383,9 +383,13 @@ class GloBIDataAPI
                     if(stripos($sciname, " trees") !== false) return 'Pl'; //string is found
                     if(stripos($sciname, " shrubs") !== false) return 'Pl'; //string is found
                     if(stripos($sciname, " plants") !== false) return 'Pl'; //string is found
+                    
+                    if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) {
+                        return substr($val,0,2);
+                    }
                 }
                 
-                $this->debug['does not have kingdom']['not EOL INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                $this->debug['does not have kingdom']['not EOL not INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
             }
         }
         else exit("\nInvestigate: this $targetORsource OccurrenceID [$taxonID] does not have taxonID \n");
@@ -413,7 +417,7 @@ class GloBIDataAPI
         else debug("\nnot found [$id] in iNaturalist()\n");
         return false;
     }
-    function get_kingdom_from_EOLtaxonID($taxonID)
+    function get_kingdom_from_EOLtaxonID($taxonID, $sciname)
     {
         if(stripos($taxonID, "EOL:") !== false) $id = str_replace('EOL:', '', $taxonID); //string is found
         if(stripos($taxonID, "EOL_V2:") !== false) $id = str_replace('EOL_V2:', '', $taxonID); //string is found
@@ -458,6 +462,11 @@ class GloBIDataAPI
                 }
             }
         }
+
+        if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) {
+            return substr($val,0,2);
+        }
+        
         // exit("\nNot found...\n");
         return false;
     }
