@@ -2735,7 +2735,7 @@ class WikiDataAPI extends WikipediaAPI
                 }
                 // 6-if the sitelink matches more than one common name, keep one of them at random, flag that common name as isPreferredName, discard the sitelink, and keep the other, non-matching common names, unflagged
                 elseif(count($matches) > 1) {
-                    print_r($matches); exit("\ndebug only\n");
+                    print_r($matches); exit("\nDebug only. Has not gone here yet before.\n");
                     $recs = self::get_matched_rec_and_other_recs($matches[0], $orig_comnames[$lang]);
                     $all = array_merge($all, $recs);
                 }
