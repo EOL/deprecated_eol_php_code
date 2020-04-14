@@ -468,15 +468,15 @@ mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
 * (li) Limburgish     https://en.wikipedia.org/wiki/Limburgish
 * (mi) Maori          https://en.wikipedia.org/wiki/M%C4%81ori_language
 
-(kbd) Kabardian Circassian  https://en.wikipedia.org/wiki/Kabardian_language
-(mdf) Moksha                https://en.wikipedia.org/wiki/Moksha_language
-(to) Tongan                 https://en.wikipedia.org/wiki/Tongan_language
-(bat-smg) Samogitian        https://en.wikipedia.org/wiki/Samogitian_dialect
+* (kbd) Kabardian Circassian  https://en.wikipedia.org/wiki/Kabardian_language
+* (mdf) Moksha                https://en.wikipedia.org/wiki/Moksha_language
+* (to) Tongan                 https://en.wikipedia.org/wiki/Tongan_language
+* (bat-smg) Samogitian        https://en.wikipedia.org/wiki/Samogitian_dialect
 
-(olo) Livvi-Karelian    https://en.wikipedia.org/wiki/Livvi-Karelian_language
-(mhr) Meadow Mari       https://en.wikipedia.org/wiki/Meadow_Mari_language
-(tg) Tajik              https://en.wikipedia.org/wiki/Tajik_language
-(pcd) Picard            https://en.wikipedia.org/wiki/Picard_language
+* (olo) Livvi-Karelian    https://en.wikipedia.org/wiki/Livvi-Karelian_language
+* (mhr) Meadow Mari       https://en.wikipedia.org/wiki/Meadow_Mari_language
+* (tg) Tajik              https://en.wikipedia.org/wiki/Tajik_language
+* (pcd) Picard            https://en.wikipedia.org/wiki/Picard_language
 
 (ps) Pashto             https://en.wikipedia.org/wiki/Pashto
 (sd) Sindhi             https://en.wikipedia.org/wiki/Sindhi_language
