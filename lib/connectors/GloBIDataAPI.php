@@ -313,11 +313,17 @@ class GloBIDataAPI
                         else {
                             $this->not_found_in_EOL[$taxonID] = '';
                             echo " - not found in EOL: $targetORsource - ";
+                            $this->debug['does not have kingdom']['EOL'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                            return;
                         }
                     }
                 }
                 elseif(substr($taxonID,0,11) == 'INAT_TAXON:') { //e.g. INAT_TAXON:900074
                     if($val = self::get_kingdom_from_iNATtaxonID($taxonID)) return $val;
+                    else {
+                        $this->debug['does not have kingdom']['INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                        return;
+                    }
                 }
                 
                 if($sciname = @$this->taxonIDS[$taxonID]['sciname']) {
@@ -326,10 +332,10 @@ class GloBIDataAPI
                     if(stripos($sciname, " plants") !== false) return 'Pl'; //string is found
                 }
                 
-                $this->debug['does not have kingdom'][$taxonID] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                $this->debug['does not have kingdom']['not EOL INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
             }
         }
-        else exit("\nInvestigate: this targetOccurrenceID [$targetOccurrenceID] does not have taxonID \n");
+        else exit("\nInvestigate: this $targetORsource OccurrenceID [$taxonID] does not have taxonID \n");
     }
     function get_kingdom_from_iNATtaxonID($taxonID, $options = array())
     {
