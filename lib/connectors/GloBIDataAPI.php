@@ -313,7 +313,7 @@ class GloBIDataAPI
                                 $scinames = array_filter($scinames); //remove null arrays
                                 $scinames = array_unique($scinames); //make unique
                                 $scinames = array_values($scinames); //reindex key
-                                print_r($scinames);
+                                // print_r($scinames);
                                 if($val = self::get_kingdom_from_GBIF_using_sciname($scinames)) $this->taxonIDS[$taxonID]['kingdom'] = substr($val,0,2);
                                 else $this->debug['hierarchy without kingdom'][$tmp] = '';
                             }
