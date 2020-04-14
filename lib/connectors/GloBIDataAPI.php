@@ -23,6 +23,16 @@ class GloBIDataAPI
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
+        /* just testing...
+        $url = 'https://editors.eol.org/eoearth/wiki/Main_Page';
+        $options = $this->download_options;
+        $options['download_attempts'] = 1;
+        if($html = Functions::lookup_with_cache($url, $options)) {
+            echo "\nstrlen: ".strlen($html)."\n";
+        }
+        exit("\n-end-\n");
+        */
+        
         $tables = $info['harvester']->tables; 
         
         //step 1 is build info list
@@ -370,7 +380,7 @@ class GloBIDataAPI
         $options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
-            'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 0, 'delay_in_minutes' => 0.1);
+            'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.1);
 
         if($arr = $this->func_eol_v3->search_eol_page_id($id, $options, 'Pages5')) {
             if($arr = $arr['taxonConcept']['taxonConcepts']) {
@@ -412,12 +422,15 @@ class GloBIDataAPI
     }
     function get_kingdom_from_gbif($gbif_id, $options = array())
     {
-        if(!$options) $options = $this->download_options_gbif;
-        $url = str_replace("TAXON_ID", $gbif_id, $this->api['GBIF taxon']);
-        if($json = Functions::lookup_with_cache($url, $options)) {
-            $arr = json_decode($json, true);
-            // print_r($arr); exit("\n-end gbif-\n");
-            if($val = @$arr['kingdom']) return $val;
+        if(!isset($this->not_found_in_GBIF[$gbif_id])) {
+            if(!$options) $options = $this->download_options_gbif;
+            $url = str_replace("TAXON_ID", $gbif_id, $this->api['GBIF taxon']);
+            if($json = Functions::lookup_with_cache($url, $options)) {
+                $arr = json_decode($json, true);
+                // print_r($arr); exit("\n-end gbif-\n");
+                if($val = @$arr['kingdom']) return $val;
+            }
+            $this->not_found_in_GBIF[$gbif_id] = '';
         }
     }
     private function get_orig_reverse_uri()
