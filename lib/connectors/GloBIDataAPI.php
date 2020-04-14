@@ -370,7 +370,7 @@ class GloBIDataAPI
         $options = array(
             'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
-            'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.1);
+            'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 0, 'delay_in_minutes' => 0.1);
 
         if($arr = $this->func_eol_v3->search_eol_page_id($id, $options, 'Pages5')) {
             if($arr = $arr['taxonConcept']['taxonConcepts']) {
