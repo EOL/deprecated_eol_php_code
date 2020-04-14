@@ -308,7 +308,13 @@ class GloBIDataAPI
                 )
                 */
                 if(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
-                    if($val = self::get_kingdom_from_EOLtaxonID($taxonID)) return $val;
+                    if(!isset($this->not_found_in_EOL[$taxonID])) {
+                        if($val = self::get_kingdom_from_EOLtaxonID($taxonID)) return $val;
+                        else {
+                            $this->not_found_in_EOL[$taxonID] = '';
+                            echo " - not found in EOL: $targetORsource - ";
+                        }
+                    }
                 }
                 elseif(substr($taxonID,0,11) == 'INAT_TAXON:') { //e.g. INAT_TAXON:900074
                     if($val = self::get_kingdom_from_iNATtaxonID($taxonID)) return $val;
@@ -352,7 +358,13 @@ class GloBIDataAPI
     {
         if(stripos($taxonID, "EOL:") !== false) $id = str_replace('EOL:', '', $taxonID); //string is found
         if(stripos($taxonID, "EOL_V2:") !== false) $id = str_replace('EOL_V2:', '', $taxonID); //string is found
-        if($arr = $this->func_eol_v3->search_eol_page_id($id, array(), 'Pages5')) {
+
+        $options = array(
+            'resource_id'        => 'eol_api_v3',  //resource_id here is just a folder name in cache
+            'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
+            'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.1);
+
+        if($arr = $this->func_eol_v3->search_eol_page_id($id, $options, 'Pages5')) {
             if($arr = $arr['taxonConcept']['taxonConcepts']) {
                 // print_r($arr);
                 foreach($arr as $rec) {
