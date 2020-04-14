@@ -45,7 +45,12 @@ class GloBIDataAPI
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //this is just to copy occurrence
         self::process_association($tables['http://eol.org/schema/association'][0], 'create extension'); //main operation in DATA-1812: For every record, create an additional record in reverse.
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create extension');
+        
+        $tmp = array_keys($this->debug['hierarchy without kingdom']);
+        $this->debug['hierarchy without kingdom'] = '';
         print_r($this->debug);
+        sort($tmp);
+        print_r($tmp);
     }
     private function process_association($meta, $what)
     {   //print_r($meta);
@@ -285,6 +290,10 @@ class GloBIDataAPI
                             //option 2
                             $tmp = @$rec['http://rs.tdwg.org/dwc/terms/phylum'] . "_" .  @$rec['http://rs.tdwg.org/dwc/terms/class'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/order']
                                                                                 . "_" . @$rec['http://rs.tdwg.org/dwc/terms/family'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/genus'];
+                            
+                            if(stripos($tmp, "Aves_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Magnoliophyta_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Pl'; //string is found
+                            
                             $this->debug['hierarchy without kingdom'][$tmp] = '';
                         }
                     }
