@@ -13,6 +13,7 @@ class GloBIDataAPI
         
         $this->api['iNat taxon'] = 'https://api.inaturalist.org/v1/taxa/TAXON_ID';
         $this->api['GBIF taxon'] = 'http://api.gbif.org/v1/species/TAXON_ID';
+        $this->api['GBIF taxon 2'] = 'https://api.gbif.org/v1/species?name=SCINAME';
         $this->download_options = array(
             'resource_id'        => 'iNat',  //resource_id here is just a folder name in cache
             'expire_seconds'     => 60*60*24*30*2, //maybe 2 months to expire
@@ -31,6 +32,11 @@ class GloBIDataAPI
             echo "\nstrlen: ".strlen($html)."\n";
         }
         exit("\n-end-\n");
+        */
+        
+        /*
+        $x = self::lookup_gbif_kingdom_using_sciname('Acacia', array());
+        exit("\n-end-[$x]\n");
         */
         
         $tables = $info['harvester']->tables; 
@@ -288,13 +294,29 @@ class GloBIDataAPI
                         if($rec['http://rs.tdwg.org/dwc/terms/class'] == 'Actinopterygii') $this->taxonIDS[$taxonID]['kingdom'] = 'An';
                         else {
                             //option 2
-                            $tmp = @$rec['http://rs.tdwg.org/dwc/terms/phylum'] . "_" .  @$rec['http://rs.tdwg.org/dwc/terms/class'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/order']
-                                                                                . "_" . @$rec['http://rs.tdwg.org/dwc/terms/family'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/genus'];
-                            
+                            $tmp = @$rec['http://rs.tdwg.org/dwc/terms/phylum'] . "_" .  @$rec['http://rs.tdwg.org/dwc/terms/class'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/order'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/family'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/genus'];
                             if(stripos($tmp, "Aves_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
                             elseif(stripos($tmp, "Magnoliophyta_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Pl'; //string is found
-                            
-                            $this->debug['hierarchy without kingdom'][$tmp] = '';
+                            elseif(stripos($tmp, "Amphibia_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Anthozoa_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Ascidiacea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Asteroidea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Bivalvia_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Demospongiae_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Echinoidea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Elasmobranchii_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            elseif(stripos($tmp, "Gastropoda_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            else {
+                                //option 3: GBIF sciname lookup
+                                $scinames = explode("_", $tmp);
+                                $scinames = array_map('trim', $scinames);
+                                $scinames = array_filter($scinames); //remove null arrays
+                                $scinames = array_unique($scinames); //make unique
+                                $scinames = array_values($scinames); //reindex key
+                                print_r($scinames);
+                                if($val = self::get_kingdom_from_GBIF_using_sciname($scinames)) $this->taxonIDS[$taxonID]['kingdom'] = substr($val,0,2);
+                                else $this->debug['hierarchy without kingdom'][$tmp] = '';
+                            }
                         }
                     }
                 }
@@ -450,6 +472,28 @@ class GloBIDataAPI
                 if($val = @$arr['kingdom']) return $val;
             }
             $this->not_found_in_GBIF[$gbif_id] = '';
+        }
+    }
+    private function get_kingdom_from_GBIF_using_sciname($scinames)
+    {
+        foreach($scinames as $sciname) {
+            if(!isset($this->not_found_in_GBIF[$sciname])) {
+                if($kingdom = self::lookup_gbif_kingdom_using_sciname($sciname)) return $kingdom;
+                $this->not_found_in_GBIF[$sciname] = '';
+            }
+        }
+    }
+    private function lookup_gbif_kingdom_using_sciname($sciname, $options = array())
+    {
+        if(!$options) $options = $this->download_options_gbif;
+        $options['expire_seconds'] = false; //should be false. kingdom doesn't normally change
+        $url = str_replace("SCINAME", urlencode($sciname), $this->api['GBIF taxon 2']);
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $arr = json_decode($json, true);
+            // print_r($arr); exit("\n-end gbif-\n");
+            foreach($arr['results'] as $r) {
+                if($val = @$r['kingdom']) return $val;
+            }
         }
     }
     private function get_orig_reverse_uri()
