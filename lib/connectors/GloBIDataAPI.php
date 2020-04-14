@@ -360,7 +360,10 @@ class GloBIDataAPI
                         )
                 )
                 */
-                if(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
+                if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) {
+                    return substr($val,0,2);
+                }
+                elseif(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
                     if(!isset($this->not_found_in_EOL[$taxonID])) {
                         if($val = self::get_kingdom_from_EOLtaxonID($taxonID, $sciname)) return $val;
                         else {
@@ -383,10 +386,6 @@ class GloBIDataAPI
                     if(stripos($sciname, " trees") !== false) return 'Pl'; //string is found
                     if(stripos($sciname, " shrubs") !== false) return 'Pl'; //string is found
                     if(stripos($sciname, " plants") !== false) return 'Pl'; //string is found
-                    
-                    if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) {
-                        return substr($val,0,2);
-                    }
                 }
                 
                 $this->debug['does not have kingdom']['not EOL not INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
@@ -462,11 +461,6 @@ class GloBIDataAPI
                 }
             }
         }
-
-        if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) {
-            return substr($val,0,2);
-        }
-        
         // exit("\nNot found...\n");
         return false;
     }
@@ -494,6 +488,7 @@ class GloBIDataAPI
     }
     private function lookup_gbif_kingdom_using_sciname($sciname, $options = array())
     {
+        if(!$sciname) return;
         if(!$options) $options = $this->download_options_gbif;
         $options['expire_seconds'] = false; //should be false. kingdom doesn't normally change
         $url = str_replace("SCINAME", urlencode($sciname), $this->api['GBIF taxon 2']);
@@ -502,6 +497,19 @@ class GloBIDataAPI
             // print_r($arr); exit("\n-end gbif-\n");
             foreach($arr['results'] as $r) {
                 if($val = @$r['kingdom']) return $val;
+            }
+        }
+        
+        //2nd try, if sciname has space
+        if(stripos($sciname, " ") !== false) //string is found
+        {
+            $names = explode(" ", $sciname);
+            $names = array_map('trim', $names);
+            $names = array_filter($names); //remove null arrays
+            $names = array_unique($names); //make unique
+            $names = array_values($names); //reindex key
+            if($name = @$names[0]) {
+                if($kingdom = self::lookup_gbif_kingdom_using_sciname($name)) return $kingdom;
             }
         }
     }
