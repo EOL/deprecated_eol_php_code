@@ -289,6 +289,8 @@ class GloBIDataAPI
         if    ($targetORsource == 'target') $taxonID = $this->targetOccurrenceIDS[$targetORsource_OccurrenceID];
         elseif($targetORsource == 'source') $taxonID = $this->occurrenceIDS[$targetORsource_OccurrenceID];
         
+        $sciname = @$this->taxonIDS[$taxonID]['sciname'];
+        
         if($taxonID) {
             if($char = $this->taxonIDS[$taxonID]['kingdom']) {
                 return $char; // An or Pl => Animalia or Plantae
