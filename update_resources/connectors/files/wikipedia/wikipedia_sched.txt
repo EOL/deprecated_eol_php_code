@@ -138,7 +138,8 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	            Saturday 2019-06-01 10:48:55 AM	{"media_resource.tab":499623,"taxon.tab":277263} -- ??? questionable decrease... WILL INVESTIGATE. All other languages are "Consistent OK"
 80	            Sunday 2019-08-04 08:21:19 AM	{"media_resource.tab":757097,"taxon.tab":398984} -- back to nomral - Consistent OK
 80	            Friday 2019-12-06 04:50:35 AM	{"media_resource.tab":760245,"taxon.tab":401004,"time_elapsed":{"sec":44547.6,"min":742.46,"hr":12.37}} OK
-80              Wednesday 2020-02-12 09:42:40 AM{"media_resource.tab":769297,"taxon.tab":405446,"time_elapsed":{"sec":35740.92,"min":595.68,"hr":9.93}} OK
+80              Wednesday 2020-02-12 09:42:40 AM{"media_resource.tab":769297, "taxon.tab":405446, "time_elapsed":{"sec":35740.92,"min":595.68,"hr":9.93}} OK
+80	            Monday 2020-04-13 10:06:42 PM	  {"media_resource.tab":772095, "taxon.tab":407031, "time_elapsed":{"sec":54821.39, "min":913.69, "hr":15.23}} OK
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
