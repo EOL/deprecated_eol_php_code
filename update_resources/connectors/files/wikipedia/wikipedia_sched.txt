@@ -26,13 +26,18 @@ ja  ko  ru  pt
                 lmo         bs  kv  tt  mr        kab
                 pa          mi  gv  as  olo       sah
                 wa          vls wuu dsb mhr       nds
-                nah                 li  tg
-                                    kbd pcd
-                                    mdf
-                                    to
+                nah         vep     li  tg
+                            se      kbd pcd
+                            am      mdf
+                            si      to
                                     bat-smg
                                     
                 war & ceb not scheduled
+                
+                (vep) Vepsian           https://en.wikipedia.org/wiki/Veps_language
+                (se) Northern Sami      https://en.wikipedia.org/wiki/Northern_Sami_language
+                (am) Amharic            https://en.wikipedia.org/wiki/Amharic
+                (si) Sinhalese          https://en.wikipedia.org/wiki/Sinhala_language
                 
                 - (olo) Livvi-Karelian    https://en.wikipedia.org/wiki/Livvi-Karelian_language
                 - (mhr) Meadow Mari       https://en.wikipedia.org/wiki/Meadow_Mari_language
