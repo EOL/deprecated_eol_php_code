@@ -353,6 +353,7 @@ class GloBIDataAPI
             'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) return 'Pl';
             elseif(in_array($taxonID, array('EOL:5425400', 'EOL:55106', 'EOL:3832795', 'FBC:FB:SpecCode:5038', 'EOL:3682636', 'EOL:31599461', 'EOL:54655', 
             'EOL_V2:6272187', 'EOL_V2:3121417'))) return 'An';
+            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus'))) return 'An';
             else {
                 /*Array(
                     [does not have kingdom] => Array(
@@ -456,9 +457,22 @@ class GloBIDataAPI
                             if($kingdom == 'Animalia') return 'An';
                             return $kingdom;
                         }
+                        if($sciname = @$rec['scientificName']) {
+                            if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) return substr($val,0,2);
+                        }
                         break;
                     }
                 }
+                
+                /* Let us try GBIF 2 */
+                foreach($arr as $rec) {
+                    if($rec['nameAccordingTo'] != 'GBIF classification') {
+                        if($sciname = @$rec['scientificName']) {
+                            if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) return substr($val,0,2);
+                        }
+                    }
+                }
+                
             }
         }
         // exit("\nNot found...\n");
