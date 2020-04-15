@@ -168,7 +168,8 @@ wikipedia-it	Tuesday 2019-04-23 05:20:02 AM	{"media_resource.tab":68460,"taxon.t
 wikipedia-it	Saturday 2019-06-01 06:02:50 PM	{"media_resource.tab":68816,"taxon.tab":42275} -- Consistent OK
 wikipedia-it	Monday 2019-08-05 09:43:59 AM	{"media_resource.tab":69122,"taxon.tab":42450} -- Consistent OK
 wikipedia-it	Saturday 2019-12-07 11:38:19 AM	{"media_resource.tab":70036,"taxon.tab":42981,"time_elapsed":{"sec":5812.1,"min":96.87,"hr":1.61}} OK
-wikipedia-it	Wednesday 2020-02-12 04:17:22 PM{"media_resource.tab":70425,"taxon.tab":43244,"time_elapsed":{"sec":3078.6,"min":51.31,"hr":0.86}} OK
+wikipedia-it	Wednesday 2020-02-12 04:17:22 PM{"media_resource.tab":70425, "taxon.tab":43244, "time_elapsed":{"sec":3078.6,"min":51.31,"hr":0.86}} OK
+wikipedia-it	Tuesday 2020-04-14 11:17:56 PM	{"media_resource.tab":70913, "taxon.tab":43550, "time_elapsed":{"sec":5245.81, "min":87.43, "hr":1.46}}
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
@@ -182,7 +183,8 @@ wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.
 957	            Saturday 2019-06-01 07:19:00 PM	{"media_resource.tab":92485,"taxon.tab":58906} -- Consistent OK
 957	            Monday 2019-08-05 04:06:18 PM	{"media_resource.tab":93118,"taxon.tab":59264} -- Consistent OK
 957	            Saturday 2019-12-07 07:05:55 PM	{"media_resource.tab":94255,"taxon.tab":59964,"time_elapsed":{"sec":6686.38,"min":111.44,"hr":1.86}} OK
-957	            Thursday 2020-02-13 08:55:35 AM	{"media_resource.tab":94413,"taxon.tab":60261,"time_elapsed":{"sec":6187.82,"min":103.13,"hr":1.72}} OK
+957	            Thursday 2020-02-13 08:55:35 AM	{"media_resource.tab":94413, "taxon.tab":60261, "time_elapsed":{"sec":6187.82,"min":103.13,"hr":1.72}} OK
+957	            Wednesday 2020-04-15 07:37:03 AM{"media_resource.tab":94730, "taxon.tab":60497, "time_elapsed":{"sec":13836.7, "min":230.61, "hr":3.84}} OK
 
 wikipedia-fr	Sunday 2017-12-03 12:04:24 AM	{"media_resource.tab":214962,"taxon.tab":119824}
 wikipedia-fr	Sunday 2018-04-29 04:10:02 PM	{"media_resource.tab":214956,"taxon.tab":119821}

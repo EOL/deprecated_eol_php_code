@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'pcd';
+        $lang = 'se';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -511,6 +511,95 @@ class WikipediaAPI
         $left = '<table style="background:none; text-align:left; padding:2px 0;" class="metadata"'; $right = '<!--';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         
+        $needle = 'class="metadata plainlinks ambox ambox-';
+        if($tmp = self::get_pre_tag_entry($html, $needle)) {
+            $left = $tmp . $needle; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        
+        if($this->language_code == 'ht') { //
+            //infobox
+            $needle = 'style="margin: 0 0 1em 1em; border-style: solid; border-color: #999; border-top-width: 1px; border-left-width: 1px; border-right-width: 2px; border-bottom-width: 2px; background-color: #CFC"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</table>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+
+            //section above
+            $left = '<div class="plainlinks"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //box below
+            $left = '<table align="right" style="width:250px;border:solid 1px blue; background-color: #eeffff; padding: 0.1em;align:right;">'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'si') { //
+            //inside infobox
+            $left = '<tr style="background:rgb(235,235,210);">'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //external links
+            $left = '<span class="mw-headline" id="බාහිර_සබැදි"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'am') { //
+            //infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'en') { //
+            //infobox
+            $left = '<table class="infobox'; $right = '<p>The <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //external links
+            $left = '<span class="mw-headline" id="External_links">'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<div class="printfooter">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div id="catlinks" class="catlinks"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div id="mw-hidden-catlinks"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'se') { //
+            //section above
+            $left = '<div style="clear: both; background-color: #f9f9f9; text-align: left; padding: 0 1em; border: 1px solid #aaaaaa; border-right-width: 1px; border-bottom-width: 1px; margin: 0em 0em 0em 0em;">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //section below
+            $needle = 'style="clear: right; border: solid #aaa 1px; margin: 0 0 1em 1em; font-size: 90%; background: #f9f9f9"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<!--';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+        }
+        if($this->language_code == 'vep') { //
+            //infobox
+            $needle = 'style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<p><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+            
+            //specific image link
+            $left = '<div id="floating_object16"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //section below
+            $left = '<table align="center" class="toccolours"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'pcd') { //
             //infobox
             $needle = 'style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #FFFFFF"'; //<table align="right" rules="all" cellpadding="3" cellspacing="0" border="0" style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #FFFFFF">
