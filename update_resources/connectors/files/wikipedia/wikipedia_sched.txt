@@ -153,7 +153,8 @@ wikipedia-es	Tuesday 2019-04-23 12:18:06 AM	{"media_resource.tab":307434,"taxon.
 wikipedia-es	Saturday 2019-06-01 04:32:50 PM	{"media_resource.tab":308901,"taxon.tab":169932} -- Consistent OK
 wikipedia-es	Monday 2019-08-05 04:07:27 AM	{"media_resource.tab":309524,"taxon.tab":170246} -- Consistent OK
 wikipedia-es	Saturday 2019-12-07 06:02:16 AM	{"media_resource.tab":312775,"taxon.tab":172104,"time_elapsed":{"sec":21455.2,"min":357.59,"hr":5.96}} OK
-wikipedia-es	Wednesday 2020-02-12 03:06:27 PM{"media_resource.tab":314378,"taxon.tab":172925,"time_elapsed":{"sec":14881.69,"min":248.03,"hr":4.13}} OK
+wikipedia-es	Wednesday 2020-02-12 03:06:27 PM{"media_resource.tab":314378, "taxon.tab":172925, "time_elapsed":{"sec":14881.69,"min":248.03,"hr":4.13}} OK
+wikipedia-es	Tuesday 2020-04-14 06:13:01 PM	{"media_resource.tab":315674, "taxon.tab":173581, "time_elapsed":{"sec":18936.09, "min":315.6, "hr":5.26}} OK
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
