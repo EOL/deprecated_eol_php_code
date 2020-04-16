@@ -203,7 +203,8 @@ wikipedia-fr	Wednesday 2019-04-24 01:53:21 AM{"media_resource.tab":229673,"taxon
 wikipedia-fr	Saturday 2019-06-01 10:00:05 PM	{"media_resource.tab":232256,"taxon.tab":128840} -- Consistent OK
 wikipedia-fr	Tuesday 2019-08-06 08:00:27 AM	{"media_resource.tab":233979,"taxon.tab":129714} -- Consistent OK
 wikipedia-fr	Sunday 2019-12-08 03:02:57 PM	{"media_resource.tab":236596,"taxon.tab":131404,"time_elapsed":{"sec":17997.21,"min":299.95,"hr":5}} OK
-wikipedia-fr	Friday 2020-02-14 03:23:14 AM	{"media_resource.tab":238880,"taxon.tab":132543,"time_elapsed":{"sec":16649.6,"min":277.49,"hr":4.62}} OK
+wikipedia-fr	Friday 2020-02-14 03:23:14 AM	    {"media_resource.tab":238880, "taxon.tab":132543, "time_elapsed":{"sec":16649.6,"min":277.49,"hr":4.62}} OK
+wikipedia-fr	Wednesday 2020-04-15 10:53:34 PM	{"media_resource.tab":242414, "taxon.tab":134378, "time_elapsed":{"sec":15076.57, "min":251.28, "hr":4.19}} OK
 
 wikipedia-ja	Friday 2017-11-10 08:35:41 AM	{"media_resource.tab":26208,"taxon.tab":20431}
 wikipedia-ja	Saturday 2017-12-02 10:53:40 PM	{"media_resource.tab":26264,"taxon.tab":20475}
