@@ -2,8 +2,12 @@
 namespace php_active_record;
 /* GBIF classification update - https://eol-jira.bibalex.org/browse/DATA-1826 
 Mac Mini:
-gbif_classification_pre	    Thursday 2019-11-21 05:53:56 AM	{"taxon.tab":3820178,"time_elapsed":{"sec":2516.83,"min":41.95,"hr":0.7}}
-gbif_classification	        Thursday 2019-11-21 09:34:38 AM	{"taxon.tab":3820178,"time_elapsed":{"sec":3079.33,"min":51.32,"hr":0.86}}
+gbif_classification_pre	    Thursday 2019-11-21 05:53:56 AM	{"taxon.tab":3820178, "time_elapsed":{"sec":2516.83,"min":41.95,"hr":0.7}}
+gbif_classification_pre	    Thursday 2020-04-16 10:58:38 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":3818.47, "min":63.64, "hr":1.06}}
+
+gbif_classification	        Thursday 2019-11-21 09:34:38 AM	{"taxon.tab":3820178, "time_elapsed":{"sec":3079.33,"min":51.32,"hr":0.86}}
+gbif_classification	        Thursday 2020-04-16 10:36:10 PM	{"taxon.tab":4438420, "time_elapsed":{"sec":4015.68, "min":66.93, "hr":1.12}}
+
 Haven't run it yet in eol-archive since the 2 resource files are 'private' in OpenData.
 */
 
@@ -44,7 +48,7 @@ e.g. Array(
 // /*
 $resource_id = 'gbif_classification';
 if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz';
-else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources_2/gbif_classification_pre.tar.gz';
+else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz';
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility($resource_id, $dwca_file);
 

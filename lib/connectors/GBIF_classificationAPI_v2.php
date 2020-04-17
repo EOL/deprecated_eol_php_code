@@ -29,7 +29,7 @@ class GBIF_classificationAPI_v2
         }
         else {
             $this->service["backbone_dwca"] = "http://localhost/cp/GBIF_Backbone_Archive/backbone-current.zip";
-            $this->service["gbif_classification_pre"] = "http://localhost/eol_php_code/applications/content_server/resources_2/gbif_classification_pre.tar.gz";
+            $this->service["gbif_classification_pre"] = "http://localhost/eol_php_code/applications/content_server/resources/gbif_classification_pre.tar.gz";
             $this->service['DH0.9'] = 'http://localhost/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks.zip';
             $this->service['DH0.9 EOL pageID mappings'] = 'http://localhost/cp/DATA-1826 GBIF class/eolpageids.csv.gz';
         }
@@ -49,8 +49,8 @@ class GBIF_classificationAPI_v2
         self::build_info_PreferEOL_id_from_API_match(); //from Jira attachment: PreferEOL_id_from_API_match.txt
         
         // /* get info lists
-        self::build_info('DH0.9', false);       //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id        2nd param false means expire_seconds = false
-        self::process_eolpageids_csv();     //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
+        self::build_info('DH0.9', 60*60*24*30); //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id        2nd param false means expire_seconds = false
+        self::process_eolpageids_csv();         //builds -> $this->DH_map[DH_id] = EOLid; //DH_id -> EOLid
         echo "\n resource file DH09: ".count($this->DH09)."\n";
         echo "\n resource file DH_map: ".count($this->DH_map)."\n";
         // */
@@ -232,24 +232,25 @@ class GBIF_classificationAPI_v2
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
         print_r($paths); //exit;
         // */
+        
         /* local when developing, and when running reports and final version: gbif_classification.tar.gz
         if($dwca == 'backbone_dwca') { //for main operation - gbif classification
+            // print_r($paths); exit("\nbackbone_dwca\n");
             $paths = Array(
-                'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/',
-                'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_gbif_backbone/'
-            );
+                    'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_21383/',
+                    'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_21383/'
+                );
         }
         if($dwca == 'gbif_classification_pre') { //files here are manually moved to this destination, everytime a new version of gbif_classification_pre.tar.gz comes.
+            print_r($paths); exit("\n[gbif_classification_pre]\n");
             $paths = Array(
                 "archive_path" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/",
                 "temp_dir" => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_classification_pre/"
             );
         }
         if($dwca == 'DH0.9') { //files here are manually moved to this destination:
+            // print_r($paths); exit("\n[DH0.9]\n");
             $paths = Array(
-                // 'archive_path' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/",
-                // 'temp_dir' => "/Library/WebServer/Documents/eol_php_code/tmp/gbif_dir_DH09/"
-                
                 'archive_path' => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/",
                 'temp_dir'     => "/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/eoldynamichierarchywithlandmarks/"
             );
@@ -297,7 +298,7 @@ class GBIF_classificationAPI_v2
     }
     /*-------------------------------------- end report here --------------------------------------------*/
     function start()
-    {   $paths = self::access_dwca('backbone_dwca', false); //2nd param false means expire_seconds = false;
+    {   $paths = self::access_dwca('backbone_dwca', 60*60*24*30); //2nd param false means expire_seconds = false; BUT ideal value is 1 month OR as only refresh as needed.
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         
