@@ -63,7 +63,9 @@ class GBIF_classificationAPI_v2
     }
     private function build_info_PreferEOL_id_from_API_match()
     {
-        $contents = file_get_contents("/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/Jira/PreferEOL_id_from_API_match.txt");
+        if(Functions::is_production())  $contents = file_get_contents("/extra/other_files/GBIF_Classification/PreferEOL_id_from_API_match.txt");
+        else                            $contents = file_get_contents("/Volumes/AKiTiO4/web/cp/DATA-1826 GBIF class/Jira/PreferEOL_id_from_API_match.txt");
+
         $arr = explode("\n", $contents);
         array_shift($arr); //remove first row which is the header
         $arr = array_filter($arr); //remove null arrays
