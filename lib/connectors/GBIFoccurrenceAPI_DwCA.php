@@ -958,13 +958,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     $files = $dir_to_process.$subdir."/*.json";
                     foreach (glob($files) as $filename) {
                         if(filesize($filename)) {
-                            echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME); //good debug
+                            // echo "\n[$filename] - " . pathinfo($filename, PATHINFO_FILENAME); //good debug
                             $str = file_get_contents($filename);
                             $str = str_replace("var data = ", "", $str);
                             if($fhandle = Functions::file_open($filename, "w")) {
                                 fwrite($fhandle, $str);
                                 fclose($fhandle);
-                                echo " -- saved OK\n";
+                                // echo " -- saved OK\n";
                             }
                             else echo " -- could not open file...\n";
                         }
