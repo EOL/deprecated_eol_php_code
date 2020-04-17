@@ -26,13 +26,19 @@ ja  ko  ru  pt
                 lmo         bs  kv  tt  mr        kab
                 pa          mi  gv  as  olo       sah
                 wa          vls wuu dsb mhr       nds
-                nah         vep     li  tg
-                            se      kbd pcd
-                            am      mdf
-                            si      to
-                                    bat-smg
+                nah         vep ht  li  tg
+                            se  gn  kbd pcd
+                            am  rue mdf
+                            si  mt  to
+                                gu  bat-smg
                                     
                 war & ceb not scheduled
+                
+                (ht) Haitian            https://en.wikipedia.org/wiki/Haitian_language
+                (gn) Guarani            https://en.wikipedia.org/wiki/Guarani_language
+                (rue) Rusyn             https://en.wikipedia.org/wiki/Rusyn_language
+                (mt) Maltese            https://en.wikipedia.org/wiki/Maltese_language
+                (gu) Gujarati           https://en.wikipedia.org/wiki/Gujarati_language
                 
                 (vep) Vepsian           https://en.wikipedia.org/wiki/Veps_language
                 (se) Northern Sami      https://en.wikipedia.org/wiki/Northern_Sami_language
@@ -260,7 +266,8 @@ wikipedia-ru	Wednesday 2019-04-24 06:38:49 PM{"media_resource.tab":83696,"taxon.
 wikipedia-ru	Saturday 2019-06-01 11:30:10 PM	{"media_resource.tab":84584,"taxon.tab":51341} -- consistent OK.
 wikipedia-ru	Wednesday 2019-08-07 01:24:05 AM{"media_resource.tab":85285,"taxon.tab":51763} -- consistent OK
 wikipedia-ru	Monday 2019-12-09 01:14:36 PM	{"media_resource.tab":86861,"taxon.tab":52711,"time_elapsed":{"sec":79890.51,"min":1331.51,"hr":22.19}} OK
-wikipedia-ru	Saturday 2020-02-15 12:27:06 AM	{"media_resource.tab":87583,"taxon.tab":53186,"time_elapsed":{"sec":75825.96,"min":1263.77,"hr":21.06}} OK
+wikipedia-ru	Saturday 2020-02-15 12:27:06 AM	{"media_resource.tab":87583, "taxon.tab":53186,"time_elapsed":{"sec":75825.96,"min":1263.77,"hr":21.06}} OK
+wikipedia-ru	Thursday 2020-04-16 09:53:10 PM	{"media_resource.tab":87993, "taxon.tab":53435, "time_elapsed":{"sec":82765.94, "min":1379.43, "hr":22.99}} OK
 
 wikipedia-zh	Tuesday 2017-11-14 03:41:12 PM	{"media_resource.tab":156137,"taxon.tab":91145}
 wikipedia-zh	Sunday 2017-12-03 12:33:20 AM	{"media_resource.tab":156585,"taxon.tab":91396}
@@ -275,7 +282,9 @@ wikipedia-zh	Wednesday 2019-04-24 10:03:31 PM{"media_resource.tab":177332,"taxon
 wikipedia-zh	Sunday 2019-06-02 02:57:45 AM	{"media_resource.tab":178460,"taxon.tab":104587} -- consistent OK
 wikipedia-zh	Wednesday 2019-08-07 05:45:01 AM{"media_resource.tab":180820,"taxon.tab":105668} -- consistent OK
 wikipedia-zh	Monday 2019-12-09 08:11:09 PM	{"media_resource.tab":187787,"taxon.tab":109444,"time_elapsed":{"sec":14459.96,"min":241,"hr":4.02}} OK
-wikipedia-zh	Saturday 2020-02-15 05:56:19 AM	{"media_resource.tab":187730,"taxon.tab":109498,"time_elapsed":{"sec":12381.98,"min":206.37,"hr":3.44}} OK
+wikipedia-zh	Saturday 2020-02-15 05:56:19 AM	{"media_resource.tab":187730, "taxon.tab":109498, "time_elapsed":{"sec":12381.98,"min":206.37,"hr":3.44}} OK
+wikipedia-zh	Thursday 2020-04-16 10:29:52 PM	{"media_resource.tab":187938, "taxon.tab":109665, "time_elapsed":{"sec":12630.89, "min":210.51, "hr":3.51}}
+
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
 wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118} - asked by Jen to ignore for now.
 

@@ -230,6 +230,7 @@ class GBIF_classificationAPI_v2
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->service[$dwca], "meta.xml", $download_options);
+        echo "\n[$dwca] - ";
         print_r($paths); //exit;
         // */
         

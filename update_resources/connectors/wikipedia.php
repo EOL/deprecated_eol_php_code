@@ -519,8 +519,8 @@ mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
 (rue) Rusyn             https://en.wikipedia.org/wiki/Rusyn_language
 (mt) Maltese            https://en.wikipedia.org/wiki/Maltese_language
 (gu) Gujarati           https://en.wikipedia.org/wiki/Gujarati_language
-(ckb) Sorani            https://en.wikipedia.org/wiki/Sorani
 
+(ckb) Sorani            https://en.wikipedia.org/wiki/Sorani
 (als) Alemannic         https://en.wikipedia.org/wiki/Alemannic_German
 
 
