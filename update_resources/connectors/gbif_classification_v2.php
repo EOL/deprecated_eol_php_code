@@ -1,14 +1,17 @@
 <?php
 namespace php_active_record;
 /* GBIF classification update - https://eol-jira.bibalex.org/browse/DATA-1826 
-Mac Mini:
+From: Mac Mini:
 gbif_classification_pre	    Thursday 2019-11-21 05:53:56 AM	{"taxon.tab":3820178, "time_elapsed":{"sec":2516.83,"min":41.95,"hr":0.7}}
 gbif_classification_pre	    Thursday 2020-04-16 10:58:38 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":3818.47, "min":63.64, "hr":1.06}}
 
 gbif_classification	        Thursday 2019-11-21 09:34:38 AM	{"taxon.tab":3820178, "time_elapsed":{"sec":3079.33,"min":51.32,"hr":0.86}}
 gbif_classification	        Thursday 2020-04-16 10:36:10 PM	{"taxon.tab":4438420, "time_elapsed":{"sec":4015.68, "min":66.93, "hr":1.12}}
 
-Haven't run it yet in eol-archive since the 2 resource files are 'private' in OpenData.
+
+From editors.eol.org using Jenkins:
+gbif_classification_pre	Friday 2020-04-17 06:41:34 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":2168.85, "min":36.15, "hr":0.6}}
+gbif_classification	Friday 2020-04-17 07:28:50 AM	    {"taxon.tab":4438420, "time_elapsed":{"sec":5004.67, "min":83.41, "hr":1.39}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
