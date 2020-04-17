@@ -268,7 +268,10 @@ class GBIF_classificationAPI_v2
         $paths = $func->extract_archive_file($this->service['DH0.9 EOL pageID mappings'], 'eolpageids.csv', $options, false);
         // print_r($paths); exit;
         
-        $file = fopen($paths['archive_path'].'/eolpageids.csv', 'r'); $i = 0;
+        $csv_file = $paths['archive_path'].'/eolpageids.csv';
+        if(!file_exists($csv_file)) exit("\n[DH0.9 EOL pageID mappings] cannot be loaded!\nWill terminate.\n");
+        
+        $file = fopen($csv_file, 'r'); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
             if($i == 1) $fields = $line;
             else {
