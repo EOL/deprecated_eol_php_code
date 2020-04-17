@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'se';
+        $lang = 'rue';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -517,6 +517,114 @@ class WikipediaAPI
             $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         }
         
+        $needle = 'class="noprint plainlinks ambox ambox-';
+        if($tmp = self::get_pre_tag_entry($html, $needle)) {
+            $left = $tmp . $needle; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+
+        //section below
+        $left = '<div class="boilerplate"'; $right = '</div>';
+        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        
+        /*
+        if($this->language_code == 'es') { //
+            //infobox
+            $left = '<table class="infobox'; $right = '<p>Las <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox'; $right = '<p>El <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox'; $right = '<p>Los <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox'; $right = '<p>Para la <a';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox'; $right = '<p>En la <a';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<table class="infobox'; $right = '<p>En <a';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //inside infobox
+            $left = '<th colspan="3" style="text-align:center;background-color: #D3D3A4;"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //external links
+            $left = '<span class="mw-headline" id="Enlaces_externos"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        */
+        if($this->language_code == 'gu') { //
+            //2nd infobox like box
+            $left = '<table class="infobox nowrap"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            //infobox
+            $left = '<table class="infobox biography vcard"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //external links
+            $left = '<span class="mw-headline" id="બાહ્ય_કડીઓ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="બાહ્ય_લિંક્સ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="બાહ્ય_લિન્ક્સ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="બ્રાહ્ય_લિંક્સ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="બાહ્ય_ક્ડીઓ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'mt') { //
+            //external links
+            $left = '<span class="mw-headline" id="Links_Esterni"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Link_Esterni"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="Ħoloq_esterni"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'rue') { //
+            // //section below
+            // $left = '<div class="boilerplate"'; $right = '</div>';
+            // $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //external links
+            $left = '<span class="mw-headline" id="Вонкашнї_лінкы"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<div class="noprint"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+        }
+        if($this->language_code == 'gn') { //
+            //link above
+            $needle = 'title="Categoría:Wikipedia:Artículos que usan ficha sin datos en filas"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</a>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+            
+            //external links
+            $left = '<span class="mw-headline" id="Joaju"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="Joaju_(inglyesñe\'ẽme)"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'ht') { //
             //infobox
             $needle = 'style="margin: 0 0 1em 1em; border-style: solid; border-color: #999; border-top-width: 1px; border-left-width: 1px; border-right-width: 2px; border-bottom-width: 2px; background-color: #CFC"';

@@ -676,7 +676,20 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Cairina moschata")      {$arr = self::get_object('Q242851'); $arr = $arr->entities->Q242851;}
                 //lang tg
                 if($this->debug_taxon == "Jasminum")              {$arr = self::get_object('Q82014'); $arr = $arr->entities->Q82014;}
-                
+                //lang mt
+                if($this->debug_taxon == "Scandentia")              {$arr = self::get_object('Q231550'); $arr = $arr->entities->Q231550;}
+                if($this->debug_taxon == "Peramelemorphia")         {$arr = self::get_object('Q244587'); $arr = $arr->entities->Q244587;}
+                if($this->debug_taxon == "Ochotona nubrica")        {$arr = self::get_object('Q311579'); $arr = $arr->entities->Q311579;}
+                if($this->debug_taxon == "Ochotona nigritia")       {$arr = self::get_object('Q311599'); $arr = $arr->entities->Q311599;}
+                if($this->debug_taxon == "Tupaia belangeri")        {$arr = self::get_object('Q378959'); $arr = $arr->entities->Q378959;}
+                if($this->debug_taxon == "Ameridelphia")            {$arr = self::get_object('Q384427'); $arr = $arr->entities->Q384427;}
+                if($this->debug_taxon == "Lepus castroviejoi")      {$arr = self::get_object('Q430175'); $arr = $arr->entities->Q430175;}
+                if($this->debug_taxon == "Minusculodelphis")        {$arr = self::get_object('Q539208'); $arr = $arr->entities->Q539208;}
+                if($this->debug_taxon == "Euarchontoglires")        {$arr = self::get_object('Q471797'); $arr = $arr->entities->Q471797;}
+                if($this->debug_taxon == "Lepus granatensis")       {$arr = self::get_object('Q513373'); $arr = $arr->entities->Q513373;}
+                if($this->debug_taxon == "Pronolagus rupestris")    {$arr = self::get_object('Q536459'); $arr = $arr->entities->Q536459;}
+                if($this->debug_taxon == "Nesolagus timminsi")      {$arr = self::get_object('Q564479'); $arr = $arr->entities->Q564479;}
+                if($this->debug_taxon == "Antechinus")              {$arr = self::get_object('Q650656'); $arr = $arr->entities->Q650656;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;

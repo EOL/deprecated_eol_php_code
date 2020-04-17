@@ -218,7 +218,8 @@ wikipedia-ja	Wednesday 2019-04-24 07:39:22 AM{"media_resource.tab":28101,"taxon.
 wikipedia-ja	Saturday 2019-06-01 10:37:00 PM	{"media_resource.tab":28191,"taxon.tab":21976} -- Consistent OK
 wikipedia-ja	Tuesday 2019-08-06 02:04:11 PM	{"media_resource.tab":28329,"taxon.tab":22058} -- Consistent OK
 wikipedia-ja	Sunday 2019-12-08 10:35:20 PM	{"media_resource.tab":28745,"taxon.tab":22370,"time_elapsed":{"sec":27134.47,"min":452.24,"hr":7.54}} OK
-wikipedia-ja	Friday 2020-02-14 10:26:53 AM	{"media_resource.tab":28788,"taxon.tab":22503,"time_elapsed":{"sec":25412.39,"min":423.54,"hr":7.06}} OK
+wikipedia-ja	Friday 2020-02-14 10:26:53 AM	  {"media_resource.tab":28788, "taxon.tab":22503, "time_elapsed":{"sec":25412.39,"min":423.54,"hr":7.06}} OK
+wikipedia-ja	Thursday 2020-04-16 04:52:13 AM	{"media_resource.tab":28921, "taxon.tab":22647, "time_elapsed":{"sec":21508.99, "min":358.48, "hr":5.97}}
 
 wikipedia-ko	Thursday 2017-11-30 10:29:47 PM	{"media_resource.tab":24527,"taxon.tab":16954}
 wikipedia-ko	Sunday 2017-12-03 12:48:17 AM	{"media_resource.tab":24701,"taxon.tab":17060}
@@ -231,7 +232,8 @@ wikipedia-ko	Wednesday 2019-04-24 08:10:41 AM{"media_resource.tab":29273,"taxon.
 wikipedia-ko	Saturday 2019-06-01 10:47:17 PM	{"media_resource.tab":29999,"taxon.tab":20205} -- Consistent OK
 wikipedia-ko	Tuesday 2019-08-06 02:41:24 PM	{"media_resource.tab":30430,"taxon.tab":20479} -- Consistent OK
 wikipedia-ko	Sunday 2019-12-08 11:31:00 PM	{"media_resource.tab":31582,"taxon.tab":21197,"time_elapsed":{"sec":30474.15,"min":507.9,"hr":8.47}} OK
-wikipedia-ko	Friday 2020-02-14 11:15:04 AM	{"media_resource.tab":31862,"taxon.tab":21412,"time_elapsed":{"sec":28303.91,"min":471.73,"hr":7.86}} OK
+wikipedia-ko	Friday 2020-02-14 11:15:04 AM	  {"media_resource.tab":31862, "taxon.tab":21412,"time_elapsed":{"sec":28303.91,"min":471.73,"hr":7.86}} OK
+wikipedia-ko	Thursday 2020-04-16 05:46:45 AM	{"media_resource.tab":31516, "taxon.tab":21257, "time_elapsed":{"sec":24780.55, "min":413.01, "hr":6.88}} still OK slight decrease
 
 wikipedia-pt	Sunday 2017-12-03 01:34:21 AM	{"media_resource.tab":192390,"taxon.tab":108840}
 wikipedia-pt	Friday 2018-05-04 01:26:59 PM	{"media_resource.tab":192384,"taxon.tab":108838}
@@ -243,7 +245,8 @@ wikipedia-pt	Wednesday 2019-04-24 01:28:22 PM{"media_resource.tab":200018,"taxon
 wikipedia-pt	Sunday 2019-06-02 12:29:35 AM	{"media_resource.tab":200968,"taxon.tab":113400} -- consistent OK
 wikipedia-pt	Tuesday 2019-08-06 07:36:33 PM	{"media_resource.tab":201181,"taxon.tab":113524} -- consistent OK
 wikipedia-pt	Monday 2019-12-09 06:58:13 AM	{"media_resource.tab":201459,"taxon.tab":113797,"time_elapsed":{"sec":14445.76,"min":240.76,"hr":4.01}} OK
-wikipedia-pt	Friday 2020-02-14 05:58:38 PM	{"media_resource.tab":200572,"taxon.tab":113431,"time_elapsed":{"sec":13086.54,"min":218.11,"hr":3.64}} decreased but still reasonable
+wikipedia-pt	Friday 2020-02-14 05:58:38 PM	  {"media_resource.tab":200572, "taxon.tab":113431, "time_elapsed":{"sec":13086.54,"min":218.11,"hr":3.64}} decreased but still reasonable
+wikipedia-pt	Thursday 2020-04-16 11:24:20 AM	{"media_resource.tab":200905, "taxon.tab":113688, "time_elapsed":{"sec":14115.33, "min":235.26, "hr":3.92}} OK
 
 wikipedia-ru	Sunday 2017-11-12 12:03:09 PM	{"media_resource.tab":77531,"taxon.tab":47336}
 wikipedia-ru	Saturday 2017-12-02 11:31:53 PM	{"media_resource.tab":77649,"taxon.tab":47398}
