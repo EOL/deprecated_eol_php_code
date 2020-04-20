@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue ckb --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'rue';
+        $lang = 'ckb';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -390,6 +390,11 @@ class WikipediaAPI
             $desc = trim(str_replace("<div> <hr />", "", $desc));
         }
         
+        if($this->language_code == 'or') {
+            $left = '<span><div align="right">'; $right = '</div></span>';
+            $desc = self::remove_all_in_between_inclusive($left, $right, $desc, true);
+        }
+        
         $desc = str_ireplace('<p><br />', '<p>', $desc);
         
         // /* final test
@@ -527,28 +532,129 @@ class WikipediaAPI
         $left = '<div class="boilerplate"'; $right = '</div>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
-        /*
-        if($this->language_code == 'es') { //
+        if($this->language_code == 'or') { //
+            //section above
+            // <div id="purl" class="NavFrame collapsed"
+            $needle = 'class="NavFrame collapsed"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</div>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+            
             //infobox
-            $left = '<table class="infobox'; $right = '<p>Las <b>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
-            $left = '<table class="infobox'; $right = '<p>El <b>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
-            $left = '<table class="infobox'; $right = '<p>Los <b>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
-            $left = '<table class="infobox'; $right = '<p>Para la <a';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
-            $left = '<table class="infobox'; $right = '<p>En la <a';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
+            // <table class="infobox biota biota-infobox">
             $left = '<table class="infobox'; $right = '<p><b>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
             
-            $left = '<table class="infobox'; $right = '<p>En <a';
+            //external links
+            $left = '<span class="mw-headline" id="ଅଧିକ_ତଥ୍ୟ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="ବାହାର_ଆଧାର"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="ଅନ୍ୟାନ୍ୟ_ଲିଂକ୍"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="ବାହ୍ୟ_ସଂଯୋଗ_ସବୁ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="ବାହାର_ତଥ୍ୟ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'als') { //
+            //infobox
+            $left = '<table class="taxobox"'; $right = '<p>De <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="taxobox"'; $right = '<p>D <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="taxobox"'; $right = "<p>D' <b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="taxobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //infobox another
+            $needle = 'id="Vorlage_Taxobox" summary="Taxobox"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</table>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+
+            //section below
+            $needle = 'style="background-color: #f9f9f9; border-top: 1px solid #aaaaaa; font-size: 95%; margin-top: 1em; clear: both"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</table>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+
+            //weblinks, sometimes found in the middle of the body
+            $left = '<span class="mw-headline" id="Weblink"'; $right = '<span class="mw-headline" id="Fueßnote"';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Weblink"'; $right = '<span class="mw-headline" id="Fuessnoote"';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Weblingg"'; $right = '<span class="mw-headline" id="Fuessnoote"';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Weblingg"'; $right = '<span class="mw-headline" id="Fuessnote"';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //test first
+            $left = '<span class="mw-headline" id="Weblink"'; $right = '<span class="mw-headline" id="';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {}
+            else {
+                //external links
+                $left = '<span class="mw-headline" id="Weblink"'; $right = '<!--';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+
+            //test first
+            $left = '<span class="mw-headline" id="Weblingg"'; $right = '<span class="mw-headline" id="';
+            if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {}
+            else {
+                //external links
+                $left = '<span class="mw-headline" id="Weblingg"'; $right = '<!--';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+        }
+        if($this->language_code == 'es') { //
+            //middle body
+            $left = '<table class="toccolours" style="float:right;margin-left: 1em;">'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //infobox
+            $left = '<table class="infobox"'; $right = '<div class="rellink noprint">';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '</div></td></tr></tbody></table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table class="infobox"'; $right = '<p>Las <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p>El <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p>Los <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p>Para la <a';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p>En la <a';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p><i><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<table class="infobox"'; $right = '<p>En <a';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
 
             //inside infobox
@@ -558,8 +664,17 @@ class WikipediaAPI
             //external links
             $left = '<span class="mw-headline" id="Enlaces_externos"'; $right = '<!--';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<div class="printfooter">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+
+            $left = '<div id="mw-normal-catlinks" class="mw-normal-catlinks">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div id="mw-hidden-catlinks"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         }
-        */
         if($this->language_code == 'gu') { //
             //2nd infobox like box
             $left = '<table class="infobox nowrap"'; $right = '</table>';
@@ -608,7 +723,6 @@ class WikipediaAPI
             //section below
             $left = '<div class="noprint"'; $right = '<!--';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-
         }
         if($this->language_code == 'gn') { //
             //link above

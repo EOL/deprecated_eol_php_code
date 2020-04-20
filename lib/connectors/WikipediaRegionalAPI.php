@@ -194,6 +194,7 @@ class WikipediaRegionalAPI
             if($lang == 'no')             $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
             elseif($lang == 'zh-min-nan') $lang = 'nan';
             elseif($lang == 'bat-smg')    $lang = 'sgs';
+            elseif($lang == 'als')        $lang = 'gsw';
             else {
                 echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
             }
@@ -203,7 +204,7 @@ class WikipediaRegionalAPI
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
                 // echo "\n$html\n";
                 echo("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n"); //just ignore it.
-                // exit(-1);
+                // echo "\n[$html]\n"; exit(-1);
                 // */
                 return false;
             }

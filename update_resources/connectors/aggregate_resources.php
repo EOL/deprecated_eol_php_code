@@ -10,7 +10,14 @@ require_library('connectors/DwCA_Aggregator');
 $func = new DwCA_Aggregator($resource_id);
 $langs = array('ta', 'ceb', 'el', 'mk', 'ky', 'sco', 'hi', 'fy', 'tl', 'jv', 'ia', 'be-x-old', 'oc', 'qu', 'ne', 'koi', 'frr', 'udm', 'ba', 'an', 'zh-min-nan', 'sw', 'ku', 'uz', 'te', 
                'bs', 'io', 'my', 'mn', 'kv', 'lb', 'su', 'kn', 'tt', 'co', 'sq', 'csb', 'mr', 'fo', 'os', 'cv', 'kab', 'sah', 'nds', 'lmo', 'pa', 'wa', 'vls', 'gv', 'wuu', 'mi', 'nah', 
-               'dsb', 'kbd', 'to', 'mdf', 'li', 'as', 'bat-smg', 'olo', 'mhr', 'tg', 'pcd', 'ps', 'sd', 'vep', 'se', 'am', 'si', 'ht', 'gn', 'rue', 'mt', 'gu', 'ckb', 'als');
+               'dsb', 'kbd', 'to', 'mdf', 'li', 'as', 'bat-smg', 'olo', 'mhr', 'tg', 'pcd', 'ps', 'sd', 'vep', 'se', 'am', 'si', 'ht', 'gn', 'rue', 'mt', 'gu', 'ckb', 'als', 
+               'or', 'bh', 'myv', 'scn', 'gd', 'dv', 'pam', 'xmf', 'cdo', 'bar', 'nap', 'lfn', 'nds-nl', 'bo', 'stq', 'inh', 'lbe', 'ha', 'lij', 'lez', 'sa', 'yi', 'ace', 'diq', 'ce', 
+               'yo', 'rw', 'vec', 'sc', 'ln', 'hak', 'kw', 'bcl', 'za', 'ang', 'eml', 'av', 'chy', 'fj', 'ik', 'ug', 'zea', 'bxr', 'zh-classical', 'bjn', 'so', 'arz', 'mwl', 'sn', 'chr', 
+               'mai', 'tk', 'tcy', 'szy', 'mzn', 'wo', 'ab', 'ban', 'ay', 'tyv', 'atj', 'new', 'fiu-vro', 'mg', 'rm', 'ltg', 'ext', 'kl', 'roa-rup', 'nrm', 'rn', 'dty', 'hyw', 'lo', 'kg', 
+               'km', 'gom', 'frp', 'sat', 'gan', 'haw', 'hif', 'nso', 'xal', 'mnw', 'zu', 'bi', 'lad', 'map-bms', 'roa-tara', 'pdc', 'kbp', 'jbo', 'kaa', 'srn', 'vo', 'gag', 'ty', 'fur', 
+               'ie', 'lg', 'ts', 'bpy', 'iu', 'arc', 'gor', 'nov', 'crh', 'tum', 'glk', 'krc', 'ksh', 'na', 'ny', 'pfl', 'xh', 'tpi', 'cr', 'gcr', 'jam', 'ak', 'bm', 'cu', 'ks', 'pap', 
+               'got', 'ee', 'ady', 'pih', 'ki', 'shn', 'pi', 'sm', 'ti', 've', 'ch', 'ig', 'lrc', 'om', 'st', 'din', 'ss', 'tet', 'sg', 'ff', 'pnt', 'tn', 'cbk-zam', 'rmy', 'bug', 'data', 
+               'dz', 'nqo', 'mh', 'tw');
 
 // $langs = array('mk'); //for testing
 $func->combine_wikipedia_DwCAs($langs);

@@ -690,6 +690,18 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Pronolagus rupestris")    {$arr = self::get_object('Q536459'); $arr = $arr->entities->Q536459;}
                 if($this->debug_taxon == "Nesolagus timminsi")      {$arr = self::get_object('Q564479'); $arr = $arr->entities->Q564479;}
                 if($this->debug_taxon == "Antechinus")              {$arr = self::get_object('Q650656'); $arr = $arr->entities->Q650656;}
+                // lang or
+                if($this->debug_taxon == "Chiroptera")                  {$arr = self::get_object('Q28425'); $arr = $arr->entities->Q28425;}
+                if($this->debug_taxon == "Octopoda")                    {$arr = self::get_object('Q40152'); $arr = $arr->entities->Q40152;}
+                if($this->debug_taxon == "Piper nigrum")                {$arr = self::get_object('Q43084'); $arr = $arr->entities->Q43084;}
+                if($this->debug_taxon == "Canis latrans")               {$arr = self::get_object('Q44299'); $arr = $arr->entities->Q44299;}
+                if($this->debug_taxon == "Dromaius novaehollandiae")    {$arr = self::get_object('Q93208'); $arr = $arr->entities->Q93208;}
+                if($this->debug_taxon == "Saltopus")                    {$arr = self::get_object('Q132859'); $arr = $arr->entities->Q132859;}
+                if($this->debug_taxon == "Bruhathkayosaurus matleyi")   {$arr = self::get_object('Q132867'); $arr = $arr->entities->Q132867;}
+                if($this->debug_taxon == "Eucalyptus globulus")         {$arr = self::get_object('Q159528'); $arr = $arr->entities->Q159528;}
+                if($this->debug_taxon == "Mentha arvensis")             {$arr = self::get_object('Q160585'); $arr = $arr->entities->Q160585;}
+                if($this->debug_taxon == "Oxalis corniculata")          {$arr = self::get_object('Q162795'); $arr = $arr->entities->Q162795;}
+                if($this->debug_taxon == "Jasminum auriculatum")        {$arr = self::get_object('Q623492'); $arr = $arr->entities->Q623492;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;
