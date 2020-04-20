@@ -26,13 +26,16 @@ ja  ko  ru  pt
                 lmo         bs  kv  tt  mr        kab
                 pa          mi  gv  as  olo       sah
                 wa          vls wuu dsb mhr       nds
-                nah         vep ht  li  tg
-                            se  gn  kbd pcd
+                nah         vep ht  li  tg        als
+                            se  gn  kbd pcd       or
                             am  rue mdf
                             si  mt  to
                                 gu  bat-smg
                                     
                 war & ceb not scheduled
+                
+                (als) Alemannic https://en.wikipedia.org/wiki/Alemannic_German
+                (or) Oriya      https://en.wikipedia.org/wiki/Odia_language         365
                 
                 (ht) Haitian            https://en.wikipedia.org/wiki/Haitian_language
                 (gn) Guarani            https://en.wikipedia.org/wiki/Guarani_language
@@ -545,6 +548,8 @@ wikipedia-gn	Friday 2020-04-17 02:49:26 AM	{"media_resource.tab":628, "taxon.tab
 wikipedia-rue	Friday 2020-04-17 03:10:32 AM	{"media_resource.tab":479, "taxon.tab":595, "time_elapsed":{"sec":1260.4, "min":21.01, "hr":0.35}}
 wikipedia-mt	Friday 2020-04-17 03:24:53 AM	{"media_resource.tab":740, "taxon.tab":591, "time_elapsed":{"sec":851.6, "min":14.19, "hr":0.24}}
 wikipedia-gu	Friday 2020-04-17 03:46:59 AM	{"media_resource.tab":506, "taxon.tab":963, "time_elapsed":{"sec":1316.73, "min":21.95, "hr":0.37}}
+wikipedia-als	Monday 2020-04-20 06:36:41 AM	{"media_resource.tab":652, "taxon.tab":1011, "time_elapsed":{"sec":1301.06, "min":21.68, "hr":0.36}}
+wikipedia-or	Monday 2020-04-20 06:51:21 AM	{"media_resource.tab":546, "taxon.tab":1008, "time_elapsed":{"sec":871.28, "min":14.52, "hr":0.24}}
 
 language	count
 sv	1331982 multiple connector v1
