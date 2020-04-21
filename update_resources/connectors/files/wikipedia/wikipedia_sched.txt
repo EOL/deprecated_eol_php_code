@@ -28,11 +28,14 @@ ja  ko  ru  pt
                 wa          vls wuu dsb mhr       nds
                 nah         vep ht  li  tg        als
                             se  gn  kbd pcd       or
-                            am  rue mdf
-                            si  mt  to
+                            am  rue mdf           bh
+                            si  mt  to            myv
                                 gu  bat-smg
                                     
                 war & ceb not scheduled
+                
+                (bh) Bhojpuri   https://en.wikipedia.org/wiki/Bhojpuri_language     351
+                (myv) Erzya     https://en.wikipedia.org/wiki/Erzya_language        344
                 
                 (als) Alemannic https://en.wikipedia.org/wiki/Alemannic_German
                 (or) Oriya      https://en.wikipedia.org/wiki/Odia_language         365
@@ -288,7 +291,7 @@ wikipedia-zh	Sunday 2019-06-02 02:57:45 AM	{"media_resource.tab":178460,"taxon.t
 wikipedia-zh	Wednesday 2019-08-07 05:45:01 AM{"media_resource.tab":180820,"taxon.tab":105668} -- consistent OK
 wikipedia-zh	Monday 2019-12-09 08:11:09 PM	{"media_resource.tab":187787,"taxon.tab":109444,"time_elapsed":{"sec":14459.96,"min":241,"hr":4.02}} OK
 wikipedia-zh	Saturday 2020-02-15 05:56:19 AM	{"media_resource.tab":187730, "taxon.tab":109498, "time_elapsed":{"sec":12381.98,"min":206.37,"hr":3.44}} OK
-wikipedia-zh	Thursday 2020-04-16 10:29:52 PM	{"media_resource.tab":187938, "taxon.tab":109665, "time_elapsed":{"sec":12630.89, "min":210.51, "hr":3.51}}
+wikipedia-zh	Thursday 2020-04-16 10:29:52 PM	{"media_resource.tab":187938, "taxon.tab":109665, "time_elapsed":{"sec":12630.89, "min":210.51, "hr":3.51}} OK
 
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
 wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118} - asked by Jen to ignore for now.
@@ -297,12 +300,14 @@ langs_with_multiple_connectors: "nl", "pl", "sv", "vi"
 wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
 wikipedia-nl	Sunday 2019-08-11 02:03:22 PM	{"media_resource.tab":975588,"taxon.tab":950697} OK
 wikipedia-nl	Tuesday 2019-12-17 06:19:27 PM	{"media_resource.tab":1770142,"taxon.tab":951601,"time_elapsed":{"sec":78226.17,"min":1303.77,"hr":21.73}} big increase in objects
-wikipedia-nl	Wednesday 2020-02-19 01:37:09 PM{"media_resource.tab":1773494,"taxon.tab":952431,"time_elapsed":{"sec":102373.69,"min":1706.23,"hr":28.44,"day":1.19}} consistent OK
+wikipedia-nl	Wednesday 2020-02-19 01:37:09 PM{"media_resource.tab":1773494, "taxon.tab":952431,"time_elapsed":{"sec":102373.69,"min":1706.23,"hr":28.44,"day":1.19}} consistent OK
+wikipedia-nl	Tuesday 2020-04-21 05:03:10 AM	{"media_resource.tab":1778161, "taxon.tab":953210, "time_elapsed":{"sec":120011.45, "min":2000.19, "hr":33.34, "day":1.39}} consistent OK
 
 wikipedia-pl	Thursday 2019-04-18 07:30:05 PM	{"media_resource.tab":92390,"taxon.tab":56112}
 wikipedia-pl	Sunday 2019-08-11 07:14:48 PM	{"media_resource.tab":93531,"taxon.tab":56711} OK
 wikipedia-pl	Wednesday 2019-12-18 12:01:58 AM{"media_resource.tab":93983,"taxon.tab":57065,"time_elapsed":{"sec":3904.94,"min":65.08,"hr":1.08}} OK
-wikipedia-pl	Wednesday 2020-02-19 07:49:29 PM{"media_resource.tab":94500,"taxon.tab":57463,"time_elapsed":{"sec":5394.76,"min":89.91,"hr":1.5}} OK
+wikipedia-pl	Wednesday 2020-02-19 07:49:29 PM{"media_resource.tab":94500, "taxon.tab":57463,"time_elapsed":{"sec":5394.76,"min":89.91,"hr":1.5}} OK
+wikipedia-pl	Tuesday 2020-04-21 11:18:33 AM	{"media_resource.tab":94792, "taxon.tab":57579, "time_elapsed":{"sec":6646.12, "min":110.77, "hr":1.85}} consistent OK
 
 wikipedia-vi	Saturday 2019-04-27 01:40:44 AM	{"media_resource.tab":1582933,"taxon.tab":826812}
 wikipedia-vi	Wednesday 2019-08-14 07:34:50 PM{"media_resource.tab":1584541,"taxon.tab":827634} OK
@@ -549,8 +554,20 @@ wikipedia-gn	Friday 2020-04-17 02:49:26 AM	{"media_resource.tab":628, "taxon.tab
 wikipedia-rue	Friday 2020-04-17 03:10:32 AM	{"media_resource.tab":479, "taxon.tab":595, "time_elapsed":{"sec":1260.4, "min":21.01, "hr":0.35}}
 wikipedia-mt	Friday 2020-04-17 03:24:53 AM	{"media_resource.tab":740, "taxon.tab":591, "time_elapsed":{"sec":851.6, "min":14.19, "hr":0.24}}
 wikipedia-gu	Friday 2020-04-17 03:46:59 AM	{"media_resource.tab":506, "taxon.tab":963, "time_elapsed":{"sec":1316.73, "min":21.95, "hr":0.37}}
+
 wikipedia-als	Monday 2020-04-20 06:36:41 AM	{"media_resource.tab":652, "taxon.tab":1011, "time_elapsed":{"sec":1301.06, "min":21.68, "hr":0.36}}
+wikipedia-als	Tuesday 2020-04-21 12:03:43 PM	{"media_resource.tab":652, "taxon.tab":1011, "time_elapsed":{"sec":865.16, "min":14.42, "hr":0.24}}
+
+wikipedia-or	Tuesday 2020-04-21 12:17:15 PM	{"media_resource.tab":546, "taxon.tab":1008, "time_elapsed":{"sec":806.87, "min":13.45, "hr":0.22}}
 wikipedia-or	Monday 2020-04-20 06:51:21 AM	{"media_resource.tab":546, "taxon.tab":1008, "time_elapsed":{"sec":871.28, "min":14.52, "hr":0.24}}
+
+wikipedia-bh	Monday 2020-04-20 11:37:43 PM	{"media_resource.tab":496, "taxon.tab":693, "time_elapsed":{"sec":814.62, "min":13.58, "hr":0.23}} pre initial run
+wikipedia-bh	Tuesday 2020-04-21 12:31:06 PM	{"media_resource.tab":484, "taxon.tab":682, "time_elapsed":{"sec":823.27, "min":13.72, "hr":0.23}} OK initial run technically
+
+wikipedia-myv	Tuesday 2020-04-21 12:44:57 PM	{"media_resource.tab":492, "taxon.tab":698, "time_elapsed":{"sec":824.23, "min":13.74, "hr":0.23}} pre initial run
+wikipedia-myv	Monday 2020-04-20 11:46:30 PM	{"media_resource.tab":593, "taxon.tab":840, "time_elapsed":{"sec":1235.79, "min":20.6, "hr":0.34}} OK initial run technically
+
+
 
 language	count
 sv	1331982 multiple connector v1
