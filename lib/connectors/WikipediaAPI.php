@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue ckb bh myv --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'ckb';
+        $lang = 'myv';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -532,6 +532,39 @@ class WikipediaAPI
         $left = '<div class="boilerplate"'; $right = '</div>';
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
+        if($this->language_code == 'fr') { //
+            //sections above
+            // <div id="" class="bandeau-container homonymie plainlinks" style="">
+            $needle = 'class="bandeau-container homonymie plainlinks';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<div id=';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<div class="infobox';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+        }
+        if($this->language_code == 'myv') { //
+            //infobox
+            // <table border="1" cellpadding="3" cellspacing="0" class="toccolours" style="background: #ffffff; border-collapse: collapse;">
+            $needle = 'style="background: #ffffff; border-collapse: collapse;"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<p><br />';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+            
+            //infobox also
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'bh') { //
+            //external links
+            $left = '<span class="mw-headline" id="बाहरी_कड़ी"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'or') { //
             //section above
             // <div id="purl" class="NavFrame collapsed"
