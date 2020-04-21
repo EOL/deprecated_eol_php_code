@@ -195,6 +195,7 @@ class WikipediaRegionalAPI
             elseif($lang == 'zh-min-nan') $lang = 'nan';
             elseif($lang == 'bat-smg')    $lang = 'sgs';
             elseif($lang == 'als')        $lang = 'gsw';
+            elseif($lang == 'bh')         $lang = 'bho';
             else {
                 echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
             }
@@ -204,7 +205,7 @@ class WikipediaRegionalAPI
                 // /* for future investigation. Initial finding is that the article is not worthy to publish
                 // echo "\n$html\n";
                 echo("\nInvestigate WikipediaRegionalAPI 2nd try [$lang] [".strlen($html)."]...\n"); //just ignore it.
-                // echo "\n[$html]\n"; exit(-1);
+                // echo "\n[$html]\n"; exit(-1); //un-comment this to debug and see the problem.
                 // */
                 return false;
             }
