@@ -483,6 +483,41 @@ class WikipediaAPI
         }
         // else debug("\nNeedle not found\n");
     }
+    private function does_external_links_came_last($html)
+    {
+        // exit("\n<h2>\n".substr($html,0,10)."\n<h2>\n");
+        // exit($html);
+        /*
+        Liens_externes          Lien_externe
+        Notes_et_références     Références
+        '<span class="mw-headline" id="Liens_externes"'
+        */
+
+        $count_1a = 0; $count_2a = 0;
+        $left = '<!DOCTYPE'; $right = '<span class="mw-headline" id="Liens_externes"';
+        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) $count_1a = strlen($arr[1]);
+        $left = '<!DOCTYPE'; $right = '<span class="mw-headline" id="Notes_et_références"';
+        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) $count_2a = strlen($arr[1]);
+        // echo("\n[$count_1a] [$count_2a]\n");
+        if($count_1a && $count_2a) {
+            if($count_1a < $count_2a) return false;
+            else return true;
+        }
+
+        $count_1b = 0; $count_2b = 0;
+        $left = '<!DOCTYPE'; $right = '<span class="mw-headline" id="Liens_externes"';
+        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) $count_1b = strlen($arr[1]);
+        $left = '<!DOCTYPE'; $right = '<span class="mw-headline" id="Notes_et_références"';
+        if(preg_match("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) $count_2b = strlen($arr[1]);
+        // echo("\n[$count_1b] [$count_2b]\n");
+        if($count_1b && $count_2b) {
+            if($count_1b < $count_2b) return false;
+            else return true;
+        }
+
+        if($count_2a == 0 && $count_2b == 0) return true; //e.g. Pacific halibut
+        // exit("\n<h2>\n");
+    }
     private function remove_infobox($html) //and html form elements e.g. <input type...>
     {
         //remove all the time
@@ -537,12 +572,92 @@ class WikipediaAPI
             // <div id="" class="bandeau-container homonymie plainlinks" style="">
             $needle = 'class="bandeau-container homonymie plainlinks';
             if($tmp = self::get_pre_tag_entry($html, $needle)) {
-                $left = $tmp . $needle; $right = '<div id=';
-                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+                // $left = $tmp . $needle; $right = '<div id=';
+                // $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
 
                 $left = $tmp . $needle; $right = '<div class="infobox';
                 $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
             }
+            
+            //infobox
+            $left = '<div class="infobox'; $right = '<p>Les <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<div class="infobox'; $right = '<p>Le <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<div class="infobox'; $right = '<p>La <b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<div class="infobox'; $right = "<p>L'<b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<div class="infobox'; $right = '<p>Le <a';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<div class="infobox'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<div class="infobox'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //external links
+            $external_links_came_last_YN = self::does_external_links_came_last($html);
+
+            $left = '<span class="mw-headline" id="Filmographie"'; $right = '<span class="mw-headline" id=';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Articles_connexes"'; $right = '<span class="mw-headline" id=';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Bibliographie"'; $right = '<span class="mw-headline" id=';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Études_générales"'; $right = '<span class="mw-headline" id=';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Chasse"'; $right = '<span class="mw-headline" id=';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Articles_connexes"'; $right = '<span class="mw-headline" id=';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            if($external_links_came_last_YN) {
+                // exit("\ngoes here\n");
+                $left = '<span class="mw-headline" id="Liens_externes"'; $right = '<!--';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = '<span class="mw-headline" id="Lien_externe"'; $right = '<!--';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+            else {
+                // exit("\ngoes fff\n");
+                $left = '<span class="mw-headline" id="Liens_externes"'; $right = '<span class="mw-headline" id=';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = '<span class="mw-headline" id="Lien_externe"'; $right = '<span class="mw-headline" id=';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+            
+            // may want to add this - Formicidae
+            //Références_externes
+
+            $left = '<span class="mw-headline" id="Autres_liens_externes"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //nav box below
+            $left = '<div class="printfooter">'; $right = '<div id="mw-navigation">';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            //section below
+            $left = '<div class="autres-projets boite-grise boite-a-droite noprint js-interprojets"'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<ul id="bandeau-portail"'; $right = '</ul>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table class="navbox collapsible noprint autocollapse"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'myv') { //
             //infobox
@@ -2225,13 +2340,14 @@ class WikipediaAPI
             $right = '/>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html);
         }
-        
+        /* old
         if($this->language_code == "fr") {
             if(preg_match("/<div class=\"infobox_(.*?)<p>/ims", $html, $arr)) { //for fr, <div class="infobox_v3 large taxobox_v3 zoologie animal bordered" style="width:20em">
                 $substr = '<div class="infobox_'.$arr[1]."<p>";
                 $html = str_ireplace($substr, '', $html);
             }
         }
+        */
         if($this->language_code == "de") {
             /*<table cellpadding="2" class="float-right taxobox" id="Vorlage_Taxobox" style="width:300px;" summary="Taxobox">*/
             if(preg_match("/summary=\"Taxobox\">(.*?)<\/table>/ims", $html, $arr)) { //for de, 
@@ -2475,7 +2591,7 @@ class WikipediaAPI
             }
         }
         /* remove everything after the end of the Bibliografía section. */
-        $first10langs = array("en", "es", "it", "de", "fr", "zh", "ru", "pt", "ja", "ko");
+        $first10langs = array("en", "es", "it", "de", "zh", "ru", "pt", "ja", "ko"); //removed "fr"
         if(in_array($this->language_code, $first10langs)) $html = self::remove_everything_after_bibliographic_section($html);
         else                                              $html = self::remove_categories_section($html, $url, $this->language_code); //seems can also be used for the first 10 languages :-)
         $html = self::remove_ctex_verion_spans($html);
@@ -2506,7 +2622,9 @@ class WikipediaAPI
         if($this->language_code == "en") return '<span class="mw-headline" id="References">References</span>';
         if($this->language_code == "de") return '<span class="mw-headline" id="Einzelnachweise">Einzelnachweise</span>';
         if($this->language_code == "ko") return '<span class="mw-headline" id="각주">각주</span>';
+        /* old
         if($this->language_code == "fr") return '<span class="mw-headline" id="Notes_et_références">Notes et références</span>';
+        */
         if($this->language_code == "ru") return '<span class="mw-headline" id="Примечания">Примечания</span>';
         if($this->language_code == "pt") return '<span class="mw-headline" id="Bibliografias">Bibliografias</span>';
         if($this->language_code == "zh") return '<span class="mw-headline" id="參考資料">參考資料</span>';
@@ -2540,11 +2658,15 @@ class WikipediaAPI
         else {
             debug("\nNo section after biblio detected [$this->language_code]\n");
             /* start customize per language: */
+            
+            /* old
             if($this->language_code == "fr") {
                 $section_after_biblio = '<ul id="bandeau-portail" class="bandeau-portail">';
                 if(preg_match("/xxx(.*?)".preg_quote($section_after_biblio,'/')."/ims", "xxx".$html, $arr)) return $arr[1];
             }
-            elseif($this->language_code == "ru") { //another suggested biblio_section for 'ru'
+            */
+            
+            if($this->language_code == "ru") { //another suggested biblio_section for 'ru'
                 if($ret = self::second_try_sect_after_biblio('<span class="mw-headline" id="В_культуре">В культуре</span>', $html)) return $ret;
             }
             elseif($this->language_code == "pt") {
@@ -2572,24 +2694,19 @@ class WikipediaAPI
                 $html = str_ireplace($substr, '', $html."xxx");
             }
         }
-        elseif($this->language_code == "fr") { /* <div class="navbox-container" style="clear:both;"> */
-            // exit("\n$html\n");
+        /* old
+        elseif($this->language_code == "fr") { //<div class="navbox-container" style="clear:both;">
             if(preg_match("/<div class=\"navbox-container\"(.*?)xxx/ims", $html."xxx", $arr)) {
                 $substr = '<div class="navbox-container"'.$arr[1].'xxx';
                 $html = str_ireplace($substr, '', $html."xxx");
-                // exit("\n".$html."\n001\n\n");
             }
         }
-        else { //for ko
+        */
+        else { //for ko and for the rest of the languages...not good
             if(preg_match("/<div role=\"navigation\" class=\"navbox\"(.*?)xxx/ims", $html."xxx", $arr)) {
                 $substr = '<div role="navigation" class="navbox"'.$arr[1].'xxx';
                 $html = str_ireplace($substr, '', $html."xxx");
             }
-            // may use in the future
-            // if(preg_match("/<div class=\"navbox(.*?)xxx/ims", $html."xxx", $arr)) {
-            //     $substr = '<div class="navbox'.$arr[1].'xxx';
-            //     $html = str_ireplace($substr, '', $html."xxx");
-            // }
         }
         return $html;
     }

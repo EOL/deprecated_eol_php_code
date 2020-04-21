@@ -702,6 +702,23 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Mentha arvensis")             {$arr = self::get_object('Q160585'); $arr = $arr->entities->Q160585;}
                 if($this->debug_taxon == "Oxalis corniculata")          {$arr = self::get_object('Q162795'); $arr = $arr->entities->Q162795;}
                 if($this->debug_taxon == "Jasminum auriculatum")        {$arr = self::get_object('Q623492'); $arr = $arr->entities->Q623492;}
+                // general lang
+                if($this->debug_taxon == "Lepidoptera")        {$arr = self::get_object('Q28319'); $arr = $arr->entities->Q28319;}
+                if($this->debug_taxon == "Mammalia")           {$arr = self::get_object('Q7377'); $arr = $arr->entities->Q7377;}
+                // lang bh
+                if($this->debug_taxon == "Psilopogon viridis")  {$arr = self::get_object('Q27074836'); $arr = $arr->entities->Q27074836;}
+                if($this->debug_taxon == "Gracupica contra")    {$arr = self::get_object('Q27075597'); $arr = $arr->entities->Q27075597;}
+                if($this->debug_taxon == "Pyrus")               {$arr = self::get_object('Q434'); $arr = $arr->entities->Q434;}
+                if($this->debug_taxon == "Turdus merula")       {$arr = self::get_object('Q25234'); $arr = $arr->entities->Q25234;}
+                if($this->debug_taxon == "Cygnus olor")         {$arr = self::get_object('Q25402'); $arr = $arr->entities->Q25402;}
+                if($this->debug_taxon == "Aurelia aurita")      {$arr = self::get_object('Q26864'); $arr = $arr->entities->Q26864;}
+                if($this->debug_taxon == "Pittidae")            {$arr = self::get_object('Q217472'); $arr = $arr->entities->Q217472;}
+                if($this->debug_taxon == "Syzygium cumini")     {$arr = self::get_object('Q232571'); $arr = $arr->entities->Q232571;}
+                if($this->debug_taxon == "Porzana parva")       {$arr = self::get_object('Q270680'); $arr = $arr->entities->Q270680;}
+                // lang myv
+                if($this->debug_taxon == "Secale cereale")            {$arr = self::get_object('Q12099'); $arr = $arr->entities->Q12099;}
+                if($this->debug_taxon == "Lacertilia")            {$arr = self::get_object('Q15879'); $arr = $arr->entities->Q15879;}
+                if($this->debug_taxon == "Pyrrhula pyrrhula")            {$arr = self::get_object('Q25382'); $arr = $arr->entities->Q25382;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;
