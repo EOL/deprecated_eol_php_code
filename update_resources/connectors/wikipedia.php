@@ -109,7 +109,8 @@ to generate stats: 'en' here can be any language...
 php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 */
 
-/* during development only *** ================================================================================ https://meta.wikimedia.org/wiki/List_of_Wikipedias
+/* during development only *** ================================================================================ 
+https://meta.wikimedia.org/wiki/List_of_Wikipedias
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/taxon_wiki_per_language_count_2020_02.txt
 
 
@@ -555,11 +556,11 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (bh) Bhojpuri   https://en.wikipedia.org/wiki/Bhojpuri_language     351
 (myv) Erzya     https://en.wikipedia.org/wiki/Erzya_language        344
 
-scn	341
-gd	316
-dv	307
-pam	285
-xmf	284
+(scn) Sicilian          https://en.wikipedia.org/wiki/Sicilian_language     341
+(gd) Scottish Gaelic    https://en.wikipedia.org/wiki/Scottish_Gaelic       316
+(dv) Divehi             https://en.wikipedia.org/wiki/Maldivian_language    307
+(pam) Kapampangan       https://en.wikipedia.org/wiki/Kapampangan_language  285
+(xmf) Mingrelian        https://en.wikipedia.org/wiki/Mingrelian_language   284
 cdo	274
 bar	270
 nap	258
