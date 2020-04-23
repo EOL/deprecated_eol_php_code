@@ -716,9 +716,9 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Syzygium cumini")     {$arr = self::get_object('Q232571'); $arr = $arr->entities->Q232571;}
                 if($this->debug_taxon == "Porzana parva")       {$arr = self::get_object('Q270680'); $arr = $arr->entities->Q270680;}
                 // lang myv
-                if($this->debug_taxon == "Secale cereale")            {$arr = self::get_object('Q12099'); $arr = $arr->entities->Q12099;}
-                if($this->debug_taxon == "Lacertilia")            {$arr = self::get_object('Q15879'); $arr = $arr->entities->Q15879;}
-                if($this->debug_taxon == "Pyrrhula pyrrhula")            {$arr = self::get_object('Q25382'); $arr = $arr->entities->Q25382;}
+                if($this->debug_taxon == "Secale cereale")      {$arr = self::get_object('Q12099'); $arr = $arr->entities->Q12099;}
+                if($this->debug_taxon == "Lacertilia")          {$arr = self::get_object('Q15879'); $arr = $arr->entities->Q15879;}
+                if($this->debug_taxon == "Pyrrhula pyrrhula")   {$arr = self::get_object('Q25382'); $arr = $arr->entities->Q25382;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;
