@@ -9,30 +9,38 @@ ja  ko  ru  pt
             nl
             pl
             vi
-            ca  cs          fi  no  ro  tr        uk
-            |   |           |   |   |   |         |
-            sr  sv          ast ka  hr  th        hy
-            id  nn          az  lt  la  kk        mrj
-                sk          min et  da  lv        pms
-                bn          bg  nv  ml  is        ga
-                hu          szl gl  be  ne        hsb
-                sh          af  br  ms  oc        sl
-                eu          cy  ta  el  qu        mk
-                ky          sco hi  fy  be-x-old  tl
-                jv          ia  koi frr udm       ba
-                an          te  io  lb  co        fo
-                zh-min-nan  uz  my  su  sq        os
-                sw          ku  mn  kn  csb       cv
-                lmo         bs  kv  tt  mr        kab
-                pa          mi  gv  as  olo       sah
-                wa          vls wuu dsb mhr       nds
-                nah         vep ht  li  tg        als
-                            se  gn  kbd pcd       or
-                            am  rue mdf           bh
-                            si  mt  to            myv
-                                gu  bat-smg
+            ca  cs          fi  no  ro      tr        uk
+            |   |           |   |   |       |         |
+            sr  sv          ast ka  hr      th        hy
+            id  nn          az  lt  la      kk        mrj
+                sk          min et  da      lv        pms
+                bn          bg  nv  ml      is        ga
+                hu          szl gl  be      ne        hsb
+                sh          af  br  ms      oc        sl
+                eu          cy  ta  el      qu        mk
+                ky          sco hi  fy      be-x-old  tl
+                jv          ia  koi frr     udm       ba
+                an          te  io  lb      co        fo
+                zh-min-nan  uz  my  su      sq        os
+                sw          ku  mn  kn      csb       cv
+                lmo         bs  kv  tt      mr        kab
+                pa          mi  gv  as      olo       sah
+                wa          vls wuu dsb     mhr       nds
+                nah         vep ht  li      tg        als
+                scn         se  gn  kbd     pcd       or
+                gd          am  rue mdf               bh
+                pam         si  mt  to                myv
+                xmf             gu  bat-smg 
+                cdo
                                     
                 war & ceb not scheduled
+                
+                (scn) Sicilian          https://en.wikipedia.org/wiki/Sicilian_language     341
+                (gd) Scottish Gaelic    https://en.wikipedia.org/wiki/Scottish_Gaelic       316
+                (pam) Kapampangan       https://en.wikipedia.org/wiki/Kapampangan_language  285
+                (xmf) Mingrelian        https://en.wikipedia.org/wiki/Mingrelian_language   284
+                (cdo) Min Dong          https://en.wikipedia.org/wiki/Eastern_Min           274
+                
                 
                 (bh) Bhojpuri   https://en.wikipedia.org/wiki/Bhojpuri_language     351
                 (myv) Erzya     https://en.wikipedia.org/wiki/Erzya_language        344
