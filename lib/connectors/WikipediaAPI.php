@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'cdo';
+        $lang = 'nap';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -570,7 +570,74 @@ class WikipediaAPI
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
         /* -------------------------------------------- customized below -------------------------------------------- */
-        
+        if($this->language_code == 'nap') { //
+            //section above
+            $left = '<div class="variant"'; $right = "</div>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //section above another
+            $left = '<table align="center" class="messagebox"'; $right = "</table>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //infobox
+            $left = '<table class="infobox"'; $right = "<p>'O <b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = "<p>'E <b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = "<p>Ll' <b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table class="infobox"'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'bar') { //
+            //section above
+            // <table align="center" style="margin-top: 6px; margin-bottom: 6px; padding: 0.1em; border: 1px solid #B5B5B5; background-color: #FFFFFF; text-align: center; width: 100%;">
+            $needle = 'style="margin-top: 6px; margin-bottom: 6px; padding: 0.1em; border: 1px solid #B5B5B5; background-color: #FFFFFF; text-align: center; width: 100%;"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</table>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+            
+            //section above another
+            $left = '<table id="Vorlage_Weiterleitungshinweis"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //infobox
+            // <table cellpadding="2" cellspacing="1" width="300px" class="taxobox float-right" id="Vorlage_Taxobox" summary="Taxobox">
+            $needle = 'class="taxobox';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<p>Da <b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p>De <b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p>A <b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p>As <b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<div class="';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+            
+            //external links
+            $left = '<span class="mw-headline" id="Im_Netz"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Weblinks"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'cdo') { //
             //infobox
             // <table style="float:right; margin:0 0 .5em .5em; background-color: #fff; clear:right; border:1px #aaa solid; border-collapse:collapse; width:200px; padding:2.5px;">

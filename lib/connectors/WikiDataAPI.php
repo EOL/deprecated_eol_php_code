@@ -588,7 +588,7 @@ class WikiDataAPI extends WikipediaAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
-                // /* force taxon in wikipedia & wikimedia. when developing. ***
+                /* force taxon in wikipedia & wikimedia. when developing. ***
                 if($this->debug_taxon == "Panthera leo")    {$arr = self::get_object('Q140'); $arr = $arr->entities->Q140;}
                 if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
                 if($this->debug_taxon == 'Formicidae')      {$arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386;}
@@ -719,12 +719,34 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Secale cereale")      {$arr = self::get_object('Q12099'); $arr = $arr->entities->Q12099;}
                 if($this->debug_taxon == "Lacertilia")          {$arr = self::get_object('Q15879'); $arr = $arr->entities->Q15879;}
                 if($this->debug_taxon == "Pyrrhula pyrrhula")   {$arr = self::get_object('Q25382'); $arr = $arr->entities->Q25382;}
+                // lang bar
+                if($this->debug_taxon == "Cyphotilapia frontosa")   {$arr = self::get_object('Q285838'); $arr = $arr->entities->Q285838;}
+                if($this->debug_taxon == "Lacerta viridis")         {$arr = self::get_object('Q307047'); $arr = $arr->entities->Q307047;}
+                if($this->debug_taxon == "Jacaranda")               {$arr = self::get_object('Q311105'); $arr = $arr->entities->Q311105;}
+                if($this->debug_taxon == "Pseudotropheus")          {$arr = self::get_object('Q311686'); $arr = $arr->entities->Q311686;}
+                if($this->debug_taxon == "Dryocopus pileatus")      {$arr = self::get_object('Q930712'); $arr = $arr->entities->Q930712;}
+                if($this->debug_taxon == "Cupressus ×leylandii")    {$arr = self::get_object('Q1290970'); $arr = $arr->entities->Q1290970;}
+                if($this->debug_taxon == "Vespa crabro")            {$arr = self::get_object('Q30258'); $arr = $arr->entities->Q30258;}
+                if($this->debug_taxon == "Corvus")                  {$arr = self::get_object('Q43365'); $arr = $arr->entities->Q43365;}
+                if($this->debug_taxon == "Prunus spinosa")          {$arr = self::get_object('Q129018'); $arr = $arr->entities->Q129018;}
+                if($this->debug_taxon == "Rupicapra rupicapra")     {$arr = self::get_object('Q131340'); $arr = $arr->entities->Q131340;}
+                //lang nap
+                if($this->debug_taxon == "Malvaceae")               {$arr = self::get_object('Q156551'); $arr = $arr->entities->Q156551;}
+                if($this->debug_taxon == "Quercus cerris")          {$arr = self::get_object('Q157277'); $arr = $arr->entities->Q157277;}
+                if($this->debug_taxon == "Turdus iliacus")          {$arr = self::get_object('Q184825'); $arr = $arr->entities->Q184825;}
+                if($this->debug_taxon == "Conger conger")           {$arr = self::get_object('Q212552'); $arr = $arr->entities->Q212552;}
+                if($this->debug_taxon == "Merlangius merlangus")    {$arr = self::get_object('Q273083'); $arr = $arr->entities->Q273083;}
+                if($this->debug_taxon == "Quercus ilex")            {$arr = self::get_object('Q218155'); $arr = $arr->entities->Q218155;}
+                if($this->debug_taxon == "Octopus vulgaris")        {$arr = self::get_object('Q651361'); $arr = $arr->entities->Q651361;}
+                if($this->debug_taxon == "Brassica ruvo")           {$arr = self::get_object('Q702282'); $arr = $arr->entities->Q702282;}
+                if($this->debug_taxon == "Ruta")                    {$arr = self::get_object('Q165250'); $arr = $arr->entities->Q165250;}
+                if($this->debug_taxon == "Lacerta bilineata")       {$arr = self::get_object('Q739025'); $arr = $arr->entities->Q739025;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;
                 // $arr = self::get_object('Q10876'); $arr = $arr->entities->Q10876;
                 // $arr = self::get_object('Q13182'); $arr = $arr->entities->Q13182;
-                // */
+                */
                 
                 // /* taxon_wiki_per_language_stats
                 if($task == 'taxon_wiki_per_language_stats') {
