@@ -575,23 +575,19 @@ mr  Marathi         https://en.wikipedia.org/wiki/Marathi_language
 
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/taxon_wiki_per_language_count_2020_02.txt
 
-(als) Alemannic https://en.wikipedia.org/wiki/Alemannic_German
-(or) Oriya      https://en.wikipedia.org/wiki/Odia_language         365
+* (als) Alemannic         https://en.wikipedia.org/wiki/Alemannic_German
+* (or) Oriya              https://en.wikipedia.org/wiki/Odia_language         
+* (bh) Bhojpuri           https://en.wikipedia.org/wiki/Bhojpuri_language     
+* (myv) Erzya             https://en.wikipedia.org/wiki/Erzya_language        
+* (scn) Sicilian          https://en.wikipedia.org/wiki/Sicilian_language     
+* (gd) Scottish Gaelic    https://en.wikipedia.org/wiki/Scottish_Gaelic       
+* (pam) Kapampangan       https://en.wikipedia.org/wiki/Kapampangan_language  
+* (xmf) Mingrelian        https://en.wikipedia.org/wiki/Mingrelian_language   
+* (cdo) Min Dong          https://en.wikipedia.org/wiki/Eastern_Min           
+* (bar) Bavarian          https://en.wikipedia.org/wiki/Bavarian_language     
+* (nap) Neapolitan        https://en.wikipedia.org/wiki/Neapolitan_language   
 
-(bh) Bhojpuri   https://en.wikipedia.org/wiki/Bhojpuri_language     351
-(myv) Erzya     https://en.wikipedia.org/wiki/Erzya_language        344
-
-(scn) Sicilian          https://en.wikipedia.org/wiki/Sicilian_language     341
-(gd) Scottish Gaelic    https://en.wikipedia.org/wiki/Scottish_Gaelic       316
-
-(pam) Kapampangan       https://en.wikipedia.org/wiki/Kapampangan_language  285
-(xmf) Mingrelian        https://en.wikipedia.org/wiki/Mingrelian_language   284
-(cdo) Min Dong          https://en.wikipedia.org/wiki/Eastern_Min           274
-
-(bar) Bavarian              https://en.wikipedia.org/wiki/Bavarian_language     270
-(nap) Neapolitan            https://en.wikipedia.org/wiki/Neapolitan_language   258
-
-(lfn) Lingua Franca Nova    https://en.wikipedia.org/wiki/Lingua_Franca_Nova    249
+(lfn) Lingua Franca Nova    https://en.wikipedia.org/wiki/Lingua_Franca_Nova    
 nds-nl	248
 bo	247
 stq	247
