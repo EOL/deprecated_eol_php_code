@@ -315,7 +315,8 @@ wikipedia-zh	Saturday 2020-02-15 05:56:19 AM	{"media_resource.tab":187730, "taxo
 wikipedia-zh	Thursday 2020-04-16 10:29:52 PM	{"media_resource.tab":187938, "taxon.tab":109665, "time_elapsed":{"sec":12630.89, "min":210.51, "hr":3.51}} OK
 
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
-wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34,"taxon.tab":118} - asked by Jen to ignore for now.
+wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34, "taxon.tab":118} - asked by Jen to ignore for now.
+wikipedia-vo	Tuesday 2020-04-28 02:13:49 AM	{"media_resource.tab":31, "taxon.tab":137, "time_elapsed":{"sec":747.83, "min":12.46, "hr":0.21}} OK
 
 langs_with_multiple_connectors: "nl", "pl", "sv", "vi"
 wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
@@ -388,7 +389,8 @@ wikipedia-id	          Monday 2020-04-27 12:30:33 PM	{"media_resource.tab":24698
 Below here: starts with multiple connector v2:
 
 wikipedia-hu	Thursday 2019-10-31 09:12:57 AM	{"media_resource.tab":43804,"taxon.tab":28245,"time_elapsed":{"sec":36599.33,"min":609.99,"hr":10.17}}
-wikipedia-hu	Friday 2020-02-28 12:24:22 PM	{"media_resource.tab":44458,"taxon.tab":28657,"time_elapsed":{"sec":33891.53,"min":564.86,"hr":9.41}}
+wikipedia-hu	Friday 2020-02-28 12:24:22 PM	  {"media_resource.tab":44458, "taxon.tab":28657,"time_elapsed":{"sec":33891.53,"min":564.86,"hr":9.41}}
+wikipedia-hu	Tuesday 2020-04-28 02:30:26 AM	{"media_resource.tab":44887, "taxon.tab":28898, "time_elapsed":{"sec":33982.29, "min":566.37, "hr":9.44}}
 
 wikipedia-sh	Sunday 2019-11-03 10:54:20 PM	{"media_resource.tab":4145,"taxon.tab":3960,"time_elapsed":{"sec":3963.9,"min":66.07,"hr":1.1}}
 wikipedia-sh	Thursday 2019-11-07 06:07:45 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":857.63,"min":14.29,"hr":0.24}}
@@ -425,7 +427,8 @@ wikipedia-bg	Tuesday 2020-02-25 09:57:49 AM	{"media_resource.tab":60449,"taxon.t
 wikipedia-bg	Monday 2020-04-27 05:40:16 AM	{"media_resource.tab":60488, "taxon.tab":40983, "time_elapsed":{"sec":60280.82, "min":1004.68, "hr":16.74}}
 
 wikipedia-szl (Silesian)	Monday 2019-12-30 09:10:41 PM	{"media_resource.tab":84818,"taxon.tab":51729,"time_elapsed":{"sec":4974.49,"min":82.91,"hr":1.38}}
-wikipedia-szl	            Wednesday 2020-02-26 04:57:36 AM{"media_resource.tab":84820,"taxon.tab":51761,"time_elapsed":{"sec":68376.8,"min":1139.61,"hr":18.99}}
+wikipedia-szl	            Wednesday 2020-02-26 04:57:36 AM{"media_resource.tab":84820, "taxon.tab":51761,"time_elapsed":{"sec":68376.8,"min":1139.61,"hr":18.99}}
+wikipedia-szl	            Tuesday 2020-04-28 01:05:07 AM	{"media_resource.tab":84815, "taxon.tab":51758, "time_elapsed":{"sec":69884.22, "min":1164.74, "hr":19.41}}
 
 wikipedia-af (Afrikaans)	Monday 2019-12-30 09:32:55 PM	{"media_resource.tab":24930,"taxon.tab":15715,"time_elapsed":{"sec":1324.55,"min":22.08,"hr":0.37}}
 wikipedia-af	            Wednesday 2020-02-26 10:29:16 AM{"media_resource.tab":24998,"taxon.tab":15805,"time_elapsed":{"sec":19890.93,"min":331.52,"hr":5.53}}
@@ -806,7 +809,8 @@ xxx
 
 
 last one:
-wikipedia-sh	Monday 2020-04-27 10:40:31 PM	{"media_resource.tab":4042, "taxon.tab":3990, "time_elapsed":{"sec":3663.56, "min":61.06, "hr":1.02}}
+wikipedia-hu	Tuesday 2020-04-28 02:30:26 AM	{"media_resource.tab":44887, "taxon.tab":28898, "time_elapsed":{"sec":33982.29, "min":566.37, "hr":9.44}}
+
 
 language	count
 sv	1331982 multiple connector v1
