@@ -36,13 +36,13 @@ ja  ko  ru  pt
                                 vep uz      cdo       sw
                                 se  ku      cy        lmo
                                 am  bs      sco       pa
-                                si  mi      ia        wa
+                                si  mi      ky        wa
                                 bar jv                nah
                                 nap sh                eu
-                                vo                    ky
+                                vo  ia                
                                                       
                 not yet scheduled:  war  eo
-                needs to have multiple connectors: hu szl
+                probably needs to have multiple connectors: hu szl
                 
                 (bar) Bavarian              https://en.wikipedia.org/wiki/Bavarian_language     270
                 (nap) Neapolitan            https://en.wikipedia.org/wiki/Neapolitan_language   258
