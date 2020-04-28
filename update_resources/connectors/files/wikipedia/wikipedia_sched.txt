@@ -14,7 +14,7 @@ ja  ko  ru  pt
             |   |           |   |   |       |         |
             sr  sv 1d10h    ast ka  hr      th        hy
             id  nn 9h       az  lt  la      kk        mrj
-                sk          min et  da      lv        pms
+            ceb sk          min et  da      lv        pms
                 bn          bg  nv  ml      is        ga
                 hu          szl gl  be      ne        hsb
                             af  br  ms      oc        sl
@@ -39,11 +39,10 @@ ja  ko  ru  pt
                                 si  mi      ia        wa
                                 bar jv                nah
                                 nap sh                eu
-                                                      ky
+                                vo                    ky
                                                       
-                war & ceb not scheduled
-                szl - needs to have multiple connectors
-                hu -  needs to have multiple connectors
+                not yet scheduled:  war  eo
+                needs to have multiple connectors: hu szl
                 
                 (bar) Bavarian              https://en.wikipedia.org/wiki/Bavarian_language     270
                 (nap) Neapolitan            https://en.wikipedia.org/wiki/Neapolitan_language   258
@@ -395,6 +394,7 @@ wikipedia-sh	Sunday 2019-11-03 10:54:20 PM	{"media_resource.tab":4145,"taxon.tab
 wikipedia-sh	Thursday 2019-11-07 06:07:45 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":857.63,"min":14.29,"hr":0.24}}
 wikipedia-sh	Friday 2019-11-15 10:57:39 AM	{"media_resource.tab":4068,"taxon.tab":3973,"time_elapsed":{"sec":1130.61,"min":18.84,"hr":0.31}}
 wikipedia-sh	Friday 2020-02-28 01:26:28 PM	{"media_resource.tab":4055, "taxon.tab":4000, "time_elapsed":{"sec":3717.54, "min":61.96, "hr":1.03}}
+wikipedia-sh	Monday 2020-04-27 10:40:31 PM	{"media_resource.tab":4042, "taxon.tab":3990, "time_elapsed":{"sec":3663.56, "min":61.06, "hr":1.02}}
 
 wikipedia-eu	Tuesday 2019-11-05 05:55:55 PM	{"media_resource.tab":142743,"taxon.tab":82575,"time_elapsed":{"sec":112061.2,"min":1867.69,"hr":31.13,"day":1.3}}
 wikipedia-eu	Saturday 2020-02-29 04:56:45 PM	{"media_resource.tab":142295, "taxon.tab":82493, "time_elapsed":{"sec":6504.3, "min":108.41, "hr":1.81}}
@@ -806,7 +806,7 @@ xxx
 
 
 last one:
-wikipedia-jv	Monday 2020-04-27 09:36:16 PM	{"media_resource.tab":2928, "taxon.tab":3093, "time_elapsed":{"sec":951.37, "min":15.86, "hr":0.26}}
+wikipedia-sh	Monday 2020-04-27 10:40:31 PM	{"media_resource.tab":4042, "taxon.tab":3990, "time_elapsed":{"sec":3663.56, "min":61.06, "hr":1.02}}
 
 language	count
 sv	1331982 multiple connector v1

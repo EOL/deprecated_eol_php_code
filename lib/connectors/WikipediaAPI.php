@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'nap';
+        $lang = 'vo';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -570,6 +570,81 @@ class WikipediaAPI
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'vo') { //
+            //infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = "<p><b>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = "<p>";
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //external links
+            $left = '<span class="mw-headline" id="Yüms_plödik"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+            $left = '<span class="mw-headline" id="Yüms_plödk"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'eo') { //
+            //section above
+            $left = '<table class="noprint plainlinks"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<div style="background-color:#f9f9f9; border-bottom:1px solid #aaa; padding:0.5em; font-style:italic;">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            $left = '<table style="width: 100%; font-size: 95%; border-bottom: 1px solid #AAAAAA; margin-bottom: 1em; position:relative; background-color:#F9F9F9; padding:0.5em;">'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //inside infobox
+            $left = '<th style="background-color: pink;">'; $right = '<p>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //infobox
+            // <table style="position:relative; background:white; width:23em; -moz-box-shadow: 4px 4px 4px #CCC; -webkit-box-shadow: 4px 4px 4px #CCC; box-shadow: 4px 4px 4px #CCC;" class="taxobox">
+            $needle = 'class="taxobox';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<p>La <b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><i><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><i>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+            
+            //another infobox
+            // <table border="1" cellspacing="0" style="float:right;margin-left:0.5em">
+            $needle = 'style="float:right;margin-left:0.5em"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<p>La <b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+
+                $left = $tmp . $needle; $right = '<p><i><b>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+
+            //external links
+            $left = '<span class="mw-headline" id="Eksteraj_ligiloj"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            /* commented since it sometimes goes high above the "Table of Contents".
+            //"see also" section
+            $left = '<span class="mw-headline" id="Vidu_ankaŭ"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            */
+            
+            //section below
+            $left = '<div class="noprint"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'nap') { //
             //section above
             $left = '<div class="variant"'; $right = "</div>";
@@ -2810,6 +2885,7 @@ class WikipediaAPI
         $html = str_ireplace('<span class="mw-editsection-bracket">[</span>', '', $html);
         $html = str_ireplace('<span class="mw-editsection-bracket">]</span>', '', $html);
         $html = str_ireplace('<span class="mw-editsection-divider"> | </span>', '', $html);
+        $html = str_ireplace('<span class="mw-editsection-divider"> • </span>', '', $html); //first client is lang = 'vo'
         if(preg_match_all("/<span class=\"mw-editsection\">(.*?)<\/span>/ims", $html, $arr)) {
             foreach($arr[1] as $str) {
                 $substr = '<span class="mw-editsection">'.$str.'</span>';

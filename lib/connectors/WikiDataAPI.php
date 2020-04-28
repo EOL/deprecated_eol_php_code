@@ -741,11 +741,24 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Brassica ruvo")           {$arr = self::get_object('Q702282'); $arr = $arr->entities->Q702282;}
                 if($this->debug_taxon == "Ruta")                    {$arr = self::get_object('Q165250'); $arr = $arr->entities->Q165250;}
                 if($this->debug_taxon == "Lacerta bilineata")       {$arr = self::get_object('Q739025'); $arr = $arr->entities->Q739025;}
+                //lang vo
+                if($this->debug_taxon == "Peloneustes")             {$arr = self::get_object('Q242046'); $arr = $arr->entities->Q242046;}
+                if($this->debug_taxon == "Odontorhynchus")          {$arr = self::get_object('Q5030514'); $arr = $arr->entities->Q5030514;}
+                if($this->debug_taxon == "Carcharodontosaurus")     {$arr = self::get_object('Q14431'); $arr = $arr->entities->Q14431;}
+                if($this->debug_taxon == "Sus scrofa domesticus")   {$arr = self::get_object('Q787'); $arr = $arr->entities->Q787;}
+                if($this->debug_taxon == "Vulpes vulpes")           {$arr = self::get_object('Q8332'); $arr = $arr->entities->Q8332;}
+                if($this->debug_taxon == "Bacteria")                {$arr = self::get_object('Q10876'); $arr = $arr->entities->Q10876;}
+                if($this->debug_taxon == "Camelotia")               {$arr = self::get_object('Q29014894'); $arr = $arr->entities->Q29014894;}
+                if($this->debug_taxon == "Saurischia")              {$arr = self::get_object('Q186334'); $arr = $arr->entities->Q186334;}
+                if($this->debug_taxon == "Theropoda")               {$arr = self::get_object('Q188438'); $arr = $arr->entities->Q188438;}
+                if($this->debug_taxon == "Ichthyopterygia")         {$arr = self::get_object('Q2583869'); $arr = $arr->entities->Q2583869;}
+                if($this->debug_taxon == "Sanctacaris uncata")      {$arr = self::get_object('Q2718204'); $arr = $arr->entities->Q2718204;}
+                if($this->debug_taxon == "Zea mays")                {$arr = self::get_object('Q11575'); $arr = $arr->entities->Q11575;}
+                if($this->debug_taxon == "Glycine max")             {$arr = self::get_object('Q11006'); $arr = $arr->entities->Q11006;}
+                if($this->debug_taxon == "Keichosaurus")            {$arr = self::get_object('Q2375167'); $arr = $arr->entities->Q2375167;}
+                if($this->debug_taxon == "Amiskwia")                {$arr = self::get_object('Q15104428'); $arr = $arr->entities->Q15104428;}
 
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
-                // $arr = self::get_object('Q5845'); $arr = $arr->entities->Q5845;
-                // $arr = self::get_object('Q10876'); $arr = $arr->entities->Q10876;
-                // $arr = self::get_object('Q13182'); $arr = $arr->entities->Q13182;
                 */
                 
                 // /* taxon_wiki_per_language_stats
