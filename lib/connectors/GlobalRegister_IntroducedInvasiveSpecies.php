@@ -68,6 +68,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         
         $this->report_only_YN = $report_only_YN;
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
+        echo "\ndataset_keys total: ".count($dataset_keys)."\n;"
         $i = 0;
         foreach($dataset_keys as $dataset_key) { $i++;                          //1st loop is to just generate the $this->info[$dataset_key]
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
@@ -104,6 +105,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $index = $info['index'];
 
         $tables = $info['harvester']->tables;
+        if(!$tables) {
+            print_r($info);
+            exit("\nCannot access dataset_key: [$dataset_key]\n");
+        }
+        
+        
         if($this->report_only_YN == 'utility_report') { //utility report only - for Jen
             if($val = @$tables['http://rs.gbif.org/terms/1.0/distribution'][0]) {
                 self::process_distribution($val);
@@ -139,7 +146,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         return $id;
     }
     private function process_taxon($meta)
-    {   print_r($meta);
+    {   //print_r($meta);
         echo "\nprocess_taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
