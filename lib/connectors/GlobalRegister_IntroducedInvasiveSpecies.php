@@ -100,7 +100,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
         echo "\ndownload_extract_dwca: [$dwca]...\n";
         $info = self::download_extract_dwca($dwca, $dataset_key);
         if(!$info) {
-            exit("\nCannot download_extract dwca: [$dwca] [$dataset_key]\n");
+            echo("\nCannot download_extract dwca: [$dwca] [$dataset_key]\n");
+            return;
         }
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
