@@ -118,7 +118,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     [download_url] => https://ipt.inbo.be/archive.do?r=unified-checklist
                 )
         )*/
-        $dwca = $this->info[$dataset_key]['download_url'];
+        if($dwca = $this->info[$dataset_key]['download_url']) {}
+        else {
+            echo "\nNo DwCA for this dataset_key: [$dataset_key]\n";
+            return;
+        }
+        
         echo "\ndownload_extract_dwca: [$dwca]...\n";
         $info = self::download_extract_dwca($dwca, $dataset_key);
         if(!$info) {
