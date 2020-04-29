@@ -99,15 +99,18 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $dwca = $this->info[$dataset_key]['download_url'];
         echo "\ndownload_extract_dwca: [$dwca]...\n";
         $info = self::download_extract_dwca($dwca, $dataset_key);
+        if(!$info) {
+            exit("\nCannot download_extract dwca: [$dwca] [$dataset_key]\n");
+        }
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
         $index = $info['index'];
 
-        $tables = $info['harvester']->tables;
-        if(!$tables) {
+        if($tables = @$info['harvester']->tables) {}
+        else {
             print_r($info);
-            exit("\nCannot access dataset_key: [$dataset_key]\n");
+            exit("\nCannot access tables for this dataset_key: [$dataset_key]\n");
         }
         
         
