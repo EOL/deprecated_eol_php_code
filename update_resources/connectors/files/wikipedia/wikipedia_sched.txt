@@ -15,10 +15,10 @@ ja  ko  ru  pt
             sr  sv 1d10h    ast ka  hr      th        hy
             id  nn 9h       az  lt  la      kk        mrj
             ceb sk          min et  da      lv        pms
-                bn          bg  nv  ml      is        ga
+            war bn          bg  nv  ml      is        ga
                 hu          szl gl  be      ne        hsb
                             af  br  ms      oc        sl
-                                ta  el      qu        mk
+                            eo  ta  el      qu        mk
                                 hi  fy      be-x-old  tl
                                 koi frr     udm       ba
                                 io  lb      co        fo
@@ -41,8 +41,10 @@ ja  ko  ru  pt
                                 nap sh                eu
                                 vo  ia                
                                                       
-                not yet scheduled:  war  eo
-                probably needs to have multiple connectors: hu szl
+                not yet scheduled: 
+                probably needs to have multiple connectors: hu szl (or don't)
+                probably needs to have multiple connectors: eu
+                
                 
                 (bar) Bavarian              https://en.wikipedia.org/wiki/Bavarian_language     270
                 (nap) Neapolitan            https://en.wikipedia.org/wiki/Neapolitan_language   258
@@ -317,6 +319,7 @@ wikipedia-zh	Thursday 2020-04-16 10:29:52 PM	{"media_resource.tab":187938, "taxo
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
 wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34, "taxon.tab":118} - asked by Jen to ignore for now.
 wikipedia-vo	Tuesday 2020-04-28 02:13:49 AM	{"media_resource.tab":31, "taxon.tab":137, "time_elapsed":{"sec":747.83, "min":12.46, "hr":0.21}} OK
+wikipedia-vo	Tuesday 2020-04-28 10:33:36 PM	{"media_resource.tab":28, "taxon.tab":137, "time_elapsed":{"sec":746.89, "min":12.45, "hr":0.21}} OK
 
 langs_with_multiple_connectors: "nl", "pl", "sv", "vi"
 wikipedia-nl	Thursday 2019-04-18 09:03:04 AM	{"media_resource.tab":975151,"taxon.tab":950717}
@@ -403,6 +406,7 @@ wikipedia-eu	Saturday 2020-02-29 04:56:45 PM	{"media_resource.tab":142295, "taxo
 
 wikipedia-cy	Thursday 2019-11-14 11:33:19 AM	{"media_resource.tab":34585,"taxon.tab":23238,"time_elapsed":{"sec":26810.84,"min":446.85,"hr":7.45}}
 wikipedia-cy	Friday 2020-02-28 10:05:55 AM	{"media_resource.tab":34735,"taxon.tab":23445,"time_elapsed":{"sec":25500.34,"min":425.01,"hr":7.08}}
+wikipedia-cy	Tuesday 2020-04-28 04:18:49 AM	{"media_resource.tab":36890, "taxon.tab":25130, "time_elapsed":{"sec":26111.18, "min":435.19, "hr":7.25}}
 
 wikipedia-ast	Thursday 2019-11-14 01:18:56 PM	{"media_resource.tab":30745,"taxon.tab":21852,"time_elapsed":{"sec":3411.17,"min":56.85,"hr":0.95}}
 wikipedia-ast	Sunday 2019-12-01 07:22:08 PM	{"media_resource.tab":30773,"taxon.tab":21869,"time_elapsed":{"sec":2550.47,"min":42.51,"hr":0.71}} Consistent OK
@@ -432,6 +436,7 @@ wikipedia-szl	            Tuesday 2020-04-28 01:05:07 AM	{"media_resource.tab":8
 
 wikipedia-af (Afrikaans)	Monday 2019-12-30 09:32:55 PM	{"media_resource.tab":24930,"taxon.tab":15715,"time_elapsed":{"sec":1324.55,"min":22.08,"hr":0.37}}
 wikipedia-af	            Wednesday 2020-02-26 10:29:16 AM{"media_resource.tab":24998,"taxon.tab":15805,"time_elapsed":{"sec":19890.93,"min":331.52,"hr":5.53}}
+wikipedia-af	Tuesday 2020-04-28 06:07:00 AM	{"media_resource.tab":25135, "taxon.tab":15895, "time_elapsed":{"sec":18105.62, "min":301.76, "hr":5.03}}
 
 wikipedia-ka Monday 2019-12-30 09:53:27 PM	{"media_resource.tab":20898,"taxon.tab":12929,"time_elapsed":{"sec":1226.34,"min":20.44,"hr":0.34}}
 wikipedia-ka Monday 2020-02-24 03:24:11 PM	{"media_resource.tab":20916,"taxon.tab":13013,"time_elapsed":{"sec":17555.45,"min":292.59,"hr":4.88}}
@@ -548,7 +553,10 @@ wikipedia-mk	Friday 2020-03-06 09:22:03 AM	{"media_resource.tab":3127, "taxon.ta
 wikipedia-mk	Sunday 2020-04-26 12:36:56 PM	{"media_resource.tab":3095, "taxon.tab":3111, "time_elapsed":{"sec":3309.72, "min":55.16, "hr":0.92}}
 
 wikipedia-ky	Tuesday 2020-03-10 07:51:16 AM	{"media_resource.tab":4628, "taxon.tab":4843, "time_elapsed":{"sec":4033.28, "min":67.22, "hr":1.12}}
+wikipedia-ky	Tuesday 2020-04-28 10:07:38 PM	{"media_resource.tab":4591, "taxon.tab":4838, "time_elapsed":{"sec":1441.21, "min":24.02, "hr":0.4}}
+
 wikipedia-sco	Wednesday 2020-03-11 11:17:24 AM	{"media_resource.tab":2619, "taxon.tab":3070, "time_elapsed":{"sec":2798.61, "min":46.64, "hr":0.78}}
+wikipedia-sco	Tuesday 2020-04-28 09:08:21 AM	{"media_resource.tab":2621, "taxon.tab":3078, "time_elapsed":{"sec":979.27, "min":16.32, "hr":0.27}}
 
 wikipedia-hi	Wednesday 2020-03-11 11:17:29 AM    {"media_resource.tab":2566, "taxon.tab":2981, "time_elapsed":{"sec":2748.17, "min":45.8, "hr":0.76}}
 wikipedia-hi	Monday 2020-04-27 02:14:24 AM	{"media_resource.tab":2037, "taxon.tab":2384, "time_elapsed":{"sec":881.6, "min":14.69, "hr":0.24}}
@@ -563,6 +571,7 @@ wikipedia-jv	Friday 2020-03-13 08:22:06 AM	{"media_resource.tab":2925, "taxon.ta
 wikipedia-jv	Monday 2020-04-27 09:36:16 PM	{"media_resource.tab":2928, "taxon.tab":3093, "time_elapsed":{"sec":951.37, "min":15.86, "hr":0.26}}
 
 wikipedia-ia	Friday 2020-03-13 08:22:39 AM	{"media_resource.tab":1730, "taxon.tab":2398, "time_elapsed":{"sec":3156.38, "min":52.61, "hr":0.88}}
+wikipedia-ia	Tuesday 2020-04-28 09:08:48 AM	{"media_resource.tab":1733, "taxon.tab":2407, "time_elapsed":{"sec":971.23, "min":16.19, "hr":0.27}}
 
 wikipedia-be-x-old	Monday 2020-03-16 10:49:26 AM	{"media_resource.tab":1956, "taxon.tab":2274, "time_elapsed":{"sec":2509.41, "min":41.82, "hr":0.7}}
 wikipedia-be-x-old	Sunday 2020-04-26 01:33:10 AM	{"media_resource.tab":1453, "taxon.tab":1823, "time_elapsed":{"sec":865.83, "min":14.43, "hr":0.24}}
@@ -809,7 +818,7 @@ xxx
 
 
 last one:
-wikipedia-hu	Tuesday 2020-04-28 02:30:26 AM	{"media_resource.tab":44887, "taxon.tab":28898, "time_elapsed":{"sec":33982.29, "min":566.37, "hr":9.44}}
+wikipedia-vo	Tuesday 2020-04-28 10:33:36 PM	{"media_resource.tab":28, "taxon.tab":137, "time_elapsed":{"sec":746.89, "min":12.45, "hr":0.21}}
 
 
 language	count
