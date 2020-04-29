@@ -11,6 +11,13 @@ class GlobalRegister_IntroducedInvasiveSpecies
 {
     function __construct($resource_id, $makeDwCA = true)
     {
+        /*
+        OK
+        https://cloud.gbif.org/griis/archive.do?r=griis-andorra
+
+        Fail
+        http://ipt.ala.org.au/archive.do?r=griis-andorra
+        */
         $this->resource_id = $resource_id;
         if($makeDwCA) {
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
@@ -720,20 +727,33 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $options = $this->download_options;
         $options['expire_seconds'] = false; //delibarately false, coz dataset info doesn't change that much
         $url = str_replace('DATASET_KEY', $dataset_key, $this->service['dataset']);
+        // /* good debug
+        echo "\nURL: [$url]\n";
+        echo "\ndataset_key: [$dataset_key]\n";
+        // */
         if($xml = Functions::lookup_with_cache($url, $options)) {
             if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
             else exit("\nInvestigate: cannot get dataset name ($dataset_key)\n");
             $aI = ''; $download_url = '';
             if(preg_match_all("/<alternateIdentifier>(.*?)<\/alternateIdentifier>/ims", $xml, $arr)) {
                 foreach($arr[1] as $aI) {
+                    /* obsolete as of Apr 29, 2020
                     if(substr($aI,0,4) == 'http') {
                         // echo "\n$aI";
-                        /* string manipulate from: $aI to: $download_url
-                        https://ipt.inbo.be/resource?r=unified-checklist        -   https://ipt.inbo.be/archive.do?r=unified-checklist
-                        http://ipt.ala.org.au/resource?r=griis-united_kingdom   -   http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
-                        */
+                        // string manipulate from: $aI to: $download_url
+                        // https://ipt.inbo.be/resource?r=unified-checklist        -   https://ipt.inbo.be/archive.do?r=unified-checklist
+                        // http://ipt.ala.org.au/resource?r=griis-united_kingdom   -   http://ipt.ala.org.au/archive.do?r=griis-united_kingdom
                         $download_url = str_replace('resource?', 'archive.do?', $aI);
                     }
+                    */
+                    // /* Working as of Apr 29, 2020
+                    if(stripos($aI, "https://cloud.gbif.org/griis/resource") !== false) { //string is found
+                        // Change
+                        // from: https://cloud.gbif.org/griis/resource?r=griis-contiguous-united-states-of-america
+                        // to:   https://cloud.gbif.org/griis/archive.do?r=griis-contiguous-united-states-of-america
+                        $download_url = str_replace('resource?', 'archive.do?', $aI);
+                    }
+                    // */
                 }
             }
             // echo "\n --- $dataset_name\n";
