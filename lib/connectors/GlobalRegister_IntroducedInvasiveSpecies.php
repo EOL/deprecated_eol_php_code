@@ -715,6 +715,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30); //probably default expires in a month 60*60*24*30. Not false.
+        $download_options = array('timeout' => 172800, 'expire_seconds' => 0);
         $paths = $func->extract_archive_file($target, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
         // print_r($paths); exit;
         // */
