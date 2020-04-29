@@ -16,8 +16,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $resource_id . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
-        
-        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*25, 'download_wait_time' => 1000000, 
+        /* Advised to re-harvest quarterly: https://eol-jira.bibalex.org/browse/DATA-1838?focusedCommentId=64734&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64734 */
+        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 
         'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         
