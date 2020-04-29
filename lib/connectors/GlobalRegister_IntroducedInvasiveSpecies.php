@@ -232,7 +232,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']) $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'] = '';
             }
             $rec['http://rs.tdwg.org/dwc/terms/taxonRank'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
-            $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = strtolower($rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
+            $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'] = strtolower(@$rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus']);
             //===========================================================================================================================================================
             /* manual massaging since like Great Britain (1288ee7d-d67c-4e23-8d95-409973067383) has swapped values for taxonRank and taxonomicStatus
             Array(
@@ -486,7 +486,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 and I'll make you a mapping to measurementType from that.
                 */
                 $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
-                $mType = self::get_mType_4distribution($rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
+                $mType = self::get_mType_4distribution(@$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
 
                 // /* from speciesprofile specs
                 if(isset($this->taxon_id_with_mType_InvasiveRange[$taxonID])) $mType = 'http://eol.org/schema/terms/InvasiveRange';
@@ -754,10 +754,10 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $options = $this->download_options;
         $options['expire_seconds'] = false; //delibarately false, coz dataset info doesn't change that much
         $url = str_replace('DATASET_KEY', $dataset_key, $this->service['dataset']);
-        // /* good debug
+        /* good debug
         echo "\nURL: [$url]\n";
         echo "\ndataset_key: [$dataset_key]\n";
-        // */
+        */
         if($xml = Functions::lookup_with_cache($url, $options)) {
             if(preg_match("/<title>(.*?)<\/title>/ims", $xml, $arr)) $dataset_name = $arr[1];
             else exit("\nInvestigate: cannot get dataset name ($dataset_key)\n");
