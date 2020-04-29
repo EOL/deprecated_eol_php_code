@@ -485,7 +485,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 - measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
                 and I'll make you a mapping to measurementType from that.
                 */
-                $mValue = self::get_uri($rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
+                $mValue = self::get_uri(@$rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
+                if(!$mValue) continue; //new Apr 29, 2020
+                
                 $mType = self::get_mType_4distribution(@$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
 
                 // /* from speciesprofile specs
