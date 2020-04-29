@@ -68,6 +68,24 @@ class GlobalRegister_IntroducedInvasiveSpecies
     }
     function start($report_only_YN = false)
     {
+        // /* start test
+        $dwca = 'https://cloud.gbif.org/griis/archive.do?r=griis-contiguous-united-states-of-america';
+        $dataset_key = 'eli_key';
+        
+        echo "\ndownload_extract_dwca: [$dwca]...\n";
+        $info = self::download_extract_dwca($dwca, $dataset_key);
+        if(!$info) {
+            echo("\nCannot download_extract dwca: [$dwca] [$dataset_key]\n");
+            return;
+        }
+        else print_r($info);
+        
+        
+        
+        exit("\n-end-\n");
+        // */
+        
+        
         self::synonym_report_header();
         
         require_library('connectors/TraitGeneric'); $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
