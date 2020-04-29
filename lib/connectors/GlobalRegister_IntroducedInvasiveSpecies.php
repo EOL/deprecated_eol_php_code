@@ -540,6 +540,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
         if($field == 'habitat') {
             $value = strtolower($value);
             if(in_array($value, array('terrrestrial', 'terresstrial', 'terretrial', 'terrestre'))) $value = 'terrestrial';
+            elseif($value == 'freshhwater') $value = 'freshwater';
+            elseif($value == 'freshwatetr') $value = 'freshwater';
             switch($value) {
                 case "terrestrial": return "http://purl.obolibrary.org/obo/ENVO_00000446";
                 case "marine": return "http://purl.obolibrary.org/obo/ENVO_00000447";
