@@ -68,7 +68,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         
         $this->report_only_YN = $report_only_YN;
         $dataset_keys = self::get_all_dataset_keys(); //123 datasets as of Oct 11, 2019
-        echo "\ndataset_keys total: ".count($dataset_keys)."\n;"
+        echo "\ndataset_keys total: ".count($dataset_keys)."\n";
         $i = 0;
         foreach($dataset_keys as $dataset_key) { $i++;                          //1st loop is to just generate the $this->info[$dataset_key]
             $this->info[$dataset_key] = self::get_dataset_info($dataset_key);
