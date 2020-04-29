@@ -95,7 +95,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     [download_url] => https://ipt.inbo.be/archive.do?r=unified-checklist
                 )
         )*/
-        $info = self::download_extract_dwca($this->info[$dataset_key]['download_url'], $dataset_key);
+        $dwca = $this->info[$dataset_key]['download_url'];
+        echo "\ndownload_extract_dwca: [$dwca]...\n";
+        $info = self::download_extract_dwca($dwca, $dataset_key);
         $temp_dir = $info['temp_dir'];
         $harvester = $info['harvester'];
         $tables = $info['tables'];
@@ -137,7 +139,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         return $id;
     }
     private function process_taxon($meta)
-    {   //print_r($meta);
+    {   print_r($meta);
         echo "\nprocess_taxon...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
