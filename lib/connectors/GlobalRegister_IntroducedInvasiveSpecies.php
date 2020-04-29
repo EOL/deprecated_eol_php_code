@@ -605,7 +605,11 @@ class GlobalRegister_IntroducedInvasiveSpecies
             case "present:alien|native": return "http://eol.org/schema/terms/Present";
             default:
                 if(!$combo) return false;
-                else exit("\n combo [$combo] no mapping yet.\n");
+                else {
+                    $this->debug['no mapping yet'][$combo] = ''; //present:cryptogenic|uncerain
+                    // exit("\n combo [$combo] no mapping yet.\n");
+                    return false;
+                }
         }
         return $combo;
     }
