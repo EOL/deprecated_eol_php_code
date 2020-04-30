@@ -15,9 +15,9 @@ ja  ko  ru  pt
             sr  sv 1d10h    ast ka  hr      th        hy
             id  nn 9h       az  lt  la      kk        mrj
             ceb sk          min et  da      lv        pms
-            war bn          bg  nv  ml      is        ga
+                bn          bg  nv  ml      is        ga
                 hu          szl gl  be      ne        hsb
-                            af  br  ms      oc        sl
+                war         af  br  ms      oc        sl
                             eo  ta  el      qu        mk
                                 hi  fy      be-x-old  tl
                                 koi frr     udm       ba
