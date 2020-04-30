@@ -588,7 +588,7 @@ class WikiDataAPI extends WikipediaAPI
                 $arr = $arr->entities->Q6707390;
                 for debug end ======================== */
                 
-                /* force taxon in wikipedia & wikimedia. when developing. ***
+                /* force taxon in wikipedia & wikimedia. when developing ***. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if($this->debug_taxon == "Panthera leo")    {$arr = self::get_object('Q140'); $arr = $arr->entities->Q140;}
                 if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
                 if($this->debug_taxon == 'Formicidae')      {$arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386;}
@@ -757,9 +757,14 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Glycine max")             {$arr = self::get_object('Q11006'); $arr = $arr->entities->Q11006;}
                 if($this->debug_taxon == "Keichosaurus")            {$arr = self::get_object('Q2375167'); $arr = $arr->entities->Q2375167;}
                 if($this->debug_taxon == "Amiskwia")                {$arr = self::get_object('Q15104428'); $arr = $arr->entities->Q15104428;}
-
+                //lang stq
+                if($this->debug_taxon == "Rhinolophus euryale")     {$arr = self::get_object('Q282863'); $arr = $arr->entities->Q282863;}
+                if($this->debug_taxon == "Molossidae")              {$arr = self::get_object('Q737399'); $arr = $arr->entities->Q737399;}
+                if($this->debug_taxon == "Eumops")                  {$arr = self::get_object('Q371577'); $arr = $arr->entities->Q371577;}
+                if($this->debug_taxon == "Microtus pennsylvanicus") {$arr = self::get_object('Q1765085'); $arr = $arr->entities->Q1765085;}
+                if($this->debug_taxon == "Cichorium intybus")       {$arr = self::get_object('Q2544599'); $arr = $arr->entities->Q2544599;}
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
-                */
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
                 
                 // /* taxon_wiki_per_language_stats
                 if($task == 'taxon_wiki_per_language_stats') {
@@ -3026,7 +3031,7 @@ class WikiDataAPI extends WikipediaAPI
         $options = $this->download_options;
         if(@$options['resource_id']) unset($options['resource_id']);
         // /* as of Jan 29,2020. Previously value = false. Not anymore, since EntityData can change. Not often but it can change.
-        $options['expire_seconds'] = 60*60*24*30*3; //3 months
+        $options['expire_seconds'] = 60*60*24*30*6; //6 months
         // */
         if($json = Functions::lookup_with_cache($url, $options)) {
             $obj = json_decode($json);

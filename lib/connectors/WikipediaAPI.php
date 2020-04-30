@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'vo';
+        $lang = 'stq';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -570,6 +570,128 @@ class WikipediaAPI
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'de') { //
+            //infobox e.g. Coronaviridae
+            // <table cellpadding="2" class="float-right taxobox" id="Vorlage_Infobox_Virus"
+            $needle = 'id="Vorlage_Infobox';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $rights = array('<p>Die <i>', '<p><i><b>', '<p><b>');
+                foreach($rights as $right) {
+                    $left = $tmp . $needle;
+                    $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+                }
+            }
+            
+            //another infobox
+            $left = '<table id="Vorlage_'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //section above
+            $left = '<table id="Vorlage_'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //weblinks for de - weblinks removed but not section after it
+            $left = '<span class="mw-headline" id="Weblinks">'; $right = '<span class="mw-headline" id="';
+            $html2 = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            if($html != $html2) $html = $html2;
+            else {
+                $left = '<span class="mw-headline" id="Weblinks">'; $right = '<!--';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+
+            //section below
+            $left = '<div class="BoxenVerschmelzen">'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below again
+            // <div class="NavFrame navigation-not-searchable"
+            $left = '<div class="NavFrame'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            // unique to de maybe, or not
+            $left = '<div class="printfooter">'; $right = '<div id="mw-navigation">';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            // <div id="catlinks" class="catlinks"
+            $left = '<div id="catlinks"'; $right = '<div id="mw-navigation">';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
+        if($this->language_code == 'stq') { //
+            //section above
+            $left = '<div class="center" style="width:auto; margin-left:auto; margin-right:auto;">'; $right = '</div>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //infobox
+            // <table border="1" cellspacing="0" style="float:right;margin-left:0.5em">
+            $needle = 'style="float:right;margin-left:0.5em"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $rights = array('<p>Die <b>', '<p>Doo <i><b>', '<p>Doo <b>', '<p>Do <b>', '<p>Do <i><b>', '<p>Ne <b>', '<p>Juu <b>', '<p>Ju <b>', '<p><i><b>', '<p><b>');
+                foreach($rights as $right) {
+                    $left = $tmp . $needle;
+                    $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+                }
+            }
+            
+            //section below
+            $left = '<table align="left" width="50%" id="toc">'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            // <table style="margin:0.5em 0 0.5em 0; clear:both" width="50%" class="toccolours">
+            $needle = 'class="toccolours"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '<!--';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+            
+            //external links
+            $left = '<span class="mw-headline" id="Wällen_uut_dät_Internet"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //image below
+            // <a href="/wiki/Bielde:Wiki_letter_w.svg"
+            $needle = 'href="/wiki/Bielde:Wiki_letter_w.svg"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</a>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+        }
+        if($this->language_code == 'nds-nl') { //
+            //section above
+            // <table width="100%" border="0" cellspacing="8" cellpadding="0" style="background-color: #f9f9f9; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa; font-size: 95%; margin-bottom: 1em">
+            $needle = 'style="background-color: #f9f9f9; border-bottom: 1px solid #aaaaaa; border-top: 1px solid #aaaaaa; font-size: 95%; margin-bottom: 1em"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</table>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            }
+            
+            $left = '<table id="spoiler"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //external links
+            $left = '<span class="mw-headline" id="Uutgaonde_verwiezing"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="Uutgaonde_verwiezingen"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<span class="mw-headline" id="Uutgaonde_verwiezings"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //section below
+            $left = '<table class="toccolours"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $left = '<a href="/wiki/Bestaand:Commons-logo.svg"'; $right = '</td>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            $needle = 'class="extiw"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle; $right = '</td>';
+                $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            }
+        }
         if($this->language_code == 'vo') { //
             //infobox
             $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $right = "<p><b>";
