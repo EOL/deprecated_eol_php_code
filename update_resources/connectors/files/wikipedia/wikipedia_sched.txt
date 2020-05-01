@@ -37,13 +37,24 @@ ja  ko  ru  pt
                                 se  ku      cy        lmo
                                 am  bs      sco       pa
                                 si  mi      ky        wa
-                                bar jv                nah
-                                nap sh                eu
-                                vo  ia                
+                                bar jv      lfn       nah
+                                nap sh      nds-nl    eu
+                                vo  ia      bo
+                                            stq
+                                            inh
                                                       
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
+                
+                (lfn) Lingua Franca Nova    https://en.wikipedia.org/wiki/Lingua_Franca_Nova
+                *(eo) Esperanto   https://en.wikipedia.org/wiki/Esperanto
+                *(vo) Volapük     https://en.wikipedia.org/wiki/Volap%C3%BCk
+                (nds-nl) Dutch Low Saxon    https://en.wikipedia.org/wiki/Dutch_Low_Saxon   248
+
+                (bo) Tibetan                https://en.wikipedia.org/wiki/Tibetan_language  247
+                (stq) Saterland Frisian     https://en.wikipedia.org/wiki/Saterland_Frisian 247
+                (inh) Ingush                https://en.wikipedia.org/wiki/Ingush_language   244
                 
                 
                 (bar) Bavarian              https://en.wikipedia.org/wiki/Bavarian_language     270
