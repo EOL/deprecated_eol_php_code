@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-class WikipediaAPI
+class WikipediaAPI extends WikiHTMLAPI
 {
     function __construct()
     {
@@ -24,9 +24,9 @@ class WikipediaAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'stq';
+        $lang = 'inh';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -570,6 +570,64 @@ class WikipediaAPI
         $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'inh') { //
+            
+            //infobox - first client of 'real coverage'
+            $needle = 'style="margin-left:1em; background:#f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle;
+                if($val = self::get_real_coverage($left, $html)) $html = $val; //get_real_coverage() assumes that html has balanced open and close tags.
+            }
+
+            //infobox
+            $left = '<div class="thumb tright">';
+            if($val = self::get_real_coverage($left, $html)) $html = $val; //get_real_coverage() assumes that html has balanced open and close tags.
+            
+            //another infobox
+            // <table border="1" cellpadding="2" cellspacing="0" align="right" style="margin-left:1em; background:#f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;">
+            $needle = 'style="margin-left:1em; background:#f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $left = $tmp . $needle;
+                if($val = self::get_real_coverage($left, $html)) $html = $val; //get_real_coverage() assumes that html has balanced open and close tags.
+            }
+            
+            //yet another infobox - fish
+            $left = '<table class="wikitable"';
+            if($val = self::get_real_coverage($left, $html)) $html = $val; //get_real_coverage() assumes that html has balanced open and close tags.
+            
+            //infobox
+            $left = '<table class="infobox"';
+            if($val = self::get_real_coverage($left, $html)) $html = $val; //get_real_coverage() assumes that html has balanced open and close tags.
+
+            /* OK but replaced with real coverage
+            //infobox
+            $left = '<div class="thumb tright">'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            
+            //another infobox
+            // <table border="1" cellpadding="2" cellspacing="0" align="right" style="margin-left:1em; background:#f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;">
+            $needle = 'style="margin-left:1em; background:#f9f9f9; border: 1px #aaa solid; border-collapse: collapse; font-size: 95%;"';
+            if($tmp = self::get_pre_tag_entry($html, $needle)) {
+                $rights = array('</table>');
+                foreach($rights as $right) {
+                    $left = $tmp . $needle;
+                    $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+                }
+            }
+            
+            //yet another infobox - fish
+            $left = '<table class="wikitable"'; $right = '</table>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+            
+            //infobox
+            $left = '<table class="infobox"'; $right = '<p><b>';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+            */
+            
+            //external links
+            $left = '<span class="mw-headline" id="ТIахьожаяргаш"'; $right = '<!--';
+            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+        }
         if($this->language_code == 'de') { //
             //infobox e.g. Coronaviridae
             // <table cellpadding="2" class="float-right taxobox" id="Vorlage_Infobox_Virus"
