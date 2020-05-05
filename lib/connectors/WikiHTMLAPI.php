@@ -9,16 +9,49 @@ class WikiHTMLAPI
     {
         $arr = explode(" ", $html);
         $tag = $arr[0];
-        return $tag;
+        return $tag; //e.g. "<div" or "<table"
     }
     public function get_real_coverage($left, $html)
     {
+        $final = array();
+        while($html = self::main_real_coverage($left, $html)) {
+            if($html) $final[] = $html;
+        }
+        if($final) return end($final);
+        return false;
+    }
+    public function process_needle($html, $needle, $multipleYN = false) //not multiple process, but only one search of a needle
+    {
+        $orig = $html;
+        if($tmp = $this->get_pre_tag_entry($html, $needle)) {
+            $left = $tmp . $needle;
+            $html = self::process_left($html, $left);
+
+            if($multipleYN) { //a little dangerous, if not used properly it will nuke the html
+                // /* should work but it nukes html
+                if($orig == $html) return $html;
+                else $html = self::process_needle($html, $needle, true);
+                // */
+            }
+            else return $html; //means single process only
+        }
+        return $html;
+    }
+    public function process_left($html, $left)
+    {
+        if($val = self::get_real_coverage($left, $html)) $html = $val; //get_real_coverage() assumes that html has balanced open and close tags.
+        return $html;
+    }
+    private function main_real_coverage($left, $html)
+    {
         //1st: get tag name 
         $tag = self::get_tag_name($left);
+        if(!$tag) return false;
         // echo "\ntag_name: [$tag]\n";
         
         //2nd get pos of $left
         $pos = strpos($html, $left);
+        if($pos === false) return false;
         // echo "\npos of left: [$pos]\n";
         // echo "\n".substr($html, $pos, 10)."\n"; //debug
         
@@ -59,5 +92,22 @@ class WikiHTMLAPI
     {   //e.g. "<table"
         return str_replace("<", "</", $tag). ">";
     }
+    public function process_external_links($html, $id)
+    {
+        $left = '<span class="mw-headline" id="'.$id.'"'; $right = '<!--';
+        return $this->remove_all_in_between_inclusive($left, $right, $html, false);
+    }
 }
+/* testing nuke html
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Acacia'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Bald Eagle'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Rosa'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Fungi'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Aves'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Panthera tigris'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'sunflower'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Hominidae'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Coronaviridae'
+php update_resources/connectors/wikipedia.php _ 'it' generate_resource_force _ _ _ 'Tracheophyta'
+*/
 ?>

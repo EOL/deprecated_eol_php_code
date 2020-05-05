@@ -763,6 +763,39 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Eumops")                  {$arr = self::get_object('Q371577'); $arr = $arr->entities->Q371577;}
                 if($this->debug_taxon == "Microtus pennsylvanicus") {$arr = self::get_object('Q1765085'); $arr = $arr->entities->Q1765085;}
                 if($this->debug_taxon == "Cichorium intybus")       {$arr = self::get_object('Q2544599'); $arr = $arr->entities->Q2544599;}
+                //lang ha
+                if($this->debug_taxon == "Allium cepa")             {$arr = self::get_object('Q23485'); $arr = $arr->entities->Q23485;}
+                if($this->debug_taxon == "Crocodilia")              {$arr = self::get_object('Q25363'); $arr = $arr->entities->Q25363;}
+                if($this->debug_taxon == "Columba livia")           {$arr = self::get_object('Q42326'); $arr = $arr->entities->Q42326;}
+                if($this->debug_taxon == "Nycticorax nycticorax")   {$arr = self::get_object('Q126216'); $arr = $arr->entities->Q126216;}
+                if($this->debug_taxon == "Salvadora persica")       {$arr = self::get_object('Q143525'); $arr = $arr->entities->Q143525;}
+                if($this->debug_taxon == "Opuntia ficus-indica")    {$arr = self::get_object('Q144412'); $arr = $arr->entities->Q144412;}
+                if($this->debug_taxon == "Ardeola ralloides")       {$arr = self::get_object('Q191394'); $arr = $arr->entities->Q191394;}
+                if($this->debug_taxon == "Ziziphus mucronata")      {$arr = self::get_object('Q207081'); $arr = $arr->entities->Q207081;}
+                if($this->debug_taxon == "Naja nigricollis")        {$arr = self::get_object('Q386619'); $arr = $arr->entities->Q386619;}
+                if($this->debug_taxon == "Cola acuminata")          {$arr = self::get_object('Q522881'); $arr = $arr->entities->Q522881;}
+                //lang lbe
+                if($this->debug_taxon == "Capra cylindricornis")    {$arr = self::get_object('Q854788'); $arr = $arr->entities->Q854788;}
+                if($this->debug_taxon == "Mazama")                  {$arr = self::get_object('Q911770'); $arr = $arr->entities->Q911770;}
+                if($this->debug_taxon == "Annona purpurea")         {$arr = self::get_object('Q2101601'); $arr = $arr->entities->Q2101601;}
+                if($this->debug_taxon == "Juglans")                 {$arr = self::get_object('Q2453469'); $arr = $arr->entities->Q2453469;}
+                if($this->debug_taxon == "Allium sativum")          {$arr = self::get_object('Q23400'); $arr = $arr->entities->Q23400;}
+                if($this->debug_taxon == "Erinaceidae")             {$arr = self::get_object('Q28257'); $arr = $arr->entities->Q28257;}
+                if($this->debug_taxon == "Pongo")                   {$arr = self::get_object('Q41050'); $arr = $arr->entities->Q41050;}
+                if($this->debug_taxon == "Talpidae")                {$arr = self::get_object('Q104825'); $arr = $arr->entities->Q104825;}
+                if($this->debug_taxon == "Athene noctua")           {$arr = self::get_object('Q129958'); $arr = $arr->entities->Q129958;}
+                if($this->debug_taxon == "Rupicapra rupicapra")     {$arr = self::get_object('Q131340'); $arr = $arr->entities->Q131340;}
+                //lang lij
+                if($this->debug_taxon == "Anas platyrhynchos")      {$arr = self::get_object('Q25348'); $arr = $arr->entities->Q25348;}
+                if($this->debug_taxon == "Perissodactyla")          {$arr = self::get_object('Q25374'); $arr = $arr->entities->Q25374;}
+                if($this->debug_taxon == "Sus scrofa")              {$arr = self::get_object('Q58697'); $arr = $arr->entities->Q58697;}
+                if($this->debug_taxon == "Citrus")                  {$arr = self::get_object('Q81513'); $arr = $arr->entities->Q81513;}
+                if($this->debug_taxon == "Mespilus germanica")      {$arr = self::get_object('Q146186'); $arr = $arr->entities->Q146186;}
+                if($this->debug_taxon == "Canis")                   {$arr = self::get_object('Q149892'); $arr = $arr->entities->Q149892;}
+                if($this->debug_taxon == "Sarcopterygii")           {$arr = self::get_object('Q160830'); $arr = $arr->entities->Q160830;}
+                if($this->debug_taxon == "Dipnoi")                  {$arr = self::get_object('Q168422'); $arr = $arr->entities->Q168422;}
+                if($this->debug_taxon == "Hemichordata")            {$arr = self::get_object('Q174301'); $arr = $arr->entities->Q174301;}
+                if($this->debug_taxon == "Lemur catta")             {$arr = self::get_object('Q185385'); $arr = $arr->entities->Q185385;}
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
                 

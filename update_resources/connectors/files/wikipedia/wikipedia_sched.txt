@@ -47,6 +47,12 @@ ja  ko  ru  pt
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
                 
+                not yet jenkins-sched:
+                (ha) Hausa                  https://en.wikipedia.org/wiki/Hausa_language
+                (lbe) Lak                   https://en.wikipedia.org/wiki/Lak_language
+                (lij) Ligurian              https://en.wikipedia.org/wiki/Ligurian_(Romance_language)
+                
+                
                 (lfn) Lingua Franca Nova    https://en.wikipedia.org/wiki/Lingua_Franca_Nova
                 *(eo) Esperanto   https://en.wikipedia.org/wiki/Esperanto
                 *(vo) Volapük     https://en.wikipedia.org/wiki/Volap%C3%BCk
@@ -846,6 +852,8 @@ xxx
 
 last one:
 wikipedia-ceb	Friday 2020-05-01 06:42:16 PM	{"media_resource.tab":254, "taxon.tab":532, "time_elapsed":{"sec":95816.82, "min":1596.95, "hr":26.62, "day":1.11}}
+
+throwback series: en, es, fr, de
 
 language	count
 sv	1331982 multiple connector v1
