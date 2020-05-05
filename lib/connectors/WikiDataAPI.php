@@ -796,6 +796,22 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "Dipnoi")                  {$arr = self::get_object('Q168422'); $arr = $arr->entities->Q168422;}
                 if($this->debug_taxon == "Hemichordata")            {$arr = self::get_object('Q174301'); $arr = $arr->entities->Q174301;}
                 if($this->debug_taxon == "Lemur catta")             {$arr = self::get_object('Q185385'); $arr = $arr->entities->Q185385;}
+                //lang ace
+                if($this->debug_taxon == "Anura")                   {$arr = self::get_object('Q53636'); $arr = $arr->entities->Q53636;}
+                if($this->debug_taxon == "Istiophorus")             {$arr = self::get_object('Q127497'); $arr = $arr->entities->Q127497;}
+                if($this->debug_taxon == "Bubulcus ibis")           {$arr = self::get_object('Q132669'); $arr = $arr->entities->Q132669;}
+                if($this->debug_taxon == "Senna alexandrina")       {$arr = self::get_object('Q132675'); $arr = $arr->entities->Q132675;}
+                if($this->debug_taxon == "Typha angustifolia")      {$arr = self::get_object('Q146572'); $arr = $arr->entities->Q146572;}
+                if($this->debug_taxon == "Metroxylon sagu")         {$arr = self::get_object('Q164088'); $arr = $arr->entities->Q164088;}
+                if($this->debug_taxon == "Cananga odorata")         {$arr = self::get_object('Q220963'); $arr = $arr->entities->Q220963;}
+                if($this->debug_taxon == "Geopelia striata")        {$arr = self::get_object('Q288485'); $arr = $arr->entities->Q288485;}
+                if($this->debug_taxon == "Lutjanus vitta")          {$arr = self::get_object('Q302516'); $arr = $arr->entities->Q302516;}
+                if($this->debug_taxon == "Phyllanthus emblica")     {$arr = self::get_object('Q310050'); $arr = $arr->entities->Q310050;}
+                if($this->debug_taxon == "Lantana camara")          {$arr = self::get_object('Q332469'); $arr = $arr->entities->Q332469;}
+                if($this->debug_taxon == "Epinephelus coioides")    {$arr = self::get_object('Q591397'); $arr = $arr->entities->Q591397;}
+                if($this->debug_taxon == "Channa striata")          {$arr = self::get_object('Q686439'); $arr = $arr->entities->Q686439;}
+                if($this->debug_taxon == "Sandoricum koetjape")     {$arr = self::get_object('Q913452'); $arr = $arr->entities->Q913452;}
+                if($this->debug_taxon == "Sesbania grandiflora")    {$arr = self::get_object('Q947251'); $arr = $arr->entities->Q947251;}
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
                 

@@ -39,19 +39,17 @@ ja  ko  ru  pt
                                 si  mi      ky        wa
                                 bar jv      lfn       nah
                                 nap sh      nds-nl    eu
-                                vo  ia      bo
-                                            stq
-                                            inh
+                                vo  ia      bo        ha
+                                            stq       lbe
+                                            inh       lij
                                                       
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
                 
-                not yet jenkins-sched:
                 (ha) Hausa                  https://en.wikipedia.org/wiki/Hausa_language
                 (lbe) Lak                   https://en.wikipedia.org/wiki/Lak_language
                 (lij) Ligurian              https://en.wikipedia.org/wiki/Ligurian_(Romance_language)
-                
                 
                 (lfn) Lingua Franca Nova    https://en.wikipedia.org/wiki/Lingua_Franca_Nova
                 *(eo) Esperanto   https://en.wikipedia.org/wiki/Esperanto
@@ -848,12 +846,64 @@ wikipedia_combined_languages	Tuesday 2020-04-21 06:58:32 PM	{"media_resource.tab
 wikipedia_combined_languages	Sunday 2020-04-26 02:10:51 AM	  {"media_resource.tab":99154, "taxon.tab":26136, "time_elapsed":{"sec":551.94, "min":9.2, "hr":0.15}}
 wikipedia_combined_languages	Tuesday 2020-04-28 10:47:30 PM	{"media_resource.tab":97433, "taxon.tab":25622, "time_elapsed":{"sec":546.66, "min":9.11, "hr":0.15}}
 
+wikipedia-lbe	Monday 2020-05-04 04:50:45 AM	{"media_resource.tab":193, "taxon.tab":569, "time_elapsed":{"sec":1267.68, "min":21.13, "hr":0.35}}
+wikipedia-lbe	Tuesday 2020-05-05 04:25:33 AM	{"media_resource.tab":97, "taxon.tab":323, "time_elapsed":{"sec":762.56, "min":12.71, "hr":0.21}}
+
+wikipedia-ha	Monday 2020-05-04 05:06:17 AM	{"media_resource.tab":326, "taxon.tab":737, "time_elapsed":{"sec":1178.64, "min":19.64, "hr":0.33}}
+wikipedia-ha	Tuesday 2020-05-05 04:12:42 AM	{"media_resource.tab":328, "taxon.tab":737, "time_elapsed":{"sec":780.13, "min":13, "hr":0.22}}
+
+wikipedia-lij	Monday 2020-05-04 06:35:53 AM	{"media_resource.tab":270, "taxon.tab":580, "time_elapsed":{"sec":1061, "min":17.68, "hr":0.29}}
+wikipedia-lij	Tuesday 2020-05-05 04:38:33 AM	{"media_resource.tab":257, "taxon.tab":566, "time_elapsed":{"sec":772.19, "min":12.87, "hr":0.21}}
+
+
 xxx
 
-last one:
-wikipedia-ceb	Friday 2020-05-01 06:42:16 PM	{"media_resource.tab":254, "taxon.tab":532, "time_elapsed":{"sec":95816.82, "min":1596.95, "hr":26.62, "day":1.11}}
 
-throwback series: en, es, fr, de
+last one:
+wikipedia-lij	Tuesday 2020-05-05 04:38:33 AM	{"media_resource.tab":257, "taxon.tab":566, "time_elapsed":{"sec":772.19, "min":12.87, "hr":0.21}}
+
+throwback series: en, es, fr, de, it
+
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/80.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-es.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-fr.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-it.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-sv.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-war.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-nl.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-vi.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-min.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-id.tar.gz
+
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-pt.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-zh.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-eu.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ca.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-pl.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ru.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ar.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-szl.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-no.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-fa.tar.gz
+
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-uk.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ro.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-bg.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-hu.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-fi.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ko.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-cy.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-az.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ast.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ja.tar.gz
+
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-cs.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-af.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-ka.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-sr.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-nv.tar.gz
+wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-eo.tar.gz
+
 
 language	count
 sv	1331982 multiple connector v1
