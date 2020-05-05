@@ -24,9 +24,10 @@ class WikipediaAPI extends WikiHTMLAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij --> to avoid re-doing lookup_cache() knowing the remote won't respond */
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace 
+               --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'lij';
+        $lang = 'ace';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -535,10 +536,11 @@ class WikipediaAPI extends WikiHTMLAPI
         $needle = 'class="rellink noprint';                     $html = self::process_needle($html, $needle, true); //es
         $needle = 'summary="Taxobox';                           $html = self::process_needle($html, $needle, true); //de
         $needle = 'class="plainlinks';                          $html = self::process_needle($html, $needle, true);
+        $needle = 'class="navbox ';                             $html = self::process_needle($html, $needle, true);
+        
         
         $left = '<table class="toccolours';         $html = self::process_left($html, $left);
         $left = '<table class="notice metadata';    $html = self::process_left($html, $left);
-        $left = '<table class="navbox collapsible'; $html = self::process_left($html, $left);
         $left = '<div class="hatnote">';            $html = self::process_left($html, $left);
         
         // /* developed during: 'pt'
@@ -584,13 +586,6 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div class="noprint"';
         $html = self::process_left($html, $left);
         
-        //<table class="navbox collapsible
-        $needle = 'class="navbox collapsible';
-        if($tmp = self::get_pre_tag_entry($html, $needle)) {
-            $left = $tmp . $needle; //$right = '</table>';
-            $html = self::process_left($html, $left);
-        }
-        
         //section below
         $left = '<div class="printfooter">';        $html = self::process_left($html, $left);
         $left = '<div id="mw-normal-catlinks"';     $html = self::process_left($html, $left);
@@ -599,6 +594,21 @@ class WikipediaAPI extends WikiHTMLAPI
         
         
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'sa') { //
+            //external links
+            $html = self::process_external_links($html, 'बाह्यसम्पर्कतन्तुः');
+        }
+        if($this->language_code == 'lez') { //
+            //infobox
+            $needle = 'style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #'; $html = self::process_needle($html, $needle, true);
+            $needle = 'style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #'; $html = self::process_needle($html, $needle, true);
+            
+            //some icon
+            $needle = 'class="topicon"'; $html = self::process_needle($html, $needle, true);
+            
+            //external links
+            $html = self::process_external_links($html, 'ЭлячӀунар');
+        }
         if($this->language_code == 'it') { //
             //external links
             $html = self::process_external_links($html, 'Altri_progetti');
@@ -621,8 +631,7 @@ class WikipediaAPI extends WikiHTMLAPI
         }
         if($this->language_code == 'lbe') { //
             //section below - simplest real_coverage
-            $left = '<table align="center" border="0" cellpadding="0" cellspacing="4">';
-            $html = self::process_left($html, $left);
+            $left = '<table align="center" border="0" cellpadding="0" cellspacing="4">';    $html = self::process_left($html, $left);
         }
         if($this->language_code == 'inh') { //
             //infobox - first client of 'real_coverage'
@@ -1086,9 +1095,6 @@ class WikipediaAPI extends WikiHTMLAPI
             
             $left = '<ul id="bandeau-portail"'; $right = '</ul>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-            
-            $left = '<table class="navbox collapsible noprint autocollapse"'; $right = '<!--';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'myv') { //
             //infobox
@@ -1727,10 +1733,6 @@ class WikipediaAPI extends WikiHTMLAPI
             $left = '<table style="background-color:#F8F8F8; border:2px solid pink; padding:5px;"';
             $html = self::process_left($html, $left);
 
-            //remove section below
-            $left = '<table class="navbox collapsible collapsed nowraplinks noprint"'; $right = '</table>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-
             //another section
             $left = '<table align="center" class="noprint"'; $right = '</table>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
@@ -1842,9 +1844,6 @@ class WikipediaAPI extends WikiHTMLAPI
         if($this->language_code == 'ne') { //Nepali
         }
         if($this->language_code == 'be-tarask') { //redirected from be-x-old -- 
-            //remove other bottom section
-            $left = '<table cellspacing="0" class="navbox hlist"'; $right = '<!--';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'ia') { //Interlingua
             //another infobox type
@@ -2288,20 +2287,7 @@ class WikipediaAPI extends WikiHTMLAPI
             $html = self::code_the_steps('<div id="mwe_player_'.$i.'"', '</div>', $html, true);
         }
 
-        /* cs Panthera leo */
-        $left = '<div class="navbox noprint"';
-        $right = '<div class';
-        $right = '<div class="catlinks"';
-        if(preg_match_all("/".preg_quote($left, '/')."(.*?)".preg_quote($right, '/')."/ims", $html, $arr)) {
-            // exit("\n".count($arr[1])."\n");
-            foreach($arr[1] as $str) {
-                $substr = $left.$str; //.$right; //no right term here
-                $html = str_ireplace($substr, '', $html);
-            }
-        }
-
-        /* uk Animalia - these are the boxes after biblio */
-        $html = self::code_the_steps('<table cellspacing="0" class="navbox"', '</td></tr></tbody></table></td></tr></tbody></table>', $html);
+        $left = '<table cellspacing="0" class="navbox';    $html = self::process_left($html, $left);   /* uk Animalia - these are the boxes after biblio */
         
         return $html;
     }
@@ -2338,32 +2324,27 @@ class WikipediaAPI extends WikiHTMLAPI
         /* sv Mus musculus */
         $html = self::code_the_steps('<table class="navbox"', '</table></td></tr></tbody></table>', $html, true);
         
-        /* for 'no' */
-        $html = self::code_the_steps('<table class="navbox hlist"', '</table></td></tr></tbody></table>', $html);
-
         if($language_code == "hu") { /* for hu Eli updates: 10-30-2019 */
             $html = self::code_the_steps('<table cellspacing="0" class="nowraplinks mw-collapsible mw-autocollapse"', '</tbody></table>', $html);
-            $html = self::code_the_steps('<table class="navbox noprint noviewer"', '</div></div>', $html);
-            $html = self::code_the_steps('<table class="navbox authoritycontrol"', '</div></div>', $html);
         }
         if($language_code == "eu") { /* for eu Eli updates: 11-04-2019 */
-            $html = self::code_the_steps('<table class="navbox collapsible autocollapse"', '</tbody></table>', $html);
             $html = self::code_the_steps('<h2><span class="mw-headline" id="Kanpo_loturak">', '</h2>', $html);
         }
 
         /* for 'ca' */
-        $html = self::code_the_steps('<div role="navigation" class="navbox"', '</tbody></table></div>', $html, true);
-        $html = self::code_the_steps('<div style="right:10px; display:none;" class="topicon">', '</div>', $html);
+        $left = '<div role="navigation" class="navbox"';                    $html = self::process_left($html, $left);
+        $left = '<div style="right:10px; display:none;" class="topicon"';   $html = self::process_left($html, $left);
         
         /* for uk */
-        $html = self::code_the_steps('<table cellspacing="0" class="navbox"', '</table></td></tr></tbody></table>', $html);
+        $left = '<table cellspacing="0" class="navbox"';                    $html = self::process_left($html, $left);
+        
         if($language_code == "uk") {
-            $html = self::code_the_steps('<div id="catlinks" class="catlinks"', '</div></div>', $html);
+            $left = '<div id="catlinks" class="catlinks"';                  $html = self::process_left($html, $left);
         }
         
         /* for cs */
-        $html = self::code_the_steps('<div id="portallinks" class="catlinks"', '</div>', $html, true);
-        $html = self::code_the_steps('<div class="catlinks"', '</div>', $html, true);
+        $left = '<div id="portallinks" class="catlinks';                    $html = self::process_left($html, $left);
+        $left = '<div class="catlinks';                                     $html = self::process_left($html, $left);
         
         // /* remove - general purpose sections: Eli updates: 11-04-2019 
         $html = self::code_the_steps('<td class="mbox-image"', '</td>', $html, true);
@@ -2371,12 +2352,11 @@ class WikipediaAPI extends WikiHTMLAPI
         // */
         
         if($language_code == "bg") {
-            $html = self::code_the_steps('<div id="stub" class="boilerplate metadata plainlinks noprint"', '</div></div>', $html);
+            $left = '<div id="stub" class="boilerplate metadata';           $html = self::process_left($html, $left);
         }
 
         if($language_code == "cy") {
             $html = self::code_the_steps('<div class="floatnone">', '</div>', $html);
-            // exit("\n$html\n");
             $html = self::code_the_steps('<div style="clear: both; background-color: #f9f9f9;', '</div>', $html);
         }
         return $html;
@@ -2545,14 +2525,6 @@ class WikipediaAPI extends WikiHTMLAPI
                 $html = str_ireplace($substr, '', $html."xxx");
             }
         }
-        /* old
-        elseif($this->language_code == "fr") { //<div class="navbox-container" style="clear:both;">
-            if(preg_match("/<div class=\"navbox-container\"(.*?)xxx/ims", $html."xxx", $arr)) {
-                $substr = '<div class="navbox-container"'.$arr[1].'xxx';
-                $html = str_ireplace($substr, '', $html."xxx");
-            }
-        }
-        */
         else { //for ko and for the rest of the languages...not good
             if(preg_match("/<div role=\"navigation\" class=\"navbox\"(.*?)xxx/ims", $html."xxx", $arr)) {
                 $substr = '<div role="navigation" class="navbox"'.$arr[1].'xxx';
