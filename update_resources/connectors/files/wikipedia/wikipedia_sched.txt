@@ -226,6 +226,7 @@ wikipedia-it	Monday 2019-08-05 09:43:59 AM	{"media_resource.tab":69122,"taxon.ta
 wikipedia-it	Saturday 2019-12-07 11:38:19 AM	{"media_resource.tab":70036,"taxon.tab":42981,"time_elapsed":{"sec":5812.1,"min":96.87,"hr":1.61}} OK
 wikipedia-it	Wednesday 2020-02-12 04:17:22 PM{"media_resource.tab":70425, "taxon.tab":43244, "time_elapsed":{"sec":3078.6,"min":51.31,"hr":0.86}} OK
 wikipedia-it	Tuesday 2020-04-14 11:17:56 PM	{"media_resource.tab":70913, "taxon.tab":43550, "time_elapsed":{"sec":5245.81, "min":87.43, "hr":1.46}}
+wikipedia-it	Tuesday 2020-05-05 12:26:38 PM	{"media_resource.tab":70002, "taxon.tab":43578, "time_elapsed":{"sec":5386.07, "min":89.77, "hr":1.5}} -- decrease is due to new improved script OK
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
@@ -848,19 +849,22 @@ wikipedia_combined_languages	Tuesday 2020-04-28 10:47:30 PM	{"media_resource.tab
 
 wikipedia-lbe	Monday 2020-05-04 04:50:45 AM	{"media_resource.tab":193, "taxon.tab":569, "time_elapsed":{"sec":1267.68, "min":21.13, "hr":0.35}}
 wikipedia-lbe	Tuesday 2020-05-05 04:25:33 AM	{"media_resource.tab":97, "taxon.tab":323, "time_elapsed":{"sec":762.56, "min":12.71, "hr":0.21}}
+wikipedia-lbe	Tuesday 2020-05-05 10:50:50 AM	{"media_resource.tab":97, "taxon.tab":323, "time_elapsed":{"sec":843.39, "min":14.06, "hr":0.23}}
 
 wikipedia-ha	Monday 2020-05-04 05:06:17 AM	{"media_resource.tab":326, "taxon.tab":737, "time_elapsed":{"sec":1178.64, "min":19.64, "hr":0.33}}
 wikipedia-ha	Tuesday 2020-05-05 04:12:42 AM	{"media_resource.tab":328, "taxon.tab":737, "time_elapsed":{"sec":780.13, "min":13, "hr":0.22}}
+wikipedia-ha	Tuesday 2020-05-05 10:36:36 AM	{"media_resource.tab":328, "taxon.tab":737, "time_elapsed":{"sec":830.68, "min":13.84, "hr":0.23}}
 
 wikipedia-lij	Monday 2020-05-04 06:35:53 AM	{"media_resource.tab":270, "taxon.tab":580, "time_elapsed":{"sec":1061, "min":17.68, "hr":0.29}}
 wikipedia-lij	Tuesday 2020-05-05 04:38:33 AM	{"media_resource.tab":257, "taxon.tab":566, "time_elapsed":{"sec":772.19, "min":12.87, "hr":0.21}}
+wikipedia-lij	Tuesday 2020-05-05 11:04:12 AM	{"media_resource.tab":257, "taxon.tab":566, "time_elapsed":{"sec":795.26, "min":13.25, "hr":0.22}}
 
+wikipedia-ace	Tuesday 2020-05-05 08:58:26 AM	{"media_resource.tab":362, "taxon.tab":762, "time_elapsed":{"sec":1100.51, "min":18.34, "hr":0.31}}
 
 xxx
 
-
 last one:
-wikipedia-lij	Tuesday 2020-05-05 04:38:33 AM	{"media_resource.tab":257, "taxon.tab":566, "time_elapsed":{"sec":772.19, "min":12.87, "hr":0.21}}
+wikipedia-it	Tuesday 2020-05-05 12:26:38 PM	{"media_resource.tab":70002, "taxon.tab":43578, "time_elapsed":{"sec":5386.07, "min":89.77, "hr":1.5}}
 
 throwback series: en, es, fr, de, it
 

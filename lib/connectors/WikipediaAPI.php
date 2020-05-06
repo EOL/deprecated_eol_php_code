@@ -24,10 +24,10 @@ class WikipediaAPI extends WikiHTMLAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace 
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'ace';
+        $lang = 'ce';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -538,10 +538,10 @@ class WikipediaAPI extends WikiHTMLAPI
         $needle = 'class="plainlinks';                          $html = self::process_needle($html, $needle, true);
         $needle = 'class="navbox ';                             $html = self::process_needle($html, $needle, true);
         
-        
         $left = '<table class="toccolours';         $html = self::process_left($html, $left);
         $left = '<table class="notice metadata';    $html = self::process_left($html, $left);
         $left = '<div class="hatnote">';            $html = self::process_left($html, $left);
+        $left = '<div class="NavFrame collapsed';   $html = self::process_left($html, $left);
         
         // /* developed during: 'pt'
         $left = '<div role="navigation" class="navbox'; $html = self::process_left($html, $left);
@@ -551,49 +551,24 @@ class WikipediaAPI extends WikiHTMLAPI
         // */
         
         //remove all the time
-        $left = '<span style="display:none; visibility:hidden">'; $right = '</span>';
-        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-        
-        $left = '<div class="shortdescription nomobile noexcerpt noprint searchaux" style="display:none"'; $right = '</div>';
-        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-        
-        $left = '<div class="boilerplate metadata"'; $right = '</div>';
-        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-        
-        $left = '<div class="dablink"'; $right = '</div>';
-        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-        
-        $left = '<div class="notice metadata"'; $right = '</div>';
-        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
+        $left = '<div class="boilerplate metadata"';    $html = self::process_left($html, $left);
+        $left = '<div class="dablink"';                 $html = self::process_left($html, $left);
+        $left = '<div class="notice metadata"';         $html = self::process_left($html, $left);
+        $left = '<table style="background:none; text-align:left; padding:2px 0;" class="metadata"';     $html = self::process_left($html, $left);
 
-        if($this->language_code != 'pam') { //
-        }
-        
-        $left = '<table style="background:none; text-align:left; padding:2px 0;" class="metadata"'; $right = '<!--';
-        $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-        
         //section below
-        $left = '<div class="boilerplate'; $right = '</div>';
-        $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-        
-        $left = '<div class="bandeau-article';
-        $html = self::process_left($html, $left);
-
-        $left = '<div class="homonymie"';
-        $html = self::process_left($html, $left);
-        
-        //section below
-        $left = '<div class="noprint"';
-        $html = self::process_left($html, $left);
-        
-        //section below
-        $left = '<div class="printfooter">';        $html = self::process_left($html, $left);
-        $left = '<div id="mw-normal-catlinks"';     $html = self::process_left($html, $left);
-        $left = '<div id="mw-hidden-catlinks"';     $html = self::process_left($html, $left);
-        
-        
-        
+        $left = '<div class="boilerplate';              $html = self::process_left($html, $left);
+        $left = '<div class="bandeau-article';          $html = self::process_left($html, $left);
+        $left = '<div class="homonymie"';               $html = self::process_left($html, $left);
+        $left = '<div class="noprint"';                 $html = self::process_left($html, $left);
+        $left = '<div class="printfooter">';            $html = self::process_left($html, $left);
+        $left = '<div id="mw-normal-catlinks"';         $html = self::process_left($html, $left);
+        $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'ce') { //
+            //external links
+            $html = self::process_external_links($html, 'Хьажоргаш');
+        }
         if($this->language_code == 'sa') { //
             //external links
             $html = self::process_external_links($html, 'बाह्यसम्पर्कतन्तुः');
@@ -860,14 +835,7 @@ class WikipediaAPI extends WikiHTMLAPI
             // <table cellpadding="2" cellspacing="1" width="300px" class="taxobox float-right" id="Vorlage_Taxobox" summary="Taxobox">
             $needle = 'class="taxobox';
             if($tmp = self::get_pre_tag_entry($html, $needle)) {
-                $left = $tmp . $needle; //$right = '<p>Da <b>';
-                $html = self::process_left($html, $left);
-                // $left = $tmp . $needle; $right = '<p>De <b>';
-                // $left = $tmp . $needle; $right = '<p>A <b>';
-                // $left = $tmp . $needle; $right = '<p>As <b>';
-                // $left = $tmp . $needle; $right = '<p><b>';
-                // $left = $tmp . $needle; $right = '<div class="';
-                // $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
+                $left = $tmp . $needle;     $html = self::process_left($html, $left);
             }
             
             //external links
@@ -1114,14 +1082,6 @@ class WikipediaAPI extends WikiHTMLAPI
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'or') { //
-            //section above
-            // <div id="purl" class="NavFrame collapsed"
-            $needle = 'class="NavFrame collapsed"';
-            if($tmp = self::get_pre_tag_entry($html, $needle)) {
-                $left = $tmp . $needle; $right = '</div>';
-                $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-            }
-            
             //external links
             $left = '<span class="mw-headline" id="ଅଧିକ_ତଥ୍ୟ"'; $right = '<!--';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
@@ -1988,9 +1948,6 @@ class WikipediaAPI extends WikiHTMLAPI
             $left = '<span class="mw-headline" id="Eksterne_henvisninger">'; $right = '<p>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
 
-            $left = '<span class="lovende" style="display:none">'; $right = '</span>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html);
-            
             $left = '<b>Søsterprojekter med yderligere information'; $right = '</div>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html);
             
