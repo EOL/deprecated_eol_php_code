@@ -40,12 +40,23 @@ ja  ko  ru  pt
                                 bar jv      lfn       nah
                                 nap sh      nds-nl    eu
                                 vo  ia      bo        ha
-                                            stq       lbe
-                                            inh       lij
+                                lez         stq       lbe
+                                sa          inh       lij
+                                ace
+                                diq
+                                ce
+                                yo
                                                       
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
+                
+                (lez) Lezgian               https://en.wikipedia.org/wiki/Lezgian_language	220
+                (sa) Sanskrit               https://en.wikipedia.org/wiki/Sanskrit	219
+                (ace) Acehnese              https://en.wikipedia.org/wiki/Acehnese_language	217
+                (diq) Zazaki                https://en.wikipedia.org/wiki/Zaza_language
+                (ce) Chechen                https://en.wikipedia.org/wiki/Chechen_language
+                (yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
                 
                 (ha) Hausa                  https://en.wikipedia.org/wiki/Hausa_language
                 (lbe) Lak                   https://en.wikipedia.org/wiki/Lak_language

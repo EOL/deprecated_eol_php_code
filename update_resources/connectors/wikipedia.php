@@ -719,12 +719,11 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 
 (lez) Lezgian               https://en.wikipedia.org/wiki/Lezgian_language	220
 (sa) Sanskrit               https://en.wikipedia.org/wiki/Sanskrit	219
-
 (ace) Acehnese              https://en.wikipedia.org/wiki/Acehnese_language	217
 (diq) Zazaki                https://en.wikipedia.org/wiki/Zaza_language
 (ce) Chechen                https://en.wikipedia.org/wiki/Chechen_language
-
 (yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
+
 
 rw	204
 vec	204
