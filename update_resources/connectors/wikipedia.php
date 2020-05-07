@@ -128,263 +128,16 @@ php update_resources/connectors/wikipedia.php _ en taxon_wiki_per_language_stats
 https://meta.wikimedia.org/wiki/List_of_Wikipedias
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/taxon_wiki_per_language_count_2020_02.txt
 
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Panthera leo'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'wolf'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Formicidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Gadus morhua'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'fish Pisces'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'starfish Asteroidea'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Orca'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Shark Selachimorpha'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pacific halibut'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pale fox'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Chanos chanos'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Oreochromis niloticus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Polar bear'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Angiosperms'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Mus musculus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Rodentia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Animalia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Plantae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Virus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'ferns'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Acacia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Bald Eagle'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Rosa'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Fungi'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Aves'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Panthera tigris'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'sunflower'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Hominidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Coronaviridae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Tracheophyta'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Leuciscus cephalus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Gallinula chloropus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cornales'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Proteales'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Felidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Tyto alba'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Prunus dulcis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Gagea minima'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Clematis vitalba'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Hyoscyamus niger'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Rhinocerotidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Sciuridae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Vaccinium subg. Oxycoccus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Litchi chinensis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Actinopterygii'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Esox lucius'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Hydroprogne caspia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Fabaceae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Xenicus gilviventris'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Knightia excelsa'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Metrosideros excelsa'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pterodroma macroptera'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Dacrydium cupressinum'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Himantopus novaezelandiae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Callaeas cinereus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Agathis australis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Calamus baratangensis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Adenoncos'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ancistrochilus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Acanthephippium'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cucumis sativus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Solanum lycopersicum'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Brassavola'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Convolvulus arvensis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Orchidaceae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Onychoprion anaethetus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Senna alata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Curcuma longa'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Anisoptera'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Solanum'
-
-//lang mt
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Scandentia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Peramelemorphia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ochotona nubrica'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ochotona nigritia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Tupaia belangeri'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ameridelphia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lepus castroviejoi'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Minusculodelphis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Euarchontoglires'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lepus granatensis'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pronolagus rupestris'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Nesolagus timminsi'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Antechinus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lepidoptera'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Mammalia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Secale cereale'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lacertilia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pyrrhula pyrrhula'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Jasminum auriculatum'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Jasminum'
-
-//lang or
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Chiroptera'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Octopoda'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Piper nigrum'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Canis latrans'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Dromaius novaehollandiae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Saltopus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Bruhathkayosaurus matleyi'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Eucalyptus globulus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Mentha arvensis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Oxalis corniculata'
-
-lang bh
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Psilopogon viridis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Gracupica contra'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pyrus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Turdus merula'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cygnus olor'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Aurelia aurita'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pittidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Syzygium cumini'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Porzana parva'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Euphorbia'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Aegolius funereus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Plegadis falcinellus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Turdus viscivorus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Meropidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Anser'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Prunus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cairina moschata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Zea mays'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Glycine max'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Keichosaurus'
-
-lang bar
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cyphotilapia frontosa'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lacerta viridis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Jacaranda'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pseudotropheus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Dryocopus pileatus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cupressus ×leylandii'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Vespa crabro'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Corvus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Prunus spinosa'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Rupicapra rupicapra'
-
-//lang nap
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Malvaceae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Quercus cerris'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Turdus iliacus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Conger conger'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Merlangius merlangus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Octopus vulgaris'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Brassica ruvo'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ruta'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lacerta bilineata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Sanctacaris uncata'
-
-//lang vo
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Peloneustes'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Odontorhynchus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Carcharodontosaurus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Sus scrofa domesticus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Vulpes vulpes'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Bacteria'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Camelotia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Saurischia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Theropoda'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ichthyopterygia'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Amiskwia'
-//lang stq
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Rhinolophus euryale'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Molossidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Eumops'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Microtus pennsylvanicus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cichorium intybus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lantana camara'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Epinephelus coioides'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Channa striata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Sandoricum koetjape'
-
-//lang ha
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Allium cepa'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Crocodilia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Columba livia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Nycticorax nycticorax'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Salvadora persica'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Opuntia ficus-indica'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ardeola ralloides'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ziziphus mucronata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Naja nigricollis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cola acuminata'
-
-//lang lbe
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Capra cylindricornis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Mazama'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Annona purpurea'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Juglans'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Allium sativum'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Erinaceidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pongo'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Talpidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Athene noctua'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Rupicapra rupicapra'
-
-//lang lij
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Anas platyrhynchos'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Perissodactyla'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Sus scrofa'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Citrus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Mespilus germanica'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Canis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Sarcopterygii'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Dipnoi'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Hemichordata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lemur catta'
-
-//lang ace
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Anura'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Istiophorus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Bubulcus ibis'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Senna alexandrina'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Typha angustifolia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Metroxylon sagu'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cananga odorata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Geopelia striata'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lutjanus vitta'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Phyllanthus emblica'
-
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Sesbania grandiflora'
-
-//lang ce
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Solanum tuberosum'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Gruidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Cyanistes caeruleus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Haliaeetus albicilla'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Lynx lynx'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Ferula assa-foetida'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Milvus milvus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Gratiola'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Circaetus gallicus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Gyps fulvus'
-
-//lang yo
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Microlophus habelii'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Hesperentomidae'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Paranisentomon'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Silvestridia'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Crocodylus niloticus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Necrosyrtes monachus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Pandion haliaetus'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Manihot esculenta'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Crocuta crocuta'
-php update_resources/connectors/wikipedia.php _ 'yo' generate_resource_force _ _ _ 'Microlophus theresioides'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Panthera leo'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'wolf'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Formicidae'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Gadus morhua'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'fish Pisces'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'starfish Asteroidea'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Orca'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Shark Selachimorpha'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Pacific halibut'
+php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Pale fox'
 
 =============================================================================================================== */
 
@@ -713,20 +466,19 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (stq) Saterland Frisian     https://en.wikipedia.org/wiki/Saterland_Frisian
 * (inh) Ingush                https://en.wikipedia.org/wiki/Ingush_language
 
-(ha) Hausa                  https://en.wikipedia.org/wiki/Hausa_language
-(lbe) Lak                   https://en.wikipedia.org/wiki/Lak_language
-(lij) Ligurian              https://en.wikipedia.org/wiki/Ligurian_(Romance_language)
+* (ha) Hausa                  https://en.wikipedia.org/wiki/Hausa_language
+* (lbe) Lak                   https://en.wikipedia.org/wiki/Lak_language
+* (lij) Ligurian              https://en.wikipedia.org/wiki/Ligurian_(Romance_language)
+* (lez) Lezgian               https://en.wikipedia.org/wiki/Lezgian_language	220
+* (sa) Sanskrit               https://en.wikipedia.org/wiki/Sanskrit	219
+* (ace) Acehnese              https://en.wikipedia.org/wiki/Acehnese_language	217
+* (diq) Zazaki                https://en.wikipedia.org/wiki/Zaza_language
+* (ce) Chechen                https://en.wikipedia.org/wiki/Chechen_language
 
-(lez) Lezgian               https://en.wikipedia.org/wiki/Lezgian_language	220
-(sa) Sanskrit               https://en.wikipedia.org/wiki/Sanskrit	219
-(ace) Acehnese              https://en.wikipedia.org/wiki/Acehnese_language	217
-(diq) Zazaki                https://en.wikipedia.org/wiki/Zaza_language
-(ce) Chechen                https://en.wikipedia.org/wiki/Chechen_language
 (yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
+(rw) Kinyarwanda            https://en.wikipedia.org/wiki/Kinyarwanda
+(vec) Venetian              https://en.wikipedia.org/wiki/Venetian_language
 
-
-rw	204
-vec	204
 sc	200
 ln	198
 hak	193
