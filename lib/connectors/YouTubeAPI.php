@@ -3,7 +3,7 @@ namespace php_active_record;
 /* connector: 323
 There is a YouTube user called 'EncyclopediaOfLife'.
 This user (EncyclopediaOfLife) will subscribe to any user who will want to share their videos to EOL.
-Then using the API we can get all users willing to share their videos and their videos' details.
+Then using the YouTube API we can get all users willing to share their videos and their videos' details.
 We can then ingest these videos into EOL.
 
 So what does a user need to do to have his YouTube video(s) show up in EOL.
