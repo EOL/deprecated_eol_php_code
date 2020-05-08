@@ -479,9 +479,10 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (rw) Kinyarwanda            https://en.wikipedia.org/wiki/Kinyarwanda
 (vec) Venetian              https://en.wikipedia.org/wiki/Venetian_language
 
-sc	200
-ln	198
-hak	193
+(sc) Sardinian              https://en.wikipedia.org/wiki/Sardinian_language
+(ln) Lingala                https://en.wikipedia.org/wiki/Lingala
+(hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
+
 kw	188
 bcl	186
 za	175

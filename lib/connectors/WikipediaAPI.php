@@ -24,10 +24,10 @@ class WikipediaAPI extends WikiHTMLAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'ce';
+        $lang = 'hak';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -531,12 +531,16 @@ class WikipediaAPI extends WikiHTMLAPI
         $needle = 'class="metadata"';           $html = self::process_needle($html, $needle, true);
         $needle = 'class="metadata ';           $html = self::process_needle($html, $needle, true);
         $needle = 'class="noprint';             $html = self::process_needle($html, $needle, true);
-        $needle = 'class="toccolours vatop';                    $html = self::process_needle($html, $needle, true);
         $needle = 'class="hatnote navigation-not-searchable"';  $html = self::process_needle($html, $needle, true); //en
         $needle = 'class="rellink noprint';                     $html = self::process_needle($html, $needle, true); //es
         $needle = 'summary="Taxobox';                           $html = self::process_needle($html, $needle, true); //de
         $needle = 'class="plainlinks';                          $html = self::process_needle($html, $needle, true);
         $needle = 'class="navbox ';                             $html = self::process_needle($html, $needle, true);
+
+        $needle = 'class="toccolours vatop';    $html = self::process_needle($html, $needle, true);
+        $needle = 'class="toccolours itwiki';   $html = self::process_needle($html, $needle, true);
+        
+        $needle = 'class="expansion" id="stub"';    $html = self::process_needle($html, $needle, true);
         
         $left = '<table class="toccolours';         $html = self::process_left($html, $left);
         $left = '<table class="notice metadata';    $html = self::process_left($html, $left);
@@ -564,14 +568,41 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div class="printfooter">';            $html = self::process_left($html, $left);
         $left = '<div id="mw-normal-catlinks"';         $html = self::process_left($html, $left);
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
+        
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'ln') { //
+            //infobox
+            $needle = 'style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #FFFFFF"'; $html = self::process_needle($html, $needle, true);
+
+            $html = self::process_external_links($html, 'Tála_mpé'); //external links
+        }
+        if($this->language_code == 'sc') { //
+            //sections above
+            $left = '<span style="width:32px; display:table-cell; vertical-align:middle; text-align:center;"';                  $html = self::process_left($html, $left);
+            $left = '<span style="width:226px; padding:3px; text-align:center; display:table-cell; vertical-align:middle;"';    $html = self::process_left($html, $left);
+            
+            //infobox
+            $left = '<table style="margin: 0 0 0.5em 0.5em; border-collapse:collapse; float:right;"';   $html = self::process_left($html, $left);
+        }
+        if($this->language_code == 'vec') { //
+            //infobox
+            $left = '<table style="float:right; margin: 0 0 0.5em 1em; border-collapse:collapse; text-align:center;"';  $html = self::process_left($html, $left);
+            
+            //section below
+            $left = '<table class="CdA"';   $html = self::process_left($html, $left);
+            
+            //other projects, similar to external links
+            $html = self::process_external_links($html, 'Altri_progeti'); //external links
+            $html = self::process_external_links($html, 'Altri_progetti'); //external links
+        }
+        if($this->language_code == 'rw') { //
+            $html = self::process_external_links($html, 'Imiyoboro'); //networks | external links
+        }
         if($this->language_code == 'ce') { //
-            //external links
-            $html = self::process_external_links($html, 'Хьажоргаш');
+            $html = self::process_external_links($html, 'Хьажоргаш'); //external links
         }
         if($this->language_code == 'sa') { //
-            //external links
-            $html = self::process_external_links($html, 'बाह्यसम्पर्कतन्तुः');
+            $html = self::process_external_links($html, 'बाह्यसम्पर्कतन्तुः'); //external links
         }
         if($this->language_code == 'lez') { //
             //infobox
@@ -1153,10 +1184,6 @@ class WikipediaAPI extends WikiHTMLAPI
             }
         }
         if($this->language_code == 'es') { //
-            //middle body
-            $left = '<table class="toccolours" style="float:right;margin-left: 1em;">'; $right = '<p>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
-            
             //inside infobox
             $left = '<th colspan="3" style="text-align:center;background-color: #D3D3A4;"'; $right = '</table>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
