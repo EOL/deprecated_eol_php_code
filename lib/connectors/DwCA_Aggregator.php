@@ -66,6 +66,7 @@ class DwCA_Aggregator
         foreach($index as $row_type) {
             /* ----------customized start------------ */
             if($this->resource_id == 'wikipedia_combined_languages') break; //all extensions will be processed elsewhere.
+            if($this->resource_id == 'wikipedia_combined_languages_batch2') break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             /* not used - copied template
             if($preferred_rowtypes) {
@@ -81,7 +82,7 @@ class DwCA_Aggregator
         }
         
         // /* ================================= start of customization =================================
-        if($this->resource_id == 'wikipedia_combined_languages') {
+        if(in_array($this->resource_id, array('wikipedia_combined_languages', 'wikipedia_combined_languages_batch2'))) {
             $tables = $info['harvester']->tables;
             // print_r($tables); exit;
             /*Array(
