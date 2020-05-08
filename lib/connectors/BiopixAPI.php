@@ -46,6 +46,7 @@ class BiopixAPI
         $title = @trim($columns[6]);
         $location = @trim($columns[7]);
         $rating = @trim($columns[8]);
+        $owner = @trim($columns[9]);
         
         // we must have a taxon name and an image
         if(!$scientific_name) return;
@@ -90,6 +91,7 @@ class BiopixAPI
         $m->LocationCreated = $location;
         $m->Rating = self::convert_biopix_rating($rating);
         $m->UsageTerms = 'http://creativecommons.org/licenses/by-nc/3.0/';
+        $m->Owner = $owner;
         $this->media[$image_id] = $m;
     }
     
