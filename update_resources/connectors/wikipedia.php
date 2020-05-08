@@ -475,12 +475,12 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (diq) Zazaki                https://en.wikipedia.org/wiki/Zaza_language
 * (ce) Chechen                https://en.wikipedia.org/wiki/Chechen_language
 
-(yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
-(rw) Kinyarwanda            https://en.wikipedia.org/wiki/Kinyarwanda
-(vec) Venetian              https://en.wikipedia.org/wiki/Venetian_language
+* (yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
+* (rw) Kinyarwanda            https://en.wikipedia.org/wiki/Kinyarwanda
+* (vec) Venetian              https://en.wikipedia.org/wiki/Venetian_language
+* (sc) Sardinian              https://en.wikipedia.org/wiki/Sardinian_language
+* (ln) Lingala                https://en.wikipedia.org/wiki/Lingala
 
-(sc) Sardinian              https://en.wikipedia.org/wiki/Sardinian_language
-(ln) Lingala                https://en.wikipedia.org/wiki/Lingala
 (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
 
 kw	188
