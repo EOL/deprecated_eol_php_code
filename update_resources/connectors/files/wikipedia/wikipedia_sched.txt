@@ -40,16 +40,23 @@ ja  ko  ru  pt
                                 bar jv      lfn       nah
                                 nap sh      nds-nl    eu
                                 vo  ia      bo        ha
-                                lez         stq       lbe
-                                sa          inh       lij
-                                ace
-                                diq
-                                ce
+                                lez rw      stq       lbe
+                                sa  vec     inh       lij
+                                ace sc
+                                diq ln
+                                ce  hak
                                 yo
                                                       
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
+                
+                (yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
+                (rw) Kinyarwanda            https://en.wikipedia.org/wiki/Kinyarwanda
+                (vec) Venetian              https://en.wikipedia.org/wiki/Venetian_language
+                (sc) Sardinian              https://en.wikipedia.org/wiki/Sardinian_language
+                (ln) Lingala                https://en.wikipedia.org/wiki/Lingala
+                (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
                 
                 (lez) Lezgian               https://en.wikipedia.org/wiki/Lezgian_language	220
                 (sa) Sanskrit               https://en.wikipedia.org/wiki/Sanskrit	219
@@ -319,6 +326,7 @@ wikipedia-pt	Tuesday 2019-08-06 07:36:33 PM	{"media_resource.tab":201181,"taxon.
 wikipedia-pt	Monday 2019-12-09 06:58:13 AM	{"media_resource.tab":201459,"taxon.tab":113797,"time_elapsed":{"sec":14445.76,"min":240.76,"hr":4.01}} OK
 wikipedia-pt	Friday 2020-02-14 05:58:38 PM	  {"media_resource.tab":200572, "taxon.tab":113431, "time_elapsed":{"sec":13086.54,"min":218.11,"hr":3.64}} decreased but still reasonable
 wikipedia-pt	Thursday 2020-04-16 11:24:20 AM	{"media_resource.tab":200905, "taxon.tab":113688, "time_elapsed":{"sec":14115.33, "min":235.26, "hr":3.92}} OK
+wikipedia-pt	Thursday 2020-05-07 09:25:22 PM	{"media_resource.tab":191064, "taxon.tab":113701, "time_elapsed":{"sec":11524.51, "min":192.08, "hr":3.2}} OK - start updated gen. connector
 
 wikipedia-ru	Sunday 2017-11-12 12:03:09 PM	{"media_resource.tab":77531,"taxon.tab":47336}
 wikipedia-ru	Saturday 2017-12-02 11:31:53 PM	{"media_resource.tab":77649,"taxon.tab":47398}
@@ -334,6 +342,7 @@ wikipedia-ru	Wednesday 2019-08-07 01:24:05 AM{"media_resource.tab":85285,"taxon.
 wikipedia-ru	Monday 2019-12-09 01:14:36 PM	{"media_resource.tab":86861,"taxon.tab":52711,"time_elapsed":{"sec":79890.51,"min":1331.51,"hr":22.19}} OK
 wikipedia-ru	Saturday 2020-02-15 12:27:06 AM	{"media_resource.tab":87583, "taxon.tab":53186,"time_elapsed":{"sec":75825.96,"min":1263.77,"hr":21.06}} OK
 wikipedia-ru	Thursday 2020-04-16 09:53:10 PM	{"media_resource.tab":87993, "taxon.tab":53435, "time_elapsed":{"sec":82765.94, "min":1379.43, "hr":22.99}} OK
+wikipedia-ru	Thursday 2020-05-07 07:36:34 PM	{"media_resource.tab":87486, "taxon.tab":53086, "time_elapsed":{"sec":7857.18, "min":130.95, "hr":2.18}} OK - start updated gen. connector
 
 wikipedia-zh	Tuesday 2017-11-14 03:41:12 PM	{"media_resource.tab":156137,"taxon.tab":91145}
 wikipedia-zh	Sunday 2017-12-03 12:33:20 AM	{"media_resource.tab":156585,"taxon.tab":91396}
@@ -350,6 +359,7 @@ wikipedia-zh	Wednesday 2019-08-07 05:45:01 AM{"media_resource.tab":180820,"taxon
 wikipedia-zh	Monday 2019-12-09 08:11:09 PM	{"media_resource.tab":187787,"taxon.tab":109444,"time_elapsed":{"sec":14459.96,"min":241,"hr":4.02}} OK
 wikipedia-zh	Saturday 2020-02-15 05:56:19 AM	{"media_resource.tab":187730, "taxon.tab":109498, "time_elapsed":{"sec":12381.98,"min":206.37,"hr":3.44}} OK
 wikipedia-zh	Thursday 2020-04-16 10:29:52 PM	{"media_resource.tab":187938, "taxon.tab":109665, "time_elapsed":{"sec":12630.89, "min":210.51, "hr":3.51}} OK
+wikipedia-zh	Friday 2020-05-08 12:34:26 AM	  {"media_resource.tab":173006, "taxon.tab":103275, "time_elapsed":{"sec":8758.71, "min":145.98, "hr":2.43}} OK - start updated gen. connector
 
 --------------------------------------------- START OF NEW BATCH ---------------------------------------------
 wikipedia-vo	Wednesday 2019-04-17 09:43:21 AM{"media_resource.tab":34, "taxon.tab":118} - asked by Jen to ignore for now.
@@ -898,7 +908,7 @@ xxx
 
 
 last one:
-wikipedia-ko	Thursday 2020-05-07 06:20:56 PM	{"media_resource.tab":29364, "taxon.tab":19818, "time_elapsed":{"sec":3318.95, "min":55.32, "hr":0.92}}
+wikipedia-zh	Friday 2020-05-08 12:34:26 AM	{"media_resource.tab":173006, "taxon.tab":103275, "time_elapsed":{"sec":8758.71, "min":145.98, "hr":2.43}}
 
 
 
