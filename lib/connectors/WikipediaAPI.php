@@ -557,8 +557,12 @@ class WikipediaAPI extends WikiHTMLAPI
         //remove all the time
         $left = '<div class="boilerplate metadata"';    $html = self::process_left($html, $left);
         $left = '<div class="dablink"';                 $html = self::process_left($html, $left);
+        $left = '<div class="dablink noprint"';         $html = self::process_left($html, $left);
         $left = '<div class="notice metadata"';         $html = self::process_left($html, $left);
         $left = '<table style="background:none; text-align:left; padding:2px 0;" class="metadata"';     $html = self::process_left($html, $left);
+        
+        //box below
+        $left = '<table class="mbox-small plainlinks sistersitebox';   $html = self::process_left($html, $left);
 
         //section below
         $left = '<div class="boilerplate';              $html = self::process_left($html, $left);
@@ -568,12 +572,15 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div class="printfooter">';            $html = self::process_left($html, $left);
         $left = '<div id="mw-normal-catlinks"';         $html = self::process_left($html, $left);
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
-        
+
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'zh') { //
+            $html = self::process_external_links($html, '外部链接'); //external links
+            $html = self::process_external_links($html, '外部連結'); //external links
+        }
         if($this->language_code == 'ln') { //
             //infobox
             $needle = 'style="margin: 0 0 1em 1em; border: 1px solid #999; background-color: #FFFFFF"'; $html = self::process_needle($html, $needle, true);
-
             $html = self::process_external_links($html, 'Tála_mpé'); //external links
         }
         if($this->language_code == 'sc') { //
