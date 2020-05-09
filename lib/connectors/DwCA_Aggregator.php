@@ -3,10 +3,11 @@ namespace php_active_record;
 /* connector: [aggregate_resources.php] - first client 
 This lib basically combined DwCA's (.tar.gz) resources.
 First client is combining several wikipedia languages -> combine_wikipedia_DwCAs(). Started with languages "ta", "el", "ceb".
+2nd client is /connectors/wikipedia_ver2.php
 */
 class DwCA_Aggregator
 {
-    function __construct($folder = NULL, $dwca_file = NULL)
+    function __construct($folder = NULL, $dwca_file = NULL, $DwCA_Type = 'wikipedia') //'wikipedia' is the first client of this lib.
     {
         if($folder) {
             $this->resource_id = $folder;
@@ -14,6 +15,7 @@ class DwCA_Aggregator
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
         $this->dwca_file = $dwca_file;
+        $this->DwCA_Type = $DwCA_Type;
         $this->debug = array();
         /* Please take note of some Meta XML entries have upper and lower case differences */
         $this->extensions = array("http://rs.gbif.org/terms/1.0/vernacularname"     => "vernacular",
@@ -33,6 +35,18 @@ class DwCA_Aggregator
             $this->taxon_ids = array();
         }
         */
+    }
+    function combine_DwCAs($langs, $preferred_rowtypes = array())
+    {
+        foreach($langs as $this->lang) {
+            echo "\n---Processing: [$this->lang]---\n";
+            $dwca_file = CONTENT_RESOURCE_LOCAL_PATH.$this->lang.'.tar.gz';
+            if(file_exists($dwca_file)) {
+                self::convert_archive($preferred_rowtypes, $dwca_file);
+            }
+            else echo "\nDwCA file does not exist [$dwca_file]\n";
+        }
+        $this->archive_builder->finalize(TRUE);
     }
     function combine_wikipedia_DwCAs($langs)
     {
@@ -62,23 +76,27 @@ class DwCA_Aggregator
             [2] => http://rs.tdwg.org/dwc/terms/occurrence
             [3] => http://rs.tdwg.org/dwc/terms/measurementorfact
         */
-        // print_r($index); exit; //good debug to see the all-lower case URIs
+        print_r($index); //exit; //good debug to see the all-lower case URIs
         foreach($index as $row_type) {
             /* ----------customized start------------ */
             if($this->resource_id == 'wikipedia_combined_languages') break; //all extensions will be processed elsewhere.
             if($this->resource_id == 'wikipedia_combined_languages_batch2') break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
-            /* not used - copied template
+
+            // /* copied template -- where regular DwCA is processed.
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
             }
-            if(@$this->extensions[$row_type]) { //process only defined row_types
-                // if(@$this->extensions[$row_type] == 'document') continue; //debug only
-                echo "\nprocessing...: [$row_type]: ".@$this->extensions[$row_type]."...\n";
-                self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
+            if($extension_row_type = @$this->extensions[$row_type]) { //process only defined row_types
+                // if($extension_row_type == 'document') continue; //debug only
+                echo "\nprocessing...: [$row_type]: ".$extension_row_type."...\n";
+                /* not used - copied template
+                self::process_fields($harvester->process_row_type($row_type), $extension_row_type);
+                */
+                self::process_table($tables[$row_type][0], $extension_row_type);
             }
-            else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
-            */
+            else echo "\nun-initialized: [$row_type]: ".$extension_row_type."\n";
+            // */
         }
         
         // /* ================================= start of customization =================================
@@ -186,14 +204,17 @@ class DwCA_Aggregator
             if($what == "taxon")           $o = new \eol_schema\Taxon();
             elseif($what == "document")    $o = new \eol_schema\MediaResource();
             
-            if($what == "taxon") {
-                $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-                if(stripos($rec['http://purl.org/dc/terms/source'], "wikipedia.org") !== false) $rec['http://purl.org/dc/terms/source'] = 'https://www.wikidata.org/wiki/'.$taxon_id; //string is found
-                if(!isset($this->taxon_ids[$taxon_id])) {
-                    $this->taxon_ids[$taxon_id] = '';
+            if($this->DwCA_Type == 'wikipedia') {
+                if($what == "taxon") {
+                    $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    if(stripos($rec['http://purl.org/dc/terms/source'], "wikipedia.org") !== false) $rec['http://purl.org/dc/terms/source'] = 'https://www.wikidata.org/wiki/'.$taxon_id; //string is found
+                    if(!isset($this->taxon_ids[$taxon_id])) {
+                        $this->taxon_ids[$taxon_id] = '';
+                    }
+                    else continue;
                 }
-                else continue;
             }
+            
             /* Good debug
             elseif($what == "document") {
                 $desc = @$rec['http://purl.org/dc/terms/description'];

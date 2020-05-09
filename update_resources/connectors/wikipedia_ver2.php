@@ -140,17 +140,32 @@ php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _
 php update_resources/connectors/wikipedia.php _ 'en' generate_resource_force _ _ _ 'Pale fox'
 
 =============================================================================================================== */
-
 $params['jenkins_or_cron']  = @$argv[1];
 $params['language']         = @$argv[2];
-
 $params['task']             = @$argv[3];
 $params['range_from']       = @$argv[4];
 $params['range_to']         = @$argv[5];
 $params['actual']           = @$argv[6];
 $debug_taxon                = @$argv[7];
-
 print_r($params);
+/*
+Array(
+    [jenkins_or_cron] => jenkins
+    [language] => nl
+    [task] => generate_resource
+    [range_from] => 833332
+    [range_to] => 1249998
+    [actual] => 3of6
+)
+Array(
+    [jenkins_or_cron] => jenkins
+    [language] => nl
+    [task] => generate_resource
+    [range_from] => 
+    [range_to] => 
+    [actual] => 
+)
+*/
 
 // /* //----------start main operation
 if($val = $params['language']) $language = $val;
@@ -164,6 +179,14 @@ else $resource_id = "wikipedia-".$language;
 delete_temp_files_and_others($language);
 exit("\nend test\n");
 */
+
+// /* new section for wikipedia_ver2 ****************************
+$actual = @$params['actual'];
+if($actual) $resource_id .= "_".$actual;
+else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
+    aggregate_6partial_wikipedias($timestart, $resource_id);
+}
+// ************************************************************** */
 
 $langs_with_multiple_connectors = array("en", "es", "fr", "de", "it", "pt", "zh"); //1st batch | single connectors: ko, ja, ru
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, array("nl", "pl", "sv", "vi")); //2nd batch Dutch Polish Swedish Vietnamese
@@ -191,10 +214,14 @@ if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real o
             delete_temp_files_and_others($language); // delete six (6) .tmp files and one (1) wikipedia_generation_status for language in question
         }
         else {
-            echo "\nCannot finalize dwca yet.\n";
+            echo "\nCannot finalize dwca yet. But will generate partial DwCA [$resource_id]\n";
             // /* ------------------------------------------------------ place to start injecting MultipleConnJenkinsAPI
             if(in_array($language, $use_MultipleConnJenkinsAPI)) inject_MultipleConnJenkinsAPI($language);
             // ------------------------------------------------------ */
+            
+            // /* new section for wikipedia_ver2 ****************************
+            Functions::finalize_dwca_resource($resource_id, true, true, $timestart); //2nd param true means big file; 3rd param true means will delete working folder
+            // ************************************************************** */
         }
     }
     else exit(1);
@@ -262,6 +289,23 @@ function delete_temp_files_and_others($language)
             else                  echo "deletion failed\n";
         }
     }
+}
+function aggregate_6partial_wikipedias($timestart, $resource_id)
+{
+    require_library('connectors/DwCA_Aggregator');
+    $langs = array();
+    //wikipedia-nl_1of6... and so on
+    //80_1of6 ... and so on
+    
+    //string generate the partials 1-6:
+    for ($i = 1; $i <= 6; $i++) $langs[] = $resource_id."_".$i."of6";
+    print_r($langs);
+
+    $resource_id .= '_ELI'; //debug only
+    echo "\nProcessing [$resource_id] partials:[".count($langs)."]...\n";
+    $func = new DwCA_Aggregator($resource_id, NULL, 'regular'); //'regular' not 'wikipedia' which is used in wikipedia aggregate resource
+    $func->combine_DwCAs($langs);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 
 /* http://opendata.eol.org/dataset/wikipedia_5k
