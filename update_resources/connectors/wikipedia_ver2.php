@@ -4,7 +4,7 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/WikiHTMLAPI');
 require_library('connectors/WikipediaAPI');
-require_library('connectors/WikiDataAPI');
+require_library('connectors/WikiDataAPI_ver2');
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = false; //orig false in production
 
@@ -202,7 +202,7 @@ $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("sz
 */
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
-$func = new WikiDataAPI($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon); //generic call
+$func = new WikiDataAPI_ver2($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon); //generic call
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
