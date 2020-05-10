@@ -294,7 +294,7 @@ class WikipediaAPI extends WikiHTMLAPI
     private function create_brief_summary($desc)
     {
         $tmp = Functions::get_str_up_to_this_chars_only($desc, "<h2");
-        $tmp = WikiDataAPI::remove_space($tmp);
+        $tmp = $this->remove_space($tmp);
         $tmp = strip_tags($tmp,'<table><tr><td><a><img><br><p>');
         $tmp = Functions::exclude_str_before_this_chars($tmp, "</table>"); //3rd param by default is "last" occurrence
 
@@ -355,7 +355,7 @@ class WikipediaAPI extends WikiHTMLAPI
 
         $arr = array("<p></p>","<div></div>");
         $desc = str_ireplace($arr, "", $desc);
-        $desc = trim(WikiDataAPI::remove_space($desc));
+        $desc = trim($this->remove_space($desc));
 
         // echo "\n----------------------------------Comprehensive Desc";
         // echo "\n[".$desc."]";
