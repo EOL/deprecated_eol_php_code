@@ -208,9 +208,15 @@ class DwCA_Aggregator
                 if($what == "taxon") {
                     $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                     if(stripos($rec['http://purl.org/dc/terms/source'], "wikipedia.org") !== false) $rec['http://purl.org/dc/terms/source'] = 'https://www.wikidata.org/wiki/'.$taxon_id; //string is found
-                    if(!isset($this->taxon_ids[$taxon_id])) {
-                        $this->taxon_ids[$taxon_id] = '';
-                    }
+                    if(!isset($this->taxon_ids[$taxon_id])) $this->taxon_ids[$taxon_id] = '';
+                    else continue;
+                }
+            }
+            elseif($this->DwCA_Type == 'regular') {
+                if($what == "taxon") {
+                    //taxonID must be uniqe
+                    $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    if(!isset($this->taxon_ids[$taxon_id])) $this->taxon_ids[$taxon_id] = '';
                     else continue;
                 }
             }
