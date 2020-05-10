@@ -202,7 +202,7 @@ $use_MultipleConnJenkinsAPI = array_merge($use_MultipleConnJenkinsAPI, array("sz
 */
 $langs_with_multiple_connectors = array_merge($langs_with_multiple_connectors, $use_MultipleConnJenkinsAPI);
 
-$func = new WikiDataAPI_ver2($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon); //generic call
+$func = new WikiDataAPI_ver2($resource_id, $language, 'wikipedia', $langs_with_multiple_connectors, $debug_taxon, false); //generic call. 6th param is false means running ver 2
 
 if(in_array($language, $langs_with_multiple_connectors)) { //uncomment in real operation
 // if(false) { //*** use this when developing to process language e.g. 'en' for one taxon only
