@@ -184,6 +184,7 @@ exit("\nend test\n");
 $actual = @$params['actual'];
 if($actual) $resource_id .= "_".$actual;
 else { //meaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.
+    echo "\n----------\nMeaning ready to finalize DwCA. Series 1of6, 2of6 - 6of6 are now done.\n----------\n";
     aggregate_6partial_wikipedias($timestart, $resource_id);
 }
 // ************************************************************** */
