@@ -14,7 +14,7 @@ ja  ko  ru  pt
             |   |           |   |   |       |         |
             sr  sv 1d10h    ast ka  hr      th        hy
             id  nn 9h       az  lt  la      kk        mrj
-            ceb sk          min et  da      lv        pms
+                sk          min et  da      lv        pms
                 bn          bg  nv  ml      is        ga
                 hu          szl gl  be      ne        hsb
                 war         af  br  ms      oc        sl
@@ -46,6 +46,7 @@ ja  ko  ru  pt
                                 diq ln
                                 ce  hak
                                 yo
+                                ceb
                                                       
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)

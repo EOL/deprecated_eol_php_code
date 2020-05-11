@@ -24,10 +24,10 @@ class WikipediaAPI extends WikiHTMLAPI
         $trans['Retrieved']['fr'] = "Récupéré";
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
-               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak
+               li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'hak';
+        $lang = 'kw';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -318,6 +318,12 @@ class WikipediaAPI extends WikiHTMLAPI
         
         $tmp = Functions::remove_this_last_char_from_str($tmp, "|"); //first client is Q13182 for language 'hi' Hindi
         
+        // /* final test
+        $test = trim(strip_tags($tmp));
+        if(!$test) $tmp = '';
+        if(str_word_count($test) <= 4) $tmp = '';
+        // */
+        
         if(trim(strip_tags($tmp)) == '') return '';
         return $tmp;
     }
@@ -544,6 +550,7 @@ class WikipediaAPI extends WikiHTMLAPI
         
         $left = '<table class="toccolours';         $html = self::process_left($html, $left);
         $left = '<table class="notice metadata';    $html = self::process_left($html, $left);
+        $left = '<div class="notice metadata';      $html = self::process_left($html, $left);
         $left = '<div class="hatnote">';            $html = self::process_left($html, $left);
         $left = '<div class="NavFrame collapsed';   $html = self::process_left($html, $left);
         
@@ -558,7 +565,6 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div class="boilerplate metadata"';    $html = self::process_left($html, $left);
         $left = '<div class="dablink"';                 $html = self::process_left($html, $left);
         $left = '<div class="dablink noprint"';         $html = self::process_left($html, $left);
-        $left = '<div class="notice metadata"';         $html = self::process_left($html, $left);
         $left = '<table style="background:none; text-align:left; padding:2px 0;" class="metadata"';     $html = self::process_left($html, $left);
         
         //box below
@@ -1454,10 +1460,6 @@ class WikipediaAPI extends WikiHTMLAPI
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
         }
         if($this->language_code == 'wuu') { //
-            //section below-middle
-            $left = '<div class="notice metadata"'; $right = '</div>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-            
             //external links
             $left = '<span class="mw-headline" id="链接进来">'; $right = '<!--';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, false);
@@ -1637,9 +1639,6 @@ class WikipediaAPI extends WikiHTMLAPI
             //section below
             //another section below
             $left = '<div class="floatnone">'; $right = '</div>';
-            $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
-            
-            $left = '<div class="notice metadata"'; $right = '</div>';
             $html = self::remove_all_in_between_inclusive($left, $right, $html, true);
         }
         if($this->language_code == 'kn') { //

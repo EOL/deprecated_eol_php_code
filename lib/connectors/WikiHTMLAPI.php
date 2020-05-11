@@ -99,6 +99,35 @@ class WikiHTMLAPI
     }
     public function during_dev()
     {   $arr = false;
+        if($this->debug_taxon == 'Formicidae')      {$arr = $this->get_object('Q7386'); $arr = $arr->entities->Q7386;}
+        if($this->debug_taxon == "Gadus morhua")    {$arr = $this->get_object('Q199788'); $arr = $arr->entities->Q199788;}
+        if($this->debug_taxon == "fish Pisces")     {$arr = $this->get_object('Q152'); $arr = $arr->entities->Q152;}
+        if($this->debug_taxon == "starfish Asteroidea")     {$arr = $this->get_object('Q25349'); $arr = $arr->entities->Q25349;}
+        if($this->debug_taxon == "Orca")                    {$arr = $this->get_object('Q26843'); $arr = $arr->entities->Q26843;}
+        if($this->debug_taxon == "Shark Selachimorpha")     {$arr = $this->get_object('Q7372'); $arr = $arr->entities->Q7372;}
+        if($this->debug_taxon == "Pacific halibut")         {$arr = $this->get_object('Q1819782'); $arr = $arr->entities->Q1819782;}
+        if($this->debug_taxon == "Pale fox")                {$arr = $this->get_object('Q739525'); $arr = $arr->entities->Q739525;}
+        if($this->debug_taxon == "Chanos chanos")           {$arr = $this->get_object('Q465261'); $arr = $arr->entities->Q465261;}
+        if($this->debug_taxon == "Oreochromis niloticus")   {$arr = $this->get_object('Q311170'); $arr = $arr->entities->Q311170;}
+        if($this->debug_taxon == "Polar bear")       {$arr = $this->get_object('Q33609'); $arr = $arr->entities->Q33609;}
+        if($this->debug_taxon == "Angiosperms")      {$arr = $this->get_object('Q25314'); $arr = $arr->entities->Q25314;} //DATA-1803
+        if($this->debug_taxon == "Mus musculus")     {$arr = $this->get_object('Q83310'); $arr = $arr->entities->Q83310;}
+        if($this->debug_taxon == "Rodentia")         {$arr = $this->get_object('Q10850'); $arr = $arr->entities->Q10850;}
+        if($this->debug_taxon == "Animalia")         {$arr = $this->get_object('Q729'); $arr = $arr->entities->Q729;}
+        if($this->debug_taxon == "Plantae")          {$arr = $this->get_object('Q756'); $arr = $arr->entities->Q756;}
+        if($this->debug_taxon == "Virus")            {$arr = $this->get_object('Q808'); $arr = $arr->entities->Q808;}
+        if($this->debug_taxon == "ferns")            {$arr = $this->get_object('Q80005'); $arr = $arr->entities->Q80005;}
+        if($this->debug_taxon == "Acacia")           {$arr = $this->get_object('Q81666'); $arr = $arr->entities->Q81666;}
+        if($this->debug_taxon == "Panthera tigris")  {$arr = $this->get_object('Q19939'); $arr = $arr->entities->Q19939;}
+        if($this->debug_taxon == "Bald Eagle")       {$arr = $this->get_object('Q127216'); $arr = $arr->entities->Q127216;}
+        if($this->debug_taxon == "Aves")             {$arr = $this->get_object('Q5113'); $arr = $arr->entities->Q5113;}
+        if($this->debug_taxon == "sunflower")        {$arr = $this->get_object('Q171497'); $arr = $arr->entities->Q171497;}
+        if($this->debug_taxon == "Rosa")             {$arr = $this->get_object('Q34687'); $arr = $arr->entities->Q34687;} //genus of plant
+        if($this->debug_taxon == "Hominidae")        {$arr = $this->get_object('Q635162'); $arr = $arr->entities->Q635162;}  //-- Homo sapiens
+        if($this->debug_taxon == "Fungi")            {$arr = $this->get_object('Q764'); $arr = $arr->entities->Q764;}
+        if($this->debug_taxon == "Coronaviridae")    {$arr = $this->get_object('Q1134583'); $arr = $arr->entities->Q1134583;}
+        if($this->debug_taxon == "Tracheophyta")     {$arr = $this->get_object('Q27133'); $arr = $arr->entities->Q27133;}
+        if($this->debug_taxon == "Leuciscus cephalus") {$arr = $this->get_object('Q189014'); $arr = $arr->entities->Q189014;}
         //lang ce
         if($this->debug_taxon == "Solanum tuberosum")       {$arr = $this->get_object('Q10998'); $arr = $arr->entities->Q10998;}
         if($this->debug_taxon == "Gruidae")                 {$arr = $this->get_object('Q25365'); $arr = $arr->entities->Q25365;}
@@ -339,6 +368,18 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Taraxacum officinale"){$arr = $this->get_object('Q131219'); $arr = $arr->entities->Q131219;}
         if($this->debug_taxon == "Helianthus tuberosus"){$arr = $this->get_object('Q146190'); $arr = $arr->entities->Q146190;}
         if($this->debug_taxon == "Ribes rubrum")        {$arr = $this->get_object('Q146661'); $arr = $arr->entities->Q146661;}
+        
+        //lang kw
+        if($this->debug_taxon == "Salix fragilis")              {$arr = $this->get_object('Q157518'); $arr = $arr->entities->Q157518;}
+        if($this->debug_taxon == "Viburnum lantana")            {$arr = $this->get_object('Q158508'); $arr = $arr->entities->Q158508;}
+        if($this->debug_taxon == "Quercus petraea")             {$arr = $this->get_object('Q158608'); $arr = $arr->entities->Q158608;}
+        if($this->debug_taxon == "Taxus baccata")               {$arr = $this->get_object('Q179729'); $arr = $arr->entities->Q179729;}
+        if($this->debug_taxon == "Ammodytidae")                 {$arr = $this->get_object('Q695712'); $arr = $arr->entities->Q695712;}
+        if($this->debug_taxon == "Fagus longipetiolata")        {$arr = $this->get_object('Q1005330'); $arr = $arr->entities->Q1005330;}
+        if($this->debug_taxon == "Quercus cornelius-mulleri")   {$arr = $this->get_object('Q2710363'); $arr = $arr->entities->Q2710363;}
+        if($this->debug_taxon == "Fagus mexicana")              {$arr = $this->get_object('Q3145119'); $arr = $arr->entities->Q3145119;}
+        if($this->debug_taxon == "Erithacus rubecula")          {$arr = $this->get_object('Q25334'); $arr = $arr->entities->Q25334;}
+        if($this->debug_taxon == "Castor")                      {$arr = $this->get_object('Q47542'); $arr = $arr->entities->Q47542;}
         
         return $arr;
     }

@@ -482,11 +482,12 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (ln) Lingala                https://en.wikipedia.org/wiki/Lingala
 
 (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
+(kw) Cornish                https://en.wikipedia.org/wiki/Cornish_language
+(bcl) Central Bicolano      https://en.wikipedia.org/wiki/Central_Bikol
 
-kw	188
-bcl	186
-za	175
-ang	167
+(za) Zhuang                 https://en.wikipedia.org/wiki/Zhuang_languages
+
+(ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
 eml	165
 av	159
 chy	150

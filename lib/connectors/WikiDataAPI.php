@@ -591,35 +591,6 @@ class WikiDataAPI extends WikipediaAPI
                 /* force taxon in wikipedia & wikimedia. when developing ***. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 if($this->debug_taxon == "Panthera leo")    {$arr = self::get_object('Q140'); $arr = $arr->entities->Q140;}
                 if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
-                if($this->debug_taxon == 'Formicidae')      {$arr = self::get_object('Q7386'); $arr = $arr->entities->Q7386;}
-                if($this->debug_taxon == "Gadus morhua")    {$arr = self::get_object('Q199788'); $arr = $arr->entities->Q199788;}
-                if($this->debug_taxon == "fish Pisces")     {$arr = self::get_object('Q152'); $arr = $arr->entities->Q152;}
-                if($this->debug_taxon == "starfish Asteroidea")     {$arr = self::get_object('Q25349'); $arr = $arr->entities->Q25349;}
-                if($this->debug_taxon == "Orca")                    {$arr = self::get_object('Q26843'); $arr = $arr->entities->Q26843;}
-                if($this->debug_taxon == "Shark Selachimorpha")     {$arr = self::get_object('Q7372'); $arr = $arr->entities->Q7372;}
-                if($this->debug_taxon == "Pacific halibut")         {$arr = self::get_object('Q1819782'); $arr = $arr->entities->Q1819782;}
-                if($this->debug_taxon == "Pale fox")                {$arr = self::get_object('Q739525'); $arr = $arr->entities->Q739525;}
-                if($this->debug_taxon == "Chanos chanos")           {$arr = self::get_object('Q465261'); $arr = $arr->entities->Q465261;}
-                if($this->debug_taxon == "Oreochromis niloticus")   {$arr = self::get_object('Q311170'); $arr = $arr->entities->Q311170;}
-                if($this->debug_taxon == "Polar bear")       {$arr = self::get_object('Q33609'); $arr = $arr->entities->Q33609;}
-                if($this->debug_taxon == "Angiosperms")      {$arr = self::get_object('Q25314'); $arr = $arr->entities->Q25314;} //DATA-1803
-                if($this->debug_taxon == "Mus musculus")     {$arr = self::get_object('Q83310'); $arr = $arr->entities->Q83310;}
-                if($this->debug_taxon == "Rodentia")         {$arr = self::get_object('Q10850'); $arr = $arr->entities->Q10850;}
-                if($this->debug_taxon == "Animalia")         {$arr = self::get_object('Q729'); $arr = $arr->entities->Q729;}
-                if($this->debug_taxon == "Plantae")          {$arr = self::get_object('Q756'); $arr = $arr->entities->Q756;}
-                if($this->debug_taxon == "Virus")            {$arr = self::get_object('Q808'); $arr = $arr->entities->Q808;}
-                if($this->debug_taxon == "ferns")            {$arr = self::get_object('Q80005'); $arr = $arr->entities->Q80005;}
-                if($this->debug_taxon == "Acacia")           {$arr = self::get_object('Q81666'); $arr = $arr->entities->Q81666;}
-                if($this->debug_taxon == "Panthera tigris")  {$arr = self::get_object('Q19939'); $arr = $arr->entities->Q19939;}
-                if($this->debug_taxon == "Bald Eagle")       {$arr = self::get_object('Q127216'); $arr = $arr->entities->Q127216;}
-                if($this->debug_taxon == "Aves")             {$arr = self::get_object('Q5113'); $arr = $arr->entities->Q5113;}
-                if($this->debug_taxon == "sunflower")        {$arr = self::get_object('Q171497'); $arr = $arr->entities->Q171497;}
-                if($this->debug_taxon == "Rosa")             {$arr = self::get_object('Q34687'); $arr = $arr->entities->Q34687;} //genus of plant
-                if($this->debug_taxon == "Hominidae")        {$arr = self::get_object('Q635162'); $arr = $arr->entities->Q635162;}  //-- Homo sapiens
-                if($this->debug_taxon == "Fungi")            {$arr = self::get_object('Q764'); $arr = $arr->entities->Q764;}
-                if($this->debug_taxon == "Coronaviridae")    {$arr = self::get_object('Q1134583'); $arr = $arr->entities->Q1134583;}
-                if($this->debug_taxon == "Tracheophyta")     {$arr = self::get_object('Q27133'); $arr = $arr->entities->Q27133;}
-                if($this->debug_taxon == "Leuciscus cephalus") {$arr = self::get_object('Q189014'); $arr = $arr->entities->Q189014;}
                 if($val = $this->during_dev()) $arr = $val;
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
