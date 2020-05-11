@@ -42,15 +42,21 @@ ja  ko  ru  pt
                                 vo  ia      bo        ha
                                 lez rw      stq       lbe
                                 sa  vec     inh       lij
-                                ace sc
-                                diq ln
-                                ce  hak
-                                yo
+                                ace sc      hak
+                                diq ln      kw
+                                ce  hak     bcl
+                                yo          za
                                 ceb
                                                       
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
+                
+                (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
+                (kw) Cornish                https://en.wikipedia.org/wiki/Cornish_language
+                (bcl) Central Bicolano      https://en.wikipedia.org/wiki/Central_Bikol
+                (za) Zhuang                 https://en.wikipedia.org/wiki/Zhuang_languages
+                
                 
                 (yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
                 (rw) Kinyarwanda            https://en.wikipedia.org/wiki/Kinyarwanda
