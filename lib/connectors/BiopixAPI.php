@@ -31,6 +31,7 @@ class BiopixAPI
         $this->create_archive();
         
         unlink($filepath);
+        if($this->debug) print_r($this->debug);
     }
     
     function create_instances_from_row($line)
@@ -92,6 +93,7 @@ class BiopixAPI
         $m->Rating = self::convert_biopix_rating($rating);
         $m->UsageTerms = 'http://creativecommons.org/licenses/by-nc/3.0/';
         $m->Owner = $owner;
+        if($owner) $this->debug['Owner'][$owner] = '';
         $this->media[$image_id] = $m;
     }
     
@@ -175,7 +177,7 @@ class BiopixAPI
     
     private function download_resource_data()
     {
-        $biopix_tab_data = Functions::save_remote_file_to_local($this->data_dump_url, array('cache' => 1, 'expire_seconds' => 60*60*24*25, 'timeout' => 300));
+        $biopix_tab_data = Functions::save_remote_file_to_local($this->data_dump_url, array('cache' => 1, 'expire_seconds' => 60*60*24*2, 'timeout' => 300));
         return $biopix_tab_data;
     }
 }
