@@ -596,6 +596,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         [present:Cryptogenic|Uncertain] =>DISCARD
         */
         $combo = strtolower("$oS:$eM");
+        $combo = str_ireplace('uncerain', 'uncertain', $combo);
         if(stripos($combo, 'uncertain') !== false) { //string is found
             return false;
         }
