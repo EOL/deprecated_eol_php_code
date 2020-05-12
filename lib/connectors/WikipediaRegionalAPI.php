@@ -196,6 +196,7 @@ class WikipediaRegionalAPI
             elseif($lang == 'bat-smg')    $lang = 'sgs';
             elseif($lang == 'als')        $lang = 'gsw';
             elseif($lang == 'bh')         $lang = 'bho';
+            elseif($lang == 'eml')        $lang = 'egl';
             else {
                 echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
             }

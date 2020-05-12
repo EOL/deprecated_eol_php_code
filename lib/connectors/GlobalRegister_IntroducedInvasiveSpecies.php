@@ -608,6 +608,13 @@ class GlobalRegister_IntroducedInvasiveSpecies
             case "present:native|alien": return "http://eol.org/schema/terms/Present";
             case "alien:": return "http://eol.org/schema/terms/IntroducedRange";
             case "present:alien|native": return "http://eol.org/schema/terms/Present";
+            case ":alien": return "http://eol.org/schema/terms/IntroducedRange";
+            case ":native|alien": return "http://eol.org/schema/terms/Present";
+            case "present:native|invasive": return "http://eol.org/schema/terms/Present";
+            case "reported:alien": return "http://eol.org/schema/terms/IntroducedRange";
+            case "present:cryptogenic|unknown": return false;
+            case "eradicated:alien":            return false;
+            case "absent:alien":                return false;
             default:
                 if(!$combo) return false;
                 else {

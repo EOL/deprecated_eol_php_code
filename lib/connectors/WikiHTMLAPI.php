@@ -94,8 +94,19 @@ class WikiHTMLAPI
     }
     public function process_external_links($html, $id)
     {
+        $left = '<span class="mw-headline" id="'.$id.'"'; $right = '<span class="mw-headline"';
+        $html1 = $this->remove_all_in_between_inclusive($left, $right, $html, false);
+        
         $left = '<span class="mw-headline" id="'.$id.'"'; $right = '<!--';
-        return $this->remove_all_in_between_inclusive($left, $right, $html, false);
+        $html2 = $this->remove_all_in_between_inclusive($left, $right, $html, false);
+        
+        if($html1 && $html2) {
+            if(strlen($html1) < strlen($html2)) return $html2; //exit("\naaa\n"); //
+            else return $html1; //exit("\nccc\n");
+        }
+        elseif($html1) return $html1; //exit("\nbbb\n"); //
+        elseif($html2) return $html2; //exit("\nccc\n");//
+        else return $html; //exit("\nddd\n"); //
     }
     public function during_dev()
     {   $arr = false;

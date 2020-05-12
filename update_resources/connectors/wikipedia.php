@@ -486,12 +486,13 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (bcl) Central Bicolano      https://en.wikipedia.org/wiki/Central_Bikol
 
 (za) Zhuang                 https://en.wikipedia.org/wiki/Zhuang_languages
-
 (ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
-eml	165
-av	159
-chy	150
-fj	150
+(eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
+
+(av) Avar                   https://en.wikipedia.org/wiki/Avar_language
+(chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
+(fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
+
 ik	150
 ug	144
 zea	144
