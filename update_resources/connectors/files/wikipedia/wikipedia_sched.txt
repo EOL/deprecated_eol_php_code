@@ -19,9 +19,9 @@ ja  ko  ru  pt
                 hu          szl gl  be      ne        hsb
                 war         af  br  ms      oc        sl
                             eo  ta  el      qu        mk
-                                hi  fy      be-x-old  tl
-                                koi frr     udm       ba
-                                io  lb      co        fo
+                            av  hi  fy      be-x-old  tl
+                            chy koi frr     udm       ba
+                            fj  io  lb      co        fo
                                 my  su      sq        os
                                 mn  kn      csb       cv
                                 kv  tt      mr        kab
@@ -52,15 +52,17 @@ ja  ko  ru  pt
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
                 
+                (av) Avar                   https://en.wikipedia.org/wiki/Avar_language
+                (chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
+                (fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
+                
                 (ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
                 (eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
-                
                 
                 (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
                 (kw) Cornish                https://en.wikipedia.org/wiki/Cornish_language
                 (bcl) Central Bicolano      https://en.wikipedia.org/wiki/Central_Bikol
                 (za) Zhuang                 https://en.wikipedia.org/wiki/Zhuang_languages
-                
                 
                 (yo) Yoruba                 https://en.wikipedia.org/wiki/Yoruba_language
                 (rw) Kinyarwanda            https://en.wikipedia.org/wiki/Kinyarwanda
@@ -88,7 +90,6 @@ ja  ko  ru  pt
                 (bo) Tibetan                https://en.wikipedia.org/wiki/Tibetan_language  247
                 (stq) Saterland Frisian     https://en.wikipedia.org/wiki/Saterland_Frisian 247
                 (inh) Ingush                https://en.wikipedia.org/wiki/Ingush_language   244
-                
                 
                 (bar) Bavarian              https://en.wikipedia.org/wiki/Bavarian_language     270
                 (nap) Neapolitan            https://en.wikipedia.org/wiki/Neapolitan_language   258
