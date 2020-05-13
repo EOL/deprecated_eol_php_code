@@ -17,6 +17,7 @@ after DATA-1841: terms remapping -> nos. shouldn't be affected, so consistent OK
 Expected for MoF to be reduced - so consistent OK
 708	Thursday 2020-03-19 03:00:34 AM	{"measurement_or_fact.tab":727108, "occurrence.tab":631535, "reference.tab":198537, "taxon.tab":196191, "time_elapsed":{"sec":580.76, "min":9.68, "hr":0.16}}
 708	Wednesday 2020-05-13 05:42:17 AM{"measurement_or_fact.tab":720242, "occurrence.tab":625163, "reference.tab":198537, "taxon.tab":194207, "time_elapsed":{"sec":933.52, "min":15.56, "hr":0.26}} Mac Mini
+708	Wednesday 2020-05-13 09:35:56 AM{"measurement_or_fact.tab":720242, "occurrence.tab":625163, "reference.tab":195531, "taxon.tab":194207, "time_elapsed":{"sec":571.25, "min":9.52, "hr":0.16}} back to eol-archive
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
