@@ -489,8 +489,9 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
 
 (av) Avar                   https://en.wikipedia.org/wiki/Avar_language
-(chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
 (fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
+
+(chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
 
 (ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
 (ug) Uyghur                 https://en.wikipedia.org/wiki/Uyghur_language
