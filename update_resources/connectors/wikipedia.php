@@ -481,20 +481,19 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (sc) Sardinian              https://en.wikipedia.org/wiki/Sardinian_language
 * (ln) Lingala                https://en.wikipedia.org/wiki/Lingala
 
-(hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
-(kw) Cornish                https://en.wikipedia.org/wiki/Cornish_language
-(bcl) Central Bicolano      https://en.wikipedia.org/wiki/Central_Bikol
-
-(za) Zhuang                 https://en.wikipedia.org/wiki/Zhuang_languages
-(ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
-(eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
+* (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
+* (kw) Cornish                https://en.wikipedia.org/wiki/Cornish_language
+* (bcl) Central Bicolano      https://en.wikipedia.org/wiki/Central_Bikol
+* (za) Zhuang                 https://en.wikipedia.org/wiki/Zhuang_languages
+* (ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
+* (eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
 
 (av) Avar                   https://en.wikipedia.org/wiki/Avar_language
 (chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
 (fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
 
-ik	150
-ug	144
+(ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
+(ug) Uyghur                 https://en.wikipedia.org/wiki/Uyghur_language
 zea	144
 bxr	139
 zh-classical	139

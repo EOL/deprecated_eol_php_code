@@ -593,7 +593,7 @@ class WikiDataAPI extends WikipediaAPI
                 if($this->debug_taxon == "wolf")            {$arr = self::get_object('Q18498'); $arr = $arr->entities->Q18498;}
                 if($val = $this->during_dev()) $arr = $val;
                 // $arr = self::get_object('Q3460'); $arr = $arr->entities->Q3460;
-                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
+                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
                 
                 // /* taxon_wiki_per_language_stats
                 if($task == 'taxon_wiki_per_language_stats') {

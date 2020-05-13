@@ -42,8 +42,8 @@ ja  ko  ru  pt
                                 vo  ia      bo        ha
                                 lez rw      stq       lbe
                                 sa  vec     inh       lij
-                                ace sc      hak
-                                diq ln      kw
+                                ace sc      hak       ang
+                                diq ln      kw        eml
                                 ce  hak     bcl
                                 yo          za
                                 ceb
@@ -51,6 +51,10 @@ ja  ko  ru  pt
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
+                
+                (ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
+                (eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
+                
                 
                 (hak) Hakka                 https://en.wikipedia.org/wiki/Hakka_Chinese
                 (kw) Cornish                https://en.wikipedia.org/wiki/Cornish_language
@@ -1086,7 +1090,6 @@ wikipedia-ia	Monday 2020-05-11 01:54:51 PM	{"media_resource.tab":1677, "taxon.ta
 wikipedia-rw	Monday 2020-05-11 02:08:57 PM	{"media_resource.tab":219, "taxon.tab":681, "time_elapsed":{"sec":839.51, "min":13.99, "hr":0.23}}
 wikipedia-za	Monday 2020-05-11 02:09:04 PM	{"media_resource.tab":169, "taxon.tab":662, "time_elapsed":{"sec":1065.77, "min":17.76, "hr":0.3}}
 wikipedia-vec	Monday 2020-05-11 02:23:28 PM	{"media_resource.tab":274, "taxon.tab":704, "time_elapsed":{"sec":864.48, "min":14.41, "hr":0.24}}
-inat_supplement	Monday 2020-05-11 02:24:26 PM	{"observations.txt":800923}
 wikipedia-sc	Monday 2020-05-11 02:37:47 PM	{"media_resource.tab":236, "taxon.tab":828, "time_elapsed":{"sec":849.53, "min":14.16, "hr":0.24}}
 wikipedia-ln	Monday 2020-05-11 02:51:43 PM	{"media_resource.tab":229, "taxon.tab":676, "time_elapsed":{"sec":829.22, "min":13.82, "hr":0.23}}
 wikipedia-hak	Monday 2020-05-11 03:05:38 PM	{"media_resource.tab":218, "taxon.tab":705, "time_elapsed":{"sec":825.57, "min":13.76, "hr":0.23}}
@@ -1097,10 +1100,16 @@ wikipedia-eu	Monday 2020-05-11 03:51:19 PM	{"media_resource.tab":142382, "taxon.
 wikipedia-ha	Monday 2020-05-11 04:04:33 PM	{"media_resource.tab":325, "taxon.tab":737, "time_elapsed":{"sec":784.72, "min":13.08, "hr":0.22}}
 wikipedia-lbe	Monday 2020-05-11 04:18:24 PM	{"media_resource.tab":78, "taxon.tab":323, "time_elapsed":{"sec":826.2, "min":13.77, "hr":0.23}}
 wikipedia-lij	Monday 2020-05-11 04:32:33 PM	{"media_resource.tab":257, "taxon.tab":566, "time_elapsed":{"sec":839.47, "min":13.99, "hr":0.23}}
-
+wikipedia-ang	Tuesday 2020-05-12 10:26:58 AM	{"media_resource.tab":197, "taxon.tab":535, "time_elapsed":{"sec":1005.57, "min":16.76, "hr":0.28}}
+wikipedia-eml	Tuesday 2020-05-12 10:43:35 AM	{"media_resource.tab":264, "taxon.tab":715, "time_elapsed":{"sec":989.66, "min":16.49, "hr":0.27}}
+wikipedia-sv	Tuesday 2020-05-12 09:30:22 PM	{"media_resource.tab":92802, "taxon.tab":60010, "time_elapsed":{"sec":141545.55, "min":2359.09, "hr":39.32, "day":1.64}}
+wikipedia-nn	Tuesday 2020-05-12 09:54:17 PM	{"media_resource.tab":6452, "taxon.tab":5715, "time_elapsed":{"sec":1425, "min":23.75, "hr":0.4}}
+wikipedia-sk	Tuesday 2020-05-12 10:13:49 PM	{"media_resource.tab":5752, "taxon.tab":5646, "time_elapsed":{"sec":1162.4, "min":19.37, "hr":0.32}}
+wikipedia-bn	Tuesday 2020-05-12 10:31:57 PM	{"media_resource.tab":3471, "taxon.tab":4819, "time_elapsed":{"sec":1080.54, "min":18.01, "hr":0.3}}
+wikipedia-hu	Tuesday 2020-05-12 11:34:57 PM	{"media_resource.tab":44884, "taxon.tab":28929, "time_elapsed":{"sec":3770.29, "min":62.84, "hr":1.05}}
 
 last one:
-wikipedia-min	Monday 2020-05-11 10:16:12 PM	{"media_resource.tab":332086, "taxon.tab":175568, "time_elapsed":{"sec":22469.2, "min":374.49, "hr":6.24}}
+wikipedia-hu	Tuesday 2020-05-12 11:34:57 PM	{"media_resource.tab":44884, "taxon.tab":28929, "time_elapsed":{"sec":3770.29, "min":62.84, "hr":1.05}}
 
 
 
