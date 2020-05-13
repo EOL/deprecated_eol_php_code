@@ -136,7 +136,7 @@ class DwCA_Utility
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only
             if($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
-            elseif(in_array($this->resource_id, array('BF', 'gbif_classification'))) break; //all extensions will be processed elsewhere.
+            elseif(in_array($this->resource_id, array('BF', 'gbif_classification', '708'))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
