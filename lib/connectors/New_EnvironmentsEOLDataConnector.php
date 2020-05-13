@@ -37,6 +37,7 @@ class New_EnvironmentsEOLDataConnector
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //fix source links bec. of obsolete taxonIDs
         unset($this->linkage_oID_tID);
         unset($this->linkage_tID_sName);
+        self::process_reference($tables['http://eol.org/schema/reference/reference'][0]); //write references actually used in MoF. Not all references from source.
     }
     private function process_measurementorfact_info($meta)
     {   //print_r($meta);
@@ -140,6 +141,7 @@ class New_EnvironmentsEOLDataConnector
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
+            if($val = $o->referenceID) $this->referenceIDs[$val] = ''; //later, will write only refs actually used in MoF
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
@@ -170,6 +172,21 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/order] => 
                 [http://rs.tdwg.org/dwc/terms/genus] => 
             )*/
+            
+            // /* May 13, 2020 per: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=64845&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64845
+            // We don't need habitat records for high rank taxa; they are very hit or miss. Please remove all taxa, and their associated occurrence and MoF records, 
+            // that have taxon IDs "up to" EOL:9038, and also, individually, EOL:5251339 and EOL:11592540
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $taxon_id = str_replace('EOL:', '', $taxonID);
+            if($taxon_id <= 9038) {
+                $this->remove_higher_rank_taxonIDs[$taxonID] = '';
+                continue;
+            }
+            if(in_array($taxonID, array('EOL:5251339', 'EOL:11592540'))) {
+                $this->remove_higher_rank_taxonIDs[$taxonID] = '';
+                continue;
+            }
+            // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
             
             if($rec['http://rs.tdwg.org/dwc/terms/taxonID'] == 'EOL:11584278') continue;
             
@@ -279,6 +296,15 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
                 [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:2
             )*/
+            
+            // /* May 13, 2020: remove higher rank taxa
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            if(isset($this->remove_higher_rank_taxonIDs[$taxonID])) {
+                $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                continue;
+            }
+            // */
+            
             if(isset($this->exclude['taxonID'][$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) {
                 $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
                 continue;
@@ -295,6 +321,40 @@ class New_EnvironmentsEOLDataConnector
                 $o->$field = $rec[$uri];
             }
             if($o->taxonID == 'EOL:11584278') continue; //exclude scientificName = '(undescribed)'
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
+        }
+    }
+    private function process_reference($meta)
+    {   //print_r($meta);
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://purl.org/dc/terms/identifier] => 49f4bc89592c2fab757bdfa036b47d44
+                [http://eol.org/schema/reference/full_reference] => "Gigantorhynchida." <i>Wikipedia, The Free Encyclopedia</i>. 20 Mar 2013, 16:54 UTC. 26 Aug 2013 &lt;<a href="http://en.wikipedia.org/w/index.php?title=Gigantorhynchida&oldid=570187986">http://en.wikipedia.org/w/index.php?title=Gigantorhynchida&oldid=570187986</a>&gt;.
+            )*/
+            
+            
+            if(!isset($this->referenceIDs[$rec['http://purl.org/dc/terms/identifier']])) continue;
+            
+            $o = new \eol_schema\Reference();
+            $uris = array_keys($rec);
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }

@@ -16,6 +16,7 @@ after DATA-1841: terms remapping -> nos. shouldn't be affected, so consistent OK
 708	Thursday 2020-02-20 11:18:49 PM	{"measurement_or_fact.tab":742378,"occurrence.tab":645482,"reference.tab":198537,"taxon.tab":196191,"time_elapsed":{"sec":306.43,"min":5.11,"hr":0.09}}
 Expected for MoF to be reduced - so consistent OK
 708	Thursday 2020-03-19 03:00:34 AM	{"measurement_or_fact.tab":727108, "occurrence.tab":631535, "reference.tab":198537, "taxon.tab":196191, "time_elapsed":{"sec":580.76, "min":9.68, "hr":0.16}}
+708	Wednesday 2020-05-13 05:42:17 AM{"measurement_or_fact.tab":720242, "occurrence.tab":625163, "reference.tab":198537, "taxon.tab":194207, "time_elapsed":{"sec":933.52, "min":15.56, "hr":0.26}} Mac Mini
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -39,11 +40,12 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     rowType="http://eol.org/schema/reference/Reference"
     */
 
-    $preferred_rowtypes = array('http://eol.org/schema/reference/reference');
-    /* These 3 will be processed in New_EnvironmentsEOLDataConnector.php which will be called from DwCA_Utility.php
+    $preferred_rowtypes = array();
+    /* These 4 will be processed in New_EnvironmentsEOLDataConnector.php which will be called from DwCA_Utility.php
     http://rs.tdwg.org/dwc/terms/occurrence
     http://rs.tdwg.org/dwc/terms/measurementorfact
     http://rs.tdwg.org/dwc/terms/taxon
+    http://eol.org/schema/reference/reference
     */
     $func->convert_archive($preferred_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
