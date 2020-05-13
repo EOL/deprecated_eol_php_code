@@ -353,7 +353,6 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Channa striata")          {$arr = $this->get_object('Q686439'); $arr = $arr->entities->Q686439;}
         if($this->debug_taxon == "Sandoricum koetjape")     {$arr = $this->get_object('Q913452'); $arr = $arr->entities->Q913452;}
         if($this->debug_taxon == "Sesbania grandiflora")    {$arr = $this->get_object('Q947251'); $arr = $arr->entities->Q947251;}
-
         //lang rw
         if($this->debug_taxon == "Olea europaea")               {$arr = $this->get_object('Q37083'); $arr = $arr->entities->Q37083;}
         if($this->debug_taxon == "Lactuca sativa")              {$arr = $this->get_object('Q83193'); $arr = $arr->entities->Q83193;}
@@ -370,7 +369,6 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Euphorbia grantii")           {$arr = $this->get_object('Q4022681'); $arr = $arr->entities->Q4022681;}
         if($this->debug_taxon == "Waltheria indica")            {$arr = $this->get_object('Q7966688'); $arr = $arr->entities->Q7966688;}
         if($this->debug_taxon == "Thymus")                      {$arr = $this->get_object('Q131224'); $arr = $arr->entities->Q131224;}
-        
         //lang vec
         if($this->debug_taxon == "Corvus corone")       {$arr = $this->get_object('Q26198'); $arr = $arr->entities->Q26198;}
         if($this->debug_taxon == "Olea europaea")       {$arr = $this->get_object('Q37083'); $arr = $arr->entities->Q37083;}
@@ -379,7 +377,6 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Taraxacum officinale"){$arr = $this->get_object('Q131219'); $arr = $arr->entities->Q131219;}
         if($this->debug_taxon == "Helianthus tuberosus"){$arr = $this->get_object('Q146190'); $arr = $arr->entities->Q146190;}
         if($this->debug_taxon == "Ribes rubrum")        {$arr = $this->get_object('Q146661'); $arr = $arr->entities->Q146661;}
-        
         //lang kw
         if($this->debug_taxon == "Salix fragilis")              {$arr = $this->get_object('Q157518'); $arr = $arr->entities->Q157518;}
         if($this->debug_taxon == "Viburnum lantana")            {$arr = $this->get_object('Q158508'); $arr = $arr->entities->Q158508;}
@@ -391,7 +388,31 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Fagus mexicana")              {$arr = $this->get_object('Q3145119'); $arr = $arr->entities->Q3145119;}
         if($this->debug_taxon == "Erithacus rubecula")          {$arr = $this->get_object('Q25334'); $arr = $arr->entities->Q25334;}
         if($this->debug_taxon == "Castor")                      {$arr = $this->get_object('Q47542'); $arr = $arr->entities->Q47542;}
-        
+        //lang av
+        if($this->debug_taxon == "Ursidae")         {$arr = $this->get_object('Q11788'); $arr = $arr->entities->Q11788;}
+        if($this->debug_taxon == "Ciconia ciconia") {$arr = $this->get_object('Q25352'); $arr = $arr->entities->Q25352;}
+        if($this->debug_taxon == "Oriolus oriolus") {$arr = $this->get_object('Q25388'); $arr = $arr->entities->Q25388;}
+        if($this->debug_taxon == "Lens culinaris")  {$arr = $this->get_object('Q131226'); $arr = $arr->entities->Q131226;}
+        if($this->debug_taxon == "Populus alba")    {$arr = $this->get_object('Q146269'); $arr = $arr->entities->Q146269;}
+        //lang chy
+        if($this->debug_taxon == "Alces alces")         {$arr = $this->get_object('Q35517'); $arr = $arr->entities->Q35517;}
+        if($this->debug_taxon == "Ursus arctos")        {$arr = $this->get_object('Q36341'); $arr = $arr->entities->Q36341;}
+        if($this->debug_taxon == "Phaseolus vulgaris")  {$arr = $this->get_object('Q42339'); $arr = $arr->entities->Q42339;}
+        if($this->debug_taxon == "Meleagris")           {$arr = $this->get_object('Q43794'); $arr = $arr->entities->Q43794;}
+        if($this->debug_taxon == "Odocoileus virginianus")  {$arr = $this->get_object('Q215887'); $arr = $arr->entities->Q215887;}
+        if($this->debug_taxon == "Cardinalidae")            {$arr = $this->get_object('Q223402'); $arr = $arr->entities->Q223402;}
+        if($this->debug_taxon == "Athene cunicularia")      {$arr = $this->get_object('Q467068'); $arr = $arr->entities->Q467068;}
+        //lang fj
+        if($this->debug_taxon == "Pelomedusa subrufa")      {$arr = $this->get_object('Q913795'); $arr = $arr->entities->Q913795;}
+        if($this->debug_taxon == "Tupaia moellendorffi")    {$arr = $this->get_object('Q965015'); $arr = $arr->entities->Q965015;}
+        if($this->debug_taxon == "Balaka seemannii")        {$arr = $this->get_object('Q1247945'); $arr = $arr->entities->Q1247945;}
+        if($this->debug_taxon == "Pelusios subniger")       {$arr = $this->get_object('Q1266050'); $arr = $arr->entities->Q1266050;}
+        if($this->debug_taxon == "Astronidium storckii")    {$arr = $this->get_object('Q1616860'); $arr = $arr->entities->Q1616860;}
+        if($this->debug_taxon == "Aglaia saltatorum")       {$arr = $this->get_object('Q48271'); $arr = $arr->entities->Q48271;}
+        if($this->debug_taxon == "Pinaceae")            {$arr = $this->get_object('Q101680'); $arr = $arr->entities->Q101680;}
+        if($this->debug_taxon == "Tupaia belangeri")    {$arr = $this->get_object('Q378959'); $arr = $arr->entities->Q378959;}
+        if($this->debug_taxon == "Pandanus")            {$arr = $this->get_object('Q471914'); $arr = $arr->entities->Q471914;}
+        if($this->debug_taxon == "Anguilla marmorata")  {$arr = $this->get_object('Q496154'); $arr = $arr->entities->Q496154;}
         return $arr;
     }
 }
