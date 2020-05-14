@@ -52,6 +52,10 @@ class CoralTraitsAPI
     }
     private function implement_addtl_mapping($rek)
     {
+        // /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=64852&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64852
+        if($rek['measurementValue'] == 'http://purl.obolibrary.org/obo/ENVO_01000049') $rek['measurementValue'] = 'http://purl.obolibrary.org/obo/ENVO_01000029';
+        // */
+        
         // print_r($rek);
         /* $rek e.g. Array(
             [taxon_id] => 1269
