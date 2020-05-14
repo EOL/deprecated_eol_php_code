@@ -312,6 +312,7 @@ wikipedia-ast (Asturian)
 (ckb) Sorani    https://en.wikipedia.org/wiki/Sorani        --- same as Arabic and Persian
 (dv) Divehi     https://en.wikipedia.org/wiki/Maldivian_language    307     --- same as Arabic and Persian
 (yi) Yiddish                https://en.wikipedia.org/wiki/Yiddish	219     --- same as Arabic and Persian
+(ug) Uyghur                 https://en.wikipedia.org/wiki/Uyghur_language   --- same as Arabic and Persian
 
 
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
@@ -492,11 +493,11 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
 
 (chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
-
 (ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
-(ug) Uyghur                 https://en.wikipedia.org/wiki/Uyghur_language
-zea	144
-bxr	139
+(zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
+
+(bxr) Buryat                https://en.wikipedia.org/wiki/Buryat_language
+
 zh-classical	139
 bjn	137
 so	137
