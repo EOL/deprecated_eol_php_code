@@ -47,12 +47,9 @@ ja  ko  ru  pt
                                 ce  hak     bcl
                                 yo          za
                                 ceb
-                                                      
-                not yet scheduled: 
-                probably needs to have multiple connectors: hu szl (or don't)
-                probably needs to have multiple connectors: eu
-                
-                re-run: war, ceb
+
+                probably needs to have multiple connectors: hu szl eu (or don't)
+                $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
                 
                 (ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
                 (zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
