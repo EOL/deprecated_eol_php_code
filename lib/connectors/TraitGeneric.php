@@ -168,7 +168,8 @@ class TraitGeneric
         if($measurementType == 'http://eol.org/schema/terms/Colonial') {
             if($value == 'http://eol.org/schema/terms/yes') {
                 $measurementType = 'http://purl.obolibrary.org/obo/NCIT_C25513';
-                $value = 'http://purl.obolibrary.org/obo/ENVO_01000049';
+                // $value = 'http://purl.obolibrary.org/obo/ENVO_01000049'; OBSOLETE
+                $value = 'http://purl.obolibrary.org/obo/ENVO_01000029'; //per Jen: https://eol-jira.bibalex.org/browse/DATA-1793?focusedCommentId=64850&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64850
             }
             else return false;
         }
