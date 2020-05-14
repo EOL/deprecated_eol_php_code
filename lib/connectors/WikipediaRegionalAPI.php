@@ -183,8 +183,14 @@ class WikipediaRegionalAPI
         
         return $html;
     }
+    private function is_orientation_right2left($html)
+    {
+        if(stripos($html, 'dir="rtl" class="mw-content-rtl"') !== false) return true; //string is found
+        return false;
+    }
     function get_comprehensive_desc($html)
     {
+        if(self::is_orientation_right2left($html)) exit("\nWiki is right-to-left. Will stop here.\n\n");
         $lang = $this->language_code;
         if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\"mw-navigation\">/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
 //                      <div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">
