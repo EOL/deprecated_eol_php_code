@@ -497,11 +497,10 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
 
 (bxr) Buryat                https://en.wikipedia.org/wiki/Buryat_language
-
-zh-classical	139
-bjn	137
-so	137
-arz	135
+(zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese     *(lzh)
+(bjn) Banjar                https://en.wikipedia.org/wiki/Banjar_language               *(bjn or bvu)
+(so) Somali                 https://en.wikipedia.org/wiki/Somali_language
+(arz) Egyptian Arabic       https://en.wikipedia.org/wiki/Egyptian_Arabic
 mwl	130
 sn	130
 chr	128

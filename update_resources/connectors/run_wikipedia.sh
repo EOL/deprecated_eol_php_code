@@ -351,3 +351,33 @@ php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ 
 php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Tupaia belangeri'
 php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Pandanus'
 php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Anguilla marmorata'
+
+//lang ik
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Rattus norvegicus'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Cinclus'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Phalaropus fulicarius'
+sleep 10s
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Oncorhynchus tshawytscha'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Branta bernicla nigricans'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Viburnum edule'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Rosa acicularis'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Gavia pacifica'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Zonotrichia leucophrys'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Stenodus nelma'
+
+//lang zea
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Alcidae'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Psittaciformes'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Cacatuidae'
+sleep 10s
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Squamata'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Anophthalmus hitleri'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Ilex aquifolium'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Anser rossii'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Peramelemorphia'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Acrobates pygmaeus'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Streptopelia decaocto'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Alcedo atthis'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Merops apiaster'
+php update_resources/connectors/wikipedia.php _ 'zea' generate_resource_force _ _ _ 'Anser albifrons'
+

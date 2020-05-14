@@ -101,12 +101,20 @@ class WikiHTMLAPI
         $html2 = $this->remove_all_in_between_inclusive($left, $right, $html, false);
         
         if($html1 && $html2) {
-            if(strlen($html1) < strlen($html2)) return $html2; //exit("\naaa\n"); //
-            else return $html1; //exit("\nccc\n");
+            if($html1 != $html && $html2 != $html) {
+                if(strlen($html1) < strlen($html2)) return $html2;  //exit("\naaa\n"); //
+                else return $html1;                                 //exit("\nccc\n");
+            }
+            elseif($html1 != $html && $html2 == $html) return $html1;
+            elseif($html1 == $html && $html2 != $html) return $html2;
+            else return $html; //no change
         }
-        elseif($html1) return $html1; //exit("\nbbb\n"); //
-        elseif($html2) return $html2; //exit("\nccc\n");//
-        else return $html; //exit("\nddd\n"); //
+        /* does not go here...
+        elseif($html1) return $html1;   //exit("\nbbb\n"); //
+        elseif($html2) return $html2;   //exit("\nccc\n");//
+        else return $html;              //exit("\nddd\n"); //
+        */
+        return $html; //shouldn't go here, actually...
     }
     public function during_dev()
     {   $arr = false;
@@ -413,6 +421,31 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Tupaia belangeri")    {$arr = $this->get_object('Q378959'); $arr = $arr->entities->Q378959;}
         if($this->debug_taxon == "Pandanus")            {$arr = $this->get_object('Q471914'); $arr = $arr->entities->Q471914;}
         if($this->debug_taxon == "Anguilla marmorata")  {$arr = $this->get_object('Q496154'); $arr = $arr->entities->Q496154;}
+        //lang ik
+        if($this->debug_taxon == "Rattus norvegicus")           {$arr = $this->get_object('Q184224'); $arr = $arr->entities->Q184224;}
+        if($this->debug_taxon == "Cinclus")                     {$arr = $this->get_object('Q192575'); $arr = $arr->entities->Q192575;}
+        if($this->debug_taxon == "Phalaropus fulicarius")       {$arr = $this->get_object('Q208335'); $arr = $arr->entities->Q208335;}
+        if($this->debug_taxon == "Oncorhynchus tshawytscha")    {$arr = $this->get_object('Q833503'); $arr = $arr->entities->Q833503;}
+        if($this->debug_taxon == "Branta bernicla nigricans")   {$arr = $this->get_object('Q1277778'); $arr = $arr->entities->Q1277778;}
+        if($this->debug_taxon == "Viburnum edule")              {$arr = $this->get_object('Q210366'); $arr = $arr->entities->Q210366;}
+        if($this->debug_taxon == "Rosa acicularis")             {$arr = $this->get_object('Q218368'); $arr = $arr->entities->Q218368;}
+        if($this->debug_taxon == "Gavia pacifica")              {$arr = $this->get_object('Q558990'); $arr = $arr->entities->Q558990;}
+        if($this->debug_taxon == "Zonotrichia leucophrys")      {$arr = $this->get_object('Q686673'); $arr = $arr->entities->Q686673;}
+        if($this->debug_taxon == "Stenodus nelma")              {$arr = $this->get_object('Q1089398'); $arr = $arr->entities->Q1089398;}
+        //lang zea
+        if($this->debug_taxon == "Alcidae")             {$arr = $this->get_object('Q28294'); $arr = $arr->entities->Q28294;}
+        if($this->debug_taxon == "Psittaciformes")      {$arr = $this->get_object('Q31431'); $arr = $arr->entities->Q31431;}
+        if($this->debug_taxon == "Cacatuidae")          {$arr = $this->get_object('Q31448'); $arr = $arr->entities->Q31448;}
+        if($this->debug_taxon == "Squamata")                {$arr = $this->get_object('Q122422'); $arr = $arr->entities->Q122422;}
+        if($this->debug_taxon == "Anophthalmus hitleri")    {$arr = $this->get_object('Q139796'); $arr = $arr->entities->Q139796;}
+        if($this->debug_taxon == "Ilex aquifolium")         {$arr = $this->get_object('Q192190'); $arr = $arr->entities->Q192190;}
+        if($this->debug_taxon == "Anser rossii")            {$arr = $this->get_object('Q244320'); $arr = $arr->entities->Q244320;}
+        if($this->debug_taxon == "Peramelemorphia")         {$arr = $this->get_object('Q244587'); $arr = $arr->entities->Q244587;}
+        if($this->debug_taxon == "Acrobates pygmaeus")      {$arr = $this->get_object('Q613177'); $arr = $arr->entities->Q613177;}
+        if($this->debug_taxon == "Streptopelia decaocto")   {$arr = $this->get_object('Q54696'); $arr = $arr->entities->Q54696;}
+        if($this->debug_taxon == "Alcedo atthis")           {$arr = $this->get_object('Q79915'); $arr = $arr->entities->Q79915;}
+        if($this->debug_taxon == "Merops apiaster")         {$arr = $this->get_object('Q170718'); $arr = $arr->entities->Q170718;}
+        if($this->debug_taxon == "Anser albifrons")         {$arr = $this->get_object('Q172093'); $arr = $arr->entities->Q172093;}
         return $arr;
     }
 }

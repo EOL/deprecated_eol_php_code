@@ -22,8 +22,8 @@ ja  ko  ru  pt
                             av  hi  fy      be-x-old  tl
                             chy koi frr     udm       ba
                             fj  io  lb      co        fo
-                                my  su      sq        os
-                                mn  kn      csb       cv
+                            ik  my  su      sq        os
+                            zea mn  kn      csb       cv
                                 kv  tt      mr        kab
                                 gv  as      olo       sah
                                 wuu dsb     mhr       nds
@@ -51,6 +51,11 @@ ja  ko  ru  pt
                 not yet scheduled: 
                 probably needs to have multiple connectors: hu szl (or don't)
                 probably needs to have multiple connectors: eu
+                
+                re-run: war, ceb
+                
+                (ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
+                (zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
                 
                 (av) Avar                   https://en.wikipedia.org/wiki/Avar_language
                 (chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
