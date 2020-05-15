@@ -44,9 +44,10 @@ ja  ko  ru  pt
                                 sa  vec     inh       lij
                                 ace sc      hak       ang
                                 diq ln      kw        eml
-                                ce  hak     bcl
-                                yo          za
-                                ceb
+                                ce  hak     bcl       bxr
+                                yo          za        zh-classical
+                                ceb                   bjn
+                                                      so
 
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
