@@ -197,12 +197,13 @@ class WikipediaRegionalAPI
 //                      <div id="mw-content-text" lang="bs" dir="ltr" class="mw-content-ltr">
 //                      <div id="mw-navigation">
         else {
-            if($lang == 'no')             $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
-            elseif($lang == 'zh-min-nan') $lang = 'nan';
-            elseif($lang == 'bat-smg')    $lang = 'sgs';
-            elseif($lang == 'als')        $lang = 'gsw';
-            elseif($lang == 'bh')         $lang = 'bho';
-            elseif($lang == 'eml')        $lang = 'egl';
+            if($lang == 'no')               $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
+            elseif($lang == 'zh-min-nan')   $lang = 'nan';
+            elseif($lang == 'bat-smg')      $lang = 'sgs';
+            elseif($lang == 'als')          $lang = 'gsw';
+            elseif($lang == 'bh')           $lang = 'bho';
+            elseif($lang == 'eml')          $lang = 'egl';
+            elseif($lang == 'zh-classical') $lang = 'lzh';
             else {
                 echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
             }

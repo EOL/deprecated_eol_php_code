@@ -51,6 +51,11 @@ ja  ko  ru  pt
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
                 
+                (bxr) Buryat                https://en.wikipedia.org/wiki/Buryat_language
+                (zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese     *(lzh)
+                (bjn) Banjar                https://en.wikipedia.org/wiki/Banjar_language               *(bjn or bvu)
+                (so) Somali                 https://en.wikipedia.org/wiki/Somali_language
+                
                 (ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
                 (zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
                 

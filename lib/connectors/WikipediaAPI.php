@@ -25,10 +25,10 @@ class WikipediaAPI extends WikiHTMLAPI
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
                li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za av chy fj ik zea
-               bxr
+               bxr bjn
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'zea';
+        $lang = 'bjn';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -581,6 +581,14 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'bjn') { //
+            $html = self::process_external_links($html, 'Lihati_jua'); //external links
+            $html = self::process_external_links($html, 'Tautan_luar'); //external links
+        }
+        if($this->language_code == 'zh-classical') { //
+            //section below
+            $left = '<table align="center" style="border:1px solid #AAAAAA; text-align:center;"';   $html = self::process_left($html, $left);
+        }
         if($this->language_code == 'zea') { //
             $html = self::process_external_links($html, 'Externe_lienk'); //external links
         }
