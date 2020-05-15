@@ -828,11 +828,12 @@ class WikiDataAPI extends WikipediaAPI
         */
         return true;
     }
-    private function format_language($lang)
+    private function format_language($lang) //to fix error: "Message: Language should use standardized ISO 639 language codes"
     {
         if($lang == 'be-tarask') return 'be';
         elseif($lang == 'zh-min-nan') return 'nan';
-        else                     return $lang;
+        elseif($lang == 'zh-classical') return 'lzh';
+        else                            return $lang;
     }
     private function create_commons_objects($commons, $t)
     {

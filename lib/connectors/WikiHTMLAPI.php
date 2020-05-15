@@ -446,6 +446,20 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Alcedo atthis")           {$arr = $this->get_object('Q79915'); $arr = $arr->entities->Q79915;}
         if($this->debug_taxon == "Merops apiaster")         {$arr = $this->get_object('Q170718'); $arr = $arr->entities->Q170718;}
         if($this->debug_taxon == "Anser albifrons")         {$arr = $this->get_object('Q172093'); $arr = $arr->entities->Q172093;}
+        //lang bjn
+        if($this->debug_taxon == "Cheloniidae") {$arr = $this->get_object('Q30143'); $arr = $arr->entities->Q30143;}
+        if($this->debug_taxon == "Syzygium malaccense") {$arr = $this->get_object('Q31936'); $arr = $arr->entities->Q31936;}
+        if($this->debug_taxon == "Zingiber officinale") {$arr = $this->get_object('Q35625'); $arr = $arr->entities->Q35625;}
+        if($this->debug_taxon == "Soricidae") {$arr = $this->get_object('Q41631'); $arr = $arr->entities->Q41631;}
+        if($this->debug_taxon == "Mirounga") {$arr = $this->get_object('Q185231'); $arr = $arr->entities->Q185231;}
+        if($this->debug_taxon == "Nasalis larvatus") {$arr = $this->get_object('Q192029'); $arr = $arr->entities->Q192029;}
+        if($this->debug_taxon == "Enterobius") {$arr = $this->get_object('Q213912'); $arr = $arr->entities->Q213912;}
+        if($this->debug_taxon == "Phoebe") {$arr = $this->get_object('Q311714'); $arr = $arr->entities->Q311714;}
+        if($this->debug_taxon == "Hemibagrus") {$arr = $this->get_object('Q584717'); $arr = $arr->entities->Q584717;}
+        if($this->debug_taxon == "Aleurites moluccanus") {$arr = $this->get_object('Q1160961'); $arr = $arr->entities->Q1160961;}
+        if($this->debug_taxon == "Hipposideros doriae") {$arr = $this->get_object('Q1761504'); $arr = $arr->entities->Q1761504;}
+        if($this->debug_taxon == "Mangifera casturi") {$arr = $this->get_object('Q1779784'); $arr = $arr->entities->Q1779784;}
+        if($this->debug_taxon == "Aglaia odorata") {$arr = $this->get_object('Q2674471'); $arr = $arr->entities->Q2674471;}
         return $arr;
     }
 }
