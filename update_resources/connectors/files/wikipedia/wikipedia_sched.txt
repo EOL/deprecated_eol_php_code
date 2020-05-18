@@ -1140,8 +1140,18 @@ wikipedia-ang	Tuesday 2020-05-12 10:26:58 AM	{"media_resource.tab":197, "taxon.t
 wikipedia-ik	Thursday 2020-05-14 07:02:40 AM	{"media_resource.tab":120, "taxon.tab":455, "time_elapsed":{"sec":997.62, "min":16.63, "hr":0.28}}
 wikipedia-ik	Thursday 2020-05-14 10:18:45 AM	{"media_resource.tab":120, "taxon.tab":455, "time_elapsed":{"sec":837.14, "min":13.95, "hr":0.23}}
 
+wikipedia-bxr	Friday 2020-05-15 03:55:19 AM	{"media_resource.tab":76, "taxon.tab":288, "time_elapsed":{"sec":944.61, "min":15.74, "hr":0.26}}
+
+wikipedia-bjn	Friday 2020-05-15 04:26:03 AM	{"media_resource.tab":179, "taxon.tab":547, "time_elapsed":{"sec":926.21, "min":15.44, "hr":0.26}}
+wikipedia-bjn	Sunday 2020-05-17 07:52:41 AM	{"media_resource.tab":179, "taxon.tab":547, "time_elapsed":{"sec":758.02, "min":12.63, "hr":0.21}}
+
+wikipedia-so	Friday 2020-05-15 04:41:39 AM	{"media_resource.tab":190, "taxon.tab":545, "time_elapsed":{"sec":927.06, "min":15.45, "hr":0.26}}
+wikipedia-so	Sunday 2020-05-17 08:05:25 AM	{"media_resource.tab":190, "taxon.tab":545, "time_elapsed":{"sec":756.15, "min":12.6, "hr":0.21}}
+
 wikipedia-zh-classical	Friday 2020-05-15 04:10:30 AM	{"media_resource.tab":13, "taxon.tab":104, "time_elapsed":{"sec":903.13, "min":15.05, "hr":0.25}}
 wikipedia-zh-classical	Friday 2020-05-15 09:46:36 AM	{"media_resource.tab":13, "taxon.tab":104, "time_elapsed":{"sec":810.67, "min":13.51, "hr":0.23}}
+wikipedia-zh-classical	Sunday 2020-05-17 07:25:15 AM	{"media_resource.tab":13, "taxon.tab":104, "time_elapsed":{"sec":908.3, "min":15.14, "hr":0.25}}
+wikipedia-zh-classical	Sunday 2020-05-17 07:39:55 AM	{"media_resource.tab":13, "taxon.tab":104, "time_elapsed":{"sec":774.39, "min":12.91, "hr":0.22}}
 
 wikipedia_combined_languages	Thursday 2020-04-09 12:06:07 AM	{"media_resource.tab":89444, "taxon.tab":25129, "time_elapsed":{"sec":397.03, "min":6.62, "hr":0.11}}
 wikipedia_combined_languages	Friday 2020-04-10 09:22:23 AM	  {"media_resource.tab":91261, "taxon.tab":25198, "time_elapsed":{"sec":448.98, "min":7.48, "hr":0.12}}
@@ -1174,18 +1184,47 @@ wikipedia-pl_1of6	Sunday 2020-05-10 10:50:22 AM	{"media_resource.tab":21176, "ta
 
 
 
-wikipedia-bxr	Friday 2020-05-15 03:55:19 AM	{"media_resource.tab":76, "taxon.tab":288, "time_elapsed":{"sec":944.61, "min":15.74, "hr":0.26}}
-wikipedia-bjn	Friday 2020-05-15 04:26:03 AM	{"media_resource.tab":179, "taxon.tab":547, "time_elapsed":{"sec":926.21, "min":15.44, "hr":0.26}}
-wikipedia-so	Friday 2020-05-15 04:41:39 AM	{"media_resource.tab":190, "taxon.tab":545, "time_elapsed":{"sec":927.06, "min":15.45, "hr":0.26}}
-
-
 
 last one:
-wikipedia_combined_languages_batch2	Friday 2020-05-15 09:10:28 PM	{"media_resource.tab":5297, "taxon.tab":4827, "time_elapsed":{"sec":750.98, "min":12.52, "hr":0.21}}
+wikipedia-so	Sunday 2020-05-17 08:05:25 AM	{"media_resource.tab":190, "taxon.tab":545, "time_elapsed":{"sec":756.15, "min":12.6, "hr":0.21}}
 
 
 
-throwback series: en, es, fr, de, it
+throwback series: en, es, fr, de, it, ja, ko, pt, zh
+
+sv	1331756
+ceb	1160292
+war	1140933
+nl	900138
+vi	801265
+*en	405917
+min	166086
+*es	165827
+*fr	126220
+id	125622
+*pt	107572
+*zh	98778
+eu	73941
+ca	65255
+pl	50001
+*de	49092
+ru	47848
+ar	43491
+szl	42521
+*it	38140
+no	36871
+fa	35321
+uk	35287
+ro	34239
+bg	32134
+hu	25890
+fi	22659
+*ko	20426
+cy	19463
+az	18241
+ast	17358
+*ja	15783
+
 
 wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/80.tar.gz
 wget -c https://editors.eol.org/eol_php_code/applications/content_server/resources/wikipedia-es.tar.gz

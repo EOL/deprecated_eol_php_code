@@ -25,10 +25,10 @@ class WikipediaAPI extends WikiHTMLAPI
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
                li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za av chy fj ik zea
-               bxr bjn
+               bxr bjn arz mwl chr mai tcy szy
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'bjn';
+        $lang = 'szy';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -544,10 +544,12 @@ class WikipediaAPI extends WikiHTMLAPI
         $needle = 'class="plainlinks';                          $html = self::process_needle($html, $needle, true);
         $needle = 'class="navbox ';                             $html = self::process_needle($html, $needle, true);
 
-        $needle = 'class="toccolours"';     $html = self::process_needle($html, $needle, true);
+        if(!in_array($this->language_code, array('nl'))) {
+            $needle = 'class="toccolours"';     $html = self::process_needle($html, $needle, true);
+            $left = '<table class="toccolours'; $html = self::process_left($html, $left);
+        }
         $needle = 'class="toccolours ';     $html = self::process_needle($html, $needle, true);
-        $left = '<table class="toccolours'; $html = self::process_left($html, $left);
-        
+
         $needle = 'class="expansion" id="stub"';    $html = self::process_needle($html, $needle, true);
         
         $left = '<table class="notice metadata';    $html = self::process_left($html, $left);
@@ -581,6 +583,34 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'nl') { //
+            $html = self::process_external_links($html, 'Externe_links'); //external links
+            $html = self::process_external_links($html, 'Externe_link'); //external links
+            $html = self::process_external_links($html, 'Zie_ook'); //external links
+            $needle = 'class="interProjectTemplate toccolours"'; $html = self::process_needle($html, $needle, true);
+        }
+        if($this->language_code == 'tcy') { //
+            //box below
+            $needle = 'style="padding:7px; border:1px solid #CCCCCC; color:#006699;"'; $html = self::process_needle($html, $needle, true);
+        }
+        if($this->language_code == 'tk') { //
+            //infobox
+            $needle = 'style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center"'; $html = self::process_needle($html, $needle, true);
+        }
+        if($this->language_code == 'chr') { //
+            //infobox
+            $needle = 'style="margin: 0 0 1em 1em; background: #f9f9f9; border: 1px #aaaaaa solid; border-collapse: collapse; font-size: 95%;"'; $html = self::process_needle($html, $needle, true);
+            $needle = 'style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"'; $html = self::process_needle($html, $needle, true);
+        }
+        if($this->language_code == 'mwl') { //
+            $needle = 'style="background-color: #B40404; border: 1px solid #C11B17; font-size: 90%; margin-top: 0px; margin-bottom: 0px; clear: both;color:#FFFFFF"'; $html = self::process_needle($html, $needle, true);
+        }
+        if($this->language_code == 'zh-classical') { //
+            $html = self::process_external_links($html, '外部連結'); //external links
+        }
+        if($this->language_code == 'mwl') { //
+            $html = self::process_external_links($html, 'Lhigaçones_sternas'); //external links
+        }
         if($this->language_code == 'bjn') { //
             $html = self::process_external_links($html, 'Lihati_jua'); //external links
             $html = self::process_external_links($html, 'Tautan_luar'); //external links
@@ -1340,10 +1370,7 @@ class WikipediaAPI extends WikiHTMLAPI
         if($this->language_code == 'vep') { //
             //infobox
             $needle = 'style="border:1px solid #aaa; background:#ffffff; border-collapse:collapse; text-align:center"';
-            if($tmp = self::get_pre_tag_entry($html, $needle)) {
-                $left = $tmp . $needle;
-                $html = self::process_left($html, $left);
-            }
+            $html = self::process_needle($html, $needle, true);
             
             //specific image link
             $left = '<div id="floating_object16"'; $right = '</div>';
@@ -2287,18 +2314,18 @@ class WikipediaAPI extends WikiHTMLAPI
         }
         
         /* additional sections to remove */ // e.g. Panthera leo 'nl'
-        $html = self::code_the_steps('<div id="tpl_Woordenboek"', '</div>', $html);
-        $html = self::code_the_steps('<div class="interProject wiktionary"', '</div>', $html);
+        $left = '<div id="tpl_Woordenboek"';            $html = self::process_left($html, $left);
+        $left = '<div class="interProject wiktionary"'; $html = self::process_left($html, $left);
         
         /* 'sv' 'de' Polar bear | nl Gadus morhua  -->> remove erroneous video play */
         for($i = 0; $i <= 10; $i++) {
             $html = self::code_the_steps('<div id="mwe_player_'.$i.'"', '</div>', $html, true);
         }
 
-        $left = '<table cellspacing="0" class="navbox';    $html = self::process_left($html, $left);   /* uk Animalia - these are the boxes after biblio */
+        $left = '<table cellspacing="0" class="navbox'; $html = self::process_left($html, $left);   /* uk Animalia - these are the boxes after biblio */
         
         return $html;
-    }
+    } //end remove_infobox()
     private function remove_categories_section($html, $url, $language_code)
     {   /* should end here:
         <noscript><img src="//nl.wikipedia.org/wiki/Special:CentralAutoLogin            ---> orig when doing view source html
@@ -2326,14 +2353,14 @@ class WikipediaAPI extends WikiHTMLAPI
         // */
         
         /* additional sections to remove e.g. lang 'nl' for Mus musculus */
-        $html = self::code_the_steps('<table class="navigatiesjabloon"', '</tbody></table>', $html);
-        $html = self::code_the_steps('<div id="normdaten"', '</div>', $html);
+        $left = '<table class="navigatiesjabloon"'; $html = self::process_left($html, $left);
+        $left = '<div id="normdaten"';              $html = self::process_left($html, $left);
         
         /* sv Mus musculus */
-        $html = self::code_the_steps('<table class="navbox"', '</table></td></tr></tbody></table>', $html, true);
+        $left = '<table class="navbox"'; $html = self::process_left($html, $left);
         
         if($language_code == "hu") { /* for hu Eli updates: 10-30-2019 */
-            $html = self::code_the_steps('<table cellspacing="0" class="nowraplinks mw-collapsible mw-autocollapse"', '</tbody></table>', $html);
+            $needle = 'class="nowraplinks mw-collapsible mw-autocollapse"'; $html = self::process_needle($html, $needle, true);
         }
         if($language_code == "eu") { /* for eu Eli updates: 11-04-2019 */
             $html = self::code_the_steps('<h2><span class="mw-headline" id="Kanpo_loturak">', '</h2>', $html);
@@ -2432,7 +2459,10 @@ class WikipediaAPI extends WikiHTMLAPI
         /* remove everything after the end of the Bibliografía section. */
         $first10langs = array("en", "es", "it", "de", "zh", "ru", "pt", "ja", "ko"); //removed "fr"
         if(in_array($this->language_code, $first10langs)) $html = self::remove_everything_after_bibliographic_section($html);
-        else                                              $html = self::remove_categories_section($html, $url, $this->language_code); //seems can also be used for the first 10 languages :-)
+        else { //e.g. "nl"
+            // exit("\ngoes here...\n");
+            $html = self::remove_categories_section($html, $url, $this->language_code); //seems can also be used for the first 10 languages :-)
+        }
         $html = self::remove_ctex_verion_spans($html);
         return $html;
     }
@@ -2468,12 +2498,6 @@ class WikipediaAPI extends WikiHTMLAPI
         if($this->language_code == "pt") return '<span class="mw-headline" id="Bibliografias">Bibliografias</span>';
         if($this->language_code == "zh") return '<span class="mw-headline" id="參考資料">參考資料</span>';
         if($this->language_code == "ja") return '<span class="mw-headline" id="脚注">脚注</span>';
-        /* not used
-        if($this->language_code == "nl") return '<span class="mw-headline" id="Literatuur">Literatuur</span>';
-        if($this->language_code == "pl") return '<span class="mw-headline" id="Bibliografia">Bibliografia</span>';
-        if($this->language_code == "sv") return '<span class="mw-headline" id="Referenser">Referenser</span>';          //may have other options
-        if($this->language_code == "vi") return '<span class="mw-headline" id="Chú_thích">Chú thích</span>';            //may have other options
-        */
     }
     private function get_section_name_after_bibliographic_section($html, $biblio_section = false)
     {

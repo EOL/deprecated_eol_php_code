@@ -460,6 +460,37 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Hipposideros doriae") {$arr = $this->get_object('Q1761504'); $arr = $arr->entities->Q1761504;}
         if($this->debug_taxon == "Mangifera casturi") {$arr = $this->get_object('Q1779784'); $arr = $arr->entities->Q1779784;}
         if($this->debug_taxon == "Aglaia odorata") {$arr = $this->get_object('Q2674471'); $arr = $arr->entities->Q2674471;}
+        //lang zh-classical
+        if($this->debug_taxon == "Birgus latro") {$arr = $this->get_object('Q206070'); $arr = $arr->entities->Q206070;}
+        if($this->debug_taxon == "Pacifastacus leniusculus") {$arr = $this->get_object('Q693000'); $arr = $arr->entities->Q693000;}
+        if($this->debug_taxon == "Aegithalos caudatus") {$arr = $this->get_object('Q170831'); $arr = $arr->entities->Q170831;}
+        if($this->debug_taxon == "Plantago asiatica") {$arr = $this->get_object('Q1193995'); $arr = $arr->entities->Q1193995;}
+        if($this->debug_taxon == "Kandelia obovata") {$arr = $this->get_object('Q2641342'); $arr = $arr->entities->Q2641342;}
+        if($this->debug_taxon == "Severe acute respiratory syndrome-related coronavirus") {$arr = $this->get_object('Q278567'); $arr = $arr->entities->Q278567;}
+        if($this->debug_taxon == "Sepiida") {$arr = $this->get_object('Q184479'); $arr = $arr->entities->Q184479;}
+        if($this->debug_taxon == "Mene maculata") {$arr = $this->get_object('Q326253'); $arr = $arr->entities->Q326253;}
+        if($this->debug_taxon == "Eubalaena japonica") {$arr = $this->get_object('Q506604'); $arr = $arr->entities->Q506604;}
+        //lang mwl
+        if($this->debug_taxon == "Pertya glabrescens") {$arr = $this->get_object('Q15231699'); $arr = $arr->entities->Q15231699;}
+        if($this->debug_taxon == "Theobroma cacao") {$arr = $this->get_object('Q42385'); $arr = $arr->entities->Q42385;}
+        if($this->debug_taxon == "Coptis") {$arr = $this->get_object('Q135562'); $arr = $arr->entities->Q135562;}
+        if($this->debug_taxon == "Silybum") {$arr = $this->get_object('Q1521997'); $arr = $arr->entities->Q1521997;}
+        if($this->debug_taxon == "Acer sempervirens") {$arr = $this->get_object('Q1788044'); $arr = $arr->entities->Q1788044;}
+        if($this->debug_taxon == "Myopias gigas") {$arr = $this->get_object('Q3688753'); $arr = $arr->entities->Q3688753;}
+        if($this->debug_taxon == "Paratriaenops pauliani") {$arr = $this->get_object('Q3895323'); $arr = $arr->entities->Q3895323;}
+        if($this->debug_taxon == "Ornithoglossum") {$arr = $this->get_object('Q5399625'); $arr = $arr->entities->Q5399625;}
+        if($this->debug_taxon == "Alligatoridae") {$arr = $this->get_object('Q6184764'); $arr = $arr->entities->Q6184764;}
+        if($this->debug_taxon == "Propebela miona") {$arr = $this->get_object('Q7250110'); $arr = $arr->entities->Q7250110;}
+        if($this->debug_taxon == "Phaenosperma globosum") {$arr = $this->get_object('Q11089058'); $arr = $arr->entities->Q11089058;}
+        if($this->debug_taxon == "xxx") {$arr = $this->get_object('Q756'); $arr = $arr->entities->Q756;}
+        if($this->debug_taxon == "Guardiola") {$arr = $this->get_object('Q928671'); $arr = $arr->entities->Q928671;}
+        if($this->debug_taxon == "Macropygia mackinlayi") {$arr = $this->get_object('Q1272510'); $arr = $arr->entities->Q1272510;}
+        if($this->debug_taxon == "Gymnoschoenus") {$arr = $this->get_object('Q2711809'); $arr = $arr->entities->Q2711809;}
+        if($this->debug_taxon == "Phragmipedium warszewiczianum") {$arr = $this->get_object('Q4046873'); $arr = $arr->entities->Q4046873;}
+        if($this->debug_taxon == "Erioscele") {$arr = $this->get_object('Q5389506'); $arr = $arr->entities->Q5389506;}
+        if($this->debug_taxon == "Ciconia") {$arr = $this->get_object('Q6471715'); $arr = $arr->entities->Q6471715;}
+        if($this->debug_taxon == "Ithycythara septemcostata") {$arr = $this->get_object('Q7986899'); $arr = $arr->entities->Q7986899;}
+        if($this->debug_taxon == "Lactarius occidentalis") {$arr = $this->get_object('Q10315361'); $arr = $arr->entities->Q10315361;}
         return $arr;
     }
 }

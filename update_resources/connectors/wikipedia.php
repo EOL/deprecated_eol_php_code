@@ -313,6 +313,7 @@ wikipedia-ast (Asturian)
 (dv) Divehi     https://en.wikipedia.org/wiki/Maldivian_language    307     --- same as Arabic and Persian
 (yi) Yiddish                https://en.wikipedia.org/wiki/Yiddish	219     --- same as Arabic and Persian
 (ug) Uyghur                 https://en.wikipedia.org/wiki/Uyghur_language   --- same as Arabic and Persian
+(arz) Egyptian Arabic       https://en.wikipedia.org/wiki/Egyptian_Arabic   --- same as Arabic and Persian
 
 
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
@@ -489,26 +490,26 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (ang) Anglo-Saxon           https://en.wikipedia.org/wiki/Anglo-Frisian_languages#English_(Anglo)_languages
 * (eml) Emilian-Romagnol      https://en.wikipedia.org/wiki/Emilian-Romagnol_language
 
-(av) Avar                   https://en.wikipedia.org/wiki/Avar_language
-(fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
-
-(chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
-(ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
-(zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
-
-(bxr) Buryat                https://en.wikipedia.org/wiki/Buryat_language
-(bjn) Banjar                https://en.wikipedia.org/wiki/Banjar_language               *(bjn or bvu)
-(so) Somali                 https://en.wikipedia.org/wiki/Somali_language
+* (av) Avar                   https://en.wikipedia.org/wiki/Avar_language
+* (fj) Fijian                 https://en.wikipedia.org/wiki/Fijian_language
+* (chy) Cheyenne              https://en.wikipedia.org/wiki/Cheyenne_language
+* (ik) Inupiak                https://en.wikipedia.org/wiki/Inupiaq_language
+* (zea) Zeelandic             https://en.wikipedia.org/wiki/Zeelandic
+* (bxr) Buryat                https://en.wikipedia.org/wiki/Buryat_language
+* (bjn) Banjar                https://en.wikipedia.org/wiki/Banjar_language (bjn or bvu)
+* (so) Somali                 https://en.wikipedia.org/wiki/Somali_language
 
 (zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese     *(lzh)
-(arz) Egyptian Arabic       https://en.wikipedia.org/wiki/Egyptian_Arabic
-mwl	130
-sn	130
-chr	128
-mai	117
-tk	117
-tcy	115
-szy	113
+(mwl) Mirandese                     https://en.wikipedia.org/wiki/Mirandese_language
+(sn) Shona                          https://en.wikipedia.org/wiki/Shona_language
+
+(chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
+(mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
+(tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
+
+(tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
+(szy) Sakizaya              https://en.wikipedia.org/wiki/Sakizaya_language
+
 mzn	111
 wo	110
 ab	108
