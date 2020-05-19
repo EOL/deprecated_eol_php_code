@@ -313,7 +313,8 @@ wikipedia-ast (Asturian)
 (dv) Divehi     https://en.wikipedia.org/wiki/Maldivian_language    307     --- same as Arabic and Persian
 (yi) Yiddish                https://en.wikipedia.org/wiki/Yiddish	219     --- same as Arabic and Persian
 (ug) Uyghur                 https://en.wikipedia.org/wiki/Uyghur_language   --- same as Arabic and Persian
-(arz) Egyptian Arabic       https://en.wikipedia.org/wiki/Egyptian_Arabic   --- same as Arabic and Persian
+(arz) Egyptian Arabic       https://en.wikipedia.org/wiki/Egyptian_Arabic       --- same as Arabic and Persian
+(mzn) Mazandarani           https://en.wikipedia.org/wiki/Mazanderani_language  --- same as Arabic and Persian
 
 
 -eo Esperanto --- But... let's skip Volapuk (Volapük vo) and Esperanto. I'm not sure I want to open that can of worms.
@@ -506,13 +507,12 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 
 (chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
 (tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
-
-(tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
 (szy) Sakizaya              https://en.wikipedia.org/wiki/Sakizaya_language
 
-mzn	111
-wo	110
-ab	108
+(tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
+(wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
+(ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
+
 ban	108
 ay	107
 tyv	107
