@@ -491,6 +491,40 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Ciconia") {$arr = $this->get_object('Q6471715'); $arr = $arr->entities->Q6471715;}
         if($this->debug_taxon == "Ithycythara septemcostata") {$arr = $this->get_object('Q7986899'); $arr = $arr->entities->Q7986899;}
         if($this->debug_taxon == "Lactarius occidentalis") {$arr = $this->get_object('Q10315361'); $arr = $arr->entities->Q10315361;}
+        //lang tk
+        if($this->debug_taxon == "Giraffa camelopardalis") {$arr = $this->get_object('Q15083'); $arr = $arr->entities->Q15083;}
+        if($this->debug_taxon == "Haliaeetus albicilla") {$arr = $this->get_object('Q25438'); $arr = $arr->entities->Q25438;}
+        if($this->debug_taxon == "Brassica oleracea") {$arr = $this->get_object('Q146212'); $arr = $arr->entities->Q146212;}
+        if($this->debug_taxon == "Gossypium herbaceum") {$arr = $this->get_object('Q177615'); $arr = $arr->entities->Q177615;}
+        if($this->debug_taxon == "Gyps fulvus") {$arr = $this->get_object('Q177856'); $arr = $arr->entities->Q177856;}
+        if($this->debug_taxon == "Typha laxmannii") {$arr = $this->get_object('Q165439'); $arr = $arr->entities->Q165439;}
+        if($this->debug_taxon == "Haliaeetus leucoryphus") {$arr = $this->get_object('Q271462'); $arr = $arr->entities->Q271462;}
+        if($this->debug_taxon == "Aquila rapax") {$arr = $this->get_object('Q374141'); $arr = $arr->entities->Q374141;}
+        if($this->debug_taxon == "Amanita vittadinii") {$arr = $this->get_object('Q922092'); $arr = $arr->entities->Q922092;}
+        if($this->debug_taxon == "Euphorbia turczaninowii") {$arr = $this->get_object('Q10927731'); $arr = $arr->entities->Q10927731;}
+        if($this->debug_taxon == "Malus domestica") {$arr = $this->get_object('Q18674606'); $arr = $arr->entities->Q18674606;}
+        //lang szy
+        if($this->debug_taxon == "Egretta garzetta") {$arr = $this->get_object('Q131709'); $arr = $arr->entities->Q131709;}
+        if($this->debug_taxon == "Setaria italica") {$arr = $this->get_object('Q161211'); $arr = $arr->entities->Q161211;}
+        if($this->debug_taxon == "Cinnamomum cassia") {$arr = $this->get_object('Q204148'); $arr = $arr->entities->Q204148;}
+        if($this->debug_taxon == "Plumbago zeylanica") {$arr = $this->get_object('Q5240308'); $arr = $arr->entities->Q5240308;}
+        if($this->debug_taxon == "Ixora chinensis") {$arr = $this->get_object('Q9010209'); $arr = $arr->entities->Q9010209;}
+        if($this->debug_taxon == "Arenga engleri") {$arr = $this->get_object('Q11045924'); $arr = $arr->entities->Q11045924;}
+        if($this->debug_taxon == "Elaeagnus oldhamii") {$arr = $this->get_object('Q11117470'); $arr = $arr->entities->Q11117470;}
+        if($this->debug_taxon == "Diospyros strigosa") {$arr = $this->get_object('Q11127499'); $arr = $arr->entities->Q11127499;}
+        if($this->debug_taxon == "Aristolochia zollingeriana") {$arr = $this->get_object('Q15245652'); $arr = $arr->entities->Q15245652;}
+        if($this->debug_taxon == "Fragaria ×ananassa") {$arr = $this->get_object('Q13158'); $arr = $arr->entities->Q13158;}
+        if($this->debug_taxon == "Chilopoda") {$arr = $this->get_object('Q43447'); $arr = $arr->entities->Q43447;}
+        if($this->debug_taxon == "Areca catechu") {$arr = $this->get_object('Q156969'); $arr = $arr->entities->Q156969;}
+        if($this->debug_taxon == "Hemerocallis citrina") {$arr = $this->get_object('Q4261552'); $arr = $arr->entities->Q4261552;}
+        //lang tcy
+        if($this->debug_taxon == "Testudinidae") {$arr = $this->get_object('Q46360'); $arr = $arr->entities->Q46360;}
+        if($this->debug_taxon == "Alstonia scholaris") {$arr = $this->get_object('Q135307'); $arr = $arr->entities->Q135307;}
+        if($this->debug_taxon == "Mentha arvensis") {$arr = $this->get_object('Q160585'); $arr = $arr->entities->Q160585;}
+        if($this->debug_taxon == "Pycnonotidae") {$arr = $this->get_object('Q188854'); $arr = $arr->entities->Q188854;}
+        if($this->debug_taxon == "Nelumbo") {$arr = $this->get_object('Q207427'); $arr = $arr->entities->Q207427;}
+        if($this->debug_taxon == "Annona squamosa") {$arr = $this->get_object('Q275620'); $arr = $arr->entities->Q275620;}
+        if($this->debug_taxon == "Pandanus odorifer") {$arr = $this->get_object('Q15578898'); $arr = $arr->entities->Q15578898;}
         return $arr;
     }
 }

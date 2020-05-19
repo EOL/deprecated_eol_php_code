@@ -44,13 +44,26 @@ ja  ko  ru  pt
                                 sa  vec     inh       lij
                                 ace sc      hak       ang
                                 diq ln      kw        eml
-                                ce  hak     bcl       bxr
-                                yo          za        zh-classical
-                                ceb                   bjn
-                                                      so
+                                ce  mwl     bcl       bxr
+                                yo  sn      za        zh-classical
+                                ceb mai               bjn
+                                    chr               so
+                                    tk
+                                    tcy
+                                    szy
 
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
+                
+                (mwl) Mirandese             https://en.wikipedia.org/wiki/Mirandese_language
+                (sn) Shona                  https://en.wikipedia.org/wiki/Shona_language
+                (mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
+
+                (chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
+                (tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
+                (tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
+                (szy) Sakizaya              https://en.wikipedia.org/wiki/Sakizaya_language
+                
                 
                 (bxr) Buryat                https://en.wikipedia.org/wiki/Buryat_language
                 (zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese     *(lzh)
@@ -1190,12 +1203,12 @@ wikipedia-so	Sunday 2020-05-17 08:05:25 AM	{"media_resource.tab":190, "taxon.tab
 
 
 
-throwback series: en, es, fr, de, it, ja, ko, pt, zh
+throwback series: en, es, fr, de, it, ja, ko, pt, zh, nl
 
 sv	1331756
 ceb	1160292
 war	1140933
-nl	900138
+*nl	900138
 vi	801265
 *en	405917
 min	166086
