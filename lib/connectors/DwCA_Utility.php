@@ -106,7 +106,7 @@ class DwCA_Utility
         //placeholder for customized resources with respective download_options
         if(in_array($this->resource_id, array('globi_associations', '170_final', 'BF'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
         elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
-        elseif(in_array($this->resource_id, array('gbif_classification', '26'))) {
+        elseif(in_array($this->resource_id, array('gbif_classification', 'gbif_classification_without_ancestry', '26'))) {
             if(Functions::is_production()) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
@@ -136,7 +136,7 @@ class DwCA_Utility
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only
             if($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
-            elseif(in_array($this->resource_id, array('BF', 'gbif_classification', '708'))) break; //all extensions will be processed elsewhere.
+            elseif(in_array($this->resource_id, array('BF', 'gbif_classification', 'gbif_classification_without_ancestry', '708'))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -233,6 +233,11 @@ class DwCA_Utility
             require_library('connectors/GBIF_classificationAPI_v2');
             $func = new GBIF_classificationAPI_v2($this->resource_id, $this->archive_builder);
             $func->fix_remaining_conflicts($info);
+        }
+        if($this->resource_id == 'gbif_classification_without_ancestry') {
+            require_library('connectors/GBIF_classificationAPI_v2');
+            $func = new GBIF_classificationAPI_v2($this->resource_id, $this->archive_builder);
+            $func->create_dwca_without_ancestry($info);
         }
         // ================================= end of customization ================================= */ 
         

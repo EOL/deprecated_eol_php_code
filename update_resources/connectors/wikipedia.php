@@ -502,9 +502,9 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese     *(lzh)
 (mwl) Mirandese                     https://en.wikipedia.org/wiki/Mirandese_language
 (sn) Shona                          https://en.wikipedia.org/wiki/Shona_language
+(mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
 
 (chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
-(mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
 (tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
 
 (tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language

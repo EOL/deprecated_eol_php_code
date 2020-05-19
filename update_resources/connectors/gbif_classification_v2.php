@@ -21,6 +21,15 @@ $timestart = time_elapsed();
 $resource_id = 'gbif_classification_pre';
 require_library('connectors/GBIF_classificationAPI_v2');
 
+/*
+$uris = array('a','b','c','d');
+$will_remove_uris = array('b','c');
+$uris = array_diff($uris, $will_remove_uris);
+print_r($uris);
+exit("\n-end test-\n");
+*/
+
+
 $func = new GBIF_classificationAPI_v2($resource_id);
 // /* main operation --- will generate: gbif_classification_pre.tar.gz. Will run in eol-archive.
 $func->start();
@@ -65,6 +74,26 @@ $func->convert_archive($preferred_rowtypes);
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 check_parents($resource_id);
 // */
+
+// /* Creating DwCA without ancestry columns: per Jen: https://eol-jira.bibalex.org/browse/DATA-1826?focusedCommentId=64864&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64864
+$resource_id = 'gbif_classification_without_ancestry';
+if(Functions::is_production()) $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/gbif_classification.tar.gz';
+else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/gbif_classification.tar.gz';
+require_library('connectors/DwCA_Utility');
+$func = new DwCA_Utility($resource_id, $dwca_file);
+
+// Orig in meta.xml has capital letters. Just a note reminder.
+
+$preferred_rowtypes = array();
+// This 1 will be processed in GBIF_classificationAPI_v2.php which will be called from DwCA_Utility.php
+// http://rs.tdwg.org/dwc/terms/Taxon
+
+$func->convert_archive($preferred_rowtypes);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
+check_parents($resource_id);
+// */
+
+
 //====================================================================================================
 
 function check_parents($resource_id)

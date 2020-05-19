@@ -142,6 +142,70 @@ class GBIF_classificationAPI_v2
             // if($i >= 10) break; //debug only
         }
     }
+    // /* New - https://eol-jira.bibalex.org/browse/DATA-1826?focusedCommentId=64864&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64864
+    function create_dwca_without_ancestry($info)
+    {
+        $tables = $info['harvester']->tables;
+        self::create_no_ancestry($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+    }
+    // */
+    private function create_no_ancestry($meta)
+    {   //print_r($meta);
+        echo "\ncreate_no_ancestry...\n$meta->file_uri\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 2588702
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 95
+                [http://rs.tdwg.org/dwc/terms/originalNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Lichenobactridium Diederich & Etayo
+                [http://rs.tdwg.org/dwc/terms/nameAccordingTo] => 
+                [http://rs.tdwg.org/dwc/terms/namePublishedIn] => Flechten Follmann (Cologne), Contributions to Lichenology in Honour of Gerhard Follmann 212 (1995)
+
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Fungi
+                [http://rs.tdwg.org/dwc/terms/phylum] => Ascomycota
+                [http://rs.tdwg.org/dwc/terms/class] => 
+                [http://rs.tdwg.org/dwc/terms/order] => 
+                [http://rs.tdwg.org/dwc/terms/family] => 
+                [http://rs.tdwg.org/dwc/terms/genus] => Lichenobactridium
+                [http://rs.tdwg.org/dwc/terms/specificEpithet] => 
+                [http://rs.tdwg.org/dwc/terms/infraspecificEpithet] => 
+
+                [http://rs.tdwg.org/dwc/terms/taxonRank] => genus
+                [http://rs.tdwg.org/dwc/terms/scientificNameAuthorship] => Diederich & Etayo
+                [http://rs.tdwg.org/dwc/terms/taxonomicStatus] => accepted
+                [http://rs.tdwg.org/dwc/terms/nomenclaturalStatus] => 
+                [http://rs.tdwg.org/dwc/terms/taxonRemarks] => 
+                [http://rs.tdwg.org/dwc/terms/datasetID] => 7ddf754f-d193-4cc9-b351-99906754a03b
+                [http://rs.gbif.org/terms/1.0/canonicalName] => Lichenobactridium
+                [http://eol.org/schema/EOLid] => 37570
+            )*/
+            $uris = array_keys($rec);
+            $will_remove_uris = array('http://rs.tdwg.org/dwc/terms/kingdom', 'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 
+                                      'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 'http://rs.tdwg.org/dwc/terms/genus', 
+                                      'http://rs.tdwg.org/dwc/terms/specificEpithet', 'http://rs.tdwg.org/dwc/terms/infraspecificEpithet');
+            $uris = array_diff($uris, $will_remove_uris);
+            $o = new \eol_schema\Taxon();
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+            // if($i >= 10) break; //debug only
+        }
+    }
     private function get_EOL_id_given_GBIF_id($gbif_id)
     {
         //builds -> $this->DH09[gbif_id] = DH_id; //gbif_id -> DH_id
