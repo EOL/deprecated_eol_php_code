@@ -12,6 +12,16 @@ gbif_classification	        Thursday 2020-04-16 10:36:10 PM	{"taxon.tab":4438420
 From editors.eol.org using Jenkins:
 gbif_classification_pre	Friday 2020-04-17 06:41:34 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":2168.85, "min":36.15, "hr":0.6}}
 gbif_classification	Friday 2020-04-17 07:28:50 AM	    {"taxon.tab":4438420, "time_elapsed":{"sec":5004.67, "min":83.41, "hr":1.39}}
+
+Mac Mini - slow run in Mac Mini
+gbif_classification_pre	                Tuesday 2020-05-19 03:31:58 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":3652.92, "min":60.88, "hr":1.01}}
+gbif_classification	                    Tuesday 2020-05-19 04:45:04 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":8039.14, "min":133.99, "hr":2.23}}
+gbif_classification_without_ancestry	Tuesday 2020-05-19 05:47:12 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":11767.01, "min":196.12, "hr":3.27}}
+
+eol-archive - much faster to run in eol-archive
+gbif_classification_pre	                Tuesday 2020-05-19 03:15:57 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":2315.6, "min":38.59, "hr":0.64}}
+gbif_classification	                    Tuesday 2020-05-19 04:05:53 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":5312.28, "min":88.54, "hr":1.48}}
+gbif_classification_without_ancestry	Tuesday 2020-05-19 04:45:14 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":7673.19, "min":127.89, "hr":2.13}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
