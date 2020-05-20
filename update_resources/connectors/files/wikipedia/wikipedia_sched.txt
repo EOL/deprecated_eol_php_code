@@ -46,19 +46,26 @@ ja  ko  ru  pt
                                 diq ln      kw        eml
                                 ce  mwl     bcl       bxr
                                 yo  sn      za        zh-classical
-                                ceb mai               bjn
-                                    chr               so
-                                    tk
-                                    tcy
-                                    szy
+                                ceb mai     ab        bjn
+                                    chr     wo        so
+                                    tk      ban
+                                    tcy     ay
+                                    szy     tyv
+                                    
 
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
                 
+                (ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
+                (wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
+                (ban) Balinese              https://en.wikipedia.org/wiki/Balinese_language
+                (ay) Aymara                 https://en.wikipedia.org/wiki/Aymara_language
+                (tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
+                
+                
                 (mwl) Mirandese             https://en.wikipedia.org/wiki/Mirandese_language
                 (sn) Shona                  https://en.wikipedia.org/wiki/Shona_language
                 (mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
-
                 (chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
                 (tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
                 (tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
@@ -407,6 +414,7 @@ wikipedia-nl	Tuesday 2019-12-17 06:19:27 PM	{"media_resource.tab":1770142,"taxon
 wikipedia-nl	Wednesday 2020-02-19 01:37:09 PM{"media_resource.tab":1773494, "taxon.tab":952431,"time_elapsed":{"sec":102373.69,"min":1706.23,"hr":28.44,"day":1.19}} consistent OK
 wikipedia-nl	Tuesday 2020-04-21 05:03:10 AM	{"media_resource.tab":1778161, "taxon.tab":953210, "time_elapsed":{"sec":120011.45, "min":2000.19, "hr":33.34, "day":1.39}} consistent OK
 wikipedia-nl	Saturday 2020-05-09 02:51:41 PM	{"media_resource.tab":1610452, "taxon.tab":953243, "time_elapsed":{"sec":113882.62, "min":1898.04, "hr":31.63, "day":1.32}} OK - start updated gen. connector
+wikipedia-nl	Wednesday 2020-05-20 12:55:19 AM{"media_resource.tab":1609587, "taxon.tab":953243, "time_elapsed":{"sec":117887.19, "min":1964.79, "hr":32.75, "day":1.36}} OK
 
 wikipedia-pl	Thursday 2019-04-18 07:30:05 PM	{"media_resource.tab":92390,"taxon.tab":56112}
 wikipedia-pl	Sunday 2019-08-11 07:14:48 PM	{"media_resource.tab":93531,"taxon.tab":56711} OK
@@ -1214,7 +1222,8 @@ wikipedia-pl_1of6	Sunday 2020-05-10 10:50:22 AM	{"media_resource.tab":21176, "ta
 
 
 last one:
-wikipedia-szy	Tuesday 2020-05-19 05:18:55 AM	{"media_resource.tab":75, "taxon.tab":390, "time_elapsed":{"sec":1026.06, "min":17.1, "hr":0.29}}
+wikipedia-nl	Wednesday 2020-05-20 12:55:19 AM	{"media_resource.tab":1609587, "taxon.tab":953243, "time_elapsed":{"sec":117887.19, "min":1964.79, "hr":32.75, "day":1.36}}
+
 
 
 ==================================================================================

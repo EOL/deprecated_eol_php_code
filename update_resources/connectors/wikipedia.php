@@ -504,18 +504,19 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (mwl) Mirandese                     https://en.wikipedia.org/wiki/Mirandese_language
 (sn) Shona                          https://en.wikipedia.org/wiki/Shona_language
 (mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
-
 (chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
 (tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
 (szy) Sakizaya              https://en.wikipedia.org/wiki/Sakizaya_language
 
+
+(ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
 (tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
 (wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
-(ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
 
-ban	108
-ay	107
-tyv	107
+(ban) Balinese              https://en.wikipedia.org/wiki/Balinese_language
+(ay) Aymara                 https://en.wikipedia.org/wiki/Aymara_language
+(tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
+
 atj	104
 new	103
 fiu-vro	100

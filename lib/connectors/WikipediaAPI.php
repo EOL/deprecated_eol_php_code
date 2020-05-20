@@ -25,10 +25,10 @@ class WikipediaAPI extends WikiHTMLAPI
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
                li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za av chy fj ik zea
-               bxr bjn arz mwl chr mai tcy szy
+               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'szy';
+        $lang = 'tyv';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -404,6 +404,8 @@ class WikipediaAPI extends WikiHTMLAPI
         }
         
         $desc = str_ireplace('<p><br />', '<p>', $desc);
+
+        if($this->language_code == 'wo') $desc = str_ireplace('<p><br clear="all" /> </p>', '', $desc);
         
         // /* final test
         $test = trim(strip_tags($desc));
@@ -583,6 +585,16 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'ay') { //
+            $html = self::process_external_links($html, 'Links'); //external links
+        }
+        if($this->language_code == 'ban') { //
+            $html = self::process_external_links($html, 'Suratan_Liyané'); //external links
+        }
+        if($this->language_code == 'wo') { //
+            $left = '<div style="font-size:small; width: 53%; padding: 3px; background: #f7f8ff; border: 1px solid gray; margin: 0 auto;"'; $html = self::process_left($html, $left);
+            $html = str_ireplace('<p><br clear="all" /> </p>', '', $html);
+        }
         if($this->language_code == 'nl') { //
             $html = self::process_external_links($html, 'Externe_links'); //external links
             $html = self::process_external_links($html, 'Externe_link'); //external links
