@@ -525,6 +525,44 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Nelumbo") {$arr = $this->get_object('Q207427'); $arr = $arr->entities->Q207427;}
         if($this->debug_taxon == "Annona squamosa") {$arr = $this->get_object('Q275620'); $arr = $arr->entities->Q275620;}
         if($this->debug_taxon == "Pandanus odorifer") {$arr = $this->get_object('Q15578898'); $arr = $arr->entities->Q15578898;}
+        //lang ab
+        if($this->debug_taxon == "Staphylea colchica") {$arr = $this->get_object('Q2671147'); $arr = $arr->entities->Q2671147;}
+        if($this->debug_taxon == "Citrus ×sinensis") {$arr = $this->get_object('Q3355098'); $arr = $arr->entities->Q3355098;}
+        if($this->debug_taxon == "Solanum melongena") {$arr = $this->get_object('Q7540'); $arr = $arr->entities->Q7540;}
+        if($this->debug_taxon == "Anas querquedula") {$arr = $this->get_object('Q25644'); $arr = $arr->entities->Q25644;}
+        if($this->debug_taxon == "Aquila chrysaetos") {$arr = $this->get_object('Q41181'); $arr = $arr->entities->Q41181;}
+        if($this->debug_taxon == "Prunus cerasifera") {$arr = $this->get_object('Q146951'); $arr = $arr->entities->Q146951;}
+        if($this->debug_taxon == "Portulaca oleracea") {$arr = $this->get_object('Q158015'); $arr = $arr->entities->Q158015;}
+        if($this->debug_taxon == "Diospyros") {$arr = $this->get_object('Q165258'); $arr = $arr->entities->Q165258;}
+        if($this->debug_taxon == "Mareca penelope") {$arr = $this->get_object('Q28106837'); $arr = $arr->entities->Q28106837;}
+        if($this->debug_taxon == "Solanum tuberosum") {$arr = $this->get_object('Q10998'); $arr = $arr->entities->Q10998;}
+        if($this->debug_taxon == "Viola odorata") {$arr = $this->get_object('Q108684'); $arr = $arr->entities->Q108684;}
+        if($this->debug_taxon == "Rhododendron luteum") {$arr = $this->get_object('Q2591210'); $arr = $arr->entities->Q2591210;}
+        //lang wo
+        if($this->debug_taxon == "Mus") {$arr = $this->get_object('Q39275'); $arr = $arr->entities->Q39275;}
+        if($this->debug_taxon == "Abutilon") {$arr = $this->get_object('Q132638'); $arr = $arr->entities->Q132638;}
+        if($this->debug_taxon == "Ceiba pentandra") {$arr = $this->get_object('Q138617'); $arr = $arr->entities->Q138617;}
+        if($this->debug_taxon == "Ficus elastica") {$arr = $this->get_object('Q160576'); $arr = $arr->entities->Q160576;}
+        if($this->debug_taxon == "Psidium guajava") {$arr = $this->get_object('Q166843'); $arr = $arr->entities->Q166843;}
+        if($this->debug_taxon == "Delphinus delphis") {$arr = $this->get_object('Q207114'); $arr = $arr->entities->Q207114;}
+        if($this->debug_taxon == "Crateva religiosa") {$arr = $this->get_object('Q311133'); $arr = $arr->entities->Q311133;}
+        if($this->debug_taxon == "Adenium obesum") {$arr = $this->get_object('Q311994'); $arr = $arr->entities->Q311994;}
+        if($this->debug_taxon == "Balanites aegyptiaca") {$arr = $this->get_object('Q606704'); $arr = $arr->entities->Q606704;}
+        if($this->debug_taxon == "Oxytenanthera abyssinica") {$arr = $this->get_object('Q641048'); $arr = $arr->entities->Q641048;}
+        if($this->debug_taxon == "Combretum micranthum") {$arr = $this->get_object('Q1245859'); $arr = $arr->entities->Q1245859;}
+        if($this->debug_taxon == "Vitellaria paradoxa") {$arr = $this->get_object('Q1348567'); $arr = $arr->entities->Q1348567;}
+        if($this->debug_taxon == "Pseudotolithus") {$arr = $this->get_object('Q2111255'); $arr = $arr->entities->Q2111255;}
+        if($this->debug_taxon == "Lutjanus agennes") {$arr = $this->get_object('Q2233181'); $arr = $arr->entities->Q2233181;}
+        if($this->debug_taxon == "Prosopis africana") {$arr = $this->get_object('Q12066488'); $arr = $arr->entities->Q12066488;}
+        //lang ay
+        if($this->debug_taxon == "Ananas comosus") {$arr = $this->get_object('Q1493'); $arr = $arr->entities->Q1493;}
+        if($this->debug_taxon == "Strigiformes") {$arr = $this->get_object('Q25222'); $arr = $arr->entities->Q25222;}
+        if($this->debug_taxon == "Ipomoea batatas") {$arr = $this->get_object('Q37937'); $arr = $arr->entities->Q37937;}
+        if($this->debug_taxon == "Lama glama") {$arr = $this->get_object('Q42569'); $arr = $arr->entities->Q42569;}
+        if($this->debug_taxon == "Dasypodidae") {$arr = $this->get_object('Q47867'); $arr = $arr->entities->Q47867;}
+        if($this->debug_taxon == "Vultur gryphus") {$arr = $this->get_object('Q170598'); $arr = $arr->entities->Q170598;}
+        if($this->debug_taxon == "Accipiter") {$arr = $this->get_object('Q188737'); $arr = $arr->entities->Q188737;}
+        if($this->debug_taxon == "Rupicola peruvianus") {$arr = $this->get_object('Q490393'); $arr = $arr->entities->Q490393;}
         return $arr;
     }
 }

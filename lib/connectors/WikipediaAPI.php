@@ -585,8 +585,13 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'wo') { //
+            $left = '<div style="clear:right; float:right;margin:0 0 1em 1em;width:220px;border:solid #AAAAAA 1px; background:#FFFFFF;padding:0px;font-size:90%;text-align:left;"';
+            $html = self::process_left($html, $left);
+        }
         if($this->language_code == 'ay') { //
             $html = self::process_external_links($html, 'Links'); //external links
+            $html = self::process_external_links($html, 'Anqaxamp_jaqthapirinaka'); //external links
         }
         if($this->language_code == 'ban') { //
             $html = self::process_external_links($html, 'Suratan_Liyané'); //external links
