@@ -210,7 +210,8 @@ class GloBIDataAPI
                     if(self::kingdom_is_viruses_YN($sourceTaxon_kingdom)) {
                         $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002556';
                         $associationType = $rec['http://eol.org/schema/associationType'];
-                        echo "\nFound: sourceTaxon is VIRUSES; assocType is 'eats' [$associationType]; change the associationType to 'pathogen of'...\n";
+                        // echo "\nFound: sourceTaxon is VIRUSES; assocType is 'eats' [$associationType]; change the associationType to 'pathogen of'...\n";
+                        @$this->debug['stats']['change the associationType to pathogen_of']++;
                         /*
                         print_r($rec); exit("\nfound [$kingdom]...\n");
                         Array(
@@ -244,7 +245,8 @@ class GloBIDataAPI
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
                             $sourceTaxon_genus = self::get_taxon_ancestor_4occurID($occurrenceID, 'source', 'genus'); //3rd param is the rank of the ancestor being sought
                             if(!in_array($sourceTaxon_genus, $this->Carnivorous_plant_whitelist)) {
-                                echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
+                                // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
+                                @$this->debug['stats']['non-carnivorous plants eating animals']++;
                                 continue;
                             }
                         }
@@ -266,7 +268,8 @@ class GloBIDataAPI
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
-                            echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants parasitizing animals...\n";
+                            // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants parasitizing animals...\n";
+                            @$this->debug['stats']['plants parasitizing animals']++;
                             continue;
                         }
                     }
@@ -283,7 +286,8 @@ class GloBIDataAPI
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
-                            echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
+                            // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
+                            @$this->debug['stats']['plants having animals as hosts']++;
                             continue;
                         }
                     }
@@ -298,7 +302,8 @@ class GloBIDataAPI
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0002622'))) { //
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
-                        echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
+                        // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
+                        @$this->debug['stats']['plants pollinating or visiting flowers of any other organism']++;
                         continue;
                     }
                 }
@@ -310,7 +315,8 @@ class GloBIDataAPI
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0008507'))) { //
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
-                        echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
+                        // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
+                        @$this->debug['stats']['plants laying eggs']++;
                         continue;
                     }
                 }
@@ -332,7 +338,8 @@ class GloBIDataAPI
                     if(!self::kingdom_is_viruses_YN($sourceTaxon_kingdom)) {
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_viruses_YN($targetTaxon_kingdom)) {
-                            echo "\nFound: sourceTaxon is not VIRUSES; targetTaxon is VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
+                            // echo "\nFound: sourceTaxon is not VIRUSES; targetTaxon is VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
+                            @$this->debug['stats']['organisms parasitizing or eating viruses']++;
                             continue;
                         }
                     }
@@ -742,6 +749,7 @@ class GloBIDataAPI
     private function lookup_gbif_ancestor_using_sciname($sciname, $options = array(), $rank)
     {
         if(!$sciname) return;
+        $sciname = trim(str_ireplace('incertae sedis', '', $sciname));
         if(!$options) $options = $this->download_options_gbif;
         $options['expire_seconds'] = false; //should be false. ancestor value doesn't normally change
         $url = str_replace("SCINAME", urlencode($sciname), $this->api['GBIF taxon 2']);
