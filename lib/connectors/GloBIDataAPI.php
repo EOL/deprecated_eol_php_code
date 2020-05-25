@@ -497,7 +497,7 @@ class GloBIDataAPI
                 $kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
                 if(isset($this->taxonIDS[$taxonID])) {
                     $this->taxonIDS[$taxonID]['kingdom'] = $kingdom;
-                    $this->taxonIDS[$taxonID]['sciname'] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                    $this->taxonIDS[$taxonID]['sciname'] = (string) $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
                     $this->taxonIDS[$taxonID]['genus']   = $rec['http://rs.tdwg.org/dwc/terms/genus'];
                     if(!$kingdom) {
                         //option 1
@@ -589,7 +589,7 @@ class GloBIDataAPI
         if    ($targetORsource == 'target') $taxonID = $this->targetOccurrenceIDS[$targetORsource_OccurrenceID];
         elseif($targetORsource == 'source') $taxonID = $this->occurrenceIDS[$targetORsource_OccurrenceID];
         
-        $sciname = @$this->taxonIDS[$taxonID]['sciname'];
+        $sciname = (string) @$this->taxonIDS[$taxonID]['sciname'];
         
         if($taxonID) {
             if($kingdom = $this->taxonIDS[$taxonID]['kingdom']) return $kingdom; // Animalia or Plantae
@@ -630,7 +630,7 @@ class GloBIDataAPI
                     }
                 }
                 
-                if($sciname = @$this->taxonIDS[$taxonID]['sciname']) {
+                if($sciname = (string) @$this->taxonIDS[$taxonID]['sciname']) {
                     if(stripos($sciname, " trees") !== false) return 'Plantae'; //string is found
                     if(stripos($sciname, " shrubs") !== false) return 'Plantae'; //string is found
                     if(stripos($sciname, " plants") !== false) return 'Plantae'; //string is found
@@ -776,7 +776,7 @@ class GloBIDataAPI
         }
         
         //3rd try, if has ' virus' in the sciname
-        if(stripos($sciname, " virus") !== false) //string is found
+        if(stripos($sciname, " virus") !== false) { //string is found
             return 'Viruses';
         }
     }
