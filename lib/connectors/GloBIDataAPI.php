@@ -96,7 +96,7 @@ class GloBIDataAPI
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $targetOccurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
             if($what == 'build info') {
-                // /* compiled build info
+                // /* compiled build info --- May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
                 // source:
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0008507'))) { //
                     $this->occurrenceIDS[$occurrenceID] = '';
@@ -128,7 +128,7 @@ class GloBIDataAPI
                 // 
                 // */
                 
-                // /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
+                /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
                 $assoc_types = array('http://purl.obolibrary.org/obo/RO_0008507', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002634', 
                                      'http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002622', 'http://purl.obolibrary.org/obo/RO_0002618', 
                                      'http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002455', 
@@ -138,7 +138,7 @@ class GloBIDataAPI
                      $this->occurrenceIDS[$occurrenceID] = '';
                      $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
                  }
-                // */
+                */
                 
                 /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
                 1. REMOVE ALL RECORDS WITH VERY GENERAL associationType VALUES
