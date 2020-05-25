@@ -149,10 +149,10 @@ class GloBIDataAPI
                     continue;
                 }
 
-                /* second change request 
-                if association_type == RO_0002623 (flowers visited by) AND targetOccurrenceID has a taxon with Plantae in the kingdom column
+                /* START: second change request 
+                if association_type == RO_0002623 (flowers visited by) AND targetTaxon is under kingdom "Plantae" or "Viridiplantae"
                     then: replace association_type with RO_0002622
-                if association_type == RO_0002622 (visits flowers of) AND targetOccurrenceID has a taxon with Animalia in the kingdom column
+                if association_type == RO_0002622 (visits flowers of) AND targetTaxon is under kingdom "Animalia" or "Metazoa"
                     then: replace association_type with RO_0002623
                 */
                 if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623') {
@@ -168,7 +168,7 @@ class GloBIDataAPI
                     }
                 }
                 $associationType = $rec['http://eol.org/schema/associationType'];                
-                /* end second change request */
+                /* END: second change request */
 
                 // /* per: https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64696&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64696
                 // Another filter for this resource, please! The situation is similar to the flower visitors you fixed earlier. 
@@ -840,9 +840,13 @@ class GloBIDataAPI
     private function is_taxon_under_kingdom_viruses($taxon)
     {
         $known_viruses = array('Adomaviridae', 'Fusariviridae', 'Pithoviridae', 'Pithovirus', 'Albetovirus', 'Aumaivirus', 'Blunervirus', 'Botybirnavirus', 'Cilevirus', 'Deltavirus', 
-        'Dinodnavirus', 'Higrevirus', 'Idaeovirus', 'Nanobacterium', 'Negevirus', 'Ourmiavirus', 'Pandoravirus', 'Papanivirus', 'Salterprovirus', 'Sinaivirus', 'Sobemovirus', 'Tenuivirus', 
+        'Dinodnavirus', 'Higrevirus', 'Idaeovirus', 'Negevirus', 'Ourmiavirus', 'Pandoravirus', 'Papanivirus', 'Salterprovirus', 'Sinaivirus', 'Sobemovirus', 'Tenuivirus', 
         'Tilapinevirus', 'Virtovirus');
         if(in_array($taxon, $known_viruses)) return true;
+        
+        /*
+        'Nanobacterium' was excluded. Per: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=64880&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64880
+        */
     }
     /*================================================================= ENDS HERE ======================================================================*/
 }
