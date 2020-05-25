@@ -58,13 +58,13 @@ class DwCA_Utility
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->dwca_file, "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
-        // print_r($paths);
+        // print_r($paths); exit("\n-exit muna-\n");
         // */
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_05106/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_42693/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_42693/'
         );
         */
         

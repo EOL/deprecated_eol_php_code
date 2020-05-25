@@ -20,6 +20,8 @@ class GloBIDataAPI
             'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
         $this->download_options_gbif = $this->download_options;
         $this->download_options_gbif['resource_id'] = 'gbif';
+        $this->Carnivorous_plant_whitelist = array('Aldrovanda', 'Brocchinia', 'Byblis', 'Catopsis', 'Cephalotus', 'Darlingtonia', 'Dionaea', 'Drosera', 'Drosophyllum', 'Genlisea',
+                                                   'Heliamphora', 'Nepenthes', 'Philcoxia', 'Pinguicula', 'Roridula', 'Sarracenia', 'Stylidium', 'Triphyophyllum', 'Utricularia');
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -35,7 +37,7 @@ class GloBIDataAPI
         */
         
         /*
-        $x = self::lookup_gbif_kingdom_using_sciname('Acacia', array());
+        $x = self::lookup_gbif_ancestor_using_sciname('Acacia', array(), 'kingdom');
         exit("\n-end-[$x]\n");
         */
         
@@ -112,25 +114,62 @@ class GloBIDataAPI
                 // Let's just remove all records with these predicates and a source taxon with Plantae in the Kingdom column.
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) {
                     $this->occurrenceIDS[$occurrenceID] = '';
+                    $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
                 }
                 // */
                 
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002437') { //delete all records of this associationType
+                // /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
+                $assoc_types = array('http://purl.obolibrary.org/obo/RO_0008507', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002634', 
+                                     'http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002622', 'http://purl.obolibrary.org/obo/RO_0002618', 
+                                     'http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002455', 
+                                     'http://purl.obolibrary.org/obo/RO_0002454', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0002439', 
+                                     'http://purl.obolibrary.org/obo/RO_0002208');
+                 if(in_array($associationType, $assoc_types)) {
+                     $this->occurrenceIDS[$occurrenceID] = '';
+                     $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
+                 }
+                // */
+                
+                /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
+                1. REMOVE ALL RECORDS WITH VERY GENERAL associationType VALUES
+                I think the current version of the connector already removes "biotically interacts with" (http://purl.obolibrary.org/obo/RO_0002437), 
+                but we should also strip out records with the following unspecific associationType values:
+                http://purl.obolibrary.org/obo/RO_0002220	adjacent to
+                http://purl.obolibrary.org/obo/RO_0002321	ecologically related to
+                http://purl.obolibrary.org/obo/RO_0008506	ecologically co-occurs with
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002437', 'http://purl.obolibrary.org/obo/RO_0002220', 
+                                                    'http://purl.obolibrary.org/obo/RO_0002321', 'http://purl.obolibrary.org/obo/RO_0008506'))) { //delete all records of this associationType
                     $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
                     $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                 }
             }
             elseif($what == 'create extension') {
                 /* first change request */
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002437') continue; //delete all records of this associationType
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002437', 'http://purl.obolibrary.org/obo/RO_0002220', 
+                                                    'http://purl.obolibrary.org/obo/RO_0002321', 'http://purl.obolibrary.org/obo/RO_0008506'))) { //delete all records of this associationType
+                    continue;
+                }
+
                 /* second change request 
                 if association_type == RO_0002623 (flowers visited by) AND targetOccurrenceID has a taxon with Plantae in the kingdom column
                     then: replace association_type with RO_0002622
                 if association_type == RO_0002622 (visits flowers of) AND targetOccurrenceID has a taxon with Animalia in the kingdom column
                     then: replace association_type with RO_0002623
                 */
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623' && self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target')=='Pl') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
-                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622' && self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target')=='An') $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
+                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002623') {
+                    $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                    if(self::kingdom_is_plants_YN($targetTaxon_kingdom)) {
+                        $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002622';
+                    }
+                }
+                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002622') {
+                    $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                    if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                        $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002623';
+                    }
+                }
+                $associationType = $rec['http://eol.org/schema/associationType'];                
                 /* end second change request */
 
                 // /* per: https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64696&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64696
@@ -143,10 +182,162 @@ class GloBIDataAPI
                 // 
                 // I was going to do something more complicated, but it turns out there are barely any "true" records of carnivorous plants. 
                 // Let's just remove all records with these predicates and a source taxon with Plantae in the Kingdom column.
-                if    ($associationType == 'http://purl.obolibrary.org/obo/RO_0002470' && self::get_taxon_kingdom_4occurID($occurrenceID, 'source')=='Pl') continue;
-                elseif($associationType == 'http://purl.obolibrary.org/obo/RO_0002439' && self::get_taxon_kingdom_4occurID($occurrenceID, 'source')=='Pl') continue;
+                
+                // On May 22, 2020, this was commented. Replaced by an updated criteria by Katja below (3.a)
+                // if    ($associationType == 'http://purl.obolibrary.org/obo/RO_0002470' && self::get_taxon_kingdom_4occurID($occurrenceID, 'source')=='Plantae') continue;
+                // elseif($associationType == 'http://purl.obolibrary.org/obo/RO_0002439' && self::get_taxon_kingdom_4occurID($occurrenceID, 'source')=='Plantae') continue;
+                
                 // */
 
+                /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
+                2. RECODE CERTAIN associationType VALUES
+                (a) I thought we already had all records with associationType "pollinates" (http://purl.obolibrary.org/obo/RO_0002455) recoded to "visits flowers of" 
+                (http://purl.obolibrary.org/obo/RO_0002622), but I still see 58454 records with associationType http://purl.obolibrary.org/obo/RO_0002455 in the current resource file here: https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61
+                We should change all these records to associationType http://purl.obolibrary.org/obo/RO_0002622, and this should happen before we create the reverse records, 
+                i.e., there should not be any "pollinated by" (http://purl.obolibrary.org/obo/RO_0002456) records in the EOL resource file, 
+                all reverse records should be "has flowers visited by" (http://purl.obolibrary.org/obo/RO_0002623).
+                */
+                if($associationType = self::suggested_remaps_if_any($associationType)) {
+                    $rec['http://eol.org/schema/associationType'] = $associationType;
+                    $associationType = $rec['http://eol.org/schema/associationType'];
+                }
+                /*
+                (b) For records where the sourceTaxon has kingdom "Viruses" and associationType is "eats" (http://purl.obolibrary.org/obo/RO_0002470), 
+                please change the associationType to "pathogen of" (http://purl.obolibrary.org/obo/RO_0002556).
+                */
+                if($associationType == 'http://purl.obolibrary.org/obo/RO_0002470') { //eats RO_0002470
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(self::kingdom_is_viruses_YN($sourceTaxon_kingdom)) {
+                        $rec['http://eol.org/schema/associationType'] = 'http://purl.obolibrary.org/obo/RO_0002556';
+                        $associationType = $rec['http://eol.org/schema/associationType'];
+                        echo "\nFound: sourceTaxon is VIRUSES; assocType is 'eats' [$associationType]; change the associationType to 'pathogen of'...\n";
+                        /*
+                        print_r($rec); exit("\nfound [$kingdom]...\n");
+                        Array(
+                            [http://eol.org/schema/associationID] => globi:assoc:6162107-GBIF:8809483-ATE-GBIF:3172291
+                            [http://rs.tdwg.org/dwc/terms/occurrenceID] => globi:occur:source:6162107-GBIF:8809483-ATE
+                            [http://eol.org/schema/associationType] => http://purl.obolibrary.org/obo/RO_0002556
+                            [http://eol.org/schema/targetOccurrenceID] => globi:occur:target:6162107-GBIF:8809483-ATE-GBIF:3172291
+                            [http://rs.tdwg.org/dwc/terms/measurementDeterminedDate] => 
+                            [http://rs.tdwg.org/dwc/terms/measurementDeterminedBy] => 
+                            [http://rs.tdwg.org/dwc/terms/measurementMethod] => 
+                            [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                            [http://purl.org/dc/terms/source] => Food Webs and Species Interactions in the Biodiversity of UK and Ireland (Online). 2015. Data provided by Malcolm Storey. Also available from http://bioinfo.org.uk.
+                            [http://purl.org/dc/terms/bibliographicCitation] => 
+                            [http://purl.org/dc/terms/contributor] => 
+                            [http://eol.org/schema/reference/referenceID] => globi:ref:6162107
+                        )
+                        found [Viruses]...*/
+                    }
+                }
+                /*
+                3. REMOVE RECORDS THAT REPRESENT ERRONEOUS ASSOCIATION CLAIMS
+                (a) Records of non-carnivorous plants eating animals are likely to be errors
+                    sourceTaxon has kingdom "Plantae" OR "Viridiplantae" AND genus is not in whitelist
+                AND targetTaxon has kingdom "Animalia" OR "Metazoa"
+                AND associationType is "eats" (http://purl.obolibrary.org/obo/RO_0002470) OR 
+                                   "preys on" (http://purl.obolibrary.org/obo/RO_0002439) */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) { //'eats' or 'preys on'
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                        $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                        if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                            $sourceTaxon_genus = self::get_taxon_ancestor_4occurID($occurrenceID, 'source', 'genus'); //3rd param is the rank of the ancestor being sought
+                            if(!in_array($sourceTaxon_genus, $this->Carnivorous_plant_whitelist)) {
+                                echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
+                                continue;
+                            }
+                        }
+                    }
+                }
+                
+                /* (b) Records of plants parasitizing animals are likely to be errors
+                    sourceTaxon has kingdom "Plantae" OR "Viridiplantae"
+                AND targetTaxon has kingdom "Animalia" OR "Metazoa"
+                AND associationType is "ectoparasite of" (http://purl.obolibrary.org/obo/RO_0002632) OR 
+                                       "endoparasite of" (http://purl.obolibrary.org/obo/RO_0002634) OR 
+                                       "parasite of" (http://purl.obolibrary.org/obo/RO_0002444) OR 
+                                       "kleptoparasite of" (http://purl.obolibrary.org/obo/RO_0008503) OR 
+                                       "parasitoid of" http://purl.obolibrary.org/obo/RO_0002208 OR 
+                                       "pathogen of" (http://purl.obolibrary.org/obo/RO_0002556)
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002634', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002208', 'http://purl.obolibrary.org/obo/RO_0002556'))) { //plants parasitizing animals
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                        $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                        if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                            echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants parasitizing animals...\n";
+                            continue;
+                        }
+                    }
+                }
+                
+                /* (c) Records of plants having animals as hosts are likely to be errors
+                (we might have to create a whitelist if somebody gives us a dataset of algae living in sloth fur)
+                    sourceTaxon has kingdom "Plantae" OR "Viridiplantae"
+                AND targetTaxon has kingdom "Animalia" OR "Metazoa"
+                AND associationType is "has host" (http://purl.obolibrary.org/obo/RO_0002454)
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002454'))) { //plants having animals as hosts
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                        $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                        if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                            echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
+                            continue;
+                        }
+                    }
+                }
+                
+                /* (d) Records of plants pollinating or visiting flowers of any other organism are likely to be errors
+                sourceTaxon has kingdom "Plantae" OR "Viridiplantae"
+                AND associationType is "pollinates" (http://purl.obolibrary.org/obo/RO_0002455) OR 
+                                        visits (http://purl.obolibrary.org/obo/RO_0002618) OR 
+                                        visits flowers of (http://purl.obolibrary.org/obo/RO_0002622)
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0002622'))) { //
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                        echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
+                        continue;
+                    }
+                }
+                
+                /* (d) Records of plants laying eggs are likely to be errors
+                sourceTaxon has kingdom "Plantae" OR "Viridiplantae"
+                AND associationType is "lays eggs on" (http://purl.obolibrary.org/obo/RO_0008507)
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0008507'))) { //
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                        echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
+                        continue;
+                    }
+                }
+                
+                /* (e) Records of other organisms parasitizing or eating viruses are likely to be errors
+                sourceTaxon does NOT have kingdom "Viruses"
+                AND targetTaxon has kingdom "Viruses"
+                AND associationType is "ectoparasite of" (http://purl.obolibrary.org/obo/RO_0002632) OR 
+                                       "endoparasite of" (http://purl.obolibrary.org/obo/RO_0002634) OR 
+                                       "parasite of" (http://purl.obolibrary.org/obo/RO_0002444) OR 
+                                       "kleptoparasite of" (http://purl.obolibrary.org/obo/RO_0008503) OR 
+                                       "parasitoid of" http://purl.obolibrary.org/obo/RO_0002208 OR 
+                                       "pathogen of" (http://purl.obolibrary.org/obo/RO_0002556) OR 
+                                       "eats" (http://purl.obolibrary.org/obo/RO_0002470) OR 
+                                       "preys on" (http://purl.obolibrary.org/obo/RO_0002439)
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002634', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002208', 'http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) { //
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(!self::kingdom_is_viruses_YN($sourceTaxon_kingdom)) {
+                        $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                        if(self::kingdom_is_viruses_YN($targetTaxon_kingdom)) {
+                            echo "\nFound: sourceTaxon is not VIRUSES; targetTaxon is VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
+                            continue;
+                        }
+                    }
+                }
+                
                 //-----------------------------------------------------------------------------
                 $o = new \eol_schema\Association();
                 $uris = array_keys($rec);
@@ -172,6 +363,19 @@ class GloBIDataAPI
                 // if($i >= 10) break; //debug only
             }
         }
+    }
+    private function suggested_remaps_if_any($associationType)
+    {
+        /*
+        (a) I thought we already had all records with associationType "pollinates" (http://purl.obolibrary.org/obo/RO_0002455) recoded to "visits flowers of" 
+        (http://purl.obolibrary.org/obo/RO_0002622), but I still see 58454 records with associationType http://purl.obolibrary.org/obo/RO_0002455 in the current resource file here: https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61
+        We should change all these records to associationType http://purl.obolibrary.org/obo/RO_0002622, and this should happen before we create the reverse records, 
+        i.e., there should not be any "pollinated by" (http://purl.obolibrary.org/obo/RO_0002456) records in the EOL resource file, 
+        all reverse records should be "has flowers visited by" (http://purl.obolibrary.org/obo/RO_0002623).
+        */
+        if    ($associationType == 'http://purl.obolibrary.org/obo/RO_0002455') return 'http://purl.obolibrary.org/obo/RO_0002622';
+        elseif($associationType == 'http://purl.obolibrary.org/obo/RO_0002456') return 'http://purl.obolibrary.org/obo/RO_0002623';
+        return $associationType;
     }
     private function process_occurrence($meta, $what)
     {   //print_r($meta);
@@ -287,25 +491,26 @@ class GloBIDataAPI
             if($what == 'build info') {
                 $kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
                 if(isset($this->taxonIDS[$taxonID])) {
-                    $this->taxonIDS[$taxonID]['kingdom'] = substr($kingdom,0,2);
+                    $this->taxonIDS[$taxonID]['kingdom'] = $kingdom;
                     $this->taxonIDS[$taxonID]['sciname'] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                    $this->taxonIDS[$taxonID]['genus']   = $rec['http://rs.tdwg.org/dwc/terms/genus'];
                     if(!$kingdom) {
                         //option 1
-                        if($rec['http://rs.tdwg.org/dwc/terms/class'] == 'Actinopterygii') $this->taxonIDS[$taxonID]['kingdom'] = 'An';
+                        if($rec['http://rs.tdwg.org/dwc/terms/class'] == 'Actinopterygii') $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia';
                         else {
                             //option 2
                             $tmp = @$rec['http://rs.tdwg.org/dwc/terms/phylum'] . "_" .  @$rec['http://rs.tdwg.org/dwc/terms/class'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/order'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/family'] . "_" . @$rec['http://rs.tdwg.org/dwc/terms/genus'];
-                            if(stripos($tmp, "Aves_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Magnoliophyta_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Pl'; //string is found
-                            elseif(stripos($tmp, "Amphibia_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Anthozoa_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Ascidiacea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Asteroidea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Bivalvia_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Demospongiae_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Echinoidea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Elasmobranchii_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
-                            elseif(stripos($tmp, "Gastropoda_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'An'; //string is found
+                            if(stripos($tmp, "Aves_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Magnoliophyta_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Plantae'; //string is found
+                            elseif(stripos($tmp, "Amphibia_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Anthozoa_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Ascidiacea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Asteroidea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Bivalvia_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Demospongiae_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Echinoidea_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Elasmobranchii_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
+                            elseif(stripos($tmp, "Gastropoda_") !== false) $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia'; //string is found
                             else {
                                 //option 3: GBIF sciname lookup
                                 $scinames = explode("_", $tmp);
@@ -314,7 +519,7 @@ class GloBIDataAPI
                                 $scinames = array_unique($scinames); //make unique
                                 $scinames = array_values($scinames); //reindex key
                                 // print_r($scinames);
-                                if($val = self::get_kingdom_from_GBIF_using_sciname($scinames)) $this->taxonIDS[$taxonID]['kingdom'] = substr($val,0,2);
+                                if($val = self::get_ancestor_from_GBIF_using_sciname($scinames, 'kingdom')) $this->taxonIDS[$taxonID]['kingdom'] = $val;
                                 else $this->debug['hierarchy without kingdom'][$tmp] = '';
                             }
                         }
@@ -334,7 +539,7 @@ class GloBIDataAPI
             }
         }
     }
-    private function get_taxon_kingdom_4occurID($targetORsource_OccurrenceID, $targetORsource) //targetOccurrenceID points to a taxon with this kingdom value
+    private function get_taxon_ancestor_4occurID($targetORsource_OccurrenceID, $targetORsource, $rank) //OccurrenceID points to a taxon, then return its ancestor value with $rank. e.g. 'genus'
     {
         $taxonID = false;
         if    ($targetORsource == 'target') $taxonID = $this->targetOccurrenceIDS[$targetORsource_OccurrenceID];
@@ -343,17 +548,54 @@ class GloBIDataAPI
         $sciname = @$this->taxonIDS[$taxonID]['sciname'];
         
         if($taxonID) {
-            if($char = $this->taxonIDS[$taxonID]['kingdom']) {
-                return $char; // An or Pl => Animalia or Plantae
+            if($ancestor = $this->taxonIDS[$taxonID][$rank]) return $ancestor;
+            elseif(in_array($taxonID, array('EOL:xxx'))) return 'xxx';
+            elseif(in_array($sciname, array('xxx', 'yyy'))) return 'xxx';
+            else {
+                if($val = self::lookup_gbif_ancestor_using_sciname($sciname, array(), $rank)) {
+                    return $val;
+                }
+                elseif(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
+                    if(!isset($this->not_found_in_EOL[$taxonID])) {
+                        if($val = self::get_ancestor_from_EOLtaxonID($taxonID, $sciname, $rank)) return $val;
+                        else {
+                            $this->not_found_in_EOL[$taxonID] = '';
+                            // echo " - not found in EOL: $targetORsource - ";
+                            $this->debug['does not have ancestor']['EOL'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                            return;
+                        }
+                    }
+                }
+                elseif(substr($taxonID,0,11) == 'INAT_TAXON:') { //e.g. INAT_TAXON:900074
+                    if($val = self::get_ancestor_by_rank_from_iNATtaxonID($taxonID, array(), $rank)) return $val;
+                    else {
+                        $this->debug["does not have $rank"]['INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                        return;
+                    }
+                }
+                $this->debug["does not have $rank"]['not EOL not INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
             }
+        }
+        else exit("\nInvestigate func get_taxon_ancestor_4occurID(): this $targetORsource OccurrenceID does not have taxonID \n");
+    }
+    private function get_taxon_kingdom_4occurID($targetORsource_OccurrenceID, $targetORsource) //targetOccurrenceID points to a taxon, then return its kingdom value
+    {
+        $taxonID = false;
+        if    ($targetORsource == 'target') $taxonID = $this->targetOccurrenceIDS[$targetORsource_OccurrenceID];
+        elseif($targetORsource == 'source') $taxonID = $this->occurrenceIDS[$targetORsource_OccurrenceID];
+        
+        $sciname = @$this->taxonIDS[$taxonID]['sciname'];
+        
+        if($taxonID) {
+            if($kingdom = $this->taxonIDS[$taxonID]['kingdom']) return $kingdom; // Animalia or Plantae
             elseif(in_array($taxonID, array('EOL:23306280', 'EOL:5051697', 'EOL:5536407', 'EOL:5231462', 'EOL:6922431', 'EOL:5540593', 'EOL_V2:5170411', 'EOL:107287', 
             'EOL_V2:5169796', 'EOL:2879598', 'IRMNG:11155392', 'EOL:5356331', 'EOL:703626', 'EOL:2865819', 'EOL_V2:5544078', 'EOL:5164786', 'EOL_V2:5426294', 
             'EOL:5024066', 'WD:Q5389420', 'EOL:29378842', 'EOL:40469587', 'EOL:71360', 'EOL:5744742', 'EOL:5631615', 'EOL_V2:6346627', 'EOL_V2:5350526', 'EOL_V2:5178076', 
             'EOL_V2:5349701', 'EOL_V2:5387667', 'EOL:5187953', 'EOL_V2:5664483', 'EOL_V2:5177870', 'EOL_V2:5386317', 'EOL_V2:5223689', 'EOL_V2:5666458', 'EOL_V2:5745926', 
-            'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) return 'Pl';
+            'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) return 'Plantae';
             elseif(in_array($taxonID, array('EOL:5425400', 'EOL:55106', 'EOL:3832795', 'FBC:FB:SpecCode:5038', 'EOL:3682636', 'EOL:31599461', 'EOL:54655', 
-            'EOL_V2:6272187', 'EOL_V2:3121417'))) return 'An';
-            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?'))) return 'An';
+            'EOL_V2:6272187', 'EOL_V2:3121417'))) return 'Animalia';
+            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?'))) return 'Animalia';
             else {
                 /*Array(
                     [does not have kingdom] => Array(
@@ -361,12 +603,12 @@ class GloBIDataAPI
                         )
                 )
                 */
-                if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) {
-                    return substr($val,0,2);
+                if($val = self::lookup_gbif_ancestor_using_sciname($sciname, array(), 'kingdom')) {
+                    return $val;
                 }
                 elseif(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
                     if(!isset($this->not_found_in_EOL[$taxonID])) {
-                        if($val = self::get_kingdom_from_EOLtaxonID($taxonID, $sciname)) return $val;
+                        if($val = self::get_ancestor_from_EOLtaxonID($taxonID, $sciname, 'kingdom')) return $val;
                         else {
                             $this->not_found_in_EOL[$taxonID] = '';
                             // echo " - not found in EOL: $targetORsource - ";
@@ -376,7 +618,7 @@ class GloBIDataAPI
                     }
                 }
                 elseif(substr($taxonID,0,11) == 'INAT_TAXON:') { //e.g. INAT_TAXON:900074
-                    if($val = self::get_kingdom_from_iNATtaxonID($taxonID)) return $val;
+                    if($val = self::get_ancestor_by_rank_from_iNATtaxonID($taxonID, array(), 'kingdom')) return $val;
                     else {
                         $this->debug['does not have kingdom']['INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
                         return;
@@ -384,17 +626,17 @@ class GloBIDataAPI
                 }
                 
                 if($sciname = @$this->taxonIDS[$taxonID]['sciname']) {
-                    if(stripos($sciname, " trees") !== false) return 'Pl'; //string is found
-                    if(stripos($sciname, " shrubs") !== false) return 'Pl'; //string is found
-                    if(stripos($sciname, " plants") !== false) return 'Pl'; //string is found
+                    if(stripos($sciname, " trees") !== false) return 'Plantae'; //string is found
+                    if(stripos($sciname, " shrubs") !== false) return 'Plantae'; //string is found
+                    if(stripos($sciname, " plants") !== false) return 'Plantae'; //string is found
                 }
                 
                 $this->debug['does not have kingdom']['not EOL not INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
             }
         }
-        else exit("\nInvestigate: this $targetORsource OccurrenceID [$taxonID] does not have taxonID \n");
+        else exit("\nInvestigate func get_taxon_kingdom_4occurID(): this [$targetORsource] OccurrenceID does not have taxonID \n");
     }
-    function get_kingdom_from_iNATtaxonID($taxonID, $options = array())
+    function get_ancestor_by_rank_from_iNATtaxonID($taxonID, $options = array(), $sought_rank = 'kingdom')
     {
         $id = str_replace('INAT_TAXON:', '', $taxonID);
         if(!$options) $options = $this->download_options;
@@ -405,10 +647,10 @@ class GloBIDataAPI
             foreach($arr as $a) {
                 if(!@$a['ancestors']) continue;
                 foreach(@$a['ancestors'] as $anc) {
-                    if($anc['rank'] == 'kingdom' && $anc['name'] == 'Animalia') return 'An';
-                    elseif($anc['rank'] == 'kingdom' && $anc['name'] == 'Plantae') return 'Pl';
-                    elseif($anc['rank'] == 'kingdom') {
-                        $this->debug['kingdom from iNat NOT Pl nor An'][$anc['name']] = '';
+                    // if    ($anc['rank'] == 'kingdom' && $anc['name'] == 'Animalia') return 'Animalia';
+                    // elseif($anc['rank'] == 'kingdom' && $anc['name'] == 'Plantae') return 'Plantae';
+                    if($anc['rank'] == $sought_rank) {
+                        $this->debug["$sought_rank from iNat"][$anc['name']] = '';
                         return $anc['name'];
                     }
                 }
@@ -417,7 +659,7 @@ class GloBIDataAPI
         else debug("\nnot found [$id] in iNaturalist()\n");
         return false;
     }
-    function get_kingdom_from_EOLtaxonID($taxonID, $sciname)
+    function get_ancestor_from_EOLtaxonID($taxonID, $sciname, $sought_rank)
     {
         if(stripos($taxonID, "EOL:") !== false) $id = str_replace('EOL:', '', $taxonID); //string is found
         if(stripos($taxonID, "EOL_V2:") !== false) $id = str_replace('EOL_V2:', '', $taxonID); //string is found
@@ -441,24 +683,21 @@ class GloBIDataAPI
                                 [taxonRank] => species
                             )
                     */
-                    if($rec['nameAccordingTo'] == 'Plant Forms, Habitat and Distribution') {
-                        echo " [Pl]";
-                        return 'Pl';
+                    if($sought_rank == 'kingdom') {
+                        if($rec['nameAccordingTo'] == 'Plant Forms, Habitat and Distribution') return 'Plantae';
                     }
                 }
                 /* Let us try GBIF */
                 foreach($arr as $rec) {
                     if($rec['nameAccordingTo'] == 'GBIF classification') {
                         $gbif_id = $rec['sourceIdentifier'];
-                        if($kingdom = self::get_kingdom_from_gbif($gbif_id)) {
+                        if($ancestor = self::get_ancestor_from_gbif($gbif_id, array(), $sought_rank)) {
                             // echo "\nkingdom from GBIF: [$kingdom]\n";
-                            $this->debug['kingdom from GBIF'][$kingdom] = '';
-                            if($kingdom == 'Plantae') return 'Pl';
-                            if($kingdom == 'Animalia') return 'An';
-                            return $kingdom;
+                            $this->debug["$sought_rank from GBIF"][$ancestor] = '';
+                            return $ancestor;
                         }
                         if($sciname = @$rec['scientificName']) {
-                            if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) return substr($val,0,2);
+                            if($val = self::lookup_gbif_ancestor_using_sciname($sciname, array(), $sought_rank)) return $val;
                         }
                         break;
                     }
@@ -468,7 +707,7 @@ class GloBIDataAPI
                 foreach($arr as $rec) {
                     if($rec['nameAccordingTo'] != 'GBIF classification') {
                         if($sciname = @$rec['scientificName']) {
-                            if($val = self::lookup_gbif_kingdom_using_sciname($sciname)) return substr($val,0,2);
+                            if($val = self::lookup_gbif_ancestor_using_sciname($sciname, array(), $sought_rank)) return $val;
                         }
                     }
                 }
@@ -478,7 +717,7 @@ class GloBIDataAPI
         // exit("\nNot found...\n");
         return false;
     }
-    function get_kingdom_from_gbif($gbif_id, $options = array())
+    function get_ancestor_from_gbif($gbif_id, $options = array(), $rank) //$rank e.g. 'kingdom'
     {
         if(!isset($this->not_found_in_GBIF[$gbif_id])) {
             if(!$options) $options = $this->download_options_gbif;
@@ -486,31 +725,31 @@ class GloBIDataAPI
             if($json = Functions::lookup_with_cache($url, $options)) {
                 $arr = json_decode($json, true);
                 // print_r($arr); exit("\n-end gbif-\n");
-                if($val = @$arr['kingdom']) return $val;
+                if($val = @$arr[$rank]) return $val;
             }
             $this->not_found_in_GBIF[$gbif_id] = '';
         }
     }
-    private function get_kingdom_from_GBIF_using_sciname($scinames)
+    private function get_ancestor_from_GBIF_using_sciname($scinames, $rank) //$rank e.g. 'kingdom'
     {
         foreach($scinames as $sciname) {
             if(!isset($this->not_found_in_GBIF[$sciname])) {
-                if($kingdom = self::lookup_gbif_kingdom_using_sciname($sciname)) return $kingdom;
+                if($ancestor = self::lookup_gbif_ancestor_using_sciname($sciname, array(), $rank)) return $ancestor;
                 $this->not_found_in_GBIF[$sciname] = '';
             }
         }
     }
-    private function lookup_gbif_kingdom_using_sciname($sciname, $options = array())
+    private function lookup_gbif_ancestor_using_sciname($sciname, $options = array(), $rank)
     {
         if(!$sciname) return;
         if(!$options) $options = $this->download_options_gbif;
-        $options['expire_seconds'] = false; //should be false. kingdom doesn't normally change
+        $options['expire_seconds'] = false; //should be false. ancestor value doesn't normally change
         $url = str_replace("SCINAME", urlencode($sciname), $this->api['GBIF taxon 2']);
         if($json = Functions::lookup_with_cache($url, $options)) {
             $arr = json_decode($json, true);
             // print_r($arr); exit("\n-end gbif-\n");
             foreach($arr['results'] as $r) {
-                if($val = @$r['kingdom']) return $val;
+                if($val = @$r[$rank]) return $val;
             }
         }
         
@@ -523,7 +762,7 @@ class GloBIDataAPI
             $names = array_unique($names); //make unique
             $names = array_values($names); //reindex key
             if($name = @$names[0]) {
-                if($kingdom = self::lookup_gbif_kingdom_using_sciname($name)) return $kingdom;
+                if($ancestor = self::lookup_gbif_ancestor_using_sciname($name, array(), $rank)) return $ancestor;
             }
         }
     }
@@ -574,6 +813,25 @@ class GloBIDataAPI
         $uri['http://eol.org/schema/terms/HasDispersalVector'] = 'http://eol.org/schema/terms/IsDispersalVectorFor';
         return $uri;
     }
+    private function kingdom_is_plants_YN($kingdom)
+    {
+        $kingdom = strtolower($kingdom);
+        if(in_array($kingdom, array('plantae', 'viridiplantae', 'plants', 'plant'))) return true;
+    }
+    private function kingdom_is_animals_YN($kingdom)
+    {
+        $kingdom = strtolower($kingdom);
+        if(in_array($kingdom, array('animalia', 'metazoa', 'animals', 'animal'))) return true;
+    }
+
+    private function kingdom_is_viruses_YN($kingdom)
+    {
+        $kingdom = strtolower($kingdom);
+        if(in_array($kingdom, array('viruses', 'virus'))) return true;
+    }
+
+
+
     /*================================================================= ENDS HERE ======================================================================*/
 }
 ?>
