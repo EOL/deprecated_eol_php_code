@@ -748,6 +748,9 @@ class GloBIDataAPI
     {
         if(!$sciname) return;
         $sciname = trim(str_ireplace('incertae sedis', '', $sciname));
+        if($rank == 'kingdom') {
+            if(self::is_taxon_under_kingdom_viruses($sciname)) return 'Viruses';
+        }
         if(!$options) $options = $this->download_options_gbif;
         $options['expire_seconds'] = false; //should be false. ancestor value doesn't normally change
         $url = str_replace("SCINAME", urlencode($sciname), $this->api['GBIF taxon 2']);
@@ -829,15 +832,18 @@ class GloBIDataAPI
         $kingdom = strtolower($kingdom);
         if(in_array($kingdom, array('animalia', 'metazoa', 'animals', 'animal'))) return true;
     }
-
     private function kingdom_is_viruses_YN($kingdom)
     {
         $kingdom = strtolower($kingdom);
         if(in_array($kingdom, array('viruses', 'virus'))) return true;
     }
-
-
-
+    private function is_taxon_under_kingdom_viruses($taxon)
+    {
+        $known_viruses = array('Adomaviridae', 'Fusariviridae', 'Pithoviridae', 'Pithovirus', 'Albetovirus', 'Aumaivirus', 'Blunervirus', 'Botybirnavirus', 'Cilevirus', 'Deltavirus', 
+        'Dinodnavirus', 'Higrevirus', 'Idaeovirus', 'Nanobacterium', 'Negevirus', 'Ourmiavirus', 'Pandoravirus', 'Papanivirus', 'Salterprovirus', 'Sinaivirus', 'Sobemovirus', 'Tenuivirus', 
+        'Tilapinevirus', 'Virtovirus');
+        if(in_array($taxon, $known_viruses)) return true;
+    }
     /*================================================================= ENDS HERE ======================================================================*/
 }
 ?>
