@@ -129,18 +129,6 @@ class GloBIDataAPI
                 // */
                 
                 /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
-                $assoc_types = array('http://purl.obolibrary.org/obo/RO_0008507', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002634', 
-                                     'http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002622', 'http://purl.obolibrary.org/obo/RO_0002618', 
-                                     'http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002455', 
-                                     'http://purl.obolibrary.org/obo/RO_0002454', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0002439', 
-                                     'http://purl.obolibrary.org/obo/RO_0002208');
-                 if(in_array($associationType, $assoc_types)) {
-                     $this->occurrenceIDS[$occurrenceID] = '';
-                     $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
-                 }
-                */
-                
-                /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
                 1. REMOVE ALL RECORDS WITH VERY GENERAL associationType VALUES
                 I think the current version of the connector already removes "biotically interacts with" (http://purl.obolibrary.org/obo/RO_0002437), 
                 but we should also strip out records with the following unspecific associationType values:
