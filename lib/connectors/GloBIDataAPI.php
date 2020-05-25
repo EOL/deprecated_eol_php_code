@@ -96,11 +96,27 @@ class GloBIDataAPI
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $targetOccurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
             if($what == 'build info') {
-                // http://purl.obolibrary.org/obo/RO_0002623 (flowers visited by)
-                // http://purl.obolibrary.org/obo/RO_0002622 (visits flowers of)
-                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002623', 'http://purl.obolibrary.org/obo/RO_0002622'))) {
+                // /* compiled build info
+                // source:
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0008507'))) { //
+                    $this->occurrenceIDS[$occurrenceID] = '';
+                }
+                // target:
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002623'))) { //
                     $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
                 }
+                // both:
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002454', 'http://purl.obolibrary.org/obo/RO_0002622', 'http://purl.obolibrary.org/obo/RO_0002632', 
+                                                    'http://purl.obolibrary.org/obo/RO_0002634', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0008503', 
+                                                    'http://purl.obolibrary.org/obo/RO_0002208', 'http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002470', 
+                                                    'http://purl.obolibrary.org/obo/RO_0002439'))) { //
+                    $this->occurrenceIDS[$occurrenceID] = '';
+                    $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
+                }
+                // */
+                
+                // http://purl.obolibrary.org/obo/RO_0002623 (flowers visited by)
+                // http://purl.obolibrary.org/obo/RO_0002622 (visits flowers of)
                 
                 // /* per Jen: https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64696&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64696
                 // Another filter for this resource, please! The situation is similar to the flower visitors you fixed earlier. 
@@ -110,12 +126,6 @@ class GloBIDataAPI
                 // http://purl.obolibrary.org/obo/RO_0002470 (eats)
                 // http://purl.obolibrary.org/obo/RO_0002439 (preys on)
                 // 
-                // I was going to do something more complicated, but it turns out there are barely any "true" records of carnivorous plants. 
-                // Let's just remove all records with these predicates and a source taxon with Plantae in the Kingdom column.
-                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) {
-                    $this->occurrenceIDS[$occurrenceID] = '';
-                    $this->targetOccurrenceIDS[$targetOccurrenceID] = '';
-                }
                 // */
                 
                 // /* May 22, 2020 - Katja - https://eol-jira.bibalex.org/browse/DATA-1853
