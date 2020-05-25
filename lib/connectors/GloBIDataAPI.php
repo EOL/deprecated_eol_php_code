@@ -719,7 +719,7 @@ class GloBIDataAPI
                 
             }
         }
-        // exit("\nNot found...\n");
+
         return false;
     }
     function get_ancestor_from_gbif($gbif_id, $options = array(), $rank) //$rank e.g. 'kingdom'
