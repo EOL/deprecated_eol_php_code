@@ -774,6 +774,11 @@ class GloBIDataAPI
                 if($ancestor = self::lookup_gbif_ancestor_using_sciname($name, array(), $rank)) return $ancestor;
             }
         }
+        
+        //3rd try, if has ' virus' in the sciname
+        if(stripos($sciname, " virus") !== false) //string is found
+            return 'Viruses';
+        }
     }
     private function get_orig_reverse_uri()
     {
