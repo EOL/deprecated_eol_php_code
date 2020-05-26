@@ -638,11 +638,9 @@ class GloBIDataAPI
                     }
                 }
                 
-                if($sciname = (string) @$this->taxonIDS[$taxonID]['sciname']) {
-                    if(stripos($sciname, " trees") !== false) return 'Plantae'; //string is found
-                    if(stripos($sciname, " shrubs") !== false) return 'Plantae'; //string is found
-                    if(stripos($sciname, " plants") !== false) return 'Plantae'; //string is found
-                }
+                if(stripos($sciname, " trees") !== false) return 'Plantae'; //string is found
+                if(stripos($sciname, " shrubs") !== false) return 'Plantae'; //string is found
+                if(stripos($sciname, " plants") !== false) return 'Plantae'; //string is found
                 
                 $this->debug['does not have kingdom']['not EOL not INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
             }
