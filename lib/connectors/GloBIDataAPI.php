@@ -591,6 +591,12 @@ class GloBIDataAPI
         
         $sciname = (string) @$this->taxonIDS[$taxonID]['sciname'];
         
+        //manual
+        $sciname = strip_tags($sciname);
+        $sciname = trim(str_ireplace('undetermined', '', $sciname));
+        $sciname = trim(str_ireplace('unspecified', '', $sciname));
+        $sciname = trim(str_ireplace(' sp.', '', $sciname));
+        
         if($taxonID) {
             if($kingdom = $this->taxonIDS[$taxonID]['kingdom']) return $kingdom; // Animalia or Plantae
             elseif(in_array($taxonID, array('EOL:23306280', 'EOL:5051697', 'EOL:5536407', 'EOL:5231462', 'EOL:6922431', 'EOL:5540593', 'EOL_V2:5170411', 'EOL:107287', 
@@ -600,7 +606,9 @@ class GloBIDataAPI
             'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) return 'Plantae';
             elseif(in_array($taxonID, array('EOL:5425400', 'EOL:55106', 'EOL:3832795', 'FBC:FB:SpecCode:5038', 'EOL:3682636', 'EOL:31599461', 'EOL:54655', 
             'EOL_V2:6272187', 'EOL_V2:3121417'))) return 'Animalia';
-            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?'))) return 'Animalia';
+            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?', 'Invertebrata'))) return 'Animalia';
+            elseif(in_array($sciname, array('Plant'))) return 'Plantae';
+
             else {
                 /*Array(
                     [does not have kingdom] => Array(
@@ -848,6 +856,8 @@ class GloBIDataAPI
         'Dinodnavirus', 'Higrevirus', 'Idaeovirus', 'Negevirus', 'Ourmiavirus', 'Pandoravirus', 'Papanivirus', 'Salterprovirus', 'Sinaivirus', 'Sobemovirus', 'Tenuivirus', 
         'Tilapinevirus', 'Virtovirus');
         if(in_array($taxon, $known_viruses)) return true;
+        
+        if(stripos($taxon, "virophage") !== false) return true; //string is found
         
         /*
         'Nanobacterium' was excluded. Per: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=64880&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64880
