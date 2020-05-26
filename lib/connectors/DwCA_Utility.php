@@ -134,6 +134,7 @@ class DwCA_Utility
             }
             */
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only
+            if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
             if($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
             elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
             elseif(in_array($this->resource_id, array('BF', 'gbif_classification', 'gbif_classification_without_ancestry', '708'))) break; //all extensions will be processed elsewhere.
@@ -160,6 +161,12 @@ class DwCA_Utility
             $func = new GloBIDataAPI($this->archive_builder, 'globi');
             $func->start($info); //didn't use like above bec. memory can't handle 'occurrence' and 'association' TSV files
         }
+        if($this->resource_id == 'globi_associations_refuted') {
+            require_library('connectors/GloBIRefutedRecords');
+            $func = new GloBIRefutedRecords($this->archive_builder, 'none');
+            $func->start($info); //generates report for DATA-1854
+        }
+        
         /* this has been run already. Other connector(s) are created for further adjustments on DwCA's. e.g. DATA-1841
         if(substr($this->resource_id,0,3) == 'SC_') {
             if($this->resource_id == 'SC_australia') { //customized for DATA-1833
