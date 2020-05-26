@@ -776,9 +776,9 @@ class GloBIDataAPI
         }
         
         //3rd try, if has ' virus' in the sciname
-        if(stripos($sciname, " virus") !== false) { //string is found
-            return 'Viruses';
-        }
+        if(stripos($sciname, " virus") !== false) return 'Viruses'; //string is found
+        if(stripos($sciname, "virus ") !== false) return 'Viruses'; //string is found
+        if(substr($sciname,-5) == 'virus') return 'Viruses'; //last 5 chars in sciname is 'virus'.
     }
     private function get_orig_reverse_uri()
     {
