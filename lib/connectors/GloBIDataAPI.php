@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from globi_data.php] */
-class GloBIDataAPI
+class GloBIDataAPI extends Globi_Refuted_Records
 {
     function __construct($archive_builder, $resource_id)
     {
@@ -236,6 +236,7 @@ class GloBIDataAPI
                 AND targetTaxon has kingdom "Animalia" OR "Metazoa"
                 AND associationType is "eats" (http://purl.obolibrary.org/obo/RO_0002470) OR 
                                    "preys on" (http://purl.obolibrary.org/obo/RO_0002439) */
+                $rep['a'] = 'Records of non-carnivorous plants eating animals are likely to be errors';
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) { //'eats' or 'preys on'
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
@@ -245,6 +246,7 @@ class GloBIDataAPI
                             if(!in_array($sourceTaxon_genus, $this->Carnivorous_plant_whitelist)) {
                                 // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
                                 @$this->debug['stats']['non-carnivorous plants eating animals']++;
+                                self::write_refuted_report($rec, $rep['a']);
                                 continue;
                             }
                         }
@@ -261,6 +263,7 @@ class GloBIDataAPI
                                        "parasitoid of" http://purl.obolibrary.org/obo/RO_0002208 OR 
                                        "pathogen of" (http://purl.obolibrary.org/obo/RO_0002556)
                 */
+                $rep['b'] = 'Records of plants parasitizing animals are likely to be errors';
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002634', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002208', 'http://purl.obolibrary.org/obo/RO_0002556'))) { //plants parasitizing animals
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
@@ -268,6 +271,7 @@ class GloBIDataAPI
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants parasitizing animals...\n";
                             @$this->debug['stats']['plants parasitizing animals']++;
+                            self::write_refuted_report($rec, $rep['b']);
                             continue;
                         }
                     }
@@ -279,6 +283,7 @@ class GloBIDataAPI
                 AND targetTaxon has kingdom "Animalia" OR "Metazoa"
                 AND associationType is "has host" (http://purl.obolibrary.org/obo/RO_0002454)
                 */
+                $rep['c'] = 'Records of plants having animals as hosts are likely to be errors';
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002454'))) { //plants having animals as hosts
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
@@ -286,6 +291,7 @@ class GloBIDataAPI
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
                             @$this->debug['stats']['plants having animals as hosts']++;
+                            self::write_refuted_report($rec, $rep['c']);
                             continue;
                         }
                     }
@@ -297,29 +303,33 @@ class GloBIDataAPI
                                         visits (http://purl.obolibrary.org/obo/RO_0002618) OR 
                                         visits flowers of (http://purl.obolibrary.org/obo/RO_0002622)
                 */
+                $rep['d'] = 'Records of plants pollinating or visiting flowers of any other organism are likely to be errors';
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0002622'))) { //
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
                         @$this->debug['stats']['plants pollinating or visiting flowers of any other organism']++;
+                        self::write_refuted_report($rec, $rep['d']);
                         continue;
                     }
                 }
                 
-                /* (d) Records of plants laying eggs are likely to be errors
+                /* (e) Records of plants laying eggs are likely to be errors
                 sourceTaxon has kingdom "Plantae" OR "Viridiplantae"
                 AND associationType is "lays eggs on" (http://purl.obolibrary.org/obo/RO_0008507)
                 */
+                $rep['e'] = 'Records of plants laying eggs are likely to be errors';
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0008507'))) { //
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
                         @$this->debug['stats']['plants laying eggs']++;
+                        self::write_refuted_report($rec, $rep['e']);
                         continue;
                     }
                 }
                 
-                /* (e) Records of other organisms parasitizing or eating viruses are likely to be errors
+                /* (f) Records of other organisms parasitizing or eating viruses are likely to be errors
                 sourceTaxon does NOT have kingdom "Viruses"
                 AND targetTaxon has kingdom "Viruses"
                 AND associationType is "ectoparasite of" (http://purl.obolibrary.org/obo/RO_0002632) OR 
@@ -331,6 +341,7 @@ class GloBIDataAPI
                                        "eats" (http://purl.obolibrary.org/obo/RO_0002470) OR 
                                        "preys on" (http://purl.obolibrary.org/obo/RO_0002439)
                 */
+                $rep['f'] = 'Records of other organisms parasitizing or eating viruses are likely to be errors';
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002634', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002208', 'http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) { //
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(!self::kingdom_is_viruses_YN($sourceTaxon_kingdom)) {
@@ -338,6 +349,7 @@ class GloBIDataAPI
                         if(self::kingdom_is_viruses_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is not VIRUSES; targetTaxon is VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
                             @$this->debug['stats']['organisms parasitizing or eating viruses']++;
+                            self::write_refuted_report($rec, $rep['f']);
                             continue;
                         }
                     }
