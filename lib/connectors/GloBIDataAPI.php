@@ -596,6 +596,7 @@ class GloBIDataAPI
         $sciname = trim(str_ireplace('undetermined', '', $sciname));
         $sciname = trim(str_ireplace('unspecified', '', $sciname));
         $sciname = trim(str_ireplace(' sp.', '', $sciname));
+        $sciname = trim(str_ireplace(' spp.', '', $sciname));
         
         if($taxonID) {
             if($kingdom = $this->taxonIDS[$taxonID]['kingdom']) return $kingdom; // Animalia or Plantae
@@ -855,7 +856,10 @@ class GloBIDataAPI
         'Tilapinevirus', 'Virtovirus');
         if(in_array($taxon, $known_viruses)) return true;
         
-        if(stripos($taxon, "virophage") !== false) return true; //string is found
+        if(stripos($taxon, "virophage") !== false)      return true; //string is found
+        if(stripos($taxon, "virus-") !== false)         return true; //string is found
+        if(stripos($taxon, "viroid") !== false)         return true; //string is found
+        if(stripos($taxon, "barnacle viurs") !== false) return true; //string is found --> 'Beihai barnacle viurs 1'
         
         /*
         'Nanobacterium' was excluded. Per: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=64880&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64880
