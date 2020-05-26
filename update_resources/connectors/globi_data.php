@@ -26,7 +26,7 @@ globi_associations	Tuesday 2020-05-26 04:34:58 AM	{"association.tab":2666190, "o
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false;
+// $GLOBALS['ENV_DEBUG'] = true;
 
 // https://api.inaturalist.org/v1/taxa/900074
 // http://api.gbif.org/v1/species/3934982
