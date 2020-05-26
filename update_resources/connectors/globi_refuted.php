@@ -1,10 +1,11 @@
 <?php
 namespace php_active_record;
-/* DATA-1854
-*/
+/* DATA-1854 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
+
+exit("\nWorking but not used.\n");
 
 // /* //main operation
 require_library('connectors/DwCA_Utility');

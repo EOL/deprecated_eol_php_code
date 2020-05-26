@@ -1,6 +1,8 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from globi_refuted.php] */
+/* connector: [called from DwCA_Utility.php, which is called from globi_refuted.php] 
+Status: was not used.
+*/
 class GloBIRefutedRecords
 {
     function __construct($archive_builder, $resource_id)
@@ -14,8 +16,8 @@ class GloBIRefutedRecords
         $tables = $info['harvester']->tables;
         
         //step 1 is build info list
-        // self::process_association($tables['http://eol.org/schema/association'][0], 'build info');
-        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');
+        self::process_association($tables['http://eol.org/schema/association'][0], 'build info');
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info');
         //step 2 write report
         
