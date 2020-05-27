@@ -17,7 +17,8 @@ class Globi_Refuted_Records
         $this->report['cols'] = array('identifier', 'argumentTypeId', 'argumentTypeName', 'argumentReasonID', 'argumentReasonName', 'interactionTypeId', 'interactionTypeName', 
             'referenceCitation', 'sourceCitation', 'sourceArchiveURI', 'sourceTaxonId', 'sourceTaxonName', 'sourceTaxonRank', 'sourceTaxonKingdomName', 'targetTaxonId', 
             'targetTaxonName', 'targetTaxonRank', 'targetTaxonKingdomName');
-        $this->report['destination'] = CONTENT_RESOURCE_LOCAL_PATH.'GloBI_Refuted_Records.tsv';
+        // $this->report['destination'] = CONTENT_RESOURCE_LOCAL_PATH.'GloBI_refuted_biotic_interactions_by_EOL.tsv';
+        $this->report['destination'] = CONTENT_RESOURCE_LOCAL_PATH.'interactions.tsv';
         $this->reason['EOL-GloBI-validation1'] = 'Records of non-carnivorous plants eating animals are likely to be errors';
         $this->reason['EOL-GloBI-validation2'] = 'Records of plants parasitizing animals are likely to be errors';
         $this->reason['EOL-GloBI-validation3'] = 'Records of plants having animals as hosts are likely to be errors';
