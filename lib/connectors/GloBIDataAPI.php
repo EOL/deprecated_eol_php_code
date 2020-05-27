@@ -247,7 +247,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                             $sourceTaxon_genus = self::get_taxon_ancestor_4occurID($occurrenceID, 'source', 'genus'); //3rd param is the rank of the ancestor being sought
                             if(!in_array($sourceTaxon_genus, $this->Carnivorous_plant_whitelist)) {
                                 // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
-                                @$this->debug['stats']['non-carnivorous plants eating animals']++;
+                                @$this->debug['stats']['1. Records of non-carnivorous plants eating animals are likely to be errors']++;
                                 self::write_refuted_report($rec, 1);
                                 continue;
                             }
@@ -271,7 +271,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants parasitizing animals...\n";
-                            @$this->debug['stats']['plants parasitizing animals']++;
+                            @$this->debug['stats']['2. Records of plants parasitizing animals are likely to be errors']++;
                             self::write_refuted_report($rec, 2);
                             continue;
                         }
@@ -290,7 +290,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
-                            @$this->debug['stats']['plants having animals as hosts']++;
+                            @$this->debug['stats']['3. Records of plants having animals as hosts are likely to be errors']++;
                             self::write_refuted_report($rec, 3);
                             continue;
                         }
@@ -307,7 +307,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
-                        @$this->debug['stats']['plants pollinating or visiting flowers of any other organism']++;
+                        @$this->debug['stats']['4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors']++;
                         self::write_refuted_report($rec, 4);
                         continue;
                     }
@@ -321,7 +321,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
-                        @$this->debug['stats']['plants laying eggs']++;
+                        @$this->debug['stats']['5. Records of plants laying eggs are likely to be errors']++;
                         self::write_refuted_report($rec, 5);
                         continue;
                     }
@@ -345,7 +345,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_viruses_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is not VIRUSES; targetTaxon is VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
-                            @$this->debug['stats']['organisms parasitizing or eating viruses']++;
+                            @$this->debug['stats']['6. Records of other organisms parasitizing or eating viruses are likely to be errors']++;
                             self::write_refuted_report($rec, 6);
                             continue;
                         }
