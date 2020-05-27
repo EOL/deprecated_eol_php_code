@@ -22,6 +22,20 @@ globi_associations	Monday 2020-05-25 10:28:41 AM	{"association.tab":2666676, "oc
 globi_associations	Monday 2020-05-25 01:42:13 PM	{"association.tab":2666184, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3179.47, "min":52.99, "hr":0.88}}
 globi_associations	Tuesday 2020-05-26 01:24:31 AM	{"association.tab":2666186, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3188.3, "min":53.14, "hr":0.89}}
 globi_associations	Tuesday 2020-05-26 04:34:58 AM	{"association.tab":2666190, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3168.94, "min":52.82, "hr":0.88}}
+globi_associations	Wednesday 2020-05-27 06:37:12 AM{"association.tab":2666190, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3283.43, "min":54.72, "hr":0.91}}
+
+Stats:
+
+[change the associationType to pathogen_of] => 168
+
+GloBI_refuted_biotic_interactions_by_EOL:
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1098
+[2. Records of plants parasitizing animals are likely to be errors] => 1280
+[3. Records of plants having animals as hosts are likely to be errors] => 5861
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 978
+[5. Records of plants laying eggs are likely to be errors'] => 0
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1415
+total rows = 10,632
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
