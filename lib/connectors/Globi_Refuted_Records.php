@@ -3,9 +3,7 @@ namespace php_active_record;
 class Globi_Refuted_Records
 {
     function __construct()
-    {
-
-        /*
+    {   /*
         (a) Records of non-carnivorous plants eating animals are likely to be errors
         (b) Records of plants parasitizing animals are likely to be errors
         (c) Records of plants having animals as hosts are likely to be errors
@@ -14,21 +12,22 @@ class Globi_Refuted_Records
         (f) Records of other organisms parasitizing or eating viruses are likely to be errors
         */
     }
-    public function initialize_report()
+    private function initialize()
     {
         $this->report['cols'] = array('identifier', 'argumentTypeId', 'argumentTypeName', 'argumentReasonID', 'argumentReasonName', 'interactionTypeId', 'interactionTypeName', 
             'referenceCitation', 'sourceCitation', 'sourceArchiveURI', 'sourceTaxonId', 'sourceTaxonName', 'sourceTaxonRank', 'sourceTaxonKingdomName', 'targetTaxonId', 
             'targetTaxonName', 'targetTaxonRank', 'targetTaxonKingdomName');
         $this->report['destination'] = CONTENT_RESOURCE_LOCAL_PATH.'GloBI_Refuted_Records.tsv';
-
         $this->reason['EOL-GloBI-validation1'] = 'Records of non-carnivorous plants eating animals are likely to be errors';
         $this->reason['EOL-GloBI-validation2'] = 'Records of plants parasitizing animals are likely to be errors';
         $this->reason['EOL-GloBI-validation3'] = 'Records of plants having animals as hosts are likely to be errors';
         $this->reason['EOL-GloBI-validation4'] = 'Records of plants pollinating or visiting flowers of any other organism are likely to be errors';
         $this->reason['EOL-GloBI-validation5'] = 'Records of plants laying eggs are likely to be errors';
         $this->reason['EOL-GloBI-validation6'] = 'Records of other organisms parasitizing or eating viruses are likely to be errors';
-
-
+    }
+    public function initialize_report()
+    {
+        self::initialize();
         $f = Functions::file_open($this->report['destination'], "w");
         $row = implode("\t", $this->report['cols']);
         fwrite($f, $row . "\n");
@@ -37,7 +36,8 @@ class Globi_Refuted_Records
     public function write_refuted_report($rec, $argument_Reason_index) //2nd param, either 1,2,3,4,5 or 6
     {
         // print_r($rec); exit("\n[$rep_name]\n");
-        $write = self::assemble_records($rec, $argument_Reason_index);
+        $write_rec = self::assemble_records($rec, $argument_Reason_index);
+        self::write_report($write_rec);
     }
     private function assemble_records($rec, $argument_Reason_index)
     {   /*Array(
@@ -67,12 +67,10 @@ class Globi_Refuted_Records
         referenceCitation **
         sourceCitation *
         sourceArchiveURI *
-        
         sourceTaxonId
         sourceTaxonName
         sourceTaxonRank
         sourceTaxonKingdomName
-        
         targetTaxonId
         targetTaxonName
         targetTaxonRank
@@ -90,7 +88,6 @@ class Globi_Refuted_Records
             $e['sourceTaxonId'] = 
         $e['interactionTypeName'] = self::get_interactionTypeName($rec['http://eol.org/schema/associationType']);
             $e['referenceCitation'] = $rec['http://purl.org/dc/terms/source'];
-        
         
         $occurrenceID       = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
         $targetOccurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
@@ -118,17 +115,15 @@ class Globi_Refuted_Records
             echo "\n".$e['argumentReasonID']."-".$e['argumentReasonName']."\n";
             exit("\nNo taxonID for this target occurID [$targetOccurrenceID]\n");
         }
-        
-        print_r($e);
+        // print_r($e);
+        return $e;
         /*
         interactionTypeId --> association.tab:associationType
         referenceCitation --> association.tab:source
-        
         sourceTaxonId --> taxon.tab:taxonID (for the taxon from the occurrenceID)
         sourceTaxonName --> taxon.tab:scientificName (for the taxon from the occurrenceID)
         sourceTaxonRank --> taxon.tab:taxonRank (for the taxon from the occurrenceID)
         sourceTaxonKingdomName --> taxon.tab:kingdom (for the taxon from the occurrenceID)
-        
         targetTaxonId --> taxon.tab:taxonID (for the taxon from the targetOccurrenceID)
         targetTaxonName --> taxon.tab:scientificName (for the taxon from the targetOccurrenceID)
         targetTaxonRank --> taxon.tab:taxonRank (for the taxon from the targetOccurrenceID)
@@ -148,7 +143,6 @@ class Globi_Refuted_Records
             Please contact Jorrit (jhpoelen@xs4all.nl) directly to figure out the details.
         *interactionTypeName --> translate association.tab:associationType to associationType labels based on the following mappings:
         */
-        
     }
     private function get_interactionTypeName($assoc_type)
     {
@@ -188,6 +182,14 @@ class Globi_Refuted_Records
         $desc['http://purl.obolibrary.org/obo/RO_0008508'] = 'has eggs laid on by';
         if($name = @$desc[$assoc_type]) return $name;
         else exit("\nInvestigate: No name mapping yet for [$assoc_type].\n");
+    }
+    private function write_report($rek)
+    {
+        $f = Functions::file_open($this->report['destination'], "a");
+        foreach($this->report['cols'] as $index) $arr[] = $rek[$index];
+        $row = implode("\t", $arr);
+        fwrite($f, $row . "\n");
+        fclose($f);
     }
 }
 ?>
