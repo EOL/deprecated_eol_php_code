@@ -41,6 +41,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
         exit("\n-end-[$x]\n");
         */
         
+        $this->initialize_report(); //for refuted records;
+        
         $tables = $info['harvester']->tables; 
         
         //step 1 is build info list
@@ -100,6 +102,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 // source:
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0008507'))) { //
                     $this->occurrenceIDS[$occurrenceID] = '';
+                    $this->targetOccurrenceIDS[$targetOccurrenceID] = ''; //for refuted records use
                 }
                 // target:
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002623'))) { //
@@ -375,19 +378,6 @@ class GloBIDataAPI extends Globi_Refuted_Records
             }
         }
     }
-    private function suggested_remaps_if_any($associationType)
-    {
-        /*
-        (a) I thought we already had all records with associationType "pollinates" (http://purl.obolibrary.org/obo/RO_0002455) recoded to "visits flowers of" 
-        (http://purl.obolibrary.org/obo/RO_0002622), but I still see 58454 records with associationType http://purl.obolibrary.org/obo/RO_0002455 in the current resource file here: https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61
-        We should change all these records to associationType http://purl.obolibrary.org/obo/RO_0002622, and this should happen before we create the reverse records, 
-        i.e., there should not be any "pollinated by" (http://purl.obolibrary.org/obo/RO_0002456) records in the EOL resource file, 
-        all reverse records should be "has flowers visited by" (http://purl.obolibrary.org/obo/RO_0002623).
-        */
-        if    ($associationType == 'http://purl.obolibrary.org/obo/RO_0002455') return 'http://purl.obolibrary.org/obo/RO_0002622';
-        elseif($associationType == 'http://purl.obolibrary.org/obo/RO_0002456') return 'http://purl.obolibrary.org/obo/RO_0002623';
-        return $associationType;
-    }
     private function process_occurrence($meta, $what)
     {   //print_r($meta);
         echo "\nprocess_occurrence [$what]\n";
@@ -505,6 +495,10 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $this->taxonIDS[$taxonID]['kingdom'] = $kingdom;
                     $this->taxonIDS[$taxonID]['sciname'] = (string) $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
                     $this->taxonIDS[$taxonID]['genus']   = $rec['http://rs.tdwg.org/dwc/terms/genus'];
+                    //for refuted records
+                    $this->taxonIDS[$taxonID]['taxonID']   = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                    $this->taxonIDS[$taxonID]['taxonRank'] = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
+                    
                     if(!$kingdom) {
                         //option 1
                         if($rec['http://rs.tdwg.org/dwc/terms/class'] == 'Actinopterygii') $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia';
@@ -552,10 +546,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
     }
     private function get_taxon_ancestor_4occurID($targetORsource_OccurrenceID, $targetORsource, $rank) //OccurrenceID points to a taxon, then return its ancestor value with $rank. e.g. 'genus'
     {
-        $taxonID = false;
-        if    ($targetORsource == 'target') $taxonID = $this->targetOccurrenceIDS[$targetORsource_OccurrenceID];
-        elseif($targetORsource == 'source') $taxonID = $this->occurrenceIDS[$targetORsource_OccurrenceID];
-        
+        $taxonID = self::get_taxonID_given_occurID($targetORsource_OccurrenceID, $targetORsource);
         $sciname = @$this->taxonIDS[$taxonID]['sciname'];
         
         if($taxonID) {
@@ -589,12 +580,17 @@ class GloBIDataAPI extends Globi_Refuted_Records
         }
         else exit("\nInvestigate func get_taxon_ancestor_4occurID(): this $targetORsource OccurrenceID does not have taxonID \n");
     }
-    private function get_taxon_kingdom_4occurID($targetORsource_OccurrenceID, $targetORsource) //targetOccurrenceID points to a taxon, then return its kingdom value
+    public function get_taxonID_given_occurID($targetORsource_OccurrenceID, $targetORsource)
     {
         $taxonID = false;
         if    ($targetORsource == 'target') $taxonID = $this->targetOccurrenceIDS[$targetORsource_OccurrenceID];
         elseif($targetORsource == 'source') $taxonID = $this->occurrenceIDS[$targetORsource_OccurrenceID];
-        
+        if(!$taxonID) exit("\nCannot link to taxonID: occurID=[$targetORsource_OccurrenceID] TorS=[$targetORsource]\n");
+        else return $taxonID;
+    }
+    private function get_taxon_kingdom_4occurID($targetORsource_OccurrenceID, $targetORsource) //targetOccurrenceID points to a taxon, then return its kingdom value
+    {
+        $taxonID = self::get_taxonID_given_occurID($targetORsource_OccurrenceID, $targetORsource);
         $sciname = (string) @$this->taxonIDS[$taxonID]['sciname'];
         
         //manual
@@ -839,6 +835,16 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $uri['http://eol.org/schema/terms/IsDispersalVectorFor'] = 'http://eol.org/schema/terms/HasDispersalVector';
         $uri['http://eol.org/schema/terms/HasDispersalVector'] = 'http://eol.org/schema/terms/IsDispersalVectorFor';
         return $uri;
+    }
+    private function suggested_remaps_if_any($associationType)
+    {   /* (a) I thought we already had all records with associationType "pollinates" (http://purl.obolibrary.org/obo/RO_0002455) recoded to "visits flowers of" 
+        (http://purl.obolibrary.org/obo/RO_0002622), but I still see 58454 records with associationType http://purl.obolibrary.org/obo/RO_0002455 in the current resource file here: https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61
+        We should change all these records to associationType http://purl.obolibrary.org/obo/RO_0002622, and this should happen before we create the reverse records, 
+        i.e., there should not be any "pollinated by" (http://purl.obolibrary.org/obo/RO_0002456) records in the EOL resource file, 
+        all reverse records should be "has flowers visited by" (http://purl.obolibrary.org/obo/RO_0002623). */
+        if    ($associationType == 'http://purl.obolibrary.org/obo/RO_0002455') return 'http://purl.obolibrary.org/obo/RO_0002622';
+        elseif($associationType == 'http://purl.obolibrary.org/obo/RO_0002456') return 'http://purl.obolibrary.org/obo/RO_0002623';
+        return $associationType;
     }
     private function kingdom_is_plants_YN($kingdom)
     {
