@@ -270,7 +270,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
-                            // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants parasitizing animals...\n";
+                            // echo "\nFound: sourceTaxon is PLANT [$sourceTaxon_kingdom]; targetTaxon is ANIMALIA [$targetTaxon_kingdom]; [$associationType]; plants parasitizing animals...\n";
                             @$this->debug['stats']['2. Records of plants parasitizing animals are likely to be errors']++;
                             self::write_refuted_report($rec, 2);
                             continue;
@@ -771,6 +771,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
             }
         }
         
+        /* THIS IS A BIG MISTAGE... e.g. "Bivalve hepelivirus G"
         //2nd try, if sciname has space
         if(stripos($sciname, " ") !== false) //string is found
         {
@@ -783,6 +784,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 if($ancestor = self::lookup_gbif_ancestor_using_sciname($name, array(), $rank)) return $ancestor;
             }
         }
+        */
         
         //3rd try, if has ' virus' in the sciname
         if(stripos($sciname, " virus") !== false) return 'Viruses'; //string is found
