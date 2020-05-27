@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector: [called from DwCA_Utility.php, which is called from globi_refuted.php] 
-Status: was not used.
+Status: WAS NOT USED
 */
 class GloBIRefutedRecords
 {
