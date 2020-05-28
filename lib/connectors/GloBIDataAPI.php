@@ -575,7 +575,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         return;
                     }
                 }
-                $this->debug["does not have $rank"]['not EOL not INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                $this->debug["does not have $rank"]['EOL GBIF INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
             }
         }
         else exit("\nInvestigate func get_taxon_ancestor_4occurID(): this $targetORsource OccurrenceID does not have taxonID \n");
@@ -592,61 +592,58 @@ class GloBIDataAPI extends Globi_Refuted_Records
     {
         $taxonID = self::get_taxonID_given_occurID($targetORsource_OccurrenceID, $targetORsource);
         $sciname = (string) @$this->taxonIDS[$taxonID]['sciname'];
-        
+        $orig_sciname = $sciname;
         //manual
         $sciname = strip_tags($sciname);
         $sciname = trim(str_ireplace('undetermined', '', $sciname));
         $sciname = trim(str_ireplace('unspecified', '', $sciname));
         $sciname = trim(str_ireplace(' sp.', '', $sciname));
         $sciname = trim(str_ireplace(' spp.', '', $sciname));
+        $sciname = trim(str_ireplace(' agg.', '', $sciname));
         
+        $return_kingdom = false;
         if($taxonID) {
-            if($kingdom = $this->taxonIDS[$taxonID]['kingdom']) return $kingdom; // Animalia or Plantae
+            if($kingdom = $this->taxonIDS[$taxonID]['kingdom']) $return_kingdom = $kingdom; // Animalia or Plantae
             elseif(in_array($taxonID, array('EOL:23306280', 'EOL:5051697', 'EOL:5536407', 'EOL:5231462', 'EOL:6922431', 'EOL:5540593', 'EOL_V2:5170411', 'EOL:107287', 
             'EOL_V2:5169796', 'EOL:2879598', 'IRMNG:11155392', 'EOL:5356331', 'EOL:703626', 'EOL:2865819', 'EOL_V2:5544078', 'EOL:5164786', 'EOL_V2:5426294', 
             'EOL:5024066', 'WD:Q5389420', 'EOL:29378842', 'EOL:40469587', 'EOL:71360', 'EOL:5744742', 'EOL:5631615', 'EOL_V2:6346627', 'EOL_V2:5350526', 'EOL_V2:5178076', 
             'EOL_V2:5349701', 'EOL_V2:5387667', 'EOL:5187953', 'EOL_V2:5664483', 'EOL_V2:5177870', 'EOL_V2:5386317', 'EOL_V2:5223689', 'EOL_V2:5666458', 'EOL_V2:5745926', 
-            'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) return 'Plantae';
+            'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) $return_kingdom = 'Plantae';
             elseif(in_array($taxonID, array('EOL:5425400', 'EOL:55106', 'EOL:3832795', 'FBC:FB:SpecCode:5038', 'EOL:3682636', 'EOL:31599461', 'EOL:54655', 
-            'EOL_V2:6272187', 'EOL_V2:3121417'))) return 'Animalia';
-            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?', 'Invertebrata'))) return 'Animalia';
-            elseif(in_array($sciname, array('Plant'))) return 'Plantae';
-
+            'EOL_V2:6272187', 'EOL_V2:3121417'))) $return_kingdom = 'Animalia';
+            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?', 'Invertebrata'))) $return_kingdom = 'Animalia';
+            elseif(in_array($sciname, array('Plant'))) $return_kingdom = 'Plantae';
             else {
-                /*Array(
-                    [does not have kingdom] => Array(
-                            [INAT_TAXON:48460] => Life
-                        )
-                )
-                */
-                if($val = self::lookup_gbif_ancestor_using_sciname($sciname, array(), 'kingdom')) {
-                    return $val;
-                }
+                if($val = self::lookup_gbif_ancestor_using_sciname($sciname, array(), 'kingdom')) $return_kingdom = $val;
                 elseif(substr($taxonID,0,4) == 'EOL:' || substr($taxonID,0,7) == 'EOL_V2:') {
                     if(!isset($this->not_found_in_EOL[$taxonID])) {
-                        if($val = self::get_ancestor_from_EOLtaxonID($taxonID, $sciname, 'kingdom')) return $val;
+                        if($val = self::get_ancestor_from_EOLtaxonID($taxonID, $sciname, 'kingdom')) $return_kingdom = $val;
                         else {
                             $this->not_found_in_EOL[$taxonID] = '';
                             // echo " - not found in EOL: $targetORsource - ";
                             $this->debug['does not have kingdom']['EOL'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
-                            return;
                         }
                     }
                 }
                 elseif(substr($taxonID,0,11) == 'INAT_TAXON:') { //e.g. INAT_TAXON:900074
-                    if($val = self::get_ancestor_by_rank_from_iNATtaxonID($taxonID, array(), 'kingdom')) return $val;
+                    if($val = self::get_ancestor_by_rank_from_iNATtaxonID($taxonID, array(), 'kingdom')) $return_kingdom = $val;
                     else {
                         $this->debug['does not have kingdom']['INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
-                        return;
                     }
                 }
-                
-                if(stripos($sciname, " trees") !== false) return 'Plantae'; //string is found
-                if(stripos($sciname, " shrubs") !== false) return 'Plantae'; //string is found
-                if(stripos($sciname, " plants") !== false) return 'Plantae'; //string is found
-                
-                $this->debug['does not have kingdom']['not EOL not INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+                else {
+                    if(stripos($sciname, " trees") !== false) $return_kingdom = 'Plantae'; //string is found
+                    if(stripos($sciname, " shrubs") !== false) $return_kingdom = 'Plantae'; //string is found
+                    if(stripos($sciname, " plants") !== false) $return_kingdom = 'Plantae'; //string is found
+                }
             }
+
+            if($return_kingdom) {
+                $this->taxonIDS[$taxonID]['kingdom'] = $return_kingdom;
+                return $return_kingdom;
+            }
+            else $this->debug['does not have kingdom']['EOL GBIF INAT'][$taxonID][$sciname] = ''; // echo("\nInvestigate: this taxonID [$taxonID] does not have kingdom char\n");
+            
         }
         else exit("\nInvestigate func get_taxon_kingdom_4occurID(): this [$targetORsource] OccurrenceID does not have taxonID \n");
     }
@@ -789,7 +786,25 @@ class GloBIDataAPI extends Globi_Refuted_Records
         //3rd try, if has ' virus' in the sciname
         if(stripos($sciname, " virus") !== false) return 'Viruses'; //string is found
         if(stripos($sciname, "virus ") !== false) return 'Viruses'; //string is found
+        if(stripos($sciname, "viruses ") !== false) return 'Viruses'; //string is found
         if(substr($sciname,-5) == 'virus') return 'Viruses'; //last 5 chars in sciname is 'virus'.
+        
+        //4th try
+        $canonical = Functions::canonical_form($sciname);
+        if($sciname == $canonical) {
+            //if sciname has space
+            if(stripos($sciname, " ") !== false) //string is found
+            {
+                $names = explode(" ", $sciname);
+                $names = array_map('trim', $names);
+                $names = array_filter($names); //remove null arrays
+                $names = array_unique($names); //make unique
+                $names = array_values($names); //reindex key
+                if($name = @$names[0]) {
+                    if($ancestor = self::lookup_gbif_ancestor_using_sciname($name, array(), $rank)) return $ancestor;
+                }
+            }
+        }
     }
     private function get_orig_reverse_uri()
     {
