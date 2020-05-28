@@ -588,18 +588,25 @@ class GloBIDataAPI extends Globi_Refuted_Records
         if(!$taxonID) exit("\nCannot link to taxonID: occurID=[$targetORsource_OccurrenceID] TorS=[$targetORsource]\n");
         else return $taxonID;
     }
-    private function get_taxon_kingdom_4occurID($targetORsource_OccurrenceID, $targetORsource) //targetOccurrenceID points to a taxon, then return its kingdom value
+    private function format_sciname($sciname)
     {
-        $taxonID = self::get_taxonID_given_occurID($targetORsource_OccurrenceID, $targetORsource);
-        $sciname = (string) @$this->taxonIDS[$taxonID]['sciname'];
-        $orig_sciname = $sciname;
-        //manual
         $sciname = strip_tags($sciname);
         $sciname = trim(str_ireplace('undetermined', '', $sciname));
         $sciname = trim(str_ireplace('unspecified', '', $sciname));
         $sciname = trim(str_ireplace(' sp.', '', $sciname));
         $sciname = trim(str_ireplace(' spp.', '', $sciname));
         $sciname = trim(str_ireplace(' agg.', '', $sciname));
+        $sciname = trim(str_ireplace(' var.', '', $sciname));
+        $sciname = Functions::remove_whitespace($sciname);
+        return $sciname;
+    }
+    private function get_taxon_kingdom_4occurID($targetORsource_OccurrenceID, $targetORsource) //targetOccurrenceID points to a taxon, then return its kingdom value
+    {
+        $taxonID = self::get_taxonID_given_occurID($targetORsource_OccurrenceID, $targetORsource);
+        $sciname = (string) @$this->taxonIDS[$taxonID]['sciname'];
+        $orig_sciname = $sciname;
+
+        $sciname = self::format_sciname($sciname); //manual cleaning
         
         $return_kingdom = false;
         if($taxonID) {
@@ -744,6 +751,9 @@ class GloBIDataAPI extends Globi_Refuted_Records
     private function get_ancestor_from_GBIF_using_sciname($scinames, $rank) //$rank e.g. 'kingdom'
     {
         foreach($scinames as $sciname) {
+
+            $sciname = self::format_sciname($sciname); //manual cleaning
+
             if(!isset($this->not_found_in_GBIF[$sciname])) {
                 if($ancestor = self::lookup_gbif_ancestor_using_sciname($sciname, array(), $rank)) return $ancestor;
                 $this->not_found_in_GBIF[$sciname] = '';
