@@ -24,12 +24,11 @@ globi_associations	Tuesday 2020-05-26 01:24:31 AM	{"association.tab":2666186, "o
 globi_associations	Tuesday 2020-05-26 04:34:58 AM	{"association.tab":2666190, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3168.94, "min":52.82, "hr":0.88}}
 globi_associations	Wednesday 2020-05-27 06:37:12 AM{"association.tab":2666190, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3283.43, "min":54.72, "hr":0.91}}
 globi_associations	Wednesday 2020-05-27 08:43:06 PM{"association.tab":2666286, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3553.95, "min":59.23, "hr":0.99}}
+globi_associations	Thursday 2020-05-28 04:27:57 AM	{"association.tab":2666286, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3471.95, "min":57.87, "hr":0.96}}
 
 Stats:
-
+As of May 27, 2020
 [change the associationType to pathogen_of] => 168
-
-GloBI_refuted_biotic_interactions_by_EOL:
 [1. Records of non-carnivorous plants eating animals are likely to be errors] => 1098
 [2. Records of plants parasitizing animals are likely to be errors] => 1280
 [3. Records of plants having animals as hosts are likely to be errors] => 5861
@@ -37,6 +36,26 @@ GloBI_refuted_biotic_interactions_by_EOL:
 [5. Records of plants laying eggs are likely to be errors'] => 0
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1415
 total rows = 10,632
+
+As of May 28, 2020
+[change the associationType to pathogen_of] => 168
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1098
+[2. Records of plants parasitizing animals are likely to be errors] => 1236
+[3. Records of plants having animals as hosts are likely to be errors] => 5861
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 978
+[5. Records of plants laying eggs are likely to be errors] => 0
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1411
+Total rows = 10,584
+
+[change the associationType to pathogen_of] => 171
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1099
+[2. Records of plants parasitizing animals are likely to be errors] => 1235
+[3. Records of plants having animals as hosts are likely to be errors] => 5858
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 974
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1253
+
+
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -52,6 +71,11 @@ $sci = 'Macrophoma millepuncta var. spinosae';
 $sci = 'Haemolaelaps glasgowi';
 $sci = 'Triachora unifasciata';
 // $sci = 'Mycoplasma phage phiMFV1';
+$sci = 'Dizygomyza morosa';
+$sci = 'Sitona (Sitona) cylindricollis';
+$sci = 'Lathyrus linifolius var. montanus';
+$sci = 'Gloriosa stripe mosaic virus';
+$sci = 'Mycoplasma phage phiMFV1';
 echo "\n$sci";
 echo "\n".Functions::canonical_form($sci)."\n";
 exit("\n-end test-\n");
