@@ -240,16 +240,19 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 AND associationType is "eats" (http://purl.obolibrary.org/obo/RO_0002470) OR 
                                    "preys on" (http://purl.obolibrary.org/obo/RO_0002439) */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) { //'eats' or 'preys on'
-                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
-                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
-                        $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
-                        if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
-                            $sourceTaxon_genus = self::get_taxon_ancestor_4occurID($occurrenceID, 'source', 'genus'); //3rd param is the rank of the ancestor being sought
-                            if(!in_array($sourceTaxon_genus, $this->Carnivorous_plant_whitelist)) {
-                                // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
-                                @$this->debug['stats']['1. Records of non-carnivorous plants eating animals are likely to be errors']++;
-                                self::write_refuted_report($rec, 1);
-                                continue;
+                    $taxonID = self::get_taxonID_given_occurID($occurrenceID, 'source');
+                    if(!in_array($taxonID, self::special_list_of_not_plantae())) {
+                        $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                        if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                            $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                            if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                                $sourceTaxon_genus = self::get_taxon_ancestor_4occurID($occurrenceID, 'source', 'genus'); //3rd param is the rank of the ancestor being sought
+                                if(!in_array($sourceTaxon_genus, $this->Carnivorous_plant_whitelist)) {
+                                    // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
+                                    @$this->debug['stats']['1. Records of non-carnivorous plants eating animals are likely to be errors']++;
+                                    self::write_refuted_report($rec, 1);
+                                    continue;
+                                }
                             }
                         }
                     }
@@ -266,14 +269,17 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                        "pathogen of" (http://purl.obolibrary.org/obo/RO_0002556)
                 */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002634', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002208', 'http://purl.obolibrary.org/obo/RO_0002556'))) { //plants parasitizing animals
-                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
-                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
-                        $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
-                        if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
-                            // echo "\nFound: sourceTaxon is PLANT [$sourceTaxon_kingdom]; targetTaxon is ANIMALIA [$targetTaxon_kingdom]; [$associationType]; plants parasitizing animals...\n";
-                            @$this->debug['stats']['2. Records of plants parasitizing animals are likely to be errors']++;
-                            self::write_refuted_report($rec, 2);
-                            continue;
+                    $taxonID = self::get_taxonID_given_occurID($occurrenceID, 'source');
+                    if(!in_array($taxonID, self::special_list_of_not_plantae())) {
+                        $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                        if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                            $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                            if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                                // echo "\nFound: sourceTaxon is PLANT [$sourceTaxon_kingdom]; targetTaxon is ANIMALIA [$targetTaxon_kingdom]; [$associationType]; plants parasitizing animals...\n";
+                                @$this->debug['stats']['2. Records of plants parasitizing animals are likely to be errors']++;
+                                self::write_refuted_report($rec, 2);
+                                continue;
+                            }
                         }
                     }
                 }
@@ -285,14 +291,17 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 AND associationType is "has host" (http://purl.obolibrary.org/obo/RO_0002454)
                 */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002454'))) { //plants having animals as hosts
-                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
-                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
-                        $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
-                        if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
-                            // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
-                            @$this->debug['stats']['3. Records of plants having animals as hosts are likely to be errors']++;
-                            self::write_refuted_report($rec, 3);
-                            continue;
+                    $taxonID = self::get_taxonID_given_occurID($occurrenceID, 'source');
+                    if(!in_array($taxonID, self::special_list_of_not_plantae())) {
+                        $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                        if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                            $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                            if(self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                                // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
+                                @$this->debug['stats']['3. Records of plants having animals as hosts are likely to be errors']++;
+                                self::write_refuted_report($rec, 3);
+                                continue;
+                            }
                         }
                     }
                 }
@@ -304,12 +313,15 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                         visits flowers of (http://purl.obolibrary.org/obo/RO_0002622)
                 */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002455', 'http://purl.obolibrary.org/obo/RO_0002618', 'http://purl.obolibrary.org/obo/RO_0002622'))) { //
-                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
-                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
-                        // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
-                        @$this->debug['stats']['4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors']++;
-                        self::write_refuted_report($rec, 4);
-                        continue;
+                    $taxonID = self::get_taxonID_given_occurID($occurrenceID, 'source');
+                    if(!in_array($taxonID, self::special_list_of_not_plantae())) {
+                        $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                        if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                            // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
+                            @$this->debug['stats']['4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors']++;
+                            self::write_refuted_report($rec, 4);
+                            continue;
+                        }
                     }
                 }
                 
@@ -318,12 +330,15 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 AND associationType is "lays eggs on" (http://purl.obolibrary.org/obo/RO_0008507)
                 */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0008507'))) { //
-                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
-                    if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
-                        // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
-                        @$this->debug['stats']['5. Records of plants laying eggs are likely to be errors']++;
-                        self::write_refuted_report($rec, 5);
-                        continue;
+                    $taxonID = self::get_taxonID_given_occurID($occurrenceID, 'source');
+                    if(!in_array($taxonID, self::special_list_of_not_plantae())) {
+                        $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                        if(self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                            // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
+                            @$this->debug['stats']['5. Records of plants laying eggs are likely to be errors']++;
+                            self::write_refuted_report($rec, 5);
+                            continue;
+                        }
                     }
                 }
                 
@@ -778,7 +793,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
             }
         }
         
-        /* THIS IS A BIG MISTAGE... e.g. "Bivalve hepelivirus G"
+        /* THIS IS A BIG MISTAGE, BEC. OF NAMES OF VIRUSES... e.g. "Bivalve hepelivirus G"
         //2nd try, if sciname has space
         if(stripos($sciname, " ") !== false) //string is found
         {
@@ -799,6 +814,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         if(stripos($sciname, "viruses ") !== false) return 'Viruses'; //string is found
         if(substr($sciname,-5) == 'virus') return 'Viruses'; //last 5 chars in sciname is 'virus'.
         
+        /* STILL A BIG MISTAKE, BEC. OF NAMES OF VIRUSES
         //4th try
         $canonical = Functions::canonical_form($sciname);
         if($sciname == $canonical) {
@@ -815,6 +831,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 }
             }
         }
+        */
     }
     private function get_orig_reverse_uri()
     {
@@ -903,6 +920,23 @@ class GloBIDataAPI extends Globi_Refuted_Records
         /*
         'Nanobacterium' was excluded. Per: https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=64880&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64880
         */
+    }
+    private function special_list_of_not_plantae() //per Katja: https://eol-jira.bibalex.org/browse/DATA-1854?focusedCommentId=64886&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64886
+    {   /* Not a plant
+        sourceTaxonId	sourceTaxonName
+        EOL:4968393	Hymenolepis cantaniana
+        GBIF:8766908	Southwellia ransomi
+        NCBI:1926997	Bivalve RNA virus G4
+        NCBI:1926998	Bivalve hepelivirus G
+        NCBITaxon:10407	Hepatitis B virus
+        NCBITaxon:11307	Sonchus yellow net nucleorhabdovirus
+        NCBITaxon:12201	Gloriosa stripe mosaic virus
+        NCBITaxon:12461	Hepatitis E virus
+        NCBITaxon:300879	Cassia yellow blotch virus
+        NCBITaxon:433462	Canna yellow streak virus
+        NCBITaxon:509628	Hepatitis E virus type 3
+        */
+        return array('EOL:4968393', 'GBIF:8766908', 'NCBI:1926997', 'NCBI:1926998', 'NCBITaxon:10407', 'NCBITaxon:11307', 'NCBITaxon:12201', 'NCBITaxon:12461', 'NCBITaxon:300879', 'NCBITaxon:433462', 'NCBITaxon:509628');
     }
     /*================================================================= ENDS HERE ======================================================================*/
 }
