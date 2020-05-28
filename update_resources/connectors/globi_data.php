@@ -23,6 +23,7 @@ globi_associations	Monday 2020-05-25 01:42:13 PM	{"association.tab":2666184, "oc
 globi_associations	Tuesday 2020-05-26 01:24:31 AM	{"association.tab":2666186, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3188.3, "min":53.14, "hr":0.89}}
 globi_associations	Tuesday 2020-05-26 04:34:58 AM	{"association.tab":2666190, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3168.94, "min":52.82, "hr":0.88}}
 globi_associations	Wednesday 2020-05-27 06:37:12 AM{"association.tab":2666190, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3283.43, "min":54.72, "hr":0.91}}
+globi_associations	Wednesday 2020-05-27 08:43:06 PM{"association.tab":2666286, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3553.95, "min":59.23, "hr":0.99}}
 
 Stats:
 
@@ -44,6 +45,17 @@ $timestart = time_elapsed();
 
 // https://api.inaturalist.org/v1/taxa/900074
 // http://api.gbif.org/v1/species/3934982
+
+/*
+$sci = 'Bivalve RNA virus G4';
+$sci = 'Macrophoma millepuncta var. spinosae';
+$sci = 'Haemolaelaps glasgowi';
+$sci = 'Triachora unifasciata';
+// $sci = 'Mycoplasma phage phiMFV1';
+echo "\n$sci";
+echo "\n".Functions::canonical_form($sci)."\n";
+exit("\n-end test-\n");
+*/
 
 /* testing
 require_library('connectors/GloBIDataAPI');
