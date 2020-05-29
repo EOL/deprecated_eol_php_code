@@ -517,9 +517,9 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (ay) Aymara                 https://en.wikipedia.org/wiki/Aymara_language
 (tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
 
-atj	104
-new	103
-fiu-vro	100
+(atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
+(new) Newar                 https://en.wikipedia.org/wiki/Newar_language
+(fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
 mg	93
 rm	93
 ltg	85

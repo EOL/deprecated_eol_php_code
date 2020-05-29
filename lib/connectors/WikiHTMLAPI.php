@@ -563,6 +563,15 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Vultur gryphus") {$arr = $this->get_object('Q170598'); $arr = $arr->entities->Q170598;}
         if($this->debug_taxon == "Accipiter") {$arr = $this->get_object('Q188737'); $arr = $arr->entities->Q188737;}
         if($this->debug_taxon == "Rupicola peruvianus") {$arr = $this->get_object('Q490393'); $arr = $arr->entities->Q490393;}
+        //lang tyv
+        if($this->debug_taxon == "Otocolobus manul") {$arr = $this->get_object('Q166794'); $arr = $arr->entities->Q166794;}
+        if($this->debug_taxon == "Fomes fomentarius") {$arr = $this->get_object('Q229814'); $arr = $arr->entities->Q229814;}
+        if($this->debug_taxon == "Pyrus") {$arr = $this->get_object('Q434'); $arr = $arr->entities->Q434;}
+        if($this->debug_taxon == "Bryophyta") {$arr = $this->get_object('Q25347'); $arr = $arr->entities->Q25347;}
+        if($this->debug_taxon == "Abies") {$arr = $this->get_object('Q25350'); $arr = $arr->entities->Q25350;}
+        if($this->debug_taxon == "Anethum graveolens") {$arr = $this->get_object('Q26686'); $arr = $arr->entities->Q26686;}
+        if($this->debug_taxon == "Daucus") {$arr = $this->get_object('Q27949'); $arr = $arr->entities->Q27949;}
+        if($this->debug_taxon == "Malus") {$arr = $this->get_object('Q104819'); $arr = $arr->entities->Q104819;}
         return $arr;
     }
 }

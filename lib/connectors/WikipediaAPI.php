@@ -25,10 +25,10 @@ class WikipediaAPI extends WikiHTMLAPI
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
                li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za av chy fj ik zea
-               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv
+               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv atj new
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'tyv';
+        $lang = 'new';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -585,6 +585,11 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'new') { //
+            //infobox
+            $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"';
+            $html = self::process_left($html, $left);
+        }
         if($this->language_code == 'wo') { //
             $left = '<div style="clear:right; float:right;margin:0 0 1em 1em;width:220px;border:solid #AAAAAA 1px; background:#FFFFFF;padding:0px;font-size:90%;text-align:left;"';
             $html = self::process_left($html, $left);
@@ -719,14 +724,23 @@ class WikipediaAPI extends WikiHTMLAPI
             $html = self::process_external_links($html, 'Voci_correlate');
         }
         if($this->language_code == 'lij') { //
+            //sections above
+            $left = '<td style="background:red; color:white"';      $html = self::process_left($html, $left);
+            $left = '<td style="background:#c30000; color:white"';  $html = self::process_left($html, $left);
+            $left = '<td style="background:#FFB6C1; color:black"';  $html = self::process_left($html, $left);
+            $left = '<td style="background:#f0d5b8; color:black"';  $html = self::process_left($html, $left);
+            
             //message box some sort
             $left = '<div class="thumbinner"'; $html = self::process_left($html, $left);
             
             //external links
             $html = self::process_external_links($html, 'Colegaménti_estèrni');
-            
-            //weird <ul><li>
+            $html = self::process_external_links($html, 'Âtri_progètti'); //Other projects
+
+            /* warningn: be careful caused a big problem
+            // weird <ul><li>
             $left = '<ul'; $html = self::process_left($html, $left);
+            */
         }
         if($this->language_code == 'pt') { //
             //external links
