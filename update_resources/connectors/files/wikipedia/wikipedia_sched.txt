@@ -56,6 +56,9 @@ ja  ko  ru  pt
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
                 
+                (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
+                (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
+                
                 (ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
                 (wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
                 (ban) Balinese              https://en.wikipedia.org/wiki/Balinese_language

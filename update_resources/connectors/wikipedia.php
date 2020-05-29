@@ -518,6 +518,7 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 
 (tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
 (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
+
 (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
 
 (fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
