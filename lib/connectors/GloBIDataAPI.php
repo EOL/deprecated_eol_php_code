@@ -633,9 +633,9 @@ class GloBIDataAPI extends Globi_Refuted_Records
             'EOL_V2:5745719', 'EOL_V2:5531579', 'EOL_V2:5223650', 'EOL_V2:5344435', 'EOL_V2:2879124', 'EOL_V2:5535347', 'EOL_V2:6191776', 'EOL_V2:5020941', 'EOL_V2:485027'))) $return_kingdom = 'Plantae';
             elseif(in_array($taxonID, array('EOL:5425400', 'EOL:55106', 'EOL:3832795', 'FBC:FB:SpecCode:5038', 'EOL:3682636', 'EOL:31599461', 'EOL:54655', 
             'EOL_V2:6272187', 'EOL_V2:3121417'))) $return_kingdom = 'Animalia';
-            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?', 'Invertebrata'))) $return_kingdom = 'Animalia';
+            elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?', 'Invertebrata', 
+                'Haemolaelaps glasgowi', 'Nyctiophylax vestitus', 'Coccinelidae', 'Arthropoda', 'Euryinae', 'Phygadenon'))) $return_kingdom = 'Animalia';
             // May need to add by Eli:
-            // , 'Haemolaelaps glasgowi', 'Nyctiophylax vestitus', 'Coccinelidae', 'Arthropoda', 'Euryinae', 'Phygadenon' -- Animalia
             // elseif(in_array($sciname, array('Lichenostigma epipolinum', 'Zwackhiomyces euplocinus'))) $return_kingdom = 'Fungi';
             elseif(in_array($sciname, array('Plant'))) $return_kingdom = 'Plantae';
             else {
