@@ -785,7 +785,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         if($rank == 'kingdom') {
             if(self::is_taxon_under_kingdom_viruses($sciname)) return 'Viruses';
         }
-        //------------------------------------------------------------------------------------------------xxx
+        //------------------------------------------------------------------------------------------------
         if(!$options) $options = $this->download_options_gbif;
         $options['expire_seconds'] = false; //should be false. ancestor value doesn't normally change
         $url = str_replace("SCINAME", urlencode($sciname), $this->api['GBIF taxon 2']);
@@ -795,7 +795,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
             foreach($arr['results'] as $r) {
                 if($val = @$r[$rank]) return $val;
                 
-                // /* Should be an improvement, only for $rank == 'kingdom'
+                /* Should be an improvement, only for $rank == 'kingdom' --- COMMENTED bec. it caused sudden program exit (infinite loop), due to inconsistent ancestor valus in GBIF API.
                 if($rank == 'kingdom') {
                     if($order = @$r['order']) {
                         if($ancestor = self::lookup_gbif_ancestor_using_sciname($order, $options = array(), $rank)) return $ancestor;
@@ -804,7 +804,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         if($ancestor = self::lookup_gbif_ancestor_using_sciname($family, $options = array(), $rank)) return $ancestor;
                     }
                 }
-                // */
+                */
 
             }
         }
