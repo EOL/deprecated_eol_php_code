@@ -539,7 +539,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                 $scinames = array_unique($scinames); //make unique
                                 $scinames = array_values($scinames); //reindex key
                                 // print_r($scinames);
-                                if($val = self::get_ancestor_from_GBIF_using_sciname($scinames, 'kingdom')) $this->taxonIDS[$taxonID]['kingdom'] = $val;
+                                if($val = self::get_ancestor_from_GBIF_using_scinames($scinames, 'kingdom')) $this->taxonIDS[$taxonID]['kingdom'] = $val;
                                 else $this->debug['hierarchy without kingdom'][$tmp] = '';
                             }
                         }
@@ -634,6 +634,9 @@ class GloBIDataAPI extends Globi_Refuted_Records
             elseif(in_array($taxonID, array('EOL:5425400', 'EOL:55106', 'EOL:3832795', 'FBC:FB:SpecCode:5038', 'EOL:3682636', 'EOL:31599461', 'EOL:54655', 
             'EOL_V2:6272187', 'EOL_V2:3121417'))) $return_kingdom = 'Animalia';
             elseif(in_array($sciname, array('Ectohomeosoma kasyellum', 'Setothesea asigna', 'Haematopsis grataria', 'Zooplankton', 'Alleophasma cyllarus', 'Latoria canescens?', 'Invertebrata'))) $return_kingdom = 'Animalia';
+            // May need to add by Eli:
+            // , 'Haemolaelaps glasgowi', 'Nyctiophylax vestitus', 'Coccinelidae', 'Arthropoda', 'Euryinae', 'Phygadenon' -- Animalia
+            // elseif(in_array($sciname, array('Lichenostigma epipolinum', 'Zwackhiomyces euplocinus'))) $return_kingdom = 'Fungi';
             elseif(in_array($sciname, array('Plant'))) $return_kingdom = 'Plantae';
             else {
                 if($val = self::lookup_gbif_ancestor_using_sciname($sciname, array(), 'kingdom')) $return_kingdom = $val;
@@ -763,7 +766,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
             $this->not_found_in_GBIF[$gbif_id] = '';
         }
     }
-    private function get_ancestor_from_GBIF_using_sciname($scinames, $rank) //$rank e.g. 'kingdom'
+    private function get_ancestor_from_GBIF_using_scinames($scinames, $rank) //$rank e.g. 'kingdom'
     {
         foreach($scinames as $sciname) {
 
@@ -782,6 +785,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         if($rank == 'kingdom') {
             if(self::is_taxon_under_kingdom_viruses($sciname)) return 'Viruses';
         }
+        //------------------------------------------------------------------------------------------------xxx
         if(!$options) $options = $this->download_options_gbif;
         $options['expire_seconds'] = false; //should be false. ancestor value doesn't normally change
         $url = str_replace("SCINAME", urlencode($sciname), $this->api['GBIF taxon 2']);
@@ -790,29 +794,28 @@ class GloBIDataAPI extends Globi_Refuted_Records
             // print_r($arr); exit("\n-end gbif-\n");
             foreach($arr['results'] as $r) {
                 if($val = @$r[$rank]) return $val;
+                
+                // /* Should be an improvement, only for $rank == 'kingdom'
+                if($rank == 'kingdom') {
+                    if($order = @$r['order']) {
+                        if($ancestor = self::lookup_gbif_ancestor_using_sciname($order, $options = array(), $rank)) return $ancestor;
+                    }
+                    if($family = @$r['family']) {
+                        if($ancestor = self::lookup_gbif_ancestor_using_sciname($family, $options = array(), $rank)) return $ancestor;
+                    }
+                }
+                // */
+
             }
         }
-        
-        /* THIS IS A BIG MISTAGE, BEC. OF NAMES OF VIRUSES... e.g. "Bivalve hepelivirus G"
-        //2nd try, if sciname has space
-        if(stripos($sciname, " ") !== false) //string is found
-        {
-            $names = explode(" ", $sciname);
-            $names = array_map('trim', $names);
-            $names = array_filter($names); //remove null arrays
-            $names = array_unique($names); //make unique
-            $names = array_values($names); //reindex key
-            if($name = @$names[0]) {
-                if($ancestor = self::lookup_gbif_ancestor_using_sciname($name, array(), $rank)) return $ancestor;
-            }
-        }
-        */
         
         //3rd try, if has ' virus' in the sciname
-        if(stripos($sciname, " virus") !== false) return 'Viruses'; //string is found
-        if(stripos($sciname, "virus ") !== false) return 'Viruses'; //string is found
-        if(stripos($sciname, "viruses ") !== false) return 'Viruses'; //string is found
-        if(substr($sciname,-5) == 'virus') return 'Viruses'; //last 5 chars in sciname is 'virus'.
+        if($rank == 'kingdom') {
+            if(stripos($sciname, " virus") !== false) return 'Viruses'; //string is found
+            if(stripos($sciname, "virus ") !== false) return 'Viruses'; //string is found
+            if(stripos($sciname, "viruses ") !== false) return 'Viruses'; //string is found
+            if(substr($sciname,-5) == 'virus') return 'Viruses'; //last 5 chars in sciname is 'virus'.
+        }
         
         /* STILL A BIG MISTAKE, BEC. OF NAMES OF VIRUSES
         //4th try
