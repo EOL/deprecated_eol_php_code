@@ -47,7 +47,7 @@ As of May 28, 2020
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1411
 Total rows = 10,584
 
-As of May 30, 2020
+As of May 30|31, 2020 - Mac Mini
 [change the associationType to pathogen_of] => 168
 [1. Records of non-carnivorous plants eating animals are likely to be errors] => 1099
 [2. Records of plants parasitizing animals are likely to be errors] => 1237
@@ -55,15 +55,6 @@ As of May 30, 2020
 [4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 987
 [5. Records of plants laying eggs are likely to be errors] => 0
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1411
-
-Limbo stage:
-[change the associationType to pathogen_of] => 171
-[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1099
-[2. Records of plants parasitizing animals are likely to be errors] => 1235
-[3. Records of plants having animals as hosts are likely to be errors] => 5858
-[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 974
-[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1253
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
