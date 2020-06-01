@@ -523,8 +523,8 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
 (mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
 (rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
-(ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
 
+(ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
 (ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
 (kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
 

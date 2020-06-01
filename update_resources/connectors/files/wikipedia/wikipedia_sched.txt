@@ -48,21 +48,24 @@ ja  ko  ru  pt
                                 yo  sn      za        zh-classical
                                 ceb mai     ab        bjn
                                     chr     wo        so
-                                    tk      ban
-                                    tcy     ay
-                                    szy     tyv
-                                    
+                                    tk      ban       atj
+                                    tcy     ay        new
+                                    szy     tyv       fiu-vro
+                                                      mg
+                                                      rm
+                                                      ltg
 
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
-                
-                (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
-                (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
-                (fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
+
+                (fiu-vro) Voro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
                 (mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
                 (rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
                 (ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
+
                 
+                (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
+                (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
                 
                 (ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
                 (wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
