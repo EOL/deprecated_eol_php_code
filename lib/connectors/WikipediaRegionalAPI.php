@@ -204,6 +204,7 @@ class WikipediaRegionalAPI
             elseif($lang == 'bh')           $lang = 'bho';
             elseif($lang == 'eml')          $lang = 'egl';
             elseif($lang == 'zh-classical') $lang = 'lzh';
+            elseif($lang == 'fiu-vro')      $lang = 'vro';
             else {
                 echo("\nInvestigate WikipediaRegionalAPI 1st try [$lang]...if-then-else not yet setup\n");
             }

@@ -520,13 +520,14 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
 
 (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
-
 (fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
-mg	93
-rm	93
-ltg	85
-ext	84
-kl	82
+(mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
+(rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
+(ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
+
+(ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
+(kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
+
 roa-rup	80
 nrm	79
 rn	79

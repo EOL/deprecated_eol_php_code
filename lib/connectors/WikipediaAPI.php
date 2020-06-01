@@ -25,10 +25,10 @@ class WikipediaAPI extends WikiHTMLAPI
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
                li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za av chy fj ik zea
-               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv atj new
+               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv atj new rm ltg
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'new';
+        $lang = 'ltg';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -585,6 +585,18 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'ltg') { //
+            $left = '<table class="metadata plainlinks stub"';  $html = self::process_left($html, $left);
+        }
+        if($this->language_code == 'rm') { //
+            $html = self::process_external_links($html, 'Colliaziuns'); //external links
+        }
+        if($this->language_code == 'mg') { //
+            $html = self::process_external_links($html, 'Rohy_ivelany'); //external links
+        }
+        if($this->language_code == 'fiu-vro') { //
+            $html = self::process_external_links($html, 'Välislingiq'); //external links
+        }
         if($this->language_code == 'new') { //
             //infobox
             $left = '<table style="position:relative; margin: 0 0 0.5em 1em; border-collapse: collapse; float:right; background:white; clear:right; width:200px;"';

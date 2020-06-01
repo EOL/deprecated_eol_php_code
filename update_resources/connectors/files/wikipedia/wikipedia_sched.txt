@@ -58,6 +58,11 @@ ja  ko  ru  pt
                 
                 (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
                 (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
+                (fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
+                (mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
+                (rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
+                (ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
+                
                 
                 (ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
                 (wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
