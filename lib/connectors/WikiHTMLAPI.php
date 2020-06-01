@@ -572,6 +572,39 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Anethum graveolens") {$arr = $this->get_object('Q26686'); $arr = $arr->entities->Q26686;}
         if($this->debug_taxon == "Daucus") {$arr = $this->get_object('Q27949'); $arr = $arr->entities->Q27949;}
         if($this->debug_taxon == "Malus") {$arr = $this->get_object('Q104819'); $arr = $arr->entities->Q104819;}
+        //lang mg
+        if($this->debug_taxon == "Bos primigenius indicus") {$arr = $this->get_object('Q46889'); $arr = $arr->entities->Q46889;}
+        if($this->debug_taxon == "Spheniscidae") {$arr = $this->get_object('Q9147'); $arr = $arr->entities->Q9147;}
+        if($this->debug_taxon == "Numididae") {$arr = $this->get_object('Q171953'); $arr = $arr->entities->Q171953;}
+        if($this->debug_taxon == "Cryptoprocta ferox") {$arr = $this->get_object('Q183330'); $arr = $arr->entities->Q183330;}
+        if($this->debug_taxon == "Brookesia micra") {$arr = $this->get_object('Q232278'); $arr = $arr->entities->Q232278;}
+        if($this->debug_taxon == "Eulemur mongoz") {$arr = $this->get_object('Q543695'); $arr = $arr->entities->Q543695;}
+        if($this->debug_taxon == "Indri indri") {$arr = $this->get_object('Q203868'); $arr = $arr->entities->Q203868;}
+        if($this->debug_taxon == "Annona squamosa") {$arr = $this->get_object('Q275620'); $arr = $arr->entities->Q275620;}
+        if($this->debug_taxon == "Cuculus rochii") {$arr = $this->get_object('Q631863'); $arr = $arr->entities->Q631863;}
+        if($this->debug_taxon == "Harveya") {$arr = $this->get_object('Q5677738'); $arr = $arr->entities->Q5677738;}
+        //lang rm
+        if($this->debug_taxon == "Dianthus carthusianorum") {$arr = $this->get_object('Q159735'); $arr = $arr->entities->Q159735;}
+        if($this->debug_taxon == "Daphne mezereum") {$arr = $this->get_object('Q165166'); $arr = $arr->entities->Q165166;}
+        if($this->debug_taxon == "Coturnix chinensis") {$arr = $this->get_object('Q244429'); $arr = $arr->entities->Q244429;}
+        if($this->debug_taxon == "Marsupialia") {$arr = $this->get_object('Q25336'); $arr = $arr->entities->Q25336;}
+        if($this->debug_taxon == "Fagus sylvatica") {$arr = $this->get_object('Q146149'); $arr = $arr->entities->Q146149;}
+        if($this->debug_taxon == "Leontopodium nivale") {$arr = $this->get_object('Q178265'); $arr = $arr->entities->Q178265;}
+        if($this->debug_taxon == "Arnica montana") {$arr = $this->get_object('Q207848'); $arr = $arr->entities->Q207848;}
+        if($this->debug_taxon == "Microchiroptera") {$arr = $this->get_object('Q971343'); $arr = $arr->entities->Q971343;}
+        if($this->debug_taxon == "Phasianidae") {$arr = $this->get_object('Q26375'); $arr = $arr->entities->Q26375;}
+        if($this->debug_taxon == "Acer platanoides") {$arr = $this->get_object('Q26745'); $arr = $arr->entities->Q26745;}
+        //lang ltg
+        if($this->debug_taxon == "Puma yagouaroundi") {$arr = $this->get_object('Q182304'); $arr = $arr->entities->Q182304;}
+        if($this->debug_taxon == "Felis nigripes") {$arr = $this->get_object('Q204814'); $arr = $arr->entities->Q204814;}
+        if($this->debug_taxon == "Leopardus tigrinus") {$arr = $this->get_object('Q205948'); $arr = $arr->entities->Q205948;}
+        if($this->debug_taxon == "Buprestidae") {$arr = $this->get_object('Q503892'); $arr = $arr->entities->Q503892;}
+        if($this->debug_taxon == "Hirundinidae") {$arr = $this->get_object('Q39861'); $arr = $arr->entities->Q39861;}
+        if($this->debug_taxon == "Carpinus betulus") {$arr = $this->get_object('Q158776'); $arr = $arr->entities->Q158776;}
+        if($this->debug_taxon == "Lynx canadensis") {$arr = $this->get_object('Q146457'); $arr = $arr->entities->Q146457;}
+        if($this->debug_taxon == "Profelis aurata") {$arr = $this->get_object('Q192231'); $arr = $arr->entities->Q192231;}
+        if($this->debug_taxon == "Prionailurus planiceps") {$arr = $this->get_object('Q274177'); $arr = $arr->entities->Q274177;}
+        if($this->debug_taxon == "Neofelis diardi") {$arr = $this->get_object('Q275163'); $arr = $arr->entities->Q275163;}
         return $arr;
     }
 }
