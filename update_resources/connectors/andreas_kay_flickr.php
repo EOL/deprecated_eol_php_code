@@ -9,7 +9,8 @@ Note: this is a template copied from 544.php
 Interestingly this: https://www.flickr.com/photos/andreaskay/
   is synonymous to: https://www.flickr.com/photos/75374522@N06/
 Stats:
-andreas_kay_flickr	Tuesday 2019-12-24 04:47:42 AM	{"agent.tab":1,"media_resource.tab":27828,"taxon.tab":3283,"time_elapsed":{"sec":76.01,"min":1.27,"hr":0.02}}
+andreas_kay_flickr	Tuesday 2019-12-24 04:47:42 AM	{"agent.tab":1, "media_resource.tab":27828, "taxon.tab":3283, "time_elapsed":{"sec":76.01, "min":1.27, "hr":0.02}}
+andreas_kay_flickr	Tuesday 2020-06-02 02:58:41 AM	{"agent.tab":1, "media_resource.tab":27828, "taxon.tab":3283, "time_elapsed":{"sec":3058.46, "min":50.97, "hr":0.85}}
 */
 
 ini_set('error_reporting', E_ALL);
