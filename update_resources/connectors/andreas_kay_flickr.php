@@ -33,6 +33,7 @@ $start_year = 2011; //Andreas Kay joined Flickr 2012. Less 1 to get 2011, just i
 // /* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
+else echo "\nInvalid token: [".FLICKR_AUTH_TOKEN."]\n";
 // */
 
 /* ---------- start test*** ----------
