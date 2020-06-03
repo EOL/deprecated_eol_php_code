@@ -55,7 +55,7 @@ if(($fhandle = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . $resource_id .
 }
 
 //compress resource xml
-// Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate the XML file
+Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate the XML file
 
 require_library('ResourceDataObjectElementsSetting');
 $nmnh = new ResourceDataObjectElementsSetting($resource_id);
