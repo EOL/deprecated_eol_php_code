@@ -15,6 +15,12 @@ $GLOBALS['flickr_licenses'][5] = "http://creativecommons.org/licenses/by-sa/2.0/
 //$GLOBALS['flickr_licenses'][6] = "http://creativecommons.org/licenses/by-nd/2.0/";
 $GLOBALS['flickr_licenses'][7] = "http://www.flickr.com/commons/usage/";
 
+// /* for USGS_BEE_INVENTORY_ID resource
+$GLOBALS['flickr_licenses'][8] = "https://creativecommons.org/publicdomain/mark/1.0/";
+$GLOBALS['flickr_licenses'][9] = "http://creativecommons.org/publicdomain/mark/1.0/";
+$GLOBALS['flickr_licenses'][10] = "http://creativecommons.org/licenses/publicdomain/";
+// */
+
 define("FLICKR_REST_PREFIX", "https://api.flickr.com/services/rest/?");
 define("FLICKR_AUTH_PREFIX", "https://api.flickr.com/services/auth/?");
 define("FLICKR_UPLOAD_URL", "https://www.flickr.com/services/upload/");
@@ -23,7 +29,8 @@ define("FLICKR_BHL_ID", "61021753@N02"); // BHL: BioDivLibrary's photostream - h
 define("FLICKR_SMITHSONIAN_ID", "51045845@N08"); // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
 define("OPENTREE_ID", "92803392@N02"); // OpenTree photostream - http://www.flickr.com/photos/92803392@N02 - no resource here, just a way to get all images for a certain Flickr user e.g EFB-1126
 
-define("ANDREAS_KAY_ID", "75374522@N06"); // Andreas Kay photostream (DATA-1843) - https://www.flickr.com/photos/andreaskay/ OR https://www.flickr.com/photos/75374522@N06/
+define("ANDREAS_KAY_ID",        "75374522@N06"); // Andreas Kay photostream (DATA-1843) - https://www.flickr.com/photos/andreaskay/ OR https://www.flickr.com/photos/75374522@N06/
+define("USGS_BEE_INVENTORY_ID", "54563451@N08"); // Bee Inventory photostream (DATA-1855) - https://www.flickr.com/photos/usgsbiml/ OR https://www.flickr.com/photos/54563451@N08/
 
 // $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/update_resources/connectors/files/flickr_cache";    //old cache path
 // $GLOBALS['flickr_cache_path'] = DOC_ROOT . "/public/tmp/flickr_cache";                           //old cache path
@@ -37,6 +44,8 @@ $GLOBALS['expire_seconds'] = 60*60*24*30*3; //maybe quarterly is the way to go m
 // these two variables are used to limit the number of photos per taxon for Flickr photostream resources, if needed (e.g. Smithsonian Wild's photostream)
 $GLOBALS['taxa'] = array();
 $GLOBALS['max_photos_per_taxon'] = false;
+
+$GLOBALS['debug'] = array(); //first client USGS_BEE_INVENTORY_ID
 
 class FlickrAPI
 {
@@ -77,6 +86,7 @@ class FlickrAPI
         else {
             if(isset($response->stat)) print_r($response);
         }
+        if($GLOBALS['debug']) print_r($GLOBALS['debug']);
         return $all_taxa;
     }
     public static function get_eol_photos($per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
@@ -119,6 +129,7 @@ class FlickrAPI
                 // /* start: DATA-1843
                 if($GLOBALS['resource_id'] == 15) { //meaning regular Flickr resource
                     if($photo->owner == ANDREAS_KAY_ID) continue; //exclude images from this photostream
+                    elseif($photo->owner == USGS_BEE_INVENTORY_ID) continue; //exclude images from this photostream
                 }
                 // end: DATA-1843 */
                 
@@ -181,7 +192,10 @@ class FlickrAPI
         if(@$photo->visibility->ispublic != 1) return false;
         if($photo->usage->candownload != 1) return false;
         
-        if(@!$GLOBALS["flickr_licenses"][$photo->license]) return false;
+        if(!@$GLOBALS["flickr_licenses"][$photo->license]) {
+            $GLOBALS['debug']['invalid license'][$photo->license] = '';
+            return false;
+        }
         
         // echo "\nreached 100\n";
         $parameters = array();
@@ -424,6 +438,11 @@ class FlickrAPI
         if($p['kingdom']) return true;
         return false;
     }
+    private function format_license($str)
+    {
+        if(stripos($str, "publicdomain") !== false) return 'http://creativecommons.org/licenses/publicdomain/'; //string is found
+        else return $str;
+    }
     public static function get_data_objects($photo, $user_id)
     {
         $data_objects = array();
@@ -435,7 +454,7 @@ class FlickrAPI
         $data_object_parameters["title"] = $photo->title->_content;
         $data_object_parameters["description"] = $photo->description->_content;
         $data_object_parameters["mediaURL"] = self::photo_url($photo->id, $photo->secret, $photo->server, $photo->farm);
-        $data_object_parameters["license"] = @$GLOBALS["flickr_licenses"][$photo->license];
+        $data_object_parameters["license"] = self::format_license(@$GLOBALS["flickr_licenses"][$photo->license]);
         $data_object_parameters["language"] = 'en';
         if(isset($photo->dates->taken)) $data_object_parameters["created"] = $photo->dates->taken;
         // only the original forms need rotation
@@ -542,9 +561,10 @@ class FlickrAPI
     {
         $extras = "last_update,media,url_o";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
-        if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID, ANDREAS_KAY_ID))) {
+        if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID, ANDREAS_KAY_ID, USGS_BEE_INVENTORY_ID))) {
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
-            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "license" => "1,2,4,5,7", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
+            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, 
+            "license" => "1,2,4,5,7,8,9,10", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
         }
         // echo "\nccc=[$url]\n"; //debug
         return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 30 days; rsource_id here is just a folder name in cache
@@ -715,6 +735,11 @@ class FlickrAPI
         foreach($date_range as $range) { $i++;
             echo "\n\n From: " . $range["start"] . " To: " . $range["end"] . "\n";
             $taxa = self::get_all_eol_photos($auth_token, $resource_file, $user_id, $range["start_timestamp"], $range["end_timestamp"], $resource_id);
+            /* good debug
+            if($taxa) {
+                print_r($taxa); exit("\n-stop muna-\n");
+            }
+            */
             $all_taxa = array_merge($all_taxa, $taxa);
             // if($i > 5) break; //debug - process just a subset and check the resource file...
         }
