@@ -15,9 +15,20 @@ $GLOBALS['flickr_licenses'][5] = "http://creativecommons.org/licenses/by-sa/2.0/
 //$GLOBALS['flickr_licenses'][6] = "http://creativecommons.org/licenses/by-nd/2.0/";
 $GLOBALS['flickr_licenses'][7] = "http://www.flickr.com/commons/usage/";
 
-// /* for USGS_BEE_INVENTORY_ID resource
-$GLOBALS['flickr_licenses'][8] = "https://creativecommons.org/publicdomain/mark/1.0/";
-$GLOBALS['flickr_licenses'][9] = "http://creativecommons.org/publicdomain/mark/1.0/";
+/*
+<licenses>
+  <license id="1" name="Attribution-NonCommercial-ShareAlike License" url="https://creativecommons.org/licenses/by-nc-sa/2.0/" />
+  <license id="2" name="Attribution-NonCommercial License" url="https://creativecommons.org/licenses/by-nc/2.0/" />
+  <license id="4" name="Attribution License" url="https://creativecommons.org/licenses/by/2.0/" />
+  <license id="5" name="Attribution-ShareAlike License" url="https://creativecommons.org/licenses/by-sa/2.0/" />
+  <license id="7" name="No known copyright restrictions" url="https://www.flickr.com/commons/usage/" />
+  <license id="9" name="Public Domain Dedication (CC0)" url="https://creativecommons.org/publicdomain/zero/1.0/" />
+  <license id="10" name="Public Domain Mark" url="https://creativecommons.org/publicdomain/mark/1.0/" />
+</licenses>
+*/
+
+// /* first to use: USGS_BEE_INVENTORY_ID resource
+$GLOBALS['flickr_licenses'][9] = "http://creativecommons.org/licenses/publicdomain/";
 $GLOBALS['flickr_licenses'][10] = "http://creativecommons.org/licenses/publicdomain/";
 // */
 
@@ -63,6 +74,7 @@ class FlickrAPI
             $total = $response->photos->total;
             // number of API calls to be made
             $total_pages = ceil($total / $per_page);
+            echo "\ntotal_pages = [$total] $total_pages\n";
             $taxa = array();
             for($i=1 ; $i<=$total_pages ; $i++) {
                 /* when running 2 or more connectors...
@@ -438,11 +450,6 @@ class FlickrAPI
         if($p['kingdom']) return true;
         return false;
     }
-    private function format_license($str)
-    {
-        if(stripos($str, "publicdomain") !== false) return 'http://creativecommons.org/licenses/publicdomain/'; //string is found
-        else return $str;
-    }
     public static function get_data_objects($photo, $user_id)
     {
         $data_objects = array();
@@ -454,7 +461,7 @@ class FlickrAPI
         $data_object_parameters["title"] = $photo->title->_content;
         $data_object_parameters["description"] = $photo->description->_content;
         $data_object_parameters["mediaURL"] = self::photo_url($photo->id, $photo->secret, $photo->server, $photo->farm);
-        $data_object_parameters["license"] = self::format_license(@$GLOBALS["flickr_licenses"][$photo->license]);
+        $data_object_parameters["license"] = @$GLOBALS["flickr_licenses"][$photo->license];
         $data_object_parameters["language"] = 'en';
         if(isset($photo->dates->taken)) $data_object_parameters["created"] = $photo->dates->taken;
         // only the original forms need rotation
@@ -532,7 +539,7 @@ class FlickrAPI
     }
     public static function photos_get_sizes($photo_id, $auth_token = "")
     {
-        $url = self::generate_rest_url("flickr.photos.getSizes", array("photo_id" => $photo_id, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
+        $url = self::generate_rest_url("flickr.photos.getSizes", array("photo_id" => $photo_id, "format" => "json", "nojsoncallback" => 1), 1); //"auth_token" => $auth_token
         // echo "\naaa=[$url]\n"; //debug
         $response = Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds']));
         self::add_to_cache('photosGetSizes', $photo_id, $response);
@@ -540,18 +547,18 @@ class FlickrAPI
     }
     public static function people_get_info($user_id, $auth_token = "")
     {
-        $url = self::generate_rest_url("flickr.people.getInfo", array("user_id" => $user_id, "auth_token" => $auth_token), 1);
+        $url = self::generate_rest_url("flickr.people.getInfo", array("user_id" => $user_id), 1); //"auth_token" => $auth_token
         return Functions::get_hashed_response($url);
     }
     public static function people_get_public_photos($user_id, $auth_token = "")
     {
-        $url = self::generate_rest_url("flickr.people.getPublicPhotos", array("user_id" => $user_id, "auth_token" => $auth_token), 1);
+        $url = self::generate_rest_url("flickr.people.getPublicPhotos", array("user_id" => $user_id), 1); //"auth_token" => $auth_token
         return Functions::get_hashed_response($url);
     }
     public static function photos_get_info($photo_id, $secret, $auth_token = "", $download_options = array('timeout' => 30, 'resource_id' => 'flickr')) // this is also being called by FlickrUserAlbumAPI.php
     {
         $download_options['expire_seconds'] = $GLOBALS['expire_seconds'];
-        $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "auth_token" => $auth_token, "format" => "json", "nojsoncallback" => 1), 1);
+        $url = self::generate_rest_url("flickr.photos.getInfo", array("photo_id" => $photo_id, "secret" => $secret, "format" => "json", "nojsoncallback" => 1), 1); //"auth_token" => $auth_token
         // echo "\nbbb=[$url]\n"; //debug
         $response = Functions::lookup_with_cache($url, $download_options);
         self::add_to_cache('photosGetInfo', $photo_id, $response);
@@ -560,11 +567,13 @@ class FlickrAPI
     public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
         $extras = "last_update,media,url_o";
-        $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1);
+        $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1); //"auth_token" => $auth_token
         if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID, ANDREAS_KAY_ID, USGS_BEE_INVENTORY_ID))) {
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
-            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "auth_token" => $auth_token, "user_id" => $user_id, 
-            "license" => "1,2,4,5,7,8,9,10", "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1);
+            if($user_id == USGS_BEE_INVENTORY_ID) $license = '10';
+            else                                  $license = '1,2,4,5,7';
+            $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "user_id" => $user_id, 
+                                                                         "license" => $license, "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1); //"auth_token" => $auth_token
         }
         // echo "\nccc=[$url]\n"; //debug
         return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 30 days; rsource_id here is just a folder name in cache

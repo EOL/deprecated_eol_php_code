@@ -26,7 +26,7 @@ $resource_id = 'usgs_bee_inventory';
 
 // /* start main block
 $user_id = "54563451@N08"; //USGS Bee Inventory and Monitoring Lab photostrean
-$start_year = 2012; //Bee Inventory joined Flickr 2010. Less 1 to get 2009, just in case.
+$start_year = 2009; //Bee Inventory joined Flickr 2010. Less 1 to get 2009, just in case.
 
 // /* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
 $auth_token = NULL;

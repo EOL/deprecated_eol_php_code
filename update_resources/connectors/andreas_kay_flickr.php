@@ -30,11 +30,10 @@ $resource_id = 'andreas_kay_flickr';
 $user_id = "75374522@N06"; //Andreas Kay photostream - https://www.flickr.com/photos/andreaskay/ OR https://www.flickr.com/photos/75374522@N06/
 $start_year = 2011; //Andreas Kay joined Flickr 2012. Less 1 to get 2011, just in case.
 
-// /* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
+/* seems can be commented. Token actually is not needed for the calls made by our connector.
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
-else echo "\nInvalid token: [".FLICKR_AUTH_TOKEN."]\n";
-// */
+*/
 
 /* ---------- start test*** ----------
 // exit("\n".FLICKR_AUTH_TOKEN."\n");
