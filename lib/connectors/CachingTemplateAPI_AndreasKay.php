@@ -255,7 +255,7 @@ class CachingTemplateAPI_AndreasKay
             }
         }
         else {
-            $this->debug['name not found in GNRD'][$tc_id];
+            $this->debug['name not found in GNRD'][$tc_id] = '';
             // exit("\nInvestigate: went here [$tc_id]\n");
         }
     }
