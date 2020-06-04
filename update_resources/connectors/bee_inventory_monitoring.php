@@ -13,8 +13,13 @@ Stats:
 usgs_bee_inventory	Thursday 2020-06-04 12:09:03 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1182, "vernacular_name.tab":4, "time_elapsed":false}
 usgs_bee_inventory	Thursday 2020-06-04 12:11:00 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1182, "vernacular_name.tab":4, "time_elapsed":false}
 usgs_bee_inventory	Thursday 2020-06-04 12:11:10 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1177, "vernacular_name.tab":4, "time_elapsed":{"sec":17.97, "min":0.3, "hr":0}}
+
 usgs_bee_inventory	Thursday 2020-06-04 12:55:50 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1182, "vernacular_name.tab":4, "time_elapsed":false}
 usgs_bee_inventory	Thursday 2020-06-04 12:55:59 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1177, "vernacular_name.tab":4, "time_elapsed":{"sec":17.33, "min":0.29, "hr":0}}
+usgs_bee_inventory	Thursday 2020-06-04 04:28:12 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1177, "vernacular_name.tab":4, "time_elapsed":{"sec":151.91, "min":2.53, "hr":0.04}}
+
+usgs_bee_inventory	Thursday 2020-06-04 09:04:55 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1182, "vernacular_name.tab":4, "time_elapsed":false}
+usgs_bee_inventory	Thursday 2020-06-04 09:05:04 AM	{"agent.tab":1, "media_resource.tab":3687, "taxon.tab":1177, "vernacular_name.tab":4, "time_elapsed":{"sec":117.02, "min":1.95, "hr":0.03}}
 */
 
 ini_set('error_reporting', E_ALL);
