@@ -21,7 +21,7 @@ $timestart = time_elapsed();
 $temp = CONTENT_RESOURCE_LOCAL_PATH . "/reports";
 if(!is_dir($temp)) mkdir($temp);
 
-$GLOBALS['ENV_DEBUG'] = true;
+$GLOBALS['ENV_DEBUG'] = false;
 $resource_id = 'usgs_bee_inventory';
 
 // /* start main block
