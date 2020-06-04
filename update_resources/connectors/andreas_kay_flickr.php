@@ -37,6 +37,7 @@ $start_year = 2011; //Andreas Kay joined Flickr 2012. Less 1 to get 2011, just i
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
 */
+$auth_token = NULL;
 
 /* ---------- start test*** ----------
 // exit("\n".FLICKR_AUTH_TOKEN."\n");
