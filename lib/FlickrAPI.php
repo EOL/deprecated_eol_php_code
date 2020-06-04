@@ -138,6 +138,10 @@ class FlickrAPI
                     [width_o] => 2262
                 )*/
                 
+                // /* new: Jun 4, 2020 - add publicdomain license
+                if(!in_array($photo->license, array(1,2,4,5,7,9,10))) continue;
+                // */
+                
                 // /* start: DATA-1843
                 if($GLOBALS['resource_id'] == 15) { //meaning regular Flickr resource
                     if($photo->owner == ANDREAS_KAY_ID) continue; //exclude images from this photostream
@@ -145,7 +149,7 @@ class FlickrAPI
                 }
                 // end: DATA-1843 */
                 
-                if(@$used_image_ids[$photo->id]) continue;
+                if(isset($used_image_ids[$photo->id])) continue;
                 $count_taxa++;
                 if(($count_taxa % 100) == 0) echo "taxon: $count_taxa ($photo->id): ".time_elapsed()."\n";
 
@@ -157,7 +161,7 @@ class FlickrAPI
                     }
                 }
 
-                $used_image_ids[$photo->id] = true;
+                $used_image_ids[$photo->id] = '';
                 // if($count_taxa >= 5) break; //debug - process just a subset and check the resource file...
             }
         }
@@ -566,14 +570,18 @@ class FlickrAPI
     }
     public static function pools_get_photos($group_id, $machine_tag, $per_page, $page, $auth_token = "", $user_id = NULL, $start_date = NULL, $end_date = NULL)
     {
-        $extras = "last_update,media,url_o";
+        $extras = "last_update,media,url_o,license";
         $url = self::generate_rest_url("flickr.groups.pools.getPhotos", array("group_id" => $group_id, "machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "user_id" => $user_id, "format" => "json", "nojsoncallback" => 1), 1); //"auth_token" => $auth_token
         if(in_array($user_id, array(FLICKR_BHL_ID, FLICKR_SMITHSONIAN_ID, ANDREAS_KAY_ID, USGS_BEE_INVENTORY_ID))) {
             /* remove group_id param to get images from photostream, and not only those in the EOL Flickr group */
+            /* removed license filter, since api call wrongfully treats '1,2,4,5,7,9,10'
             if($user_id == USGS_BEE_INVENTORY_ID) $license = '10';
             else                                  $license = '1,2,4,5,7';
+            */
             $url = self::generate_rest_url("flickr.photos.search", array("machine_tags" => $machine_tag, "extras" => $extras, "per_page" => $per_page, "page" => $page, "user_id" => $user_id, 
-                                                                         "license" => $license, "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1); //"auth_token" => $auth_token
+                                                                         "privacy_filter" => "1", "sort" => "date-taken-asc", "min_taken_date" => $start_date, "max_taken_date" => $end_date, "format" => "json", "nojsoncallback" => 1), 1); //"auth_token" => $auth_token
+                                                                         // "license" => $license, 
+            // echo "\nccc=[$url]\n"; //debug
         }
         // echo "\nccc=[$url]\n"; //debug
         return json_decode(Functions::lookup_with_cache($url, array('timeout' => 30, 'expire_seconds' => $GLOBALS['expire_seconds'], 'resource_id' => 'flickr'))); //expires in 30 days; rsource_id here is just a folder name in cache

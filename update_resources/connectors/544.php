@@ -39,6 +39,10 @@ http://rs.gbif.org/terms/1.0/vernacularname: 4879
 544	Wednesday 2019-12-25 09:20:33 P	{"agent.tab":315, "media_resource.tab":16609, "taxon.tab":9715, "vernacular_name.tab":5257,"time_elapsed":{"sec":1619.08,"min":26.98,"hr":0.45}}
 544	Thursday 2019-12-26 02:01:54 AM	{"agent.tab":315, "media_resource.tab":16609, "taxon.tab":9715, "vernacular_name.tab":5257,"time_elapsed":{"sec":118.74,"min":1.98,"hr":0.03}}
 544	Tuesday 2020-06-02 01:38:33 PM	{"agent.tab":315, "media_resource.tab":16609, "taxon.tab":9715, "vernacular_name.tab":5257, "time_elapsed":{"sec":3289.44, "min":54.82, "hr":0.91}}
+
+544	Thursday 2020-06-04 12:33:48 AM	{"agent.tab":88, "media_resource.tab":5981, "taxon.tab":6452, "vernacular_name.tab":1527, "time_elapsed":false}
+544	Thursday 2020-06-04 12:34:02 AM	{"agent.tab":88, "media_resource.tab":5981, "taxon.tab":4261, "vernacular_name.tab":1527, "time_elapsed":{"sec":1083.26, "min":18.05, "hr":0.3}}
+
 */
 
 ini_set('error_reporting', E_ALL);
@@ -51,8 +55,8 @@ $GLOBALS['ENV_DEBUG'] = false;
 $resource_id = 544;
 
 // /* start main block
-$user_id = "61021753@N02"; // BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
-$start_year = 2010;
+$user_id = "61021753@N02";  // BHL BioDivLibrary's photostream -- http://www.flickr.com/photos/61021753@N02
+$start_year = 2010;         // joined 2011, used less 1 -> 2010
 
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
