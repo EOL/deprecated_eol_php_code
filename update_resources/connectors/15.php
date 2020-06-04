@@ -8,7 +8,8 @@ namespace php_active_record;
 15	Thursday 2019-10-17 06:49:21 AM	{"agent.tab":1785,"media_resource.tab":236651,"taxon.tab":65679,"vernacular_name.tab":50276,"time_elapsed":false}
 15	Wednesday 2019-12-18 02:06:17 PM{"agent.tab":1782,"media_resource.tab":237585,"taxon.tab":65976,"vernacular_name.tab":50304,"time_elapsed":false} Consistent OK
 15	Wednesday 2019-12-25 06:10:40 AM{"agent.tab":1856,"media_resource.tab":260368,"taxon.tab":70486,"vernacular_name.tab":52550,"time_elapsed":false} in between connector updates...
-15	Wednesday 2019-12-25 08:53:24 PM{"agent.tab":1856,"media_resource.tab":260368,"taxon.tab":70486,"time_elapsed":false} expected, vernaculars removed. Consistent OK
+15	Wednesday 2019-12-25 08:53:24 PM{"agent.tab":1856, "media_resource.tab":260368, "taxon.tab":70486, "time_elapsed":false} expected, vernaculars removed. Consistent OK
+15	Thursday 2020-06-04 06:52:37 AM	{"agent.tab":1796, "media_resource.tab":238120, "taxon.tab":71147, "time_elapsed":false} -- start new updated connector, no auth_token anymore.
 */
 ini_set('error_reporting', E_ALL);
 ini_set('display_errors', true);

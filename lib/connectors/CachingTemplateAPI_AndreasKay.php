@@ -62,6 +62,7 @@ class CachingTemplateAPI_AndreasKay
         }
         print_r($this->katja_assignment); echo "\nMappings = [$i]\n"; //good debug
         unlink($local_tsv);
+        if(isset($this->debug)) print_r($this->debug);
     }
     public function AndreasKay_addtl_taxon_assignment($tags, $allowsQuestionMarksYN)
     {
@@ -253,7 +254,10 @@ class CachingTemplateAPI_AndreasKay
                 }
             }
         }
-        else exit("\nInvestigate: went here [$tc_id]\n");
+        else {
+            $this->debug['name not found in GNRD'][$tc_id];
+            // exit("\nInvestigate: went here [$tc_id]\n");
+        }
     }
     public function initialize_report()
     {
@@ -334,6 +338,7 @@ class CachingTemplateAPI_AndreasKay
     }
     private function process_obj_output($obj)
     {
+        if(!$obj) return false;
         if($obj->status == 200) return $obj;    //sometimes it goes here.
         elseif($obj->status == 303) {           //status 303 means you need to run 2nd token_url
             debug("\naccessing [$obj->token_url]\n");
