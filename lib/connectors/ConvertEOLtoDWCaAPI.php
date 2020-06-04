@@ -546,6 +546,7 @@ class ConvertEOLtoDWCaAPI
         
         $rec = array_map('trim', $rec);
         // echo "\nidentifier: ".$rec['identifier']. " ScientificName: " . $rec['ScientificName']; exit("\nelix\n");
+        print_r($rec);
         if($rec['identifier'] && $rec['ScientificName']) {
             // ==================================start customize============================ was working OK, but decided to use the orig taxonID from LifeDesk XML
             // if(substr($this->resource_id,0,3) == "LD_") $rec['identifier'] = md5($rec['ScientificName']);
