@@ -25,10 +25,10 @@ class WikipediaAPI extends WikiHTMLAPI
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
                li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za av chy fj ik zea
-               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv atj new rm ltg
+               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv atj new rm ltg ext
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'ltg';
+        $lang = 'ext';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -585,6 +585,13 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'ext') { //
+            $needle = 'style="width: 250px; margin: 0 0 0.5em 1.4em; float: right; clear: right; border: 1px #aaa solid; border-collapse: collapse;"';
+            $html = self::process_needle($html, $needle, true);
+            $html = self::process_external_links($html, 'Atijus'); //external links
+            $html = self::process_external_links($html, 'Atihus'); //external links
+            $left = '<table align="center" width="100%" id="toc">'; $html = self::process_left($html, $left);
+        }
         if($this->language_code == 'ltg') { //
             $left = '<table class="metadata plainlinks stub"';  $html = self::process_left($html, $left);
         }

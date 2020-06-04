@@ -528,7 +528,7 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 (ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
 (kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
 
-roa-rup	80
+(roa-rup) Aromanian         https://en.wikipedia.org/wiki/Aromanian_language *(rup)
 nrm	79
 rn	79
 dty	77
