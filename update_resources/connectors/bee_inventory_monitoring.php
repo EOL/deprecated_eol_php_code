@@ -18,8 +18,10 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('FlickrAPI');
 $timestart = time_elapsed();
 
+/* from copied template
 $temp = CONTENT_RESOURCE_LOCAL_PATH . "/reports";
 if(!is_dir($temp)) mkdir($temp);
+*/
 
 $GLOBALS['ENV_DEBUG'] = false;
 $resource_id = 'usgs_bee_inventory';
@@ -28,11 +30,11 @@ $resource_id = 'usgs_bee_inventory';
 $user_id = "54563451@N08"; //USGS Bee Inventory and Monitoring Lab photostrean
 $start_year = 2009; //Bee Inventory joined Flickr 2010. Less 1 to get 2009, just in case.
 
-// /* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
+/* seems can be commented. Just a check if FLICKR_AUTH_TOKEN is a valid token, which it is. So why bother.
 $auth_token = NULL;
 if(FlickrAPI::valid_auth_token(FLICKR_AUTH_TOKEN)) $auth_token = FLICKR_AUTH_TOKEN;
-// else exit("\nInvalid token: [FLICKR_AUTH_TOKEN]\n");
-// */
+*/
+$auth_token = NULL;
 
 /* ---------- start test*** ----------
 // exit("\n".FLICKR_AUTH_TOKEN."\n");
@@ -104,11 +106,13 @@ $nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false m
 
 // end main block */
 
-//---------------------new start convert_archive_normalized() meaning remove taxa without objects, only leave taxa with objects in final dwca - Works OK
+// ---------------------new start convert_archive_normalized() meaning remove taxa without objects, only leave taxa with objects in final dwca - Works OK
+/*
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
 $func->convert_archive_normalized();
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+*/
 //---------------------new end
 
 /* The End */
