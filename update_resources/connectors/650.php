@@ -16,7 +16,7 @@ $timestart = time_elapsed();
 $resource_id = 650;
 
 /* will use generic_services.eol.org.ph for the meantime until extra hardisk is installed in Archive */
-return;
+// return;
 
 // /*
 $user_id = "51045845@N08"; // Smithsonian Wild's photostream - http://www.flickr.com/photos/51045845@N08
@@ -68,12 +68,22 @@ $xml = str_ireplace("<dwc:ScientificName>Sciurus igniventris_or_spadiceus</dwc:S
 $func->save_resource_document($xml);
 //--------------
 
-Functions::set_resource_status_to_harvest_requested($resource_id);
+////////////////// section below added in Jun 5, 2020 - convert XML to DwCA
 
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n elapsed time = $elapsed_time_sec seconds          \n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes  \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\n\n Done processing.";
+    Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 650.gz.xml, otherwise remain commented
 
+    //---------------------new start
+    require_library('ResourceDataObjectElementsSetting');
+    $nmnh = new ResourceDataObjectElementsSetting($resource_id);
+    $nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false means it is not NMNH resource.
+    //---------------------new end
+
+    //---------------------new start convert_archive_normalized() meaning remove taxa without objects, only leave taxa with objects in final dwca
+    require_library('connectors/DwCA_Utility');
+    $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
+    $func->convert_archive_normalized();
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+    //---------------------new end
+
+    /* The End */
 ?>

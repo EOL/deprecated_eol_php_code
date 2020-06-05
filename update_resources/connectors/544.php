@@ -121,7 +121,7 @@ $nmnh->call_xml_2_dwca($resource_id, "Flickr files", false); //3rd param false m
 
 // end main block */
 
-//---------------------new start generic_normalize_dwca() meaning remove taxa without objects, only leave taxa with objects in final dwca
+//---------------------new start convert_archive_normalized() meaning remove taxa without objects, only leave taxa with objects in final dwca
 require_library('connectors/DwCA_Utility');
 $func = new DwCA_Utility($resource_id, CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".tar.gz");
 $func->convert_archive_normalized();
