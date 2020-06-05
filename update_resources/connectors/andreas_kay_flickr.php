@@ -15,6 +15,7 @@ andreas_kay_flickr	Tuesday 2020-06-02 02:58:41 AM	{"agent.tab":1, "media_resourc
 andreas_kay_flickr	Thursday 2020-06-04 12:55:10 AM	{"agent.tab":1, "media_resource.tab":27836, "taxon.tab":3544, "time_elapsed":false}
 andreas_kay_flickr	Thursday 2020-06-04 12:55:34 AM	{"agent.tab":1, "media_resource.tab":27836, "taxon.tab":3308, "time_elapsed":{"sec":1287.22, "min":21.45, "hr":0.36}}
 
+Start to get licenses 1,2,4,5,7,9,10:
 andreas_kay_flickr	Thursday 2020-06-04 10:15:08 AM	{"agent.tab":1, "media_resource.tab":27847, "taxon.tab":3543, "time_elapsed":false}
 andreas_kay_flickr	Thursday 2020-06-04 10:15:32 AM	{"agent.tab":1, "media_resource.tab":27847, "taxon.tab":3309, "time_elapsed":{"sec":2550.15, "min":42.5, "hr":0.71}}
 */

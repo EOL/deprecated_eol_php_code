@@ -40,8 +40,13 @@ http://rs.gbif.org/terms/1.0/vernacularname: 4879
 544	Thursday 2019-12-26 02:01:54 AM	{"agent.tab":315, "media_resource.tab":16609, "taxon.tab":9715, "vernacular_name.tab":5257,"time_elapsed":{"sec":118.74,"min":1.98,"hr":0.03}}
 544	Tuesday 2020-06-02 01:38:33 PM	{"agent.tab":315, "media_resource.tab":16609, "taxon.tab":9715, "vernacular_name.tab":5257, "time_elapsed":{"sec":3289.44, "min":54.82, "hr":0.91}}
 
+Limbo stage:
 544	Thursday 2020-06-04 12:33:48 AM	{"agent.tab":88, "media_resource.tab":5981, "taxon.tab":6452, "vernacular_name.tab":1527, "time_elapsed":false}
 544	Thursday 2020-06-04 12:34:02 AM	{"agent.tab":88, "media_resource.tab":5981, "taxon.tab":4261, "vernacular_name.tab":1527, "time_elapsed":{"sec":1083.26, "min":18.05, "hr":0.3}}
+
+Start getting publicdomain as well:
+544	Friday 2020-06-05 12:34:53 AM	{"agent.tab":481, "media_resource.tab":24921, "taxon.tab":21917, "vernacular_name.tab":8101, "time_elapsed":false}
+544	Friday 2020-06-05 12:35:29 AM	{"agent.tab":481, "media_resource.tab":24921, "taxon.tab":12839, "vernacular_name.tab":8101, "time_elapsed":{"sec":78000.21, "min":1300, "hr":21.67}}
 
 */
 
