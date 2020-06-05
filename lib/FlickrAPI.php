@@ -348,7 +348,7 @@ class FlickrAPI
                 if($scientificName = @$taxon_parameters[0]["scientificName"]) {
                     if(!@$GLOBALS['taxa'][$scientificName]) $GLOBALS['taxa'][$scientificName] = array();
                     if(count(@$GLOBALS['taxa'][$scientificName]) >= $GLOBALS['max_photos_per_taxon']) {
-                        echo "\n Info: " . $scientificName . " has " . $GLOBALS['max_photos_per_taxon'] . " photos now \n";
+                        // echo "\n Info: " . $scientificName . " has " . $GLOBALS['max_photos_per_taxon'] . " photos now \n"; //good debug
                         // echo "\nreached 104 return\n";
                         return false;
                     }
