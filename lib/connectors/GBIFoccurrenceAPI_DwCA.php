@@ -13,36 +13,6 @@ that is mapped to EOL's (sciname, taxonConceptID)
 2.2. get taxonkey using scientific name
 2.3. use taxonkey to get the occurrence in CSV file (CSV created in 4.2)
 
----------------------------------------------------- DOI for the actual download:
-Animalia:
-https://www.gbif.org/occurrence/download/0004680-180730143533302
-https://www.gbif.org/occurrence/download/0012668-181003121212138    725,510,722 results http://api.gbif.org/v1/occurrence/download/request/0012668-181003121212138.zip
-----------------------------------------------------
-Plantae:
-https://www.gbif.org/occurrence/download/0004688-180730143533302
-https://www.gbif.org/occurrence/download/0012669-181003121212138    194,328,620 results http://api.gbif.org/v1/occurrence/download/request/0012669-181003121212138.zip
-----------------------------------------------------
-Other 7 groups:
-https://www.gbif.org/occurrence/download/0005724-180730143533302
-https://www.gbif.org/occurrence/download/0012209-181003121212138    24,543,817 results  http://api.gbif.org/v1/occurrence/download/request/0012209-181003121212138.zip
-----------------------------------------------------
-e.g.
-download URL:   http://api.gbif.org/v1/occurrence/download/request/0004645-180730143533302.zip
-DOI:            https://www.gbif.org/occurrence/download/0004645-180730143533302
-----------------------------------------------------
-May need to investigate, very big csv files. Before, I needed to delete these files and just use API option since I cannot solve the memory_limit error.
-May need to delete it again in next harvest or: the removal of file($csv) in place of FileIterator($csv) may already be good. We'll see...
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/38/c3/5135513.csv
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/39/39/2490384.csv
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/99/7b/2482077.csv
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/1e/3f/2480726.csv
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/f3/cd/2474393.csv
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/c2/dd/2480242.csv
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/2f/6f/2480320.csv - 477M | 499271387
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/67/a5/2481720.csv - 163M | 170778770
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/d6/8b/2481798.csv - 175M | 182543695 not deleted, will use when fixing memory leak prob.
-/extra/other_files/GBIF_occurrence/GBIF_taxa_csv_dwca/bb/4e/2481776.csv - 110M | 115239893
-----------------------------------------------------
 */
 class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downloads
 {
