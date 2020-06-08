@@ -209,9 +209,9 @@ class ResourceDataObjectElementsSetting
                 $dc = $taxon->children("http://purl.org/dc/elements/1.1/");
                 $dwc = $taxon->children("http://rs.tdwg.org/dwc/dwcore/");
                 $dcterms = $taxon->children("http://purl.org/dc/terms/");
-                // echo "\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName ."]"; //good debug
+                // debug("\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName ."]"); //good debug
                 if(!$taxon->dataObject) {
-                    echo " --- deleted \n";
+                    debug("\n " . $dc->identifier . " -- sciname: [" . $dwc->ScientificName ."]"." --- deleted \n"); //good debug
                     unset($dc->identifier);
                     unset($dc->source);
                     unset($dwc->Kingdom);
