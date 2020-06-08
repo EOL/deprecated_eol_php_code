@@ -760,8 +760,10 @@ class FlickrAPI
             $all_taxa = array_merge($all_taxa, $taxa);
             // if($i > 5) break; //debug - process just a subset and check the resource file...
         }
+
         ksort($GLOBALS['taxa']);
-        print_r($GLOBALS['taxa']);
+        // print_r($GLOBALS['taxa']); /* Good debug - first client is FLICKR_SMITHSONIAN_ID */
+        
         return $all_taxa;
     }
     public static function get_date_ranges($start_year, $month = NULL)
