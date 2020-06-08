@@ -56,12 +56,16 @@ Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml",
 // */
 
 //--------------
+echo "\nStartx [manual adjustment on some names]...\n";
 /* set rating to 2 */
 require_library('ResourceDataObjectElementsSetting');
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $func->set_data_object_rating_on_xml_document();
 
+$GLOBALS['ENV_DEBUG'] = true;
+
+echo "\nStartx set_data_object_rating_on_xml_document...\n";
 /* manual adjustment on some names */
 $xml = str_ireplace("<dwc:ScientificName>Lontra sp.or Lutra sp.</dwc:ScientificName>", "<dwc:ScientificName>Lontra sp.</dwc:ScientificName>", $xml);
 $xml = str_ireplace("<dwc:ScientificName>Sciurus igniventris_or_spadiceus</dwc:ScientificName>", "<dwc:ScientificName>Sciurus igniventris</dwc:ScientificName>", $xml);
@@ -70,8 +74,10 @@ $func->save_resource_document($xml);
 
 ////////////////// section below added in Jun 5, 2020 - convert XML to DwCA
 
+    echo "\nStartx gzip_resource_xml...\n";
     Functions::gzip_resource_xml($resource_id); //un-comment if you want to investigate 650.gz.xml, otherwise remain commented
 
+    echo "\nStartx call_xml_2_dwca...\n";
     //---------------------new start
     require_library('ResourceDataObjectElementsSetting');
     $nmnh = new ResourceDataObjectElementsSetting($resource_id);
