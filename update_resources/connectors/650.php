@@ -4,6 +4,17 @@ namespace php_active_record;
 execution time: 61 hours
 earliest upload: 2010-11-13
 earliest datetaken: 1900-01-01 00:00:00
+
+as of Feb 21, 2018
+    http://rs.gbif.org/terms/1.0/vernacularname:        Total: 2998
+    http://eol.org/schema/agent/agent:                  Total: 1
+    http://purl.org/dc/dcmitype/StillImage:             3038
+    http://creativecommons.org/licenses/by-nc-sa/2.0/:  3038
+        Total by language:                              en: 3038
+        Total by format:                                image/jpeg: 3038
+    http://rs.tdwg.org/dwc/terms/taxon:                 Total: 238
+
+650	Monday 2020-06-08 03:07:14 AM	{"agent.tab":1, "media_resource.tab":3068, "taxon.tab":236, "vernacular_name.tab":3030, "time_elapsed":{"sec":117.43, "min":1.96, "hr":0.03}}
 */
 
 ini_set('error_reporting', E_ALL);
