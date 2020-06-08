@@ -43,12 +43,20 @@ $months_to_be_broken_down = array(0 => array("year" => 2008, "month" => 4),
                                   8 => array("year" => 2010, "month" => 3));
 
 // query Flickr and write results to file
-FlickrAPI::get_photostream_photos($auth_token, $resource_file, $user_id, $start_year, $months_to_be_broken_down, $max_photos_per_taxon);
+FlickrAPI::get_photostream_photos($auth_token, $resource_file, $user_id, $start_year, $months_to_be_broken_down, $max_photos_per_taxon, $resource_id);
+
+
+$GLOBALS['ENV_DEBUG'] = true;
+echo "\nStart: At this point:\n";
+if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml")) echo "\nThere is: ".CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml"."\n";
+if(file_exists(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml")) echo "\nThere is: ".CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_temp.xml"."\n";
+echo "\nEnd: At this point:\n";
 
 // write the resource footer
 fwrite($resource_file, \SchemaDocument::xml_footer());
 fclose($resource_file);
 
+echo "\nStartx [file_rename]...\n";
 // cache the previous version and make this new version the current version
 @unlink(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
 Functions::file_rename(CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml", CONTENT_RESOURCE_LOCAL_PATH . $resource_id . "_previous.xml");
@@ -62,8 +70,6 @@ require_library('ResourceDataObjectElementsSetting');
 $resource_path = CONTENT_RESOURCE_LOCAL_PATH . $resource_id . ".xml";
 $func = new ResourceDataObjectElementsSetting($resource_id, $resource_path, 'http://purl.org/dc/dcmitype/StillImage', 2);
 $xml = $func->set_data_object_rating_on_xml_document();
-
-$GLOBALS['ENV_DEBUG'] = true;
 
 echo "\nStartx set_data_object_rating_on_xml_document...\n";
 /* manual adjustment on some names */
