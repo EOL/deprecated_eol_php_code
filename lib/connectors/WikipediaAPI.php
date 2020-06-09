@@ -25,10 +25,10 @@ class WikipediaAPI extends WikiHTMLAPI
         
         /* *** szl nv pnb br mrj nn hsb pms azb sco zh-yue ia oc qu koi frr udm ba an zh-min-nan sw te io kv csb fo os cv kab sah nds lmo pa wa vls gv wuu nah dsb kbd to mdf 
                li as olo mhr pcd vep se gn rue ckb bh myv scn dv pam xmf cdo bar nap lfn vo nds-nl bo stq inh lbe lij lez sa ace diq ce vec sc ln hak kw bcl za av chy fj ik zea
-               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv atj new rm ltg ext
+               bxr bjn arz mwl chr mai tcy szy mzn wo ab ban ay tyv atj new rm ltg ext kl nrm rn dty
                --> to avoid re-doing lookup_cache() knowing the remote won't respond */
         /*
-        $lang = 'ext';
+        $lang = 'dty';
         $trans['Page'][$lang] = "Page";
         $trans['Modified'][$lang] = "Modified";
         $trans['Retrieved'][$lang] = "Retrieved";
@@ -584,7 +584,39 @@ class WikipediaAPI extends WikiHTMLAPI
         $left = '<div id="mw-normal-catlinks"';         $html = self::process_left($html, $left);
         $left = '<div id="mw-hidden-catlinks"';         $html = self::process_left($html, $left);
 
+        //may need to put this here
+        $html = str_ireplace('href="//', 'href="http://', $html);
+
         /* -------------------------------------------- customized below -------------------------------------------- */
+        if($this->language_code == 'dty') { //
+            $html = self::process_external_links($html, 'बाइल्ला_सूत्रअन'); //external links
+        }
+        if($this->language_code == 'nrm') { //
+            $left = '<div style="font-family: Verdana, Arial, Helvetica, sans-serif; font-weight: normal;"';
+            $html = self::process_left($html, $left);
+            //infobox
+            $needle = 'style="float:right;margin-left:0.5em"';
+            $html = self::process_needle($html, $needle, true);
+        }
+        if($this->language_code == 'roa-rup') { //
+            //one-liner below
+            $left = 'Tu frândza aestâ ari textu di-tu'; $right = '</p>';
+            $html = $this->remove_all_in_between_inclusive($left, $right, $html, false);
+            //icon below
+            $left = '<a href="/wiki/Fi%C8%99ier:PD-icon.svg"'; $right = '</a>';
+            $html = $this->remove_all_in_between_inclusive($left, $right, $html, true);
+        }
+        if($this->language_code == 'kl') { //
+            //infobox
+            $needle = 'style="margin: 0 0 1em 1em; background: #f9f9f9; border: 1px #aaaaaa solid; border-collapse: collapse; font-size: 95%;"';
+            $html = self::process_needle($html, $needle, true);
+            //section below
+            $left = '<a href="/wiki/Fiileq:Wiki_letter_w.svg"'; $right = '</p>';
+            $html = $this->remove_all_in_between_inclusive($left, $right, $html, false);
+            //section below
+            $left = '<table style="width:auto; float:left; margin: 0 auto; border-collapse: collapse; background: #fafafa; border: 1px solid #e1e1e1; border-left: 10px solid #e1e1e1; padding: 0.25em 0.5em;"';
+            $html = self::process_left($html, $left);
+        }
         if($this->language_code == 'ext') { //
             $needle = 'style="width: 250px; margin: 0 0 0.5em 1.4em; float: right; clear: right; border: 1px #aaa solid; border-collapse: collapse;"';
             $html = self::process_needle($html, $needle, true);

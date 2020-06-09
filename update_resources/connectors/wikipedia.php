@@ -526,12 +526,13 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 
 (ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
 (ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
-(kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
 
+(kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
 (roa-rup) Aromanian         https://en.wikipedia.org/wiki/Aromanian_language *(rup)
-nrm	79
-rn	79
-dty	77
+(nrm) Norman                https://en.wikipedia.org/wiki/Norman_language
+(rn) Kirundi                https://en.wikipedia.org/wiki/Kirundi
+(dty) Doteli                https://en.wikipedia.org/wiki/Doteli
+
 hyw	72
 lo	72
 kg	70
