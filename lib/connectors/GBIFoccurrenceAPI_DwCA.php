@@ -340,7 +340,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function get_dataset_field($datasetKey, $return_field)
     {
         $options = $this->download_options;
-        $options['expire_seconds'] = false;
+        $options['expire_seconds'] = false; //should always be false, unless dataset info changes alot. e.g. http://api.gbif.org/v1/dataset/e9b63688-ed8d-4be8-aa35-89646d887a5e
         if($datasetKey && $json = Functions::lookup_with_cache($this->api['dataset'].$datasetKey, $options)) {
             $obj = json_decode($json);
             if(!isset($obj->$return_field)) { //debug only
