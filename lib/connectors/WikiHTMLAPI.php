@@ -605,6 +605,53 @@ class WikiHTMLAPI
         if($this->debug_taxon == "Profelis aurata") {$arr = $this->get_object('Q192231'); $arr = $arr->entities->Q192231;}
         if($this->debug_taxon == "Prionailurus planiceps") {$arr = $this->get_object('Q274177'); $arr = $arr->entities->Q274177;}
         if($this->debug_taxon == "Neofelis diardi") {$arr = $this->get_object('Q275163'); $arr = $arr->entities->Q275163;}
+        //lang kl
+        if($this->debug_taxon == "Monodon monoceros") {$arr = $this->get_object('Q159426'); $arr = $arr->entities->Q159426;}
+        if($this->debug_taxon == "Rhodiola rosea") {$arr = $this->get_object('Q161665'); $arr = $arr->entities->Q161665;}
+        if($this->debug_taxon == "Leporidae") {$arr = $this->get_object('Q25900'); $arr = $arr->entities->Q25900;}
+        if($this->debug_taxon == "Branta leucopsis") {$arr = $this->get_object('Q26680'); $arr = $arr->entities->Q26680;}
+        if($this->debug_taxon == "Nematocera") {$arr = $this->get_object('Q27605'); $arr = $arr->entities->Q27605;}
+        if($this->debug_taxon == "Hippopotamus amphibius") {$arr = $this->get_object('Q34505'); $arr = $arr->entities->Q34505;}
+        if($this->debug_taxon == "Odobenus rosmarus") {$arr = $this->get_object('Q40994'); $arr = $arr->entities->Q40994;}
+        if($this->debug_taxon == "Canis lupus arctos") {$arr = $this->get_object('Q216441'); $arr = $arr->entities->Q216441;}
+        if($this->debug_taxon == "Branta bernicla") {$arr = $this->get_object('Q27050'); $arr = $arr->entities->Q27050;}
+        if($this->debug_taxon == "Physeter macrocephalus") {$arr = $this->get_object('Q81214'); $arr = $arr->entities->Q81214;}
+        if($this->debug_taxon == "Salvelinus alpinus") {$arr = $this->get_object('Q421047'); $arr = $arr->entities->Q421047;}
+        if($this->debug_taxon == "Gossypium") {$arr = $this->get_object('Q719312'); $arr = $arr->entities->Q719312;}
+        if($this->debug_taxon == "Vermilingua") {$arr = $this->get_object('Q972452'); $arr = $arr->entities->Q972452;}
+        if($this->debug_taxon == "Somniosus microcephalus") {$arr = $this->get_object('Q370444'); $arr = $arr->entities->Q370444;}
+        if($this->debug_taxon == "Sorbus groenlandica") {$arr = $this->get_object('Q17240531'); $arr = $arr->entities->Q17240531;}
+        //lang dty
+        if($this->debug_taxon == "Clangula hyemalis") {$arr = $this->get_object('Q26597'); $arr = $arr->entities->Q26597;}
+        if($this->debug_taxon == "Portulaca grandiflora") {$arr = $this->get_object('Q159547'); $arr = $arr->entities->Q159547;}
+        if($this->debug_taxon == "Ixobrychus cinnamomeus") {$arr = $this->get_object('Q204111'); $arr = $arr->entities->Q204111;}
+        if($this->debug_taxon == "Ardeola grayii") {$arr = $this->get_object('Q498428'); $arr = $arr->entities->Q498428;}
+        if($this->debug_taxon == "Mycteria leucocephala") {$arr = $this->get_object('Q631805'); $arr = $arr->entities->Q631805;}
+        if($this->debug_taxon == "Gyps tenuirostris") {$arr = $this->get_object('Q862806'); $arr = $arr->entities->Q862806;}
+        if($this->debug_taxon == "Aythya ferina") {$arr = $this->get_object('Q26742'); $arr = $arr->entities->Q26742;}
+        if($this->debug_taxon == "Carica papaya") {$arr = $this->get_object('Q34887'); $arr = $arr->entities->Q34887;}
+        if($this->debug_taxon == "Aethopyga siparaja") {$arr = $this->get_object('Q73760'); $arr = $arr->entities->Q73760;}
+        if($this->debug_taxon == "Aquila nipalensis") {$arr = $this->get_object('Q179359'); $arr = $arr->entities->Q179359;}
+        if($this->debug_taxon == "Pelecanus philippensis") {$arr = $this->get_object('Q180360'); $arr = $arr->entities->Q180360;}
+        if($this->debug_taxon == "Lophophorus impejanus") {$arr = $this->get_object('Q742818'); $arr = $arr->entities->Q742818;}
+        if($this->debug_taxon == "Ixobrychus flavicollis") {$arr = $this->get_object('Q888559'); $arr = $arr->entities->Q888559;}
+        if($this->debug_taxon == "Lagerstroemia indica") {$arr = $this->get_object('Q1148692'); $arr = $arr->entities->Q1148692;}
+        if($this->debug_taxon == "Turdoides affinis") {$arr = $this->get_object('Q1590643'); $arr = $arr->entities->Q1590643;}
+        //lang rn
+        if($this->debug_taxon == "Lamprichthys tanganicanus") {$arr = $this->get_object('Q129639'); $arr = $arr->entities->Q129639;}
+        if($this->debug_taxon == "Python sebae") {$arr = $this->get_object('Q764797'); $arr = $arr->entities->Q764797;}
+        if($this->debug_taxon == "Pan troglodytes") {$arr = $this->get_object('Q4126704'); $arr = $arr->entities->Q4126704;}
+        if($this->debug_taxon == "Otiophora rupicola") {$arr = $this->get_object('Q15481439'); $arr = $arr->entities->Q15481439;}
+        if($this->debug_taxon == "Habenaria lewallei") {$arr = $this->get_object('Q15482441'); $arr = $arr->entities->Q15482441;}
+        if($this->debug_taxon == "Acampe cephalotes") {$arr = $this->get_object('Q15500941'); $arr = $arr->entities->Q15500941;}
+        if($this->debug_taxon == "Aa fiebrigii") {$arr = $this->get_object('Q15588968'); $arr = $arr->entities->Q15588968;}
+        if($this->debug_taxon == "Lycaon pictus") {$arr = $this->get_object('Q173651'); $arr = $arr->entities->Q173651;}
+        if($this->debug_taxon == "Redunca redunca") {$arr = $this->get_object('Q548442'); $arr = $arr->entities->Q548442;}
+        if($this->debug_taxon == "Acampe rigida") {$arr = $this->get_object('Q3336674'); $arr = $arr->entities->Q3336674;}
+        if($this->debug_taxon == "Drymaria") {$arr = $this->get_object('Q3802353'); $arr = $arr->entities->Q3802353;}
+        if($this->debug_taxon == "Polystachya couloniana") {$arr = $this->get_object('Q15444007'); $arr = $arr->entities->Q15444007;}
+        if($this->debug_taxon == "Diaphananthe arbonnieri") {$arr = $this->get_object('Q15449289'); $arr = $arr->entities->Q15449289;}
+        if($this->debug_taxon == "Bulbostylis nemoides") {$arr = $this->get_object('Q15560927'); $arr = $arr->entities->Q15560927;}
         return $arr;
     }
 }

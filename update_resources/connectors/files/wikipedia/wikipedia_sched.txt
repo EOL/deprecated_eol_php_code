@@ -51,9 +51,12 @@ ja  ko  ru  pt
                                     tk      ban       atj
                                     tcy     ay        new
                                     szy     tyv       fiu-vro
-                                                      mg
-                                                      rm
-                                                      ltg
+                                    ext               mg
+                                    kl                rm
+                                    roa-rup           ltg
+                                    nrm
+                                    rn
+                                    dty
 
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
@@ -1269,9 +1272,25 @@ wikipedia_combined_languages_batch2	Friday 2020-05-29 05:58:59 AM	{"media_resour
 
 xxx
 
+wikipedia-ext	Tuesday 2020-06-09 06:38:30 AM	{"media_resource.tab":142, "taxon.tab":400, "time_elapsed":{"sec":1436.18, "min":23.94, "hr":0.4}}
+wikipedia-kl	Tuesday 2020-06-09 07:05:36 AM	{"media_resource.tab":42, "taxon.tab":220, "time_elapsed":{"sec":1615.61, "min":26.93, "hr":0.45}}
+wikipedia-roa-rup	Tuesday 2020-06-09 07:31:16 AM	{"media_resource.tab":99, "taxon.tab":383, "time_elapsed":{"sec":1531.21, "min":25.52, "hr":0.43}}
+wikipedia-nrm	Tuesday 2020-06-09 07:56:05 AM	{"media_resource.tab":124, "taxon.tab":383, "time_elapsed":{"sec":1479.51, "min":24.66, "hr":0.41}}
+wikipedia-rn	Tuesday 2020-06-09 08:22:06 AM	{"media_resource.tab":79, "taxon.tab":343, "time_elapsed":{"sec":1550.66, "min":25.84, "hr":0.43}}
+wikipedia-dty	Tuesday 2020-06-09 08:54:48 AM	{"media_resource.tab":67, "taxon.tab":271, "time_elapsed":{"sec":1953.22, "min":32.55, "hr":0.54}}
+
+
+Yes, I'm down to the last 6:
+- wikipedia-ext
+- wikipedia-kl
+- wikipedia-roa-rup
+- wikipedia-nrm
+- wikipedia-rn
+- wikipedia-dty
+
 
 last one:
-wikipedia-ltg	Monday 2020-06-01 06:19:11 AM	{"media_resource.tab":150, "taxon.tab":253, "time_elapsed":{"sec":850.48, "min":14.17, "hr":0.24}}
+wikipedia-dty	Tuesday 2020-06-09 08:54:48 AM	{"media_resource.tab":67, "taxon.tab":271, "time_elapsed":{"sec":1953.22, "min":32.55, "hr":0.54}}
 
 
 

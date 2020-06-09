@@ -615,6 +615,15 @@ class WikiDataAPI extends WikipediaAPI
                     $rek = array();
                      // /*
                      $rek['taxon_id'] = trim((string) $arr->id);
+                     
+                     if($this->what == "wikipedia") { //per https://eol-jira.bibalex.org/browse/DATA-1800?focusedCommentId=64902&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64902
+                         if($this->language_code == 'mg') { //Malagasy (mg)
+                             if($rek['taxon_id'] == 'Q43365') { //homonym issue
+                                 continue;
+                             }
+                         }
+                     }
+                     
                      // if($rek['taxon_id'] != 'Q11988878') continue; //Feb 13 good debug
                      // echo "\n id: ".$rek['taxon_id']; //Feb 13 good debug
                      if($rek['taxon'] = self::get_taxon_name($arr)) { //old working param is $arr->claims
