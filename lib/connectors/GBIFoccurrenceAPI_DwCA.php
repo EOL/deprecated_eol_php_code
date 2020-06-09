@@ -285,7 +285,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             $i = 0;
             foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
                 $i++;
-                if(($i % 200000) == 0) echo number_format($i) . "[$path] ";
+                // if(($i % 500000) == 0) echo "\n".number_format($i) . "[$path]"; //good debug, but transferred below
                 if($i == 1) $line = strtolower($line);
                 $row = explode("\t", $line);
                 if($i == 1) {
@@ -312,6 +312,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                         $k++;
                     }
                 }
+                if(($i % 500000) == 0) echo "\n".number_format($i) . "[$path]";
                 // print_r($rec); exit("\nstopx\n");
                 if(!@$rec['taxonkey']) continue;
                 $taxonkey = $rec['taxonkey'];
