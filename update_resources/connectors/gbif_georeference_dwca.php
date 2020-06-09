@@ -17,7 +17,8 @@ https://www.gbif.org/occurrence/download/0004680-180730143533302 | 8 August 2018
 https://www.gbif.org/occurrence/download/0012668-181003121212138 | 25 October 2018 - 725,537,711 occurrences downloaded
 725,510,722 results http://api.gbif.org/v1/occurrence/download/request/0012668-181003121212138.zip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
+https://www.gbif.org/occurrence/download/0081142-200221144449610 | 8 June 2020 - 1,031,353,123 occurrences downloaded
+http://api.gbif.org/v1/occurrence/download/request/0081142-200221144449610.zip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
@@ -28,6 +29,8 @@ https://www.gbif.org/occurrence/download/0004688-180730143533302 | 8 August 2018
 https://www.gbif.org/occurrence/download/0012669-181003121212138 | 25 October 2018 - 194,322,504 occurrences downloaded
 194,328,620 results http://api.gbif.org/v1/occurrence/download/request/0012669-181003121212138.zip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+https://www.gbif.org/occurrence/download/0081144-200221144449610 | 8 June 2020 - 239,862,739 occurrences downloaded
+http://api.gbif.org/v1/occurrence/download/request/0081144-200221144449610.zip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ****************************************************************
@@ -37,6 +40,8 @@ https://www.gbif.org/occurrence/download/0005724-180730143533302 | 12 August 201
 https://www.gbif.org/occurrence/download/0012209-181003121212138 | 24 October 2018 - 62,347,253 occurrences downloaded
 24,543,817 results  http://api.gbif.org/v1/occurrence/download/request/0012209-181003121212138.zip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+https://www.gbif.org/occurrence/download/0081146-200221144449610 | 8 June 2020 - 44,610,800 occurrences downloaded
+http://api.gbif.org/v1/occurrence/download/request/0081146-200221144449610.zip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ===================================================================================================================
