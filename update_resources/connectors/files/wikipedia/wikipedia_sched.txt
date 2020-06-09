@@ -58,12 +58,18 @@ ja  ko  ru  pt
                 probably needs to have multiple connectors: hu szl eu (or don't)
                 $use_MultipleConnJenkinsAPI = array("min", "war", "ceb", "id");
 
+                (ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
+                (kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
+                (roa-rup) Aromanian         https://en.wikipedia.org/wiki/Aromanian_language *(rup)
+                (nrm) Norman                https://en.wikipedia.org/wiki/Norman_language
+                (rn) Kirundi                https://en.wikipedia.org/wiki/Kirundi
+                (dty) Doteli                https://en.wikipedia.org/wiki/Doteli
+
                 (fiu-vro) Voro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
                 (mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
                 (rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
                 (ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
 
-                
                 (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
                 (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
                 
@@ -72,7 +78,6 @@ ja  ko  ru  pt
                 (ban) Balinese              https://en.wikipedia.org/wiki/Balinese_language
                 (ay) Aymara                 https://en.wikipedia.org/wiki/Aymara_language
                 (tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
-                
                 
                 (mwl) Mirandese             https://en.wikipedia.org/wiki/Mirandese_language
                 (sn) Shona                  https://en.wikipedia.org/wiki/Shona_language
