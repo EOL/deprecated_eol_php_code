@@ -37,7 +37,7 @@ else {
     exit(1);
 }
 
-function are_all_indicator_files_deletedYN($rank)
+function are_all_indicator_files_deletedYN($group)
 {
     $filename = CONTENT_RESOURCE_LOCAL_PATH . "map_breakdown_".$group."_"."COUNTER".".txt";
     for($i = 1; $i <= 6; $i++) {

@@ -49,7 +49,6 @@ https://www.gbif.org/occurrence/download/0081142-200221144449610 | 8 June 2020 -
 http://api.gbif.org/v1/occurrence/download/request/0081142-200221144449610.zip
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
 ****************************************************************
 Plantae:
 https://www.gbif.org/occurrence/download/0004688-180730143533302 | 8 August 2018 - 183,255,036 occurrences downloaded
