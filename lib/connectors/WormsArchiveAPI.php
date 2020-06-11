@@ -1033,7 +1033,8 @@ class WormsArchiveAPI
         }//end foreach
     }
     private function get_uri_from_value($val, $what, $what2)
-    {   $orig = $val;
+    {   if(is_numeric($val)) return $val;
+        $orig = $val;
         $val = trim(strtolower($val));
         if($uri = @$this->value_uri_map[$val]) return $uri;
         elseif($uri = @$this->value_uri_map[$orig]) return $uri;
@@ -1118,10 +1119,7 @@ class WormsArchiveAPI
         echo "\nURIs total: ".count($final)."\n";
         print_r($final['Europe']);
         echo "\n-end test block-\n";
-        
-        // if(@$final[1]) exit("\nditox eli ditox\n");
-        // else exit("\nok na ito\n");
-        
+        /* if(@$final[1]) exit("\nCannot have 1 or any numeric value as index. Cause for investigation.\n"); */
         return $final;
     }
     private function csv2array($url, $type)
