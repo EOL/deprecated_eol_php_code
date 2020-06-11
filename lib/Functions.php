@@ -521,6 +521,7 @@ class Functions
         */
         // /* Seems the initial EOL V3 interface is now back online.
         $ret = self::get_eol_defined_uris_v2($download_options, $directionOpposite);
+        $ret = self::manual_fix_uris($ret);
         return $ret;
         // */
         
@@ -572,6 +573,21 @@ class Functions
             }
         }
         return $final;
+    }
+    private function manual_fix_uris($arr) //exclude these type of entries: e.g. [18075] => http://marineregions.org/mrgid/18075 (seems an old URI implementation in eol.org)
+    {
+        foreach($arr as $key => $val) {
+            if(substr($val,0,31) == 'http://marineregions.org/mrgid/') {
+                // print_r(pathinfo($val)); exit;
+                /* Array(
+                    [dirname] => http://marineregions.org/mrgid
+                    [basename] => 18075
+                    [filename] => 18075
+                )*/
+                if($key == pathinfo($val, PATHINFO_BASENAME)) unset($arr[$key]);
+            }
+        }
+        return $arr;
     }
     public static function get_undefined_uris_from_resource($resource_id)
     {

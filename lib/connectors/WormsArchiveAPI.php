@@ -1081,6 +1081,8 @@ class WormsArchiveAPI
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
+        /* good debug
+        if(@$mappings[1] == "http://marineregions.org/mrgid/18075") { print_r($mappings); exit("-huli ka dito pala-"); } */
         $uris = Functions::additional_mappings($mappings, 0); //add more mappings used in the past. 2nd param is expire_seconds
         // print_r($uris); exit;
         echo "\nURIs total: ".count($uris)."\n";
