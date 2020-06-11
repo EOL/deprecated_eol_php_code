@@ -915,6 +915,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 }
             }
             fclose($fhandle);
+            //file backup
+            $date = date('Y-m-d'); //e.g. 1972-07-13
+            $destination = str_replace('final_taxon_concept_IDS', "final_taxon_concept_IDS_".$date, $text_file);
+            copy($text_file, $destination);
         }
         else echo "\nFile access error: [$text_file]\n";
         echo "\n--end taxon_concept_IDs total with map data: [$i]--\n";
