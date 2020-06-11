@@ -1114,10 +1114,14 @@ class WormsArchiveAPI
         unlink($local);
         
         $additional_mappings = self::initialize_mapping();
-        $final = array_merge($additional_mappings, $final);
+        $final = $additional_mappings + $final;
         echo "\nURIs total: ".count($final)."\n";
         print_r($final['Europe']);
         echo "\n-end test block-\n";
+        
+        // if(@$final[1]) exit("\nditox eli ditox\n");
+        // else exit("\nok na ito\n");
+        
         return $final;
     }
     private function csv2array($url, $type)

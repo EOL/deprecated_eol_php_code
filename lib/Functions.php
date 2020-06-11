@@ -574,8 +574,14 @@ class Functions
         }
         return $final;
     }
-    private function manual_fix_uris($arr) //exclude these type of entries: e.g. [18075] => http://marineregions.org/mrgid/18075 (seems an old URI implementation in eol.org)
+    private static function manual_fix_uris($arr) //exclude these type of entries: e.g. [18075] => http://marineregions.org/mrgid/18075 (seems an old URI implementation in eol.org)
     {
+        // if(@$arr[1]) {
+        //     print_r($arr);
+        //     exit("\nhuli ka\n");
+        // }
+        // else exit("\nwala\n");
+        
         foreach($arr as $key => $val) {
             if(substr($val,0,31) == 'http://marineregions.org/mrgid/') {
                 // print_r(pathinfo($val)); exit;
@@ -2551,38 +2557,44 @@ class Functions
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
         $uri_values = $func->add_additional_mappings(true, false, $expire_seconds); //add country mappings used in Tropicos
-        $mappings = array_merge($mappings, $uri_values);
+        $mappings = $mappings + $uri_values;
         echo "\n".count($mappings)." - URIs were added from Tropicos. \n";
+        // if(@$mappings[1]) exit("\nditox 1\n");
         
         //add mappings specific to this resource: Turbellaria (185)
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = array_merge($mappings, $uri_values);
+        $mappings = $mappings + $uri_values;
         echo "\n".count($mappings)." - URIs were added from Turbellarian (185). \n";
+        // if(@$mappings[1]) exit("\nditox 2\n");
         
         //add mappings specific to this resource: GISD 751
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt"; /* Included other mappings from other resources */
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds); //orig value not 0 but 60*60*24
-        $mappings = array_merge($mappings, $uri_values);
+        $mappings = $mappings + $uri_values;
         echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
+        // if(@$mappings[1]) exit("\nditox 3\n");
         
         //add mappings from CABI ISC (760)
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/mapped_locations.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = array_merge($mappings, $uri_values);
+        $mappings = $mappings + $uri_values;
         echo "\n".count($mappings)." - URIs were added from CABI ISC (760). \n";
+        // if(@$mappings[1]) exit("\nditox 4\n");
         
         //from COLDataAPI.php
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CatalogueOfLife/CoLMissingGeoTerms.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = array_merge($mappings, $uri_values);
+        $mappings = $mappings + $uri_values;
         echo "\n".count($mappings)." - URIs were added from COLDataAPI.php. \n";
+        // if(@$mappings[1]) exit("\nditox 5\n");
 
         //from FishBaseArchiveAPI.php
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/mapped_locations.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = array_merge($mappings, $uri_values);
+        $mappings = $mappings + $uri_values;
         echo "\n".count($mappings)." - URIs were added from FishBaseArchiveAPI.php. \n";
+        // if(@$mappings[1]) exit("\nditox 6\n");
         
         /* START DATA-1841 terms remapping */
         echo "\n'Cura ao' OLD: ".$mappings['Cura ao']."\n"; //old value is: http://www.wikidata.org/entity/Q25279
@@ -2595,6 +2607,8 @@ class Functions
         echo "\nmappings: ".count($mappings)."\n";
         if($mappings['Cura ao'] == 'http://www.geonames.org/7626836') echo "\nRemapping OK. 'Cura ao' NEW: ".$mappings['Cura ao']."\n"; //new value should be http://www.geonames.org/7626836
         /* END DATA-1841 terms remapping */
+        // if(@$mappings[1]) exit("\nditox 7\n");
+        // else exit("\nOK\n");
         return $mappings;
     }
     public static function get_Flickr_user_id_from_url($url) //e.g. $url "http://flickr.com/photos/64684201@N00/291506502/"
