@@ -128,6 +128,9 @@ class WormsArchiveAPI
     {   /* tests
         $ids = self::get_branch_ids_to_prune(); print_r($ids); exit;
         */
+        /* tests
+        self::initialize_mapping(); exit;
+        */
         $temp = CONTENT_RESOURCE_LOCAL_PATH . "26_files";
         if(!file_exists($temp)) mkdir($temp);
         $this->what = $what; //either 'taxonomy' or 'media_objects'
