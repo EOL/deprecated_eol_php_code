@@ -500,38 +500,31 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/repor
 * (bjn) Banjar                https://en.wikipedia.org/wiki/Banjar_language (bjn or bvu)
 * (so) Somali                 https://en.wikipedia.org/wiki/Somali_language
 
-(zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese     *(lzh)
-(mwl) Mirandese                     https://en.wikipedia.org/wiki/Mirandese_language
-(sn) Shona                          https://en.wikipedia.org/wiki/Shona_language
-(mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
-(chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
-(tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
-(szy) Sakizaya              https://en.wikipedia.org/wiki/Sakizaya_language
-
-
-(ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
-(tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
-(wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
-
-(ban) Balinese              https://en.wikipedia.org/wiki/Balinese_language
-(ay) Aymara                 https://en.wikipedia.org/wiki/Aymara_language
-
-(tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
-(atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
-
-(new) Newar                 https://en.wikipedia.org/wiki/Newar_language
-(fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language    *(vro)
-(mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
-(rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
-
-(ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
-(ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
-
-(kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
-(roa-rup) Aromanian         https://en.wikipedia.org/wiki/Aromanian_language *(rup)
-(nrm) Norman                https://en.wikipedia.org/wiki/Norman_language
-(rn) Kirundi                https://en.wikipedia.org/wiki/Kirundi
-(dty) Doteli                https://en.wikipedia.org/wiki/Doteli
+* (zh-classical) Classical Chinese    https://en.wikipedia.org/wiki/Classical_Chinese *(lzh)
+* (mwl) Mirandese                     https://en.wikipedia.org/wiki/Mirandese_language
+* (sn) Shona                          https://en.wikipedia.org/wiki/Shona_language
+* (mai) Maithili              https://en.wikipedia.org/wiki/Maithili_language
+* (chr) Cherokee              https://en.wikipedia.org/wiki/Cherokee_language
+* (tk) Turkmen                https://en.wikipedia.org/wiki/Turkmen_language
+* (szy) Sakizaya              https://en.wikipedia.org/wiki/Sakizaya_language
+* (ab) Abkhazian              https://en.wikipedia.org/wiki/Abkhaz_language
+* (tcy) Tulu                  https://en.wikipedia.org/wiki/Tulu_language
+* (wo) Wolof                  https://en.wikipedia.org/wiki/Wolof_language
+* (ban) Balinese              https://en.wikipedia.org/wiki/Balinese_language
+* (ay) Aymara                 https://en.wikipedia.org/wiki/Aymara_language
+* (tyv) Tuvan                 https://en.wikipedia.org/wiki/Tuvan_language
+* (atj) Atikamekw             https://en.wikipedia.org/wiki/Atikamekw_language
+* (new) Newar                 https://en.wikipedia.org/wiki/Newar_language
+* (fiu-vro) Võro              https://en.wikipedia.org/wiki/V%C3%B5ro_language *(vro)
+* (mg) Malagasy               https://en.wikipedia.org/wiki/Malagasy_language
+* (rm) Romansh                https://en.wikipedia.org/wiki/Romansh_language
+* (ltg) Latgalian             https://en.wikipedia.org/wiki/Latgalian_language
+* (ext) Extremaduran          https://en.wikipedia.org/wiki/Extremaduran_language
+* (kl) Greenlandic            https://en.wikipedia.org/wiki/Greenlandic_language
+* (roa-rup) Aromanian         https://en.wikipedia.org/wiki/Aromanian_language *(rup)
+* (nrm) Norman                https://en.wikipedia.org/wiki/Norman_language
+* (rn) Kirundi                https://en.wikipedia.org/wiki/Kirundi
+* (dty) Doteli                https://en.wikipedia.org/wiki/Doteli
 
 hyw	72
 lo	72

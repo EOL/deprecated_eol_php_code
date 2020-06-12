@@ -76,8 +76,20 @@ Start where MoF records with parents in 26_undefined_parentMeasurementIDs.txt wi
 26	Monday 2020-03-02 09:28:04 AM	{"agent.tab":1644, "measurement_or_fact_specific.tab":3405872, "media_resource.tab":86519, "occurrence_specific.tab":2106782, "reference.tab":641496, "taxon.tab":353383, "vernacular_name.tab":79240, "time_elapsed":false}
 Expected reduced no. of MoF and Occurrence --- so consistent OK
 26	Thursday 2020-03-19 12:04:40 PM	{"agent.tab":1644, "measurement_or_fact_specific.tab":3374264, "media_resource.tab":86519, "occurrence_specific.tab":2082560, "reference.tab":641496, "taxon.tab":353383, "vernacular_name.tab":79240, "time_elapsed":false}
+Batches of 2 rows:
+26	Friday 2020-06-12 01:22:50 AM	{"agent.tab":1664, "measurement_or_fact_specific.tab":3417987, "media_resource.tab":87379, "occurrence_specific.tab":2121662, "reference.tab":648535, "taxon.tab":355711, "vernacular_name.tab":80309, "time_elapsed":{"sec":3890.43, "min":64.84, "hr":1.08}}
+26	Friday 2020-06-12 02:14:25 AM	{"agent.tab":1664, "measurement_or_fact_specific.tab":3414249, "media_resource.tab":87379, "occurrence_specific.tab":2121662, "reference.tab":648535, "taxon.tab":355711, "vernacular_name.tab":80309, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+
+// $a['eli'] = '222';
+// // $a[201306015586596728] = "http://purl.jp/bio/4/id/201306015586596728";
+// $b['eli'] = '2s2s2s';
+// // $b['kk'] = 'kkk';
+// // $b[2] = '333';
+// // $c = $a + $b;
+// $c = array_merge($a, $b);
+// print_r($c); exit("\n-end-\n");
 
 /* testing...
 $id = 1;
