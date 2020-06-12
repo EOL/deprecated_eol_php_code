@@ -303,6 +303,12 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                         $cont = false;
                         if($i >= $range_from && $i < $range_to) $cont = true;
                         if(!$cont) continue;
+                        
+                        //newly added:
+                        if($i >= $range_to) {
+                            echo "\nHave now reached upper limit [$range_to]. Will end loop\n";
+                            break;
+                        }
                     }
                     // */ ----------------------------------------------------
                     
