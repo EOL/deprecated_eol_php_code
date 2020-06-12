@@ -574,15 +574,15 @@ class Functions
         }
         return $final;
     }
-    private static function manual_fix_uris($arr) //exclude these type of entries: e.g. [18075] => http://marineregions.org/mrgid/18075 (seems an old URI implementation in eol.org)
+    private static function manual_fix_uris($arr)
     {
         // if(@$arr[1]) {
         //     print_r($arr);
         //     exit("\nhuli ka\n");
         // }
         // else exit("\nwala\n");
-        
         foreach($arr as $key => $val) {
+            /* exclude these type of entries: e.g. [18075] => http://marineregions.org/mrgid/18075 (seems an old URI implementation in eol.org) */
             if(substr($val,0,31) == 'http://marineregions.org/mrgid/') {
                 // print_r(pathinfo($val)); exit;
                 /* Array(
@@ -592,6 +592,9 @@ class Functions
                 )*/
                 if($key == pathinfo($val, PATHINFO_BASENAME)) unset($arr[$key]);
             }
+            
+            /*exclude: $a['male'] = 'male' */
+            if($key == $val) unset($arr[$key]); //echo "\n- [$key][$val]\n";
         }
         return $arr;
     }
@@ -692,7 +695,7 @@ class Functions
                                     $value = $arr[1][1];
                                     $value = str_replace("&amp;", "&", $value);
                                 }
-                                $final[$index] = $value;
+                                if($index != $value) $final[$index] = $value;
                             }
                         }
                     }
@@ -2554,47 +2557,48 @@ class Functions
     }
     public static function additional_mappings($mappings, $expire_seconds = 60*60*24*25) //additional mappings from other resources, used in other connectors
     {
+        // if(@$mappings['male'] == 'male') exit("\nditox 0\n"); //debug
         require_library('connectors/TropicosArchiveAPI');
         $func = new TropicosArchiveAPI(NULL);
         $uri_values = $func->add_additional_mappings(true, false, $expire_seconds); //add country mappings used in Tropicos
-        $mappings = $mappings + $uri_values;
+        $mappings = self::add_two_arrays($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from Tropicos. \n";
-        // if(@$mappings[1]) exit("\nditox 1\n");
+        // if(@$mappings['male'] == 'male') exit("\nditox 1\n"); //debug
         
         //add mappings specific to this resource: Turbellaria (185)
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/Turbellaria/unmapped_countries%202%202.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = $mappings + $uri_values;
+        $mappings = self::add_two_arrays($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from Turbellarian (185). \n";
-        // if(@$mappings[1]) exit("\nditox 2\n");
+        // if(@$mappings['male'] == 'male') exit("\nditox 2\n"); //debug
         
         //add mappings specific to this resource: GISD 751
         $url = "https://raw.githubusercontent.com/eliagbayani/EOL-connector-data-files/master/GISD/mapped_location_strings.txt"; /* Included other mappings from other resources */
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds); //orig value not 0 but 60*60*24
-        $mappings = $mappings + $uri_values;
+        $mappings = self::add_two_arrays($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from GISD (751). \n";
-        // if(@$mappings[1]) exit("\nditox 3\n");
+        // if(@$mappings['male'] == 'male') exit("\nditox 3\n"); //debug
         
         //add mappings from CABI ISC (760)
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Invasive%20Species%20Compendium/mapped_locations.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = $mappings + $uri_values;
+        $mappings = self::add_two_arrays($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from CABI ISC (760). \n";
-        // if(@$mappings[1]) exit("\nditox 4\n");
+        // if(@$mappings['male'] == 'male') exit("\nditox 4\n"); //debug
         
         //from COLDataAPI.php
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/CatalogueOfLife/CoLMissingGeoTerms.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = $mappings + $uri_values;
+        $mappings = self::add_two_arrays($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from COLDataAPI.php. \n";
-        // if(@$mappings[1]) exit("\nditox 5\n");
+        // if(@$mappings['male'] == 'male') exit("\nditox 5\n"); //debug
 
         //from FishBaseArchiveAPI.php
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/FishBase/mapped_locations.txt";
         $uri_values = $func->add_additional_mappings(true, $url, $expire_seconds);
-        $mappings = $mappings + $uri_values;
+        $mappings = self::add_two_arrays($mappings, $uri_values);
         echo "\n".count($mappings)." - URIs were added from FishBaseArchiveAPI.php. \n";
-        // if(@$mappings[1]) exit("\nditox 6\n");
+        // if(@$mappings['male'] == 'male') exit("\nditox 6\n"); //debug
         
         /* START DATA-1841 terms remapping */
         echo "\n'Cura ao' OLD: ".$mappings['Cura ao']."\n"; //old value is: http://www.wikidata.org/entity/Q25279
@@ -2607,9 +2611,26 @@ class Functions
         echo "\nmappings: ".count($mappings)."\n";
         if($mappings['Cura ao'] == 'http://www.geonames.org/7626836') echo "\nRemapping OK. 'Cura ao' NEW: ".$mappings['Cura ao']."\n"; //new value should be http://www.geonames.org/7626836
         /* END DATA-1841 terms remapping */
-        // if(@$mappings[1]) exit("\nditox 7\n");
+        // if(@$mappings['male'] == 'male') exit("\nditox 7\n"); //debug
         // else exit("\nOK\n");
+        
+        echo "\nBosnia and Herzegovina: ".$mappings['Bosnia and Herzegovina']."\n";
+        echo "\nAntarctic: ".$mappings['Antarctic']."\n";
         return $mappings;
+    }
+    private static function add_two_arrays($arr1, $arr2)
+    {
+        foreach($arr2 as $key => $val_from_arr2) {
+            if($val_from_arr1 = @$arr1[$key]) {
+                if($val_from_arr1 != $val_from_arr2) unset($arr1[$key]);
+            }
+        }
+        foreach($arr2 as $key => $val_from_arr2) {
+            if($val_from_arr1 = @$arr1[$key]) {
+                if($val_from_arr1 != $val_from_arr2) echo "\ncommon key[$key] 2 values:[$val_from_arr1][$val_from_arr2]\n"; //these should not appear, bec. they should have been removed above
+            }
+        }
+        return $arr1 + $arr2;
     }
     public static function get_Flickr_user_id_from_url($url) //e.g. $url "http://flickr.com/photos/64684201@N00/291506502/"
     {
