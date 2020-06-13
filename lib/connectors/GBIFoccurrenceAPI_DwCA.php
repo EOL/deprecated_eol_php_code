@@ -267,7 +267,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     function breakdown_GBIF_DwCA_file($group = false, $range_from = false, $range_to = false) //e.g. $group = 'Animalia'
     {
         // exit("\nFinished running Aug 23, 2018\n");
-        // exit("\nFinished running Jun 08-XX, 2020\n");
+        exit("\nFinished running Jun 08-13, 2020\n"); //IMPORTANT: run only once every harvest
         $path2 = $this->save_path['taxa_csv_path'];
         if(Functions::is_production()) {
             if($group) {
