@@ -399,7 +399,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         } //end main foreach()
         */
         
-        $local = Functions::save_remote_file_to_local($this->listOf_taxa[$filter_rank], $this->download_options);
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*30; //1 month expires
+        $local = Functions::save_remote_file_to_local($this->listOf_taxa[$filter_rank], $options);
         $i = 0; $found = 0;
         foreach(new FileIterator($local) as $line_number => $line) {
             $i++; if(($i % 500000) == 0) echo "\n".number_format($i)." ";
@@ -535,8 +537,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
             self::create_map_data($sciname, $taxon_concept_id, $paths); //result of refactoring
         }
         */
-        
-        $local = Functions::save_remote_file_to_local($this->listOf_taxa['all'], $this->download_options);
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24*30; //1 month expires
+        $local = Functions::save_remote_file_to_local($this->listOf_taxa['all'], $options);
         $i = 0;
         foreach(new FileIterator($local) as $line_number => $line) {
             $i++; if(($i % 500000) == 0) echo "\n".number_format($i)." ";
@@ -600,7 +603,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 self::if_needed_2cluster_orSave($final, $taxon_concept_id);
             }
             else {
-                echo "\nCSV map data not available [$sciname][$taxon_concept_id]... will use API instead...\n";
+                echo "\nCSV map data not available [$sciname][$taxon_concept_id]...";
                 $this->debug['CSV map data not available']["[$sciname][$taxon_concept_id]"] = '';
                 self::gen_map_data_using_api($sciname, $taxon_concept_id);
             }
@@ -614,7 +617,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         echo "\nWill try to use API...";
         if($rec = self::get_initial_data($sciname)) {
-            print_r($rec);
+            // print_r($rec);
+            echo " -- usageKey: ".$rec['usageKey']." | count: ". $rec["count"];
             self::get_georeference_data_via_api($rec['usageKey'], $taxon_concept_id);
         }
     }
