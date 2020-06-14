@@ -11,14 +11,17 @@ Preparation of the GBIF DwCA downloads: [Animalia, Plantae, Other 7 groups]
 3. Once you get the email, update the curl links in Jenkins: [01 Initialize and download dumps]
 4. -end-
 =================================================================================================================== Start running Jenkins:
-
 01 Initialize and download dumps
+    will open 6 jobs
     with auto-next below
 02a breakdown Animalia                              [php5.6 gbif_georeference_dwca.php jenkins '{"group":"Animalia","divisor":6}']
+    will open 6 jobs
     with auto-next below
 02b breakdown Plantae                               [php5.6 gbif_georeference_dwca.php jenkins '{"group":"Plantae","divisor":6}']
+    will open 6 jobs
     with auto-next below
 02c breakdown Other7Groups                          [php5.6 gbif_georeference_dwca.php jenkins '{"group":"Other7Groups","divisor":6}']
+    will open 6 jobs
     with auto-next below
 03 multimedia breakdown                             [php5.6 gbif_georeference_dwca.php jenkins '{"task":"breakdown_multimedia_to_gbifID_files"}']
     with auto-next below
@@ -39,8 +42,6 @@ Preparation of the GBIF DwCA downloads: [Animalia, Plantae, Other 7 groups]
     with auto-next below
 12 05 save_ids_to_text_from_many_folders            [php5.6 gbif_georeference_dwca.php jenkins '{"task":"save_ids_to_text_from_many_folders"}']
 20 utility_remove_var_data_equals
-
-
 
 ****************************************************************
 Animalia:
