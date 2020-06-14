@@ -17,22 +17,26 @@ Preparation of the GBIF DwCA downloads: [Animalia, Plantae, Other 7 groups]
 02a breakdown Animalia                              [php5.6 gbif_georeference_dwca.php jenkins '{"group":"Animalia","divisor":6}']
     with auto-next below
 02b breakdown Plantae                               [php5.6 gbif_georeference_dwca.php jenkins '{"group":"Plantae","divisor":6}']
-    Then we will wait before there is enough free slots before proceeding
+    with auto-next below
 02c breakdown Other7Groups                          [php5.6 gbif_georeference_dwca.php jenkins '{"group":"Other7Groups","divisor":6}']
+    with auto-next below
 03 multimedia breakdown                             [php5.6 gbif_georeference_dwca.php jenkins '{"task":"breakdown_multimedia_to_gbifID_files"}']
     with auto-next below
 04 Generate order family genus children list txt    [php DHconn.php jenkins]
     with auto-next below
 05 Generate map data                                [php5.6 gbif_georeference_dwca.php jenkins '{"task":"generate_map_data_using_GBIF_csv_files","divisor":6}']
     will open 6 jobs
-    Then we will wait before there is enough free slots before proceeding
+    with auto-next below
 11 Generate map data UTILITY ONLY                   [-no need to run- just a utility]
 11a Generate map data for genus with descendants    [php5.6 gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":6,"rank":"genus"}']
     will open 6 jobs
+    with auto-next below
 11b Generate map data for family with descendants   [php5.6 gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":6,"rank":"family"}']
     will open 6 jobs
+    with auto-next below
 11c Generate map data for order with descendants    [php5.6 gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":6,"rank":"order"}']
     will open 6 jobs
+    with auto-next below
 12 05 save_ids_to_text_from_many_folders            [php5.6 gbif_georeference_dwca.php jenkins '{"task":"save_ids_to_text_from_many_folders"}']
 20 utility_remove_var_data_equals
 
