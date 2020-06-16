@@ -3,7 +3,7 @@ namespace php_active_record;
 /* [SDR_all.php] */
 class SummaryDataResourcesAllAPI
 {
-    public function __construct($folder)
+    public function __construct($folder, $folder_date)
     {
         $this->resource_id = $folder;
         /*
@@ -61,10 +61,14 @@ class SummaryDataResourcesAllAPI
                                         $this->working_dir = $this->main_dir."page_ids_DHv11/";     //to pertain using DHv1.1
                                         $this->working_dir = $this->main_dir."page_ids_20190822/";
                                         $this->working_dir = $this->main_dir."page_ids_20191111/";
-                                        $this->trait_bank_folder = 'trait_bank_2019Jun13';
-                                        $this->trait_bank_folder = 'trait_bank_2019Aug22';
-                                        $this->trait_bank_folder = 'trait_bank_2019Nov11';
+                                        $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
+                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_20190613';
+                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_20190822';
+                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_20191111';
+                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
         }
+        if(!is_dir($this->working_dir))       mkdir($this->working_dir);
+        if(!is_dir($this->trait_bank_folder)) mkdir($this->trait_bank_folder);
         /* seems not used at all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
         */
@@ -145,7 +149,7 @@ class SummaryDataResourcesAllAPI
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             */
-            $info = Array('archive_path' => $this->main_dir.$this->trait_bank_folder,
+            $info = Array('archive_path' => $this->trait_bank_folder,
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
             $this->main_paths = $info;
         }

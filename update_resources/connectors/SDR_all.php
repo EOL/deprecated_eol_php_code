@@ -131,15 +131,15 @@ exit("\n");
 ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
 $resource_id = 'SDR_all';
-$func = new SummaryDataResourcesAllAPI($resource_id);
+
+/* for every new all-trait-export, must update these vars: Done already for 2019Nov11 */
+$folder_date = "20190822";
+$folder_date = "20191111";
+
+$func = new SummaryDataResourcesAllAPI($resource_id, $folder_date);
 
 /* build data files - MySQL tables --- worked OK
 $func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
-*/
-
-/* for every new all-trait-export, must update these vars: Done already for 2019Nov11
-$this->working_dir
-$this->trait_bank_folder
 */
 
 /* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
