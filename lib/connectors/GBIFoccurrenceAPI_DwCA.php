@@ -478,7 +478,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                 // echo "\n[$child] - ".count(@$arr['records']); //good debug
                 if($val = @$arr['records']) {
                     $final = array_merge($final, $val);
-                    if(count($final) > $this->rec_limit) $final = self::process_revised_cluster(array('count' => count($final), 'records' => $final), $taxon_concept_id, true); //3rd param true means 'early cluster'
+                    if(count($final) > $this->rec_limit) $final = self::process_revised_cluster(array('count' => count($final), 'records' => $final), $taxon_concept_id, true, 'a'); //3rd param true means 'early cluster'
                 }
             }
             // else echo "\n[$child] - no map data";
@@ -581,7 +581,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         if($final['count'] > $this->limit_20k) {
             echo " --- > 20K\n";
-            self::process_revised_cluster($final, $taxon_concept_id); //done after main demo using screenshots
+            self::process_revised_cluster($final, $taxon_concept_id, false, 'b'); //done after main demo using screenshots
         }
         elseif($final['count'] <= $this->limit_20k) {
             echo " --- <= 20K\n";
@@ -651,9 +651,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         echo "\n: " . $final['count'] . " -- ";
         self::if_needed_2cluster_orSave($final, $taxon_concept_id);
     }
-    private function process_revised_cluster($final, $basename, $early_cluster = false)
+    private function process_revised_cluster($final, $basename, $early_cluster = false, $whoCalled) //4th param $whoCalled is just for debug.
     {
-        if($early_cluster) echo "\nStart of early cluster...";
+        if($early_cluster) echo "\nStart of early cluster [$whoCalled]...";
         else               echo "\nStart with revised cluster";
         $to_be_saved = array();
         $to_be_saved['records'] = array();
@@ -788,9 +788,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
                     }
                     */
                     
-                    // /* PROBABLY WE CAN TRY early cluster here
+                    // /* PROBABLY WE CAN TRY early cluster here. Early clustering may provide a better spread of coordinates.
                     if(count($final['records']) > $this->rec_limit) { /* for early clustering, the taxon_concept_id or gbifID is irrelevant bec. you're not saving json file yet. */
-                        $final['records'] = self::process_revised_cluster(array('count' => count($final['records']), 'records' => $final['records']), $gbifid."_gbifID", true); //3rd param true means 'early cluster'
+                        $final['records'] = self::process_revised_cluster(array('count' => count($final['records']), 'records' => $final['records']), $gbifid."_gbifID", true, 'c'); //3rd param true means 'early cluster'
                     }
                     // */
                     

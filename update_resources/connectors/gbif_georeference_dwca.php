@@ -119,7 +119,7 @@ php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[555613,585613],"ctr":11,"rank":""}'
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[525613,555613],"ctr":12,"rank":""}'
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[515613,525613],"ctr":13,"rank":""}'
-
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[505613,515613],"ctr":14,"rank":""}'
 */
 
 /* sample command line for this script:
