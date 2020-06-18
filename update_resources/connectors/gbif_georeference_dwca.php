@@ -114,6 +114,12 @@ php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[103805,129756],"ctr":5}'
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[129756,155707],"ctr":6}'
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[155707,181658],"ctr":7}'
+Latest version sample: also used as utility to speed up generation. Basically adding more jenkins jobs
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[585613,615613],"ctr":10,"rank":""}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[555613,585613],"ctr":11,"rank":""}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[525613,555613],"ctr":12,"rank":""}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[515613,525613],"ctr":13,"rank":""}'
+
 */
 
 /* sample command line for this script:

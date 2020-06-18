@@ -470,9 +470,9 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->auto_refresh_mapYN = false;
         
         /* step 3: loop to all children (include taxon in question), consolidate map data. Then save to json file. */
-        $children[] = $taxon_concept_id;
+        $children[] = $taxon_concept_id; $total_children = count($children); $i = 0;
         $final = array();
-        foreach($children as $child) {
+        foreach($children as $child) { $i++; echo "\n - $child $i of $total_children ";
             if($json = self::get_json_map_data($child)) {
                 $arr = json_decode($json, true); // print_r($arr);
                 // echo "\n[$child] - ".count(@$arr['records']); //good debug
