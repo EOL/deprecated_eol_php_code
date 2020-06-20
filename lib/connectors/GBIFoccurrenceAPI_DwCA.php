@@ -72,6 +72,8 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->listOf_taxa['genus']  = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_genus_4maps.txt';
         $this->listOf_taxa['all']    = CONTENT_RESOURCE_LOCAL_PATH . '/listOf_all_4maps.txt';
         $this->auto_refresh_mapYN = false;
+        // New 2020 Jun 20
+        $this->use_API_YN = true;
     }
     function jenkins_call($group, $batches, $connector_task, $filter_rank = '') //4th param $filter_rank is for gen_map_data_forTaxa_with_children() only
     {
@@ -374,6 +376,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     function gen_map_data_forTaxa_with_children($sciname = false, $tc_id = false, $range_from = false, $range_to = false, $filter_rank = '')
     {
+        $this->use_API_YN = false; //no more API calls at this point.
         require_library('connectors/DHConnLib'); $func = new DHConnLib('');
         $paths = $this->csv_paths; 
         
@@ -615,11 +618,13 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     }
     private function gen_map_data_using_api($sciname, $taxon_concept_id) //NEW Aug 24, 2018
     {
-        echo "\nWill try to use API...";
-        if($rec = self::get_initial_data($sciname)) {
-            // print_r($rec);
-            echo " -- usageKey: ".$rec['usageKey']." | count: ". $rec["count"];
-            self::get_georeference_data_via_api($rec['usageKey'], $taxon_concept_id);
+        if($this->use_API_YN) {
+            echo "\nWill try to use API...";
+            if($rec = self::get_initial_data($sciname)) {
+                // print_r($rec);
+                echo " -- usageKey: ".$rec['usageKey']." | count: ". $rec["count"];
+                self::get_georeference_data_via_api($rec['usageKey'], $taxon_concept_id);
+            }
         }
     }
     private function get_georeference_data_via_api($taxonKey, $taxon_concept_id) //updated from original version
@@ -654,7 +659,7 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     private function process_revised_cluster($final, $basename, $early_cluster = false, $whoCalled) //4th param $whoCalled is just for debug.
     {
         if($early_cluster) echo "\nStart of early cluster [$whoCalled]...";
-        else               echo "\nStart with revised cluster";
+        else               echo "\nStart with revised cluster [$whoCalled]";
         $to_be_saved = array();
         $to_be_saved['records'] = array();
         $unique = array();
