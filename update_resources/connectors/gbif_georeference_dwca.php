@@ -23,6 +23,7 @@ Preparation of the GBIF DwCA downloads: [Animalia, Plantae, Other 7 groups]
 02c breakdown Other7Groups                          [php5.6 gbif_georeference_dwca.php jenkins '{"group":"Other7Groups","divisor":6}']
     will open 6 jobs
     with auto-next below
+***02a, 02b, 02c: IMPORTANT: this can only be run once every harvest. Since this accumulates map data for a taxon. If you repeat it, it will duplicate records.
 03 multimedia breakdown                             [php5.6 gbif_georeference_dwca.php jenkins '{"task":"breakdown_multimedia_to_gbifID_files"}']
     with auto-next below
 04 Generate order family genus children list txt    [php DHconn.php jenkins]
@@ -30,6 +31,7 @@ Preparation of the GBIF DwCA downloads: [Animalia, Plantae, Other 7 groups]
 05 Generate map data                                [php5.6 gbif_georeference_dwca.php jenkins '{"task":"generate_map_data_using_GBIF_csv_files","divisor":6}']
     will open 6 jobs
     with auto-next below
+    You can manually add jobs. This task if repeated and map data already exists, then it will ignore and go to the next record.
 11 Generate map data UTILITY ONLY                   [-no need to run- just a utility]
 11a Generate map data for genus with descendants    [php5.6 gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":6,"rank":"genus"}']
     will open 6 jobs
@@ -40,6 +42,7 @@ Preparation of the GBIF DwCA downloads: [Animalia, Plantae, Other 7 groups]
 11c Generate map data for order with descendants    [php5.6 gbif_georeference_dwca.php jenkins '{"task":"gen_map_data_forTaxa_with_children","divisor":6,"rank":"order"}']
     will open 6 jobs
     with auto-next below
+***11a, 11b and 11c: These tasks if repeated, will just overwrite prev. version (as designed). So every run will overwrite what is current. Cannot manually add jobs.
 12 05 save_ids_to_text_from_many_folders            [php5.6 gbif_georeference_dwca.php jenkins '{"task":"save_ids_to_text_from_many_folders"}']
 20 utility_remove_var_data_equals
 
@@ -119,7 +122,12 @@ php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[555613,585613],"ctr":11,"rank":""}'
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[525613,555613],"ctr":12,"rank":""}'
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[515613,525613],"ctr":13,"rank":""}'
+
 php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[505613,515613],"ctr":14,"rank":""}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[510613,515613],"ctr":15,"rank":""}'
+
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[509613,510613],"ctr":16,"rank":""}'
+php5.6 generate_map_data_using_GBIF_csv_files.php jenkins '{"group":false,"range":[514613,515613],"ctr":17,"rank":""}'
 */
 
 /* sample command line for this script:
