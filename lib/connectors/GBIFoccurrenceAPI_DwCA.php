@@ -473,9 +473,10 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
         $this->auto_refresh_mapYN = false;
         
         /* step 3: loop to all children (include taxon in question), consolidate map data. Then save to json file. */
-        $children[] = $taxon_concept_id; $total_children = count($children); $i = 0;
+        $children[] = $taxon_concept_id; $total_children = count($children); $i = 0; $modulo = self::get_proper_modulo($total_children);
         $final = array(); $sep = "\n -";
-        foreach($children as $child) { $i++; echo "$sep $child $i of $total_children "; $sep = " |";
+        foreach($children as $child) { $i++; if(($i % $modulo) == 0) echo "$sep $child $i of $total_children ";
+            $sep = " |";
             if($json = self::get_json_map_data($child)) {
                 $arr = json_decode($json, true); // print_r($arr);
                 // echo "\n[$child] - ".count(@$arr['records']); //good debug
@@ -1306,6 +1307,18 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     //========================================================
     // end of Clustering code: (http://www.appelsiini.net/2008/introduction-to-marker-clustering-with-google-maps)
     //========================================================
+    private function get_proper_modulo($total)
+    {
+        if($total > 0 && $total <= 50) return 10;
+        if($total > 50 && $total <= 100) return 25;
+        if($total > 100 && $total <= 1000) return 100;
+        if($total > 1000 && $total <= 5000) return 500;
+        if($total > 5000 && $total <= 10000) return 1000;
+        if($total > 10000 && $total <= 20000) return 5000;
+        if($total > 20000 && $total <= 100000) return 20000;
+        if($total > 100000 && $total <= 500000) return 100000;
+        if($total > 500000) return 200000;
+    }
     /*
     private function main_loop($sciname, $taxon_concept_id = false)
     {   $sciname = Functions::canonical_form($sciname); echo "\n[$sciname]\n";
