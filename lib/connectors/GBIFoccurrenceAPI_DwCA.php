@@ -1311,13 +1311,19 @@ class GBIFoccurrenceAPI_DwCA //this makes use of the GBIF DwCA occurrence downlo
     {
         if($total > 0 && $total <= 50) return 10;
         if($total > 50 && $total <= 100) return 25;
-        if($total > 100 && $total <= 1000) return 100;
-        if($total > 1000 && $total <= 5000) return 500;
-        if($total > 5000 && $total <= 10000) return 1000;
-        if($total > 10000 && $total <= 20000) return 5000;
-        if($total > 20000 && $total <= 100000) return 20000;
-        if($total > 100000 && $total <= 500000) return 100000;
-        if($total > 500000) return 200000;
+        if($total > 100 && $total <= 200) return 50;
+        if($total > 200 && $total <= 400) return 100;
+        if($total > 400 && $total <= 800) return 200;
+        if($total > 800 && $total <= 1600) return 400;
+        if($total > 1600 && $total <= 3200) return 800;
+        if($total > 3200 && $total <= 6400) return 1000;
+        if($total > 6400 && $total <= 12800) return 3000;
+        if($total > 12800 && $total <= 30000) return 6000;
+        if($total > 30000 && $total <= 60000) return 10000;
+        if($total > 60000 && $total <= 120000) return 30000;
+        if($total > 120000 && $total <= 240000) return 60000;
+        if($total > 240000 && $total <= 300000) return 100000;
+        if($total > 300000) return 200000;
     }
     /*
     private function main_loop($sciname, $taxon_concept_id = false)
