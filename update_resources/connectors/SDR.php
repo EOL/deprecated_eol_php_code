@@ -133,22 +133,3 @@ echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
 echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
 echo "\n Done processing.\n";
 ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
