@@ -556,6 +556,21 @@ class SummaryDataResourcesAllAPI
                 print_r($result);
             }
             */
+            /* Jun 23, 2020. Will try to run this via script, not manually. 
+            step1: save unique page_id in a text file
+            step2: insert to respective tables
+            */
+            //step1: save unique page_id in a text file
+            $sql = "SELECT t.page_id from SDR.traits_BV t WHERE t.predicate = '".$predicate."'";
+            $result = $this->mysqli->query($sql);
+            $page_ids = array();
+            while($result && $rec=$result->fetch_assoc()) $page_ids[$rec['page_id']] = '';
+            $page_ids = array_keys($page_ids);
+            $destination = $this->main_dir."/MySQL_append_files/$table".".txt";
+            if(!($WRITE = Functions::file_open($destination, "w"))) return;
+            fwrite($WRITE, implode("\n", $page_ids). "\n"); fclose($WRITE);
+            //step2: insert to respective tables
+            self::append_to_MySQL_table($table, $destination);
         }
     }
     function test_parent_basal_values($dbase, $debugModeYN = false)

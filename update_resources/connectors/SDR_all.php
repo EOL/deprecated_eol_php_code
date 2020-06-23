@@ -177,15 +177,14 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); 
     //             2019Nov11   1,969,893   exit("\n-end 2019Nov11-\n");
 
 
-// preparation for parent basal values. This takes some time.
+    // preparation for parent basal values. This takes some time.
     // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - SDR_all_readmeli.txt for more details
-    // INSERT INTO page_ids_Present SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
-    // INSERT INTO page_ids_Habitat SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
+    // INSERT INTO page_ids_Present       SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
+    // INSERT INTO page_ids_Habitat       SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
     // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
 
-    $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22. But didn't work anymore for 2019Nov11.
-
-    // On 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used manual, login to "mysql>", notes in SDR_all_readmeli.txt instead.
+    // $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22. But didn't work anymore for 2019Nov11.
+    // On 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used manual again, login to "mysql>", notes in SDR_all_readmeli.txt instead.
     // page_ids_FLOPO_0900032  2019Aug22    189,741
     //                         2019Nov11    160,560
     // 
@@ -194,7 +193,8 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); 
     // 
     // page_ids_Present        2019Aug22    1,242,249
     //                         2019Nov11    1,116,012   exit("\n-end 2019Nov11-\n");
-return;
+
+    $func->pre_parent_basal_values(); return; //Updated script. Works OK as of Jun 23, 2020. No more manual step needed.                                              
 ========================================================================================================== */ 
 
 /* IMPORTANT STEP - for parent BV and parent TS =============================================================================== should run every new all-trait-export.
