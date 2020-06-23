@@ -556,7 +556,7 @@ class SummaryDataResourcesAllAPI
                 print_r($result);
             }
             */
-            /* Jun 23, 2020. Will try to run this via script, not manually. 
+            /* Jun 23, 2020. Removed manual step. All are now scripted.
             step1: save unique page_id in a text file
             step2: insert to respective tables
             */
