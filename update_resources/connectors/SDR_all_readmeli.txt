@@ -4,11 +4,9 @@ historical:
         $this->file['preferred synonym']['path'] = "http://localhost/cp/summary data resources/preferredsynonym-aug-16-1-2-3.csv";
         $this->file['preferred synonym']['path'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/41f7fed1-3dc1-44d7-bbe5-6104156d1c1e/download/preferredsynonym-sept-27.csv";
 
-
         $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child.csv"; 
         $this->file['parent child']['path_habitat'] = "http://localhost/cp/summary data resources/habitat-parent-child-6-1.csv";
         $this->file['parent child']['path_habitat'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/c5ff5c62-a2ef-44be-9f59-88cd99bc8af2/download/habitat-parent-child-6-1.csv";
-
 
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child.csv";
         $this->file['parent child']['path_geoterms'] = "http://localhost/cp/summary data resources/geoterms-parent-child-1.csv";
@@ -18,7 +16,7 @@ historical:
         $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-1.csv";
         $this->file['parent child']['path_geoterms'] = "https://opendata.eol.org/dataset/237b69b7-8aba-4cc4-8223-c433d700a1cc/resource/e1dcb51b-9a03-4069-b5bf-e18b6bc15798/download/geoterms-parent-child-feb19.csv";
 
-——————————————————
+----------------------------------------------------------------------------------------------------------------------------------------
 load a table from an .sql dump:
 mysql -uroot -p DatabaseName < path\TableName.sql
 
@@ -75,9 +73,6 @@ traits_BV;              |  4689720 |  |  4691339 |
 traits_LSM;             |   194249 |  |   194355 |
 traits_TS;              |  1458588 |  |  1458588 |
 traits_TSp;             |  1033725 |  |  1033725 |
-
-
-
 ----------------------------------------------------------------------------------------------------------------------------------------
 mysql> 
 load data local infile '/Volumes/AKiTiO4/web/cp/summary_data_resources/MySQL_append_files/traits_BV_1.txt' into table traits_BV;
@@ -210,7 +205,6 @@ Below for 2019Aug22 trait export:
        Getting children of [46557930]...
        Getting children of [2774383]...
        Getting children of [2634372]...
-
 ----------------------------------------------------------------------------------------------------------------------------------------
 mysqldump -d -h localhost -u root -p SDR > SDR_structure_only.sql
 - dump one database, worked OK
@@ -226,7 +220,6 @@ connect to server: afp://
 then connect /web/, from Sites/ run ln below:
 sudo ln -s /Volumes/web/cp/ cp
 ----------------------------------------------------------------------------------------------------------------------------------------
-
 BUT THIS WAS NOW AUTOMATED IN generate_page_id_txt_files_MySQL() ... no more manual steps like these:
 
 /*For 2019Aug22 traits version: steps below:
