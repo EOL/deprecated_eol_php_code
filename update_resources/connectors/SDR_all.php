@@ -206,13 +206,13 @@ $page_id = 2366;
 $page_id = 46451825; //aborted
 $func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache() for [$page_id]-\n");
 
-// $json = $func->get_children_from_txt_file($page_id); //check the file path
+// $arr = $func->get_children_from_txt_file($page_id); //check the file path
+// print_r($arr); exit("\nJust a utility. Not part of steps.\n");
 
 // $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/d3/b1/2366_ch.txt");
 // $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/ee/20/6551609_ch.txt");
 // $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/26/dd/2774383_ch.txt");
 // $arr = json_decode($json, true); print_r($arr);
-
 =============================================================================================================================== */
 /*
 $func->investigate_metadata_csv(); exit("\nJust a utility. Not part of steps.\n");
