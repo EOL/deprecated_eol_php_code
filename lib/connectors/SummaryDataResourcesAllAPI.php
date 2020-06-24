@@ -1662,7 +1662,9 @@ class SummaryDataResourcesAllAPI
         self::working_dir(); //initializes $this->main_paths
         $table = 'traits_inferred'; $sql = "TRUNCATE TABLE SDR.".$table.";";
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
-        self::append_to_MySQL_table($table, $this->main_paths['archive_path'].'/inferred.csv', $csvFileYN = true);
+        $file = $this->main_paths['archive_path'].'/inferred.csv';
+        self::append_to_MySQL_table($table, $file, $csvFileYN = true);
+        echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n";
     }
     function build_MySQL_table_from_csv($table) //generic means to build MySQL table from CSV file //1st client is method: lifestage and statMeth
     {   self::working_dir(); //initializes $this->main_paths
@@ -1719,6 +1721,7 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE);
         self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
         fclose($file); echo("\n\n$table to MySQL DONE.\n\n");
+        echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n";
     }
     function build_MySQL_table_from_text($table) //generic means to build MySQL table from TSV file //1st client is DH with taxonRank table.
     {   if($table == 'DH_lookup') {
@@ -1782,6 +1785,7 @@ class SummaryDataResourcesAllAPI
         }
         fclose($WRITE);
         self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+        echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n";
         exit("\n\n$table to MySQL DONE.\n\n");
     }
     function generate_refs_per_eol_pk_MySQL()
@@ -1834,6 +1838,12 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE);
         self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
         fclose($file); echo "\n\nMetadata_refs to MySQL DONE.\n\n";
+        echo "\nTotal rows [metadata_refs]: ".self::count_table_rows('metadata_refs')."\n";
+    }
+    private function count_table_rows($table)
+    {
+        $result = $this->mysqli->query("SELECT count(*) total_rows FROM SDR.$table");
+        while($result && $rec=$result->fetch_assoc()) return $rec['total_rows'];
     }
     function investigate_metadata_csv()
     {
@@ -3854,7 +3864,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         }
         fclose($WRITE);
         self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
-        fclose($file); echo "\n\nTraits to MySQL DONE [$table].\n\n";
+        fclose($file); echo "\n\nTraits to MySQL DONE [$table]";
+        echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n--------------------\n";
     }
     private function lookup_value_from_metadata($eol_pk, $predicate)
     {

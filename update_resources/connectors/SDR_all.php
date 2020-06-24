@@ -41,30 +41,42 @@ $resource_id = 'SDR_all';
 /* for every new all-trait-export, must update these vars: Done already for 2019Nov11 */
 $folder_date = "20190822";
 $folder_date = "20191111";
-
 $func = new SummaryDataResourcesAllAPI($resource_id, $folder_date);
 
-/* build data files - MySQL tables --- worked OK
-$func->build_MySQL_table_from_text('DH_lookup'); exit; //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
+/* command-line syntax
+php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_text"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"update_inferred_file"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"generate_refs_per_eol_pk_MySQL"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_csv"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"generate_page_id_txt_files_MySQL"}'
 */
+// print_r($argv);
+$params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
+$params['json']              = @$argv[2]; //useful here
+$fields = json_decode($params['json'], true);
+$task = $fields['task']; //print_r($fields);
 
-/* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
+// /* build data files - MySQL tables --- worked OK
+if($task == 'build_MySQL_table_from_text') $func->build_MySQL_table_from_text('DH_lookup'); //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
+            // DH_lookup    1,847,511   DHv1.1
+// */
 
-// ----------------------------update 'inferred' start
-$func->update_inferred_file(); exit("\n-end 2019Nov11-\n");
-    // csv file rows:  1,199,241   2019Nov11
-    //                             1,199,241
-// ----------------------------update 'inferred' end
+// /* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
+if($task == 'update_inferred_file') $func->update_inferred_file(); //exit("\n-end 2019Nov11-\n");
+    // csv file rows:   1,199,241   2019Nov11
 
-$func->generate_refs_per_eol_pk_MySQL(); exit("\n-end 2019Nov11-\n");
+if($task == 'generate_refs_per_eol_pk_MySQL') $func->generate_refs_per_eol_pk_MySQL(); //exit("\n-end 2019Nov11-\n");
     // metadata_refs   984,498 2019Aug22
     //               1,207,934 2019Nov11
+                  // 1,293,276
 
-$func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); //used for method: lifestage and statMeth()
+if($task == 'build_MySQL_table_from_csv') $func->build_MySQL_table_from_csv('metadata_LSM'); //exit("\n-end 2019Nov11-\n"); //used for method: lifestage and statMeth()
     // metadata_LSM    1,727,545   2019Aug22
     //                 1,878,398   2019Nov11
+                    // 1,943,618
 
 // these four are for the main traits table 
+if($task == 'generate_page_id_txt_files_MySQL') {
     $func->generate_page_id_txt_files_MySQL('BV');
     // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
     $func->generate_page_id_txt_files_MySQL('TS');
@@ -72,6 +84,7 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); 
     $func->generate_page_id_txt_files_MySQL('LSM');
     // traits_BV   2019Aug22   3,525,177
     //             2019Nov11   5,724,786
+                            // 5,429,332
     // 
     // traits_LSM  2019Aug22   190,833
     //             2019Nov11   309,906
@@ -81,27 +94,30 @@ $func->build_MySQL_table_from_csv('metadata_LSM'); exit("\n-end 2019Nov11-\n"); 
     // 
     // traits_TSp  2019Aug22   1,402,799
     //             2019Nov11   1,969,893   exit("\n-end 2019Nov11-\n");
+}
 
+/*
+preparation for parent basal values. This takes some time.
+this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - SDR_all_readmeli.txt for more details
+INSERT INTO page_ids_Present       SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
+INSERT INTO page_ids_Habitat       SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
+INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
 
-    // preparation for parent basal values. This takes some time.
-    // this was first manually done last: Jun 9, 2019 - for ALL TRAIT EXPORT - SDR_all_readmeli.txt for more details
-    // INSERT INTO page_ids_Present       SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Present'
-    // INSERT INTO page_ids_Habitat       SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://eol.org/schema/terms/Habitat';
-    // INSERT INTO page_ids_FLOPO_0900032 SELECT DISTINCT t.page_id from SDR.traits_BV t WHERE t.predicate = 'http://purl.obolibrary.org/obo/FLOPO_0900032';
+$func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22. But didn't work anymore for 2019Nov11.
+On 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used manual again, login to "mysql>", notes in SDR_all_readmeli.txt instead.
+page_ids_FLOPO_0900032  2019Aug22    189,741
+                        2019Nov11    160,560
 
-    // $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest 'All Trait Export': 2019Jun13 & 2019Aug22. But didn't work anymore for 2019Nov11.
-    // On 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used manual again, login to "mysql>", notes in SDR_all_readmeli.txt instead.
-    // page_ids_FLOPO_0900032  2019Aug22    189,741
-    //                         2019Nov11    160,560
-    // 
-    // page_ids_Habitat        2019Aug22    344,704
-    //                         2019Nov11    391,046
-    // 
-    // page_ids_Present        2019Aug22    1,242,249
-    //                         2019Nov11    1,116,012   exit("\n-end 2019Nov11-\n");
+page_ids_Habitat        2019Aug22    344,704
+                        2019Nov11    391,046
 
-    $func->pre_parent_basal_values(); return; //Updated script. Works OK as of Jun 23, 2020. No more manual step needed.                                              
-========================================================================================================== */ 
+page_ids_Present        2019Aug22    1,242,249
+                        2019Nov11    1,116,012   exit("\n-end 2019Nov11-\n");
+*/
+if($task == 'pre_parent_basal_values') $func->pre_parent_basal_values(); //Updated script. Works OK as of Jun 23, 2020. No more manual step needed.
+elapsed_time($timestart);
+exit("\n--bulk steps end--\n");                                           
+// ========================================================================================================== */ 
 
 /* IMPORTANT STEP - for parent BV and parent TS =============================================================================== should run every new all-trait-export.
 $func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
@@ -154,13 +170,15 @@ $func->print_parent_taxon_summary('TSp', false, false, true); return; //4th para
 
 // $func->test_lifeStage_statMeth('LSM');
 $func->print_lifeStage_statMeth('LSM');   //return; //main orig report //49.38 min. | 48.11 min. | 1.2 hrs |
+elapsed_time($timestart);
 
-// $func->start();
-// Functions::finalize_dwca_resource($resource_id);
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing.\n";
+function elapsed_time($timestart)
+{
+    $elapsed_time_sec = time_elapsed() - $timestart;
+    echo "\n\n";
+    echo "\n elapsed time = " . $elapsed_time_sec . " seconds";
+    echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
+    echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
+    echo "\n Done processing.\n";
+}
 ?>
