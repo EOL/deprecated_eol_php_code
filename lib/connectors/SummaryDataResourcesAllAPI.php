@@ -3801,7 +3801,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv | 11,276,097 in MySQL
         $i = 0; $save_cnt = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++;
-            if(($i % 500000) == 0) echo "\n".number_format($i);
+            if(($i % 1000000) == 0) echo "\n".number_format($i);
             if($i == 1) {
                 $fields = $line;
                 if($method == "LSM") {
