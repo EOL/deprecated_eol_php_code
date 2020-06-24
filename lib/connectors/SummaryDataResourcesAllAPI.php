@@ -571,6 +571,7 @@ class SummaryDataResourcesAllAPI
             fwrite($WRITE, implode("\n", $page_ids). "\n"); fclose($WRITE);
             //step2: insert to respective tables
             self::append_to_MySQL_table($table, $destination);
+            echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n";
         }
     }
     function test_parent_basal_values($dbase, $debugModeYN = false)

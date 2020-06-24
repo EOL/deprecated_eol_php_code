@@ -50,12 +50,20 @@ php update_resources/connectors/SDR_all.php _ '{"task":"generate_refs_per_eol_pk
 php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_csv"}'
 php update_resources/connectors/SDR_all.php _ '{"task":"generate_page_id_txt_files_MySQL"}'
 php update_resources/connectors/SDR_all.php _ '{"task":"pre_parent_basal_values"}'
+
+In Jenkins, this will run all at the same time. But due to the different delays, each will run 3 mins after the other.
+php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":0}'
+php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":180}'
+php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":360}'
 */
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $fields = json_decode($params['json'], true);
 $task = $fields['task']; //print_r($fields);
+$first_tasks = array("build_MySQL_table_from_text", "update_inferred_file", "generate_refs_per_eol_pk_MySQL", "build_MySQL_table_from_csv", "generate_page_id_txt_files_MySQL", "pre_parent_basal_values");
+if(in_array($task, $first_tasks)) $stop_here = true;
+else                              $stop_here = false;
 
 // /* build data files - MySQL tables --- worked OK
 if($task == 'build_MySQL_table_from_text') $func->build_MySQL_table_from_text('DH_lookup'); //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
@@ -77,7 +85,7 @@ if($task == 'build_MySQL_table_from_csv') $func->build_MySQL_table_from_csv('met
                     // 1,943,618
 
 // these four are for the main traits table 
-if($task == 'generate_page_id_txt_files_MySQL') {
+if($task == 'generate_page_id_txt_files_MySQL') { // execution time: 43.49 minutes
     $func->generate_page_id_txt_files_MySQL('BV');
     // $func->generate_page_id_txt_files_MySQL('BVp'); //excluded, same as BV
     $func->generate_page_id_txt_files_MySQL('TS');
@@ -89,6 +97,7 @@ if($task == 'generate_page_id_txt_files_MySQL') {
     // 
     // traits_LSM  2019Aug22   190,833
     //             2019Nov11   309,906
+                            // 310,459
     //             
     // traits_TS   2019Aug22   2,178,526
     //             2019Nov11   3,089,998
@@ -96,6 +105,7 @@ if($task == 'generate_page_id_txt_files_MySQL') {
     // 
     // traits_TSp  2019Aug22   1,402,799
     //             2019Nov11   1,969,893   exit("\n-end 2019Nov11-\n");
+                            // 2,105,309
 }
 
 /*
@@ -109,26 +119,33 @@ $func->pre_parent_basal_values(); return; //Worked OK on the new fresh harvest '
 On 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used manual again, login to "mysql>", notes in SDR_all_readmeli.txt instead.
 page_ids_FLOPO_0900032  2019Aug22    189,741
                         2019Nov11    160,560
+                                     161,111
 
 page_ids_Habitat        2019Aug22    344,704
                         2019Nov11    391,046
+                                     388,650
 
 page_ids_Present        2019Aug22    1,242,249
-                        2019Nov11    1,116,012   exit("\n-end 2019Nov11-\n");
+                        2019Nov11    1,116,012
+                                     1,120,433
 */
-if($task == 'pre_parent_basal_values') $func->pre_parent_basal_values(); //Updated script. Works OK as of Jun 23, 2020. No more manual step needed.
-elapsed_time($timestart);
-exit("\n--bulk steps end--\n");                                           
-// ========================================================================================================== */ 
+if($task == 'pre_parent_basal_values') $func->pre_parent_basal_values(); //Updated script. Works OK as of Jun 23, 2020. No more manual step needed. Exec time: 64.41 seconds
+if($stop_here) {
+    elapsed_time($timestart); exit("\n--bulk steps end--\n");
+}
+// ========================================================================================================== */
 
-/* IMPORTANT STEP - for parent BV and parent TS =============================================================================== should run every new all-trait-export.
-$func->build_up_children_cache(); exit("\n-end build_up_children_cache()-\n"); //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
-                                  exit("\n-end 2019Nov11-\n");
-// use this for single page_id:
-$page_id = 6551609;
-$page_id = 2366;
-$page_id = 46451825; //aborted
-$func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache() for [$page_id]-\n");
+// /* IMPORTANT STEP - for parent BV and parent TS =============================================================================== should run every new all-trait-export.
+if($task == 'build_up_children_cache') { //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
+    if($val = @$fields['delay_in_seconds']) sleep($val);
+    $func->build_up_children_cache();
+    elapsed_time($timestart); exit("\n-end build_up_children_cache() 2019Nov11-\n");
+}
+// use this for single page_id: working OK
+// $page_id = 6551609;
+// $page_id = 2366;
+// $page_id = 46451825; //aborted
+// $func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache() for [$page_id]-\n");
 
 // $arr = $func->get_children_from_txt_file($page_id); //check the file path
 // print_r($arr); exit("\nJust a utility. Not part of steps.\n");
@@ -137,7 +154,7 @@ $func->build_up_children_cache($page_id); exit("\n-end build_up_children_cache()
 // $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/ee/20/6551609_ch.txt");
 // $json = file_get_contents("/Volumes/AKiTiO4/web/cp/summary_data_resources/page_ids_20190822/26/dd/2774383_ch.txt");
 // $arr = json_decode($json, true); print_r($arr);
-=============================================================================================================================== */
+// =============================================================================================================================== */
 /*
 $func->investigate_metadata_csv(); exit("\nJust a utility. Not part of steps.\n");
 */
