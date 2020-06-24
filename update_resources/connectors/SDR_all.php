@@ -49,6 +49,7 @@ php update_resources/connectors/SDR_all.php _ '{"task":"update_inferred_file"}'
 php update_resources/connectors/SDR_all.php _ '{"task":"generate_refs_per_eol_pk_MySQL"}'
 php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_csv"}'
 php update_resources/connectors/SDR_all.php _ '{"task":"generate_page_id_txt_files_MySQL"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"pre_parent_basal_values"}'
 */
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
@@ -90,7 +91,8 @@ if($task == 'generate_page_id_txt_files_MySQL') {
     //             2019Nov11   309,906
     //             
     // traits_TS   2019Aug22   2,178,526
-    //             2019Nov11   3.089,998
+    //             2019Nov11   3,089,998
+                            // 3,117,600
     // 
     // traits_TSp  2019Aug22   1,402,799
     //             2019Nov11   1,969,893   exit("\n-end 2019Nov11-\n");
