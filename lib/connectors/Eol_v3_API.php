@@ -591,6 +591,7 @@ class Eol_v3_API
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') {
                 @$final['StillImage']++;
                 if($o['mediumType'] == 'map') @$final['Map']++;
+                elseif($o['mediumType'] == 'map_image') @$final['Map']++;
             }
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/MovingImage') @$final['MovingImage']++;
             elseif($o['dataType'] == 'http://purl.org/dc/dcmitype/Sound') @$final['Sound']++;
