@@ -55,6 +55,20 @@ In Jenkins, this will run all at the same time. But due to the different delays,
 php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":0}'
 php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":180}'
 php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":360}'
+
+Actual reports:
+php update_resources/connectors/SDR_all.php _ '{"task":"print_basal_values"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_basal_values"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"print_taxon_summary"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_taxon_summary"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"print_lifeStage_statMeth"}'
+Tests:
+php update_resources/connectors/SDR_all.php _ '{"task":"test_basal_values"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"test_parent_basal_values"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"test_taxon_summary"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"test_parent_taxon_summary"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"test_lifeStage_statMeth"}'
+
 */
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
@@ -158,11 +172,10 @@ if($task == 'build_up_children_cache') { //can run max 3 connectors. auto-breakd
 /*
 $func->investigate_metadata_csv(); exit("\nJust a utility. Not part of steps.\n");
 */
-
-// $func->test_basal_values('BV');          //return;
-// $func->print_basal_values('BV');         //return; //main orig report -- 3.91 hrs
-// $func->test_parent_basal_values('BV', false);   //return; //2nd parm is debugModeYN
-// $func->print_parent_basal_values('BV');  return; //main orig report -- 92.75 minutes | 1.25 hrs
+if($task == 'test_basal_values') $func->test_basal_values('BV');
+if($task == 'print_basal_values') $func->print_basal_values('BV');                      //main orig report -- 3.91 hrs
+if($task == 'test_parent_basal_values') $func->test_parent_basal_values('BV', false);   //2nd parm is debugModeYN
+if($task == 'print_parent_basal_values') $func->print_parent_basal_values('BV');        //main orig report -- 92.75 minutes | 1.25 hrs
 // $func->print_parent_basal_values('BV', false, false, true);  return; //4th param true means it is debugMode true
 
 // /* for multiple page_ids: BV
@@ -173,10 +186,10 @@ $func->investigate_metadata_csv(); exit("\nJust a utility. Not part of steps.\n"
 // foreach($page_ids as $page_id) $final[$page_id] = array('taxonRank' => 'not species', 'Landmark' => 1); //good but not used eventually
 // */
 
-// $func->test_taxon_summary('TS');             //return;
-// $func->print_taxon_summary('TS');            //return; //main orig report - 36.30 minutes | 9.88 minutes | 10.73 minutes
-// $func->test_parent_taxon_summary('TSp');     //return;        //[7665], http://purl.obolibrary.org/obo/RO_0002470
-// $func->print_parent_taxon_summary('TSp');    //return; //main orig report - 4.23 hrs | 4.89 hrs Aug12'19 | 2.01 hrs | 14.3 hrs Nov14'19
+if($task == 'test_taxon_summary') $func->test_taxon_summary('TS');
+if($task == 'print_taxon_summary') $func->print_taxon_summary('TS');                //main orig report - 36.30 minutes | 9.88 minutes | 10.73 minutes
+if($task == 'test_parent_taxon_summary') $func->test_parent_taxon_summary('TSp');   //[7665], http://purl.obolibrary.org/obo/RO_0002470
+if($task == 'print_parent_taxon_summary') $func->print_parent_taxon_summary('TSp'); //main orig report - 4.23 hrs | 4.89 hrs Aug12'19 | 2.01 hrs | 14.3 hrs Nov14'19
 // $func->print_parent_taxon_summary('TSp', array('7662' => array('taxonRank' => 'not species', 'Landmark' => 1)), '7662'); return; //not used eventually
 
 /* for multiple page_ids: TS
@@ -187,8 +200,8 @@ $page_ids = array(7662);
 $func->print_parent_taxon_summary('TSp', false, false, true); return; //4th param true means it is debugMode true
 */
 
-// $func->test_lifeStage_statMeth('LSM');
-$func->print_lifeStage_statMeth('LSM');   //return; //main orig report //49.38 min. | 48.11 min. | 1.2 hrs |
+if($task == 'test_lifeStage_statMeth') $func->test_lifeStage_statMeth('LSM');
+if($task == 'print_lifeStage_statMeth') $func->print_lifeStage_statMeth('LSM');    //main orig report //49.38 min. | 48.11 min. | 1.2 hrs |
 elapsed_time($timestart);
 
 function elapsed_time($timestart)
