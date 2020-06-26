@@ -41,15 +41,20 @@ $resource_id = 'SDR_all';
 /* for every new all-trait-export, must update these vars: Done already for 2019Nov11 */
 $folder_date = "20190822";
 $folder_date = "20191111";
+$folder_date = "20200626";
 $func = new SummaryDataResourcesAllAPI($resource_id, $folder_date);
 
 /* command-line syntax
+php update_resources/connectors/SDR_all.php _ '{"task":"download_extract_zip_file", "zipfile":""}'
+e.g.
+http://varela.csail.mit.edu/~jar/tmp/traits_all_202006.zip
+
 php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_text"}'
-php update_resources/connectors/SDR_all.php _ '{"task":"update_inferred_file"}'
-php update_resources/connectors/SDR_all.php _ '{"task":"generate_refs_per_eol_pk_MySQL"}'
-php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_csv"}'
-php update_resources/connectors/SDR_all.php _ '{"task":"generate_page_id_txt_files_MySQL"}'
-php update_resources/connectors/SDR_all.php _ '{"task":"pre_parent_basal_values"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"update_inferred_file"}'             //51.96 seconds
+php update_resources/connectors/SDR_all.php _ '{"task":"generate_refs_per_eol_pk_MySQL"}'   //a few mins.
+php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_csv"}'       //3.22 minutes
+php update_resources/connectors/SDR_all.php _ '{"task":"generate_page_id_txt_files_MySQL"}' //35.18 minutes
+php update_resources/connectors/SDR_all.php _ '{"task":"pre_parent_basal_values"}'          //42.46 seconds
 
 In Jenkins, this will run all at the same time. But due to the different delays, each will run 3 mins after the other.
 php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":0}'
@@ -79,6 +84,10 @@ $first_tasks = array("build_MySQL_table_from_text", "update_inferred_file", "gen
 if(in_array($task, $first_tasks)) $stop_here = true;
 else                              $stop_here = false;
 
+
+if($task == 'download_extract_zip_file') $func->download_extract_zip_file();
+
+
 // /* build data files - MySQL tables --- worked OK
 if($task == 'build_MySQL_table_from_text') $func->build_MySQL_table_from_text('DH_lookup'); //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
             // DH_lookup    1,847,511   DHv1.1
@@ -87,16 +96,19 @@ if($task == 'build_MySQL_table_from_text') $func->build_MySQL_table_from_text('D
 // /* can run one after the other: Done for 2019Aug22 | 2019Nov11 ======================================================== this block worked OK
 if($task == 'update_inferred_file') $func->update_inferred_file(); //exit("\n-end 2019Nov11-\n");
     // csv file rows:   1,199,241   2019Nov11
+                     // 3,963,652   2020Jun26
 
 if($task == 'generate_refs_per_eol_pk_MySQL') $func->generate_refs_per_eol_pk_MySQL(); //exit("\n-end 2019Nov11-\n");
     // metadata_refs   984,498 2019Aug22
     //               1,207,934 2019Nov11
                   // 1,293,276
+                  // 1,207,039 2020Jun26
 
 if($task == 'build_MySQL_table_from_csv') $func->build_MySQL_table_from_csv('metadata_LSM'); //exit("\n-end 2019Nov11-\n"); //used for method: lifestage and statMeth()
     // metadata_LSM    1,727,545   2019Aug22
     //                 1,878,398   2019Nov11
                     // 1,943,618
+                    // 2,164,194    2020Jun26
 
 // these four are for the main traits table 
 if($task == 'generate_page_id_txt_files_MySQL') { // execution time: 43.49 minutes
@@ -108,18 +120,22 @@ if($task == 'generate_page_id_txt_files_MySQL') { // execution time: 43.49 minut
     // traits_BV   2019Aug22   3,525,177
     //             2019Nov11   5,724,786
                             // 5,429,332
+                            // 4,458,375    2020Jun26
     // 
     // traits_LSM  2019Aug22   190,833
     //             2019Nov11   309,906
                             // 310,459
+                            // 341,280      2020Jun26
     //             
     // traits_TS   2019Aug22   2,178,526
     //             2019Nov11   3,089,998
                             // 3,117,600
+                            // 2,638,694    2020Jun26
     // 
     // traits_TSp  2019Aug22   1,402,799
-    //             2019Nov11   1,969,893   exit("\n-end 2019Nov11-\n");
+    //             2019Nov11   1,969,893
                             // 2,105,309
+                            // 2,553,898    2020Jun26
 }
 
 /*
@@ -134,14 +150,17 @@ On 2019Nov11. Can no longer accommodate big files, memory-wise I think. Used man
 page_ids_FLOPO_0900032  2019Aug22    189,741
                         2019Nov11    160,560
                                      161,111
+                                     171,178    2020Jun26
 
 page_ids_Habitat        2019Aug22    344,704
                         2019Nov11    391,046
                                      388,650
+                                     1          2020Jun26
 
 page_ids_Present        2019Aug22    1,242,249
                         2019Nov11    1,116,012
                                      1,120,433
+                                     1,164,068  2020Jun26
 */
 if($task == 'pre_parent_basal_values') $func->pre_parent_basal_values(); //Updated script. Works OK as of Jun 23, 2020. No more manual step needed. Exec time: 64.41 seconds
 if($stop_here) {

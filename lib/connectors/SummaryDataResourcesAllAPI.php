@@ -77,7 +77,7 @@ class SummaryDataResourcesAllAPI
         }
         if(!is_dir($this->working_dir))       mkdir($this->working_dir);
         if(!is_dir($this->trait_bank_folder)) mkdir($this->trait_bank_folder);
-        if(!is_dir($this->main_dir.$this->MySQL_append_files_dir) mkdir($this->main_dir.$this->MySQL_append_files_dir));
+        if(!is_dir($this->main_dir.$this->MySQL_append_files_dir)) mkdir($this->main_dir.$this->MySQL_append_files_dir);
         /* seems not used at all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
         */
