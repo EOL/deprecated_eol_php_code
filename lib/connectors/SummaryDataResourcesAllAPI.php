@@ -47,28 +47,37 @@ class SummaryDataResourcesAllAPI
         $this->temp_file = CONTENT_RESOURCE_LOCAL_PATH . '/temp.txt';
         
         /* ------------------ NEW June 4, 2019 ------------------ */
-        $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
-        // $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
         $this->mysqli =& $GLOBALS['db_connection'];
         /* ------------------ NEW June 4, 2019 ------------------ */
         
-        if(Functions::is_production()) { $this->working_dir = "/extra/summary data resources/page_ids/";
-                                         $this->trait_bank_folder = 'has not come to this yet';
+        if(Functions::is_production()) { 
+            $this->main_dir = "/extra/other_files/summary_data_resources/"; //eol-archive
+            $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
+            $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
+            $this->MySQL_append_files_dir = "MySQL_append_files_".$folder_date;
         }
-        else {                          // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/";
-                                        $this->working_dir = $this->main_dir."page_ids/";
-                                        $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH
-                                        $this->working_dir = $this->main_dir."page_ids_DHv11/";     //to pertain using DHv1.1
-                                        $this->working_dir = $this->main_dir."page_ids_20190822/";
-                                        $this->working_dir = $this->main_dir."page_ids_20191111/";
-                                        $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
-                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_20190613';
-                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_20190822';
-                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_20191111';
-                                        $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
+        else {
+            $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
+            // $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
+            /*
+            $this->working_dir = $this->main_dir."page_ids/";
+            $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH
+            $this->working_dir = $this->main_dir."page_ids_DHv11/";     //to pertain using DHv1.1
+            $this->working_dir = $this->main_dir."page_ids_20190822/";
+            $this->working_dir = $this->main_dir."page_ids_20191111/";
+            */
+            $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
+            /*
+            $this->trait_bank_folder = $this->main_dir.'trait_bank_20190613';
+            $this->trait_bank_folder = $this->main_dir.'trait_bank_20190822';
+            $this->trait_bank_folder = $this->main_dir.'trait_bank_20191111';
+            */
+            $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
+            $this->MySQL_append_files_dir = "MySQL_append_files_".$folder_date;
         }
         if(!is_dir($this->working_dir))       mkdir($this->working_dir);
         if(!is_dir($this->trait_bank_folder)) mkdir($this->trait_bank_folder);
+        if(!is_dir($this->main_dir.$this->MySQL_append_files_dir) mkdir($this->main_dir.$this->MySQL_append_files_dir));
         /* seems not used at all
         $this->jen_isvat = "/Volumes/AKiTiO4/web/cp/summary data resources/2018 09 08/jen_isvat.txt";
         */
@@ -193,7 +202,7 @@ class SummaryDataResourcesAllAPI
 
         if($debugModeYN) {
             foreach($predicates as $predicate) {
-                $file = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt";
+                $file = $this->main_dir."/".$this->MySQL_append_files_dir."/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt";
                 if(file_exists($file)) unlink($file);
             }
         }
@@ -566,7 +575,7 @@ class SummaryDataResourcesAllAPI
             $page_ids = array();
             while($result && $rec=$result->fetch_assoc()) $page_ids[$rec['page_id']] = '';
             $page_ids = array_keys($page_ids);
-            $destination = $this->main_dir."/MySQL_append_files/$table".".txt";
+            $destination = $this->main_dir."/".$this->MySQL_append_files_dir."/$table".".txt";
             if(!($WRITE = Functions::file_open($destination, "w"))) return;
             fwrite($WRITE, implode("\n", $page_ids). "\n"); fclose($WRITE);
             //step2: insert to respective tables
@@ -1677,7 +1686,7 @@ class SummaryDataResourcesAllAPI
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
         
         $file_cnt = 1; $save = 0;
-        $file_write = $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         
         self::initialize(); $i = 0;
         while(($line = fgetcsv($file)) !== FALSE) { $i++; 
@@ -1711,16 +1720,16 @@ class SummaryDataResourcesAllAPI
                     if(($save % 500000) == 0) {
                         echo "\nSaving...".number_format($save);
                         fclose($WRITE);
-                        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+                        self::append_to_MySQL_table($table, $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt");
                         $file_cnt++;
-                        $file_write = $this->main_dir."/MySQL_append_files/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                        $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/metadata_LSM_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                     }
                     self::write_report($rec, $fields, $WRITE);
                 }
             }
         }
         fclose($WRITE);
-        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+        self::append_to_MySQL_table($table, $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt");
         fclose($file); echo("\n\n$table to MySQL DONE.\n\n");
         echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n";
     }
@@ -1736,7 +1745,7 @@ class SummaryDataResourcesAllAPI
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
         
         $file_cnt = 1; $save = 0;
-        $file_write = $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         if(!$WRITE) exit("\nerror fopen [$file_write]\n");
 
         $i = 0;
@@ -1774,8 +1783,8 @@ class SummaryDataResourcesAllAPI
                         $save++;
                         if(($save % 500000) == 0) {
                             echo "\nSaving...".number_format($save); fclose($WRITE);
-                            self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
-                            $file_cnt++; $file_write = $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                            self::append_to_MySQL_table($table, $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt");
+                            $file_cnt++; $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                         }
                         // self::write_report($rec, $fields, $WRITE); //normal if u want to save all columns
                         self::write_report($rec, array('EOLid', 'taxonRank'), $WRITE);
@@ -1785,7 +1794,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         fclose($WRITE);
-        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+        self::append_to_MySQL_table($table, $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt");
         echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n";
         exit("\n\n$table to MySQL DONE.\n\n");
     }
@@ -1795,7 +1804,7 @@ class SummaryDataResourcesAllAPI
         if($result = $this->mysqli->query($sql)) echo "\nTable truncated [$table] OK.\n";
         
         $file_cnt = 1; $save = 0;
-        $file_write = $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/metadata_refs_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         
         self::initialize();
         $file = fopen($this->main_paths['archive_path'].'/metadata.csv', 'r'); $i = 0;
@@ -1826,9 +1835,9 @@ class SummaryDataResourcesAllAPI
                     if(($save % 500000) == 0) {
                         echo "\nSaving...".number_format($save);
                         fclose($WRITE);
-                        self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
+                        self::append_to_MySQL_table('metadata_refs', $this->main_dir."/".$this->MySQL_append_files_dir."/metadata_refs_".$file_cnt.".txt");
                         $file_cnt++;
-                        $file_write = $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                        $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/metadata_refs_".$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                     }
                     self::write_report($rec, $fields, $WRITE);
                 }
@@ -1837,7 +1846,7 @@ class SummaryDataResourcesAllAPI
             // if($i >= 5) return; //debug
         }
         fclose($WRITE);
-        self::append_to_MySQL_table('metadata_refs', $this->main_dir."/MySQL_append_files/metadata_refs_".$file_cnt.".txt");
+        self::append_to_MySQL_table('metadata_refs', $this->main_dir."/".$this->MySQL_append_files_dir."/metadata_refs_".$file_cnt.".txt");
         fclose($file); echo "\n\nMetadata_refs to MySQL DONE.\n\n";
         echo "\nTotal rows [metadata_refs]: ".self::count_table_rows('metadata_refs')."\n";
     }
@@ -2234,7 +2243,7 @@ class SummaryDataResourcesAllAPI
         }
         // return; //used for caching only
         if($debugModeYN) {
-            $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
+            $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
             fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
             return false;
         }
@@ -2374,7 +2383,7 @@ class SummaryDataResourcesAllAPI
         }
         // return; //used for caching only
         if($debugModeYN) {
-            $file_write = $this->main_dir."/MySQL_append_files/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
+            $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/page_id_children_count_".pathinfo($predicate, PATHINFO_FILENAME).".txt"; $WRITE = fopen($file_write, "a");
             fwrite($WRITE, implode("\t", array($main_page_id, count($children)))."\n"); fclose($WRITE);
             return false;
         }
@@ -3797,7 +3806,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         
         $predicates = self::get_predicates_per_method_and_parentYN($method); //print_r($predicates); return;
         $filename = "traits_".$method."_"; $file_cnt = 1;
-        $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+        $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
         self::working_dir();
         $file = fopen($this->main_paths['archive_path'].'/traits.csv', 'r'); //11,276,098 rows in traits.csv | 11,276,097 in MySQL
         $i = 0; $save_cnt = 0;
@@ -3849,8 +3858,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 if(($save_cnt % 1000000) == 0) {
                     echo "\nSaving...".number_format($save_cnt);
                     fclose($WRITE);
-                    self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
-                    $file_cnt++; $file_write = $this->main_dir."/MySQL_append_files/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
+                    self::append_to_MySQL_table($table, $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt");
+                    $file_cnt++; $file_write = $this->main_dir."/".$this->MySQL_append_files_dir."/".$filename.$file_cnt.".txt"; $WRITE = fopen($file_write, "w");
                 }
                 // /* NEW to linkup lifeStage and statMeth to traits
                 if($method == "LSM") {
@@ -3864,7 +3873,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             }
         }
         fclose($WRITE);
-        self::append_to_MySQL_table($table, $this->main_dir."/MySQL_append_files/".$table."_".$file_cnt.".txt");
+        self::append_to_MySQL_table($table, $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt");
         fclose($file); echo "\n\nTraits to MySQL DONE [$table]";
         echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n--------------------\n";
     }
