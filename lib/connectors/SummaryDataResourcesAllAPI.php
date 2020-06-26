@@ -149,19 +149,20 @@ class SummaryDataResourcesAllAPI
     }
     private function working_dir()
     {
+        /*
         if(Functions::is_production()) {
             if(!($info = self::setup_working_dir())) return;
-            $this->main_paths = $info;
         }
         else { //local development only
-            /*
-            $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
-                          'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
-            */
+            // $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/carnivora_sample',
+            //               'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/dir_53125/');
             $info = Array('archive_path' => $this->trait_bank_folder,
                           'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
-            $this->main_paths = $info;
         }
+        */
+        $info = Array('archive_path' => $this->trait_bank_folder,
+                      'temp_dir'     => '/Library/WebServer/Documents/eol_php_code/tmp/not being used/'); //this field not being used ATM.
+        $this->main_paths = $info;
     }
     //==================================================================================================
     private function generate_children_of_taxa_using_parentsCSV()
