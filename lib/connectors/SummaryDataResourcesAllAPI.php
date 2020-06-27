@@ -4201,7 +4201,8 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         // $child = $child_orig;
         
         if($parent == $child) {
-            if($parent_orig != $child_orig) $this->debug[] = "Investigate: [$parent_orig] [$child_orig] meaning diff protocol";
+            if($parent_orig != $child_orig) $this->debug['diff protocol'][$parent_orig][$child_orig] = '';
+                                         // $this->debug[] = "Investigate: [$parent_orig] [$child_orig] meaning diff protocol";
             return false;
         }
         return array($parent_orig, $child_orig);
@@ -4243,7 +4244,9 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     */
     private function generate_preferred_child_parent_list()
     {
-        $temp_file = Functions::save_remote_file_to_local($this->file['preferred synonym']['path'], $this->download_options);
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //expires in a day
+        $temp_file = Functions::save_remote_file_to_local($this->file['preferred synonym']['path'], $options);
         $file = fopen($temp_file, 'r'); $i = 0;
         $fields = $this->file['preferred synonym']['fields'];
         while(($line = fgetcsv($file)) !== FALSE) {
@@ -4252,6 +4255,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k];
+                    if(!isset($line[$k])) exit("\nInvestigate file: ".$this->file['preferred synonym']['path']."\nWill terminate.\n");
                     $k++;
                 }
                 $rec = array_map('trim', $rec);
@@ -4311,7 +4315,9 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     private function generate_terms_values_child_parent_list($file = false)
     {
         if(!$file) exit("\nUndefined file: [$file]\n");
-        $temp_file = Functions::save_remote_file_to_local($file, $this->download_options);
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //expires in a day
+        $temp_file = Functions::save_remote_file_to_local($file, $options);
         $file = fopen($temp_file, 'r');
         $i = 0;
         $fields = $this->file['parent child']['fields'];
@@ -4321,6 +4327,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 $rec = array(); $k = 0;
                 foreach($fields as $fld) {
                     $rec[$fld] = $line[$k];
+                    if(!isset($line[$k])) exit("\nInvestigate file: ".$file."\nWill terminate.\n");
                     $k++;
                 }
                 $rec = array_map('trim', $rec);
