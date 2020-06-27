@@ -60,6 +60,7 @@ In Jenkins, this will run all at the same time. But due to the different delays,
 php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":0}'
 php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":180}'
 php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache", "delay_in_seconds":360}'
+*During the Jun 26, 2020 harvest, I only used 2 connectors since predicate 'habitat' was already excluded. It was fast enough using 2 only.
 
 Actual reports:
 php update_resources/connectors/SDR_all.php _ '{"task":"print_basal_values"}'               //1.65 hours
@@ -172,7 +173,7 @@ if($stop_here) {
 if($task == 'build_up_children_cache') { //can run max 3 connectors. auto-breakdown installed. Just 3 connectors so CPU wont max out.
     if($val = @$fields['delay_in_seconds']) sleep($val);
     $func->build_up_children_cache();
-    elapsed_time($timestart); exit("\n-end build_up_children_cache() 2019Nov11-\n");
+    elapsed_time($timestart); exit("\n-- end build_up_children_cache() $folder_date --\n");
 }
 // use this for single page_id: working OK
 // $page_id = 6551609;
