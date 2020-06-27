@@ -241,8 +241,8 @@ class SummaryDataResourcesAllAPI
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
-                echo "\nPredicates $cnt_predicate of $total_predicates";
-                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                debug("\nPredicates $cnt_predicate of $total_predicates");
+                debug("\nPage IDs $cnt_page_id of $total_page_ids\n");
 
                 // print_r($taxon); exit;
                 // Array(
@@ -297,7 +297,10 @@ class SummaryDataResourcesAllAPI
             $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
             if($ret = self::main_parents_taxon_summary($page_id, $predicate, false)) { //3rd param false, means NOT debugModeYN
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
+                if($GLOBALS['ENV_DEBUG']) {
+                    echo "\n\nFinal result (parent taxon summary):"; 
+                    print_r($ret);
+                }
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
             }
         }
@@ -351,8 +354,8 @@ class SummaryDataResourcesAllAPI
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
-                echo "\nPredicates $cnt_predicate of $total_predicates";
-                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                debug("\nPredicates $cnt_predicate of $total_predicates");
+                debug("\nPage IDs $cnt_page_id of $total_page_ids\n");
                 // print_r($taxon); exit;
                 // Array(
                 //     [taxonRank] => order
@@ -373,7 +376,9 @@ class SummaryDataResourcesAllAPI
                     $this->taxon_summary_parent_recs = array(); $this->ISVAT_TS = array();
                     if($ret = self::main_parents_taxon_summary($page_id, $predicate, $debugModeYN)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
+                        if($GLOBALS['ENV_DEBUG']) {
+                            echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
+                        }
                         self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
                     }
                 }
@@ -416,8 +421,8 @@ class SummaryDataResourcesAllAPI
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
-                echo "\nPredicates $cnt_predicate of $total_predicates";
-                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                debug("\nPredicates $cnt_predicate of $total_predicates");
+                debug("\nPage IDs $cnt_page_id of $total_page_ids\n");
                 
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
@@ -483,15 +488,17 @@ class SummaryDataResourcesAllAPI
             foreach($page_ids as $page_id => $taxon) { //print_r($taxon);
                 /* for indicator */
                 $cnt_page_id++;
-                echo "\nPredicates $cnt_predicate of $total_predicates";
-                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                debug("\nPredicates $cnt_predicate of $total_predicates");
+                debug("\nPage IDs $cnt_page_id of $total_page_ids\n");
                 
                 if(!$page_id) continue;
                 if(@$taxon['taxonRank'] == "species") {
                     $this->ISVAT_TS = array();
                     if($ret = self::main_taxon_summary($page_id, $predicate)) {
                         $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                        echo "\n\nFinal result (taxon summary):"; print_r($ret);
+                        if($GLOBALS['ENV_DEBUG']) {
+                            echo "\n\nFinal result (taxon summary):"; print_r($ret);
+                        }
                         self::write_resource_file_TaxonSummary($ret, $WRITE, 'non-parent');
                     }
                 }
@@ -528,8 +535,8 @@ class SummaryDataResourcesAllAPI
             foreach($page_ids as $page_id => $taxon) {
                 /* for indicator */
                 $cnt_page_id++;
-                echo "\nPredicates $cnt_predicate of $total_predicates";
-                echo "\nPage IDs $cnt_page_id of $total_page_ids\n";
+                debug("\nPredicates $cnt_predicate of $total_predicates");
+                debug("\nPage IDs $cnt_page_id of $total_page_ids\n");
 
                 //print_r($taxon);
                 if(!$page_id) continue;
