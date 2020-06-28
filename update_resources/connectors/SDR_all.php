@@ -64,8 +64,8 @@ php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache"
 
 Actual reports:
 php update_resources/connectors/SDR_all.php _ '{"task":"print_basal_values"}'               //1.65 hours
-php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_basal_values"}'
-php update_resources/connectors/SDR_all.php _ '{"task":"print_taxon_summary"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_basal_values"}'        //2.89 hours
+php update_resources/connectors/SDR_all.php _ '{"task":"print_taxon_summary"}'              //22.92 minutes
 php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_taxon_summary"}'
 php update_resources/connectors/SDR_all.php _ '{"task":"print_lifeStage_statMeth"}'
 Tests:

@@ -2356,13 +2356,11 @@ class SummaryDataResourcesAllAPI
         // if($mga_anak = self::get_CSV_children_of($main_page_id)) $children = array_merge($children, $mga_anak); OBSOLETE. children is now cached to txt file.
         
         if($mga_anak = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
-            $children = array_merge($children, $mga_anak);
-            $children = array_unique($children);
-            $children = array_values($children); //index the keys
-            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);    *Children of [xxx]: xxx
+            $children = array_merge($children, $mga_anak);  $children = array_unique($children);    $children = array_values($children); //index the keys
+            debug("\n*Children of [$main_page_id]: ".count($children)."\n"); //print_r($children);    *Children of [xxx]: xxx
         }
         else {
-            echo "\n*No children found for [$main_page_id]\n";
+            debug("\n*No children found for [$main_page_id]\n");
             // exit("\nelix stop taxon summary\n"); //debug only
             return array();
         }
@@ -2382,11 +2380,11 @@ class SummaryDataResourcesAllAPI
         
         if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate, 'traits_TSp')) { //has script to handle multiple predicates ALREADY
             $children_count = count($children);
-            echo "\n*Children TBP of [$main_page_id]: ".$children_count."\n";
+            debug("\n*Children TBP of [$main_page_id]: ".$children_count."\n");
             if($children_count > 1000) return array();
         }
         else {
-            echo "\n*No children TBP found for [$main_page_id]\n";
+            debug("\n*No children TBP found for [$main_page_id]\n");
             return array();
         }
         // return; //used for caching only
@@ -2403,12 +2401,14 @@ class SummaryDataResourcesAllAPI
         $records = array();
         foreach($children as $page_id) {
             if($val = self::main_taxon_summary($page_id, $predicate)) { //has script to handle multiple predicates ALREADY
-                echo "\nFinal result: taxon summary: "; print_r($val);
+                if($GLOBALS['ENV_DEBUG']) {
+                    echo "\nFinal result: taxon summary: "; print_r($val);
+                }
                 $records[] = $val;
                 $this->debug['parent taxon summary'][$main_page_id."_".$predicate][] = $page_id; //the parent taxa and corresponding predicate, with children that have records. Not all children under this parent but only those with records.
             }
         }
-        if(count($records) == 1) { echo "\n**Only 1 child has records. Use result of this child as result of the parent process ".count($records)." For [$main_page_id], $predicate\n";
+        if(count($records) == 1) { debug("\n**Only 1 child has records. Use result of this child as result of the parent process ".count($records)." For [$main_page_id], $predicate\n");
             /*Array
                 [0] => Array
                         [root] => 1642
@@ -2423,11 +2423,8 @@ class SummaryDataResourcesAllAPI
             $rec = $records[0];
             return array('root' => $rec['root'], 'root label' => $rec['root label'], 'Selected' => $rec['Selected'], 'Label' => $rec['Label']);
         }
-        elseif(count($records) > 1) { echo "\n**Multiple children have records ".count($records)." For [$main_page_id], $predicate\n";
-            // exit;
-        }
-        else echo "\n**No children, even inclusive have any records. For [$main_page_id], $predicate\n";
-        
+        elseif(count($records) > 1) debug("\n**Multiple children have records ".count($records)." For [$main_page_id], $predicate\n");
+        else                        debug("\n**No children, even inclusive have any records. For [$main_page_id], $predicate\n");
         
         if(!$records) return array();
         /* 3. get all selected values */
@@ -2438,15 +2435,17 @@ class SummaryDataResourcesAllAPI
         $original_records = $page_ids;
         $page_ids = array_unique($page_ids);
         $page_ids = array_values($page_ids); //reindexes key
-        echo "\n==========================================================\nStart: parent process for taxon ID $main_page_id, predicate $predicate\n";
-        echo "\nChildren used for computation: "; print_r($children);
-        echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
-        print_r($original_records);
-        // asort($original_records); print_r($original_records);
-        echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
-        print_r($page_ids);
-        //now get similar report from 'taxon summary'
-        echo "\n==========================================================\nHierarchies of taxon values:";
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\n==========================================================\nStart: parent process for taxon ID $main_page_id, predicate $predicate\n";
+            echo "\nChildren used for computation: "; print_r($children);
+            echo "\n==========================================================\nCombined values from the original records (all REC records of children), raw:";
+            print_r($original_records);
+            // asort($original_records); print_r($original_records);
+            echo "\n==========================================================\nCombined values from the original records (all REC records of children), deduplicated:";
+            print_r($page_ids);
+            //now get similar report from 'taxon summary'
+            echo "\n==========================================================\nHierarchies of taxon values:";
+        }
         $hierarchies_of_taxon_values = array();
         foreach($page_ids as $page_id) {
             $anc = self::get_ancestry_via_DH($page_id);
@@ -2482,26 +2481,25 @@ class SummaryDataResourcesAllAPI
                 }
             }
         }
-        echo "\n==========================================================\nReduced hierarchies: \n";
+        debug("\n==========================================================\nReduced hierarchies: \n");
         $hierarchies_of_taxon_values = array(); //to be used
         foreach($page_ids as $page_id) {
-            echo "\n[$page_id] -> ";
+            debug("\n[$page_id] -> ");
             $hierarchies_of_taxon_values[$page_id] = array(); //''; changed val from '' to array(). Just to be consistent with array treatment on later steps. Jun 25, 2019
             if($val = @$final[$page_id]) {
-                print_r($val);
+                if($GLOBALS['ENV_DEBUG']) print_r($val);
                 $hierarchies_of_taxon_values[$page_id] = $val;
             }
-            else echo "no more ancestry";
+            else debug("no more ancestry");
         }
 
         // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
         $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values);
         if(!$hierarchies_of_taxon_values) return array(); //new Aug 12'19
         // */
-        echo "\n==========================================================\nHierarchies after removal of the 5 deletable taxa:"; print_r($hierarchies_of_taxon_values);
+        if($GLOBALS['ENV_DEBUG']) {echo "\n==========================================================\nHierarchies after removal of the 5 deletable taxa:"; print_r($hierarchies_of_taxon_values);}
         $final = $hierarchies_of_taxon_values; //needed assignment
-
-        echo "\n==========================================================\nroots < 15% removal step:\n";
+        debug("\n==========================================================\nroots < 15% removal step:\n");
         /* ---------------------------------------------------------------------------------------------------------------------------------------
         "NEW STEP: IF there are multiple roots, discard those representing less than 15% of the original records",
         discard: yes, *in this step* discard means that whole hierarchy
@@ -2519,18 +2517,17 @@ class SummaryDataResourcesAllAPI
         // if(true) {
 
         if($count_all_roots > 1) {
-            echo "\nMultiple roots: "; print_r($all_roots);
+            if($GLOBALS['ENV_DEBUG']) {echo "\nMultiple roots: "; print_r($all_roots);}
             $temp_final = self::roots_lessthan_15percent_removal_step($original_records, $all_roots, $final);
             if($temp_final != $final) {
                 $final = $temp_final;
-                echo "\nHierarchies after discarding those representing less than 15% of the original records: "; print_r($final);
+                if($GLOBALS['ENV_DEBUG']) {echo "\nHierarchies after discarding those representing less than 15% of the original records: "; print_r($final);}
             }
             // else echo "\nfinal and temp_final are equal\n"; //just debug
             unset($temp_final);
         }
-        else echo "\nJust one root ($all_roots[0]). Will skip this step.\n";
-
-        echo "\n==========================================================\nFinal step:\n";
+        else debug("\nJust one root ($all_roots[0]). Will skip this step.\n");
+        debug("\n==========================================================\nFinal step:\n");
         /* ---------------------------------------------------------------------------------------------------------------------------------------
         IF >1 roots remain:,
         All the remaining roots are REP records,
@@ -2553,16 +2550,14 @@ class SummaryDataResourcesAllAPI
         $ret_roots = self::get_all_roots($final); //get all roots of 'Reduced hierarchies'
         $all_roots = $ret_roots['roots'];
         $count_all_roots = count($all_roots);
-        echo "\nList of root(s) and the corresponding no. of records it existed:"; print_r($ret_roots); //good debug
+        if($GLOBALS['ENV_DEBUG']) {echo "\nList of root(s) and the corresponding no. of records it existed:"; print_r($ret_roots);} //good debug
         if($count_all_roots == 1) {
-            echo "\nAll direct children of the remaining root are REP records, the one that appears in the most ancestries is the PRM.\n";
+            debug("\nAll direct children of the remaining root are REP records, the one that appears in the most ancestries is the PRM.\n");
             //from taxon summary:
             $ret = self::get_immediate_children_of_root_info($final);
             $immediate_children_of_root         = $ret['immediate_children_of_root'];
             $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
-
-            echo "\nImmediate children of root => and the no. of records it existed:";
-            print_r($immediate_children_of_root_count); echo "\n";
+            if($GLOBALS['ENV_DEBUG']) {echo "\nImmediate children of root => and the no. of records it existed:"; print_r($immediate_children_of_root_count); echo "\n";}
             /* ver. 1 strategy
             $root_ancestor = array_unique($root_ancestor);
             */
@@ -2570,14 +2565,15 @@ class SummaryDataResourcesAllAPI
             $root_ancestor = self::get_key_of_arr_with_biggest_value($immediate_children_of_root_count);
             // */
             $immediate_children_of_root = array_keys($immediate_children_of_root);
-
-            echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
-            echo "\nREP records: "; print_r($immediate_children_of_root);
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
+                echo "\nREP records: "; print_r($immediate_children_of_root);
+            }
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Label' => 'REP');
             
         } //end IF one root remains ------------------------------------------------------------
         elseif($count_all_roots > 1) { //has not met this criteria yet in our test cases.
-            echo "\nMore than 1 root remain. All the remaining roots are REP records, the one that appears in the most ancestries is the PRM.\n";
+            debug("\nMore than 1 root remain. All the remaining roots are REP records, the one that appears in the most ancestries is the PRM.\n");
             /* IF >1 roots remain:,
             - All the remaining roots are REP records,
             - the one that appears in the most ancestries is the PRM,
@@ -2593,13 +2589,14 @@ class SummaryDataResourcesAllAPI
                         [143] = 1
             )*/
             $root_ancestor = self::get_key_of_arr_with_biggest_value($ret_roots['count_of_roots']);
-            echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
-            echo "\nREP records: "; print_r($ret_roots['roots']);
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\nPRM record: $root_ancestor (the one that appears in the most ancestries)";
+                echo "\nREP records: "; print_r($ret_roots['roots']);
+            }
             return array('tree' => $final, 'root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $ret_roots['roots'], 'Label' => 'REP');
         } //end if > 1 roots remain ------------------------------------------------------------
         return array(); //new Aug 12'19
-        exit("\nexit muna\n");
-        //$predicate
+        exit("\nexit muna [$predicate]\n");
     }
     private function roots_lessthan_15percent_removal_step($original_records, $all_roots, $final_from_main)
     {
@@ -2621,9 +2618,8 @@ class SummaryDataResourcesAllAPI
             $final2['roots % in original records'][$root] = $percentage;
             if($percentage < 15) $remove[] = $root;
         }
-        print_r($final2);
+        if($GLOBALS['ENV_DEBUG']) print_r($final2);
         // echo "\nremove: "; print_r($remove);
-        
         if($remove) {
             /* remove from $final_from_main those with roots that are < 15% coverage in $original_records */
             foreach($final_from_main as $page_id => $ancestry) {
@@ -2964,8 +2960,10 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 // /* initial report for Jen
                 // echo "\nAncestry [$page_id]: "; print_r($anc); //orig initial report
                 if($anc) {
-                    echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
-                    foreach($anc as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+                    if($GLOBALS['ENV_DEBUG']) {
+                        echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
+                        foreach($anc as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+                    }
                 }
                 // */
                 //start store counts 1:
@@ -3008,12 +3006,14 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         if($eol_pks) $refs = self::get_refs_from_metadata_csv(array_keys($eol_pks));
         For refs END */
         $refs = array();
-        
-        echo "\n==========================================\nTips on left. Ancestors on right.\n";
+
+        debug("\n==========================================\nTips on left. Ancestors on right.\n");
         // print_r($final);
         foreach($final as $tip => $ancestors) {
-            echo "\n$tip: (reduced ancestors below, with {Landmark value} in curly brackets)";
-            foreach($ancestors as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\n$tip: (reduced ancestors below, with {Landmark value} in curly brackets)";
+                foreach($ancestors as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
+            }
         }
         echo "\n";
         /* may not need this anymore: get tips
@@ -3024,10 +3024,14 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         - Select all immediate children of the root and label REP.
         - Label the root PRM
         */
-        echo "\n TS final hierarchies: ".count($final)."\n"; print_r($final);
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nTS final hierarchies: ".count($final)."\n"; print_r($final);
+        }
         if(!$this->parentModeYN) {
             $final = self::adjust_2913056($final); //apply magic 5 for taxon_summary
-            echo "\n TS final hierarchies, after magic 8: ".count($final)."\n"; print_r($final);
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\nTS final hierarchies, after magic 8: ".count($final)."\n"; print_r($final);
+            }
         }
         
         $this->ISVAT_TS = $this->ISVAT_TS + $final;
@@ -3037,8 +3041,10 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $immediate_children_of_root         = $ret['immediate_children_of_root'];
         $immediate_children_of_root_count   = $ret['immediate_children_of_root_count'];
         
-        echo "\nImmediate children of root => no. of records it existed:";
-        print_r($immediate_children_of_root_count); echo "\n";
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nImmediate children of root => no. of records it existed:";
+            print_r($immediate_children_of_root_count); echo "\n";
+        }
         /* ver. 1 strategy
         $root_ancestor = array_unique($root_ancestor);
         */
@@ -3051,9 +3057,9 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         // echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
         /* START NEW: Per Jen: Please make the PRM record, not the root, but the REP record that appears in the most hierarchies in the original list. 
         I think we might end up doing that with all four applicable methods (basal values and taxon summary, regular and parents). */
-        echo "\nImmediate children of root => no. of records it existed FROM THE ORIGINAL RECORDS: ";
-        foreach($immediate_children_of_root as $id) {
-            echo "\n [$id] => ".$orig_counts_with_left[$id];
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nImmediate children of root => no. of records it existed FROM THE ORIGINAL RECORDS: ";
+            foreach($immediate_children_of_root as $id) echo "\n [$id] => ".$orig_counts_with_left[$id];
         }
         return array('root' => $root_ancestor, 'root label' => 'PRM and REP', 'Selected' => $immediate_children_of_root, 'Label' => 'REP', 'refs' => $refs);
         //'tree' => $final, 'orig_counts_with_left' => $orig_counts_with_left
