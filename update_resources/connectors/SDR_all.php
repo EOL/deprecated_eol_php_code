@@ -5,8 +5,9 @@ namespace php_active_record;
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
+$GLOBALS['ENV_DEBUG'] = false; //false is default in productionh
 /*
-$a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);     
+$a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);
 $a = array_reverse($a); print_r($a);
 $temp = $a;
 foreach($a as $id) {
@@ -63,11 +64,11 @@ php update_resources/connectors/SDR_all.php _ '{"task":"build_up_children_cache"
 *During the Jun 26, 2020 harvest, I only used 2 connectors since predicate 'habitat' was already excluded. It was fast enough using 2 only.
 
 Actual reports:
+php update_resources/connectors/SDR_all.php _ '{"task":"print_lifeStage_statMeth"}'         //1.32 hours
 php update_resources/connectors/SDR_all.php _ '{"task":"print_basal_values"}'               //1.65 hours
 php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_basal_values"}'        //2.89 hours
 php update_resources/connectors/SDR_all.php _ '{"task":"print_taxon_summary"}'              //22.92 minutes
-php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_taxon_summary"}'
-php update_resources/connectors/SDR_all.php _ '{"task":"print_lifeStage_statMeth"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"print_parent_taxon_summary"}'       //12.58 hours
 Tests:
 php update_resources/connectors/SDR_all.php _ '{"task":"test_basal_values"}'
 php update_resources/connectors/SDR_all.php _ '{"task":"test_parent_basal_values"}'
