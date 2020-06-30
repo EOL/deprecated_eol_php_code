@@ -21,6 +21,8 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1704, "sci":"Squamata"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":1553, "sci":"Anura"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":345, "sci":"Coleoptera"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7662, "sci":"Carnivora"}'
+Next batch as of Jun 29, 2020:
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
