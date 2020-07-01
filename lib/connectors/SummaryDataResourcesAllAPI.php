@@ -199,7 +199,8 @@ class SummaryDataResourcesAllAPI
     {   $this->dbname = 'traits_'.$dbase;
         self::initialize_basal_values(); 
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value'); print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'basal value');
+        if($GLOBALS['ENV_DEBUG']) print_r($predicates);
 
         if($debugModeYN) {
             foreach($predicates as $predicate) {
@@ -208,8 +209,9 @@ class SummaryDataResourcesAllAPI
             }
         }
 
-        if($page_ids_param) print_r($page_ids_param);
-
+        if($page_ids_param) {
+            if($GLOBALS['ENV_DEBUG']) print_r($page_ids_param);
+        }
         echo "\nGet page_ids for parent (BV)...\n";
         if($page_ids_param) {
             $page_ids = self::get_page_ids_andInfo_fromDH($page_ids_param);
@@ -271,7 +273,7 @@ class SummaryDataResourcesAllAPI
             }
         }
         fclose($WRITE); self::end_write2DwCA();
-        print_r($this->debug);
+        if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-- end parents basal values --\n");
     }
     function test_parent_taxon_summary()
@@ -298,13 +300,13 @@ class SummaryDataResourcesAllAPI
             if($ret = self::main_parents_taxon_summary($page_id, $predicate, false)) { //3rd param false, means NOT debugModeYN
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 if($GLOBALS['ENV_DEBUG']) {
-                    echo "\n\nFinal result (parent taxon summary):"; 
-                    print_r($ret);
+                    echo "\n\nFinal result (parent taxon summary):"; print_r($ret);
                 }
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'parent');
             }
         }
-        fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
+        fclose($WRITE); self::end_write2DwCA();
+        if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-- end method: parents: taxon summary --\n");
     }
     function print_parent_taxon_summary($dbase, $page_ids_param = false, $page_id_value = false, $debugModeYN = false)
@@ -314,8 +316,10 @@ class SummaryDataResourcesAllAPI
         // self::generate_children_of_taxa_using_parentsCSV(); OBSOLETE
         
         // /* un-comment in real operation
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); print_r($predicates);
-        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); //exit;
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'parents!A2:C1000', 2, 'taxon summary'); 
+        if($GLOBALS['ENV_DEBUG']) print_r($predicates);
+        $predicates = self::group_predicates_if_needed($predicates); 
+        if($GLOBALS['ENV_DEBUG']) print_r($predicates); //exit;
         // */
         
         /* during caching only - before 'combined predicates' scheme.
@@ -329,7 +333,7 @@ class SummaryDataResourcesAllAPI
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH();
         */
         
-        echo "\nGet page_ids for parent (TS)...\n";
+        debug("\nGet page_ids for parent (TS)...\n");
         if($page_ids_param) {
             $page_ids = self::get_page_ids_andInfo_fromDH($page_ids_param);
             $resource_id = 'parent_taxon_summary_'.$page_id_value;
@@ -384,14 +388,16 @@ class SummaryDataResourcesAllAPI
                 }
             }
         }
-        fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
+        fclose($WRITE); self::end_write2DwCA();
+        if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-end print parent taxon summary-\n");
     }
     function print_basal_values($dbase)
     {   $this->dbname = 'traits_'.$dbase;
         //step 1: get all 'basal values' predicates:
         // /*
-        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values'); print_r($predicates);
+        $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'basal values');
+        if($GLOBALS['ENV_DEBUG']) print_r($predicates);
         $resource_id = 'basal_values';
         // [0] => http://eol.org/schema/terms/Present
         // [1] => http://eol.org/schema/terms/Habitat
@@ -434,7 +440,8 @@ class SummaryDataResourcesAllAPI
                 // if($cnt_page_id >= 10) break; //debug only
             }
         }
-        fclose($WRITE); self::end_write2DwCA(); print_r($this->debug);
+        fclose($WRITE); self::end_write2DwCA();
+        if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-end print resource files (Basal values)-\n");
     }
     private function group_predicates_if_needed($predicates)
@@ -465,13 +472,14 @@ class SummaryDataResourcesAllAPI
         $this->parentModeYN = false;
         //step 1: get all 'taxon summary' predicates:
         $predicates = self::get_summ_process_type_given_pred('opposite', 'predicates!A2:F1000', 5, 'taxon summary'); echo "\nPredicates: ".count($predicates)."\n";
-        $predicates = self::group_predicates_if_needed($predicates); print_r($predicates); //exit;
+        $predicates = self::group_predicates_if_needed($predicates); 
+        if($GLOBALS['ENV_DEBUG']) print_r($predicates); //exit;
         self::initialize(); 
         /* removed bec it is getting page_ids without predicate in question. Moved below.
         $page_ids = self::get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates);
         */
         //--------initialize start
-        echo "\nparse DH...\n"; self::parse_DH();
+        self::parse_DH();
         $resource_id = 'taxon_summary'; $WRITE = self::start_write2DwCA($resource_id, 'TS');
 
         // $predicates = array('http://purl.obolibrary.org/obo/RO_0002470'); //debug only force assign
@@ -618,13 +626,15 @@ class SummaryDataResourcesAllAPI
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             $this->original_nodes_parent = array(); //initialize for every 'parent basal values' process
             if($ret = self::main_parents_basal_values($page_id, $predicate, $debugModeYN)) {
-                echo "\nFinal (parent basal values): "; print_r($ret);
+                if($GLOBALS['ENV_DEBUG']) {echo "\nFinal (parent basal values): "; print_r($ret);}
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
                 self::write_resource_file_BasalValues($ret, $WRITE, 'parent');
             }
         }
         fclose($WRITE); self::end_write2DwCA();
-        if($this->debug) print_r($this->debug);
+        if($this->debug) {
+            if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
+        }
         echo("\n-- end method: parents: basal values --\n");
         // print_r($this->report_SampleSize);
         // print_r($this->report_SampleSize['http://www.wikidata.org/entity/Q106447']);
@@ -691,7 +701,7 @@ class SummaryDataResourcesAllAPI
             $this->ISVAT_TS = array();
             if($ret = self::main_taxon_summary($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                echo "\n\nFinal result (taxon summary):"; print_r($ret);
+                if($GLOBALS['ENV_DEBUG']) {echo "\n\nFinal result (taxon summary):"; print_r($ret);}
                 self::write_resource_file_TaxonSummary($ret, $WRITE, 'non-parent');
             }
         }
@@ -752,7 +762,7 @@ class SummaryDataResourcesAllAPI
             $page_id = $i['page_id']; $predicate = $i['predicate'];
             if($ret = self::main_basal_values($page_id, $predicate)) {
                 $ret['page_id'] = $page_id; $ret['predicate'] = $predicate;
-                print_r($ret);
+                if($GLOBALS['ENV_DEBUG']) print_r($ret);
                 self::write_resource_file_BasalValues($ret, $WRITE, 'non-parent');
             }
             
@@ -763,7 +773,7 @@ class SummaryDataResourcesAllAPI
             */
         }
         fclose($WRITE); self::end_write2DwCA();
-        print_r($this->debug);
+        if($GLOBALS['ENV_DEBUG']) print_r($this->debug);
         echo("\n-- end method: basal values --\n");
         // */
     }
@@ -845,7 +855,9 @@ class SummaryDataResourcesAllAPI
 
             // if($i >= 2) break; //debug only
         }
-        if($this->debug) print_r($this->debug);
+        if($GLOBALS['ENV_DEBUG']) {
+            if($this->debug) print_r($this->debug);
+        }
         /* test only: single page_id
         $main_page_id = 7665; //7662;
         self::get_children_from_txt_file($main_page_id);
@@ -860,7 +872,7 @@ class SummaryDataResourcesAllAPI
         // $this->working_dir = "/Volumes/AKiTiO4/web/cp/summary data resources/page_ids/"; //debug only force assign
         $txt_file = self::get_txt_path_by_page_id($page_id, "_ch.txt"); //echo "\n$txt_file\n";
         if(file_exists($txt_file)) {
-            echo "\nExists: [$page_id] $txt_file\n";
+            debug("\nExists: [$page_id] $txt_file\n");
             $json = trim(file_get_contents($txt_file));
             $arr = json_decode($json, true);
             return $arr;
@@ -903,7 +915,8 @@ class SummaryDataResourcesAllAPI
         $ret = self::format_value_for_sql($predicate);
         if($ret['count'] == 'single')       {} //proceed below - orig
         elseif($ret['count'] == 'multiple') {
-            $predicates = explode(",", str_replace("'","",$ret['value'])); print_r($predicates);
+            $predicates = explode(",", str_replace("'","",$ret['value'])); 
+            if($GLOBALS['ENV_DEBUG']) print_r($predicates);
             return self::get_childrenTBP_from_txt_file_multiple($predicates, array('main_page_id' => $main_page_id, 'children' => $children, 'table' => $table));
         }
         // */
@@ -913,7 +926,7 @@ class SummaryDataResourcesAllAPI
             /* Special utility - use if u want to DELETE children TBP txt file. e.g. 2948715_chTBP_Habitat.txt
             unlink($txt_file); return; //elixAug9
             */
-            echo "\nExists: [$main_page_id] $txt_file\n";
+            debug("\nExists: [$main_page_id] $txt_file\n");
             $json = trim(file_get_contents($txt_file));
             $arr = json_decode($json, true);
             return $arr;
@@ -1109,10 +1122,10 @@ class SummaryDataResourcesAllAPI
         elseif($parentYN == "parent") $recs = $this->taxon_summary_parent_recs;
         else exit("\nNot go here...\n");
         // echo "\nHere 001...\n";
-        echo "\nAssembled recs to check if id exists (object_page_id): "; //print_r($recs)
+        debug("\nAssembled recs to check if id exists (object_page_id): "); //print_r($recs)
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
-            foreach($recs as $rec) { echo " -".$rec['object_page_id']."- "; //good debug
+            foreach($recs as $rec) { debug(" -".$rec['object_page_id']."- "); //good debug
                 if($rec['object_page_id'] == $id) {
                     $eol_pks[$rec['eol_pk']] = '';
                     $found[] = $id;
@@ -1124,13 +1137,15 @@ class SummaryDataResourcesAllAPI
         }
         if($existing_records_for_writing) self::adjust_if_needed_and_write_existing_records($existing_records_for_writing, $WRITE);
         $eol_pks = array_keys($eol_pks);
-        echo "\n [$parentYN] Original recs: ".count($recs)."\n";
+        debug("\n [$parentYN] Original recs: ".count($recs)."\n");
         if($new_records = array_diff($info['Selected'], $found)) {
-            echo "\nTS - Not found in traits.csv object_page_id for this page_id and predicate. Create new record(s): included in DwCA"; print_r($new_records); //good debug
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\nTS - Not found in traits.csv object_page_id for this page_id and predicate. Create new record(s): included in DwCA"; print_r($new_records); //good debug
+            }
 
             // /* magic 8 now applied above (orig) and now here as well. Also now for both 'parent' and 'non-parent'
             $new_records = array_diff($new_records, $this->magic8);
-            echo "\n after magic 8: "; print_r($new_records);
+            if($GLOBALS['ENV_DEBUG']) {echo "\n after magic 8: "; print_r($new_records);}
             // */
             
             /* ver 1
@@ -1143,7 +1158,7 @@ class SummaryDataResourcesAllAPI
             self::create_archive_TaxonSummary($new_records, $new_records_refs, $info);
             // */
         }
-        else echo "\nNo new records. Will not write to DwCA.\n";
+        else debug("\nNo new records. Will not write to DwCA.\n");
     }
     //================================================================================================================================= start new scheme
     private function assemble_refs_for_new_recs_TS($new_records, $orig_recs)
@@ -1163,7 +1178,8 @@ class SummaryDataResourcesAllAPI
             if(in_array($term, $arr)) $final[$key] = '';
             if($key == $term) $final[$key] = '';
         }
-        return array_keys($final);
+        if($final) return array_keys($final);
+        return array();
     }
     private function get_eol_pks_of_new_from_origRecs_TS($recs, $descendants)
     {
@@ -1357,7 +1373,7 @@ class SummaryDataResourcesAllAPI
         elseif($parentYN == "parent") $recs = $this->basal_values_parent_recs;
         else exit("\nNot go here...\n");
         
-        echo "\n recs in writing: ".count($recs); //print_r($recs);
+        debug("\n recs in writing: ".count($recs)); //print_r($recs);
         $found = array(); $existing_records_for_writing = array(); $eol_pks = array();
         foreach($info['Selected'] as $id) {
             foreach($recs as $rec) {
@@ -1375,7 +1391,7 @@ class SummaryDataResourcesAllAPI
         
         $eol_pks = array_keys($eol_pks);
         if($new_records = array_diff($info['Selected'], $found)) {
-            echo "\nBV - Not found in traits.csv. Create new record(s) [$page_id] [$predicate]: "; print_r($new_records); //good debug
+            if($GLOBALS['ENV_DEBUG']) {echo "\nBV - Not found in traits.csv. Create new record(s) [$page_id] [$predicate]: "; print_r($new_records);} //good debug
             /* ver 1 obsolete
             $refs = self::get_refs_from_metadata_csv($eol_pks); //get refs for new records, same refs for all new records
             self::create_archive($new_records, $refs, $info);
@@ -1385,7 +1401,7 @@ class SummaryDataResourcesAllAPI
             $new_records_refs = self::assemble_refs_for_new_recs($new_records, $recs);
             self::create_archive($new_records, $new_records_refs, $info);
         }
-        else echo "\nNo new records. Will not write to DwCA.\n";
+        else debug("\nNo new records. Will not write to DwCA.\n");
     }
     private function assemble_refs_for_new_recs($new_records, $orig_recs)
     {   $refs_of = array();
@@ -1410,15 +1426,17 @@ class SummaryDataResourcesAllAPI
     }
     private function get_from_ISVAT_descendants_of($term) //working well
     {   // echo "\nSTART: get_from_ISVAT_descendants_of($term)\n";
+        $desc_all = array();
         $desc_x = array($term);
         $preserve_unique_desc_x = array(); //prevent infinite loop e.g. page_id: 1004183 | predicate: [http://eol.org/schema/terms/Present]
         while($desc_x) {
-            echo "\ndesc_x count: ".count($desc_x)." "; print_r($desc_x);
+            if($GLOBALS['ENV_DEBUG']) {echo "\ndesc_x count: ".count($desc_x)." "; print_r($desc_x);}
+            $temp = array(); //new June 28, 2020
             foreach($this->ISVAT as $a) {
                 if(in_array($a[0], $desc_x)) {
                     $temp[$a[1]] = '';
                     $desc_all[$a[1]] = '';
-                    print_r($a);
+                    if($GLOBALS['ENV_DEBUG']) print_r($a);
                 }
             }
             $temp = array_keys($temp);
@@ -1450,7 +1468,7 @@ class SummaryDataResourcesAllAPI
         // $rows[] = array(46559217, 'R512-PK24249316', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'REP');
         // $rows[] = array(46559217, 'R512-PK24569594', 'http://purl.obolibrary.org/obo/ENVO_00000446', 'REP');
         */
-        echo "\nExisting records: ".count($rows); print_r($rows); //good debug - Jul 29 commented
+        if($GLOBALS['ENV_DEBUG']) {echo "\nExisting records: ".count($rows); print_r($rows);} //good debug - Jul 29 commented
         /*[1169] => Array(
                     [0] => 7662
                     [1] => R512-PK71414812
@@ -1468,14 +1486,14 @@ class SummaryDataResourcesAllAPI
         foreach($rows as $row) {
             @$counts[$row[2]]++; //VERY IMPORTANT: the row[2] must be the value_uri for BV and object_page_id for TS
         }
-        echo "\ncounts: (to be included in resources.txt) "; print_r($counts);
+        if($GLOBALS['ENV_DEBUG']) {echo "\ncounts: (to be included in resources.txt) "; print_r($counts);}
         //step 2: get eol_pk if count > 1 -> meaning multiple records
         foreach($rows as $row) {
             $eol_pk = $row[1];
             $value_uri = $row[2];
             if($counts[$value_uri] > 1) @$study[$value_uri][] = $eol_pk;
         }
-        if(!isset($study)) { echo "\nNo selected values available in multiple records.\n";
+        if(!isset($study)) { debug("\nNo selected values available in multiple records.\n");
             foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
             return;
         }
@@ -1505,7 +1523,7 @@ class SummaryDataResourcesAllAPI
         }
         // echo "\n remove: ";print_r($remove);
         
-        echo "\norig rows count: ".count($rows);
+        debug("\norig rows count: ".count($rows));
         //step 4: remove duplicate records
         $i = 0;
         foreach($rows as $row)
@@ -1522,7 +1540,7 @@ class SummaryDataResourcesAllAPI
             $i++;
         }
         $rows = array_filter($rows);
-        echo "\nnew rows count: ".count($rows)."\n";
+        debug("\nnew rows count: ".count($rows)."\n");
         //step 5: finally writing the rows
         foreach($rows as $row) fwrite($WRITE, implode("\t", $row). "\n");
         return;
@@ -1890,7 +1908,9 @@ class SummaryDataResourcesAllAPI
                     print_r($rec); exit;
                 }
                 */
-                if($rec['predicate'] == "http://eol.org/schema/reference/referenceID") print_r($rec);
+                if($GLOBALS['ENV_DEBUG']) {
+                    if($rec['predicate'] == "http://eol.org/schema/reference/referenceID") print_r($rec);
+                }
                 // $debug[$rec['predicate']] = '';
             }
         }
@@ -2155,7 +2175,7 @@ class SummaryDataResourcesAllAPI
         while($result && $rec=$result->fetch_assoc()) {
             foreach($headers as $head) $final[$head][$rec[$head]] = '';
         }
-        echo "\nQuery end OK\n";
+        debug("\nQuery end OK\n");
         return $final;
         /* working but too slow for All Export File
         $file = fopen($this->main_paths['archive_path'].'/'.$filename, 'r'); $i = 0;
@@ -2206,17 +2226,18 @@ class SummaryDataResourcesAllAPI
         return $recs;
     }
     private function main_parents_basal_values($main_page_id, $predicate, $debugModeYN = false)
-    {   echo "\n#####################################################################\n";echo "\nMethod: parents basal values | Page ID: $main_page_id | Predicate: $predicate\n";
+    {   
+        self::per_line('parents basal values', $main_page_id, $predicate);
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 328609, 46559217, 328682, 328607); //force assignment, development only
 
         // /*
         // if($children = self::get_CSV_children_of($main_page_id, $predicate)) { //$predicate param here is just for debug | OBSOLETE. Value is now cached to txt file.
         if($children = self::get_children_from_txt_file($main_page_id, false)) { //Value is now cached to txt file
-            echo "\n*Children of [$main_page_id]: ".count($children)."\n"; //print_r($children);    *Children of [164]: 1433142
+            debug("\n*Children of [$main_page_id]: ".count($children)."\n"); //print_r($children);    *Children of [164]: 1433142
         }
         else {
-            echo "\n*No children found for [$main_page_id]\n";
+            debug("\n*No children found for [$main_page_id]\n");
             return array();
         }
         // */
@@ -2242,11 +2263,11 @@ class SummaryDataResourcesAllAPI
         
         if($children = self::get_childrenTBP_from_txt_file($main_page_id, $children, $predicate)) {
             $children_count = count($children);
-            echo "\n*Children TBP of [$main_page_id]: ".$children_count."\n";
+            debug("\n*Children TBP of [$main_page_id]: ".$children_count."\n");
             if($children_count > 1000) return array();
         }
         else {
-            echo "\n*No children TBP found for [$main_page_id]\n";
+            debug("\n*No children TBP found for [$main_page_id]\n");
             return array();
         }
         // return; //used for caching only
@@ -2282,7 +2303,7 @@ class SummaryDataResourcesAllAPI
         }
         */
         if(!$recs) {
-            echo "\nNo recs for any of the children for predicate [$predicate]\n";
+            debug("\nNo recs for any of the children for predicate [$predicate]\n");
             return false;
         }
         
@@ -2291,11 +2312,13 @@ class SummaryDataResourcesAllAPI
         // */
         
         if($ret = self::main_basal_values(NULL, NULL, 'parent basal values', $recs)) {
-            print_r($ret);
-            foreach($ret['Selected'] as $term) { //debug only - good debug - mainstay
-                echo "\n[$term]: ";
-                if($val = @$this->parents_of[$term]) print_r($val);
-                else echo " -- no parent";
+            if($GLOBALS['ENV_DEBUG']) {
+                print_r($ret);
+                foreach($ret['Selected'] as $term) { //debug only - good debug - mainstay
+                    echo "\n[$term]: ";
+                    if($val = @$this->parents_of[$term]) print_r($val);
+                    else echo " -- no parent";
+                }
             }
             return $ret;
         }
@@ -2335,7 +2358,8 @@ class SummaryDataResourcesAllAPI
     }
     //############################################################################################ start method = 'parents taxon summary'
     private function main_parents_taxon_summary($main_page_id, $predicate, $debugModeYN)
-    {   echo "\n#####################################################################"; echo "\nMethod: parents taxon summary | Page ID: $main_page_id | Predicate: $predicate\n";
+    {   
+        self::per_line('parents taxon summary', $main_page_id, $predicate);
         /* 1. get all children of page_id with rank = species */
         // $children = array(328598, 46559162, 328607, 46559217, 328609); //force assign, during dev only
         // /*
@@ -2455,7 +2479,7 @@ class SummaryDataResourcesAllAPI
         // /* NEW STEP: If the common root of the dataset is anything else, you can leave it. Only remove it if it is in the magic 5 of deletable taxa. 
         // $hierarchies_of_taxon_values = self::adjust_2913056($hierarchies_of_taxon_values); MOVED BELOW...
         // */
-        print_r($hierarchies_of_taxon_values);
+        if($GLOBALS['ENV_DEBUG']) print_r($hierarchies_of_taxon_values);
         
         //start store counts 2:
         foreach($hierarchies_of_taxon_values as $page_id => $anc) {
@@ -2758,7 +2782,6 @@ class SummaryDataResourcesAllAPI
     {
         if(Functions::is_production()) {
             if(!($info = self::extract_DH())) return;
-            print_r($info);
         }
         else { //local development only
             /*
@@ -2784,6 +2807,7 @@ class SummaryDataResourcesAllAPI
                           'tables' => Array('taxa' => 'taxa.txt'));
             */
         }
+        print_r($info);
         return $info;
     }
     function parse_DH()
@@ -2879,7 +2903,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $final = array(); $final2 = array();
         $taxonID = @$this->EOL_2_DH[$page_id];
         if(!$taxonID) {
-            echo "\nThis page_id [$page_id] is not found in DH.";
+            debug("\nThis page_id [$page_id] is not found in DH.");
             return array();
         }
         while(true) {
@@ -2927,12 +2951,13 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         echo "\n$page_id: (ancestors below, with {Landmark value} in curly brackets)";
         foreach($ancestry as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
         */
-        echo "\n================================================================Method: taxon summary\npage_id: $page_id | predicate: [$predicate]\n";
+        self::per_line('taxon summary', $page_id, $predicate);
+        
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array(), 'TS'); //has script to handle multiple predicates ALREADY
                                                                                                      // 3rd param here is irrelevant, 4th param is important.
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
-        echo "\nAssembled recs: ".count($recs)."\n";
+        debug("\nAssembled recs: ".count($recs)."\n");
         // print_r($recs); exit;
         
         /* debug only - good debug - listing initial collection
@@ -3015,7 +3040,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 foreach($ancestors as $anc_id) echo "\n --- $anc_id {".$this->landmark_value_of[$anc_id]."}";
             }
         }
-        echo "\n";
+        debug("\n");
         /* may not need this anymore: get tips
         $tips = array_keys($final); //next step is get all tips from $final; 
         echo "\n tips: ".count($tips)." - "; print_r($tips);
@@ -3053,7 +3078,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         // */
         $immediate_children_of_root = array_keys($immediate_children_of_root);
         
-        echo "\n root: "; print_r($root_ancestor);
+        if($GLOBALS['ENV_DEBUG']) {echo "\n root: "; print_r($root_ancestor);}
         // echo "\n immediate_children_of_root: "; print_r($immediate_children_of_root);
         /* START NEW: Per Jen: Please make the PRM record, not the root, but the REP record that appears in the most hierarchies in the original list. 
         I think we might end up doing that with all four applicable methods (basal values and taxon summary, regular and parents). */
@@ -3090,24 +3115,25 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         return $ret;
     }
     private function main_lifestage_statMeth($page_id, $predicate)
-    {   echo "\n================================================================Method: lifestage & statMeth\npage_id: $page_id | predicate: [$predicate]\n";
+    {   
+        self::per_line('lifestage & statMeth', $page_id, $predicate);
         // $path = self::get_txt_path_by_page_id($page_id); //not needed anymore
         $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate);
         // print_r($recs); exit;
         if(!$recs) { echo "\nNo records for [$page_id] [$predicate].\n"; return; }
-        echo "\nCandidate records: ".count($recs)."\n"; //print_r($recs); //good debug
+        debug("\nCandidate records: ".count($recs)."\n"); //print_r($recs); //good debug
         if    ($ret = self::lifestage_statMeth_Step0($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step1($recs)) {}
         elseif($ret = self::lifestage_statMeth_Step23456789($recs)) {}
         else exit("\nsingle simple answer (PRM) if still needed: put REP records in order of value and select one from the middle (arbitrary tie breaks OK)\n");
         if($val = @$ret['recs']) $ret['recs_total'] = count($val);
         if(count($ret['recs']) > 1) {
-            print_r($ret);
+            if($GLOBALS['ENV_DEBUG']) print_r($ret);
             $ret['recs'] = self::sort_value_then_get_mid_record($ret['recs']);
             $ret['recs_total'] = count($ret['recs']);
             $ret['label'] = 'REP';
-            print_r($ret);
-            echo "\nMore than 1 record, do sort and picked middle record.\n"; //good debug
+            if($GLOBALS['ENV_DEBUG']) print_r($ret);
+            debug("\nMore than 1 record, do sort and picked middle record.\n"); //good debug
         }
         else {
             // print_r($ret); exit("\nNormal operation. Debug only\n"); //debug only
@@ -3222,7 +3248,6 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 elseif(count($final) > 1)  return array('label' => 'REP', 'recs' => $final, 'step' => $step);
             }
         }
-        
         /* Step 10 -- 9 */
         $final = array();
         foreach($recs as $rec) {
@@ -3243,16 +3268,24 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
     {   $path = self::get_md5_path($this->working_dir, $page_id);
         return $path . $page_id . $ext;
     }
+    private function per_line($method, $page_id, $predicate)
+    {
+        if($GLOBALS['ENV_DEBUG']) echo "\n================================================================Method: $method - page_id: $page_id | predicate: [$predicate]";
+        else {
+            @$this->modulo++;
+            if(($this->modulo % 5000) == 0) echo "\n".number_format($this->modulo)."===============Method: $method - page_id: $page_id | predicate: [$predicate]";
+        }
+    }
     // private function main_basal_values($page_id, $predicate, $type = 'basal values', $param_isvat = false, $original_nodes = array()) //version 1 - didn't use
     private function main_basal_values($page_id, $predicate, $type = 'basal values', $recs = array()) //for basal values
     {
         $this->original_nodes = array(); //IMPORTANT to initialize especially for multiple calls of this function main_basal_values()
         if($type == 'basal values') {
             $this->parent_basal_values_YesNo = false;
-            echo "\n================================================================Method: basal values\npage_id: $page_id | predicate: [$predicate]\n";
+            self::per_line('basal values', $page_id, $predicate);
             $recs = self::assemble_recs_for_page_id_from_text_file($page_id, $predicate, array('value_uri')); //3rd param array is required_fields
             if(!$recs) {
-                echo "\nNo records for [$page_id] [$predicate].\n";
+                debug("\nNo records for [$page_id] [$predicate].\n");
                 return false;
             }
         }
@@ -3266,17 +3299,17 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             $this->basal_values_parent_recs = $recs;
             $this->original_nodes = $this->original_nodes_parent;
             if(!$recs) {
-                echo "\n01. No records for [$page_id] [$predicate].\n";
+                debug("\n01. No records for [$page_id] [$predicate].\n");
                 return false;
             }
         }
         else exit("\nShould not go here...\n");
-        echo "\n A1 recs: ".count($recs);
+        debug("\n A1 recs: ".count($recs));
         $recs = self::check_inferred_file($recs, $page_id, $predicate);
-        echo "\n A2 recs: ".count($recs)."\n";
+        debug("\n A2 recs: ".count($recs)."\n");
         // exit;
         $uris = self::get_valueUris_from_recs($recs);
-        echo "\n B uris: ".count($uris);
+        debug("\n B uris: ".count($uris));
         
         self::set_ancestor_ranking_from_set_of_uris($uris);
         // print_r($this->ancestor_ranking_preferred); exit;
@@ -3286,7 +3319,9 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         if(!$ISVAT) return false;
         $info = self::add_new_nodes_for_NotRootParents($ISVAT);
         $new_nodes = $info['new_nodes'];
-        echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\n\nnew nodes 0:\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1];
+        }
         // print_r($new_nodes); exit;
         
         $info['new_nodes'] = self::sort_ISVAT($new_nodes, 2);
@@ -3304,20 +3339,26 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $new_nodes = array();
         // */
         
-        // /* for jen: 
-        echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
-        echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
-        foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
+        // /* for jen:
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\n================================================================\npage_id: $page_id | predicate: [$predicate]\n";
+            echo "\n\ninitial shared values ancestry tree: ".count($ISVAT)."\n";
+            foreach($ISVAT as $a) echo "\n".$a[0]."\t".$a[1];
+        }
         $this->ISVAT = $ISVAT;
-        // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
-        echo "\n\nInitial roots: ".count($roots)."\n"; print_r($roots);
+        if($GLOBALS['ENV_DEBUG']) {
+            // echo "\n\nnew nodes: ".count($new_nodes)."\n"; foreach($new_nodes as $a) echo "\n".$a[0]."\t".$a[1]; //good debug
+            echo "\n\nInitial roots: ".count($roots)."\n"; print_r($roots);
+        }
         // */
         
         //for step 1: So, first you must identify the tips- any values that don't appear in the left column. The parents, for step one, will be the values to the left of the tip values.
         $tips = self::get_tips($ISVAT);
-        echo "\n tips: ".count($tips);
-        foreach($tips as $tip) echo "\n$tip";
-        echo "\n-end tips-\n"; //exit;
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\n tips: ".count($tips);
+            foreach($tips as $tip) echo "\n$tip";
+            echo "\n-end tips-\n"; //exit;
+        }
         
         if($this->parent_basal_values_YesNo) { //parent mode
             $lessthanORequal5 = 15;
@@ -3337,10 +3378,14 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             $roots = $ret_from_2new_steps['roots'];
             $tips = $ret_from_2new_steps['tips'];
             $ISVAT = $ret_from_2new_steps['ISVAT'];
-            echo "\nnew tips: ".count($tips); foreach($tips as $tip) echo "\n".$tip;
-            echo "\n";
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\nnew tips: ".count($tips); foreach($tips as $tip) echo "\n".$tip;
+                echo "\n";
+            }
             // */
-            echo "\n\nroots after deletion-steps: ".count($roots)."\n"; print_r($roots);
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\n\nroots after deletion-steps: ".count($roots)."\n"; print_r($roots);
+            }
             
             $step_1 = self::get_step_1($ISVAT, $roots, $tips, 1);
             if(count($step_1) <= $lessthanORequal4) $selected = $step_1; //select set 1
@@ -3350,70 +3395,70 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 else {
                     $step_3 = self::get_step_1($ISVAT, $roots, $step_2, 3);
                     if($step_2 == $step_3) {
-                        echo "\nSteps 2 and 3 are identical.\n";
+                        debug("\nSteps 2 and 3 are identical.\n");
                         if(count($step_3) <= $lessthanORequal4) $selected = $step_3; //select set 3
                         else {
-                            echo "\nSelect root ancestors\n";
+                            debug("\nSelect root ancestors\n");
                             $selected = $roots;
                         }
                     }
                     else {
-                        echo "\nStep 2 and Step 3 are different. Proceed with Step 4\n";
+                        debug("\nStep 2 and Step 3 are different. Proceed with Step 4\n");
                         $step_4 = self::get_step_1($ISVAT, $roots, $step_3, 4);
                         if($step_3 == $step_4) {
-                            echo "\nSteps 3 and 4 are identical.\n";
+                            debug("\nSteps 3 and 4 are identical.\n");
                             if(count($step_4) <= $lessthanORequal4) $selected = $step_4; //select set 4
                             else {
-                                echo "\nSelect root ancestors\n";
+                                debug("\nSelect root ancestors\n");
                                 $selected = $roots;
                             }
                         }
                         else {
-                            echo "\nStep 3 and Step 4 are different. Proceed with Step 5\n";
+                            debug("\nStep 3 and Step 4 are different. Proceed with Step 5\n");
                             // exit("\nConstruct Step 5\n");
                             $step_5 = self::get_step_1($ISVAT, $roots, $step_4, 5);
                             if($step_4 == $step_5) {
-                                echo "\nSteps 4 and 5 are identical.\n";
+                                debug("\nSteps 4 and 5 are identical.\n");
                                 if(count($step_5) <= $lessthanORequal4) $selected = $step_5; //select set 5
                                 else {
-                                    echo "\nSelect root ancestors\n";
+                                    debug("\nSelect root ancestors\n");
                                     $selected = $roots;
                                 }
                             }
                             else {
-                                echo "\nStep 4 and Step 5 are different. Proceed with Step 6\n";
+                                debug("\nStep 4 and Step 5 are different. Proceed with Step 6\n");
                                 // exit("\nConstruct Step 6\n");
                                 $step_6 = self::get_step_1($ISVAT, $roots, $step_5, 6);
                                 if($step_5 == $step_6) {
-                                    echo "\nSteps 5 and 6 are identical.\n";
+                                    debug("\nSteps 5 and 6 are identical.\n");
                                     if(count($step_6) <= $lessthanORequal4) $selected = $step_6; //select set 6
                                     else {
-                                        echo "\nSelect root ancestors\n";
+                                        debug("\nSelect root ancestors\n");
                                         $selected = $roots;
                                     }
                                 }
                                 else {
-                                    echo "\nStep 5 and Step 6 are different. Proceed with Step 7\n";
+                                    debug("\nStep 5 and Step 6 are different. Proceed with Step 7\n");
                                     // exit("\nConstruct Step 7\n");
                                     $step_7 = self::get_step_1($ISVAT, $roots, $step_6, 7);
                                     if($step_6 == $step_7) {
-                                        echo "\nSteps 6 and 7 are identical.\n";
+                                        debug("\nSteps 6 and 7 are identical.\n");
                                         if(count($step_7) <= $lessthanORequal4) $selected = $step_7; //select set 7
                                         else {
-                                            echo "\nSelect root ancestors\n";
+                                            debug("\nSelect root ancestors\n");
                                             $selected = $roots;
                                         }
                                     }
                                     elseif($step_5 == $step_7 && $step_4 == $step_6) {
-                                        echo "\nSteps 5 and 7 are identical; Steps 4 and 6 are identical.\n";
+                                        debug("\nSteps 5 and 7 are identical; Steps 4 and 6 are identical.\n");
                                         if(count($step_7) <= $lessthanORequal4) $selected = $step_7; //select set 7
                                         else {
-                                            echo "\nSelect root ancestors\n";
+                                            debug("\nSelect root ancestors\n");
                                             $selected = $roots;
                                         }
                                     }
                                     else {
-                                        echo "\nStep 6 and Step 7 are different. Proceed with Step 8\n";
+                                        debug("\nStep 6 and Step 7 are different. Proceed with Step 8\n");
                                         exit("\nConstruct Step 8\n");
                                     }
                                 }
@@ -3424,9 +3469,10 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             }
         }
         //label PRM and REP if one record, REP if > 1
+        $label = '';
         if    (count($selected) == 1) $label = 'PRM and REP';
         elseif(count($selected) > 1)  $label = 'REP';
-        echo "\n----- label as: [$label] [".count($selected)."]\n";
+        debug("\n----- label as: [$label] [".count($selected)."]\n");
         $selected = array_values($selected); //reindex array
         
         $ret = array('Selected' => $selected, 'label' => $label);
@@ -3509,7 +3555,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $sql = "SELECT DISTINCT t.page_id, t.inferred_trait FROM SDR.traits_inferred t WHERE t.inferred_trait IN ($in_str) ORDER BY t.page_id;";
         $result = $this->mysqli->query($sql);
         if($result->num_rows) {
-            exit("\nGot hit from inferred file [$page_id], [$predicate]\n");
+            exit("\nGot hit from inferred file [$page_id], [$predicate]\nJust checking if we ever get hits.\n");
             while($result && $rek=$result->fetch_assoc()) { //print_r($rek);
                 if($val = @$recs_info[$rek['inferred_trait']]) {
                     $val['page_id'] = $rek['page_id'];
@@ -3522,12 +3568,14 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 }
             }
         }
-        else echo "\nNothing from inferred file\n";
+        else debug("\nNothing from inferred file\n");
         // print_r($recs); exit;
         return $recs;
     }
     private function two_new_steps($ISVAT, $roots, $tips)
-    {   echo "\nroots: ".count($roots)." "; print_r($roots);
+    {   if($GLOBALS['ENV_DEBUG']) {
+            echo "\nroots: ".count($roots)." "; print_r($roots);
+        }
         /* Important definition of terms by Jen:
         - rows with just one node in them are only needed for orphans (nodes that don't appear anywhere else). These nodes are both tips and roots.
         - tips are nodes that never appear on the left of a two node row
@@ -3541,21 +3589,23 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 if so, keep the root nodes that are NOT on this list, and all their descendants. Discard all other nodes 
             the list:
         */
-        echo "\n--------------------------------------------DELETE ALONG WITH CHILDREN step: -START-\n";
+        debug("\n--------------------------------------------DELETE ALONG WITH CHILDREN step: -START-\n");
         $delete_list_1 = array('http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_01000155', 'http://purl.obolibrary.org/obo/ENVO_00000002', 'http://purl.obolibrary.org/obo/ENVO_00000077');
         $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000358"; $delete_list_1[] = "http://purl.obolibrary.org/obo/ENVO_00000144";
-        echo "\nDelete List: "; print_r($delete_list_1);
+        if($GLOBALS['ENV_DEBUG']) {echo "\nDelete List: "; print_r($delete_list_1);}
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_1)) {
-            echo "\nThere are root(s) in the 1st delete-list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
-            echo "\norig 'shared values ancestry tree': ".count($ISVAT)."\n";
+            if($GLOBALS['ENV_DEBUG']) {
+                echo "\nThere are root(s) in the 1st delete-list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
+                echo "\norig 'shared values ancestry tree': ".count($ISVAT)."\n";
+            }
             foreach($ISVAT as $a) {
                 if(              in_array($a[0], $roots_inside_the_list)) {}
                 elseif(!$a[0] && in_array($a[1], $roots_inside_the_list)) {}
                 else $new_isvat[] = $a;
             }
-            echo "\ntrimmed shared ancestry tree: ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];
+            if($GLOBALS['ENV_DEBUG']) {echo "\ntrimmed shared ancestry tree: ".count($new_isvat); foreach($new_isvat as $a) echo "\n".$a[0]."\t".$a[1];}
             $roots = array_diff($roots, $roots_inside_the_list);
-            echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
+            if($GLOBALS['ENV_DEBUG']) {echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);}
             /* working; but not needed here coz we're not adding roots here
             $cleaned = self::remove_undesirable_roots($roots);
             if($cleaned != $roots) {
@@ -3564,30 +3614,32 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             }*/
         }
         else {
-            echo "\nAll root nodes are not on the list. Keeping all root nodes and all descendants. Do nothing.\n";
+            debug("\nAll root nodes are not on the list. Keeping all root nodes and all descendants. Do nothing.\n");
             $new_isvat = $ISVAT;
         }
-        echo "\n-------------------------------------------- -END-\n";
+        debug("\n-------------------------------------------- -END-\n");
         /*DELETE, BUT KEEP THE CHILDREN
             look for these nodes in the list of roots
             remove them. Their immediate children are now roots.
             the list:
         (it's OK if occasionally this leaves you with no records.)
         */
-        echo "\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: -START-\n";
+        debug("\n--------------------------------------------DELETE, BUT KEEP THE CHILDREN step: -START-\n");
         $delete_list_2 = array('http://purl.obolibrary.org/obo/ENVO_01001305', 'http://purl.obolibrary.org/obo/ENVO_00002030', 'http://purl.obolibrary.org/obo/ENVO_01000687');
         $delete_list_2[] = "http://purl.obolibrary.org/obo/ENVO_00001995"; $delete_list_2[] = "http://purl.obolibrary.org/obo/ENVO_00002227";
-        echo "\nDelete List: "; print_r($delete_list_2);
-        echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nDelete List: "; print_r($delete_list_2);
+            echo "\n\nroots: ".count($roots)."\n"; print_r($roots);
+        }
         if($roots_inside_the_list = self::get_roots_inside_the_list($roots, $delete_list_2)) {
-            echo "\nThere are root(s) found in the 2nd delete-list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);
+            if($GLOBALS['ENV_DEBUG']) {echo "\nThere are root(s) found in the 2nd delete-list: ".count($roots_inside_the_list)." "; print_r($roots_inside_the_list);}
             //1. get $temp_tree_deleted, will use this in deciding which can be root, which can be removed.
             foreach($new_isvat as $a) {
                 if(!in_array($a[0], $roots_inside_the_list)) $temp_tree_deleted[] = $a;
                 else $possible_root_or_deleted[$a[1]] = '';
             }
             $possible_root_or_deleted = array_keys($possible_root_or_deleted);
-            echo "\n-----------Diagnostics -START- -----------\n*Nodes in question: "; print_r($possible_root_or_deleted);
+            if($GLOBALS['ENV_DEBUG']) {echo "\n-----------Diagnostics -START- -----------\n*Nodes in question: "; print_r($possible_root_or_deleted);}
             $all_left_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'left');
             $all_right_of_tree = self::get_one_side_of_tree($temp_tree_deleted, 'right');
             //2. decide which can be root and which can be removed.
@@ -3608,31 +3660,34 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             }
             
             $add_2_roots = array_keys($add_2_roots);
-            echo "*Will become orphan/single rows: "; print_r($orphans);
-            echo "*Will be added to roots: "; print_r($add_2_roots);
+            if($GLOBALS['ENV_DEBUG']){
+                echo "*Will become orphan/single rows: "; print_r($orphans);
+                echo "*Will be added to roots: "; print_r($add_2_roots);
+            }
             // /* working; moving back and forth as first - DEFINITELY UNCOMMENT
             $add_2_roots = self::remove_undesirable_roots($add_2_roots, $delete_list_2);
             // */
-            echo "*Will be added to roots (removed non-root): "; print_r($add_2_roots);
-            
-            echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
-            echo "-----------Diagnostics -END- -----------\n";
-            
-            echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
+            if($GLOBALS['ENV_DEBUG']){
+                echo "*Will be added to roots (removed non-root): "; print_r($add_2_roots);
+
+                echo "*Neither root nor tip: "; print_r($neither_root_nor_tip);
+                echo "-----------Diagnostics -END- -----------\n";
+                echo "\ntrimmed shared ancestry tree: ".count($new_isvat_2); foreach($new_isvat_2 as $a) echo "\n".$a[0]."\t".$a[1];
+            }
             $roots = array_diff($roots, $roots_inside_the_list);
             if($add_2_roots) {
-                echo "\nHas additional roots.\n";
+                debug("\nHas additional roots.\n");
                 $roots = array_merge($roots, $add_2_roots);
             }
-            else echo "\nNo additional roots.\n";
-            if($roots_inside_the_list) echo "\nRoots got reduced";
-            echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);
+            else debug("\nNo additional roots.\n");
+            if($roots_inside_the_list) debug("\nRoots got reduced");
+            if($GLOBALS['ENV_DEBUG']) {echo "\n\nnew roots: ".count($roots)."\n"; print_r($roots);}
         }
         else {
-            echo "\nNo roots inside the list. Do nothing.\n";
+            debug("\nNo roots inside the list. Do nothing.\n");
             $new_isvat_2 = $new_isvat;
         }
-        echo "\n-------------------------------------------- -END-\n";
+        debug("\n-------------------------------------------- -END-\n");
         return array('roots' => $roots, 'tips' => self::get_tips($new_isvat_2), 'ISVAT' => $new_isvat_2);
     }
     private function get_one_side_of_tree($tree, $side)
@@ -3656,6 +3711,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
             $right[$a[1]] = '';
         }
         $right = array_keys($right);
+        $final = array();
         foreach($right as $node) {
             if(!isset($left[$node])) $final[$node] = '';
         }
@@ -3673,6 +3729,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         foreach($isvat as $a) {
             $parent_of_right[$a[1]] = $a[0];
         }
+        $final = array();
         foreach($tips as $tip) {
             if($parent = @$parent_of_right[$tip]) {
                 if(in_array($tip, $roots) || in_array($parent, $roots)) $final[$tip] = '';
@@ -3685,12 +3742,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         $final = array_keys($final);
         asort($final);
         $final = array_values($final); //reindex key
-        
         //optional display
-        echo "\nStep $step_no:".count($final)."\n";
-        foreach($final as $a) echo "\n".$a;
-        echo "\n-end Step $step_no-\n";
-        
+        if($GLOBALS['ENV_DEBUG']) {
+            echo "\nStep $step_no:".count($final)."\n";
+            foreach($final as $a) echo "\n".$a;
+            echo "\n-end Step $step_no-\n";
+        }
         return $final;
     }
     private function remove_undesirable_roots($roots, $delete_list = array())
@@ -3753,7 +3810,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         //The way I was thinking of documenting, it wouldn't need to be listed as an orphan if it also appears in any relationship pair.
         foreach($isvat as $a) {
             if(!$a[0] && ( isset($left[$a[1]]) || isset($right[$a[1]]) ) ) {
-                echo "\n === $a[0] --- $a[1] === remove orphan coz it exists elsewhere \n"; //the orphan row ENVO_00000446 was removed here...
+                debug("\n === $a[0] --- $a[1] === remove orphan coz it exists elsewhere \n"); //the orphan row ENVO_00000446 was removed here...
             }
             else $final[] = $a;
         }
@@ -3770,13 +3827,13 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         }
         asort($temp);
         foreach($temp as $key => $value) $totals[$key] = count($value);
-        print_r($totals);
+        if($GLOBALS['ENV_DEBUG']) print_r($totals);
 
-        $discard_parents = array(); echo "\n-------------------- [$num]\n";
+        $discard_parents = array(); debug("\n-------------------- [$num]\n");
         foreach($totals as $key => $total_children) {
             if($total_children == 1) {
-                echo "\n $key: with 1 child ";
-                if(isset($right_cols[$key])) echo " -- appears in a relationship pair (right)";
+                debug("\n $key: with 1 child ");
+                if(isset($right_cols[$key])) debug(" -- appears in a relationship pair (right)");
                 /* "Ancestors can be removed if they are parents of only one node BUT that node must NOT be an original node" THIS IS WRONG RULE!!!
                 elseif(isset($this->original_nodes[$temp2[$key]])) {
                     echo "\nxxx $key --- ".@$temp2[$key]." parent of just 1 node BUT an original node\n";
@@ -3784,13 +3841,13 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 */
                 // /* THIS IS THE CORRECT RULE
                 elseif(isset($this->original_nodes[$key])) {
-                    echo "\nxxx $key --- parent of just 1 node BUT ancestor is an original node\n";
+                    debug("\nxxx $key --- parent of just 1 node BUT ancestor is an original node\n");
                 }
                 // */
                 else $discard_parents[] = $key;
             }
         }
-        echo "\n discarded_parents:"; print_r($discard_parents); echo "\n-----\n";
+        if($GLOBALS['ENV_DEBUG']) {echo "\n discarded_parents:"; print_r($discard_parents); echo "\n-----\n";}
         
         $final = array();
         foreach($arr as $a) {
@@ -4116,18 +4173,18 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
 
         arsort($final_preferred);
         $this->ancestor_ranking_preferred_withCounts = $final_preferred;
-        print_r($final_preferred); //exit;
+        if($GLOBALS['ENV_DEBUG']) print_r($final_preferred); //exit;
         $final_preferred = array_keys($final_preferred);
         $this->ancestor_ranking_preferred = $final_preferred;
     }
     private function get_rank_most_parent($parents, $preferred_terms = array())
     {   if(!$preferred_terms) {
-            echo "\nancestor_ranking_preferred: "; print_r($this->ancestor_ranking_preferred_withCounts);
+            if($GLOBALS['ENV_DEBUG']) {echo "\nancestor_ranking_preferred: "; print_r($this->ancestor_ranking_preferred_withCounts);}
             //1st option: if any is a preferred name then choose that
             foreach($this->ancestor_ranking_preferred as $parent) {
                 if(in_array($parent, $parents)) {
                     $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
-                    echo "\nwent here 01\n";
+                    debug("\nwent here 01\n");
                     return $parent;
                 }
             }
@@ -4144,25 +4201,25 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
                 foreach($this->ancestor_ranking as $parent) {
                     if(in_array($parent, $preferred_terms)) {
                         $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
-                        echo "\nwent here 02\n";
+                        debug("\nwent here 02\n");
                         return $parent;
                     }
                 }
             }
             if(count($preferred_terms) == 1 && in_array($preferred_terms[0], $this->ancestor_ranking) && in_array($preferred_terms[0], $this->ancestor_ranking_preferred)) {
                 $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $preferred_terms[0]."\n"); fclose($WRITE);
-                echo "\nwent here 03\n";
+                debug("\nwent here 03\n");
                 return $preferred_terms[0];
             }
         }
         
         //2nd option
-        echo "\nlast option: ancestor_ranking "; print_r($this->ancestor_ranking_withCounts);
+        if($GLOBALS['ENV_DEBUG']) {echo "\nlast option: ancestor_ranking "; print_r($this->ancestor_ranking_withCounts);}
         $inclusive = array_merge($parents, $preferred_terms);
         foreach($this->ancestor_ranking as $parent) {
             if(in_array($parent, $inclusive)) {
                 $WRITE = fopen($this->temp_file, 'a'); fwrite($WRITE, $parent."\n"); fclose($WRITE);
-                echo "\nwent here 04\n";
+                debug("\nwent here 04\n");
                 return $parent;
             }
         }
@@ -4172,36 +4229,34 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         exit("\n===============\n");
     }
     private function create_pairs_from_this_term($term, $num) //this will replace get_parent_of_term()
-    {   echo "\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n";
+    {   debug("\n--------------------------------------------------------------------------------------------------------------------------------------- \n"."term in question: [$term] $num:\n");
         $pairs = array();
         if($preferred_terms = @$this->preferred_names_of[$term]) {
-            echo "\nThere are preferred term(s):\n";
-            print_r($preferred_terms);
+            if($GLOBALS['ENV_DEBUG']) {echo "\nThere are preferred term(s):\n"; print_r($preferred_terms);}
             foreach($preferred_terms as $preferred) {
                 if($val = self::is_pair_OK($preferred, $term)) $pairs[] = $val;
             }
             foreach($preferred_terms as $preferred) {
-                echo "\nparent(s) of $preferred:\n";
+                debug("\nparent(s) of $preferred:\n");
                 if($parents = @$this->parents_of[$preferred]) {
-                    print_r($parents);
+                    if($GLOBALS['ENV_DEBUG']) print_r($parents);
                     foreach($parents as $parent) {
                         if($val = self::is_pair_OK($parent, $preferred)) $pairs[] = $val;
                     }
                 }
-                else echo " -- NO parent";
+                else debug(" -- NO parent");
             }
         }
         else {
-            echo "\nThere is NO preferred term\n";
+            debug("\nThere is NO preferred term\n");
             if($immediate_parents = @$this->parents_of[$term]) {
-                echo "\nThere are immediate parent(s) for term in question:\n";
-                print_r($immediate_parents);
+                if($GLOBALS['ENV_DEBUG']) {echo "\nThere are immediate parent(s) for term in question:\n"; print_r($immediate_parents);}
                 foreach($immediate_parents as $parent) {
                     if($val = self::is_pair_OK($parent, $term)) $pairs[] = $val;
                 }
             }
         }
-        foreach($pairs as $a) echo "\n".$a[0]." - ".$a[1];
+        if($GLOBALS['ENV_DEBUG']) {foreach($pairs as $a) echo "\n".$a[0]." - ".$a[1];}
         return $pairs;
     }
     private function is_pair_OK($parent_orig, $child_orig)
@@ -4515,7 +4570,7 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         }
     }
     private function get_CSV_children_of($page_id, $predicate = '') //$predicate param here is just for debug
-    {   echo "\nGetting children of [$page_id]...\n";
+    {   debug("\nGetting children of [$page_id]...\n");
         $anaks = array();
         if($children = @$this->CSV_children_of[$page_id]) $anaks = array_merge($anaks, $children);
         else return array();
