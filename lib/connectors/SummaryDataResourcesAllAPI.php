@@ -52,6 +52,7 @@ class SummaryDataResourcesAllAPI
         
         if(Functions::is_production()) { 
             $this->main_dir = "/extra/other_files/summary_data_resources/"; //eol-archive
+            $this->main_dir = "/u/data_files/summary_data_resources/"; //eol-backend2
             $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
             $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
             $this->MySQL_append_files_dir = "MySQL_append_files_".$folder_date;
