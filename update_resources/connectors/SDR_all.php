@@ -5,7 +5,7 @@ namespace php_active_record;
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
-$GLOBALS['ENV_DEBUG'] = true; //false is default in production
+$GLOBALS['ENV_DEBUG'] = false; //false is default in production
 /*
 $a = array(5319, 1905, 2774383, 8814528, 1, 2910700, 2908256, 2913056);
 $a = array_reverse($a); print_r($a);
