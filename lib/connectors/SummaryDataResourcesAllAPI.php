@@ -2781,7 +2781,10 @@ class SummaryDataResourcesAllAPI
     private function prep_DH()
     {
         if(Functions::is_production()) {
-            if(!($info = self::extract_DH())) return;
+            // if(!($info = self::extract_DH())) return;
+            $info = Array('archive_path' => '/u/scripts/data_files/DH_v1_1/',
+                          'temp_dir' => 'not used',
+                          'tables' => Array('taxa' => 'taxon.tab'));
         }
         else { //local development only
             /*
