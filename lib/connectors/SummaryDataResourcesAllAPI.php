@@ -85,14 +85,14 @@ class SummaryDataResourcesAllAPI
         
         //for taxon summary
         if(Functions::is_production()) {
-            $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
-            $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
+            // $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/b534cd22-d904-45e4-b0e2-aaf06cc0e2d6/download/eoldynamichierarchyv1revised.zip";
+            // $this->EOL_DH = "https://opendata.eol.org/dataset/b6bb0c9e-681f-4656-b6de-39aa3a82f2de/resource/bac4e11c-28ab-4038-9947-02d9f1b0329f/download/eoldynamichierarchywithlandmarks.zip";
+            $this->EOL_DH = 'https://editors.eol.org/other_files/DWH/TRAM-809/DH_v1_1.tar.gz';
         }
         else {
-            /* not being used
-            $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
-            $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
-            */
+            // $this->EOL_DH = "http://localhost/cp/summary data resources/eoldynamichierarchyv1.zip";
+            // $this->EOL_DH = "http://localhost/cp/summary data resources/DH/eoldynamichierarchywithlandmarks.zip";
+            $this->EOL_DH = 'http://localhost/other_files/host/EOL%20Dynamic%20Hierarchy%20Active%20Version/DH_v1_1.tar.gz';
         }
         $this->lifeState_statMeth_resource_file = CONTENT_RESOURCE_LOCAL_PATH . '/lifeStage_statMeth_resource.txt';
         
@@ -999,63 +999,6 @@ class SummaryDataResourcesAllAPI
         if(file_exists($this->path_to_archive_directory."taxon.tab")) Functions::finalize_dwca_resource($this->resource_id);
     }
     //############################################################################################ start write resource file - method = 'parent taxon summary'
-    /* was never used in All Trait Export
-    private function gen_children_of_taxon_usingDH()
-    {
-        // test
-        // $EOLid = 298458; $EOLid = 110698;
-        // $EOLid = 103449;
-        // echo " - EOLid: [$EOLid] "; 
-        // if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
-        //     array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
-        //     
-        //     // print_r($anc);
-        //     // foreach($anc as $page_id) {
-        //     //     $json_file = self::get_txt_path_by_page_id($page_id, "_c.txt");
-        //     //     echo "\n[$page_id] $json_file";
-        //     // }
-        //     
-        //     self::gen_children_of_taxon_given_ancestry($anc);
-        // }
-        // else echo "\nNo ancestry [$val]\n";
-        // exit("\nstop muna\n");
-        
-        $info = self::prep_DH(); $i = 0; $m = 2724950/5;
-        foreach(new FileIterator($info['archive_path'].$info['tables']['taxa']) as $line_number => $line) {
-            $line = explode("\t", $line); $i++;
-            if($i == 1) $fields = $line;
-            else {
-                
-                // breakdown when caching:
-                // $cont = false;
-                // if($i >= 1 && $i < $m) $cont = true;
-                // // if($i >= $m && $i < $m*2) $cont = true;
-                // // if($i >= $m*2 && $i < $m*3) $cont = true;
-                // // if($i >= $m*3 && $i < $m*4) $cont = true;
-                // // if($i >= $m*4 && $i < $m*5) $cont = true;
-                // if(!$cont) continue;
-                
-                if(!$line[0]) break;
-                $rec = array(); $k = 0;
-                foreach($fields as $fld) {
-                    $rec[$fld] = $line[$k]; $k++;
-                }
-                // print_r($rec); //exit;
-                if($EOLid = $rec['EOLid']) {
-                    echo "\n".number_format($i);
-                    echo " - EOLid: [$EOLid] "; 
-                    if($anc = self::get_ancestry_via_DH($EOLid, false)) { //2nd param false means that get all ancestry not just landmark taxa
-                        array_unshift($anc, $EOLid); //prepend $val front of $anc, $val becomes 1st record
-                        self::gen_children_of_taxon_given_ancestry($anc);
-                    }
-                    else echo "\nNo ancestry [$val]\n";
-                }
-                else echo "\nNo EOLid\n";
-                if(($i % 1000) == 0) echo "\n".number_format($i);
-            }
-        }
-    }
-    */
     private function gen_children_of_taxon_given_ancestry($anc)
     {
         $anc = array_reverse($anc);
@@ -1826,7 +1769,7 @@ class SummaryDataResourcesAllAPI
         fclose($WRITE);
         self::append_to_MySQL_table($table, $this->main_dir."/".$this->MySQL_append_files_dir."/".$table."_".$file_cnt.".txt");
         echo "\nTotal rows [$table]: ".self::count_table_rows($table)."\n";
-        exit("\n\n$table to MySQL DONE.\n\n");
+        self::remove_temp_dir($info['temp_dir']);
     }
     function generate_refs_per_eol_pk_MySQL()
     {   //truncate first
@@ -2117,6 +2060,7 @@ class SummaryDataResourcesAllAPI
                 // */
             }
         }
+        self::remove_temp_dir($info['temp_dir']);
         return $page_ids;
     }
     private function get_page_ids_fromTraitsCSV_andInfo_fromDH($predicates)
@@ -2158,6 +2102,7 @@ class SummaryDataResourcesAllAPI
                 if(isset($page_ids[$rec['EOLid']])) $page_ids[$rec['EOLid']] = array('taxonRank' => $rec['taxonRank'], 'Landmark' => $rec['Landmark']);
             }
         }
+        self::remove_temp_dir($info['temp_dir']);
         return $page_ids;
     }
     private function format_value_for_sql($value)
@@ -2777,44 +2722,38 @@ class SummaryDataResourcesAllAPI
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->EOL_DH, "taxa.txt", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
-        $tables['taxa'] = 'taxa.txt';
+        $paths = $func->extract_archive_file($this->EOL_DH, "taxon.tab", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $tables['taxa'] = 'taxon.tab';
         $paths['tables'] = $tables;
         return $paths;
     }
     private function prep_DH()
     {
         if(Functions::is_production()) {
-            // if(!($info = self::extract_DH())) return;
+            if(!($info = self::extract_DH())) return;
+            /* hard-coded
             $info = Array('archive_path' => '/u/scripts/data_files/DH_v1_1/',
                           'temp_dir' => 'not used',
                           'tables' => Array('taxa' => 'taxon.tab'));
+            */
         }
         else { //local development only
             /*
             $info = Array('archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/EOL_dynamic_hierarchy/',   //for eoldynamichierarchyv1.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_52635/',
                           'tables' => Array('taxa' => 'taxa.txt'));
-            */
-            
             $info = Array('archive_path' => '/Volumes/AKiTiO4/web/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
                           'tables' => Array('taxa' => 'taxa.txt'));
-
-            // /* Aug 7, 2019 - cannot use latest DH yet, since I used the older version during caching steps. "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/taxon.tab"; //latest active DH ver.
+            */
+            /* //latest active DH ver.
             $info = Array('archive_path' => '/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/',
                           'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/xxx/',
                           'tables' => Array('taxa' => 'taxon.tab'));
-            // */
-            
-            /*
-            // for MacBook
-            $info = Array('archive_path' => '/Users/eagbayani/Sites/cp/summary data resources/DH/eoldynamichierarchywithlandmarks/',   //for eoldynamichierarchywithlandmarks.zip
-                          'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_77578/',
-                          'tables' => Array('taxa' => 'taxa.txt'));
             */
+            if(!($info = self::extract_DH())) return;
         }
-        print_r($info);
+        print_r($info); //exit;
         return $info;
     }
     function parse_DH()
@@ -2900,10 +2839,12 @@ EOL-000000000003	trunk:be97d60f-6568-4cba-92e3-9d068a1a85cf,NCBI:2,WOR:6			EOL-0
         /* may not want to force assign this:
         $this->DH_2_EOL[93302] = 6061725; //Biota - Cellular Organisms
         */
-        
-        // remove temp dir
-        // recursive_rmdir($info['temp_dir']);
-        // echo ("\n temporary directory removed: " . $info['temp_dir']);
+        self::remove_temp_dir($info['temp_dir']);
+    }
+    private function remove_temp_dir($dir)
+    {
+        recursive_rmdir($dir);
+        echo ("\n temporary directory removed: " . $dir);
     }
     function get_ancestry_via_DH($page_id, $landmark_only = true)
     {
