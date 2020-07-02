@@ -5,7 +5,7 @@ namespace php_active_record;
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/SummaryDataResourcesAllAPI');
-$GLOBALS['ENV_DEBUG'] = false; //false is default in production
+// $GLOBALS['ENV_DEBUG'] = false; //false is default in production
 if(!$GLOBALS['ENV_DEBUG']) error_reporting(E_ERROR | E_PARSE);
 
 /*
@@ -52,7 +52,7 @@ php update_resources/connectors/SDR_all.php _ '{"task":"download_extract_zip_fil
 e.g.
 http://varela.csail.mit.edu/~jar/tmp/traits_all_202006.zip
 
-php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_text"}'
+php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_text"}'      //2.36 minutes
 php update_resources/connectors/SDR_all.php _ '{"task":"update_inferred_file"}'             //51.96 seconds
 php update_resources/connectors/SDR_all.php _ '{"task":"generate_refs_per_eol_pk_MySQL"}'   //a few mins.
 php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_csv"}'       //3.22 minutes
@@ -168,7 +168,7 @@ page_ids_Present        2019Aug22    1,242,249
 */
 if($task == 'pre_parent_basal_values') $func->pre_parent_basal_values(); //Updated script. Works OK as of Jun 23, 2020. No more manual step needed. Exec time: 64.41 seconds
 if($stop_here) {
-    elapsed_time($timestart); exit("\n--bulk steps end--\n");
+    elapsed_time($timestart); exit("\n--[$task] end--\n");
 }
 // ========================================================================================================== */
 
