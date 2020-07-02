@@ -53,9 +53,11 @@ class SummaryDataResourcesAllAPI
         if(Functions::is_production()) { 
             $this->main_dir = "/extra/other_files/summary_data_resources/"; //eol-archive - never run here yet.
             $this->main_dir = "/u/scripts/data_files/summary_data_resources/"; //eol-backend2
+            $this->traits_source = "/u/scripts/.plotter_workspace/";
         }
         else {
             $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
+            $this->traits_source = "/Volumes/AKiTiO4/jenkins_scripts/.plotter_workspace/";
             /*
             $this->working_dir = $this->main_dir."page_ids/";
             $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH
@@ -2714,6 +2716,13 @@ class SummaryDataResourcesAllAPI
         return $final2;
     }
     //############################################################################################ end method = 'parents'
+    function download_extract_zip_file($zip_file)
+    {
+        $source = $this->traits_source.$zip_file;
+        $destination = $this->trait_bank_folder;
+        $output = shell_exec("unzip -oj $source -d $destination"); //-o overwrites; -j removes upper directory; -d destination
+        echo "\n$output\n";
+    }
     private function extract_DH() //for production env only
     {
         require_library('connectors/INBioAPI');

@@ -48,9 +48,9 @@ $folder_date = "20200626";
 $func = new SummaryDataResourcesAllAPI($resource_id, $folder_date);
 
 /* command-line syntax
-php update_resources/connectors/SDR_all.php _ '{"task":"download_extract_zip_file", "zipfile":""}'
-e.g.
-http://varela.csail.mit.edu/~jar/tmp/traits_all_202006.zip
+php update_resources/connectors/SDR_all.php _ '{"task":"download_extract_zip_file", "traits_zip_file":"traits_all_202006.zip"}'
+e.g. http://varela.csail.mit.edu/~jar/tmp/traits_all_202006.zip
+-> run only once every harvest
 
 php update_resources/connectors/SDR_all.php _ '{"task":"build_MySQL_table_from_text"}'      //2.36 minutes
 php update_resources/connectors/SDR_all.php _ '{"task":"update_inferred_file"}'             //51.96 seconds
@@ -83,14 +83,13 @@ php update_resources/connectors/SDR_all.php _ '{"task":"test_lifeStage_statMeth"
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $fields = json_decode($params['json'], true);
-$task = $fields['task']; //print_r($fields);
-$first_tasks = array("build_MySQL_table_from_text", "update_inferred_file", "generate_refs_per_eol_pk_MySQL", "build_MySQL_table_from_csv", "generate_page_id_txt_files_MySQL", "pre_parent_basal_values");
+$task = $fields['task']; 
+$traits_zip_file = @$fields['traits_zip_file']; //print_r($fields);
+$first_tasks = array("download_extract_zip_file", "build_MySQL_table_from_text", "update_inferred_file", "generate_refs_per_eol_pk_MySQL", "build_MySQL_table_from_csv", "generate_page_id_txt_files_MySQL", "pre_parent_basal_values");
 if(in_array($task, $first_tasks)) $stop_here = true;
 else                              $stop_here = false;
 
-
-if($task == 'download_extract_zip_file') $func->download_extract_zip_file();
-
+if($task == 'download_extract_zip_file') $func->download_extract_zip_file($traits_zip_file);
 
 // /* build data files - MySQL tables --- worked OK
 if($task == 'build_MySQL_table_from_text') $func->build_MySQL_table_from_text('DH_lookup'); //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
