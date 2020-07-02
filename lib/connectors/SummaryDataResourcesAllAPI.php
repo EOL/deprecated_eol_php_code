@@ -53,13 +53,9 @@ class SummaryDataResourcesAllAPI
         if(Functions::is_production()) { 
             $this->main_dir = "/extra/other_files/summary_data_resources/"; //eol-archive - never run here yet.
             $this->main_dir = "/u/scripts/data_files/summary_data_resources/"; //eol-backend2
-            $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
-            $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
-            $this->MySQL_append_files_dir = "MySQL_append_files_".$folder_date;
         }
         else {
             $this->main_dir = "/Volumes/AKiTiO4/web/cp/summary_data_resources/"; //Mac Mini
-            // $this->main_dir = "/Users/eagbayani/Sites/cp/summary_data_resources/"; //MacBook
             /*
             $this->working_dir = $this->main_dir."page_ids/";
             $this->working_dir = $this->main_dir."page_ids_20190613/";  //to pertain using 13Jun2019 All Trait Export. But still using old DH
@@ -67,15 +63,15 @@ class SummaryDataResourcesAllAPI
             $this->working_dir = $this->main_dir."page_ids_20190822/";
             $this->working_dir = $this->main_dir."page_ids_20191111/";
             */
-            $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
             /*
             $this->trait_bank_folder = $this->main_dir.'trait_bank_20190613';
             $this->trait_bank_folder = $this->main_dir.'trait_bank_20190822';
             $this->trait_bank_folder = $this->main_dir.'trait_bank_20191111';
             */
-            $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
-            $this->MySQL_append_files_dir = "MySQL_append_files_".$folder_date;
         }
+        $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
+        $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
+        $this->MySQL_append_files_dir = "MySQL_append_files_".$folder_date;
         if(!is_dir($this->working_dir))       mkdir($this->working_dir);
         if(!is_dir($this->trait_bank_folder)) mkdir($this->trait_bank_folder);
         if(!is_dir($this->main_dir.$this->MySQL_append_files_dir)) mkdir($this->main_dir.$this->MySQL_append_files_dir);
