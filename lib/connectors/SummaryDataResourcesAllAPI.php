@@ -51,7 +51,7 @@ class SummaryDataResourcesAllAPI
         /* ------------------ NEW June 4, 2019 ------------------ */
         
         if(Functions::is_production()) { 
-            $this->main_dir = "/extra/other_files/summary_data_resources/"; //eol-archive
+            $this->main_dir = "/extra/other_files/summary_data_resources/"; //eol-archive - never run here yet.
             $this->main_dir = "/u/scripts/data_files/summary_data_resources/"; //eol-backend2
             $this->working_dir = $this->main_dir."page_ids_".$folder_date."/";
             $this->trait_bank_folder = $this->main_dir.'trait_bank_'.$folder_date;
@@ -114,7 +114,7 @@ class SummaryDataResourcesAllAPI
         */
         $this->exemplary['REP'] = 'https://eol.org/schema/terms/representative';
         $this->exemplary['PRM'] = 'https://eol.org/schema/terms/primary';
-        $this->exemplary['PRM and REP'] = 'PRM and REP';
+        $this->exemplary['PRM and REP'] = 'https://eol.org/schema/terms/primary';
     }
     /*  basal values                                    taxon summary
         parent basal values                             parent taxon summary
@@ -817,8 +817,11 @@ class SummaryDataResourcesAllAPI
         
         $page_ids = self::get_page_ids_andInfo_fromDH($param_4DH);
         $i = 0; $total = count($page_ids); $k = 0; $m = 2237554/10;
-        foreach($page_ids as $page_id => $taxon) { $k++; echo "\n$k of $total";
-
+        foreach($page_ids as $page_id => $taxon) { $k++;
+            if($GLOBALS['ENV_DEBUG']) echo "\n".number_format($k)." of ".number_format($total);
+            else {
+                if(($k % 2000) == 0) echo "\n".number_format($k)." of ".number_format($total);
+            }
             // if($k < 2205100) continue; //debug only - force to skip many records
             // if($page_id == 2634370) continue; //force to ignore a page_id
 
@@ -880,7 +883,7 @@ class SummaryDataResourcesAllAPI
         }
         else {
             if($withCreateYN) {
-                echo "\nNot yet generated, creating now...\n";
+                debug("\nNot yet generated, creating now...");
                 $children = self::get_CSV_children_of($page_id); //print_r($children);
                 if($children) {
                     $WRITE = fopen($txt_file, 'w');
@@ -888,7 +891,7 @@ class SummaryDataResourcesAllAPI
                     fclose($WRITE);
                 }
                 else {
-                    echo "\nNo children for [$page_id] [$txt_file]\n";
+                    debug("\nNo children for [$page_id] [$txt_file]\n");
                     // if($page_id == '39311345') exit;
                 }
             }
