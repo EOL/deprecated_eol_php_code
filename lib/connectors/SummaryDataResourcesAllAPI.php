@@ -936,7 +936,7 @@ class SummaryDataResourcesAllAPI
             return $arr;
         }
         else {
-            echo "\nNot yet generated children TBP, creating now...\n";
+            debug("\nNot yet generated children TBP, creating now...\n");
             /* IMPORTANT NEW STEP: Jun 9, 2019 -> only children with trait data equal to $predicate should be processed so it speeds up.  *******************************************
             E.g. page_id = 163 has many children without Present trait. But it is being checked one by one, very slow process.
             */
@@ -945,7 +945,7 @@ class SummaryDataResourcesAllAPI
                 if(self::page_id_has_trait_for_this_predicate($page_id, $predicate, $table)) $new_children[] = $page_id;
             }
             $children = $new_children; unset($new_children);
-            echo "\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"; //print_r($children); *New Children of [164] with pred: 218233
+            debug("\n*New Children of [$main_page_id] with pred.: ".count($children)."\n"); //print_r($children); *New Children of [164] with pred: 218233
             /* .  ******************************************* end IMPORTANT NEW STEP */
 
             /* *******************************************
@@ -958,7 +958,7 @@ class SummaryDataResourcesAllAPI
                     if(self::page_id_has_rank_equal_to($page_id, 'species')) $new_children[] = $page_id;
                 }
                 $children = $new_children; unset($new_children);
-                echo "\n*New Children of rank species [$main_page_id]: ".count($children)."\n"; //print_r($children); *New Children of rank species [164]: 205167
+                debug("\n*New Children of rank species [$main_page_id]: ".count($children)."\n"); //print_r($children); *New Children of rank species [164]: 205167
             }
             // exit; //debug only
             /* ******************************************* */
