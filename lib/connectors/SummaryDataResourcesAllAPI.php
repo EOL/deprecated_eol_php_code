@@ -1225,7 +1225,7 @@ class SummaryDataResourcesAllAPI
             $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
             $m->measurementValue    = $a->label;
             $m->parentMeasurementID = $parent;
-            $m->measurementRemarks = $orig_label;
+            // $m->measurementRemarks = $orig_label; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65023&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65023
             $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
             $this->archive_builder->write_object_to_file($m);
         }
@@ -1596,7 +1596,7 @@ class SummaryDataResourcesAllAPI
         $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
         $m->measurementValue    = $this->exemplary[$rec['label']];
         $m->parentMeasurementID = $parent;
-        $m->measurementRemarks = $rec['label'];
+        // $m->measurementRemarks = $rec['label']; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65023&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65023
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
