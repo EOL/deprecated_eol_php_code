@@ -1225,7 +1225,7 @@ class SummaryDataResourcesAllAPI
             $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
             $m->measurementValue    = $a->label;
             $m->parentMeasurementID = $parent;
-            // $m->measurementRemarks = $orig_label; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65023&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65023
+            // $m->measurementRemarks = $orig_label; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65029&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65029
             $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
             $this->archive_builder->write_object_to_file($m);
         }
@@ -1556,7 +1556,7 @@ class SummaryDataResourcesAllAPI
         $occurrence_id = $this->add_occurrence($taxon_id, $catnum, $rec);
 
         $m = new \eol_schema\MeasurementOrFact_specific(); //NOTE: used a new class MeasurementOrFact_specific() for non-standard fields like 'm->label'
-        $m->IAO_0000009         = $rec['label'];
+        // $m->IAO_0000009         = $rec['label']; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65029&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65029
         $m->occurrenceID        = $occurrence_id;
         $m->measurementOfTaxon  = 'true';
         $m->measurementType     = $rec['measurementType'];
@@ -1596,7 +1596,7 @@ class SummaryDataResourcesAllAPI
         $m->measurementType     = 'https://eol.org/schema/terms/exemplary';
         $m->measurementValue    = $this->exemplary[$rec['label']];
         $m->parentMeasurementID = $parent;
-        // $m->measurementRemarks = $rec['label']; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65023&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65023
+        // $m->measurementRemarks = $rec['label']; //removed per: https://eol-jira.bibalex.org/browse/DATA-1777?focusedCommentId=65029&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65029
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
