@@ -36,6 +36,12 @@ $func = new Eol_v3_API($resource_id);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $param = json_decode($params['json'], true);
+if($param['sci'] == 'Angiosperms') {
+    require_library('connectors/DHConnLib');
+    $func2 = new DHConnLib($resource_id);
+    $func2->initialize_get_ancestry_func();
+}
+else $func2 = false;
 
 if(Functions::is_production()) $path = '/extra/other_files/bundle_images/files/';
 else                           $path = '/Volumes/AKiTiO4/other_files/bundle_images/files/';
@@ -47,10 +53,12 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination, 1000); //normal operation
 */
+
 // /* 20K bundles
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_20K.txt"; //false;
-$func->get_images_per_eol_page_id($param, array(), $destination, 20000); //normal operation
+$func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
 // */
+
 /* 10K bundles
 $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_10K.txt"; //false;
 $func->get_images_per_eol_page_id($param, array(), $destination, 10000); //normal operation

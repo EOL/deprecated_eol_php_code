@@ -31,6 +31,8 @@ class Eol_v3_API
         $this->api['Pages4'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?details=true&images_per_page=50&images_page=PAGE_NO'; //for DATA-1842: EOL image bundles for Katie
         $this->api['Pages5'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json?taxonomy=true'; //for https://eol-jira.bibalex.org/browse/DATA-1812?focusedCommentId=64218&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64218
         $this->api['search_name'] = 'https://eol.org/api/search/1.0.json?q=SCINAME&page=PAGE_NO&exact=true';
+        $this->api['Pages6'] = 'https://eol.org/api/data_objects/1.0/dataObjectVersionID.json'; //first client is Katie image bundles. Gets taxon given object ID. Then get ancestry using taxon.
+        $this->api['Pages7'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json';                //first client is Katie image bundles. Gets sciname given eol ID.
         /* https://eol.org/api/search/1.0.json?q=Sphinx&page=1&exact=true */
 
         $this->api['DataObjects'][0] = "http://eol.org/api/data_objects/1.0/";
@@ -45,7 +47,7 @@ class Eol_v3_API
         
         $this->basename = "cypher_".date('YmdHis');
     }
-    function get_images_per_eol_page_id($param, $options = array(), $destination = false, $items_per_bundle = 1000)
+    function get_images_per_eol_page_id($param, $options = array(), $destination = false, $items_per_bundle = 1000, $func2) //for Katie's image bundles
     {
         $eol_page_id = $param['eol_page_id'];
         if(!$options) $options = $this->download_options;
@@ -59,10 +61,7 @@ class Eol_v3_API
             // if($PAGE_NO >= 2) break; //debug only
             $url = str_replace("EOL_PAGE_ID", $eol_page_id, $this->api['Pages4']);
             $url = str_replace("PAGE_NO", $PAGE_NO, $url);
-            if(($PAGE_NO % 100) == 0) {
-                // echo "\n".number_format($PAGE_NO);
-                echo("\n[$url]");
-            }
+            if(($PAGE_NO % 100) == 0) echo "\n".number_format($PAGE_NO). " [$url]";
             if($json = Functions::lookup_with_cache($url, $options)) {
                 $arr = json_decode($json, true);
                 if($objects = @$arr['taxonConcept']['dataObjects']) {
@@ -101,6 +100,11 @@ class Eol_v3_API
                         }
                         continue;
                         */
+                        if($func2) {
+                            $ancestry = self::get_ancestry_given_object_id($obj['dataObjectVersionID'], $func2);
+                            $obj['ancestry'] = $ancestry;
+                            // print_r($obj); exit("\nelix here...\n");
+                        }
 
                         // /* normal operation
                         $final[] = $obj;
@@ -128,6 +132,57 @@ class Eol_v3_API
         // */
     }
     /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
+    function get_ancestry_given_object_id($dataObjectVersionID, $func)
+    {
+        if($taxon = self::get_taxon_given_object_id($dataObjectVersionID)) { // print_r($taxon); //exit;
+            $eol_id = $taxon['taxon_id'];
+            if($ancestry = $func->get_ancestry_of_taxID($eol_id)) { //worked OK // print_r($ancestry);
+                array_shift($ancestry); //remove first element, which is the taxon where object belongs to.
+                $names = self::convert_ids_to_names($ancestry);
+                return $names;
+            }
+            else debug("\nNo ancestry\n");
+            /* not used here. But working OK
+            if($children_json = $func->get_children_from_json_cache($eol_id, array(), true)) {
+                $children = json_decode($children_json);
+                print_r($children); //worked OK
+            }
+            else echo "\nNo children\n";
+            */
+        }
+    }
+    private function convert_ids_to_names($eol_ids)
+    {
+        $final = array();
+        foreach($eol_ids as $eol_id) {
+            if($name = self::get_name_from_eol_id($eol_id)) $final[$name] = '';
+        }
+        $final = array_keys($final);
+        return implode("|", $final);
+    }
+    private function get_name_from_eol_id($eol_id)
+    {
+        $url = str_replace("EOL_PAGE_ID", $eol_id, $this->api['Pages7']); // echo "\n$url\n";
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //always false, since an object_id will only have 1 same taxon for its lifetime.
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $arr = json_decode($json, true); // print_r($arr); 
+            return functions::canonical_form(@$arr['taxonConcept']['scientificName']);
+        }
+    }
+    function get_taxon_given_object_id($dataObjectVersionID)
+    {   $taxon = array();
+        $url = str_replace("dataObjectVersionID", $dataObjectVersionID, $this->api['Pages6']);
+        // echo "\n$url\n";
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($json = Functions::lookup_with_cache($url, $options)) {
+            $arr = json_decode($json, true); // print_r($arr); 
+            $taxon['taxon_id'] = $arr['taxon']['identifier'];
+            $taxon['sciname'] = Functions::canonical_form($arr['taxon']['scientificName']);
+        }
+        return $taxon;
+    }
     private function write_2file_bundle($final, $param, $folder_no, $destination, $fields)
     {   // /* multiple file start ----------------------------------------------------
         $orig_destination = $destination;

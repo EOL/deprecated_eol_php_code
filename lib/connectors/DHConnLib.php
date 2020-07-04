@@ -53,6 +53,25 @@ class DHConnLib
         )*/
     }
     // ----------------------------------------------------------------- start -----------------------------------------------------------------
+    function initialize_get_ancestry_func()
+    {
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'initialize');
+        self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'buildup ancestry and children');
+        /* tests only - OK
+        $eol_id = '46564414'; //Gadus
+        if($ancestry = self::get_ancestry_of_taxID($eol_id)) print_r($ancestry); //worked OK
+        else echo "\nNo ancestry\n";
+        if($children_json = self::get_children_from_json_cache($eol_id, array(), true)) {
+            $children = json_decode($children_json);
+            echo "\n---- children start";
+            print_r($children); //worked OK
+            echo "\n---- children end";
+        }
+        else echo "\nNo children\n";
+        echo "\ncount: ".count($this->taxID_info)."\n";
+        exit("\n-end tests-\n");
+        */
+    }
     function generate_children_of_taxa_from_DH() /* This generates cache of children of order, family & genus. Also generates respective list txt files. */
     {
         self::get_taxID_nodes_info($this->main_path.'/taxon.tab', 'list of taxa', 'all'); //for original generation of map data - all taxa with EOLid
@@ -407,7 +426,7 @@ if($val = @$this->descendants[$child17]) {
         }
         return array();
     }
-    private function get_ancestry_of_taxID($tax_id)
+    function get_ancestry_of_taxID($tax_id)
     {
         $final = array();
         $final[] = $tax_id;
