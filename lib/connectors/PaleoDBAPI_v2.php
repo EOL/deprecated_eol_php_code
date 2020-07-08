@@ -116,7 +116,8 @@ class PaleoDBAPI_v2
     private function parse_big_json_file()
     {
         $this->uris = self::get_uris($this->spreadsheet_mappings);
-        $jsonfile = Functions::save_remote_file_to_local($this->service["taxon"], $this->download_options);
+        if($jsonfile = Functions::save_remote_file_to_local($this->service["taxon"], $this->download_options)) {}
+        else exit("\n\nPartner server is un-available. \nProgram will terminate.\n\n");
         $i = 0;
         foreach(new FileIterator($jsonfile) as $line_number => $line) {
             $line = Functions::conv_to_utf8($line);
