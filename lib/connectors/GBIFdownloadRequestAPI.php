@@ -7,27 +7,40 @@ class GBIFdownloadRequestAPI
     {
         $this->gbif_username = 'eli_agbayani';
         $this->gbif_pw = 'ile173';
-        /*
-        others: 0017549-200613084148143
-        */
+        $this->gbif_email = 'eagbayani@eol.org';
+
+        $this->taxon['Gadus ogac'] = 2415827;
+        $this->taxon['Animalia'] = 1;
+        $this->taxon['Plantae'] = 6;
+        $this->taxon['Fungi'] = 5;
+        $this->taxon['Chromista'] = 4;
+        $this->taxon['Bacteria'] = 3;
+        $this->taxon['Protozoa'] = 7;
+        $this->taxon['incertae sedis'] = 0;
+        $this->taxon['Archaea'] = 2;
+        $this->taxon['Viruses'] = 8;
+        $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF';
+        if(!is_dir($this->destination_path)) mkdir($this->destination_path);
     }
     function send_download_request($taxon_group)
     {
         $json = self::generate_json_request($taxon_group);
         self::save_json_2file($json);
-        $arr = json_decode($json, true);
-        print_r($arr);
+        $arr = json_decode($json, true); // print_r($arr);
         /* orig per https://www.gbif.org/developer/occurrence#download
         curl --include --user userName:PASSWORD --header "Content-Type: application/json" --data @query.json https://api.gbif.org/v1/occurrence/download/request
         */
         $filename = CONTENT_RESOURCE_LOCAL_PATH.'query.json';
-        $cmd = 'curl --include --user '.$this->gbif_username.':'.$this->gbif_pw.' --header "Content-Type: application/json" --data @'.$filename.' https://api.gbif.org/v1/occurrence/download/request';
+        $cmd = 'curl --include --user '.$this->gbif_username.':'.$this->gbif_pw.' --header "Content-Type: application/json" --data @'.$filename.' -s https://api.gbif.org/v1/occurrence/download/request';
         $output = shell_exec($cmd);
         echo "\nRequest output:\n[$output]\n";
-        
-        44359969
-        44359969
-        44610800
+        $lines = explode("\n", trim($output));
+        if($key = trim(array_pop($lines))) { //get last line
+            echo "\nDownload Key:[$key]\n";
+            self::save_key_per_taxon_group($taxon_group, $key);
+            return $key;
+        }
+        exit("\nCannot generate download key. Investigate [$taxon_group].\n");
     }
     function check_download_request_status($key)
     {
@@ -37,26 +50,21 @@ class GBIFdownloadRequestAPI
         $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key.' | jq .';
         $output = shell_exec($cmd);
         echo "\nRequest output:\n[$output]\n";
+        $arr = json_decode($output, true);
+        print_r($arr);
+        if($arr['status'] == 'SUCCEEDED') return true;
+        else return false;
     }
     private function generate_json_request($taxon_group)
     {
-        $taxon['Animalia'] = 1;
-        $taxon['Plantae'] = 6;
-        $taxon['Fungi'] = 5;
-        $taxon['Chromista'] = 4;
-        $taxon['Bacteria'] = 3;
-        $taxon['Protozoa'] = 7;
-        $taxon['incertae sedis'] = 0;
-        $taxon['Archaea'] = 2;
-        $taxon['Viruses'] = 8;
-        if($taxon_group == 'Animalia')    $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon['Animalia']);
-        elseif($taxon_group == 'Plantae') $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon['Plantae']);
-        elseif($taxon_group == 'Others')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],          1 => $taxon['Chromista'],
-                                                                                                                       2 => $taxon['Bacteria'],       3 => $taxon['Protozoa'],
-                                                                                                                       4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
-                                                                                                                       6 => $taxon['Viruses']));
-        $param = Array( 'creator' => 'eli_agbayani',
-                        'notificationAddresses' => Array(0 => 'eagbayani@eol.org'),
+        $taxon = $this->taxon;
+        if($taxon_group == 'Others')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],          1 => $taxon['Chromista'],
+                                                                                                                   2 => $taxon['Bacteria'],       3 => $taxon['Protozoa'],
+                                                                                                                   4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
+                                                                                                                   6 => $taxon['Viruses']));
+        else $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon[$taxon_group]);
+        $param = Array( 'creator' => $this->gbif_username,
+                        'notificationAddresses' => Array(0 => $this->gbif_email),
                         'sendNotification' => 1,
                         'format' => 'DWCA',
                         'predicate' => Array(
