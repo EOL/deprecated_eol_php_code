@@ -22,7 +22,7 @@ class GBIFdownloadRequestAPI
         $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF';
         if(!is_dir($this->destination_path)) mkdir($this->destination_path);
     }
-    function send_download_request($taxon_group)
+    function send_download_request($taxon_group) //this will overwrite any current download request. Run this once ONLY every harvest per taxon group.
     {
         $json = self::generate_json_request($taxon_group);
         self::save_json_2file($json);
@@ -46,8 +46,9 @@ class GBIFdownloadRequestAPI
     {
         if($key = self::retrieve_key_for_taxon($taxon_group)) {
             echo "\nDownload key is: [$key]\n";
-            if(self::can_proceed_to_download_YN($key)) {
+            if($arr = self::can_proceed_to_download_YN($key)) {
                 echo "\nCan proceed to download...\n";
+                self::create_bash_file($taxon_group, $arr['downloadLink']);
             }
             else {
                 echo "\nCannot download yet\n";
@@ -60,18 +61,19 @@ class GBIFdownloadRequestAPI
         */
         $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key.' | jq .';
         $output = shell_exec($cmd);
-        echo "\nRequest output:\n[$output]\n";
-        $arr = json_decode($output, true); // print_r($arr);
-        if($arr['status'] == 'SUCCEEDED') return true;
+        echo "\nRequest output:\n[$output]\n"; //good debug
+        $arr = json_decode($output, true);
+        // print_r($arr); exit;
+        if($arr['status'] == 'SUCCEEDED') return $arr;
         else return false;
     }
     private function generate_json_request($taxon_group)
     {
         $taxon = $this->taxon;
-        if($taxon_group == 'Others')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],          1 => $taxon['Chromista'],
-                                                                                                                   2 => $taxon['Bacteria'],       3 => $taxon['Protozoa'],
-                                                                                                                   4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
-                                                                                                                   6 => $taxon['Viruses']));
+        if($taxon_group == 'Other7Groups')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],          1 => $taxon['Chromista'],
+                                                                                                                         2 => $taxon['Bacteria'],       3 => $taxon['Protozoa'],
+                                                                                                                         4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
+                                                                                                                         6 => $taxon['Viruses']));
         else $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon[$taxon_group]);
         $param = Array( 'creator' => $this->gbif_username,
                         'notificationAddresses' => Array(0 => $this->gbif_email),
@@ -117,7 +119,18 @@ class GBIFdownloadRequestAPI
             if($key = trim(file_get_contents($file))) return $key;
             else exit("\nDownload key not found for [$taxon_group]\n");
         }
-        else exit("\nNo request to download for this taxon yet [$taxon_group].\n\n");
+        else exit("\nNo download request for this taxon yet [$taxon_group].\n\n");
+    }
+    private function create_bash_file($taxon_group, $downloadLink)
+    {
+        $row1 = "#!/bin/sh";
+        $row2 = "curl -L -o '".$taxon_group."_DwCA.zip' -C - $downloadLink";
+        
+        $file = $this->destination_path.'/run_'.$taxon_group.'.sh';
+        $fhandle = Functions::file_open($file, "w");
+        fwrite($fhandle, $row1."\n");
+        fwrite($fhandle, $row2."\n");
+        fclose($fhandle);
     }
 }
 ?>
