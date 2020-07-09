@@ -9,7 +9,10 @@ php update_resources/connectors/gbif_download_request.php _ '{"task":"send_downl
 php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Plantae"}'
 php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Others"}'
 
-php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Gadus_ogac"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Gadus ogac"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"start_download", "taxon":"Gadus ogac"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"start_download", "taxon":"Gadus morhua"}'
+
 
 Animalia
 php update_resources/connectors/gbif_download_request.php _ '{"task":"check_download_request_status", "download_key": "0017907-200613084148143"}'
@@ -48,6 +51,7 @@ $download_key = @$fields['download_key'];
 $resource_id = "1";
 $func = new GBIFdownloadRequestAPI($resource_id);
 if($task == 'send_download_request') $func->send_download_request($taxon);
+if($task == 'start_download') $func->start_download($taxon);
 if($task == 'check_download_request_status') $func->check_download_request_status($download_key);
 //############################################################ end main
 

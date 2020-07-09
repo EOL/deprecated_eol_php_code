@@ -42,16 +42,26 @@ class GBIFdownloadRequestAPI
         }
         exit("\nCannot generate download key. Investigate [$taxon_group].\n");
     }
-    function check_download_request_status($key)
+    function start_download($taxon_group)
     {
-        /* orig
+        if($key = self::retrieve_key_for_taxon($taxon_group)) {
+            echo "\nDownload key is: [$key]\n";
+            if(self::can_proceed_to_download_YN($key)) {
+                echo "\nCan proceed to download...\n";
+            }
+            else {
+                echo "\nCannot download yet\n";
+            }
+        }
+    }
+    private function can_proceed_to_download_YN($key)
+    {   /* orig
         curl -Ss https://api.gbif.org/v1/occurrence/download/0000022-170829143010713 | jq .
         */
         $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key.' | jq .';
         $output = shell_exec($cmd);
         echo "\nRequest output:\n[$output]\n";
-        $arr = json_decode($output, true);
-        print_r($arr);
+        $arr = json_decode($output, true); // print_r($arr);
         if($arr['status'] == 'SUCCEEDED') return true;
         else return false;
     }
@@ -88,10 +98,26 @@ class GBIFdownloadRequestAPI
     }
     private function save_json_2file($json)
     {
-        $filename = CONTENT_RESOURCE_LOCAL_PATH.'query.json';
-        $fhandle = Functions::file_open($filename, "w");
+        $file = CONTENT_RESOURCE_LOCAL_PATH.'query.json';
+        $fhandle = Functions::file_open($file, "w");
         fwrite($fhandle, $json);
         fclose($fhandle);
+    }
+    private function save_key_per_taxon_group($taxon_group, $key)
+    {
+        $file = $this->destination_path.'/download_key_'.$taxon_group.'.txt';
+        $fhandle = Functions::file_open($file, "w");
+        fwrite($fhandle, $key);
+        fclose($fhandle);
+    }
+    private function retrieve_key_for_taxon($taxon_group)
+    {
+        $file = $this->destination_path.'/download_key_'.$taxon_group.'.txt';
+        if(file_exists($file)) {
+            if($key = trim(file_get_contents($file))) return $key;
+            else exit("\nDownload key not found for [$taxon_group]\n");
+        }
+        else exit("\nNo request to download for this taxon yet [$taxon_group].\n\n");
     }
 }
 ?>
