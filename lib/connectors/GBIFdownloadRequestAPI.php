@@ -42,7 +42,7 @@ class GBIFdownloadRequestAPI
         }
         exit("\nCannot generate download key. Investigate [$taxon_group].\n");
     }
-    function start_download($taxon_group)
+    function generate_sh_file($taxon_group)
     {
         if($key = self::retrieve_key_for_taxon($taxon_group)) {
             echo "\nDownload key for [$taxon_group]: [$key]\n";
@@ -59,7 +59,7 @@ class GBIFdownloadRequestAPI
     {
         $groups = array('Animalia', 'Plantae', 'Other7Groups');
         foreach($groups as $taxon_group) {
-            if(!self::start_download($taxon_group)) return false;
+            if(!self::generate_sh_file($taxon_group)) return false;
         }
         return true;
     }

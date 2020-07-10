@@ -13,11 +13,11 @@ php update_resources/connectors/gbif_download_request.php _ '{"task":"send_downl
 php update_resources/connectors/gbif_download_request.php _ '{"task":"send_download_request", "taxon":"Gadus ogac"}'
 
 This will generate the .sh file if download is ready. The .sh file is the curl command to download.
-php update_resources/connectors/gbif_download_request.php _ '{"task":"start_download", "taxon":"Animalia"}'
-php update_resources/connectors/gbif_download_request.php _ '{"task":"start_download", "taxon":"Plantae"}'
-php update_resources/connectors/gbif_download_request.php _ '{"task":"start_download", "taxon":"Other7Groups"}'
-php update_resources/connectors/gbif_download_request.php _ '{"task":"start_download", "taxon":"Gadus ogac"}'
-php update_resources/connectors/gbif_download_request.php _ '{"task":"start_download", "taxon":"Gadus morhua"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Animalia"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Plantae"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Other7Groups"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Gadus ogac"}'
+php update_resources/connectors/gbif_download_request.php _ '{"task":"generate_sh_file", "taxon":"Gadus morhua"}'
 
 This will check if all downloads are ready
 php update_resources/connectors/gbif_download_request.php _ '{"task":"check_if_all_downloads_are_ready_YN"}'
@@ -59,14 +59,14 @@ $download_key = @$fields['download_key'];
 $resource_id = "1";
 $func = new GBIFdownloadRequestAPI($resource_id);
 if($task == 'send_download_request') $func->send_download_request($taxon);
-if($task == 'start_download') $func->start_download($taxon);
+if($task == 'generate_sh_file') $func->generate_sh_file($taxon);
 if($task == 'check_if_all_downloads_are_ready_YN') {
     if($func->check_if_all_downloads_are_ready_YN($download_key)) {
         echo "\nAll downloads are now ready. OK to proceed.\n";
         exit(0); //jenkins success
     }
     else {
-        echo "\nNOT all downloads are ready yet. Cannot proceed!\n";
+        echo "\nNOT all downloads are ready yet. Cannot proceed!\n\n";
         exit(1); //jenkins fail
     }
 }
