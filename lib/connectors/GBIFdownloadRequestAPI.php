@@ -45,15 +45,23 @@ class GBIFdownloadRequestAPI
     function start_download($taxon_group)
     {
         if($key = self::retrieve_key_for_taxon($taxon_group)) {
-            echo "\nDownload key is: [$key]\n";
+            echo "\nDownload key for [$taxon_group]: [$key]\n";
             if($arr = self::can_proceed_to_download_YN($key)) {
-                echo "\nCan proceed to download...\n";
+                echo "\nCan proceed to download [$taxon_group].\n";
                 self::create_bash_file($taxon_group, $arr['downloadLink']);
+                return true;
             }
-            else {
-                echo "\nCannot download yet\n";
-            }
+            else echo "\nCannot download yet [$taxon_group].\n";
         }
+        return false;
+    }
+    function check_if_all_downloads_are_ready_YN()
+    {
+        $groups = array('Animalia', 'Plantae', 'Other7Groups');
+        foreach($groups as $taxon_group) {
+            if(!self::start_download($taxon_group)) return false;
+        }
+        return true;
     }
     private function can_proceed_to_download_YN($key)
     {   /* orig
@@ -61,7 +69,7 @@ class GBIFdownloadRequestAPI
         */
         $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key.' | jq .';
         $output = shell_exec($cmd);
-        echo "\nRequest output:\n[$output]\n"; //good debug
+        // echo "\nRequest output:\n[$output]\n"; //good debug
         $arr = json_decode($output, true);
         // print_r($arr); exit;
         if($arr['status'] == 'SUCCEEDED') return $arr;
@@ -119,7 +127,7 @@ class GBIFdownloadRequestAPI
             if($key = trim(file_get_contents($file))) return $key;
             else exit("\nDownload key not found for [$taxon_group]\n");
         }
-        else exit("\nNo download request for this taxon yet [$taxon_group].\n\n");
+        else echo "\nNo download request for this taxon yet [$taxon_group].\n\n";
     }
     private function create_bash_file($taxon_group, $downloadLink)
     {
