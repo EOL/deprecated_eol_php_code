@@ -5,6 +5,12 @@ This script uses the different means to access the EOL V3 API.
 - First client is DATA-1807: EOL stats resource
 - DATA-1826: GBIF Classification
 - DATA-1842: EOL image bundles for Katie
+---------------------------------------------------------------------------
+Cypher info:
+https://github.com/EOL/eol_website/blob/master/doc/api-access.md
+check if api using cypher is available:
+- login to eol.org
+- paste in browser: https://eol.org/service/cypher?query=MATCH%20(n:Trait)%20RETURN%20n%20LIMIT%201;
 */
 class Eol_v3_API
 {
