@@ -169,6 +169,13 @@ class USDAPlants2019
                 continue;
             }
             //===========================================================================================================================================================
+            /* https://eol-jira.bibalex.org/browse/DATA-1819?focusedCommentId=65046&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65046
+            remove all records with measurementType=http://eol.org/schema/terms/Uses */
+            if($mtype == 'http://eol.org/schema/terms/Uses') {
+                $this->delete_occurrence_id[$occurrenceID] = '';
+                continue;
+            }
+            //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
             $uris = array_keys($rec);
             foreach($uris as $uri) {
