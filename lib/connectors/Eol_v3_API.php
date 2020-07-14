@@ -56,6 +56,16 @@ class Eol_v3_API
     function get_images_per_eol_page_id($param, $options = array(), $destination = false, $items_per_bundle = 1000, $func2) //for Katie's image bundles
     {
         $eol_page_id = $param['eol_page_id'];
+        
+        /* For multitaxa taxon groups: Squamata Anura Coleoptera Carnivora */
+        if(in_array($eol_page_id, array(1704, 1553, 345, 7662))) $fields = array('identifier', 'dataObjectVersionID', 'dataType', 'dataSubtype', 'vettedStatus', 
+                'mediumType', 'dataRating', 'mimeType', 'height', 'width', 'license', 'language', 'rightsHolder', 'source', 'mediaURL', 
+                'eolMediaURL', 'eolThumbnailURL');
+        /* For Angiosperms */
+        if(in_array($eol_page_id, array(282))) $fields = array('identifier', 'dataObjectVersionID', 'dataType', 'dataSubtype', 'vettedStatus', 
+                'mediumType', 'dataRating', 'mimeType', 'height', 'width', 'license', 'language', 'rightsHolder', 'source', 'mediaURL', 
+                'eolMediaURL', 'eolThumbnailURL', 'ancestry');
+        
         if(!$options) $options = $this->download_options;
         $options['expire_seconds'] = false;
         $options['download_wait_time'] = 2000000; //2 seconds
