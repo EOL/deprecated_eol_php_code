@@ -157,6 +157,7 @@ class MADtoolNatDBAPI
                         $rek = self::additional_occurrence_property($val, $rek, $metadata, $dataset);
                     }
                     $rek['referenceID'] = self::generate_reference($dataset);
+                    $rek = self::further_adjustments($rek, $mValue);
                     $ret_MoT_true = $this->func->pre_add_string_types($rek, $mValue, $mType, $mOfTaxon); //1
                     $occurrenceID = $ret_MoT_true['occurrenceID'];
                     $measurementID = $ret_MoT_true['measurementID'];
@@ -180,6 +181,7 @@ class MADtoolNatDBAPI
                         $rek["catnum"] = $csv_type."_".$mValue_var;
                         $rek['lifeStage'] = $mapped_record['http://rs.tdwg.org/dwc/terms/lifeStage'];  //measurement_property, yes this is arbitrary field in MoF
                         $rek['referenceID'] = self::generate_reference($mapped_record['dataset']);
+                        $rek = self::further_adjustments($rek, $mValue_var);
                         $this->func->pre_add_string_types($rek, $mValue_var, $mType_var, "true"); //2
                     }
                     
@@ -208,6 +210,7 @@ class MADtoolNatDBAPI
                                 if($val = $m['info']['mu']) $rek['measurementUnit'] = $val;
                                 if($val = $m['info']['mr']) $rek['measurementRemarks'] = $val;
                                 $rek['referenceID'] = self::generate_reference($dataset);
+                                $rek = self::further_adjustments($rek, $mValue_var);
                                 $this->func->pre_add_string_types($rek, $mValue_var, $mType_var, "child"); //3
                             }
                         }
@@ -217,6 +220,14 @@ class MADtoolNatDBAPI
             }
             
         }
+    }
+    private function further_adjustments($rek, $mValue)
+    {   /* per: https://eol-jira.bibalex.org/browse/DATA-1754?focusedCommentId=65051&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65051
+        where measurementValue = http://purl.obolibrary.org/obo/PATO_0001733 OR http://purl.obolibrary.org/obo/PATO_0001731
+        that value also appears in measurementRemarks. Please remove it. I can't think of anything else that would need to be there; 
+        they can be left blank. Thanks! */
+        if(in_array($mValue, array('http://purl.obolibrary.org/obo/PATO_0001733', 'http://purl.obolibrary.org/obo/PATO_0001731'))) $rek['measurementRemarks'] = '';
+        return $rek;
     }
     private function additional_occurrence_property($arr, $retx, $metadata_x, $dataset_x)
     {   /* sample $arr value
