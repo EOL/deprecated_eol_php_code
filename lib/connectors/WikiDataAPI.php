@@ -146,15 +146,18 @@ class WikiDataAPI extends WikipediaAPI
         }
         return true;
     }
-    function test($filename = false)
+    function test($filename = false) //php update_resources/connectors/wikidata.php _ debug
     {
         /* [file in question] => -----                              Nov 25, 2018
-            [File:Virgin%27s_bower_(Clematis_terniflora).jpg] => 
             [File:Narcissus rupicola distrib.jpg] => 
             [File:Rosa_glauca_inflorescence_(32).jpg] =>            no real agent
-            [File:Alnus_acuminata_4.jpg] =>                         no real agent
         */
         // $filename = "Aa_species.jpg"; //force assignment Aa_species.jpg
+        // $filename = 'Narcissus_assoanus_distrib.jpg';
+        // $filename = 'Ismaelguevara.jpg'; //really no artist
+        // $filename = 'Narcissus jonquilla distrib.jpg'; //from ['Artist']['value']
+        $filename = 'Family Ursidae four species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
+        $filename = urlencode($filename);
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
@@ -205,28 +208,24 @@ class WikiDataAPI extends WikipediaAPI
         // self::test_agent_value($a, array('name' => "xxx", 'role' => "yyy", 'homepage' => "zzz"));
         
         $arr[] = array('filename' => 'Aa_species.jpg',              'name' => "Eric in SF",    'condition' => 'eq', 'role' => 'creator');
-        $arr[] = array('filename' => 'Abies_grandis_needles.jpg',   'name' => "Sten Porse",    'condition' => 'eq');
-        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg',   'name' => "Walters Art Museum", 'condition' => 'eq');
-        $arr[] = array('filename' => 'Salix_sericea_NRCS-2.jpg',        'name' => "Nonenmac",              'condition' => 'eq');
-        $arr[] = array('filename' => 'Caligula_by_A_Yakovlev_1911.jpg', 'name' => "Alexander Yakovlev",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Abies_grandis_needles.jpg',   'name' => "Sten",    'condition' => 'eq');
+        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg',   'name' => "Walters Art Museum:  Home page  Info about artwork", 'condition' => 'eq');
+        $arr[] = array('filename' => 'Salix_sericea_NRCS-2.jpg',        'name' => "Wikimedia Commons",              'condition' => 'eq');
+        $arr[] = array('filename' => 'Caligula_by_A_Yakovlev_1911.jpg', 'name' => "Alexandre Jacovleff",    'condition' => 'eq');
         $arr[] = array('filename' => 'Megalophaedusa_martensi_02.jpg',  'name' => "Takahashi",             'condition' => 'eq', 'index' => 1);
         $arr[] = array('filename' => 'Elgaria_multicarinata_08416.JPG', 'name' => "Walter Siegmund ©2006 Walter Siegmund", 'condition' => 'eq', 'index' => 1);
         $arr[] = array('filename' => 'Alexander_yakovlev,_autoritratto,_1917.JPG', 'name' => "Sailko", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Sailko');
-        $arr[] = array('filename' => 'Alexandr_Yakovlev_(self-portrait,_1917,_GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
-        $arr[] = array('filename' => 'España_y_Portugal.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator');
+        $arr[] = array('filename' => 'Alexandr Yakovlev (self-portrait, 1917, GTG).jpg', 'name' => "Alexandre Jacovleff", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://en.wikipedia.org/wiki/en:Alexandre_Jacovleff');
         $arr[] = array('filename' => 'Okinawa_Churaumi_Aquarium.jpg', 'name' => "Derek Mawhinney", 'condition' => 'eq', 'role' => 'creator');
-        $arr[] = array('filename' => 'Indian_-_Rama_Destroys_Ogress_-_Walters_W888.jpg', 'name' => "Walters Art Museum", 'condition' => 'eq', 'role' => 'source');
         $arr[] = array('filename' => '1PRT.png', 'name' => "Jmol, Jmol Development Team", 'condition' => 'eq', 'role' => 'source', 'index' => 1);
-        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Flickr user NatureAtYourBackyard . Photo uploaded to commons by user ltshears", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/');
-        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Johnny Wee. (Thanks for a million views.) (64684201@N00)", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/291506502/');
-        $arr[] = array('filename' => 'Whales_are_Paraphyletic.png', 'name' => "Ian Alexander", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Chiswick_Chap');
-        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Cillas;España_y_Portugal.jpg: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
-        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Se ha trabajado con datos propios sobre la imagen existente en Commons: España_y_Portugal.jpg", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
+        $arr[] = array('filename' => 'Red-breasted_Parakeet.jpg', 'name' => "Ltshears", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/64684201@N00/');
+        $arr[] = array('filename' => 'Whales_are_Paraphyletic.png', 'name' => "Chiswick Chap", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Chiswick_Chap');
+        $arr[] = array('filename' => 'Narcissus_assoanus_distrib.jpg', 'name' => "Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg');
         $arr[] = array('filename' => 'Japanese_Kolonok.jpg', 'name' => "Conifer",    'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://www.flickr.com/photos/conifer/');
         $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Felipe Neira", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/11923391@N00/');
         $arr[] = array('filename' => 'Saguinus_nigricollis_3.jpg', 'name' => "Flickr user ID ipecuador", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/ipecuador/233502258/in/dateposted/');
         $arr[] = array('filename' => 'Blue_Shepherd_ja_leijona.jpg',              'name' => "Korkeasaaren kirja, a book published in 1951, photos thus in the public domain.",    'condition' => 'eq', 'role' => 'source');
-        $arr[] = array('filename' => 'Inclusion_bodies.jpg', 'name' => "{{NCI Visuals Online|2252}} (since removed)",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/National_Cancer_Institute');
+        $arr[] = array('filename' => 'Inclusion_bodies.jpg', 'name' => "Unknown photographer",    'condition' => 'eq', 'role' => 'creator', 'homepage' => '');
         $arr[] = array('filename' => 'Feh-painting.jpg', 'name' => "Brehms Tierleben, Small Edition 1927",    'condition' => 'eq', 'role' => 'source', 'homepage' => 'https://en.wikipedia.org/wiki/Brehms_Tierleben');
         $arr[] = array('filename' => 'Alitta_virens_pharynx_(dorsal).jpg', 'name' => "Flickr user ID a_semenov", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://www.flickr.com/photos/a_semenov/3459795279/sizes/o/in/photostream/');
         $arr[] = array('filename' => 'Chicory-m.jpg', 'name' => "marya", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://www.flickr.com/photos/35237093637@N01');
@@ -235,7 +234,7 @@ class WikiDataAPI extends WikipediaAPI
         $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Denise King", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://vimeo.com/growthanddk');
         $arr[] = array('filename' => 'Sea_spider_(Pantopoda_or_pycnogonids).webm', 'name' => "Vimeo video 136560584", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'https://vimeo.com/136560584');
         $arr[] = array('filename' => 'Tordalke01.jpg', 'name' => "T.Müller",    'condition' => 'eq', 'role' => 'creator');
-        $arr[] = array('filename' => 'Llaca.jpg', 'name' => "Yamil Hussein E.", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/w/index.php?title=User:Yamilhussein&action=edit&redlink=1');
+        $arr[] = array('filename' => 'Llaca.jpg', 'name' => "Yamilhussein (page does not exist)", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/w/index.php?title=User:Yamilhussein&action=edit&redlink=1');
         $arr[] = array('filename' => 'Llaca.jpg', 'name' => "http://www.jacobita.cl/", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.jacobita.cl/');
 
         echo "\n\nNext...".count($arr);
@@ -249,9 +248,9 @@ class WikiDataAPI extends WikipediaAPI
             if(!isset($arr['Artist'])) echo "\n$i filename not found!";
             else { //start test proper
                 $param = array('condition' => $a['condition']);
-                if(isset($a['name']))     $param['name']     = $arr['Artist'][$a['index']]['name'];
-                if(isset($a['role']))     $param['role']     = $arr['Artist'][$a['index']]['role'];
-                if(isset($a['homepage'])) $param['homepage'] = $arr['Artist'][$a['index']]['homepage'];
+                if(isset($a['name']))     $param['name']     = @$arr['Artist'][$a['index']]['name'];
+                if(isset($a['role']))     $param['role']     = @$arr['Artist'][$a['index']]['role'];
+                if(isset($a['homepage'])) $param['homepage'] = @$arr['Artist'][$a['index']]['homepage'];
                 echo "\n$i. ".(self::validate_test($param, $a) ? 'OK' : "error: $a[filename]");
             }
         }
@@ -2197,7 +2196,40 @@ class WikiDataAPI extends WikipediaAPI
                 if($val = self::get_artist_from_special_source($rek['ImageDescription'])) $rek['Artist'][] = $val; //get_media_metadata_from_api()
             }
             
+            // print_r($rek['Artist']); exit("\n[2]\n");
+            
             if($val = @$rek['Artist']) $rek['Artist'] = self::flickr_lookup_if_needed($val);
+
+            if(!@$rek['Artist']) { // Jul 17, 2020: latest updates
+                if($val = @$arr['imageinfo'][0]['extmetadata']['Artist']['value']) {
+                    $orig = $val; echo "\n[$val]\n";
+                    /* sample $val
+                    Cillas;<a href="//commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg" title="File:España y Portugal.jpg">España_y_Portugal.jpg</a>: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
+                    */
+                    if($val = trim(strip_tags($val))) {
+                        $homepage = '';
+                        if(substr($val,0,5) == 'File:') { //check if u can get author from succeeding url File:
+                            $homepage = 'https://commons.wikimedia.org/wiki/'.$val;
+                            $filename = str_ireplace('File:','',$val);
+                            if($an_artist = self::get_artist_using_File_colon($filename)) $rek['Artist'][] = $an_artist;
+                        }
+                        if(!@$rek['Artist']) {
+                            if(preg_match("/title\=\"File\:(.*?)\"/ims", $orig, $a)) {
+                                $filename = $a[1];
+                                if($an_artist = self::get_artist_using_File_colon($filename)) $rek['Artist'][] = $an_artist;
+                            }
+                        }
+                        if(!@$rek['Artist']) { //last option only
+                            if(substr($val,0,4) != 'http') $rek['Artist'][] = array('name' => $val, 'homepage' => $homepage, 'role' => 'author');
+                        }
+                    }
+                }
+                if(!@$rek['Artist']) { //still no artist
+                    if($val = @$arr['imageinfo'][0]['extmetadata']['Credit']['value']) {
+                        if($arr = self::get_artists_from_Credit_value($val)) $rek['Artist'] = $arr;
+                    }
+                }
+            }
             
             //end artist ========================
             
@@ -2222,6 +2254,27 @@ class WikiDataAPI extends WikipediaAPI
         }
         else echo "\nNot found in API\n";
         return $rek; //$arr
+    }
+    private function get_artist_using_File_colon($filename)
+    {
+        $ret = self::process_file(urlencode($filename));
+        if(@$ret['Artist'][0]['name']) return $ret['Artist'][0];
+    }
+    private function get_artists_from_Credit_value($credit)
+    {   /*<ul>
+        <li><a href="//commons.wikimedia.org/wiki/File:Grosser_Panda.JPG" title="File:Grosser Panda.JPG">File:Grosser_Panda.JPG</a></li>
+        <li><a href="//commons.wikimedia.org/wiki/File:2010-kodiak-bear-1.jpg" title="File:2010-kodiak-bear-1.jpg">File:2010-kodiak-bear-1.jpg</a></li>
+        <li><a href="//commons.wikimedia.org/wiki/File:Polar_Bear_2004-11-15.jpg" title="File:Polar Bear 2004-11-15.jpg">File:Polar Bear 2004-11-15.jpg</a></li>
+        <li><a href="//commons.wikimedia.org/wiki/File:Formosan_black_bear_suckling_cubs.jpg" title="File:Formosan black bear suckling cubs.jpg">File:Formosan black bear suckling cubs.jpg</a></li>
+        </ul>*/
+        $final = array();
+        if(preg_match_all("/\/File\:(.*?)\"/ims", $credit, $a)) {
+            // print_r($a[1]); exit;
+            foreach($a[1] as $filename) {
+                if($an_artist = self::get_artist_using_File_colon($filename)) $final[] = $an_artist;
+            }
+        }
+        return $final;
     }
     private function check_if_dump_image_is_map($wiki)
     {   /*
@@ -2308,14 +2361,19 @@ class WikiDataAPI extends WikipediaAPI
         $final = array();
         foreach($arr[1] as $item) {
             if(preg_match("/wiki\/User\:(.*?)\"/ims", $item, $a)) $final[] = array("name" => $a[1], 'homepage' => 'https://commons.wikimedia.org/wiki/User:'.$a[1], 'role' => 'creator');
-            else                                                  $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'creator', 'homepagae' => 'media_urlx');
+            else {
+                $homepage = '';
+                if(preg_match("/href=\"http(.*?)\"/ims", $item, $a2)) $homepage = 'http'.$a2[1];
+                $final[] = array("name" => self::remove_space(strip_tags($item)), 'role' => 'creator', 'homepagae' => $homepage);
+            }
         }
         return $final;
     }
     private function invalid_artist_name_value($rek)
     {
-        if(!isset($rek['Artist'][0]['name'])) return false;
+        if(!@$rek['Artist'][0]['name']) return true;
         if($rek['Artist'][0]['name'] == "Unknown") return true;
+        if($rek['Artist'][0]['name'] == "Own work") return true;
         if(stripos($rek['Artist'][0]['name'], "Unknown author") !== false) return true;
         // if(stripos($rek['Artist'][0]['name'], "Unknown photographer") !== false) return true; --- not needed yet
         if(Functions::get_mimetype($rek['Artist'][0]['name'])) return true; //name should not be an image path
