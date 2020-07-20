@@ -2202,7 +2202,7 @@ class WikiDataAPI extends WikipediaAPI
 
             if(!@$rek['Artist']) { // Jul 17, 2020: latest updates
                 if($val = @$arr['imageinfo'][0]['extmetadata']['Artist']['value']) {
-                    $orig = $val; echo "\n[$val]\n";
+                    $orig = $val; //echo "\n[$val]\n";
                     /* sample $val
                     Cillas;<a href="//commons.wikimedia.org/wiki/File:Espa%C3%B1a_y_Portugal.jpg" title="File:España y Portugal.jpg">España_y_Portugal.jpg</a>: Jacques Descloitres, MODIS Rapid Response Team, NASA/GSFC
                     */
