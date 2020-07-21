@@ -149,16 +149,18 @@ class WikiDataAPI extends WikipediaAPI
     function test($filename = false) //php update_resources/connectors/wikidata.php _ debug
     {
         /* [file in question] => -----                              Nov 25, 2018
-            [File:Narcissus rupicola distrib.jpg] => 
+            [File:Narcissus_rupicola_distrib.jpg] => 
             [File:Rosa_glauca_inflorescence_(32).jpg] =>            no real agent
         */
         // $filename = "Aa_species.jpg"; //force assignment Aa_species.jpg
         // $filename = 'Narcissus_assoanus_distrib.jpg';
         // $filename = 'Ismaelguevara.jpg'; //really no artist
-        // $filename = 'Narcissus jonquilla distrib.jpg'; //from ['Artist']['value']
-        $filename = 'Family Ursidae four species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
-        //$filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
-        $filename = "Поширення сьомги.gif";
+        // $filename = 'Narcissus_jonquilla_distrib.jpg'; //from ['Artist']['value']
+        $filename = 'Family_Ursidae_four_species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
+        $filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
+        //$filename = "Поширення_сьомги.gif";
+        //$filename = "Localización_provincia_de_Castellón.png";
+        //$filename = "Distibución_gorilla.png";
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
@@ -1177,6 +1179,7 @@ class WikiDataAPI extends WikipediaAPI
     }
     private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
     {   /* new block Jul 21, 2020 ================== START */
+        $orig_file = $file;
         if(mb_detect_encoding($file, 'ASCII', true)) {} //echo "\nValid all-ASCII\n";
         else {
             echo "\nNon-ASCII detected [$file].";
@@ -1214,7 +1217,7 @@ class WikiDataAPI extends WikipediaAPI
         if(!$rek) return false;
         
         $rek['source_url']  = "https://commons.wikimedia.org/wiki/File:".$file;
-        $rek['media_url']   = self::get_media_url($file);
+        $rek['media_url']   = self::get_media_url($orig_file);
         if($val = @$rek['Artist']) $rek['Artist'] = self::format_artist($val);
         $rek['ImageDescription'] = Functions::remove_this_last_char_from_str($rek['ImageDescription'], "|");
         
