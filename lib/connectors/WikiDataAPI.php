@@ -157,7 +157,7 @@ class WikiDataAPI extends WikipediaAPI
         // $filename = 'Ismaelguevara.jpg'; //really no artist
         // $filename = 'Narcissus jonquilla distrib.jpg'; //from ['Artist']['value']
         $filename = 'Family Ursidae four species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
-        $filename = urlencode($filename);
+        //$filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
@@ -1175,7 +1175,19 @@ class WikiDataAPI extends WikipediaAPI
         return $final;
     }
     private function process_file($file) //e.g. Abhandlungen_aus_dem_Gebiete_der_Zoologie_und_vergleichenden_Anatomie_(1841)_(16095238834).jpg
-    {
+    {   /* new block Jul 21, 2020 ================== START */
+        if(mb_detect_encoding($file, 'ASCII', true)) {} //echo "\nValid all-ASCII\n";
+        else {
+            echo "\nNon-ASCII detected [$file].";
+            $file = urlencode($file);
+            echo "\nConverted: [$file].\n";
+        }
+        /* another option that works
+        if(preg_match('/[^\x20-\x7e]/', $filename)) echo "\nNon-ASCII detected\n";
+        else                                        echo "\nValid all-ASCII\n";
+        */
+        /* new block Jul 21, 2020 ================== END */
+
         $rek = array();
         // if(false) //will force to use API data - debug only
         if($filename = self::has_cache_data($file)) { //Eyes_of_gorilla.jpg - used in normal operation -- get media info from commons
@@ -2257,7 +2269,7 @@ class WikiDataAPI extends WikipediaAPI
     }
     private function get_artist_using_File_colon($filename)
     {
-        $ret = self::process_file(urlencode($filename));
+        $ret = self::process_file($filename);
         if(@$ret['Artist'][0]['name']) return $ret['Artist'][0];
     }
     private function get_artists_from_Credit_value($credit)
