@@ -157,10 +157,11 @@ class WikiDataAPI extends WikipediaAPI
         // $filename = 'Ismaelguevara.jpg'; //really no artist
         // $filename = 'Narcissus_jonquilla_distrib.jpg'; //from ['Artist']['value']
         $filename = 'Family_Ursidae_four_species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
-        $filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
-        //$filename = "Поширення_сьомги.gif";
+        //$filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
+        $filename = "Поширення_сьомги.gif";
         //$filename = "Localización_provincia_de_Castellón.png";
-        //$filename = "Distibución_gorilla.png";
+        $filename = "Distibución_gorilla.png";
+        $filename = "Distribución hoolock.png";
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
@@ -1185,6 +1186,7 @@ class WikiDataAPI extends WikipediaAPI
             echo "\nNon-ASCII detected [$file].";
             $file = urlencode($file);
             $file = str_replace("+", " ", $file);
+            $file = str_replace(" ", "_", $file);
             echo "\nConverted: [$file].\n";
         }
         /* another option that works
