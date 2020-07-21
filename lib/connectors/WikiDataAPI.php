@@ -158,7 +158,7 @@ class WikiDataAPI extends WikipediaAPI
         // $filename = 'Narcissus_jonquilla_distrib.jpg'; //from ['Artist']['value']
         //$filename = 'Family_Ursidae_four_species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
         $filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
-        $filename = "Поширення_сьомги.gif";
+        //$filename = "Поширення_сьомги.gif";
         //$filename = "Localización_provincia_de_Castellón.png";
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
@@ -238,11 +238,8 @@ class WikiDataAPI extends WikipediaAPI
         $arr[] = array('filename' => 'Tordalke01.jpg', 'name' => "T.Müller",    'condition' => 'eq', 'role' => 'creator');
         $arr[] = array('filename' => 'Llaca.jpg', 'name' => "Yamilhussein (page does not exist)", 'condition' => 'eq', 'role' => 'creator', 'index' => 0, 'homepage' => 'https://commons.wikimedia.org/w/index.php?title=User:Yamilhussein&action=edit&redlink=1');
         $arr[] = array('filename' => 'Llaca.jpg', 'name' => "http://www.jacobita.cl/", 'condition' => 'eq', 'role' => 'source', 'index' => 1, 'homepage' => 'http://www.jacobita.cl/');
-
+        $arr[] = array('filename' => '01_Schwarzbär_cropped.jpg', 'name' => "Diginatur", 'condition' => 'eq', 'role' => 'creator', 'homepage' => 'https://commons.wikimedia.org/wiki/User:Diginatur');
         echo "\n\nNext...".count($arr);
-        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
-        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
-        // $arr[] = array('filename' => 'xxx',   'name' => "yyy",    'condition' => 'eq');
         $i = 0;
         foreach($arr as $a) { $i++;
             if(!@$a['index']) $a['index'] = 0;
