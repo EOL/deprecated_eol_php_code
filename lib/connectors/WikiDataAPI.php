@@ -2252,7 +2252,7 @@ class WikiDataAPI extends WikipediaAPI
             }
             */
         }
-        else echo "\nNot found in API\n";
+        else echo "\nNot found in API. API call: [$api_call]\n";
         return $rek; //$arr
     }
     private function get_artist_using_File_colon($filename)
