@@ -153,13 +153,13 @@ class WikiDataAPI extends WikipediaAPI
             [File:Rosa_glauca_inflorescence_(32).jpg] =>            no real agent
         */
         // $filename = "Aa_species.jpg"; //force assignment Aa_species.jpg
-        // $filename = 'Narcissus_assoanus_distrib.jpg';
+        $filename = 'Narcissus_assoanus_distrib.jpg';
         // $filename = 'Ismaelguevara.jpg'; //really no artist
         // $filename = 'Narcissus_jonquilla_distrib.jpg'; //from ['Artist']['value']
         //$filename = 'Family_Ursidae_four_species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
-        $filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
+        //$filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
         //$filename = "Поширення_сьомги.gif";
-        $filename = "Localización_de_la_provincia_de_Ciudad_Real.svg";
+        //$filename = "Localización_de_la_provincia_de_Ciudad_Real.svg";
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
@@ -1178,11 +1178,11 @@ class WikiDataAPI extends WikipediaAPI
         $orig_file = $file;
         if(mb_detect_encoding($file, 'ASCII', true)) {} //echo "\nValid all-ASCII\n";
         else {
-            echo "\nNon-ASCII detected [$file].";
+            // echo "\nNon-ASCII detected [$file].";
             $file = urlencode($file);
             $file = str_replace("+", " ", $file);
             $file = str_replace(" ", "_", $file);
-            echo "\nConverted: [$file].\n";
+            // echo "\nConverted: [$file].\n";
         }
         /* another option that works
         if(preg_match('/[^\x20-\x7e]/', $filename)) echo "\nNon-ASCII detected\n";
