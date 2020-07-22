@@ -159,7 +159,7 @@ class WikiDataAPI extends WikipediaAPI
         //$filename = 'Family_Ursidae_four_species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
         $filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
         //$filename = "Поширення_сьомги.gif";
-        //$filename = "Localización_provincia_de_Castellón.png";
+        $filename = "Localización_de_la_provincia_de_Ciudad_Real.svg";
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
