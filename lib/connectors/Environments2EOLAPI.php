@@ -14,12 +14,17 @@ class Environments2EOLAPI
         // }
         // $this->debug = array();
         $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
+        
+        $this->num_of_saved_recs_bef_run_tagger = 25; //5000 orig;
     }
-
-    // $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
-    
-    private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
+    function gen_txt_files_4_articles($resource)
     {
+        $info = self::parse_dwca($resource); // print_r($info); exit;
+        $tables = $info['harvester']->tables;
+        self::process_table($tables['http://eol.org/schema/media/document'][0]);
+    }
+    private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
+    {   
         /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -30,7 +35,6 @@ class Environments2EOLAPI
         $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_64006/",
                        "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_64006/");
         // */
-        
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -42,19 +46,12 @@ class Environments2EOLAPI
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    function gen_txt_files_4_articles($resource)
-    {
-        $info = self::parse_dwca($resource);
-        // print_r($info); exit;
-        $tables = $info['harvester']->tables;
-        self::process_table($tables['http://eol.org/schema/media/document'][0]);
-    }
     private function process_table($meta)
     {   //print_r($meta);
         echo "\nprocess media tab...\n";
-        $i = 0;
+        $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -65,8 +62,26 @@ class Environments2EOLAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            if(self::valid_record($rec)) {
+                $saved++;
+                self::save_article_2_txtfile($rec);
+                if($saved == $this->num_of_saved_recs_bef_run_tagger) {
+                    self::run_environment_tagger();
+                    $saved = 0;
+                }
+            }
+            if($i >= 100) break; //debug only
         }
+    }
+    private function run_environment_tagger()
+    {
+        echo "\nRun run_environment_tagger()...\n";
+    }
+    private function valid_record($rec)
+    {   if($rec['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/Text' &&
+           $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] && $rec['http://purl.org/dc/terms/description']) return true;
+        else return false;
     }
 }
 ?>
