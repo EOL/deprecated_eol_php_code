@@ -95,6 +95,10 @@ class Environments2EOLAPI
             }
             if($i >= 100) break; //debug only
         }
+        echo "\nLast round...\n";
+        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty " : "\nNot empty ";
+        self::run_environment_tagger(); //process remaining txt files.
+        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty " : "\nNot empty ";
     }
     private function save_article_2_txtfile($rec)
     {   /* Array(
@@ -119,7 +123,6 @@ class Environments2EOLAPI
             fwrite($f, $basename."\n".$desc."\n");
             fclose($f);
         }
-        
     }
     private function run_environment_tagger()
     {   echo "\nRun run_environment_tagger()...";
