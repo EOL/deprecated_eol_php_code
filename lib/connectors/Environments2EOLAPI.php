@@ -16,12 +16,27 @@ class Environments2EOLAPI
         $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         
         $this->num_of_saved_recs_bef_run_tagger = 25; //5000 orig;
+        $this->eol_tagger_path = '/u/scripts/vangelis_tagger/eol_tagger/';
+        $this->text_data_path = '/u/scripts/vangelis_tagger/test_text_data/';
+        $this->eol_tags_destination = '/u/scripts/vangelis_tagger/eol_tags/eol_tags.tsv';
     }
     function gen_txt_files_4_articles($resource)
     {
+        self::initialize_files();
         $info = self::parse_dwca($resource); // print_r($info); exit;
         $tables = $info['harvester']->tables;
         self::process_table($tables['http://eol.org/schema/media/document'][0]);
+        print_r($this->debug);
+    }
+    private function initialize_files()
+    {
+        $files = array($this->eol_tags_destination);
+        foreach($files as $file) {
+            if($f = Functions::file_open($file, "w")) {
+                fclose($f);
+                echo "\nFile truncated: [$file]\n";
+            }
+        }
     }
     private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   
@@ -64,6 +79,8 @@ class Environments2EOLAPI
             }
             // print_r($rec); exit;
             if(self::valid_record($rec)) {
+                $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
+                $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = '';
                 $saved++;
                 self::save_article_2_txtfile($rec);
                 if($saved == $this->num_of_saved_recs_bef_run_tagger) {
@@ -74,13 +91,48 @@ class Environments2EOLAPI
             if($i >= 100) break; //debug only
         }
     }
+    private function save_article_2_txtfile($rec)
+    {   /* Array(
+        [http://purl.org/dc/terms/identifier] => 8687_distribution
+        [http://rs.tdwg.org/dwc/terms/taxonID] => 8687
+        [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+        [http://purl.org/dc/terms/format] => text/plain
+        [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution
+        [http://purl.org/dc/terms/title] => Distribution and Habitat
+        [http://purl.org/dc/terms/description] => <p><i>Abavorana nazgul</i> is only known from the mountain, Gunung Jerai, in the state of Kedah on the west coast of Peninsular Malaysia. It is associated with riparian habitats, and can be found near streams. It has been only been found at elevations between 800 – 1200 m (Quah et al. 2017).</p>
+        [http://rs.tdwg.org/ac/terms/furtherInformationURL] => http://amphibiaweb.org/cgi/amphib_query?where-genus=Abavorana&where-species=nazgul&account=amphibiaweb
+        [http://purl.org/dc/terms/language] => en
+        [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by/3.0/
+        [http://eol.org/schema/agent/agentID] => 40dafcb8c613187d62bc1033004b43b9
+        [http://eol.org/schema/reference/referenceID] => d08a99802fc760abbbfc178a391f9336; 8d5b9dee4f523c6243387c962196b8e0; 4d496c9853b52d6d4ee443b4a6103cca
+        )*/
+        $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
+        $file = $this->text_data_path.$basename.".txt";
+        if($f = Functions::file_open($file, "w")) {
+            $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
+            $desc = trim(Functions::remove_whitespace($desc));
+            fwrite($f, $basename."\n".$desc."\n");
+            fclose($f);
+        }
+        
+    }
     private function run_environment_tagger()
     {
         echo "\nRun run_environment_tagger()...\n";
+        $current_dir = getcwd(); //get current dir
+        chdir($this->eol_tagger_path);
+        /*
+        ./environments_tagger /u/scripts/vangelis_tagger/test_text_data/ &> /u/scripts/vangelis_tagger/eol_tags/eol_tags.tsv
+        */
+        $cmd = "./environments_tagger $this->text_data_path &>> $this->eol_tags_destination";
+        shell_exec($cmd);
+        chdir($current_dir); //go back to current dir
+        Functions::delete_temp_files($this->text_data_path, 'txt');
     }
     private function valid_record($rec)
     {   if($rec['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/Text' &&
-           $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] && $rec['http://purl.org/dc/terms/description']) return true;
+           $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] && $rec['http://purl.org/dc/terms/description'] &&
+           $rec['http://rs.tdwg.org/dwc/terms/taxonID'] && $rec['http://purl.org/dc/terms/identifier']) return true;
         else return false;
     }
 }

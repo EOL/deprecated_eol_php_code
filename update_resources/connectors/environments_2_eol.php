@@ -13,6 +13,7 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "gen_txt_file
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/Environments2EOLAPI');
+$GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 
 // print_r($argv);
