@@ -27,6 +27,7 @@ class Environments2EOLAPI
         $tables = $info['harvester']->tables;
         self::process_table($tables['http://eol.org/schema/media/document'][0]);
         print_r($this->debug);
+        recursive_rmdir($info['temp_dir']);
     }
     private function initialize_files()
     {
@@ -40,16 +41,16 @@ class Environments2EOLAPI
     }
     private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->DwCA_URLs[$resource], "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
         // print_r($paths); exit("\n-exit muna-\n");
-        */
-        // /* development only
+        // */
+        /* development only
         $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_64006/",
                        "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_64006/");
-        // */
+        */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
