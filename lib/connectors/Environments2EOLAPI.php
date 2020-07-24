@@ -15,7 +15,7 @@ class Environments2EOLAPI
         // $this->debug = array();
         $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         
-        $this->num_of_saved_recs_bef_run_tagger = 25; //5000 orig;
+        $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
         $this->root_path            = '/u/scripts/vangelis_tagger/';
         $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
         $this->text_data_path       = $this->root_path.'test_text_data/';
@@ -93,7 +93,7 @@ class Environments2EOLAPI
                     $saved = 0;
                 }
             }
-            if($i >= 100) break; //debug only
+            // if($i >= 100) break; //debug only
         }
         echo "\nLast round...\n";
         echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty " : "\nNot empty ";
@@ -137,7 +137,7 @@ class Environments2EOLAPI
         Functions::delete_temp_files($this->text_data_path, 'txt');
     }
     private function gen_noParentTerms()
-    {   echo "\nRun gen_noParentTerms()...";
+    {   echo "\nRun gen_noParentTerms()...\n";
         $current_dir = getcwd(); //get current dir
         chdir($this->root_path);
         /*
