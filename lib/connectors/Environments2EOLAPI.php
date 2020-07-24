@@ -96,9 +96,9 @@ class Environments2EOLAPI
             // if($i >= 100) break; //debug only
         }
         echo "\nLast round...\n";
-        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty " : "\nNot empty ";
+        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nNot empty - OK ";
         self::run_environment_tagger(); //process remaining txt files.
-        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty " : "\nNot empty ";
+        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty - OK\n" : "\nNot empty!\n";
     }
     private function save_article_2_txtfile($rec)
     {   /* Array(
