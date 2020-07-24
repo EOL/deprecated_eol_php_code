@@ -16,9 +16,12 @@ class Environments2EOLAPI
         $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         
         $this->num_of_saved_recs_bef_run_tagger = 25; //5000 orig;
-        $this->eol_tagger_path = '/u/scripts/vangelis_tagger/eol_tagger/';
-        $this->text_data_path = '/u/scripts/vangelis_tagger/test_text_data/';
-        $this->eol_tags_destination = '/u/scripts/vangelis_tagger/eol_tags/eol_tags.tsv';
+        $this->root_path            = '/u/scripts/vangelis_tagger/';
+        $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
+        $this->text_data_path       = $this->root_path.'test_text_data/';
+        $this->eol_scripts_path     = $this->root_path.'eol_scripts/';
+        $this->eol_tags_path        = $this->root_path.'eol_tags/';
+        $this->eol_tags_destination = $this->eol_tags_path.'eol_tags.tsv';
     }
     function gen_txt_files_4_articles($resource)
     {
@@ -27,7 +30,8 @@ class Environments2EOLAPI
         $tables = $info['harvester']->tables;
         self::process_table($tables['http://eol.org/schema/media/document'][0]);
         print_r($this->debug);
-        recursive_rmdir($info['temp_dir']);
+        self::gen_noParentTerms();
+        recursive_rmdir($info['temp_dir']); //remove temp folder used for DwCA parsing
     }
     private function initialize_files()
     {
@@ -118,8 +122,7 @@ class Environments2EOLAPI
         
     }
     private function run_environment_tagger()
-    {
-        echo "\nRun run_environment_tagger()...\n";
+    {   echo "\nRun run_environment_tagger()...";
         $current_dir = getcwd(); //get current dir
         chdir($this->eol_tagger_path);
         /*
@@ -129,6 +132,17 @@ class Environments2EOLAPI
         shell_exec($cmd);
         chdir($current_dir); //go back to current dir
         Functions::delete_temp_files($this->text_data_path, 'txt');
+    }
+    private function gen_noParentTerms()
+    {   echo "\nRun gen_noParentTerms()...";
+        $current_dir = getcwd(); //get current dir
+        chdir($this->root_path);
+        /*
+        ./eol_scripts/exclude-parents-E.pl eol_tags/eol_tags.tsv eol_scripts/envo_child_parent.tsv > eol_tags/eol_tags_noParentTerms.tsv
+        */
+        $cmd = "./eol_scripts/exclude-parents-E.pl $this->eol_tags_destination $this->eol_scripts_path"."envo_child_parent.tsv > $this->eol_tags_path"."eol_tags_noParentTerms.tsv";
+        shell_exec($cmd);
+        chdir($current_dir); //go back to current dir
     }
     private function valid_record($rec)
     {   if($rec['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/Text' &&
