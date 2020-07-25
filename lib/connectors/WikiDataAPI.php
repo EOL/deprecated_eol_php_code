@@ -158,8 +158,8 @@ class WikiDataAPI extends WikipediaAPI
         // $filename = 'Narcissus_jonquilla_distrib.jpg'; //from ['Artist']['value']
         //$filename = 'Family_Ursidae_four_species.jpg'; //from ['Credit']['value']. Sample of multiple credit lines
         //$filename = '01_Schwarzbär_cropped.jpg'; //with non-ascii char
-        //$filename = "Поширення_сьомги.gif";
-        //$filename = "Localización_de_la_provincia_de_Ciudad_Real.svg";
+        // $filename = "Phytolacca_rivinoides_(flowers)_in_Costa_Rica.jpg"; //no real agents Jul 25, 2020
+        // $filename = "Tillandsia_usneoides_on_a_tree_in_Costa_Rica.jpg"; //no real agents Jul 25, 2020
         $arr = self::process_file($filename); //case-sensitive filename param
         print_r($arr);
         /* Note: then search for 'good debug' below. Two options: coming from API or dump. Then continue to investigate... */
