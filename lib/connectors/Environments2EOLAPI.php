@@ -6,22 +6,27 @@ class Environments2EOLAPI
 {
     function __construct($param)
     {
-        print_r($param);
+        // print_r($param); exit;
         // if($folder) {
         //     $this->resource_id = $folder;
         //     $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         //     $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         // }
         // $this->debug = array();
+        /*-----------------------Resources-------------------*/
         $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
-        
-        $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
+        /*-----------------------Subjects-------------------*/
+        $this->subjects['Distribution'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
+        /*-----------------------Paths----------------------*/
         $this->root_path            = '/u/scripts/vangelis_tagger/';
         $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
         $this->text_data_path       = $this->root_path.'test_text_data/';
         $this->eol_scripts_path     = $this->root_path.'eol_scripts/';
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
         $this->eol_tags_destination = $this->eol_tags_path.'eol_tags.tsv';
+        /*-----------------------Others---------------------*/
+        $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
+        $this->allowed_subjects = self::get_allowed_subjects($param['subjects']); // print_r($this->allowed_subjects); exit;
     }
     function gen_txt_files_4_articles($resource)
     {
@@ -152,6 +157,14 @@ class Environments2EOLAPI
            $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] && $rec['http://purl.org/dc/terms/description'] &&
            $rec['http://rs.tdwg.org/dwc/terms/taxonID'] && $rec['http://purl.org/dc/terms/identifier']) return true;
         else return false;
+    }
+    private function get_allowed_subjects($pipe_delimited)
+    {   $arr = explode("|", $pipe_delimited);
+        foreach($arr as $subject) {
+            if($val = @$this->subjects[$subject]) $allowed_subjects[] = $val;
+            else exit("\nSubject not yet initialized [$subject]\n");
+        }
+        return $allowed_subjects;
     }
 }
 ?>
