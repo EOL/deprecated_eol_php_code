@@ -13,7 +13,10 @@ Next step now is to combine all the steps within a general connector:
       5.2.2 bibliographicCitation - http://purl.org/dc/terms/bibliographicCitation
       5.2.3 contributor - http://purl.org/dc/terms/contributor
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
-php update_resources/connectors/environments_2_eol.php _ '{"task": "gen_txt_files_4_articles", "resource":"AmphibiaWeb text", "subjects":"Distribution"}'
+
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "subjects":"Distribution"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "build_info_tables"}'
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/Environments2EOLAPI');
@@ -27,7 +30,8 @@ $task = $param['task'];
 $resource = @$param['resource'];
 $func = new Environments2EOLAPI($param);
 
-if($task == 'gen_txt_files_4_articles') $func->gen_txt_files_4_articles($resource);
+if($task == 'generate_eol_tags') $func->generate_eol_tags($resource);   //step 1
+if($task == 'build_info_tables') $func->build_info_tables();            //step 2
 
 // Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 ?>

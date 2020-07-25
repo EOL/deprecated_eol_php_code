@@ -18,7 +18,8 @@ class Environments2EOLAPI
         /*-----------------------Subjects-------------------*/
         $this->subjects['Distribution'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
         /*-----------------------Paths----------------------*/
-        $this->root_path            = '/u/scripts/vangelis_tagger/';
+        if(Functions::is_production()) $this->root_path = '/u/scripts/vangelis_tagger/';
+        else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
         $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
         $this->text_data_path       = $this->root_path.'test_text_data/';
         $this->eol_scripts_path     = $this->root_path.'eol_scripts/';
@@ -26,9 +27,9 @@ class Environments2EOLAPI
         $this->eol_tags_destination = $this->eol_tags_path.'eol_tags.tsv';
         /*-----------------------Others---------------------*/
         $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
-        $this->allowed_subjects = self::get_allowed_subjects($param['subjects']); // print_r($this->allowed_subjects); exit;
+        if($val = @$param['subjects']) $this->allowed_subjects = self::get_allowed_subjects($val); // print_r($this->allowed_subjects); exit;
     }
-    function gen_txt_files_4_articles($resource)
+    function generate_eol_tags($resource)
     {
         self::initialize_files();
         $info = self::parse_dwca($resource); // print_r($info); exit;
@@ -40,7 +41,7 @@ class Environments2EOLAPI
     }
     private function initialize_files()
     {
-        $files = array($this->eol_tags_destination);
+        $files = array($this->eol_tags_destination, $this->eol_tags_path.'eol_tags_noParentTerms.tsv');
         foreach($files as $file) {
             if($f = Functions::file_open($file, "w")) {
                 fclose($f);
@@ -154,8 +155,9 @@ class Environments2EOLAPI
     }
     private function valid_record($rec)
     {   if($rec['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/Text' &&
-           $rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'] && $rec['http://purl.org/dc/terms/description'] &&
-           $rec['http://rs.tdwg.org/dwc/terms/taxonID'] && $rec['http://purl.org/dc/terms/identifier']) return true;
+           in_array(@$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm'], $this->allowed_subjects) &&
+           @$rec['http://purl.org/dc/terms/description'] && $rec['http://rs.tdwg.org/dwc/terms/taxonID'] && 
+           $rec['http://purl.org/dc/terms/identifier']) return true;
         else return false;
     }
     private function get_allowed_subjects($pipe_delimited)
@@ -165,6 +167,29 @@ class Environments2EOLAPI
             else exit("\nSubject not yet initialized [$subject]\n");
         }
         return $allowed_subjects;
+    }
+    function build_info_tables()
+    {
+        $obj_identifers = self::get_unique_obj_identifers();
+    }
+    private function get_unique_obj_identifers()
+    {
+        $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
+        foreach(new FileIterator($tsv) as $line_number => $row) {
+            $arr = explode("\t", $row);
+            // print_r($arr); exit;
+            /* Array(
+                [0] => 1005_-_1005_distribution.txt
+                [1] => 117
+                [2] => 122
+                [3] => shrubs
+                [4] => ENVO:00000300
+            )*/
+            $a = explode("_-_", $arr[0]);
+            $ids[$a[1]] = '';
+        }
+        // print_r($ids); exit;
+        return $ids;
     }
 }
 ?>
