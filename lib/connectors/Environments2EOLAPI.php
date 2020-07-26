@@ -188,10 +188,8 @@ class Environments2EOLAPI
                 [3] => shrubs
                 [4] => ENVO:00000300
             )*/
-            if($arr) {
-                $a = explode("_-_", $arr[0]);
-                $ids[$a[1]] = '';
-            }
+            $a = explode("_-_", $arr[0]);
+            if($val = @$a[1]) $ids[$val] = '';
         }
         // print_r($ids); exit;
         return $ids;
