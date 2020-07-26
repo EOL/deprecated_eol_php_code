@@ -40,8 +40,8 @@ class Environments2EOLAPI
         self::gen_noParentTerms();
         // */
         //stat 2nd part:
-        $obj_identifers = self::get_unique_obj_identifers();
-        self::save_metadata_for_these_objects($obj_identifers, $tables['http://eol.org/schema/media/document'][0]);
+        $obj_identifiers = self::get_unique_obj_identifiers();
+        self::save_metadata_for_these_objects($obj_identifiers, $tables['http://eol.org/schema/media/document'][0]);
         recursive_rmdir($info['temp_dir']); //remove temp folder used for DwCA parsing
     }
     private function initialize_files()
@@ -175,7 +175,7 @@ class Environments2EOLAPI
     }
     function build_info_tables()
     {}
-    private function get_unique_obj_identifers()
+    private function get_unique_obj_identifiers()
     {
         $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
         foreach(new FileIterator($tsv) as $line_number => $row) {
@@ -194,7 +194,7 @@ class Environments2EOLAPI
         // print_r($ids); exit;
         return $ids;
     }
-    private function save_metadata_for_these_objects($obj_identifers, $meta)
+    private function save_metadata_for_these_objects($obj_identifiers, $meta)
     {   echo "\nsave_metadata_for_these_objects()...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
