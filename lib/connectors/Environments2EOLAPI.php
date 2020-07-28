@@ -33,7 +33,7 @@ class Environments2EOLAPI
         $tables = $info['harvester']->tables;
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
-        exit("\nDebug early exit...\n");
+        // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
         print_r($this->debug);
         self::gen_noParentTerms();
         // */
@@ -168,7 +168,7 @@ class Environments2EOLAPI
         $cmd = "./environments_tagger $this->text_data_path &>> $this->eol_tags_destination";
         shell_exec($cmd);
         chdir($current_dir); //go back to current dir
-        // Functions::delete_temp_files($this->text_data_path, 'txt'); //un-comment in real operation
+        Functions::delete_temp_files($this->text_data_path, 'txt'); //un-comment in real operation
     }
     private function gen_noParentTerms()
     {   echo "\nRun gen_noParentTerms()...\n";
