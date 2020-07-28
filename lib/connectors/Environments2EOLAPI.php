@@ -33,6 +33,7 @@ class Environments2EOLAPI
         $tables = $info['harvester']->tables;
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
+        exit("\nDebug early exit...\n");
         print_r($this->debug);
         self::gen_noParentTerms();
         // */
@@ -99,7 +100,7 @@ class Environments2EOLAPI
         }
         return array("harvester" => $harvester, "temp_dir" => $temp_dir, "tables" => $tables, "index" => $index);
     }
-    private function process_table($meta)
+    private function process_table($meta) //generates individual text files & runs environment tagger
     {   //print_r($meta);
         echo "\nprocess media tab...\n";
         $i = 0; $saved = 0;
@@ -167,7 +168,7 @@ class Environments2EOLAPI
         $cmd = "./environments_tagger $this->text_data_path &>> $this->eol_tags_destination";
         shell_exec($cmd);
         chdir($current_dir); //go back to current dir
-        Functions::delete_temp_files($this->text_data_path, 'txt');
+        // Functions::delete_temp_files($this->text_data_path, 'txt'); //un-comment in real operation
     }
     private function gen_noParentTerms()
     {   echo "\nRun gen_noParentTerms()...\n";
