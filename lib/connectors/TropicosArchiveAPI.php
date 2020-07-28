@@ -41,7 +41,7 @@ class TropicosArchiveAPI
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
 
        if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_tropicos/";
-       else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/z backup of AKiTiO4/eol_cache_tropicos/";
+       else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_tropicos/";
         
         //, 'delay_in_minutes' => 1
         $this->preview_mode = false; //false is orig value

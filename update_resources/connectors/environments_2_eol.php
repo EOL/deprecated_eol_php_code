@@ -14,15 +14,14 @@ Next step now is to combine all the steps within a general connector:
       5.2.3 contributor - http://purl.org/dc/terms/contributor
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
 
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "subjects":"Distribution"}'
-php update_resources/connectors/environments_2_eol.php _ '{"task": "build_info_tables"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "subjects":"Distribution", "resource_id":"21_ENVO"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "build_info_tables"}' //NOT USED
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/Environments2EOLAPI');
 $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
-
 // print_r($argv);
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
@@ -31,7 +30,5 @@ $resource = @$param['resource'];
 $func = new Environments2EOLAPI($param);
 
 if($task == 'generate_eol_tags') $func->generate_eol_tags($resource);   //step 1
-if($task == 'build_info_tables') $func->build_info_tables();            //step 2
-
-// Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+if($task == 'build_info_tables') $func->build_info_tables();            //step 2 //NOT USED
 ?>

@@ -99,7 +99,7 @@ class DwCA_Utility
         echo ("\n temporary directory removed: " . $temp_dir);
     }
     
-    function convert_archive($preferred_rowtypes = false) //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
+    function convert_archive($preferred_rowtypes = false, $excluded_rowtypes = false) //same as convert_archive_by_adding_higherClassification(); just doesn't generate higherClassification
     {   /* param $preferred_rowtypes is the option to include-only those row_types you want on your final DwCA. 1st client was DATA-1770 */
         echo "\nConverting archive to EOL DwCA...\n";
         
@@ -144,6 +144,9 @@ class DwCA_Utility
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
+            }
+            if($excluded_rowtypes) { //no specific client yet
+                if(in_array($row_type, $excluded_rowtypes)) continue;
             }
             if(@$this->extensions[$row_type]) { //process only defined row_types
                 // if(@$this->extensions[$row_type] == 'document') continue; //debug only
@@ -251,6 +254,11 @@ class DwCA_Utility
             require_library('connectors/GBIF_classificationAPI_v2');
             $func = new GBIF_classificationAPI_v2($this->resource_id, $this->archive_builder);
             $func->create_dwca_without_ancestry($info);
+        }
+        if($this->resource_id == '21_ENVO') {
+            require_library('connectors/Environments2EOLfinal');
+            $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
+            $func->start($info);
         }
         // ================================= end of customization ================================= */ 
         

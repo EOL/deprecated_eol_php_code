@@ -6,13 +6,7 @@ class Environments2EOLAPI
 {
     function __construct($param)
     {
-        // print_r($param); exit;
-        // if($folder) {
-        //     $this->resource_id = $folder;
-        //     $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        //     $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
-        // }
-        // $this->debug = array();
+        $this->param = $param; // print_r($param); exit;
         /*-----------------------Resources-------------------*/
         $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         /*-----------------------Subjects-------------------*/
@@ -25,24 +19,47 @@ class Environments2EOLAPI
         $this->eol_scripts_path     = $this->root_path.'eol_scripts/';
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
         $this->eol_tags_destination = $this->eol_tags_path.'eol_tags.tsv';
+        $this->json_temp_path       = $this->root_path.'temp_json/';
         /*-----------------------Others---------------------*/
         $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
         if($val = @$param['subjects']) $this->allowed_subjects = self::get_allowed_subjects($val); // print_r($this->allowed_subjects); exit;
     }
     function generate_eol_tags($resource)
     {
+        // /* un-comment in real operation
         self::initialize_files();
+        // */
         $info = self::parse_dwca($resource); // print_r($info); exit;
         $tables = $info['harvester']->tables;
-        // /*
-        self::process_table($tables['http://eol.org/schema/media/document'][0]);
+        // /* un-comment in real operation
+        self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
         print_r($this->debug);
         self::gen_noParentTerms();
         // */
-        //stat 2nd part:
-        $obj_identifiers = self::get_unique_obj_identifiers();
+        /* ----- stat 2nd part ----- */
+        $obj_identifiers = self::get_unique_obj_identifiers(); // get unique IDs from noParentTerms
         self::save_metadata_for_these_objects($obj_identifiers, $tables['http://eol.org/schema/media/document'][0]);
+        // /* un-comment in real operation
         recursive_rmdir($info['temp_dir']); //remove temp folder used for DwCA parsing
+        // */
+        /* ----- stat 3rd part ----- */ //adjust DwCA in question. Either add MoF or update MoF.
+        $dwca_file = $this->DwCA_URLs[$resource];
+        require_library('connectors/DwCA_Utility');
+        $func = new DwCA_Utility($this->param['resource_id'], $dwca_file);
+        $preferred_rowtypes = array();
+        /* These 2 will be processed in Environments2EOLfinal.php which will be called from DwCA_Utility.php
+        http://rs.tdwg.org/dwc/terms/occurrence
+        http://rs.tdwg.org/dwc/terms/measurementorfact
+        */
+        $preferred_rowtypes = false; //means process all rowtypes, except what's in $excluded_rowtypes
+        // $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //not used
+        $func->convert_archive($preferred_rowtypes);
+        Functions::finalize_dwca_resource($this->param['resource_id']);
+        /* 4th part */
+        if(is_dir($this->json_temp_path)) {
+            recursive_rmdir($this->json_temp_path);
+            mkdir($this->json_temp_path);
+        }
     }
     private function initialize_files()
     {
@@ -53,6 +70,11 @@ class Environments2EOLAPI
                 echo "\nFile truncated: [$file]\n";
             }
         }
+        if(is_dir($this->json_temp_path)) {
+            recursive_rmdir($this->json_temp_path);
+            mkdir($this->json_temp_path);
+        }
+        else mkdir($this->json_temp_path);
     }
     private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   
@@ -60,11 +82,11 @@ class Environments2EOLAPI
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->DwCA_URLs[$resource], "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
-        // print_r($paths); exit("\n-exit muna-\n");
+        print_r($paths); //exit("\n-exit muna-\n");
         // */
         /* development only
-        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_64006/",
-                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_64006/");
+        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_45668/",
+                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_45668/");
         */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
@@ -107,9 +129,9 @@ class Environments2EOLAPI
             // if($i >= 100) break; //debug only
         }
         echo "\nLast round...\n";
-        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nNot empty - OK ";
+        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nShould be NOT empty - OK ";
         self::run_environment_tagger(); //process remaining txt files.
-        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty - OK\n" : "\nNot empty!\n";
+        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nShould be empty - OK\n" : "\nNot empty!\n";
     }
     private function save_article_2_txtfile($rec)
     {   /* Array(
@@ -173,14 +195,12 @@ class Environments2EOLAPI
         }
         return $allowed_subjects;
     }
-    function build_info_tables()
-    {}
+    function build_info_tables(){}
     private function get_unique_obj_identifiers()
     {
         $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
         foreach(new FileIterator($tsv) as $line_number => $row) {
-            $arr = explode("\t", $row);
-            // print_r($arr); exit;
+            $arr = explode("\t", $row); // print_r($arr); exit;
             /* Array(
                 [0] => 1005_-_1005_distribution.txt
                 [1] => 117
@@ -188,14 +208,17 @@ class Environments2EOLAPI
                 [3] => shrubs
                 [4] => ENVO:00000300
             )*/
+            $arr[0] = str_replace('.txt', '', $arr[0]);
             $a = explode("_-_", $arr[0]);
             if($val = @$a[1]) $ids[$val] = '';
         }
-        // print_r($ids); exit;
         return $ids;
     }
     private function save_metadata_for_these_objects($obj_identifiers, $meta)
     {   echo "\nsave_metadata_for_these_objects()...\n";
+        // $this->json_temp_path = create_temp_dir() . "/"; //abandoned. not used anymore.
+        echo("\njson temp path: $this->json_temp_path\n");
+        // print_r(); exit;
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
@@ -209,8 +232,54 @@ class Environments2EOLAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit("\n".count($obj_identifiers)."\n");
+            // print_r($rec); exit("\n".count($obj_identifiers)."\n");
+            /* Array(
+                [http://purl.org/dc/terms/identifier] => 8687_distribution
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 8687
+                [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+                [http://purl.org/dc/terms/format] => text/plain
+                [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution
+                [http://purl.org/dc/terms/title] => Distribution and Habitat
+                [http://purl.org/dc/terms/description] => <p><i>Abavorana nazgul</i> is only known from the mountain, Gunung Jerai, in the state of Kedah on the west coast of Peninsular Malaysia. It is associated with riparian habitats, and can be found near streams. It has been only been found at elevations between 800 – 1200 m (Quah et al. 2017).</p>
+                [http://rs.tdwg.org/ac/terms/furtherInformationURL] => http://amphibiaweb.org/cgi/amphib_query?where-genus=Abavorana&where-species=nazgul&account=amphibiaweb
+                [http://purl.org/dc/terms/language] => en
+                [http://ns.adobe.com/xap/1.0/rights/UsageTerms] => http://creativecommons.org/licenses/by/3.0/
+                [http://eol.org/schema/agent/agentID] => 40dafcb8c613187d62bc1033004b43b9
+                [http://eol.org/schema/reference/referenceID] => d08a99802fc760abbbfc178a391f9336; 8d5b9dee4f523c6243387c962196b8e0; 4d496c9853b52d6d4ee443b4a6103cca
+            )*/
+            $identifier = $rec['http://purl.org/dc/terms/identifier'];
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            if(isset($obj_identifiers[$identifier])) {
+                $final = array();
+                if($val = @$rec['http://purl.org/dc/terms/source']) $final['source'] = $val;
+                if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $final['bibliographicCitation'] = $val;
+                if($val = @$rec['http://purl.org/dc/terms/contributor']) $final['contributor'] = $val;
+                if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['referenceID'] = $val;
+                if($final) {
+                    $json = json_encode($final);
+                    self::save_json($taxonID."_".$identifier, $json);
+                }
+            }
         }
+    }
+    private function save_json($id, $json)
+    {
+        $file = self::build_path($id);
+        if($f = Functions::file_open($file, "w")) {
+            fwrite($f, $json);
+            fclose($f);
+        }
+        else exit("\nCannot write file\n");
+    }
+    private function build_path($id) //$id is "$taxonID_$identifier"
+    {
+        $filename = "$id.json";
+        $md5 = md5($id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($this->json_temp_path . $cache1)) mkdir($this->json_temp_path . $cache1);
+        if(!file_exists($this->json_temp_path . "$cache1/$cache2")) mkdir($this->json_temp_path . "$cache1/$cache2");
+        return $this->json_temp_path . "$cache1/$cache2/$filename";
     }
 }
 ?>
