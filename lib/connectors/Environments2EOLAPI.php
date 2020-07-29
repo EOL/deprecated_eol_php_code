@@ -1,7 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [environments_2_eol.php]
-*/
+/* connector: [environments_2_eol.php] */
 class Environments2EOLAPI
 {
     function __construct($param)
@@ -39,7 +38,8 @@ class Environments2EOLAPI
         // */
         /* ----- stat 2nd part ----- */
         $obj_identifiers = self::get_unique_obj_identifiers(); // get unique IDs from noParentTerms
-        self::save_metadata_for_these_objects($obj_identifiers, $tables['http://eol.org/schema/media/document'][0]);
+        $agent_ids = self::save_media_metadata_for_these_objects($obj_identifiers, $tables['http://eol.org/schema/media/document'][0]);
+        self::save_agent_metadata_for_these_agents($agent_ids, $tables['http://eol.org/schema/agent/agent'][0]);
         // /* un-comment in real operation
         recursive_rmdir($info['temp_dir']); //remove temp folder used for DwCA parsing
         // */
@@ -56,6 +56,7 @@ class Environments2EOLAPI
         // $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //not used
         $func->convert_archive($preferred_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id']);
+        // exit("\nstop muna - used in debugging\n");
         /* 4th part */
         if(is_dir($this->json_temp_path)) {
             recursive_rmdir($this->json_temp_path);
@@ -215,11 +216,11 @@ class Environments2EOLAPI
         }
         return $ids;
     }
-    private function save_metadata_for_these_objects($obj_identifiers, $meta)
-    {   echo "\nsave_metadata_for_these_objects()...\n";
+    private function save_media_metadata_for_these_objects($obj_identifiers, $meta)
+    {   echo "\nsave_media_metadata_for_these_objects()...";
         // $this->json_temp_path = create_temp_dir() . "/"; //abandoned. not used anymore.
         echo("\njson temp path: $this->json_temp_path\n");
-        // print_r(); exit;
+        $agent_ids = array();
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
@@ -253,12 +254,59 @@ class Environments2EOLAPI
             if(isset($obj_identifiers[$identifier])) {
                 $final = array();
                 if($val = @$rec['http://purl.org/dc/terms/source']) $final['source'] = $val;
+                if($val = @$rec['http://rs.tdwg.org/ac/terms/furtherInformationURL']) $final['source'] = $val;
                 if($val = @$rec['http://purl.org/dc/terms/bibliographicCitation']) $final['bibliographicCitation'] = $val;
                 if($val = @$rec['http://purl.org/dc/terms/contributor']) $final['contributor'] = $val;
                 if($val = @$rec['http://eol.org/schema/reference/referenceID']) $final['referenceID'] = $val;
+                if($val = @$rec['http://eol.org/schema/agent/agentID']) {
+                    $final['agentID'] = $val;
+                    $ids = explode(";", trim($val));
+                    $ids = array_map('trim', $ids);
+                    foreach($ids as $id) {
+                        $agent_ids[$id] = '';
+                    }
+                }
                 if($final) {
                     $json = json_encode($final);
                     self::save_json($taxonID."_".$identifier, $json);
+                }
+            }
+        }
+        return $agent_ids;
+    }
+    private function save_agent_metadata_for_these_agents($agent_ids, $meta)
+    {   echo "\nsave_agent_metadata_for_these_agents()...";
+        echo("\njson temp path: $this->json_temp_path\n");
+        $i = 0; $saved = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\n".count($agent_ids)."\n");
+            /* Array(
+                [http://purl.org/dc/terms/identifier] => 40dafcb8c613187d62bc1033004b43b9
+                [http://xmlns.com/foaf/spec/#term_name] => Zheng Oong
+                [http://eol.org/schema/agent/agentRole] => author
+                [http://xmlns.com/foaf/spec/#term_homepage] => 
+            )*/
+            $identifier = $rec['http://purl.org/dc/terms/identifier'];
+            if(isset($agent_ids[$identifier])) {
+                $final = array();
+                if($val = @$rec['http://purl.org/dc/terms/identifier']) $final['identifier'] = $val;
+                if($val = @$rec['http://xmlns.com/foaf/spec/#term_name']) $final['term_name'] = $val;
+                if($val = @$rec['http://eol.org/schema/agent/agentRole']) $final['agentRole'] = $val;
+                if($val = @$rec['http://xmlns.com/foaf/spec/#term_homepage']) $final['term_homepage'] = $val;
+                if($final) {
+                    $json = json_encode($final);
+                    self::save_json("agent_".$identifier, $json);
                 }
             }
         }

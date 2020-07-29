@@ -69,9 +69,33 @@ class Environments2EOLfinal
                 if($val = @$rek['bibliographicCitation']) $rec['bibliographicCitation'] = $val;
                 if($val = @$rek['contributor']) $rec['contributor'] = $val;
                 if($val = @$rek['referenceID']) $rec['referenceID'] = $val;
+                if($val = @$rek['agentID'])     $rec['contributor'] = self::format_contributor_using_agentIDs($val);
                 $this->func->add_string_types($rec, $string_uri, $mtype, "true");
             }
         }
+    }
+    private function format_contributor_using_agentIDs($agendIDs) //assumed agendIDs are semi-colon separated values
+    {
+        $final = '';
+        $ids = explode(";", trim($agendIDs));
+        $ids = array_map('trim', $ids);
+        foreach($ids as $id) {
+            $arr = self::retrieve_json('agent_'.$id);
+            /* Array(
+                [identifier] => e4caf6a093328770804c83ba12c4e52c
+                [term_name] => Albertina P. Lima
+                [agentRole] => author
+                [term_homepage] => http://eol.org
+            )*/
+            // print_r($arr); exit("\neli 100\n");
+            unset($arr['identifier']);
+            if($val = $arr['term_name']) $final .= " $val";
+            if($val = @$arr['agentRole']) $final .= " ($val).";
+            if($homepage = @$arr['term_homepage']) {
+                if(self::valid_url($homepage)) $final .= " $homepage";
+            }
+        }
+        return trim($final);
     }
     private function retrieve_json($id)
     {
@@ -89,6 +113,10 @@ class Environments2EOLfinal
         $cache1 = substr($md5, 0, 2);
         $cache2 = substr($md5, 2, 2);
         return $this->json_temp_path . "$cache1/$cache2/$filename";
+    }
+    private function valid_url($url)
+    {
+        if(substr($url, 0, 4) == 'http') return true;
     }
     /* Below will be used if there are adjustments to existing MoF and Occurrences
     private function process_measurementorfact($meta)
