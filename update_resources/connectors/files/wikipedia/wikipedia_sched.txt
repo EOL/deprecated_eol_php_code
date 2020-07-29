@@ -273,6 +273,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	            Monday 2020-04-13 10:06:42 PM	  {"media_resource.tab":772095, "taxon.tab":407031, "time_elapsed":{"sec":54821.39, "min":913.69, "hr":15.23}} OK
 80	Friday 2020-04-17 11:53:56 PM	  {"media_resource.tab":766134, "taxon.tab":407031, "time_elapsed":{"sec":43978.59, "min":732.98, "hr":12.22}} expected decrease with new 'en' connector
 80	Thursday 2020-05-07 12:56:07 AM	{"media_resource.tab":766346, "taxon.tab":407051, "time_elapsed":{"sec":44092.89, "min":734.88, "hr":12.25}} OK - start updated gen. connector
+80	Tuesday 2020-07-28 06:04:54 PM	{"media_resource.tab":772431, "taxon.tab":410005, "time_elapsed":{"sec":96793.74, "min":1613.23, "hr":26.89, "day":1.12}} consistent OK
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
