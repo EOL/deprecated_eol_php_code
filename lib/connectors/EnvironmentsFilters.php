@@ -20,7 +20,7 @@ class EnvironmentsFilters
         /* END DATA-1841 terms remapping */
         
         $tables = $info['harvester']->tables;
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
         
@@ -49,11 +49,17 @@ class EnvironmentsFilters
                 $k++;
             } 
             print_r($rec); exit;
-            /**/
-            //===========================================================================================================================================================
-            //===========================================================================================================================================================
-            //===========================================================================================================================================================
-            //===========================================================================================================================================================
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 7b840a5f6b1b9f1ced978a184b75befb_21_ENV
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 4441c21d2cedc23a347b337b1813f2c4_21_ENV
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/RO_0002303
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000300
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "shrubs"
+                [http://purl.org/dc/terms/source] => http://amphibiaweb.org/cgi/amphib_query?where-genus=Osteocephalus&where-species=buckleyi&account=amphibiaweb
+                [http://purl.org/dc/terms/contributor] => Albertina P. Lima (author). William E. Magnusson (author). Marcelo Menin (author). Luciana K. Erdtmann (author). Domingos J. Rodrigues (author). Claudia Keller (author). Walter Hödl (author).
+                [http://eol.org/schema/reference/referenceID] => 
+            )*/
             //===========================================================================================================================================================
             //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
@@ -87,8 +93,11 @@ class EnvironmentsFilters
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            // print_r($rec); exit("\ndebug...\n");
-            /*Array()*/
+            print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 4441c21d2cedc23a347b337b1813f2c4_21_ENV
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 1005
+            )*/
             //===========================================================================================================================================================
             //===========================================================================================================================================================
             $uris = array_keys($rec);
@@ -99,28 +108,6 @@ class EnvironmentsFilters
             }
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
-        }
-    }
-    private function get_string_uri($string)
-    {   if($string_uri = @$this->uris[$string]) return $string_uri;
-        switch ($string) { //put here customized mapping
-            case "Québec":    return 'http://www.wikidata.org/entity/Q176';            
-        }
-    }
-    private function create_taxon($rec)
-    {
-        $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID  = $rec["Symbol"];
-        $taxon->scientificName  = $rec["Scientific Name with Author"];
-        $taxon->taxonomicStatus = 'valid';
-        $taxon->family  = $rec["Family"];
-        $taxon->source = $rec['source_url'];
-        // $taxon->taxonRank       = '';
-        // $taxon->taxonRemarks    = '';
-        // $taxon->rightsHolder    = '';
-        if(!isset($this->taxon_ids[$taxon->taxonID])) {
-            $this->taxon_ids[$taxon->taxonID] = '';
-            $this->archive_builder->write_object_to_file($taxon);
         }
     }
 }
