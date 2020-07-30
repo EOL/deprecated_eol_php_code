@@ -14,9 +14,9 @@ Next step now is to combine all the steps within a general connector:
       5.2.3 contributor - http://purl.org/dc/terms/contributor
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
       5.2.5 agendID -> contributor
-
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "subjects":"Distribution", "resource_id":"21_ENVO"}'
-php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_old_formats_filters", "resource_id":"21_ENVO"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "subjects":"Distribution", 
+                                                                                        "resource_id":"21_ENV"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21_ENVO"}'
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -28,13 +28,13 @@ $param                     = json_decode(@$argv[2], true);
 $task = $param['task'];
 $resource = @$param['resource'];
 
-if($task == 'generate_eol_tags') {                          //step 1
+if($task == 'generate_eol_tags') {                      //step 1
     require_library('connectors/Environments2EOLAPI');
     $func = new Environments2EOLAPI($param);
     $func->generate_eol_tags($resource);
 }
-elseif($task == 'apply_old_formats_filters') {              //step 2
-    $resource_id = $param['resource_id'].'_final';
+elseif($task == 'apply_formats_filters') {              //step 2
+    $resource_id = $param['resource_id'];
     $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$param['resource_id'].'.tar.gz';
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);

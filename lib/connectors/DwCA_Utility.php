@@ -255,7 +255,7 @@ class DwCA_Utility
             $func = new GBIF_classificationAPI_v2($this->resource_id, $this->archive_builder);
             $func->create_dwca_without_ancestry($info);
         }
-        if($this->resource_id == '21_ENVO') {
+        if(in_array($this->resource_id, array('21_ENV'))) {
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
