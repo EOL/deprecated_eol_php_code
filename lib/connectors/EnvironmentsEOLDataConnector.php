@@ -5,10 +5,12 @@ class EnvironmentsEOLDataConnector
 {
     function __construct($folder = null)
     {
-        $this->resource_id = $folder;
+        if($folder) {
+            $this->resource_id = $folder;
+            $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+            $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        }
         $this->taxon_ids = array();
-        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
-        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
 
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
@@ -34,7 +36,7 @@ class EnvironmentsEOLDataConnector
         $this->TEMP_DIR = create_temp_dir() . "/";
         $this->need_to_check_tc_id_dump_file = $this->TEMP_DIR . "need_to_check_tc_id.txt";
         $this->debug = array();
-        exit("\n\nObsolete. See 708.php for more details.\n\n");
+        // exit("\n\nObsolete. See 708.php for more details.\n\n");
     }
     /*
     Array(
@@ -111,7 +113,7 @@ class EnvironmentsEOLDataConnector
                         $k++;
                     }
                 }
-                // print_r($rec); exit("\nstopx\n");
+                print_r($rec); exit("\nstopx\n");
                 if($sought_field) {
                     if($val = trim(@$rec[$sought_field])) {
                         $val = trim(strip_tags($val));
@@ -128,7 +130,7 @@ class EnvironmentsEOLDataConnector
         }
         return $final;
     }
-    private function get_excluded_terms()
+    function get_excluded_terms()
     {
         $contents = file_get_contents($this->file['marine_terms']);
         $arr = explode("\n", $contents);

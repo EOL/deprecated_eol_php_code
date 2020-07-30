@@ -19,19 +19,27 @@ class EnvironmentsFilters
         // $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
         /* END DATA-1841 terms remapping */
         
-        $tables = $info['harvester']->tables;
-        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        unset($this->occurrenceID_bodyPart);
+        /* 1st filter: https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965 */
+        self::borrow_data();
+        exit("\nexit muna\n");
         
-        // self::initialize_mapping(); //for location string mappings
+        /*
+        $tables = $info['harvester']->tables;
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        */
     }
-    private function initialize_mapping()
-    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
-        // self::use_mapping_from_jen();
-        // print_r($this->uris);
+    private function borrow_data()
+    {
+        require_library('connectors/EnvironmentsEOLDataConnector');
+        $func = new EnvironmentsEOLDataConnector();
+        $this->excluded_eol_ids = $func->get_excluded_eol_ids(false, 'scientific name'); //2nd param is sought field
+        $this->excluded_terms = $func->get_excluded_terms();
+        echo "\n".count($this->excluded_eol_ids)."\n";
+        echo "\n".count($this->excluded_terms)."\n";
+        print_r($this->excluded_eol_ids); 
+        print_r($this->excluded_terms);
+        
     }
     private function process_measurementorfact($meta)
     {   //print_r($meta);
