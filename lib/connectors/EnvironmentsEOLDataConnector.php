@@ -11,7 +11,6 @@ class EnvironmentsEOLDataConnector
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         $this->occurrence_ids = array();
 
-        
         /* add: 'resource_id' => "eol_api" ;if you want to add the cache inside a folder [eol_api] inside [eol_cache] */
         $this->download_options = array(
             'resource_id'        => 'eol_api',                              //resource_id here is just a folder name in cache
@@ -242,7 +241,6 @@ class EnvironmentsEOLDataConnector
         }
         return $taxon;
     }
-
     private function get_the_right_tc_record($tcs, $sciname)
     {
         if(!$tcs) return false;
@@ -441,7 +439,6 @@ class EnvironmentsEOLDataConnector
         if(in_array($rec['measurementValue'], array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) &&
            $rec['measurementRemarks'] == 'source text: "ravine"')                      $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000100";
          
-         
         // https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62853&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62853 
         // records to revise based on measurementRemarks:
         // where measurementRemarks= measurementValue
@@ -545,7 +542,6 @@ class EnvironmentsEOLDataConnector
                            'source text: "mulga"', 'source text: "chanaral"');
         if(in_array($rec['measurementRemarks'], $to_delete)) return false;
         
-        
         //3rd adjustment
         $to_delete = array("http://purl.obolibrary.org/obo/ENVO_00000104", "http://purl.obolibrary.org/obo/ENVO_00002033", "http://purl.obolibrary.org/obo/ENVO_00000304", 
                            "http://purl.obolibrary.org/obo/ENVO_00000486", "http://purl.obolibrary.org/obo/ENVO_00002000", "http://purl.obolibrary.org/obo/ENVO_00000086", 
@@ -554,7 +550,6 @@ class EnvironmentsEOLDataConnector
         //https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62851&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62851
         $to_delete = self::more_to_delete($to_delete);
         
-                           
         if(in_array($rec['measurementValue'], $to_delete)) return false;
         return $rec;
     }
@@ -647,7 +642,6 @@ class EnvironmentsEOLDataConnector
         }
         return true;
     }
-
     private function add_occurrence($taxon_id, $catnum)
     {
         $occurrence_id = str_replace('EOL:', '', $taxon_id) . $catnum;
@@ -673,7 +667,6 @@ class EnvironmentsEOLDataConnector
         return $occurrence_id;
         */
     }
-
     private function save_to_dump($rec, $filename)
     {
         if(isset($rec["measurement"]) && is_array($rec)) {
@@ -691,7 +684,6 @@ class EnvironmentsEOLDataConnector
             fclose($WRITE);
         }
     }
-    
     private function get_dump() // utility
     {
         $names = array();
@@ -701,7 +693,6 @@ class EnvironmentsEOLDataConnector
         }
         return array_keys($names);
     }
-
     function list_folders_with_corrupt_files() // utility
     {
         $folders = array();
@@ -713,6 +704,5 @@ class EnvironmentsEOLDataConnector
         $folders = array_filter(array_map('trim', $folders));
         print_r($folders);
     }
-
 }
 ?>
