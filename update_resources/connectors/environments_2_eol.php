@@ -13,13 +13,13 @@ Next step now is to combine all the steps within a general connector:
       5.2.2 bibliographicCitation - http://purl.org/dc/terms/bibliographicCitation
       5.2.3 contributor - http://purl.org/dc/terms/contributor
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
+      5.2.5 agendID -> contributor
 
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "subjects":"Distribution", "resource_id":"21_ENVO"}'
-php update_resources/connectors/environments_2_eol.php _ '{"task": "build_info_tables"}' //NOT USED
+php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_old_formats_filters"}'
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
-require_library('connectors/Environments2EOLAPI');
 $GLOBALS['ENV_DEBUG'] = true;
 $timestart = time_elapsed();
 // print_r($argv);
@@ -27,8 +27,15 @@ $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $task = $param['task'];
 $resource = @$param['resource'];
-$func = new Environments2EOLAPI($param);
 
-if($task == 'generate_eol_tags') $func->generate_eol_tags($resource);   //step 1
-if($task == 'build_info_tables') $func->build_info_tables();            //step 2 //NOT USED
+if($task == 'generate_eol_tags') {                          //step 1
+    require_library('connectors/Environments2EOLAPI');
+    $func = new Environments2EOLAPI($param);
+    $func->generate_eol_tags($resource);
+}
+elseif($task == 'apply_old_formats_filters') {              //step 2
+    require_library('connectors/Environments2EOLAPI');
+    $func = new Environments2EOLAPI($param);
+    $func->apply_old_formats_filters();
+}
 ?>

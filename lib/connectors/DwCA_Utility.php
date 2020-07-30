@@ -145,7 +145,7 @@ class DwCA_Utility
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
             }
-            if($excluded_rowtypes) { //no specific client yet
+            if($excluded_rowtypes) { //1st client is environments_2_eol.php -> apply_old_formats_filters()
                 if(in_array($row_type, $excluded_rowtypes)) continue;
             }
             if(@$this->extensions[$row_type]) { //process only defined row_types
