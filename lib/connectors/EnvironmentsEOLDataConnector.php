@@ -88,7 +88,7 @@ class EnvironmentsEOLDataConnector
         */
         if($this->debug) print_r($this->debug);
     }
-    private function get_excluded_eol_ids($file = false)
+    function get_excluded_eol_ids($file = false, $sought_field = false) //$sought_field recently added
     {
         if($file) $source_files = array($file);
         else      $source_files = array($this->file['terrestrial_taxa'], $this->file['dangling_terrestrial_taxa']);
@@ -112,8 +112,16 @@ class EnvironmentsEOLDataConnector
                     }
                 }
                 // print_r($rec); exit("\nstopx\n");
-                if($val = trim(@$rec['taxon id'])) $final[$val] = '';   //for original file
-                if($val = trim(@$rec['taxon url'])) $final[$val] = '';  //for dangling file
+                if($sought_field) {
+                    if($val = trim(@$rec[$sought_field])) {
+                        $val = trim(strip_tags($val));
+                        $final[$val] = '';
+                    }
+                }
+                else {
+                    if($val = trim(@$rec['taxon id'])) $final[$val] = '';   //for original file
+                    if($val = trim(@$rec['taxon url'])) $final[$val] = '';  //for dangling file
+                }
             }
             unlink($temp_file);
             echo "\n[$source_file: $i] [".count($final)."]\n";
