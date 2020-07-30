@@ -62,7 +62,7 @@ class Environments2EOLfinal
                 $rec = array();
                 $rec["taxon_id"] = $taxonID;
                 $rec["catnum"] = md5($row);
-                $rec['measurementRemarks'] = $arr[3];
+                $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
                 $string_uri = 'http://purl.obolibrary.org/obo/'.str_replace(':', '_', $arr[4]);
                 $mtype = 'http://purl.obolibrary.org/obo/RO_0002303';
                 if($val = @$rek['source']) $rec['source'] = $val;

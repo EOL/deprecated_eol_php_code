@@ -35,7 +35,9 @@ if($task == 'generate_eol_tags') {                      //step 1
 }
 elseif($task == 'apply_formats_filters') {              //step 2
     $resource_id = $param['resource_id'];
-    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$param['resource_id'].'.tar.gz';
+    $old_resource_id = substr($resource_id, 0, strlen($resource_id)-1); //should get "21_ENV"
+    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
+    $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
     $preferred_rowtypes = array();

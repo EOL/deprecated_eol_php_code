@@ -260,6 +260,11 @@ class DwCA_Utility
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        if(in_array($this->resource_id, array('21_ENVO'))) {
+            require_library('connectors/EnvironmentsFilters');
+            $func = new EnvironmentsFilters($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
         // ================================= end of customization ================================= */ 
         
         $this->archive_builder->finalize(TRUE);

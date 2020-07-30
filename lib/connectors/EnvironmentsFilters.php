@@ -16,7 +16,7 @@ class EnvironmentsFilters
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
-        $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
+        // $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
         /* END DATA-1841 terms remapping */
         
         $tables = $info['harvester']->tables;
@@ -24,8 +24,7 @@ class EnvironmentsFilters
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         unset($this->occurrenceID_bodyPart);
         
-        self::initialize_mapping(); //for location string mappings
-        self::process_per_state();
+        // self::initialize_mapping(); //for location string mappings
     }
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
