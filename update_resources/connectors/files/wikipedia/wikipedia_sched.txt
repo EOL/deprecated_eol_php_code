@@ -291,6 +291,7 @@ wikipedia-es	Wednesday 2020-02-12 03:06:27 PM{"media_resource.tab":314378, "taxo
 wikipedia-es	Tuesday 2020-04-14 06:13:01 PM	{"media_resource.tab":315674, "taxon.tab":173581, "time_elapsed":{"sec":18936.09, "min":315.6, "hr":5.26}} OK
 wikipedia-es	Monday 2020-04-20 12:36:02 PM	  {"media_resource.tab":314924, "taxon.tab":173579, "time_elapsed":{"sec":17942.69, "min":299.04, "hr":4.98}} expected decrease with new 'es' connector
 wikipedia-es	Thursday 2020-05-07 07:47:46 AM	{"media_resource.tab":315058, "taxon.tab":173605, "time_elapsed":{"sec":19515.3, "min":325.26, "hr":5.42}} OK - start updated gen. connector
+wikipedia-es	Wednesday 2020-07-29 04:21:20 PM{"media_resource.tab":319705, "taxon.tab":175913, "time_elapsed":{"sec":28860.25, "min":481, "hr":8.02}} consistent OK
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
