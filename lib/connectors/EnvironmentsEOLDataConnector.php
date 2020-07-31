@@ -21,6 +21,7 @@ class EnvironmentsEOLDataConnector
         
         if(Functions::is_production()) {
             $this->species_list_export = "http://download.jensenlab.org/EOL/eol_env_annotations_noParentTerms.tar.gz";  //still works Aug 6, 2018
+            $this->species_list_export = "https://editors.eol.org/other_files/Environments/eol_env_annotations_noParentTerms.tar.gz";
             $this->download_options['cache_path'] = '/extra/eol_php_cache/';
         }
         else {
