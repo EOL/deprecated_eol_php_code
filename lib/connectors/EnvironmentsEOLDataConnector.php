@@ -636,7 +636,7 @@ class EnvironmentsEOLDataConnector
         
         // /* new https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
         $taxon_id = str_replace("EOL:", "", $rec['taxon_id']);
-        if(isset($this->excluded_eol_ids) && isset($this->excluded_terms[$rec['measurementValue']])) return false;
+        if(isset($this->excluded_eol_ids[$taxon_id]) && isset($this->excluded_terms[$rec['measurementValue']])) return false;
         // */
         
         $occurrence_id = $this->add_occurrence($rec["taxon_id"], $rec["catnum"]);
