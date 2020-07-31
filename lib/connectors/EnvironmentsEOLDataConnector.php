@@ -113,7 +113,7 @@ class EnvironmentsEOLDataConnector
                         $k++;
                     }
                 }
-                print_r($rec); exit("\nstopx\n");
+                // print_r($rec); exit("\nstopx\n");
                 if($sought_field) {
                     if($val = trim(@$rec[$sought_field])) {
                         $val = trim(strip_tags($val));

@@ -20,14 +20,19 @@ class EnvironmentsFilters
         /* END DATA-1841 terms remapping */
         
         /* 1st filter: https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965 */
-        self::borrow_data();
-        exit("\nexit muna\n");
+        self::borrow_data(); //from old lib
+        // exit("\nexit muna\n");
         
-        /*
         $tables = $info['harvester']->tables;
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        */
+        /* Step 1: build info list: delete taxa from whitelist */
+        $this->occurID_mValue = self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'get occurID_mValue');
+        $this->taxonID_occurIDs = self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'get taxonID_occurIDs');
+        $taxonName_occurID_mValue = self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'get taxonName_occurID_mValue');
+        
+        
+        // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
     }
     private function borrow_data()
     {
@@ -35,13 +40,73 @@ class EnvironmentsFilters
         $func = new EnvironmentsEOLDataConnector();
         $this->excluded_eol_ids = $func->get_excluded_eol_ids(false, 'scientific name'); //2nd param is sought field
         $this->excluded_terms = $func->get_excluded_terms();
-        echo "\n".count($this->excluded_eol_ids)."\n";
-        echo "\n".count($this->excluded_terms)."\n";
-        print_r($this->excluded_eol_ids); 
-        print_r($this->excluded_terms);
-        
+        // echo "\n".count($this->excluded_eol_ids)."\n";
+        // echo "\n".count($this->excluded_terms)."\n";
+        // print_r($this->excluded_eol_ids); 
+        // print_r($this->excluded_terms);
     }
-    private function process_measurementorfact($meta)
+    private function process_taxon($meta, $task)
+    {   //print_r($meta);
+        echo "\nprocess_taxon...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 8687
+                [http://rs.tdwg.org/ac/terms/furtherInformationURL] => http://amphibiaweb.org/cgi/amphib_query?where-genus=Abavorana&where-species=nazgul&account=amphibiaweb
+                [http://rs.tdwg.org/dwc/terms/scientificName] => Abavorana nazgul
+                [http://rs.tdwg.org/dwc/terms/kingdom] => Animalia
+                [http://rs.tdwg.org/dwc/terms/phylum] => Chordata
+                [http://rs.tdwg.org/dwc/terms/class] => Amphibia
+                [http://rs.tdwg.org/dwc/terms/order] => Anura
+                [http://rs.tdwg.org/dwc/terms/family] => Ranidae
+            )*/
+            //===========================================================================================================================================================
+            //===========================================================================================================================================================
+            if($task == 'get taxonName_occurID_mValue') {
+                // $this->occurID_mValue
+                // $this->taxonID_occurIDs
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $sciname = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+                if($occurIDs = @$this->taxonID_occurIDs[$taxonID]) {
+                    // print_r($occurIDs); //exit("\n[$taxonID]\nexit 100\n");
+                    $occurIDs = array_keys($occurIDs);
+                    foreach($occurIDs as $occurID) $taxonName_occurID_mValue[$sciname][$this->occurID_mValue[$occurID]] = $occurID;
+                    // print_r($taxonName_occurID_mValue); exit("\n[$taxonID]\nexit 100\n");
+                    /* Array(
+                        [Abavorana nazgul] => Array(
+                                [http://purl.obolibrary.org/obo/ENVO_00000081] => 01b0a0ad5a0a777ca05a8b86d8fa4cab_21_ENV
+                                [http://purl.obolibrary.org/obo/ENVO_00000303] => 3da110d758df54f0ce8a3eb3eb7c3a9a_21_ENV
+                                [http://purl.obolibrary.org/obo/ENVO_00000043] => 0bf0a13b48901a073eb3f42b23236a91_21_ENV
+                                [http://purl.obolibrary.org/obo/ENVO_00000023] => 00b573e4b2f1a44ae6f7069d2de3ae76_21_ENV
+                            )
+                    )*/
+                }
+            }
+            elseif($task == 'xxx') {
+                $uris = array_keys($rec);
+                $o = new \eol_schema\Occurrence_specific();
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
+            }
+            // if($i >= 10) break; //debug only
+        }
+        if($task == 'get taxonName_occurID_mValue') return $taxonName_occurID_mValue;
+    }
+    private function process_measurementorfact($meta, $task)
     {   //print_r($meta);
         echo "\nprocess_measurementorfact...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -56,7 +121,7 @@ class EnvironmentsFilters
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } 
-            print_r($rec); exit;
+            // print_r($rec); exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 7b840a5f6b1b9f1ced978a184b75befb_21_ENV
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 4441c21d2cedc23a347b337b1813f2c4_21_ENV
@@ -70,23 +135,29 @@ class EnvironmentsFilters
             )*/
             //===========================================================================================================================================================
             //===========================================================================================================================================================
-            $o = new \eol_schema\MeasurementOrFact_specific();
-            $uris = array_keys($rec);
-            foreach($uris as $uri) {
-                $field = pathinfo($uri, PATHINFO_BASENAME);
-                $o->$field = $rec[$uri];
+            if($task == 'get occurID_mValue') {
+                $occurID_mValue[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             }
-            
-            /* START DATA-1841 terms remapping */
-            $o = $this->func->given_m_update_mType_mValue($o);
-            // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
-            /* END DATA-1841 terms remapping */
-            
-            $this->archive_builder->write_object_to_file($o);
+            elseif($task == 'xxx') {
+                $o = new \eol_schema\MeasurementOrFact_specific();
+                $uris = array_keys($rec);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+
+                /* START DATA-1841 terms remapping */
+                $o = $this->func->given_m_update_mType_mValue($o);
+                // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+                /* END DATA-1841 terms remapping */
+
+                $this->archive_builder->write_object_to_file($o);
+            }
             // if($i >= 10) break; //debug only
         }
+        if($task == 'get occurID_mValue') return $occurID_mValue;
     }
-    private function process_occurrence($meta)
+    private function process_occurrence($meta, $task)
     {   //print_r($meta);
         echo "\nprocess_occurrence...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -101,22 +172,28 @@ class EnvironmentsFilters
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit("\ndebug...\n");
+            // print_r($rec); exit("\ndebug...\n");
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 4441c21d2cedc23a347b337b1813f2c4_21_ENV
                 [http://rs.tdwg.org/dwc/terms/taxonID] => 1005
             )*/
             //===========================================================================================================================================================
             //===========================================================================================================================================================
-            $uris = array_keys($rec);
-            $o = new \eol_schema\Occurrence_specific();
-            foreach($uris as $uri) {
-                $field = pathinfo($uri, PATHINFO_BASENAME);
-                $o->$field = $rec[$uri];
+            if($task == 'get taxonID_occurIDs') {
+                $taxonID_occurIDs[$rec['http://rs.tdwg.org/dwc/terms/taxonID']][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
             }
-            $this->archive_builder->write_object_to_file($o);
+            elseif($task == 'xxx') {
+                $uris = array_keys($rec);
+                $o = new \eol_schema\Occurrence_specific();
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
+            }
             // if($i >= 10) break; //debug only
         }
+        if($task == 'get taxonID_occurIDs') return $taxonID_occurIDs;
     }
 }
 ?>
