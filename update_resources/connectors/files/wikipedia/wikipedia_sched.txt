@@ -309,6 +309,7 @@ wikipedia-it	Wednesday 2020-02-12 04:17:22 PM{"media_resource.tab":70425, "taxon
 wikipedia-it	Tuesday 2020-04-14 11:17:56 PM	{"media_resource.tab":70913, "taxon.tab":43550, "time_elapsed":{"sec":5245.81, "min":87.43, "hr":1.46}}
 wikipedia-it	Tuesday 2020-05-05 12:26:38 PM	{"media_resource.tab":70002, "taxon.tab":43578, "time_elapsed":{"sec":5386.07, "min":89.77, "hr":1.5}} -- decrease is due to new improved script OK
 wikipedia-it	Thursday 2020-05-07 09:45:39 AM	{"media_resource.tab":70002, "taxon.tab":43578, "time_elapsed":{"sec":5527.71, "min":92.13, "hr":1.54}} OK - start updated gen. connector
+wikipedia-it	Wednesday 2020-07-29 09:41:53 PM{"media_resource.tab":70874, "taxon.tab":44086, "time_elapsed":{"sec":6447.42, "min":107.46, "hr":1.79}} consistent OK
 
 wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.tab":55915}
 957	            Monday 2017-12-04 05:20:51 AM	{"media_resource.tab":87940,"taxon.tab":56041}
@@ -325,7 +326,7 @@ wikipedia-de	Saturday 2017-11-11 08:52:35 PM	{"media_resource.tab":87725,"taxon.
 957	            Thursday 2020-02-13 08:55:35 AM	{"media_resource.tab":94413, "taxon.tab":60261, "time_elapsed":{"sec":6187.82,"min":103.13,"hr":1.72}} OK
 957	            Wednesday 2020-04-15 07:37:03 AM{"media_resource.tab":94730, "taxon.tab":60497, "time_elapsed":{"sec":13836.7, "min":230.61, "hr":3.84}} OK
 957	            Friday 2020-05-01 01:23:49 AM	  {"media_resource.tab":94721, "taxon.tab":60524, "time_elapsed":{"sec":5103.87, "min":85.06, "hr":1.42}}
-
+957	            Thursday 2020-07-30 07:16:51 AM	{"media_resource.tab":95942, "taxon.tab":61291, "time_elapsed":{"sec":17174.28, "min":286.24, "hr":4.77}} consistent OK
 
 wikipedia-fr	Sunday 2017-12-03 12:04:24 AM	{"media_resource.tab":214962,"taxon.tab":119824}
 wikipedia-fr	Sunday 2018-04-29 04:10:02 PM	{"media_resource.tab":214956,"taxon.tab":119821}
