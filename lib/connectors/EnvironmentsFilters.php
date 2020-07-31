@@ -9,6 +9,7 @@ class EnvironmentsFilters
         $this->archive_builder = $archive_builder;
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        $this->occurID_2delete = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -24,15 +25,37 @@ class EnvironmentsFilters
         // exit("\nexit muna\n");
         
         $tables = $info['harvester']->tables;
-        /* Step 1: build info list: delete taxa from whitelist */
+        /* Step 1: build info list: delete MoF with taxa and mValue combination from whitelist */
         $this->occurID_mValue = self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'get occurID_mValue');
         $this->taxonID_occurIDs = self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'get taxonID_occurIDs');
         $taxonName_occurID_mValue = self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'get taxonName_occurID_mValue');
-        
+        self::delete_combination_of_taxonName_mValue($taxonName_occurID_mValue);
         
         // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+    }
+    private function delete_combination_of_taxonName_mValue($taxonName_occurID_mValue)
+    {   /* Array(
+            [Abavorana nazgul] => Array(
+                    [http://purl.obolibrary.org/obo/ENVO_00000081] => 01b0a0ad5a0a777ca05a8b86d8fa4cab_21_ENV
+                    [http://purl.obolibrary.org/obo/ENVO_00000303] => 3da110d758df54f0ce8a3eb3eb7c3a9a_21_ENV
+                    [http://purl.obolibrary.org/obo/ENVO_00000043] => 0bf0a13b48901a073eb3f42b23236a91_21_ENV
+                    [http://purl.obolibrary.org/obo/ENVO_00000023] => 00b573e4b2f1a44ae6f7069d2de3ae76_21_ENV
+                )
+        )*/
+        foreach($taxonName_occurID_mValue as $sciname => $mValues) {
+            echo "\n$sciname - "; print_r($mValues);
+            foreach($mValues as $mValue => $occurID) {
+                // /* new https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
+                if(isset($this->excluded_eol_ids[$sciname]) && isset($this->excluded_terms[$mValue])) return $this->occurID_2delete[$occurID];
+                // */
+            }
+        }
+        if($this->occurID_2delete) { //just a debug
+            print_r($this->occurID_2delete);
+            exit("\nAt last a resource with a hit\n");
+        }
     }
     private function borrow_data()
     {
