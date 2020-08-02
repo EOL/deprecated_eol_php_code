@@ -28,11 +28,18 @@ from eol-archive:
 NOTE: started running this eol-archive in Aug 6, 2018
 */
 
-// exit("\nThis is now obsolete.
-//       \nThe last version of the DwCA is here:
-//       \nhttps://editors.eol.org/eol_php_code/applications/content_server/resources/708_25Nov2018.tar.gz
-//       \nhttps://editors.eol.org/eol_php_code/applications/content_server/resources/708_26Nov2018.tar.gz
-//       \nSee 708.php for more details.\n\n");
+/* last run: Jul 31,2020 after the correction: increased nos. compared to 708_25Nov2018.tar.gz
+                                                         Saved as legacy: 708_26Nov2018.tar.gz
+708	Friday 2020-07-31 11:31:12 AM	{"measurement_or_fact.tab":832180, "occurrence.tab":725701, "reference.tab":201342, "taxon.tab":202011, "time_elapsed":false}
+http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 832180
+http://rs.tdwg.org/dwc/terms/taxon:             Total: 202011
+http://eol.org/schema/reference/reference:      Total: 201342
+*/
+exit("\nThis is now obsolete.
+      \nThe last version of the DwCA is here:
+      \nhttps://editors.eol.org/eol_php_code/applications/content_server/resources/708_25Nov2018.tar.gz
+      \nhttps://editors.eol.org/eol_php_code/applications/content_server/resources/708_26Nov2018.tar.gz
+      \nSee 708.php for more details.\n\n");
 /*
 A new connector (708_new.php) was created to parse above DwCA per adjustments here:
 https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=63624&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63624
