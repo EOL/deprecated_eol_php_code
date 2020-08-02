@@ -37,8 +37,15 @@ class Environments2EOLfinal
         echo "\n".count($mappings). " - default URIs from EOL registry.";
         $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
     }
+    private function borrow_data()
+    {
+        require_library('connectors/EnvironmentsEOLDataConnector');
+        $func = new EnvironmentsEOLDataConnector();
+        $this->excluded_uris = $func->excluded_measurement_values(); //from here: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=62373&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62373
+    }
     private function add_environmental_traits()
     {
+        self::borrow_data(); // print_r($this->excluded_uris); exit("\nexcluded uris\n");
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
@@ -64,6 +71,10 @@ class Environments2EOLfinal
                 $rec["catnum"] = md5($row);
                 $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
                 $string_uri = 'http://purl.obolibrary.org/obo/'.str_replace(':', '_', $arr[4]);
+                if(in_array($string_uri, $this->excluded_uris)) {
+                    echo "\nOh there is one filtered!\n"; //debug only
+                    continue; //from legacy filters: EnvironmentsEOLDataConnector.php
+                }
                 $mtype = 'http://purl.obolibrary.org/obo/RO_0002303';
                 if($val = @$rek['source']) $rec['source'] = $val;
                 if($val = @$rek['bibliographicCitation']) $rec['bibliographicCitation'] = $val;
