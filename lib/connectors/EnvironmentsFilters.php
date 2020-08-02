@@ -17,7 +17,7 @@ class EnvironmentsFilters
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
-        // $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
+        $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
         /* END DATA-1841 terms remapping */
         
         /* 1st filter: https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965 */
@@ -32,8 +32,8 @@ class EnvironmentsFilters
         self::delete_combination_of_taxonName_mValue($taxonName_occurID_mValue);
         
         // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
-        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        // self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'apply deletions');
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'apply deletions');
     }
     private function delete_combination_of_taxonName_mValue($taxonName_occurID_mValue)
     {   /* Array(
@@ -161,7 +161,10 @@ class EnvironmentsFilters
             if($task == 'get occurID_mValue') {
                 $occurID_mValue[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             }
-            elseif($task == 'xxx') {
+            elseif($task == 'apply deletions') {
+                $occurID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if(isset($this->occurID_2delete[$occurID])) continue;
+
                 $o = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec);
                 foreach($uris as $uri) {
@@ -171,7 +174,7 @@ class EnvironmentsFilters
 
                 /* START DATA-1841 terms remapping */
                 $o = $this->func->given_m_update_mType_mValue($o);
-                // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+                echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
                 /* END DATA-1841 terms remapping */
 
                 $this->archive_builder->write_object_to_file($o);
@@ -205,7 +208,10 @@ class EnvironmentsFilters
             if($task == 'get taxonID_occurIDs') {
                 $taxonID_occurIDs[$rec['http://rs.tdwg.org/dwc/terms/taxonID']][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
             }
-            elseif($task == 'xxx') {
+            elseif($task == 'apply deletions') {
+                $occurID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if(isset($this->occurID_2delete[$occurID])) continue;
+                
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Occurrence_specific();
                 foreach($uris as $uri) {
