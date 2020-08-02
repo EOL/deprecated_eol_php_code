@@ -23,6 +23,9 @@ saved at one point: 708_31Jul2020.tar.gz
     http://rs.tdwg.org/dwc/terms/taxon:             Total: 194207
     http://rs.tdwg.org/dwc/terms/measurementorfact: Total: 720242
     http://eol.org/schema/reference/reference:      Total: 195531
+
+Below are start of the updated resutls based on a legacy filter:
+708	Sunday 2020-08-02 11:20:43 AM	{"measurement_or_fact.tab":808856, "occurrence.tab":704252, "reference.tab":198288, "taxon.tab":199940, "time_elapsed":{"sec":605.09, "min":10.08, "hr":0.17}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
