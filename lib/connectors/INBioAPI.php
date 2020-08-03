@@ -53,6 +53,12 @@ class INBioAPI
         if($temp_dir) shell_exec("rm -fr $temp_dir");
         return $all_taxa;
     }
+    private function get_contents($file, $download_options)
+    {
+        if(substr($file,0,4) == 'http') return Functions::lookup_with_cache($file, $download_options);
+        elseif(substr($file,0,4) == '/') return file_get_contents($file);
+        else exit("\nInvestigate get_contents() in INBioAPI.php\n");
+    }
     function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0), $force_extension = false) //e.g. with force_extension is NMNHTypeRecordAPI_v2.php
     {
         debug("Please wait, downloading resource document...");
@@ -61,7 +67,7 @@ class INBioAPI
         if($force_extension) $filename = "elix.".$force_extension; //you can just make-up a filename (elix) here and add the forced extension.
         $temp_dir = create_temp_dir() . "/";
         debug($temp_dir);
-        if($file_contents = Functions::lookup_with_cache($dwca_file, $download_options)) {
+        if($file_contents = self::get_contents($dwca_file, $download_options)) {
             $temp_file_path = $temp_dir . "" . $filename;
             debug("temp_dir: $temp_dir");
             debug("Extracting... $temp_file_path");
