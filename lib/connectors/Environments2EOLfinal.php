@@ -72,7 +72,8 @@ class Environments2EOLfinal
                 $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
                 $string_uri = 'http://purl.obolibrary.org/obo/'.str_replace(':', '_', $arr[4]);
                 if(in_array($string_uri, $this->excluded_uris)) {
-                    echo "\nOh there is one filtered!\n"; //debug only
+                    // echo "\nOh there is one filtered!\n"; //debug only
+                    @$this->debug['excluded uris occurrences']++;
                     continue; //from legacy filters: EnvironmentsEOLDataConnector.php
                 }
                 $mtype = 'http://purl.obolibrary.org/obo/RO_0002303';
