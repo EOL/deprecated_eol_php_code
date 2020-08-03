@@ -56,7 +56,7 @@ class INBioAPI
     private function get_contents($file, $download_options)
     {
         if(substr($file,0,4) == 'http') return Functions::lookup_with_cache($file, $download_options);
-        elseif(substr($file,0,4) == '/') return file_get_contents($file);
+        elseif(substr($file,0,1) == '/') return file_get_contents($file);
         else exit("\nInvestigate get_contents() in INBioAPI.php\n");
     }
     function extract_archive_file($dwca_file, $check_file_or_folder_name, $download_options = array('timeout' => 172800, 'expire_seconds' => 0), $force_extension = false) //e.g. with force_extension is NMNHTypeRecordAPI_v2.php
