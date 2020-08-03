@@ -70,7 +70,7 @@ class EnvironmentsFilters
     }
     private function process_taxon($meta, $task)
     {   //print_r($meta);
-        echo "\nprocess_taxon...\n"; $i = 0;
+        echo "\nprocess_taxon...($task)\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -131,7 +131,7 @@ class EnvironmentsFilters
     }
     private function process_measurementorfact($meta, $task)
     {   //print_r($meta);
-        echo "\nprocess_measurementorfact...\n"; $i = 0;
+        echo "\nprocess_measurementorfact...($task)\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -185,7 +185,7 @@ class EnvironmentsFilters
     }
     private function process_occurrence($meta, $task)
     {   //print_r($meta);
-        echo "\nprocess_occurrence...\n"; $i = 0;
+        echo "\nprocess_occurrence...($task)\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
