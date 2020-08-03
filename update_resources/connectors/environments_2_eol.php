@@ -16,7 +16,7 @@ Next step now is to combine all the steps within a general connector:
       5.2.5 agendID -> contributor
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21_ENV", "subjects":"Distribution"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21_ENVO"}'
-
+php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"21"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
@@ -33,9 +33,8 @@ if($task == 'generate_eol_tags') {                      //step 1
     $func->generate_eol_tags($resource);
 }
 elseif($task == 'apply_formats_filters') {              //step 2
-    $resource_id = $param['resource_id'];
+    $resource_id = $param['resource_id']; //e.g. 21_ENVO
     $old_resource_id = substr($resource_id, 0, strlen($resource_id)-1); //should get "21_ENV"
-    $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     require_library('connectors/DwCA_Utility');
@@ -43,6 +42,20 @@ elseif($task == 'apply_formats_filters') {              //step 2
     $preferred_rowtypes = array();
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
     // $excluded_rowtypes will be processed in EnvironmentsFilters.php which will be called from DwCA_Utility.php
+    $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+}
+elseif($task == 'apply_formats_filters_latest') {       //step 3
+    $resource_id = $param['resource_id']; //e.g. 21
+    $old_resource_id = $resource_id.'_ENVO'; //e.g. 21_ENVO
+    if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
+    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
+    require_library('connectors/DwCA_Utility');
+    $func = new DwCA_Utility($resource_id, $dwca_file);
+    $preferred_rowtypes = array();
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence', 
+                               'http://rs.tdwg.org/dwc/terms/taxon');
+    // $excluded_rowtypes will be processed in New_EnvironmentsEOLDataConnector.php which will be called from DwCA_Utility.php
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }

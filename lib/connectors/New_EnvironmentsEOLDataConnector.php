@@ -16,6 +16,7 @@ class New_EnvironmentsEOLDataConnector
             // $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt"; //working but old DH ver.
             $this->eol_taxon_concept_names_tab = "/Volumes/AKiTiO4/d_w_h/EOL Dynamic Hierarchy Active Version/DH_v1_1/taxon.tab"; //latest active DH ver.
         }
+        $this->debug = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -37,10 +38,11 @@ class New_EnvironmentsEOLDataConnector
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //fix source links bec. of obsolete taxonIDs
         unset($this->linkage_oID_tID);
         unset($this->linkage_tID_sName);
-        self::process_reference($tables['http://eol.org/schema/reference/reference'][0]); //write references actually used in MoF. Not all references from source.
+        if($this->resource_id == '708') self::process_reference($tables['http://eol.org/schema/reference/reference'][0]); //write references actually used in MoF. Not all references from source.
     }
     private function process_measurementorfact_info($meta)
     {   //print_r($meta);
+        echo "\nprocess process_measurementorfact_info()...\n";
         $remove_rec_4mRemarks = array('source text: "ridge"', 'source text: "plateau"', 'source text: "plateaus"', 'source text: "crests"', 'source text: "canyon"', 'source text: "terrace"', 
         'source text: "canyons"', 'source text: "gullies"', 'source text: "notches"', 'source text: "terraces"', 'source text: "bluff"', 'source text: "cliffs"', 'source text: "gulch"', 
         'source text: "gully"', 'source text: "llanos"', 'source text: "plantations"', 'source text: "sierra"', 'source text: "tunnel"');
@@ -148,6 +150,7 @@ class New_EnvironmentsEOLDataConnector
     }
     private function process_taxon($meta, $ret)
     {   //print_r($meta);
+        echo "\nprocess process_taxon()...\n";
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
@@ -178,13 +181,15 @@ class New_EnvironmentsEOLDataConnector
             // that have taxon IDs "up to" EOL:9038, and also, individually, EOL:5251339 and EOL:11592540
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             $taxon_id = str_replace('EOL:', '', $taxonID);
-            if($taxon_id <= 9038) {
-                $this->remove_higher_rank_taxonIDs[$taxonID] = '';
-                continue;
-            }
-            if(in_array($taxonID, array('EOL:5251339', 'EOL:11592540'))) {
-                $this->remove_higher_rank_taxonIDs[$taxonID] = '';
-                continue;
+            if($this->resource_id == '708') {
+                if($taxon_id <= 9038) {
+                    $this->remove_higher_rank_taxonIDs[$taxonID] = '';
+                    continue;
+                }
+                if(in_array($taxonID, array('EOL:5251339', 'EOL:11592540'))) {
+                    $this->remove_higher_rank_taxonIDs[$taxonID] = '';
+                    continue;
+                }
             }
             // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
             
@@ -240,7 +245,7 @@ class New_EnvironmentsEOLDataConnector
         */
         $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
         foreach($ranks as $rank) {
-            if($str = trim($o->$rank)) {
+            if($str = trim(@$o->$rank)) {
                 $arr = explode(" ", $str);
                 $o->$rank = $arr[0];
             }
@@ -327,6 +332,7 @@ class New_EnvironmentsEOLDataConnector
     }
     private function process_reference($meta)
     {   //print_r($meta);
+        echo "\nprocess process_reference()...\n";
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
