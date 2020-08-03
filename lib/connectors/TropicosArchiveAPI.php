@@ -39,8 +39,9 @@ class TropicosArchiveAPI
         $this->download_options = array('resource_id' => 218, 'expire_seconds' => false, 
         'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1); //timeout is 60 secs. * 3 = 3 mins.
                                                                                        //download_wait_time = 1000000 = 1 second; 300000 => .3 seconds
-
-       if(Functions::is_production()) $this->download_options['cache_path'] = "/extra/eol_cache_tropicos/";
+       if(is_dir('/u/scripts/eol_cache/')) $path = '/u/scripts/eol_cache/';
+       elseif(is_dir('/extra/eol_cache_tropicos/')) $path = '/extra/eol_cache_tropicos/';
+       if(Functions::is_production()) $this->download_options['cache_path'] = $path;
        else                           $this->download_options['cache_path'] = "/Volumes/Thunderbolt4/eol_cache_tropicos/";
         
         //, 'delay_in_minutes' => 1
