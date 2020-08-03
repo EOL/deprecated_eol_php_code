@@ -41,8 +41,7 @@ elseif($task == 'apply_formats_filters') {              //step 2
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
     $preferred_rowtypes = array();
-    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://rs.tdwg.org/dwc/terms/measurementorfact', 
-                               'http://rs.tdwg.org/dwc/terms/occurrence');
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
     // $excluded_rowtypes will be processed in EnvironmentsFilters.php which will be called from DwCA_Utility.php
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
