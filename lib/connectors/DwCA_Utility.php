@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_31863/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_31863/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_69845/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_69845/'
         );
         */
         
@@ -134,6 +134,7 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
+            // if($this->resource_id == '21_ENVO') break; //all extensions will be processed elsewhere. debug only
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
