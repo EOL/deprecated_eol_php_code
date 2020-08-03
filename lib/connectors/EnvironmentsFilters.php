@@ -45,7 +45,7 @@ class EnvironmentsFilters
                 )
         )*/
         foreach($taxonName_occurID_mValue as $sciname => $mValues) {
-            echo "\n$sciname - "; print_r($mValues);
+            // echo "\n$sciname - "; print_r($mValues);
             foreach($mValues as $mValue => $occurID) {
                 // /* new https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
                 if(isset($this->excluded_eol_ids[$sciname]) && isset($this->excluded_terms[$mValue])) return $this->occurID_2delete[$occurID];
@@ -174,7 +174,7 @@ class EnvironmentsFilters
 
                 /* START DATA-1841 terms remapping */
                 $o = $this->func->given_m_update_mType_mValue($o);
-                echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+                // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
                 /* END DATA-1841 terms remapping */
 
                 $this->archive_builder->write_object_to_file($o);
