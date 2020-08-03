@@ -8,7 +8,7 @@ class Environments2EOLfinal
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-
+        $this->debug = array();
         if(Functions::is_production()) $this->root_path = '/u/scripts/vangelis_tagger/';
         else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
@@ -30,6 +30,7 @@ class Environments2EOLfinal
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
         */
+        if($this->debug) print_r($this->debug);
     }
     private function initialize_mapping()
     {   
