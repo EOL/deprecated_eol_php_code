@@ -10,6 +10,7 @@ class EnvironmentsFilters
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         // $this->download_options['expire_seconds'] = false; //comment after first harvest
         $this->occurID_2delete = array();
+        $this->debug = array();
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -34,6 +35,7 @@ class EnvironmentsFilters
         // self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'apply deletions');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'apply deletions');
+        if($this->debug) print_r($this->debug);
     }
     private function delete_combination_of_taxonName_mValue($taxonName_occurID_mValue)
     {   /* Array(
@@ -54,7 +56,8 @@ class EnvironmentsFilters
         }
         if($this->occurID_2delete) { //just a debug
             print_r($this->occurID_2delete);
-            exit("\nAt last a resource with a hit\n");
+            exit("\nAt last a resource with a hit\n"); //debug only
+            $this->debug['combination deleted MoF'][$sciname][$mValue] = '';
         }
     }
     private function borrow_data()
