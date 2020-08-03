@@ -55,7 +55,7 @@ class Environments2EOLAPI
         $preferred_rowtypes = false; //means process all rowtypes, except what's in $excluded_rowtypes
         // $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //not used
         $func->convert_archive($preferred_rowtypes);
-        Functions::finalize_dwca_resource($this->param['resource_id']);
+        Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
         // exit("\nstop muna - used in debugging\n");
         /* 4th part */
         if(is_dir($this->json_temp_path)) {
