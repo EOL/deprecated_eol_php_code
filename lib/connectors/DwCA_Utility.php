@@ -134,7 +134,6 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
-            // if($this->resource_id == '21_ENVO') break; //all extensions will be processed elsewhere. debug only
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
@@ -195,11 +194,6 @@ class DwCA_Utility
             require_library('connectors/SpeciesChecklistAPI');
             $func = new SpeciesChecklistAPI($this->archive_builder, $this->resource_id);
             $func->start_terms_remap($info, $this->resource_id);
-        }
-        if($this->resource_id == '708') {
-            require_library('connectors/New_EnvironmentsEOLDataConnector');
-            $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
-            $func->start($info);
         }
         if($this->resource_id == '727') {
             require_library('connectors/USDAPlants2019');
@@ -264,6 +258,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array('21_ENVO'))) {
             require_library('connectors/EnvironmentsFilters');
             $func = new EnvironmentsFilters($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if(in_array($this->resource_id, array('708', '21'))) {
+            require_library('connectors/New_EnvironmentsEOLDataConnector');
+            $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         // ================================= end of customization ================================= */ 
