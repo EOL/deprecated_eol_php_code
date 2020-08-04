@@ -401,7 +401,7 @@ class EnvironmentsEOLDataConnector
         }
         return false;
     }
-    private function adjustments($rec) //https://eol-jira.bibalex.org/browse/DATA-1768
+    function adjustments($rec) //https://eol-jira.bibalex.org/browse/DATA-1768
     {   /*this is for https://opendata.eol.org/dataset/environments-eol-project/resource/f5cfda47-d73f-4535-b729-79c8523a5300
         The partner will someday be able to resume work at their end, at which point we'll pass them this mapping, but for now, we need to clean some things up. Three methods so far:
 
@@ -450,8 +450,7 @@ class EnvironmentsEOLDataConnector
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000190") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000027";
         
         //2nd adjustment
-        if(in_array($rec['measurementValue'], array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) &&
-           $rec['measurementRemarks'] == 'source text: "ravine"')                      $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000100";
+        if(in_array($rec['measurementValue'], array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) && $rec['measurementRemarks'] == 'source text: "ravine"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000100";
          
         // https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62853&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62853 
         // records to revise based on measurementRemarks:
