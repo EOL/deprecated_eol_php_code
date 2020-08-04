@@ -78,7 +78,7 @@ class Environments2EOLfinal
                 // /* from legacy filters: EnvironmentsEOLDataConnector.php
                 if(in_array($string_uri, $this->excluded_uris)) {
                     // echo "\nOh there is one filtered!\n"; //debug only
-                    @$this->debug['excluded uris occurrences']++;
+                    @$this->debug['legacy filter']['excluded uris occurrences']++;
                     continue;
                 }
                 // */
@@ -88,8 +88,10 @@ class Environments2EOLfinal
                 if($val = @$rek['contributor']) $rec['contributor'] = $val;
                 if($val = @$rek['referenceID']) $rec['referenceID'] = $val;
                 if($val = @$rek['agentID'])     $rec['contributor'] = self::format_contributor_using_agentIDs($val);
-                
+
+                // /* from legacy filters: EnvironmentsEOLDataConnector.php
                 if($rec = $old_func->adjustments($rec)) $this->func->add_string_types($rec, $string_uri, $rec['measurementType'], "true");
+                // */
             }
         }
     }
