@@ -12,7 +12,7 @@ class New_EnvironmentsEOLDataConnector
             // $this->eol_taxon_concept_names_tab    = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt"; //working but old DH ver.
 
             if(is_file('/extra/other_files/DWH/TRAM-809/DH_v1_1/taxon.tab')) $path = '/extra/other_files/DWH/TRAM-809/DH_v1_1/taxon.tab';
-            elseif(is_dir('/u/scripts/DH_v1_1/taxon.tab'))                   $path = '/u/scripts/DH_v1_1/taxon.tab';
+            elseif(is_file('/u/scripts/DH_v1_1/taxon.tab'))                  $path = '/u/scripts/DH_v1_1/taxon.tab';
 
             $this->eol_taxon_concept_names_tab = $path; //latest active DH ver.
         }
