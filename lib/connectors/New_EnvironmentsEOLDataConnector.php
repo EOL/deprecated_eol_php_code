@@ -10,7 +10,11 @@ class New_EnvironmentsEOLDataConnector
         
         if(Functions::is_production()) {
             // $this->eol_taxon_concept_names_tab    = "/extra/other_files/DWH/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt"; //working but old DH ver.
-            $this->eol_taxon_concept_names_tab    = "/extra/other_files/DWH/TRAM-809/DH_v1_1/taxon.tab";    //latest active DH ver.
+
+            if(is_file('/extra/other_files/DWH/TRAM-809/DH_v1_1/taxon.tab')) $path = '/extra/other_files/DWH/TRAM-809/DH_v1_1/taxon.tab';
+            elseif(is_dir('/u/scripts/DH_v1_1/taxon.tab'))                   $path = '/u/scripts/DH_v1_1/taxon.tab';
+
+            $this->eol_taxon_concept_names_tab = $path; //latest active DH ver.
         }
         else {
             // $this->eol_taxon_concept_names_tab    = "/Volumes/AKiTiO4/other_files/from_OpenData/EOL_dynamic_hierarchyV1Revised/taxa.txt"; //working but old DH ver.
