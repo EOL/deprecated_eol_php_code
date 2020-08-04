@@ -43,10 +43,11 @@ class Environments2EOLfinal
         require_library('connectors/EnvironmentsEOLDataConnector');
         $func = new EnvironmentsEOLDataConnector();
         $this->excluded_uris = $func->excluded_measurement_values(); //from here: https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=62373&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62373
+        return $func;
     }
     private function add_environmental_traits()
     {
-        self::borrow_data(); // print_r($this->excluded_uris); exit("\nexcluded uris\n");
+        $old_func = self::borrow_data(); // print_r($this->excluded_uris); exit("\nexcluded uris\n");
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
@@ -70,20 +71,25 @@ class Environments2EOLfinal
                 $rec = array();
                 $rec["taxon_id"] = $taxonID;
                 $rec["catnum"] = md5($row);
+                $rec['measurementType'] = 'http://purl.obolibrary.org/obo/RO_0002303';
                 $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
                 $string_uri = 'http://purl.obolibrary.org/obo/'.str_replace(':', '_', $arr[4]);
+
+                // /* from legacy filters: EnvironmentsEOLDataConnector.php
                 if(in_array($string_uri, $this->excluded_uris)) {
                     // echo "\nOh there is one filtered!\n"; //debug only
                     @$this->debug['excluded uris occurrences']++;
-                    continue; //from legacy filters: EnvironmentsEOLDataConnector.php
+                    continue;
                 }
-                $mtype = 'http://purl.obolibrary.org/obo/RO_0002303';
+                // */
+                
                 if($val = @$rek['source']) $rec['source'] = $val;
                 if($val = @$rek['bibliographicCitation']) $rec['bibliographicCitation'] = $val;
                 if($val = @$rek['contributor']) $rec['contributor'] = $val;
                 if($val = @$rek['referenceID']) $rec['referenceID'] = $val;
                 if($val = @$rek['agentID'])     $rec['contributor'] = self::format_contributor_using_agentIDs($val);
-                $this->func->add_string_types($rec, $string_uri, $mtype, "true");
+                
+                if($rec = $old_func->adjustments($rec)) $this->func->add_string_types($rec, $string_uri, $rec['measurementType'], "true");
             }
         }
     }
