@@ -90,7 +90,8 @@ class Environments2EOLfinal
                 if($val = @$rek['agentID'])     $rec['contributor'] = self::format_contributor_using_agentIDs($val);
 
                 // /* from legacy filters: EnvironmentsEOLDataConnector.php
-                if($rec = $old_func->adjustments($rec)) $this->func->add_string_types($rec, $string_uri, $rec['measurementType'], "true");
+                $rec['measurementValue'] = $string_uri;
+                if($rec = $old_func->adjustments($rec)) $this->func->add_string_types($rec, $rec['measurementValue'], $rec['measurementType'], "true");
                 // */
             }
         }
