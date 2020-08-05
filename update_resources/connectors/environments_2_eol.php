@@ -46,8 +46,8 @@ elseif($task == 'apply_formats_filters') {              //step 2
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 elseif($task == 'apply_formats_filters_latest') {       //step 3
-    $resource_id = $param['resource_id']; //e.g. 21
-    $old_resource_id = $resource_id.'_ENVO'; //e.g. 21_ENVO
+    $resource_id = $param['resource_id']; //e.g. 21_final
+    $old_resource_id = str_replace('_final', '_ENVO', $resource_id); //e.g. 21_ENVO
     if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     require_library('connectors/DwCA_Utility');
@@ -55,7 +55,7 @@ elseif($task == 'apply_formats_filters_latest') {       //step 3
     $preferred_rowtypes = array();
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence', 
                                'http://rs.tdwg.org/dwc/terms/taxon');
-    // $excluded_rowtypes will be processed in New_EnvironmentsEOLDataConnector.php which will be called from DwCA_Utility.php
+    // $excluded_rowtypes will be processed in New_EnvironmentsEOLDataConnector.php which will be called from DwCA_Utility.php. Part of legacy filters.
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
