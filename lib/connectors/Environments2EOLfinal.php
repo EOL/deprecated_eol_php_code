@@ -68,6 +68,11 @@ class Environments2EOLfinal
             $identifier = @$a[1];
             $rek = self::retrieve_json($taxonID."_".$identifier);
             if(@$arr[3] && @$arr[4]) {
+                // /* post legacy filters: start Aug 5, 2020: /DATA-1851?focusedCommentId=65084&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65084
+                $tags_not_to_be_used = array("Playa", "nest", "aquarium", "logged areas", "trenches", "bamboo");
+                if(in_array($arr[3], $tags_not_to_be_used)) continue;
+                // */
+                
                 $rec = array();
                 $rec["taxon_id"] = $taxonID;
                 $rec["catnum"] = md5($row);

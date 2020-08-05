@@ -449,6 +449,22 @@ class EnvironmentsEOLDataConnector
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000570") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000322";
         if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000190") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000027";
         
+        // /* post legacy filters: start Aug 5, 2020: https://eol-jira.bibalex.org/browse/DATA-1851?focusedCommentId=65086&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65086
+        // REMAP; if measurementValue has the value on the left, replace with the value on the right
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00002031") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000002";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00002037") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00002011";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000106") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000177";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000181") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000081";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00002009") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000446";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000109") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000175";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000104") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000447";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000113") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000360") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000302") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000100";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000377") $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000252";
+        if($rec['measurementValue'] == "http://purl.obolibrary.org/obo/ENVO_00000029") $rec['measurementValue'] = "http://eol.org/schema/terms/lotic";
+        // */
+        
         //2nd adjustment
         if(in_array($rec['measurementValue'], array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) && $rec['measurementRemarks'] == 'source text: "ravine"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000100";
          
@@ -549,6 +565,58 @@ class EnvironmentsEOLDataConnector
         if($rec['measurementRemarks'] == 'source text: "tropical rainforests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
         if($rec['measurementRemarks'] == 'source text: "tropicalrainforests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
         
+        // /* post legacy filters: start Aug 5, 2020: /DATA-1851?focusedCommentId=65087&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65087
+        if($rec['measurementRemarks'] == 'source text: "coast"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "coastal"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "coastal areas"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "coastal strip"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "coastal region"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "coasts"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "coastal regions"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "costal"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "littoral"') $rec['measurementValue'] = "http://eol.org/schema/terms/littoralZone";
+        if($rec['measurementRemarks'] == 'source text: "Sea coast"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        if($rec['measurementRemarks'] == 'source text: "forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "deciduous forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        if($rec['measurementRemarks'] == 'source text: "groves"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "deciduous forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        if($rec['measurementRemarks'] == 'source text: "Forest Reserve"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "Forest Reserves"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "open-water"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        if($rec['measurementRemarks'] == 'source text: "open water"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        if($rec['measurementRemarks'] == 'source text: "rivers"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000253";
+        if($rec['measurementRemarks'] == 'source text: "foothill"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000083";
+        if($rec['measurementRemarks'] == 'source text: "foothills"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000083";
+        if($rec['measurementRemarks'] == 'source text: "palm grove"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000220";
+        if($rec['measurementRemarks'] == 'source text: "glades"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000444";
+        if($rec['measurementRemarks'] == 'source text: "agricultural sites"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        if($rec['measurementRemarks'] == 'source text: "open-water"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        if($rec['measurementRemarks'] == 'source text: "open water"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        if($rec['measurementRemarks'] == 'source text: "mountains"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000081";
+        if($rec['measurementRemarks'] == 'source text: "hills"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000083";
+        if($rec['measurementRemarks'] == 'source text: "rainforests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "rainforest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "tropical rainforests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "rain forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "thorn forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "deciduous forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        if($rec['measurementRemarks'] == 'source text: "tropical rainforest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "tropical rain forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "deciduous forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        if($rec['measurementRemarks'] == 'source text: "tropical rain forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "coniferous forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        if($rec['measurementRemarks'] == 'source text: "thorn forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "rain-forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "rain forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "Jungle"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        if($rec['measurementRemarks'] == 'source text: "coniferous forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        if($rec['measurementRemarks'] == 'source text: "equatorial forest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "monsoon forests"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_00000879";
+        if($rec['measurementRemarks'] == 'source text: "thornforest"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        if($rec['measurementRemarks'] == 'source text: "reforested areas"') $rec['measurementValue'] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        // */
+        
         // https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62854&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62854
         // and records to discard based on measurementRemarks:
         $to_delete = array('source text: "range s"', 'source text: "ranges"', 'source text: "range s"', 'source text: "rang e"', 'source text: "bamboo"', 'source text: "barrens"', 'source text: "breaks"', 
@@ -611,6 +679,12 @@ class EnvironmentsEOLDataConnector
         http://purl.obolibrary.org/obo/ENVO_2000004";
         $arr = explode(",", $str); $arr = array_map('trim', $arr);
         $final = array_merge($final, $arr);
+        
+        // /* post legacy filters: start Aug 5, 2020: /DATA-1851?focusedCommentId=65085&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65085
+        $str = "http://purl.obolibrary.org/obo/ENVO_00000367, http://purl.obolibrary.org/obo/ENVO_00000363, http://purl.obolibrary.org/obo/ENVO_00000305, http://purl.obolibrary.org/obo/ENVO_00000358, http://purl.obolibrary.org/obo/ENVO_00000064, http://purl.obolibrary.org/obo/ENVO_00000515, http://purl.obolibrary.org/obo/ENVO_01000246, http://purl.obolibrary.org/obo/ENVO_00010622, http://purl.obolibrary.org/obo/ENVO_00010625, http://purl.obolibrary.org/obo/ENVO_00002000, http://purl.obolibrary.org/obo/ENVO_00000376, http://purl.obolibrary.org/obo/ENVO_00000011, http://purl.obolibrary.org/obo/ENVO_00000291, http://purl.obolibrary.org/obo/ENVO_00002277, http://purl.obolibrary.org/obo/ENVO_00000393, http://purl.obolibrary.org/obo/ENVO_00000547, http://purl.obolibrary.org/obo/ENVO_01000243, http://purl.obolibrary.org/obo/ENVO_00000514, http://purl.obolibrary.org/obo/ENVO_00000533, http://purl.obolibrary.org/obo/ENVO_00000104, http://purl.obolibrary.org/obo/ENVO_00000320, http://purl.obolibrary.org/obo/ENVO_00000220, http://purl.obolibrary.org/obo/ENVO_00000029, http://purl.obolibrary.org/obo/ENVO_00000293, http://purl.obolibrary.org/obo/ENVO_00000174, http://purl.obolibrary.org/obo/ENVO_00000480, http://purl.obolibrary.org/obo/ENVO_00004638, http://purl.obolibrary.org/obo/ENVO_00002139, http://purl.obolibrary.org/obo/ENVO_00000477, http://purl.obolibrary.org/obo/ENVO_2000001, http://purl.obolibrary.org/obo/ENVO_00000331, http://purl.obolibrary.org/obo/ENVO_00000292, http://purl.obolibrary.org/obo/ENVO_01000016, http://purl.obolibrary.org/obo/ENVO_00000499, http://purl.obolibrary.org/obo/ENVO_00000427, http://purl.obolibrary.org/obo/ENVO_00002041, http://purl.obolibrary.org/obo/ENVO_00000294, http://purl.obolibrary.org/obo/ENVO_00000122, http://purl.obolibrary.org/obo/ENVO_00010624, http://purl.obolibrary.org/obo/ENVO_00002271, http://purl.obolibrary.org/obo/ENVO_00002026, http://purl.obolibrary.org/obo/ENVO_00000302, http://purl.obolibrary.org/obo/ENVO_00000550, http://purl.obolibrary.org/obo/ENVO_00000178, http://purl.obolibrary.org/obo/ENVO_00000480, http://purl.obolibrary.org/obo/ENVO_00000086, http://purl.obolibrary.org/obo/ENVO_00002055, http://purl.obolibrary.org/obo/ENVO_01000047";
+        $arr = explode(",", $str); $arr = array_map('trim', $arr);
+        $final = array_merge($final, $arr);
+        // */
         return $final;
     }
     private function format_uri($raw_envo)
