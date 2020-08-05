@@ -260,7 +260,7 @@ class DwCA_Utility
             $func = new EnvironmentsFilters($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('708', '21'))) {
+        if(in_array($this->resource_id, array('708', '21_final'))) {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
