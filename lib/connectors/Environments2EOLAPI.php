@@ -12,7 +12,7 @@ class Environments2EOLAPI
     {
         $this->param = $param; // print_r($param); exit;
         /*-----------------------Resources-------------------*/
-        $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
+        // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         /*-----------------------Subjects-------------------*/
         $this->subjects['Distribution'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
         /*-----------------------Paths----------------------*/
@@ -27,9 +27,13 @@ class Environments2EOLAPI
         /*-----------------------Others---------------------*/
         $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
         if($val = @$param['subjects']) $this->allowed_subjects = self::get_allowed_subjects($val); // print_r($this->allowed_subjects); exit;
+        
+        $this->download_options = array('expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
+        $this->call['opendata resource via name'] = "https://opendata.eol.org/api/3/action/resource_search?query=name:RESOURCE_NAME";
     }
     function generate_eol_tags($resource)
     {
+        self::lookup_opendata_resource();
         // /* un-comment in real operation
         self::initialize_files();
         // */
@@ -334,6 +338,38 @@ class Environments2EOLAPI
         if(!file_exists($this->json_temp_path . $cache1)) mkdir($this->json_temp_path . $cache1);
         if(!file_exists($this->json_temp_path . "$cache1/$cache2")) mkdir($this->json_temp_path . "$cache1/$cache2");
         return $this->json_temp_path . "$cache1/$cache2/$filename";
+    }
+    private function get_opendata_dwca_url($resource_name)
+    {
+        $url = str_replace('RESOURCE_NAME', $resource_name, $this->call['opendata resource via name']);
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            $arr = json_decode($json, true); // print_r($arr);
+            if($recs = @$arr['result']['results']) {
+                foreach($recs as $rec) {
+                    if($rec['name'] == $resource_name) return $rec['url'];
+                }
+            }
+        }
+    }
+    private function lookup_opendata_resource()
+    {
+        print_r($this->param);
+        /* Array(
+            [task] => generate_eol_tags
+            [resource] => AmphibiaWeb text
+            [resource_id] => 21_ENV
+            [subjects] => Distribution
+        )*/
+        $resource_name = $this->param['resource'];
+        if($dwca_url = self::get_opendata_dwca_url($resource_name)) {
+            /* based here:
+            $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
+            */
+            $this->DwCA_URLs[$resource_name] = $dwca_url;
+            print_r($this->DwCA_URLs);
+        }
+        else exit("\nOpenData resource not found [$resource_name]\n");
+        // exit("\n-exit muna-\n");
     }
 }
 ?>
