@@ -147,7 +147,35 @@ class ConvertEOLtoDWCaAPI
             if($this->resource_id == 'TaiEOL') {
                 if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') continue; //images are already offline, so as its dc:source. So no way to get the image URL.
             }
-            
+
+            if($this->resource_id == '20') {
+                if($rec['dataType'] == 'http://purl.org/dc/dcmitype/StillImage') {
+                    // print_r($rec);
+                    /* task from: https://eol-jira.bibalex.org/browse/DATA-1857
+                    But it seems the needed transformation is
+                    from: http://www.pensoft.net/J_FILES/1/articles/1272/export.php_files/ZooKeys-104-077-g004.jpg
+                    to:   https://pensoft.net/J_FILES/1/articles/1272/export.php_files/ZooKeys-104-077-g004.jpg
+                    Array(
+                        [dataType] => http://purl.org/dc/dcmitype/StillImage
+                        [mimeType] => image/jpeg
+                        [license] => http://creativecommons.org/licenses/by/3.0/
+                        [audience] => Expert users
+                        [mediaURL] => http://www.pensoft.net/J_FILES/1/articles/2653/export.php_files/ZooKeys-173-079-g004.jpg
+                        [thumbnailURL] => http://www.pensoft.net/J_FILES/1/articles/2653/export.php_files/ZooKeys-173-079-g004.jpg
+                        [identifier] => zookeys.173.2653.sp_2_p_1
+                        [source] => http://www.pensoft.net/journals/zookeys/article/2653/abstract/
+                        [description] => Figures 8–12.Achrysocharoides callisetosus sp. n., female. 8 Head, frontal 9 Vertex 10 Thoracic dorsum 11 Thoracic dorsum 12 Head, frontal.
+                        [created] => 2012
+                        [rightsHolder] => Christer Hansson
+                        [bibliographicCitation] => Hansson C (2012) Achrysocharoides Girault (Hymenoptera, Eulophidae) new to tropical America, with eight new species ZooKeys 173: 79–108
+                    )*/
+                    $rec['mediaURL'] = str_replace('www.pensoft.net', 'pensoft.net', $rec['mediaURL']);
+                    $rec['mediaURL'] = str_replace('http://', 'https://', $rec['mediaURL']);
+                    $rec['thumbnailURL'] = str_replace('www.pensoft.net', 'pensoft.net', $rec['thumbnailURL']);
+                    $rec['thumbnailURL'] = str_replace('http://', 'https://', $rec['thumbnailURL']);
+                }
+            }
+
             if($this->resource_id == 889) { //TaiEOL Insecta TRAM-703
                 // print_r($o); print_r($rec);
                 if($url = @$rec['source']) {
