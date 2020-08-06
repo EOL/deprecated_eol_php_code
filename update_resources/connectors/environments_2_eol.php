@@ -14,9 +14,15 @@ Next step now is to combine all the steps within a general connector:
       5.2.3 contributor - http://purl.org/dc/terms/contributor
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
       5.2.5 agendID -> contributor
+OLD implementation
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21_ENV", "subjects":"Distribution"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21_ENVO"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"21_final"}'
+
+NEW implementation
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"21"}'
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
@@ -28,11 +34,13 @@ $task = $param['task'];
 $resource = @$param['resource'];
 
 if($task == 'generate_eol_tags') {                      //step 1
+    $param['resource_id'] .= "_ENV"; //e.g. 21_ENV
     require_library('connectors/Environments2EOLAPI');
     $func = new Environments2EOLAPI($param);
     $func->generate_eol_tags($resource);
 }
 elseif($task == 'apply_formats_filters') {              //step 2
+    $param['resource_id'] .= "_ENVO";
     $resource_id = $param['resource_id']; //e.g. 21_ENVO
     $old_resource_id = substr($resource_id, 0, strlen($resource_id)-1); //should get "21_ENV"
     $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
@@ -46,6 +54,7 @@ elseif($task == 'apply_formats_filters') {              //step 2
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 elseif($task == 'apply_formats_filters_latest') {       //step 3
+    $param['resource_id'] .= "_final";
     $resource_id = $param['resource_id']; //e.g. 21_final
     $old_resource_id = str_replace('_final', '_ENVO', $resource_id); //e.g. 21_ENVO
     if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
