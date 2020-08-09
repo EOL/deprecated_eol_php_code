@@ -466,6 +466,13 @@ wikipedia-pl_6of6	Sunday 2020-05-10 10:39:49 AM	{"media_resource.tab":13702, "ta
 wikipedia-pl_5of6	Sunday 2020-05-10 10:47:35 AM	{"media_resource.tab":20365, "taxon.tab":14808, "time_elapsed":{"sec":1525.29, "min":25.42, "hr":0.42}}
 wikipedia-pl_1of6	Sunday 2020-05-10 10:50:22 AM	{"media_resource.tab":21176, "taxon.tab":11682, "time_elapsed":{"sec":1691.55, "min":28.19, "hr":0.47}}
 
+wikipedia-uk	Saturday 2019-04-27 03:30:05 PM	{"media_resource.tab":33509,"taxon.tab":30899}
+wikipedia-uk	Thursday 2019-08-15 06:32:40 AM	{"media_resource.tab":37569,"taxon.tab":33991} OK
+wikipedia-uk	Monday 2020-02-24 09:06:21 AM	{"media_resource.tab":40135,"taxon.tab":36523,"time_elapsed":{"sec":44962.12,"min":749.37,"hr":12.49}}
+wikipedia-uk	Sunday 2020-04-26 02:28:46 AM	{"media_resource.tab":41416, "taxon.tab":36783, "time_elapsed":{"sec":45423.71, "min":757.06, "hr":12.62}}
+wikipedia-uk	Sunday 2020-05-10 10:03:01 PM	{"media_resource.tab":59521, "taxon.tab":37551, "time_elapsed":{"sec":4964.46, "min":82.74, "hr":1.38}} New
+wikipedia-uk	Sunday 2020-08-09 06:30:03 AM	{"media_resource.tab":38089, "taxon.tab":39343, "time_elapsed":{"sec":44333.08, "min":738.88, "hr":12.31}} will monitor big drop in media, but will accept for now.
+
 wikipedia-vi	Saturday 2019-04-27 01:40:44 AM	{"media_resource.tab":1582933, "taxon.tab":826812}
 wikipedia-vi	Wednesday 2019-08-14 07:34:50 PM{"media_resource.tab":1584541, "taxon.tab":827634} OK
 wikipedia-vi	Sunday 2020-02-23 08:36:50 PM	  {"media_resource.tab":1585312, "taxon.tab":827677,"time_elapsed":{"sec":132729.61,"min":2212.16,"hr":36.87,"day":1.54}} OK
@@ -514,11 +521,6 @@ wikipedia-ro	Monday 2020-02-24 09:52:29 AM	{"media_resource.tab":61125,"taxon.ta
 wikipedia-ro	Sunday 2020-04-26 02:45:22 AM	{"media_resource.tab":61220, "taxon.tab":35332, "time_elapsed":{"sec":46419.21, "min":773.65, "hr":12.89}}
 wikipedia-ro	Sunday 2020-05-10 11:10:30 PM	{"media_resource.tab":61220, "taxon.tab":35356, "time_elapsed":{"sec":5313.67, "min":88.56, "hr":1.48}}
 
-wikipedia-uk	Saturday 2019-04-27 03:30:05 PM	{"media_resource.tab":33509,"taxon.tab":30899}
-wikipedia-uk	Thursday 2019-08-15 06:32:40 AM	{"media_resource.tab":37569,"taxon.tab":33991} OK
-wikipedia-uk	Monday 2020-02-24 09:06:21 AM	{"media_resource.tab":40135,"taxon.tab":36523,"time_elapsed":{"sec":44962.12,"min":749.37,"hr":12.49}}
-wikipedia-uk	Sunday 2020-04-26 02:28:46 AM	{"media_resource.tab":41416, "taxon.tab":36783, "time_elapsed":{"sec":45423.71, "min":757.06, "hr":12.62}}
-wikipedia-uk	Sunday 2020-05-10 10:03:01 PM	{"media_resource.tab":59521, "taxon.tab":37551, "time_elapsed":{"sec":4964.46, "min":82.74, "hr":1.38}} New
 
 wikipedia-ca	Sunday 2019-04-28 03:07:45 AM	{"media_resource.tab":124020,"taxon.tab":70790}
 wikipedia-ca	Thursday 2019-08-15 08:52:01 PM	{"media_resource.tab":124621,"taxon.tab":71136} OK
