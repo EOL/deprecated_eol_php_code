@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
 /* connector: [ioc.php] - https://eol-jira.bibalex.org/browse/TRAM-499
+                          https://eol-jira.bibalex.org/browse/TRAM-985 - Reharvest IOC World Bird List for DH - As of Aug 9, 2020
 */
 class IOCBirdlistAPI
 {
@@ -35,19 +36,27 @@ class IOCBirdlistAPI
                                 "MA" => "http://eol.org/schema/terms/MiddleAmerica",
                                 "OR" => "http://eol.org/schema/terms/OrientalRegion");
     }
-
     private function get_bibliographic_citation()
     {
         $url = "http://www.worldbirdnames.org/ioc-lists/master-list-2/";
-        $html = Functions::lookup_with_cache($url, $this->download_options);
-        /* <p class="tagline">version 7.3</p> */
+        $options = $this->download_options;
+        $options['expire_seconds'] = 60*60*24; //1 day
+        $html = Functions::lookup_with_cache($url, $options);
+        /* <p class="tagline">version 7.3</p> 
+           <p class="tagline">version 10.2</p>
+        */
         if(preg_match("/>version (.*?)<\//ims", $html, $a)) $version = $a[1];
-        else                                                $version = "7.1";
+        else exit("\nVersion not found!\n");
+        
+        //scrape year
+        /* &copy; 2020 <a */
+        if(preg_match("/\&copy\; (.*?)<a/ims", $html, $a)) $year = trim($a[1]);
+        else exit("\nYear not found!\n");
+        
         // $this->bibliographic_citation = "Gill F & D Donsker (Eds). 2017. IOC World Bird List (v 7.1). http://dx.doi.org/10.14344/IOC.ML.7.1";
-        $this->bibliographic_citation    = "Gill F & D Donsker (Eds). 2018. IOC World Bird List (v $version). http://dx.doi.org/10.14344/IOC.ML.".$version;
+        $this->bibliographic_citation    = "Gill F & D Donsker (Eds). $year. IOC World Bird List (v $version). https://doi.org/10.14344/IOC.ML.".$version;
         echo "\n$this->bibliographic_citation\n";
     }
-    
     function get_all_taxa($resource_id)
     {
         self::get_bibliographic_citation();
@@ -60,7 +69,6 @@ class IOCBirdlistAPI
         // print_r($this->debug['nonbreeding_regions']);
         print_r(@$this->debug['unknown']); //to be reported  in https://eol-jira.bibalex.org/browse/TRAM-499
     }
-
     private function process_taxa()
     {
         $options = $this->download_options;
@@ -68,15 +76,13 @@ class IOCBirdlistAPI
         $temp_path = Functions::save_remote_file_to_local($this->xml_data, $options);
         echo "\ntemp path: [$temp_path]\n";
         $xml = simplexml_load_file($temp_path);
-        foreach($xml->list->order as $o)
-        {
+        foreach($xml->list->order as $o) {
             $rek = array();
             // echo "\n --O".$o->latin_name;
             $rek['order']['latin'] = (string) $o->latin_name;
             $rek['order']['code'] = (string) $o->code;
             $rek['order']['note'] = (string) $o->note;
-            foreach($o->family as $f)
-            {
+            foreach($o->family as $f) {
                 // echo "\n ----F ".$f->latin_name;
                 $rek['family']['latin'] = (string) $f->latin_name;
                 $rek['family']['authority'] = (string) $f->authority;
@@ -84,8 +90,7 @@ class IOCBirdlistAPI
                 $rek['family']['code'] = (string) $f->code;
                 $rek['family']['note'] = (string) $f->note;
                 $rek['family']['url'] = (string) $f->url;
-                foreach($f->genus as $g)
-                {
+                foreach($f->genus as $g) {
                     // echo "\n ------G ".$g->latin_name;
                     $rek['genus']['latin'] = (string) $g->latin_name;
                     $rek['genus']['authority'] = (string) $g->authority;
@@ -93,8 +98,7 @@ class IOCBirdlistAPI
                     $rek['genus']['code'] = (string) $g->code;
                     $rek['genus']['note'] = (string) $g->note;
                     if($val = @$rek['family']['url']) $rek['genus']['url'] = $val;
-                    foreach($g->species as $s)
-                    {
+                    foreach($g->species as $s) {
                         // if($s->latin_name == "molybdophanes") exit("\n-elix $g->latin_name -\n");
                         // echo "\n --------S ".$s->latin_name;
                         $rek['species']['latin'] = (string) $s->latin_name;
@@ -106,8 +110,7 @@ class IOCBirdlistAPI
                         if($s{"extinct"} == "yes") $rek['species']['status'] = "http://eol.org/schema/terms/extinct";
                         else                       $rek['species']['status'] = "http://eol.org/schema/terms/extant";
                         if($val = @$rek['family']['url']) $rek['species']['url'] = $val;
-                        foreach($s->subspecies as $b)
-                        {
+                        foreach($s->subspecies as $b) {
                             // echo "\n ----------B ".$b->latin_name;
                             $rek['subspecies']['latin'] = (string) $b->latin_name;
                             $rek['subspecies']['authority'] = (string) $b->authority;
@@ -135,8 +138,7 @@ class IOCBirdlistAPI
                             if($val = $rek['subspecies']['breeding_subregions'])    $this->debug['breeding_subregions'][$val] = '';
                             if($val = $rek['subspecies']['nonbreeding_regions'])    $this->debug['nonbreeding_regions'][$val] = '';
                         }
-                        if(!$s->subspecies)
-                        {
+                        if(!$s->subspecies) {
                             $rek = self::prepare_names($rek, false);
                             self::create_taxa($rek, false);
                             //for debug only
@@ -150,7 +152,6 @@ class IOCBirdlistAPI
         }
         unlink($temp_path);
     }
-
     private function get_canonical_name($rek, $rank)
     {
         $final = "";
@@ -217,8 +218,7 @@ class IOCBirdlistAPI
         
         $ranks = array('order', 'family', 'genus', 'species');
         if($with_subspecies) $ranks[] = 'subspecies';
-        foreach($ranks as $rank)
-        {
+        foreach($ranks as $rank) {
             $taxon_name = $rek[$rank]['taxon'];
             $parent     = $rek[$rank]['parent'];
             $taxonID            = md5($taxon_name);
@@ -228,8 +228,7 @@ class IOCBirdlistAPI
             elseif(in_array($taxon_name, array("Gaviiformes", "Sphenisciformes", "Procellariiformes", "Podicipediformes", "Phoenicopteriformes", "Phaethontiformes", "Ciconiiformes", "Pelecaniformes", "Suliformes", "Accipitriformes", "Otidiformes", "Mesitornithiformes", "Cariamiformes", "Eurypygiformes", "Gruiformes", "Charadriiformes", "Pterocliformes", "Columbiformes", "Opisthocomiformes", "Musophagiformes", "Cuculiformes", "Strigiformes", "Caprimulgiformes", "Apodiformes", "Coliiformes", "Trogoniformes", "Leptosomiformes", "Coraciiformes", "Bucerotiformes", "Piciformes", "Falconiformes", "Psittaciformes", "Passeriformes"))) $parentNameUsageID  = md5("Neoaves");
             else $parentNameUsageID  = md5($parent);
             
-            if(!isset($this->taxa_ids[$taxonID]))
-            {
+            if(!isset($this->taxa_ids[$taxonID])) {
                 $this->taxa_ids[$taxonID] = '';
                 $taxon = new \eol_schema\Taxon();
                 $taxon->taxonID             = $taxonID;
@@ -247,8 +246,7 @@ class IOCBirdlistAPI
                 if($val = @$rek[$rank]['english'])  self::create_vernacular($val, $taxonID);
                 $this->archive_builder->write_object_to_file($taxon);
                 
-                if(in_array($rank, array("species", "subspecies")))
-                {
+                if(in_array($rank, array("species", "subspecies"))) {
                     // /*
                     //for extinction status
                     $mrec = array(); //m for measurement
@@ -260,16 +258,14 @@ class IOCBirdlistAPI
                     
                     // /*
                     //for breeding regions : http://eol.org/schema/terms/BreedingRange
-                    if($vals = @$rek[$rank]['breeding_regions'])
-                    {
+                    if($vals = @$rek[$rank]['breeding_regions']) {
                         $arr = self::convert_regions_2array($vals);
                         // Array
                         // (   [0] => NA
                         //     [1] => SA
                         //     [2] => AF
                         // )
-                        foreach($arr as $a)
-                        {
+                        foreach($arr as $a) {
                             $mrec = array(); //m for measurement
                             $mrec["taxon_id"] = $taxonID;
                             $mrec["catnum"] = "br_".$a; 
@@ -289,14 +285,12 @@ class IOCBirdlistAPI
             }
         }
     }
-
     private function convert_regions_2array($str)
     {
         /* e.g. [SO, AN] or [AN] */
         $str = str_replace(" ", "", $str);
         return explode(",", trim($str));
     }
-    
     private function create_vernacular($vernacular, $taxonID)
     {
         $v = new \eol_schema\VernacularName();
@@ -305,7 +299,6 @@ class IOCBirdlistAPI
         $v->language        = "en";
         $this->archive_builder->write_object_to_file($v);
     }
-    
     private function prepare_names($rek, $with_subspecies) //taxon and parent
     {
         /*
@@ -329,8 +322,7 @@ class IOCBirdlistAPI
         $rek['family']['taxon']     = trim($rek['family']['latin']." ".$rek['family']['authority']);
         $rek['genus']['taxon']      = trim($rek['genus']['latin']." ".$rek['genus']['authority']);
         $rek['species']['taxon']    = trim($rek['genus']['latin']." ".$rek['species']['latin']." ".$rek['species']['authority']);
-        if($with_subspecies)
-        {
+        if($with_subspecies) {
             $rek['subspecies']['taxon'] = trim($rek['genus']['latin']." ".$rek['species']['latin']." ".$rek['subspecies']['latin']." ".$rek['subspecies']['authority']);
         }
         //get parent
@@ -345,7 +337,6 @@ class IOCBirdlistAPI
         if($with_subspecies) $rek['subspecies']['parent'] = $rek['species']['taxon'];
         return $rek;
     }
-
     private function create_aves() //and 3 others non-rank taxa
     {   /* based from: https://eol-jira.bibalex.org/browse/TRAM-499?focusedCommentId=60776&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-60776
         1. Change Aves to Neornithes.
@@ -372,7 +363,6 @@ class IOCBirdlistAPI
             $this->archive_builder->write_object_to_file($taxon);
         }
     }
-    
     private function add_string_types($rec, $value, $measurementType, $measurementOfTaxon = "")
     {
         $taxon_id = $rec["taxon_id"];
@@ -402,7 +392,6 @@ class IOCBirdlistAPI
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
         $this->archive_builder->write_object_to_file($m);
     }
-
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $taxon_id . '_' . $catnum;
@@ -423,7 +412,6 @@ class IOCBirdlistAPI
         return;
         */
     }
-    
     //===================================================================================================================================================
     //===================================================================================================================================================
     /*
