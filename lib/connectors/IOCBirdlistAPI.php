@@ -40,7 +40,7 @@ class IOCBirdlistAPI
     {
         $url = "http://www.worldbirdnames.org/ioc-lists/master-list-2/";
         $options = $this->download_options;
-        $options['expire_seconds'] = 60*60*24; //1 day
+        $options['expire_seconds'] = 0; //60*60*24; //1 day
         $html = Functions::lookup_with_cache($url, $options);
         /* <p class="tagline">version 7.3</p> 
            <p class="tagline">version 10.2</p>
