@@ -17,10 +17,14 @@ ioc-birdlist-with-higherClassification	Sunday 2018-10-21 11:37:56 PM	{"measureme
 
 ioc-birdlist	Sunday 2020-08-09 11:19:09 AM	                        {"measurement_or_fact.tab":43070, "occurrence.tab":43070, "taxon.tab":33549, "vernacular_name.tab":11178, "time_elapsed":false}
 ioc-birdlist-with-higherClassification	Sunday 2020-08-09 11:20:08 AM	{"measurement_or_fact.tab":43070, "occurrence.tab":43070, "taxon.tab":33549, "vernacular_name.tab":11178, "time_elapsed":false}
+
+local
+ioc-birdlist	Sunday 2020-08-09 11:31:34 PM	                        {"measurement_or_fact.tab":43108, "occurrence.tab":43108, "taxon.tab":33603, "vernacular_name.tab":11197, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/IOCBirdlistAPI');
+$GLOBALS['ENV_DEBUG'] = true; //orig value true
 $timestart = time_elapsed();
 $resource_id = "ioc-birdlist";
 $fishbase = new IOCBirdlistAPI(false, $resource_id);

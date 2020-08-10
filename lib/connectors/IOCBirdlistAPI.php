@@ -38,15 +38,25 @@ class IOCBirdlistAPI
     }
     private function get_bibliographic_citation()
     {
-        $url = "http://www.worldbirdnames.org/ioc-lists/master-list-2/";
+        /* hard-coded for now, due to Incapsula robot tracker */
+        $year = '2020';
+        $version = '10.2';
+        $this->bibliographic_citation    = "Gill F & D Donsker (Eds). $year. IOC World Bird List (v $version). https://doi.org/10.14344/IOC.ML.".$version;
+        echo "\n$this->bibliographic_citation\n";
+        return;
+        
+        $url = "https://www.worldbirdnames.org/ioc-lists/master-list-2/"; //worked for sometime until it needed an anti robot filter
+        $url = "https://www.worldbirdnames.org/ioc-lists/crossref/"; //as of Aug 9, 2020
+        $url = "https://www.worldbirdnames.org/";
         $options = $this->download_options;
         $options['expire_seconds'] = 0; //60*60*24; //1 day
         $html = Functions::lookup_with_cache($url, $options);
         /* <p class="tagline">version 7.3</p> 
            <p class="tagline">version 10.2</p>
+           <p class="tagline">version 10.2</p>
         */
         if(preg_match("/>version (.*?)<\//ims", $html, $a)) $version = $a[1];
-        else exit("\nVersion not found!\n");
+        else exit("\nVersion not found! $html\n");
         
         //scrape year
         /* &copy; 2020 <a */
@@ -72,6 +82,7 @@ class IOCBirdlistAPI
     private function process_taxa()
     {
         $options = $this->download_options;
+        $options['expire_seconds'] = 60*60; //1 hr
         $options['cache'] = true; //cache param is exclusive to save_remote_file_to_local()
         $temp_path = Functions::save_remote_file_to_local($this->xml_data, $options);
         echo "\ntemp path: [$temp_path]\n";
