@@ -15,11 +15,8 @@ ioc	            Sunday 2018-05-20 01:19:14 PM	                        {"measurem
 ioc-birdlist	Sunday 2018-10-21 11:37:12 PM	                        {"measurement_or_fact.tab":43007,"occurrence.tab":43007,"taxon.tab":33526,"vernacular_name.tab":11114}
 ioc-birdlist-with-higherClassification	Sunday 2018-10-21 11:37:56 PM	{"measurement_or_fact.tab":43007,"occurrence.tab":43007,"taxon.tab":33526,"vernacular_name.tab":11114}
 
-ioc-birdlist	Sunday 2020-08-09 11:19:09 AM	                        {"measurement_or_fact.tab":43070, "occurrence.tab":43070, "taxon.tab":33549, "vernacular_name.tab":11178, "time_elapsed":false}
-ioc-birdlist-with-higherClassification	Sunday 2020-08-09 11:20:08 AM	{"measurement_or_fact.tab":43070, "occurrence.tab":43070, "taxon.tab":33549, "vernacular_name.tab":11178, "time_elapsed":false}
-
-local
-ioc-birdlist	Sunday 2020-08-09 11:31:34 PM	                        {"measurement_or_fact.tab":43108, "occurrence.tab":43108, "taxon.tab":33603, "vernacular_name.tab":11197, "time_elapsed":false}
+ioc-birdlist	Monday 2020-08-10 02:10:26 AM	                        {"measurement_or_fact.tab":43108, "occurrence.tab":43108, "taxon.tab":33603, "vernacular_name.tab":11197, "time_elapsed":false}
+ioc-birdlist-with-higherClassification	Monday 2020-08-10 02:11:27 AM	{"measurement_or_fact.tab":43108, "occurrence.tab":43108, "taxon.tab":33603, "vernacular_name.tab":11197, "time_elapsed":false}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
