@@ -25,6 +25,7 @@ globi_associations	Tuesday 2020-05-26 04:34:58 AM	{"association.tab":2666190, "o
 globi_associations	Wednesday 2020-05-27 06:37:12 AM{"association.tab":2666190, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3283.43, "min":54.72, "hr":0.91}}
 globi_associations	Wednesday 2020-05-27 08:43:06 PM{"association.tab":2666286, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3553.95, "min":59.23, "hr":0.99}}
 globi_associations	Thursday 2020-05-28 04:27:57 AM	{"association.tab":2666286, "occurrence_specific.tab":2179040, "reference.tab":680781, "taxon.tab":215417, "time_elapsed":{"sec":3471.95, "min":57.87, "hr":0.96}}
+globi_associations	Wednesday 2020-08-12 07:05:01 AM{"association.tab":3271823, "occurrence_specific.tab":2780990, "reference.tab":1006155, "taxon.tab":224786, "time_elapsed":{"sec":6000.29, "min":100, "hr":1.67}}
 
 Stats:
 As of May 27, 2020
@@ -55,10 +56,21 @@ As of May 30|31, 2020 - Mac Mini
 [4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 987
 [5. Records of plants laying eggs are likely to be errors] => 0
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1411
+
+As of Aug 12, 2020 - eol-archive
+[change the associationType to pathogen_of] => 177
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 985
+[2. Records of plants parasitizing animals are likely to be errors] => 847
+[3. Records of plants having animals as hosts are likely to be errors] => 6332
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 989
+[5. Records of plants laying eggs are likely to be errors] => 0
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1345
+[7a. Records of organisms other than plants having flower visitors are probably errors] => 758
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
+// echo "\n".date("Y_m_d_H_i_s")."\n"; exit;
 // $GLOBALS['ENV_DEBUG'] = true;
 
 // https://api.inaturalist.org/v1/taxa/900074

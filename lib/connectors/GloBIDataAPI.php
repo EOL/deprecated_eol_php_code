@@ -59,8 +59,11 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $tmp = array_keys($this->debug['hierarchy without kingdom']);
         $this->debug['hierarchy without kingdom'] = '';
         print_r($this->debug);
-        sort($tmp);
-        print_r($tmp);
+        sort($tmp); print_r($tmp);
+        //backup report with timestamp
+        $source = CONTENT_RESOURCE_LOCAL_PATH.'interactions.tsv';
+        $destination = CONTENT_RESOURCE_LOCAL_PATH.'interactions_'.date("Y_m_d_H_i").'.tsv';
+        if(!copy($source, $destination)) echo "\nFailed to copy [$source]...\n";
     }
     private function process_association($meta, $what)
     {   //print_r($meta);
