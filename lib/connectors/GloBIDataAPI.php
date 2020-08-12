@@ -367,6 +367,30 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     }
                 }
                 
+                /* https://eol-jira.bibalex.org/browse/DATA-1853?focusedCommentId=65082&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65082
+                Hi Eli,
+                Can we please add an additional data quality filter for this resource?
+                Please remove records & add them to the refutation data set based of the following rule:
+                (g) Records of organisms other than plants having flower visitors are probably errors.
+                sourceTaxon has kingdom "Viruses" OR "Animalia" OR "Metazoa"
+                AND associationType is "flowers visited by" (http://purl.obolibrary.org/obo/RO_0002623)
+                Thanks!
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002623'))) { //"flowers visited by"
+                    $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
+                    if(!self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
+                        @$this->debug['stats']['7a. Records of organisms other than plants having flower visitors are probably errors']++;
+                        self::write_refuted_report($rec, 7);
+                        continue;
+                    }
+                    //below is basically similar above
+                    if(self::kingdom_is_viruses_YN($sourceTaxon_kingdom) || self::kingdom_is_animals_YN($sourceTaxon_kingdom)) {
+                        @$this->debug['stats']['7b. Records of organisms other than plants having flower visitors are probably errors']++;
+                        self::write_refuted_report($rec, 7);
+                        continue;
+                    }
+                }
+                
                 //-----------------------------------------------------------------------------
                 $o = new \eol_schema\Association();
                 $uris = array_keys($rec);

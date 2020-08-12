@@ -25,6 +25,7 @@ class Globi_Refuted_Records
         $this->reason['EOL-GloBI-validation4'] = 'Records of plants pollinating or visiting flowers of any other organism are likely to be errors';
         $this->reason['EOL-GloBI-validation5'] = 'Records of plants laying eggs are likely to be errors';
         $this->reason['EOL-GloBI-validation6'] = 'Records of other organisms parasitizing or eating viruses are likely to be errors';
+        $this->reason['EOL-GloBI-validation7'] = 'Records of organisms other than plants having flower visitors are probably errors';
     }
     public function initialize_report()
     {
