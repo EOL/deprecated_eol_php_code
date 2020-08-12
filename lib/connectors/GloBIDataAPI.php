@@ -29,6 +29,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
     {
         $options = $this->download_options;
         $options['cache'] = 1;
+        $options['expire_seconds'] = 60*60*24; //1 day
         $csv_file = Functions::save_remote_file_to_local($this->preferred_term_table, $options);
         $i = 0;
         if(!$file = Functions::file_open($csv_file, "r")) return;
