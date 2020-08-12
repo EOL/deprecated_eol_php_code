@@ -479,6 +479,9 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         }
                         else exit("\nshould not go here 2\n"); //means the preferred is not the reverse nor the orig
                     }
+                    else { //this is my question: when a term has a reverse, but there is no suggestion of a preferred one yet. I will still use both, meaning two records will still be added
+                        $this->archive_builder->write_object_to_file($o);
+                    }
                 }
                 else { //there is no reverse
                     $this->archive_builder->write_object_to_file($o);
