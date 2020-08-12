@@ -428,7 +428,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         self::write_refuted_report($rec, 7);
                         continue;
                     }
-                    //below is basically similar above
+                    //below is basically similar above. As of Aug 12, 2020 it has not passed here.
                     if(self::kingdom_is_viruses_YN($sourceTaxon_kingdom) || self::kingdom_is_animals_YN($sourceTaxon_kingdom)) {
                         @$this->debug['stats']['7b. Records of organisms other than plants having flower visitors are probably errors']++;
                         self::write_refuted_report($rec, 7);
@@ -444,7 +444,47 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $o->$field = $rec[$uri];
                 }
                 if($o->associationType == 'http://eol.org/schema/terms/DispersalVector') $o->associationType = 'http://eol.org/schema/terms/IsDispersalVectorFor'; //DATA-1841
-                $this->archive_builder->write_object_to_file($o);
+                // /* START new: implement preferred term
+                if($reverse_type = @$OR[$o->associationType]) { //there is reverse
+                    /* 1st check if there is preferred between the two */
+                    if($preferred = @$this->preferred_term_info_list[$o->associationType]) {
+                        if($preferred == $o->associationType) {
+                            $this->archive_builder->write_object_to_file($o);
+                            continue;
+                        }
+                        elseif($preferred == $reverse_type) { //reverse is the preferred
+                            /* copied block below */
+                            $o->associationID = 'ReversePreferred_'.$o->associationID;
+                            $o->occurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
+                            $o->targetOccurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                            $o->associationType = $reverse_type;
+                            $this->archive_builder->write_object_to_file($o);
+                            continue;
+                        }
+                        else exit("\nshould not go here 1\n"); //means the preferred is not the orig and not the reverse
+                    }
+                    elseif($preferred = @$this->preferred_term_info_list[$reverse_type]) {
+                        if($preferred == $o->associationType) {
+                            $this->archive_builder->write_object_to_file($o);
+                            continue;
+                        }
+                        elseif($preferred == $reverse_type) { //reverse is the preferred
+                            /* copied block below */
+                            $o->associationID = 'ReversePreferred_'.$o->associationID;
+                            $o->occurrenceID = $rec['http://eol.org/schema/targetOccurrenceID'];
+                            $o->targetOccurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                            $o->associationType = $reverse_type;
+                            $this->archive_builder->write_object_to_file($o);
+                            continue;
+                        }
+                        else exit("\nshould not go here 2\n"); //means the preferred is not the reverse nor the orig
+                    }
+                }
+                else { //there is no reverse
+                    $this->archive_builder->write_object_to_file($o);
+                    continue;
+                }
+                // END new: implement preferred term */
 
                 /* now do the reverse when applicable:
                 So what's needed in the resource: The only changes needed should be in the associations file. 
