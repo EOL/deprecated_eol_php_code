@@ -22,8 +22,51 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $this->download_options_gbif['resource_id'] = 'gbif';
         $this->Carnivorous_plant_whitelist = array('Aldrovanda', 'Brocchinia', 'Byblis', 'Catopsis', 'Cephalotus', 'Darlingtonia', 'Dionaea', 'Drosera', 'Drosophyllum', 'Genlisea',
                                                    'Heliamphora', 'Nepenthes', 'Philcoxia', 'Pinguicula', 'Roridula', 'Sarracenia', 'Stylidium', 'Triphyophyllum', 'Utricularia');
+        $this->preferred_term_table = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/GloBI/reverse_assocs.csv';
     }
     /*================================================================= STARTS HERE ======================================================================*/
+    private function get_preferred_term_info()
+    {
+        $options = $this->download_options;
+        $options['cache'] = 1;
+        $csv_file = Functions::save_remote_file_to_local($this->preferred_term_table, $options);
+        $i = 0;
+        if(!$file = Functions::file_open($csv_file, "r")) return;
+        while(!feof($file)) { $i++;
+            $temp = fgetcsv($file);
+            if(($i % 1000) == 0) echo "\nbatch $i";
+            if($i == 1) {
+                $fields = $temp; //print_r($fields);
+                continue;
+            }
+            else {
+                $rec = array();
+                $k = 0;
+                // 2 checks if valid record
+                if(!$temp) continue;
+                foreach($temp as $t) {
+                    $rec[$fields[$k]] = $t;
+                    $k++;
+                }
+            }
+            // print_r($rec); exit;
+            /* Array(
+                [preferred.name] => commensal with
+                [preferred.uri] => http://purl.obolibrary.org/obo/RO_0002441
+                [reverse.name] => 
+                [reverse.uri] => 
+                [notes] => symmetrical
+            )*/
+            if($preferred = $rec['preferred.uri']) {
+                $final[$preferred] = $preferred;
+                if($reverse = $rec['reverse.uri']) {
+                    $final[$reverse] = $preferred;
+                    // print_r($final); exit;
+                }
+            }
+        } // print_r($final);
+        return $final;
+    }
     function start($info)
     {
         /* just testing...
@@ -35,14 +78,13 @@ class GloBIDataAPI extends Globi_Refuted_Records
         }
         exit("\n-end-\n");
         */
-        
         /*
         $x = self::lookup_gbif_ancestor_using_sciname('Acacia', array(), 'kingdom');
         exit("\n-end-[$x]\n");
         */
-        
+
+        $this->preferred_term_info_list = self::get_preferred_term_info(); //for reverse order
         $this->initialize_report(); //for refuted records;
-        
         $tables = $info['harvester']->tables; 
         
         //step 1 is build info list
