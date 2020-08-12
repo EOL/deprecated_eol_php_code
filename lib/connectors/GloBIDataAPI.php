@@ -406,8 +406,9 @@ class GloBIDataAPI extends Globi_Refuted_Records
 
                 /* now do the reverse when applicable:
                 So what's needed in the resource: The only changes needed should be in the associations file. 
-                For every record, create an additional record, with all the same metadata, and the same two occurrenceIDs, but switching which appears in which 
-                column (occurrenceID and targetOccurrenceID). The value in relationshipType should change to the "reverse relationship". I'll make you a mapping.
+                For every record, create an additional record, with all the same metadata, and the same two occurrenceIDs, 
+                but switching which appears in which column (occurrenceID and targetOccurrenceID). 
+                The value in relationshipType should change to the "reverse relationship". I'll make you a mapping.
                 */
                 if($reverse_type = @$OR[$o->associationType]) {
                     $o->associationID = 'ReverseOf_'.$o->associationID;

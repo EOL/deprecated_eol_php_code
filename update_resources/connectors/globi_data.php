@@ -66,6 +66,7 @@ As of Aug 12, 2020 - eol-archive
 [5. Records of plants laying eggs are likely to be errors] => 0
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1345
 [7a. Records of organisms other than plants having flower visitors are probably errors] => 758
+Total rows = 11,256
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
