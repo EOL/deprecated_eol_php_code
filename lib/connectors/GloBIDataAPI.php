@@ -95,8 +95,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                                                                                         //                              assigns taxonID to $this->occurrenceIDS
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'build info');            //assigns kingdom value to $this->taxonIDS
         //step 2 write extension
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //this is just to copy occurrence
         self::process_association($tables['http://eol.org/schema/association'][0], 'create extension'); //main operation in DATA-1812: For every record, create an additional record in reverse.
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'create extension'); //primarily to copy occurrence AND implement $this->toDeleteOccurrenceIDS
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'create extension');
         
         $tmp = array_keys($this->debug['hierarchy without kingdom']);
@@ -124,8 +124,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
-            }
-            // print_r($rec); exit;
+            } // print_r($rec); exit;
             /*Array(
                 [http://eol.org/schema/associationID] => globi:assoc:1-EOL:1000300-INTERACTS_WITH-EOL:1033696
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => globi:occur:source:1-EOL:1000300-INTERACTS_WITH
@@ -195,6 +194,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 /* first change request */
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002437', 'http://purl.obolibrary.org/obo/RO_0002220', 
                                                     'http://purl.obolibrary.org/obo/RO_0002321', 'http://purl.obolibrary.org/obo/RO_0008506'))) { //delete all records of this associationType
+                    $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                    $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                     continue;
                 }
 
@@ -297,6 +298,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                     // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; assocType is 'eats'/'preys on' [$associationType]; source_genus [$sourceTaxon_genus] not in whitelist...\n";
                                     @$this->debug['stats']['1. Records of non-carnivorous plants eating animals are likely to be errors']++;
                                     self::write_refuted_report($rec, 1);
+                                    $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                                    $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                                     continue;
                                 }
                             }
@@ -324,6 +327,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                 // echo "\nFound: sourceTaxon is PLANT [$sourceTaxon_kingdom]; targetTaxon is ANIMALIA [$targetTaxon_kingdom]; [$associationType]; plants parasitizing animals...\n";
                                 @$this->debug['stats']['2. Records of plants parasitizing animals are likely to be errors']++;
                                 self::write_refuted_report($rec, 2);
+                                $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                                $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                                 continue;
                             }
                         }
@@ -346,6 +351,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                 // echo "\nFound: sourceTaxon is PLANT; targetTaxon is ANIMALIA; [$associationType]; plants having animals as hosts...\n";
                                 @$this->debug['stats']['3. Records of plants having animals as hosts are likely to be errors']++;
                                 self::write_refuted_report($rec, 3);
+                                $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                                $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                                 continue;
                             }
                         }
@@ -366,6 +373,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                             // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants pollinating or visiting flowers of any other organism...\n";
                             @$this->debug['stats']['4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors']++;
                             self::write_refuted_report($rec, 4);
+                            $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                            $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                             continue;
                         }
                     }
@@ -383,6 +392,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                             // echo "\nFound: sourceTaxon is PLANT; [$associationType]; plants laying eggs...\n";
                             @$this->debug['stats']['5. Records of plants laying eggs are likely to be errors']++;
                             self::write_refuted_report($rec, 5);
+                            $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                            $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                             continue;
                         }
                     }
@@ -408,6 +419,8 @@ class GloBIDataAPI extends Globi_Refuted_Records
                             // echo "\nFound: sourceTaxon is not VIRUSES; targetTaxon is VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
                             @$this->debug['stats']['6. Records of other organisms parasitizing or eating viruses are likely to be errors']++;
                             self::write_refuted_report($rec, 6);
+                            $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                            $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                             continue;
                         }
                     }
@@ -427,12 +440,16 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     if(!self::kingdom_is_plants_YN($sourceTaxon_kingdom)) {
                         @$this->debug['stats']['7a. Records of organisms other than plants having flower visitors are probably errors']++;
                         self::write_refuted_report($rec, 7);
+                        $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                        $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                         continue;
                     }
                     //below is basically similar above. As of Aug 12, 2020 it has not passed here.
                     if(self::kingdom_is_viruses_YN($sourceTaxon_kingdom) || self::kingdom_is_animals_YN($sourceTaxon_kingdom)) {
                         @$this->debug['stats']['7b. Records of organisms other than plants having flower visitors are probably errors']++;
                         self::write_refuted_report($rec, 7);
+                        $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                        $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                         continue;
                     }
                 }
@@ -502,6 +519,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     $o->targetOccurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
                     $o->associationType = $reverse_type;
                     $this->archive_builder->write_object_to_file($o);
+                    @$this->debug['statsz']['should be no more of this type, otherwise report to Jen']++;
                 }
                 // if($i >= 10) break; //debug only
             }
