@@ -28,8 +28,11 @@ globi_associations	Thursday 2020-05-28 04:27:57 AM	{"association.tab":2666286, "
 
 globi_associations	Wednesday 2020-08-12 07:05:01 AM{"association.tab":3271823, "occurrence_specific.tab":2780990, "reference.tab":1006155, "taxon.tab":224786, "time_elapsed":{"sec":6000.29, "min":100, "hr":1.67}}
 globi_associations	Wednesday 2020-08-12 10:08:25 AM{"association.tab":3271823, "occurrence_specific.tab":2780990, "reference.tab":1006155, "taxon.tab":224786, "time_elapsed":{"sec":4306.75, "min":71.78, "hr":1.2}}
+
 below here 'Jen's preferred term' is applied:
 
+globi_associations	Wednesday 2020-08-12 12:56:39 PM{"association.tab":1866725, "occurrence_specific.tab":2780990, "reference.tab":1006155, "taxon.tab":224786, "time_elapsed":{"sec":3999.38, "min":66.66, "hr":1.11}}
+globi_associations	Thursday 2020-08-13 12:36:13 AM	{"association.tab":1866725, "occurrence_specific.tab":2763493, "reference.tab":1006155, "taxon.tab":224175, "time_elapsed":{"sec":4038.18, "min":67.3, "hr":1.12}}
 
 Stats:
 As of May 27, 2020
@@ -71,6 +74,25 @@ As of Aug 12, 2020 - eol-archive
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1345
 [7a. Records of organisms other than plants having flower visitors are probably errors] => 758
 Total rows = 11,256
+
+below here 'Jen's preferred term' is applied:
+
+[change the associationType to pathogen_of] => 177
+
+Latest version, for review.
+- DwCA [OpenData|https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61]
+- refuted records [OpenData|https://opendata.eol.org/dataset/globi/resource/92595520-35f3-48f2-95cf-ea67f7c455c3]
+
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 985
+[2. Records of plants parasitizing animals are likely to be errors] => 847
+[3. Records of plants having animals as hosts are likely to be errors] => 6332
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 989
+[5. Records of plants laying eggs are likely to be errors] => 0
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1345
+[7. Records of organisms other than plants having flower visitors are probably errors] => 758
+Total rows = 11256
+Thanks.
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
