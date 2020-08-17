@@ -22,10 +22,14 @@ class DWH_CoL_API_2019AnnualCL
         if(Functions::is_production()) {
             $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/COL_2019-02-20-archive-complete/";   //for TRAM-803
             $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-annual/";                       //for TRAM-986
+            $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2020-08-01-archive-complete/";       //for TRAM-986
+            $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-05-01-archive-complete/";       //for TRAM-986
         }
         else {
             $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";      //for TRAM-803
             $this->extension_path = DOC_ROOT."../cp/COL/2019-annual/";                      //for TRAM-986
+            $this->extension_path = DOC_ROOT."../cp/COL/2020-08-01-archive-complete/";      //for TRAM-986
+            $this->extension_path = DOC_ROOT."../cp/COL/2019-05-01-archive-complete/";      //for TRAM-986
         }
         
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
@@ -79,6 +83,7 @@ class DWH_CoL_API_2019AnnualCL
         if($this->debug) {
             Functions::start_print_debug($this->debug, $this->resource_id);
         }
+        echo "\n----------\nRaw source checklist: [$this->extension_path]\n----------\n";
     }
     private function pruneBytaxonID()
     {
@@ -238,7 +243,8 @@ class DWH_CoL_API_2019AnnualCL
             }
             if($val = $taxID_info[$rec['parentNameUsageID']]['i'])  $rec['parentNameUsageID'] = $val;
             else {
-                print_r($rec); exit("\nInvestigate: no [identifier] for [parentNameUsageID]\n");
+                // print_r($rec); //exit("\nInvestigate: no [identifier] for [parentNameUsageID]\n");
+                $this->debug['no [identifier] for [parentNameUsageID]'][$rec['parentNameUsageID']] = '';
             }
             if($accepted_id = @$rec['acceptedNameUsageID']) {
                 if($val = $taxID_info[$accepted_id]['i'])  $rec['acceptedNameUsageID'] = $val;
@@ -318,7 +324,7 @@ class DWH_CoL_API_2019AnnualCL
                 [isExtinct] => 
             )*/
             if(isset($rec['identifier'])) $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 'i' => $rec['identifier']);
-            else $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
+            else                          $final[$rec['taxonID']] = array("pID" => $rec['parentNameUsageID'], 'n' => $rec['scientificName'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus']);
             /*Array( another possible record
                 [taxonID] => fc0886d15759a01525b1469534189bb5
                 [acceptedNameUsageID] => 
