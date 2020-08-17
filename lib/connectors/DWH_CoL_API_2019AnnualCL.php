@@ -23,13 +23,13 @@ class DWH_CoL_API_2019AnnualCL
             $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/COL_2019-02-20-archive-complete/";   //for TRAM-803
             $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-annual/";                       //for TRAM-986
             $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2020-08-01-archive-complete/";       //for TRAM-986
-            $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-05-01-archive-complete/";       //for TRAM-986
+            // $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-05-01-archive-complete/";       //for TRAM-986
         }
         else {
             $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";      //for TRAM-803
             $this->extension_path = DOC_ROOT."../cp/COL/2019-annual/";                      //for TRAM-986
             $this->extension_path = DOC_ROOT."../cp/COL/2020-08-01-archive-complete/";      //for TRAM-986
-            $this->extension_path = DOC_ROOT."../cp/COL/2019-05-01-archive-complete/";      //for TRAM-986
+            // $this->extension_path = DOC_ROOT."../cp/COL/2019-05-01-archive-complete/";      //for TRAM-986
         }
         
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
