@@ -13,11 +13,11 @@ ja  ko  ru  pt
             ca  cs          fi  no  ro      tr        uk
             |   |           |   |   |       |         |
             sr  sv 1d10h    ast ka  hr      th        hy
-            id  nn 9h       az  lt  la      kk        mrj
-                sk          min et  da      lv        pms
-                bn          bg  nv  ml      is        ga
-                hu          szl gl  be      ne        hsb
-                war         af  br  ms      oc        sl
+            ID  WAR         az  lt  la      kk        mrj
+            nn 9h           MIN et  da      lv        pms
+            sk              bg  nv  ml      is        ga
+            bn              szl gl  be      ne        hsb
+            hu              af  br  ms      oc        sl
                             eo  ta  el      qu        mk
                             av  hi  fy      be-x-old  tl
                             chy koi frr     udm       ba
@@ -46,7 +46,7 @@ ja  ko  ru  pt
                                 diq ln      kw        eml
                                 ce  mwl     bcl       bxr
                                 yo  sn      za        zh-classical
-                                ceb mai     ab        bjn
+                                CEB mai     ab        bjn
                                     chr     wo        so
                                     tk      ban       atj
                                     tcy     ay        new
