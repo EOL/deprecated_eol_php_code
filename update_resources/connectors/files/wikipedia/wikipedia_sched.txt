@@ -13,12 +13,12 @@ ja  ko  ru  pt
             ca  cs          fi  no  ro      tr        uk
             |   |           |   |   |       |         |
             sr  sv 1d10h    ast ka  hr      th        hy
-            ID  WAR         az  lt  la      kk        mrj
+            ID              az  lt  la      kk        mrj
             nn 9h           MIN et  da      lv        pms
             sk              bg  nv  ml      is        ga
             bn              szl gl  be      ne        hsb
             hu              af  br  ms      oc        sl
-                            eo  ta  el      qu        mk
+            WAR             eo  ta  el      qu        mk
                             av  hi  fy      be-x-old  tl
                             chy koi frr     udm       ba
                             fj  io  lb      co        fo
