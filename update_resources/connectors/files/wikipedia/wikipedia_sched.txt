@@ -1133,6 +1133,18 @@ wikipedia-yo	Friday 2020-08-14 09:25:10 PM	{"media_resource.tab":332, "taxon.tab
 wikipedia-rn	Friday 2020-08-14 09:30:00 PM	{"media_resource.tab":79, "taxon.tab":343, "time_elapsed":{"sec":917.27, "min":15.29, "hr":0.25}}
 wikipedia-dty	Friday 2020-08-14 09:45:21 PM	{"media_resource.tab":81, "taxon.tab":314, "time_elapsed":{"sec":912.43, "min":15.21, "hr":0.25}}
 wikipedia-szl	Saturday 2020-08-15 03:07:38 AM	{"media_resource.tab":84814, "taxon.tab":51785, "time_elapsed":{"sec":59807.04, "min":996.78, "hr":16.61}}
+wikipedia-id	Saturday 2020-08-15 08:10:22 AM	{"media_resource.tab":247419, "taxon.tab":132391, "time_elapsed":{"sec":18948.53, "min":315.81, "hr":5.26}}
+wikipedia-af	Saturday 2020-08-15 08:20:42 AM	{"media_resource.tab":25834, "taxon.tab":16284, "time_elapsed":{"sec":18777.78, "min":312.96, "hr":5.22}}
+wikipedia-eo	Saturday 2020-08-15 12:21:17 PM	{"media_resource.tab":17527, "taxon.tab":12690, "time_elapsed":{"sec":14427.77, "min":240.46, "hr":4.01}}
+wikipedia-av	Saturday 2020-08-15 12:39:29 PM	{"media_resource.tab":65, "taxon.tab":222, "time_elapsed":{"sec":1084.3, "min":18.07, "hr":0.3}}
+wikipedia-chy	Saturday 2020-08-15 12:59:55 PM	{"media_resource.tab":146, "taxon.tab":563, "time_elapsed":{"sec":1219.49, "min":20.32, "hr":0.34}}
+wikipedia-fj	Saturday 2020-08-15 01:17:43 PM	{"media_resource.tab":159, "taxon.tab":548, "time_elapsed":{"sec":1058.55, "min":17.64, "hr":0.29}}
+wikipedia-ik	Saturday 2020-08-15 01:35:09 PM	{"media_resource.tab":120, "taxon.tab":455, "time_elapsed":{"sec":1039.11, "min":17.32, "hr":0.29}}
+wikipedia-zea	Saturday 2020-08-15 01:52:20 PM	{"media_resource.tab":246, "taxon.tab":354, "time_elapsed":{"sec":1024.66, "min":17.08, "hr":0.28}}
+wikipedia-nn	Monday 2020-08-17 07:48:09 AM	{"media_resource.tab":6508, "taxon.tab":5753, "time_elapsed":{"sec":5775.88, "min":96.26, "hr":1.6}}
+wikipedia-sk	Monday 2020-08-17 09:09:18 AM	{"media_resource.tab":5769, "taxon.tab":5653, "time_elapsed":{"sec":4863.11, "min":81.05, "hr":1.35}}
+wikipedia-bn	Monday 2020-08-17 10:22:14 AM	{"media_resource.tab":3631, "taxon.tab":5010, "time_elapsed":{"sec":4369.99, "min":72.83, "hr":1.21}}
+wikipedia-hu	Monday 2020-08-17 07:46:54 PM	{"media_resource.tab":45542, "taxon.tab":29297, "time_elapsed":{"sec":33869.17, "min":564.49, "hr":9.41}}
 
 -ends here-
 

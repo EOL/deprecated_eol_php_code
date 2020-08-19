@@ -21,15 +21,15 @@ class DWH_CoL_API_2019AnnualCL
         /* these paths are manually created, since dumps are using explicit dates */
         if(Functions::is_production()) {
             $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/COL_2019-02-20-archive-complete/";   //for TRAM-803
-            $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-annual/";                       //for TRAM-986
-            $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2020-08-01-archive-complete/";       //for TRAM-986
-            // $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-05-01-archive-complete/";       //for TRAM-986
+            // $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2020-08-01-archive-complete/";    //for TRAM-986 not good
+            // $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-05-01-archive-complete/";    //for TRAM-986 not good
+            $this->extension_path = DOC_ROOT."../other_files/DWH/dumps/2019-annual/";                       //for TRAM-986 best
         }
         else {
             $this->extension_path = DOC_ROOT."../cp/COL/2019-02-20-archive-complete/";      //for TRAM-803
-            $this->extension_path = DOC_ROOT."../cp/COL/2019-annual/";                      //for TRAM-986
-            $this->extension_path = DOC_ROOT."../cp/COL/2020-08-01-archive-complete/";      //for TRAM-986
-            // $this->extension_path = DOC_ROOT."../cp/COL/2019-05-01-archive-complete/";      //for TRAM-986
+            // $this->extension_path = DOC_ROOT."../cp/COL/2020-08-01-archive-complete/";   //for TRAM-986 not good
+            // $this->extension_path = DOC_ROOT."../cp/COL/2019-05-01-archive-complete/";   //for TRAM-986 not good
+            $this->extension_path = DOC_ROOT."../cp/COL/2019-annual/";                      //for TRAM-986 best
         }
         
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");

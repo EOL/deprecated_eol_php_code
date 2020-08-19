@@ -41,9 +41,9 @@ run_diagnostics($resource_id);
 
 //############################################################ start "DUPLICATE TAXA" B. Remove duplicate species & infraspecifics
 // /*
+// $resource_id = "Catalogue_of_Life_DH_2020-08-01"; // still not better than 2019 annual checklist
+// $resource_id = "Catalogue_of_Life_DH_2019_05_01"; // still not better than 2019 annual checklist
 $resource_id = "Catalogue_of_Life_DH_2019";
-$resource_id = "Catalogue_of_Life_DH_2020-08-01";
-// $resource_id = "Catalogue_of_Life_DH_2019_05_01";
 
 $func = new DWH_CoL_API_2019AnnualCL($resource_id);
 $func->duplicate_process_B('COL');
