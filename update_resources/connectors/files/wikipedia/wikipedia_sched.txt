@@ -46,7 +46,7 @@ ja  ko  ru  pt
                                 diq ln      kw        eml
                                 ce  mwl     bcl       bxr
                                 yo  sn      za        zh-classical
-                                CEB mai     ab        bjn
+                       1d 10h - CEB mai     ab        bjn
                                     chr     wo        so
                                     tk      ban       atj
                                     tcy     ay        new
