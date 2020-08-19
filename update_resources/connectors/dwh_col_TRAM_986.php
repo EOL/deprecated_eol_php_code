@@ -2,6 +2,9 @@
 namespace php_active_record;
 /* Catalogue of Life Extract for DH2 - TRAM-986
 estimated execution time: 
+
+Catalogue_of_Life_DH_2019	Tuesday 2020-08-18 09:53:35 PM	{"taxon.tab":1775492, "time_elapsed":false}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_CoL_API_2019AnnualCL');
