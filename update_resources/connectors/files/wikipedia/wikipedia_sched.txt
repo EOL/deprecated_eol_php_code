@@ -18,7 +18,7 @@ ja  ko  ru  pt
             sk              bg  nv  ml      is        ga
             bn              szl gl  be      ne        hsb
             hu              af  br  ms      oc        sl
-            WAR             eo  ta  el      qu        mk
+   1d 15h - WAR             eo  ta  el      qu        mk
                             av  hi  fy      be-x-old  tl
                             chy koi frr     udm       ba
                             fj  io  lb      co        fo
