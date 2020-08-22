@@ -41,11 +41,12 @@ ini_set('memory_limit','7096M'); //required
 $timestart = time_elapsed();
 $resource_id = 'SDR_all';
 
-/* for every new all-trait-export, must update these vars: Done already for 2019Nov11 */
+/* for every new all-trait-export, must update these vars: Done already for 2019Nov11
 $folder_date = "20190822";
 $folder_date = "20191111";
 $folder_date = "20200626";
-$func = new SummaryDataResourcesAllAPI($resource_id, $folder_date);
+...this var $folder_date now is initialized below as of Aug 22, 2020
+*/
 
 /* command-line syntax
 php update_resources/connectors/SDR_all.php _ '{"task":"download_extract_zip_file", "traits_zip_file":"traits_all_202006.zip"}'
@@ -85,11 +86,15 @@ $params['json']              = @$argv[2]; //useful here
 $fields = json_decode($params['json'], true);
 $task = $fields['task']; 
 $traits_zip_file = @$fields['traits_zip_file']; //print_r($fields);
+$folder_date = @$fields['folder_date'];
 $first_tasks = array("download_extract_zip_file", "build_MySQL_table_from_text", "update_inferred_file", "generate_refs_per_eol_pk_MySQL", "build_MySQL_table_from_csv", "generate_page_id_txt_files_MySQL", "pre_parent_basal_values");
 if(in_array($task, $first_tasks)) $stop_here = true;
 else                              $stop_here = false;
 
-if($task == 'download_extract_zip_file') $func->download_extract_zip_file($traits_zip_file);
+$func = new SummaryDataResourcesAllAPI($resource_id, $folder_date);
+
+
+if($task == 'download_extract_zip_file') $func->download_extract_zip_file($traits_zip_file, $folder_date);
 
 // /* build data files - MySQL tables --- worked OK
 if($task == 'build_MySQL_table_from_text') $func->build_MySQL_table_from_text('DH_lookup'); //used for parent methods. TO BE RUN EVERY NEW DH. Done already for DHv1.1
