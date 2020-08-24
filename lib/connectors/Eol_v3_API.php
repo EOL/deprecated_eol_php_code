@@ -56,6 +56,7 @@ class Eol_v3_API
         // /* for Katies bundles Angiosperms
         $this->limit_no_of_images_per_family = 10; //DATA-1861
         // */
+        $this->debug = array();
     }
     function get_images_per_eol_page_id($param, $options = array(), $destination = false, $items_per_bundle = 1000, $func2) //for Katie's image bundles
     {
@@ -127,8 +128,10 @@ class Eol_v3_API
                             print_r($obj);
                             if(count($func2->families) >= 5) {
                                 print_r($func2->families);
+                                print_r($this->count_images_per_family);
                                 exit("\nelix here...\n");
-                            }*/
+                            }
+                            */
                             if(self::is_max_no_of_images_per_family_reached_YN($ancestry, $func2->families)) continue;
                         }
 
@@ -156,12 +159,15 @@ class Eol_v3_API
         $folder_no++; //echo "\n$folder_no\n";
         self::write_2file_bundle($final, $param, $folder_no, $destination, $fields);
         // */
+        if($this->debug) print_r($this->debug);
+        /* For Angiosperms */
+        if(in_array($eol_page_id, array(282))) print_r($this->count_images_per_family);
     }
     private function is_max_no_of_images_per_family_reached_YN($ancestry, $families)
     {
         $family_in_question = self::get_family_from_ancestry($ancestry, $families);
         @$this->count_images_per_family[$family_in_question]++; //increment count
-        if($this->count_images_per_family[$family_in_question] > $this->limit_no_of_images_per_family) return true
+        if($this->count_images_per_family[$family_in_question] > $this->limit_no_of_images_per_family) return true;
         else return false;
     }
     private function get_family_from_ancestry($ancestry, $families)
@@ -171,8 +177,11 @@ class Eol_v3_API
         foreach($ancestors as $ancestor) {
             if(isset($families[$ancestor])) return $ancestor;
         }
-        print_r($families); echo "\nancestry: [$ancestry]\n";
-        exit("\nShould not go here. Means there is no family in the ancestry.\n");
+        // print_r($families); echo "\nancestry: [$ancestry]\n"; //debug only
+        // /* for stats only
+        if($ancestry) @$this->debug['objects with no family']['with ancestry']++;
+        else          @$this->debug['objects with no family']['blank ancestry']++;
+        // */
     }
     /* ---------------------------------------------------------- START image bundles ---------------------------------------------------------- */
     function get_ancestry_given_object_id($dataObjectVersionID, $func)
