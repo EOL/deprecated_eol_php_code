@@ -431,6 +431,12 @@ if($val = @$this->descendants[$child17]) {
         $final = array();
         $final[] = $tax_id;
         while($parent_id = @$this->taxID_info[$tax_id]['pID']) {
+            
+            // /* this block is for Katie's image bundles where we're getting 10 images per family: DATA-1861
+            if(@$this->taxID_info[$tax_id]['r'] == 'family') $this->families[$this->taxID_info[$tax_id]['n']] = '';
+            // $this->families is named as $func2->families in Eol_v3_API.php
+            // */
+            
             if(!in_array($parent_id, $final)) $final[] = $parent_id;
             else {
                 if($parent_id == 1) return $final;
