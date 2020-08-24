@@ -23,19 +23,22 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":345, "sci":"Coleoptera"}'
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7662, "sci":"Carnivora"}'
 Next batch as of Jun 29, 2020:
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms"}'
+Next batch as of Aug 24, 2020
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms", "with_limit_images_per_family_YN" = 1}' ///DATA-1861
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false ... especially in eol-archive server
 
-require_library('connectors/Eol_v3_API');
-$resource_id = '';
-$func = new Eol_v3_API($resource_id);
-
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $param = json_decode($params['json'], true);
+
+require_library('connectors/Eol_v3_API');
+$resource_id = '';
+$func = new Eol_v3_API($resource_id);
+
 if($param['sci'] == 'Angiosperms') {
     require_library('connectors/DHConnLib');
     $func2 = new DHConnLib($resource_id);
@@ -49,20 +52,28 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 
 // $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 
-/* 1K bundles
-$destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
-$func->get_images_per_eol_page_id($param, array(), $destination, 1000); //normal operation
-*/
+if(@$param['with_limit_images_per_family_YN']) {
+    // /* max 10 images per family bundles
+    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_max10imgPerFam.txt"; //false;
+    $func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
+    // */
+}
+else { //original bundles
+    /* 1K bundles
+    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
+    $func->get_images_per_eol_page_id($param, array(), $destination, 1000); //normal operation
+    */
 
-// /* 20K bundles
-$destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_20K.txt"; //false;
-$func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
-// */
+    // /* 20K bundles
+    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_20K.txt"; //false;
+    $func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
+    // */
 
-/* 10K bundles
-$destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_10K.txt"; //false;
-$func->get_images_per_eol_page_id($param, array(), $destination, 10000); //normal operation
-*/
+    /* 10K bundles
+    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_10K.txt"; //false;
+    $func->get_images_per_eol_page_id($param, array(), $destination, 10000); //normal operation
+    */
+}
 
 /* working but not used for now...
 $func->bundle_images_4download_per_eol_page_id($param, $destination); //normal operation
