@@ -34,6 +34,7 @@ print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $param = json_decode($params['json'], true);
+print_r($param);
 
 require_library('connectors/Eol_v3_API');
 $resource_id = '';
