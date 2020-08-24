@@ -28,7 +28,7 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms",
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false ... especially in eol-archive server
+$GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
 
 // print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
