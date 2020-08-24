@@ -30,7 +30,7 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
 
-// print_r($argv);
+print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
 $params['json']              = @$argv[2]; //useful here
 $param = json_decode($params['json'], true);
@@ -40,6 +40,7 @@ $resource_id = '';
 $func = new Eol_v3_API($resource_id);
 
 if($param['sci'] == 'Angiosperms') {
+    echo "\ngoes here 100\n";
     require_library('connectors/DHConnLib');
     $func2 = new DHConnLib($resource_id);
     $func2->initialize_get_ancestry_func();
@@ -53,13 +54,16 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 // $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 
 if(@$param['with_limit_images_per_family_YN']) {
-    print_r($param);
+    echo "\ngoes here 200\n";
+    
     // /* max 10 images per family bundles
     $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_max10imgPerFam.txt"; //false;
     $func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
     // */
 }
 else { //original bundles
+    echo "\ngoes here 300\n";
+    
     /* 1K bundles
     $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
     $func->get_images_per_eol_page_id($param, array(), $destination, 1000); //normal operation
