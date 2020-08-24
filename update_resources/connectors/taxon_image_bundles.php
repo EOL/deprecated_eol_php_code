@@ -24,11 +24,11 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7662, "sci":"Carnivora"}'
 Next batch as of Jun 29, 2020:
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms"}'
 Next batch as of Aug 24, 2020
-php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms", "with_limit_images_per_family_YN" = 1}' ///DATA-1861
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms", "with_limit_images_per_family_YN":1}' ///DATA-1861
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$GLOBALS['ENV_DEBUG'] = true; //orig value should be -> false ... especially in eol-archive server
+$GLOBALS['ENV_DEBUG'] = false; //orig value should be -> false ... especially in eol-archive server
 
 print_r($argv);
 $params['jenkins_or_cron']   = @$argv[1]; //irrelevant here
@@ -41,7 +41,6 @@ $resource_id = '';
 $func = new Eol_v3_API($resource_id);
 
 if($param['sci'] == 'Angiosperms') {
-    echo "\ngoes here 100\n";
     require_library('connectors/DHConnLib');
     $func2 = new DHConnLib($resource_id);
     $func2->initialize_get_ancestry_func();
@@ -55,16 +54,12 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 // $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 
 if(@$param['with_limit_images_per_family_YN']) {
-    echo "\ngoes here 200\n";
-    
     // /* max 10 images per family bundles
     $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_max10imgPerFam.txt"; //false;
     $func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
     // */
 }
 else { //original bundles
-    echo "\ngoes here 300\n";
-    
     /* 1K bundles
     $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
     $func->get_images_per_eol_page_id($param, array(), $destination, 1000); //normal operation
