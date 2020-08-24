@@ -53,6 +53,7 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 // $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 
 if(@$param['with_limit_images_per_family_YN']) {
+    print_r($param);
     // /* max 10 images per family bundles
     $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_max10imgPerFam.txt"; //false;
     $func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
