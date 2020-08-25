@@ -8,6 +8,8 @@ namespace php_active_record;
    please replace them with a single record.
    
    This can be a generic template for merging MoF records into one.
+   
+   php merge_two_MoF_into_one.php _ 368_merged_MoF
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -23,11 +25,10 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
-
-    $preferred_rowtypes = array('http://eol.org/schema/media/document', 'http://eol.org/schema/reference/reference', 'http://eol.org/schema/agent/agent');
-    /* These 4 will be processed in MergeMoFrecordsAPI.php which will be called from DwCA_Utility.php
-    */
-    $func->convert_archive($preferred_rowtypes);
+    $preferred_rowtypes = array();
+    /* These 2 will be processed in MergeMoFrecordsAPI.php which will be called from DwCA_Utility.php */
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+    $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 ?>
