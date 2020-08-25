@@ -24,7 +24,7 @@ php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":7662, "sci":"Carnivora"}'
 Next batch as of Jun 29, 2020:
 php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms"}'
 Next batch as of Aug 24, 2020
-php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms", "with_limit_images_per_family_YN":1}' ///DATA-1861
+php5.6 taxon_image_bundles.php jenkins '{"eol_page_id":282, "sci":"Angiosperms", "limit_images_per_family":20}' ///DATA-1861
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
@@ -53,9 +53,10 @@ else                           $path = '/Volumes/AKiTiO4/other_files/bundle_imag
 
 // $destination = CONTENT_RESOURCE_LOCAL_PATH.'images_for_'.str_replace(" ", "_", $param['sci']).".txt"; //false;
 
-if(@$param['with_limit_images_per_family_YN']) {
+if(@$param['limit_images_per_family']) {
     // /* max 10 images per family bundles
-    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_max10imgPerFam.txt"; //false;
+    // $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_max10imgPerFam.txt"; //orig
+    $destination = $path.'images_for_'.str_replace(" ", "_", $param['sci'])."_max".$param['limit_images_per_family']."imgPerFam.txt";
     $func->get_images_per_eol_page_id($param, array(), $destination, 20000, $func2); //normal operation
     // */
 }

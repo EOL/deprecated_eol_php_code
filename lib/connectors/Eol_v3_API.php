@@ -54,13 +54,14 @@ class Eol_v3_API
         $this->basename = "cypher_".date('YmdHis');
         
         // /* for Katies bundles Angiosperms
-        $this->limit_no_of_images_per_family = 10; //DATA-1861
+        $this->limit_images_per_family = 10; //DATA-1861
         // */
         $this->debug = array();
     }
     function get_images_per_eol_page_id($param, $options = array(), $destination = false, $items_per_bundle = 1000, $func2) //for Katie's image bundles
     {
         $eol_page_id = $param['eol_page_id'];
+        if($val = @$param['limit_images_per_family']) $this->limit_images_per_family = $val;
         
         /* For multitaxa taxon groups: Squamata Anura Coleoptera Carnivora */
         if(in_array($eol_page_id, array(1704, 1553, 345, 7662))) $fields = array('identifier', 'dataObjectVersionID', 'dataType', 'dataSubtype', 'vettedStatus', 
@@ -167,7 +168,7 @@ class Eol_v3_API
     {
         $family_in_question = self::get_family_from_ancestry($ancestry, $families);
         @$this->count_images_per_family[$family_in_question]++; //increment count
-        if($this->count_images_per_family[$family_in_question] > $this->limit_no_of_images_per_family) return true;
+        if($this->count_images_per_family[$family_in_question] > $this->limit_images_per_family) return true;
         else return false;
     }
     private function get_family_from_ancestry($ancestry, $families)
