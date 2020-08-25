@@ -179,7 +179,7 @@ class Eol_v3_API
         }
         // print_r($families); echo "\nancestry: [$ancestry]\n"; //debug only
         // /* for stats only
-        if($ancestry) @$this->debug['objects with no family']['with ancestry']++;
+        if($ancestry) @$this->debug['objects with no family']['with ancestry but no family taxon']++;
         else          @$this->debug['objects with no family']['blank ancestry']++;
         // */
     }
