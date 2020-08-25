@@ -22,12 +22,8 @@ class MergeMoFrecordsAPI
         /* END DATA-1841 terms remapping */
         
         $tables = $info['harvester']->tables;
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
+        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        unset($this->occurrenceID_bodyPart);
-        
-        self::initialize_mapping(); //for location string mappings
-        self::process_per_state();
     }
     private function initialize_mapping()
     {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
@@ -51,8 +47,19 @@ class MergeMoFrecordsAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } 
-            print_r($rec); exit;
-            /**/
+            // print_r($rec); exit;
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/measurementID] => 6502dc891e5f0d73f5c918128eaf59b7_368
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0c47b620c4623f4e023b413f975e3a1b_368
+                [http://eol.org/schema/measurementOfTaxon] => true
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/ExtinctionStatus
+                [http://rs.tdwg.org/dwc/terms/measurementValue] => http://eol.org/schema/terms/extant
+                [http://rs.tdwg.org/dwc/terms/measurementUnit] => 
+                [http://eol.org/schema/terms/statisticalMethod] => 
+                [http://rs.tdwg.org/dwc/terms/measurementRemarks] => 
+                [http://purl.org/dc/terms/source] => https://paleobiodb.org/classic/checkTaxonInfo?is_real_user=1&taxon_no=1
+                [http://purl.org/dc/terms/bibliographicCitation] => The Paleobiology Database, https://paleobiodb.org
+            )*/
             //===========================================================================================================================================================
             //===========================================================================================================================================================
             $o = new \eol_schema\MeasurementOrFact_specific();
@@ -86,8 +93,12 @@ class MergeMoFrecordsAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            print_r($rec); exit("\ndebug...\n");
-            /**/
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array(
+                [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0c47b620c4623f4e023b413f975e3a1b_368
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 1
+                [http://rs.tdwg.org/dwc/terms/lifeStage] => 
+            )*/
             //===========================================================================================================================================================
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             if(isset($this->delete_occurrence_id[$occurrenceID])) continue;
