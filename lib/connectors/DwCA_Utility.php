@@ -50,7 +50,7 @@ class DwCA_Utility
         $this->public_domains = array("http://creativecommons.org/licenses/publicdomain/", "https://creativecommons.org/share-your-work/public-domain/", "https://creativecommons.org/share-your-work/public-domain/cc0/");
     }
 
-    private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*15)) //probably default expires in 15 days 60*60*24*15. Not false.
+    private function start($dwca_file = false, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)) //probably default expires in 1 day 60*60*24*1. Not false.
     {
         if($dwca_file) $this->dwca_file = $dwca_file; //used by /conncectors/lifedesk_eol_export.php
         
