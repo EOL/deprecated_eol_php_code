@@ -27,7 +27,7 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     $func = new DwCA_Utility($resource_id, $dwca_file);
     $preferred_rowtypes = array();
     /* These 2 will be processed in MergeMoFrecordsAPI.php which will be called from DwCA_Utility.php */
-    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //'http://rs.tdwg.org/dwc/terms/occurrence'
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
