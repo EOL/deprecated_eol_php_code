@@ -68,8 +68,8 @@ class MergeMoFrecordsAPI
                 if(!$field['term']) continue;
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
-            } 
-            // print_r($rec); exit;
+            }
+            if($i == 173) print_r($rec); //exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 6502dc891e5f0d73f5c918128eaf59b7_368
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0c47b620c4623f4e023b413f975e3a1b_368
@@ -90,7 +90,7 @@ class MergeMoFrecordsAPI
             if($task == 'search cases in MoF') {
                 /* For any given occurrence, if there are (at least) two records for measurementType=http://www.wikidata.org/entity/Q1053008,
                 with measurementValues https://www.wikidata.org/entity/Q59099 AND http://www.wikidata.org/entity/Q81875*/
-                if($measurementType == $this->sought['mtype'] && in_array($measurementValue, $this->sought['mvalues'])) {
+                if($measurementType == (string) $this->sought['mtype'] && in_array($measurementValue, $this->sought['mvalues'])) {
                     $this->cases[$occurrenceID][$measurementID] = '';
                 }
             }
