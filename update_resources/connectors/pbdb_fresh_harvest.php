@@ -92,6 +92,8 @@ Just trait remap
 368_final	Thursday 2020-08-06 07:13:08 PM	        {"measurement_or_fact_specific.tab":2354130, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":false}
 Mac Mini:
 368_merged_MoF	Wednesday 2020-08-26 05:53:47 AM	{"measurement_or_fact_specific.tab":2353864, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":{"sec":2078.36, "min":34.64, "hr":0.58}}
+eol-archive:
+368_merged_MoF	Wednesday 2020-08-26 09:52:55 AM	{"measurement_or_fact_specific.tab":2353864, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":{"sec":1199.53, "min":19.99, "hr":0.33}}
 ----------------------------------------------------------------------------
 Reminders:
 # Three (3) connectors to run, one after the other - OK
