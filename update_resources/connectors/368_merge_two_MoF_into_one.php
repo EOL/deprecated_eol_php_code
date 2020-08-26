@@ -7,9 +7,9 @@ namespace php_active_record;
    (herbivore and carnivore)
    please replace them with a single record.
    
-   This can be a generic template for merging MoF records into one.
+   *This can be a generic template for merging MoF records into one.
    
-   php merge_two_MoF_into_one.php _ 368_merged_MoF
+   php 368_merge_two_MoF_into_one.php
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -18,7 +18,7 @@ $timestart = time_elapsed();
 
 $resource_id = '368_merged_MoF';
 $dwca_file = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/368_final.tar.gz';
-$dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/368_final.tar.gz';
+// $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/368_final.tar.gz';
 process_resource_url($dwca_file, $resource_id, $timestart);
 
 function process_resource_url($dwca_file, $resource_id, $timestart)

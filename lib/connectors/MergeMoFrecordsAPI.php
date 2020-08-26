@@ -1,6 +1,6 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from merge_two_MoF_into_one.php for DATA-1831] 
+/* connector: [called from DwCA_Utility.php, which is called from 368_merge_two_MoF_into_one.php for DATA-1831] 
                                                              https://eol-jira.bibalex.org/browse/DATA-1831?focusedCommentId=65098&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65098
 */
 class MergeMoFrecordsAPI
@@ -9,8 +9,15 @@ class MergeMoFrecordsAPI
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
-        $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-        // $this->download_options['expire_seconds'] = false; //comment after first harvest
+        // $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*4, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        
+        if($resource_id == '368_merged_MoF') {
+            $this->sought['mtype'] = 'http://www.wikidata.org/entity/Q1053008'; //trophic level
+            $this->sought['mvalues'] = array('https://www.wikidata.org/entity/Q59099', 'http://www.wikidata.org/entity/Q81875'); //herbivore and carnivore
+            $this->sought['merged_value'] = 'https://www.wikidata.org/entity/Q164509'; //omnivore
+        }
+        if($resource_id == 'another resource') {
+        }
     }
     /* For any given occurrence, if there are (at least) two records for measurementType=http://www.wikidata.org/entity/Q1053008,
     with measurementValues https://www.wikidata.org/entity/Q59099 AND 
