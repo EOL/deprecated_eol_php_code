@@ -17,15 +17,16 @@ class MergeMoFrecordsAPI
                                    http://www.wikidata.org/entity/Q81875
             (herbivore and carnivore)
             please replace them with a single record. */
-            $this->sought['mtype'] = 'http://www.wikidata.org/entity/Q1053008'; //trophic level
-            $this->sought['mvalues'] = array('https://www.wikidata.org/entity/Q59099', 'http://www.wikidata.org/entity/Q81875'); //herbivore and carnivore
-            $this->sought['merged_value'] = 'https://www.wikidata.org/entity/Q164509'; //omnivore
+            $this->sought['mtype'] = "http://www.wikidata.org/entity/Q1053008"; //trophic level
+            $this->sought['mvalues'] = array("https://www.wikidata.org/entity/Q59099", "http://www.wikidata.org/entity/Q81875"); //herbivore and carnivore
+            $this->sought['merged_value'] = "https://www.wikidata.org/entity/Q164509"; //omnivore
         }
         if($resource_id == 'another resource') {
         }
     }
     function start($info)
     {   
+        print_r($this->sought);
         // require_library('connectors/TraitGeneric');
         // $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
