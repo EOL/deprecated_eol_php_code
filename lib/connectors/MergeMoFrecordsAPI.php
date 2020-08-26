@@ -69,7 +69,7 @@ class MergeMoFrecordsAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
-            if($i == 173) print_r($rec); //exit;
+            // if($i == 173) print_r($rec); //exit;
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 6502dc891e5f0d73f5c918128eaf59b7_368
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 0c47b620c4623f4e023b413f975e3a1b_368
