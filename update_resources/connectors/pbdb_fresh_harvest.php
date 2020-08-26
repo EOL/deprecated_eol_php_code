@@ -107,7 +107,7 @@ php5.6 remove_Aves_children_from_368.php jenkins #this generates 368_removed_ave
 php5.6 synonyms_handling.php jenkins 368_final #this generates 368_final.tar.gz
 
 # 4th step: This will merge 2 occurrences into 1
-php5.6 merge_two_MoF_into_one.php jenkins 368_merged_MoF #this generates 368_merged_MoF.tar.gz
+php5.6 368_merge_two_MoF_into_one.php #this generates 368_merged_MoF.tar.gz
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

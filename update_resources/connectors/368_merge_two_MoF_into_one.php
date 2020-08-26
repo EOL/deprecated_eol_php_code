@@ -10,6 +10,7 @@ namespace php_active_record;
    *This can be a generic template for merging MoF records into one.
    
    php 368_merge_two_MoF_into_one.php
+   See stats in pbdb_fresh_harvest.php
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
