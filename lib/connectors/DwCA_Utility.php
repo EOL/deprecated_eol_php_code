@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_69845/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_69845/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_15078/',       //dir_86815 - GloBI dev
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_15078/'            //dir_15078 - PaleoDB dev
         );
         */
         
@@ -134,7 +134,8 @@ class DwCA_Utility
                 else break; //all extensions will be processed elsewhere. Bec. meta.xml does not reflect actual extension details. DwCA seems hand-created.
             }
             */
-            // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only
+            // if($this->resource_id == '368_merged_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
+            // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only, during dev only
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
             */
@@ -263,6 +264,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array('708', '21_final'))) {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if(in_array($this->resource_id, array('368_merged_MoF'))) {
+            require_library('connectors/MergeMoFrecordsAPI');
+            $func = new MergeMoFrecordsAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         // ================================= end of customization ================================= */ 
