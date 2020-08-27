@@ -388,14 +388,40 @@ class Eol_v3_API
         fwrite($this->WRITE, implode("\t", $arr)."\n");
         self::process_all_eol_taxa_using_DH($path, 'main', $params['range']); //make use of Katja's EOL DH with EOL Page IDs -- good choice
         fclose($this->WRITE);
-        $destination = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score_'.str_replace(' ', '_', date('Y-m-d', time())).'.txt'; //h:i:s a
-        if(!copy($filename, $destination)) echo "\nFailed to copy $filename...\n";
-                                           echo "\nSaved: [$filename]\nTo: [$destination]\n";
         
         /* ctr becomes zero 0 when finalizing the report */
         if($params['ctr']) unlink(CONTENT_RESOURCE_LOCAL_PATH . "part_EOL_stats_".$params['ctr'].".txt"); //this file was generated in run.php
+        else
+        {
+            /* working OK but replaced with backup using gzip instead
+            $destination = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score_'.str_replace(' ', '_', date('Y-m-d', time())).'.txt'; //h:i:s a
+            if(!copy($filename, $destination)) echo "\nFailed to copy $filename...\n";
+                                               echo "\nSaved: [$filename]\nTo: [$destination]\n";
+
+            $destination = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score_'.str_replace(' ', '_', date('Y-m', time())).'.txt'; //h:i:s a
+            if(!copy($filename, $destination)) echo "\nFailed to copy $filename...\n";
+                                               echo "\nSaved: [$filename]\nTo: [$destination]\n";
+            */
+                                               
+            /* compressed file is what is reflected in OpenData: https://opendata.eol.org/dataset/eol-stats-for-dynamic-hierarchy-species-level-pages/resource/199b78b2-0f16-4764-9666-8c5b0af26d53
+            https://editors.eol.org/eol_php_code/applications/content_server/resources/species_richness_score.txt.gz */
+            echo "\nCompressing...\n";
+            
+            $gzip_target = $filename.".gz";
+            $output = shell_exec("gzip -cv ".$filename." > ".$gzip_target);
+            echo "\noutput\nCompressed OK [".$gzip_target."]\n";
+
+            $gzip_target = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score_'.str_replace(' ', '_', date('Y-m-d', time())).'.txt.gz';
+            $output = shell_exec("gzip -cv ".$filename." > ".$gzip_target);
+            echo "\noutput\nCompressed OK [".$gzip_target."]\n";
+
+            $gzip_target = CONTENT_RESOURCE_LOCAL_PATH . 'species_richness_score_'.str_replace(' ', '_', date('Y-m', time())).'.txt.gz';
+            $output = shell_exec("gzip -cv ".$filename." > ".$gzip_target);
+            echo "\noutput\nCompressed OK [".$gzip_target."]\n";
+            
+            if(unlink($filename)) echo "\nFile deleted: [$filename]\n"; //species_richness_score.txt
+        }
         return;
-        // */                                               
     }
     function process_all_eol_taxa_using_DH($path, $purpose = 'main', $range = array()) //rows = 1,906,685 -> rank 'species' and with EOLid
     {

@@ -29,7 +29,7 @@ require_library('connectors/MultipleConnJenkinsAPI');
 $funcj = new MultipleConnJenkinsAPI();
 $filename = CONTENT_RESOURCE_LOCAL_PATH."part_EOL_stats_COUNTER.txt";
 if($funcj->check_indicator_files_if_ready_2finalize_YN($filename, $arr['divisor'])) {
-    echo "\nfinalizing now...\n";
+    echo "\nFinalizing now...".$params['json']."\n";
     $arr['range'] = array(1, $arr['total_count']);
     $arr['ctr'] = 0;
     $func->generate_stats($arr); //finalize report
