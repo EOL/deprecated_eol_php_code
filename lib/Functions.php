@@ -497,7 +497,7 @@ class Functions
     {
         //write log
         $WRITE = Functions::file_open(CONTENT_RESOURCE_LOCAL_PATH . "EOL_FreshData_connectors.txt", "a");
-        fwrite($WRITE, $resource_folder . "\t" . date('l Y-m-d h:i:s A') . "\t" . $rows . "\n"); //date('l jS \of F Y h:i:s A')
+        fwrite($WRITE, $resource_folder . "\t" . date('D Y-m-d h:i:s A') . "\t" . $rows . "\n"); //date('l jS \of F Y h:i:s A')
         fclose($WRITE);
     }
     
