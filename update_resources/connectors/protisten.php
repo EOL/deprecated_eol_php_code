@@ -10,6 +10,11 @@ protisten	Monday 2019-11-11 10:05:34 AM	{"agent.tab":1,"media_resource.tab":1701
             Monday 2019-11-11 10:40:00 AM	{"agent.tab":1,"media_resource.tab":1705,"taxon.tab":1093} consistent OK
 protisten	Monday 2020-02-10 02:20:24 AM	{"agent.tab":1, "media_resource.tab":1708, "taxon.tab":1092, "time_elapsed":{"sec":1283.94,"min":21.4,"hr":0.36}} consistent OK
 protisten	Monday 2020-04-13 12:07:10 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":1345.06, "min":22.42, "hr":0.37}} re-harvested upon request, consistent OK
+protisten	Sun 2020-05-10 01:59:33 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1125, "time_elapsed":{"sec":32.79, "min":0.55, "hr":0.01}}
+protisten	Wed 2020-06-10 02:27:23 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1701.28, "min":28.35, "hr":0.47}}
+protisten	Fri 2020-07-10 01:59:33 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":32.95, "min":0.55, "hr":0.01}}
+protisten	Mon 2020-08-10 02:22:28 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1408.54, "min":23.48, "hr":0.39}}
+protisten	Sat 2020-08-29 11:32:40 AM	{"agent.tab":1, "media_resource.tab":1842, "taxon.tab":1124, "time_elapsed":{"sec":1389.91, "min":23.17, "hr":0.39}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
