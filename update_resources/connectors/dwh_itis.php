@@ -11,6 +11,10 @@ itis_2019-08-28	Friday 2019-09-27 10:47:46 AM	{"taxon.tab":804287,"vernacular_na
 itis_2019-08-28	Monday 2019-09-30 06:17:33 AM	{"taxon.tab":802601,"vernacular_name.tab":113136} eol-archive
 itis_2019-08-28	Monday 2019-09-30 10:24:36 AM	{"taxon.tab":802601,"vernacular_name.tab":113136} Mac Mini
 
+Mac Mini no removal yet:
+itis_2020-07-28	Mon 2020-08-31 03:30:52 AM	{"taxon.tab":836555, "vernacular_name.tab":114061, "time_elapsed":{"sec":654.38, "min":10.91, "hr":0.18}}
+
+
 Reminders: what is in Jenkins eol-archive. Run one after the other.
 php5.6 dwh_itis.php jenkins
 php5.6 synonyms_handling.php jenkins itis_2019-08-28
@@ -24,11 +28,15 @@ $timestart = time_elapsed();
 Note: Database download files are currently from the 25-Feb-2019 data load.
 */
 
-// $dwca_file = "http://localhost/cp/ITIS_DWH/2019-02-25/itisMySQLTables.tar.gz";
-$dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
+if(Functions::is_production()) $dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
+else {
+    $dwca_file = "http://localhost/cp/ITIS_DWH/2019-02-25/itisMySQLTables.tar.gz";
+    $dwca_file = "http://localhost/cp/ITIS_DWH/2020-07-28/itisMySQLTables.tar.gz";
+}
 $resource_id = "itis_2019-02-25";
 $resource_id = "itis_2019-03-31";
 $resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
+$resource_id = "itis_2020-07-28"; //TRAM-987
 
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);
