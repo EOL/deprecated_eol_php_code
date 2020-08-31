@@ -169,12 +169,13 @@ class DWH_ITIS_API
         //step 1: get unnamed_taxon_ind == Y and all its children
         $what = 'unnamed_taxon_ind';
         $unnamed_taxon_ind_Y = self::process_file($info['archive_path'].'taxonomic_units', $what);
-        print_r($unnamed_taxon_ind_Y); //exit;
+        echo "\nunnamed_taxon_ind_Y: "; print_r($unnamed_taxon_ind_Y); //exit;
 
         //step 2: get all children of $unnamed_taxon_ind_Y
         $children_of_unnamed = self::get_children_of_unnamed($unnamed_taxon_ind_Y);
+        echo "\nchildren_of_unnamed: "; print_r($children_of_unnamed);
         $remove_ids = array_merge($unnamed_taxon_ind_Y, $children_of_unnamed);
-        print_r($remove_ids); //exit;
+        echo "\nIDs to be removed: "; print_r($remove_ids); //exit;
         
         //step 3 create series of info_files
         self::process_file($info['archive_path'].'kingdoms', 'kingdoms');                   // print_r($this->info_kingdom); exit("\ncheck info_kingdom\n");
