@@ -13,7 +13,10 @@ itis_2019-08-28	Monday 2019-09-30 10:24:36 AM	{"taxon.tab":802601,"vernacular_na
 
 Mac Mini no removal yet:
 itis_2020-07-28	Mon 2020-08-31 03:30:52 AM	{"taxon.tab":836555, "vernacular_name.tab":114061, "time_elapsed":{"sec":654.38, "min":10.91, "hr":0.18}}
+with removal
+itis_2020-07-28	Mon 2020-08-31 09:35:12 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":{"sec":327.24, "min":5.45, "hr":0.09}}
 
+eol-archive:
 
 Reminders: what is in Jenkins eol-archive. Run one after the other.
 php5.6 dwh_itis.php jenkins
