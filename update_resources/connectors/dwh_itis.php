@@ -21,7 +21,7 @@ eol-archive:
 Reminders: what is in Jenkins eol-archive. Run one after the other.
 php5.6 dwh_itis.php jenkins
 php5.6 synonyms_handling.php jenkins itis_2019-08-28
-php5.6 synonyms_handling.php jenkins itis_2020-07-28
+php5.6 synonyms_handling.php jenkins itis_2020-07-28 #TRAM-987
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -45,7 +45,8 @@ $resource_id = "itis_2020-07-28"; //TRAM-987
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);
 $func->start(); //main operation
-Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param should be false so the folder in /resources/ won't be deleted.
+                                                                           //it will be used in run_diagnostics()
 // */
 
 // /* newly refactored routine
