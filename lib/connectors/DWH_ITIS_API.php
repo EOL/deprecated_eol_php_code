@@ -146,11 +146,8 @@ class DWH_ITIS_API
         /* debug - force assign, used only during development...
         $info = Array( //dir_44057
             // from MacMini ---------------------------------
-            // 'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/itisMySQL022519/',
-            // 'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_44057/'
-
-            'archive_path' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_25764/itisMySQL082819/',
-            'temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_25764/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_80140/itisMySQL072820/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_80140/'
 
             // from MacBook ---------------------------------
             // 'archive_path' => '/Users/eagbayani/Sites/eol_php_code/tmp/dir_89406/itisMySQL022519/',
@@ -172,10 +169,16 @@ class DWH_ITIS_API
         echo "\nunnamed_taxon_ind_Y: "; print_r($unnamed_taxon_ind_Y); //exit;
 
         //step 2: get all children of $unnamed_taxon_ind_Y
-        $children_of_unnamed = self::get_children_of_unnamed($unnamed_taxon_ind_Y);
+        $children_of_unnamed = self::get_children_of_taxon_IDs($unnamed_taxon_ind_Y);
         echo "\nchildren_of_unnamed: "; print_r($children_of_unnamed);
         $remove_ids = array_merge($unnamed_taxon_ind_Y, $children_of_unnamed);
         echo "\nIDs to be removed: "; print_r($remove_ids); //exit;
+        
+        // /* new step: TRAM-987 include only allowed nodes and its children
+        echo "\nGet all allowed nodes and its children...\n";
+        $this->allowed_IDs = self::get_allowed_IDs();
+        echo "\nAllowed IDs: ".count($this->allowed_IDs);
+        // */
         
         //step 3 create series of info_files
         self::process_file($info['archive_path'].'kingdoms', 'kingdoms');                   // print_r($this->info_kingdom); exit("\ncheck info_kingdom\n");
@@ -205,6 +208,44 @@ class DWH_ITIS_API
 
         //massage debug for printing
         Functions::start_print_debug($this->debug, $this->resource_id);
+    }
+    private function get_allowed_IDs()
+    {
+        $allowed_branches = self::allowed_branches_only();
+        $IDs = self::get_children_of_taxon_IDs($allowed_branches);
+        $IDs = array_merge($IDs, $allowed_branches);
+        
+        $IDs = array_filter($IDs); //remove null arrays
+        $IDs = array_unique($IDs); //make unique
+        $IDs = array_values($IDs); //reindex key
+        
+        foreach($IDs as $id) $final[$id] = '';
+        return $final;
+    }
+    private function allowed_branches_only()
+    {
+        $a[173420] = "Amphibia";
+        $a[179913] = "Mammalia";
+        $a[154344] = "Apoidea";
+        $a[104058] = "Leptopodomorpha";
+        $a[103360] = "Nepomorpha";
+        $a[103798] = "Gerromorpha";
+        $a[104174] = "Thaumastocoridae";
+        $a[107202] = "Reduviidae";
+        $a[1054408] = "Velocipedidae";
+        $a[1058042] = "Dinidoridae";
+        $a[114093] = "Elmidae";
+        $a[1063764] = "Protelmidae";
+        $a[690744] = "Amblypygi";
+        $a[82709] = "Palpigradi";
+        $a[82710] = "Uropygi";
+        $a[733323] = "Ixodida";
+        $a[83538] = "Sarcoptiformes";
+        $a[690741] = "Pseudoscorpiones";
+        $a[154400] = "Chilopoda";
+        $a[154408] = "Symphyla";
+        $a[846119] = "Marchantiophyta";
+        return array_keys($a);
     }
     private function build_taxonID_info($info, $remove_ids) //this a specific function for implementing SynonymMtce. Each resource will have something like this one.
     {
@@ -314,6 +355,8 @@ class DWH_ITIS_API
                     $rec['parentNameUsageID'] = $rec['col_18'];
                     
                     if(in_array($rec['taxonID'], $remove_ids)) continue;
+                    if(!isset($this->allowed_IDs[$rec['taxonID']])) continue;
+                    
                     if(in_array($rec['parentNameUsageID'], $remove_ids)) { //may not pass this line
                         print_r($rec);
                         continue;
@@ -372,6 +415,7 @@ class DWH_ITIS_API
                 if($what == 'vernaculars') {
                     $rec['taxonID'] = $rec['col_1'];
                     if(in_array($rec['taxonID'], $remove_ids)) continue;
+                    if(!isset($this->allowed_IDs[$rec['taxonID']])) continue;
                     $rec['vernacularName'] = $rec['col_2'];
                     $rec['language'] = @$this->info_vernacular[$rec['col_3']];
                     if($rec['col_3'] != 'unspecified') self::create_vernaculars($rec);
@@ -458,7 +502,7 @@ class DWH_ITIS_API
             $this->comnames[$md5] = '';
         }
     }
-    private function get_children_of_unnamed($taxon_ids1)
+    private function get_children_of_taxon_IDs($taxon_ids1)
     {
         $final = array();
         foreach($taxon_ids1 as $id1) {
@@ -473,6 +517,96 @@ class DWH_ITIS_API
                                 foreach($taxon_ids4 as $id4) {
                                     if($taxon_ids5 = @$this->child_of[$id4]) {
                                         $final = array_merge($final, $taxon_ids5);
+                                        foreach($taxon_ids5 as $id5) {
+                                            if($taxon_ids6 = @$this->child_of[$id5]) {
+                                                $final = array_merge($final, $taxon_ids6);
+                                                foreach($taxon_ids6 as $id6) {
+                                                    if($taxon_ids7 = @$this->child_of[$id6]) {
+                                                        $final = array_merge($final, $taxon_ids7);
+                                                        foreach($taxon_ids7 as $id7) {
+                                                            if($taxon_ids8 = @$this->child_of[$id7]) {
+                                                                $final = array_merge($final, $taxon_ids8);
+                                                                foreach($taxon_ids8 as $id8) {
+                                                                    if($taxon_ids9 = @$this->child_of[$id8]) {
+                                                                        $final = array_merge($final, $taxon_ids9);
+                                                                        foreach($taxon_ids9 as $id9) {
+                                                                            if($taxon_ids10 = @$this->child_of[$id9]) {
+                                                                                $final = array_merge($final, $taxon_ids10);
+                                                                                foreach($taxon_ids10 as $id10) {
+                                                                                    if($taxon_ids11 = @$this->child_of[$id10]) {
+                                                                                        $final = array_merge($final, $taxon_ids11);
+                                                                                        foreach($taxon_ids11 as $id11) {
+                                                                                            if($taxon_ids12 = @$this->child_of[$id11]) {
+                                                                                                $final = array_merge($final, $taxon_ids12);
+                                                                                                foreach($taxon_ids12 as $id12) {
+                                                                                                    if($taxon_ids13 = @$this->child_of[$id12]) {
+                                                                                                        $final = array_merge($final, $taxon_ids13);
+
+foreach($taxon_ids13 as $id13) {
+    if($taxon_ids14 = @$this->child_of[$id13]) {
+        $final = array_merge($final, $taxon_ids14);
+        foreach($taxon_ids14 as $id14) {
+            if($taxon_ids15 = @$this->child_of[$id14]) {
+                $final = array_merge($final, $taxon_ids15);
+                foreach($taxon_ids15 as $id15) {
+                    if($taxon_ids16 = @$this->child_of[$id15]) {
+                        $final = array_merge($final, $taxon_ids16);
+                        foreach($taxon_ids16 as $id16) {
+                            if($taxon_ids17 = @$this->child_of[$id16]) {
+                                $final = array_merge($final, $taxon_ids17);
+                                foreach($taxon_ids17 as $id17) {
+                                    if($taxon_ids18 = @$this->child_of[$id17]) {
+                                        $final = array_merge($final, $taxon_ids18);
+                                        foreach($taxon_ids18 as $id18) {
+                                            if($taxon_ids19 = @$this->child_of[$id18]) {
+                                                $final = array_merge($final, $taxon_ids19);
+                                                foreach($taxon_ids19 as $id19) {
+                                                    if($taxon_ids20 = @$this->child_of[$id19]) {
+                                                        $final = array_merge($final, $taxon_ids20);
+                                                        exit("\nreached level 19\n");
+                                                    }
+                                                }
+
+                                            }
+                                        }
+
+                                    }
+                                }
+
+
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+    }
+}
+
+
+
+                                                                                                    }
+                                                                                                }
+                                                                                                
+                                                                                            }
+                                                                                        }
+                                                                                        
+                                                                                    }
+                                                                                }
+                                                                                
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -481,6 +615,9 @@ class DWH_ITIS_API
                 }
             }
         }
+        $final = array_filter($final); //remove null arrays
+        $final = array_unique($final); //make unique
+        $final = array_values($final); //reindex key
         return $final;
     }
     private function fill_up_blank_fieldnames($cols)

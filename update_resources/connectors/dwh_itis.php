@@ -18,6 +18,7 @@ itis_2020-07-28	Mon 2020-08-31 03:30:52 AM	{"taxon.tab":836555, "vernacular_name
 Reminders: what is in Jenkins eol-archive. Run one after the other.
 php5.6 dwh_itis.php jenkins
 php5.6 synonyms_handling.php jenkins itis_2019-08-28
+php5.6 synonyms_handling.php jenkins itis_2020-07-28
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
