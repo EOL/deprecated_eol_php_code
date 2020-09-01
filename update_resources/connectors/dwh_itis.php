@@ -17,6 +17,8 @@ with removal
 itis_2020-07-28	Mon 2020-08-31 09:35:12 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":{"sec":327.24, "min":5.45, "hr":0.09}}
 
 eol-archive:
+itis_2020-07-28	Tue 2020-09-01 04:17:42 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":{"sec":211.03, "min":3.52, "hr":0.06}}
+itis_2020-07-28	Tue 2020-09-01 04:18:35 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":false}
 
 Reminders: what is in Jenkins eol-archive. Run one after the other.
 php5.6 dwh_itis.php jenkins
