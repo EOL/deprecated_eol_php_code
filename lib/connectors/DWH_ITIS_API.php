@@ -192,6 +192,7 @@ class DWH_ITIS_API
         /* ===================================== END: For Synonym Maintenance ======================================= */
 
         //step 4: create taxon archive with filter 
+        $this->allowed_branches = self::allowed_branches_only();
         self::process_file($info['archive_path'].'taxonomic_units', 'write_taxon_dwca', $remove_ids);
         
         //step 5: create vernacular archive
@@ -356,6 +357,7 @@ class DWH_ITIS_API
                     
                     if(in_array($rec['taxonID'], $remove_ids)) continue;
                     if(!isset($this->allowed_IDs[$rec['taxonID']])) continue;
+                    if(in_array($rec['taxonID'], $this->allowed_branches)) $rec['parentNameUsageID'] = ''; //these are roots so no parents
                     
                     if(in_array($rec['parentNameUsageID'], $remove_ids)) { //may not pass this line
                         print_r($rec);
