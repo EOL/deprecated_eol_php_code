@@ -65,7 +65,7 @@ class SynonymsHandlingAPI
                 [http://rs.gbif.org/terms/1.0/canonicalName] => Bacteria
             )*/
             if($purpose == 'build up taxonID_info') {
-                $this->taxonID_info[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = array('aID' => $rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'], 
+                $this->taxonID_info[$rec['http://rs.tdwg.org/dwc/terms/taxonID']] = array('aID' => @$rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID'], 
                                                                                           'pID' => $rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID'],
                                                                                           's' => $rec['http://rs.tdwg.org/dwc/terms/taxonomicStatus'],
                                                                                           'r' => $rec['http://rs.tdwg.org/dwc/terms/taxonRank']);
@@ -161,7 +161,7 @@ class SynonymsHandlingAPI
         }
 
         /* Eli's general cleaning: if acceptedNameUsageID doesn't have an entry ignore that synonym START */
-        if($accepted = $rec['acceptedNameUsageID']) {
+        if($accepted = @$rec['acceptedNameUsageID']) {
             if($info = @$this->taxonID_info[$accepted]) return $rec; //Ok
             else return false;
         }
@@ -179,7 +179,7 @@ class SynonymsHandlingAPI
     }
     private function is_record_a_synonymYN($rec)
     {
-        if($rec['acceptedNameUsageID']) {
+        if(@$rec['acceptedNameUsageID']) {
             if(!self::valid_statusYN($rec)) return true;
             else {
                 echo "\nInvestigate: with aID but has a valid status\n"; print_r($rec); exit;
