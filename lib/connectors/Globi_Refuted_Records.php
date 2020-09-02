@@ -16,7 +16,12 @@ class Globi_Refuted_Records
     {
         $this->report['cols'] = array('identifier', 'argumentTypeId', 'argumentTypeName', 'argumentReasonID', 'argumentReasonName', 'interactionTypeId', 'interactionTypeName', 
             'sourceCitation', 'sourceArchiveURI', 'sourceTaxonId', 'sourceTaxonName', 'sourceTaxonRank', 'sourceTaxonKingdomName', 'targetTaxonId', 
-            'targetTaxonName', 'targetTaxonRank', 'targetTaxonKingdomName');
+            'targetTaxonName', 'targetTaxonRank', 'targetTaxonKingdomName', 
+            'refuted:associationID', 'refuted:interactionTypeId', 'refuted:referenceCitation', 'refuted:referenceDoi', 'refuted:referenceUrl', 'refuted:sourceCitation', 'refuted:sourceOccurrenceId', 
+            'refuted:sourceTaxonId', 'refuted:sourceTaxonName', 'refuted:sourceTaxonRank', 'refuted:sourceTaxonGenusName', 'refuted:sourceTaxonFamilyName', 'refuted:sourceTaxonOrderName', 
+            'refuted:sourceTaxonClassName', 'refuted:sourceTaxonPhylumName', 'refuted:sourceTaxonKingdomName', 'refuted:targetOccurrenceId', 'refuted:targetTaxonId', 'refuted:targetTaxonName', 
+            'refuted:targetTaxonRank', 'refuted:targetTaxonGenusName', 'refuted:targetTaxonFamilyName', 'refuted:targetTaxonOrderName', 'refuted:targetTaxonClassName', 'refuted:targetTaxonPhylumName', 
+            'refuted:targetTaxonKingdomName');
         /* DATA-1862 - Please drop the referenceCitation column. */
         
         // $this->report['destination'] = CONTENT_RESOURCE_LOCAL_PATH.'GloBI_refuted_biotic_interactions_by_EOL.tsv';
@@ -102,18 +107,18 @@ class Globi_Refuted_Records
             $e['sourceTaxonName'] = $this->taxonIDS[$source_taxonID]['sciname'];
             $e['sourceTaxonRank'] = $this->taxonIDS[$source_taxonID]['taxonRank'];
             $e['sourceTaxonKingdomName'] = $this->taxonIDS[$source_taxonID]['kingdom'];
-            /*
-            refuted:sourceOccurrenceId (from DwC-A: occurrence:occurrenceID)
-            refuted:sourceTaxonId (from DwC-A: taxon:taxonID)
-            refuted:sourceTaxonName (from DwC-A: taxon:scientificName)
-            refuted:sourceTaxonRank (from DwC-A: taxon:taxonRank)
-            refuted:sourceTaxonGenusName (from DwC-A: taxon:genus)
-            refuted:sourceTaxonFamilyName (from DwC-A: taxon:family)
-            refuted:sourceTaxonOrderName (from DwC-A: taxon:order)
-            refuted:sourceTaxonClassName (from DwC-A: taxon:class)
-            refuted:sourceTaxonPhylumName (from DwC-A: taxon:phylum)
-            refuted:sourceTaxonKingdomName (from DwC-A: taxon:kingdom)
-            */
+            /* DATA-1862 start */
+            $e['refuted:sourceOccurrenceId'] = $occurrenceID;
+            $e['refuted:sourceTaxonId'] = $source_taxonID;
+            $e['refuted:sourceTaxonName'] = $this->taxonIDS[$source_taxonID]['sciname'];
+            $e['refuted:sourceTaxonRank'] = $this->taxonIDS[$source_taxonID]['taxonRank'];
+            $e['refuted:sourceTaxonGenusName'] = $this->taxonIDS[$source_taxonID]['genus'];
+            $e['refuted:sourceTaxonFamilyName'] = $this->taxonIDS[$source_taxonID]['family'];
+            $e['refuted:sourceTaxonOrderName'] = $this->taxonIDS[$source_taxonID]['order'];
+            $e['refuted:sourceTaxonClassName'] = $this->taxonIDS[$source_taxonID]['class'];
+            $e['refuted:sourceTaxonPhylumName'] = $this->taxonIDS[$source_taxonID]['phylum'];
+            $e['refuted:sourceTaxonKingdomName'] = $this->taxonIDS[$source_taxonID]['kingdom'];
+            if($source_taxonID != $e['sourceTaxonId']) exit("\nThey should be the same 01\n"); //for checking only
         }
         else {
             print_r($rec);
@@ -126,18 +131,18 @@ class Globi_Refuted_Records
             $e['targetTaxonName'] = $this->taxonIDS[$target_taxonID]['sciname'];
             $e['targetTaxonRank'] = $this->taxonIDS[$target_taxonID]['taxonRank'];
             $e['targetTaxonKingdomName'] = $this->taxonIDS[$target_taxonID]['kingdom'];
-            /*
-            refuted:targetOccurrenceId (from DwC-A: occurrence:occurrenceID)
-            refuted:targetTaxonId (from DwC-A: taxon:taxonID)
-            refuted:targetTaxonName (from DwC-A: taxon:scientificName)
-            refuted:targetTaxonRank (from DwC-A: taxon:taxonRank)
-            refuted:targetTaxonGenusName (from DwC-A: taxon:genus)
-            refuted:targetTaxonFamilyName (from DwC-A: taxon:family)
-            refuted:targetTaxonOrderName (from DwC-A: taxon:order)
-            refuted:targetTaxonClassName (from DwC-A: taxon:class)
-            refuted:targetTaxonPhylumName (from DwC-A: taxon:phylum)
-            refuted:targetTaxonKingdomName (from DwC-A: taxon:kingdom)
-            */
+            /* DATA-1862 start */
+            $e['refuted:targetOccurrenceId'] = $targetOccurrenceID;
+            $e['refuted:targetTaxonId'] = $target_taxonID;
+            $e['refuted:targetTaxonName'] = $this->taxonIDS[$target_taxonID]['sciname'];
+            $e['refuted:targetTaxonRank'] = $this->taxonIDS[$target_taxonID]['taxonRank'];
+            $e['refuted:targetTaxonGenusName'] = $this->taxonIDS[$target_taxonID]['genus'];
+            $e['refuted:targetTaxonFamilyName'] = $this->taxonIDS[$target_taxonID]['family'];
+            $e['refuted:targetTaxonOrderName'] = $this->taxonIDS[$target_taxonID]['order'];
+            $e['refuted:targetTaxonClassName'] = $this->taxonIDS[$target_taxonID]['class'];
+            $e['refuted:targetTaxonPhylumName'] = $this->taxonIDS[$target_taxonID]['phylum'];
+            $e['refuted:targetTaxonKingdomName'] = $this->taxonIDS[$target_taxonID]['kingdom'];
+            if($target_taxonID != $e['targetTaxonId']) exit("\nThey should be the same 02\n"); //for checking only
         }
         else {
             print_r($rec);
