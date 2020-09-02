@@ -101,6 +101,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         
         $tmp = array_keys($this->debug['hierarchy without kingdom']);
         $this->debug['hierarchy without kingdom'] = '';
+        $this->debug['does not have kingdom'] = ''; //value removed coz too long in Jenkins output. Comment this line if you want to check taxa without kingdom.
         print_r($this->debug);
         sort($tmp); print_r($tmp);
         //backup report with timestamp
