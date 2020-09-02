@@ -15,8 +15,10 @@ class Globi_Refuted_Records
     private function initialize()
     {
         $this->report['cols'] = array('identifier', 'argumentTypeId', 'argumentTypeName', 'argumentReasonID', 'argumentReasonName', 'interactionTypeId', 'interactionTypeName', 
-            'referenceCitation', 'sourceCitation', 'sourceArchiveURI', 'sourceTaxonId', 'sourceTaxonName', 'sourceTaxonRank', 'sourceTaxonKingdomName', 'targetTaxonId', 
+            'sourceCitation', 'sourceArchiveURI', 'sourceTaxonId', 'sourceTaxonName', 'sourceTaxonRank', 'sourceTaxonKingdomName', 'targetTaxonId', 
             'targetTaxonName', 'targetTaxonRank', 'targetTaxonKingdomName');
+        /* DATA-1862 - Please drop the referenceCitation column. */
+        
         // $this->report['destination'] = CONTENT_RESOURCE_LOCAL_PATH.'GloBI_refuted_biotic_interactions_by_EOL.tsv';
         $this->report['destination'] = CONTENT_RESOURCE_LOCAL_PATH.'interactions.tsv';
         $this->reason['EOL-GloBI-validation1'] = 'Records of non-carnivorous plants eating animals are likely to be errors';
@@ -78,6 +80,7 @@ class Globi_Refuted_Records
         targetTaxonRank
         targetTaxonKingdomName
         */
+        
         $e = array();
         $e['identifier'] = 'EOLrefute_'.$rec['http://eol.org/schema/associationID'];
         $e['argumentTypeId'] = 'https://en.wiktionary.org/wiki/refute';
@@ -99,6 +102,18 @@ class Globi_Refuted_Records
             $e['sourceTaxonName'] = $this->taxonIDS[$source_taxonID]['sciname'];
             $e['sourceTaxonRank'] = $this->taxonIDS[$source_taxonID]['taxonRank'];
             $e['sourceTaxonKingdomName'] = $this->taxonIDS[$source_taxonID]['kingdom'];
+            /*
+            refuted:sourceOccurrenceId (from DwC-A: occurrence:occurrenceID)
+            refuted:sourceTaxonId (from DwC-A: taxon:taxonID)
+            refuted:sourceTaxonName (from DwC-A: taxon:scientificName)
+            refuted:sourceTaxonRank (from DwC-A: taxon:taxonRank)
+            refuted:sourceTaxonGenusName (from DwC-A: taxon:genus)
+            refuted:sourceTaxonFamilyName (from DwC-A: taxon:family)
+            refuted:sourceTaxonOrderName (from DwC-A: taxon:order)
+            refuted:sourceTaxonClassName (from DwC-A: taxon:class)
+            refuted:sourceTaxonPhylumName (from DwC-A: taxon:phylum)
+            refuted:sourceTaxonKingdomName (from DwC-A: taxon:kingdom)
+            */
         }
         else {
             print_r($rec);
@@ -111,12 +126,46 @@ class Globi_Refuted_Records
             $e['targetTaxonName'] = $this->taxonIDS[$target_taxonID]['sciname'];
             $e['targetTaxonRank'] = $this->taxonIDS[$target_taxonID]['taxonRank'];
             $e['targetTaxonKingdomName'] = $this->taxonIDS[$target_taxonID]['kingdom'];
+            /*
+            refuted:targetOccurrenceId (from DwC-A: occurrence:occurrenceID)
+            refuted:targetTaxonId (from DwC-A: taxon:taxonID)
+            refuted:targetTaxonName (from DwC-A: taxon:scientificName)
+            refuted:targetTaxonRank (from DwC-A: taxon:taxonRank)
+            refuted:targetTaxonGenusName (from DwC-A: taxon:genus)
+            refuted:targetTaxonFamilyName (from DwC-A: taxon:family)
+            refuted:targetTaxonOrderName (from DwC-A: taxon:order)
+            refuted:targetTaxonClassName (from DwC-A: taxon:class)
+            refuted:targetTaxonPhylumName (from DwC-A: taxon:phylum)
+            refuted:targetTaxonKingdomName (from DwC-A: taxon:kingdom)
+            */
         }
         else {
             print_r($rec);
             echo "\n".$e['argumentReasonID']."-".$e['argumentReasonName']."\n";
             exit("\nNo taxonID for this target occurID [$targetOccurrenceID]\n");
         }
+        
+        /* DATA-1862
+        Add the following columns and populate them with values fron the DwC-A of the original record:
+        // refuted:associationID (from DwC-A: association:associationID
+        // refuted:interactionTypeId (from DwC-A: association:associationType)
+        // refuted:referenceCitation (from DwC-A: reference:full_reference)
+        // refuted:referenceDoi (from DwC-A: reference:referenceDoi)
+        // refuted:referenceUrl (from DwC-A: reference:referenceUrl)
+        */
+        $e['refuted:associationID'] = $rec['http://eol.org/schema/associationID'];
+        $e['refuted:interactionTypeId'] = $rec['http://eol.org/schema/associationType'];
+        $refID = $rec['http://eol.org/schema/reference/referenceID'];
+        if($ref = $this->references[$refID]) {
+            $e['refuted:referenceCitation'] = $ref['refuted:referenceCitation'];
+            $e['refuted:referenceDoi'] = $ref['refuted:referenceDoi'];
+            $e['refuted:referenceUrl'] = $ref['refuted:referenceUrl'];
+        }
+        else exit("\nreferenceID ($refID) in associations not found in references.tsv\n");
+        /*
+        refuted:sourceCitation (from DwC-A: association:source)
+        */
+        $e['refuted:sourceCitation'] = $rec['http://purl.org/dc/terms/source'];
         // print_r($e);
         return $e;
         /*

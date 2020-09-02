@@ -89,6 +89,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $tables = $info['harvester']->tables; 
         
         //step 1 is build info list
+        self::process_reference($tables['http://eol.org/schema/reference/reference'][0], 'build info');            
         self::process_association($tables['http://eol.org/schema/association'][0], 'build info');       //generates $this->targetOccurrenceIDS $this->toDeleteOccurrenceIDS
                                                                                                         //generates $this->occurrenceIDS
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'build info');  //generates $this->taxonIDS AND assigns taxonID to $this->targetOccurrenceIDS
@@ -646,7 +647,10 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     //for refuted records
                     $this->taxonIDS[$taxonID]['taxonID']   = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                     $this->taxonIDS[$taxonID]['taxonRank'] = $rec['http://rs.tdwg.org/dwc/terms/taxonRank'];
-                    
+                    $this->taxonIDS[$taxonID]['phylum']    = $rec['http://rs.tdwg.org/dwc/terms/phylum'];
+                    $this->taxonIDS[$taxonID]['class']     = $rec['http://rs.tdwg.org/dwc/terms/class'];
+                    $this->taxonIDS[$taxonID]['order']     = $rec['http://rs.tdwg.org/dwc/terms/order'];
+                    $this->taxonIDS[$taxonID]['family']    = $rec['http://rs.tdwg.org/dwc/terms/family'];
                     if(!$kingdom) {
                         //option 1
                         if($rec['http://rs.tdwg.org/dwc/terms/class'] == 'Actinopterygii') $this->taxonIDS[$taxonID]['kingdom'] = 'Animalia';
@@ -689,6 +693,56 @@ class GloBIDataAPI extends Globi_Refuted_Records
                     }
                     $this->archive_builder->write_object_to_file($o);
                 }
+            }
+        }
+    }
+    private function process_reference($meta, $what)
+    {   //print_r($meta);
+        echo "\nprocess_reference [$what]\n";
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /*Array(
+                [http://purl.org/dc/terms/identifier] => globi:ref:63
+                [http://eol.org/schema/reference/publicationType] => 
+                [http://eol.org/schema/reference/full_reference] => Hendler G, Miller JE, Pawson DL, Kier PM (1995). Sea Stars, Sea Urchins and Allies: Echinoderms of Florida and the Caribbean (G. Hendler, Ed.). Florida: Smithsonian Institution.
+                [http://eol.org/schema/reference/primaryTitle] => 
+                [http://purl.org/dc/terms/title] => 
+                [http://purl.org/ontology/bibo/pages] => 
+                [http://purl.org/ontology/bibo/pageStart] => 
+                [http://purl.org/ontology/bibo/pageEnd] => 
+                [http://purl.org/ontology/bibo/volume] => 
+                [http://purl.org/ontology/bibo/edition] => 
+                [http://purl.org/dc/terms/publisher] => 
+                [http://purl.org/ontology/bibo/authorList] => 
+                [http://purl.org/ontology/bibo/editorList] => 
+                [http://purl.org/dc/terms/created] => 
+                [http://purl.org/dc/terms/language] => 
+                [http://purl.org/ontology/bibo/uri] => https://books.google.com.mx/books?id=-0MWAQAAIAAJ&pg=PR4&dq=Sea+Stars,+Sea+Urchins+and+Allies:+Echinoderms+of+Florida+and+the+Caribbean&hl=es-419&sa=X&ved=0ahUKEwiVpM_8wdDjAhVlUt8KHdgBBrAQ6wEITzAF
+                [http://purl.org/ontology/bibo/doi] => 
+                [http://schemas.talis.com/2005/address/schema#localityName] =>
+            )*/
+            $refID = $rec['http://purl.org/dc/terms/identifier'];
+            if($what == 'build info') {
+                /*
+                refuted:referenceCitation (from DwC-A: reference:full_reference)
+                refuted:referenceDoi (from DwC-A: reference:referenceDoi)
+                refuted:referenceUrl (from DwC-A: reference:referenceUrl)
+                */
+                $this->references[$refID]['refuted:referenceCitation']  = $rec['http://eol.org/schema/reference/full_reference'];
+                $this->references[$refID]['refuted:referenceDoi']       = $rec['http://purl.org/ontology/bibo/doi'];
+                $this->references[$refID]['refuted:referenceUrl']       = $rec['http://purl.org/ontology/bibo/uri'];
             }
         }
     }
