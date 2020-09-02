@@ -20,6 +20,10 @@ eol-archive:
 itis_2020-07-28	Tue 2020-09-01 04:17:42 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":{"sec":211.03, "min":3.52, "hr":0.06}}
 itis_2020-07-28	Tue 2020-09-01 04:18:35 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":false}
 
+itis_2020-07-28	Tue 2020-09-01 11:01:33 PM	{"taxon.tab":104014, "vernacular_name.tab":11301, "time_elapsed":{"sec":169.89, "min":2.83, "hr":0.05}}
+itis_2020-07-28	Tue 2020-09-01 11:02:23 PM	{"taxon.tab":104014, "vernacular_name.tab":11301, "time_elapsed":false}
+
+
 Reminders: what is in Jenkins eol-archive. Run one after the other.
 php5.6 dwh_itis.php jenkins
 php5.6 synonyms_handling.php jenkins itis_2019-08-28

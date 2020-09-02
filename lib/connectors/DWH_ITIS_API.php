@@ -143,9 +143,13 @@ class DWH_ITIS_API
         echo "\nIDs to be removed: "; print_r($remove_ids); //exit;
         
         // /* new step: TRAM-987 include only allowed nodes and its children
+        // Hi Eli,
+        // Yes, we only want to harvest those branches and their children.  So the branches listed will be the root nodes in the resource file.
+        // Similar to what we did last time for the CLP resource.
+        // Thanks for checking, Katja
         echo "\nGet all allowed nodes and its children...\n";
         $this->allowed_IDs = self::get_allowed_IDs();
-        echo "\nAllowed IDs: ".count($this->allowed_IDs);
+        echo "\nAllowed IDs: ".count($this->allowed_IDs)."\n";
         // */
         
         //step 3 create series of info_files
