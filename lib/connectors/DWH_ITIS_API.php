@@ -60,37 +60,6 @@ class DWH_ITIS_API
         $this->scinames[1080652] = "Allopatides dendroïdes";
         */
     }
-    private function lookup_taxon_api($tsn, $xml_field) //2nd param e.g. "ax21:combinedName"
-    {
-        exit("\nDoes not go here anymore...\n");
-        $options = $this->download_options;
-        $options['expire_seconds'] = false; //should always be false since we're just looking up for the sciname.
-        if($xmlstr = Functions::lookup_with_cache($this->api['itis_taxon'].$tsn, $options)) {
-            $xmlstr = str_replace(":", "_", $xmlstr);
-            if($xml = simplexml_load_string($xmlstr)) {
-                if($val = $xml->ns_return->ax21_scientificName->ax21_combinedName) {
-                    if(Functions::is_utf8($val)) {
-                        echo "\nutf8 OK already [$val]\n";
-                        return $val;
-                    }
-                    else {
-                        $val = utf8_encode($val);
-                        echo "\nconverted using utf8_encode() [$val]\n";
-                        return $val;
-                    }
-                }
-            }
-            /* another option, also works OK
-            $start = "<".$xml_field.">";
-            $end = "<\/".$xml_field.">";
-            if(preg_match("/".$start."(.*?)".$end."/ims", $xmlxstr, $arr)) {
-                // return Functions::conv_to_utf8($arr[1]);
-                return $arr[1];
-            }
-            */
-        }
-        exit("\nNo API respond for tsn = $tsn\n");
-    }
     function start()
     {
         // $rec['taxonID'] = 1080652;
@@ -113,7 +82,7 @@ class DWH_ITIS_API
         exit("\n-end-\n"); //debug
         */
         
-        /* create Bacteria taxon entry */
+        /* create Bacteria taxon entry - works OK but Bacteria is now removed in TRAM-987
         $rec = array();
         $rec['taxonID'] = 50;
         $rec['furtherInformationURL'] = 'https://www.itis.gov/servlet/SingleRpt/SingleRpt?search_topic=TSN&search_value='.$rec['taxonID'].'#null';
@@ -127,13 +96,12 @@ class DWH_ITIS_API
         $rec['kingdom'] = '';
         $rec['taxonRemarks'] = '';
         self::write_taxon_DH($rec);
-        
-        // /*
+
         $this->taxonID_info[$rec['taxonID']] = array('aID' => $rec['acceptedNameUsageID'],
                                                      'pID' => $rec['parentNameUsageID'],
                                                      's' => $rec['taxonomicStatus'],
                                                      'r' => $rec['taxonRank']);
-        // */
+        */
         
         /* build language info list */
         $this->info_vernacular = self::build_language_info(); // print_r($this->info_vernacular);
@@ -654,6 +622,37 @@ foreach($taxon_ids13 as $id13) {
             if($val = $item[0]) $final[$val] = $item[1];
         }
         return $final; /* if google spreadsheet suddenly becomes offline, use this: Array() */
+    }
+    private function lookup_taxon_api($tsn, $xml_field) //2nd param e.g. "ax21:combinedName"
+    {
+        exit("\nDoes not go here anymore...\n");
+        $options = $this->download_options;
+        $options['expire_seconds'] = false; //should always be false since we're just looking up for the sciname.
+        if($xmlstr = Functions::lookup_with_cache($this->api['itis_taxon'].$tsn, $options)) {
+            $xmlstr = str_replace(":", "_", $xmlstr);
+            if($xml = simplexml_load_string($xmlstr)) {
+                if($val = $xml->ns_return->ax21_scientificName->ax21_combinedName) {
+                    if(Functions::is_utf8($val)) {
+                        echo "\nutf8 OK already [$val]\n";
+                        return $val;
+                    }
+                    else {
+                        $val = utf8_encode($val);
+                        echo "\nconverted using utf8_encode() [$val]\n";
+                        return $val;
+                    }
+                }
+            }
+            /* another option, also works OK
+            $start = "<".$xml_field.">";
+            $end = "<\/".$xml_field.">";
+            if(preg_match("/".$start."(.*?)".$end."/ims", $xmlxstr, $arr)) {
+                // return Functions::conv_to_utf8($arr[1]);
+                return $arr[1];
+            }
+            */
+        }
+        exit("\nNo API respond for tsn = $tsn\n");
     }
     /*
     function get_unmapped_strings()
