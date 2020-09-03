@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_15078/',       //dir_86815 - GloBI dev
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_15078/'            //dir_15078 - PaleoDB dev
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99894/',       //dir_89938 - GloBI dev
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99894/'            //dir_15078 - PaleoDB dev
         );
         */
         
