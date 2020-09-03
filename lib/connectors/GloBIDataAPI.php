@@ -642,6 +642,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                 $kingdom = $rec['http://rs.tdwg.org/dwc/terms/kingdom'];
                 if(isset($this->taxonIDS[$taxonID])) {
                     $this->taxonIDS[$taxonID]['kingdom'] = $kingdom;
+                    $this->taxonIDS[$taxonID]['orig kingdom'] = $kingdom;
                     $this->taxonIDS[$taxonID]['sciname'] = (string) $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
                     $this->taxonIDS[$taxonID]['genus']   = $rec['http://rs.tdwg.org/dwc/terms/genus'];
                     //for refuted records

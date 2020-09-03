@@ -117,7 +117,7 @@ class Globi_Refuted_Records
             $e['refuted:sourceTaxonOrderName'] = $this->taxonIDS[$source_taxonID]['order'];
             $e['refuted:sourceTaxonClassName'] = $this->taxonIDS[$source_taxonID]['class'];
             $e['refuted:sourceTaxonPhylumName'] = $this->taxonIDS[$source_taxonID]['phylum'];
-            $e['refuted:sourceTaxonKingdomName'] = $this->taxonIDS[$source_taxonID]['kingdom'];
+            $e['refuted:sourceTaxonKingdomName'] = @$this->taxonIDS[$source_taxonID]['orig kingdom'];
             if($source_taxonID != $e['sourceTaxonId']) exit("\nThey should be the same 01\n"); //for checking only
         }
         else {
@@ -141,7 +141,7 @@ class Globi_Refuted_Records
             $e['refuted:targetTaxonOrderName'] = $this->taxonIDS[$target_taxonID]['order'];
             $e['refuted:targetTaxonClassName'] = $this->taxonIDS[$target_taxonID]['class'];
             $e['refuted:targetTaxonPhylumName'] = $this->taxonIDS[$target_taxonID]['phylum'];
-            $e['refuted:targetTaxonKingdomName'] = $this->taxonIDS[$target_taxonID]['kingdom'];
+            $e['refuted:targetTaxonKingdomName'] = @$this->taxonIDS[$target_taxonID]['orig kingdom'];
             if($target_taxonID != $e['targetTaxonId']) exit("\nThey should be the same 02\n"); //for checking only
         }
         else {
