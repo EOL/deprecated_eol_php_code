@@ -14,7 +14,7 @@ class Globi_Refuted_Records
     }
     private function initialize()
     {
-        $this->report['cols'] = array('identifier', 'argumentTypeId', 'argumentTypeName', 'argumentReasonID', 'argumentReasonName', 'interactionTypeId', 'interactionTypeName', 
+        $this->report['cols'] = array('identifier', 'argumentTypeId', 'argumentTypeName', 'argumentReasonId', 'argumentReasonName', 'interactionTypeId', 'interactionTypeName', 
             'sourceCitation', 'sourceArchiveURI', 'sourceTaxonId', 'sourceTaxonName', 'sourceTaxonRank', 'sourceTaxonKingdomName', 'targetTaxonId', 
             'targetTaxonName', 'targetTaxonRank', 'targetTaxonKingdomName', 
             'refuted:associationID', 'refuted:interactionTypeId', 'refuted:referenceCitation', 'refuted:referenceDoi', 'refuted:referenceUrl', 'refuted:sourceCitation', 'refuted:sourceOccurrenceId', 
@@ -69,7 +69,7 @@ class Globi_Refuted_Records
         identifier *
         argumentTypeId *
         argumentTypeName *
-        argumentReasonID *
+        argumentReasonId *
         argumentReasonName *
         interactionTypeId **
         interactionTypeName *
@@ -90,8 +90,8 @@ class Globi_Refuted_Records
         $e['identifier'] = 'EOLrefute_'.$rec['http://eol.org/schema/associationID'];
         $e['argumentTypeId'] = 'https://en.wiktionary.org/wiki/refute';
         $e['argumentTypeName'] = 'refute';
-        $e['argumentReasonID'] = 'EOL-GloBI-validation'.$argument_Reason_index;
-        $e['argumentReasonName'] = $this->reason[$e['argumentReasonID']];
+        $e['argumentReasonId'] = 'EOL-GloBI-validation'.$argument_Reason_index;
+        $e['argumentReasonName'] = $this->reason[$e['argumentReasonId']];
             $e['interactionTypeId'] = $rec['http://eol.org/schema/associationType'];
         $e['sourceCitation'] = 'Biotic interaction data that failed Encyclopedia of Life data validation';
         $e['sourceArchiveURI'] = 'https://github.com/globalbioticinteractions/refuted-biotic-interactions-by-eol/blob/master/interactions.tsv'; //or OpenData
@@ -122,7 +122,7 @@ class Globi_Refuted_Records
         }
         else {
             print_r($rec);
-            echo "\n".$e['argumentReasonID']."-".$e['argumentReasonName']."\n";
+            echo "\n".$e['argumentReasonId']."-".$e['argumentReasonName']."\n";
             exit("\nNo taxonID for this source occurID [$occurrenceID]\n");
         }
         
@@ -146,7 +146,7 @@ class Globi_Refuted_Records
         }
         else {
             print_r($rec);
-            echo "\n".$e['argumentReasonID']."-".$e['argumentReasonName']."\n";
+            echo "\n".$e['argumentReasonId']."-".$e['argumentReasonName']."\n";
             exit("\nNo taxonID for this target occurID [$targetOccurrenceID]\n");
         }
         
@@ -190,7 +190,7 @@ class Globi_Refuted_Records
             where * is the value from association.tab:associationID. (not sure why some of this text gets crossed out, it shouldn't be)
         *argumentTypeId --> use value "https://en.wiktionary.org/wiki/refute" (without quotes) for all records
         *argumentTypeName --> use value "refute" (without quotes) for all records
-        *argumentReasonID --> use something like EOL-GloBI-validation1 etc.
+        *argumentReasonId --> use something like EOL-GloBI-validation1 etc.
         *argumentReasonName --> use the the headline of the relevant validation rule in DATA-1853, e.g., "Records of non-carnivorous plants eating animals are likely to be errors"
         *sourceCitation --> Biotic interaction data that failed Encyclopedia of Life data validation
         *sourceArchiveURI --> TBD - url of wherever we put the Refuted Records file, either on OpenData or on github. 

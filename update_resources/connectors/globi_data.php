@@ -35,6 +35,7 @@ globi_associations	Wed 2020-08-12 12:56:39 PM  "association.tab":1866725, "occur
 globi_associations	Thu 2020-08-13 12:36:13 AM	{"association.tab":1866725, "occurrence_specific.tab":2763493, "reference.tab":1006155, "taxon.tab":224175, "time_elapsed":{"sec":4038.18, "min":67.3, "hr":1.12}}
 DATA-1862
 globi_associations	Wed 2020-09-02 11:34:39 AM	{"association.tab":1908403, "occurrence_specific.tab":2817930, "reference.tab":1047221, "taxon.tab":227253, "time_elapsed":{"sec":4410.59, "min":73.51, "hr":1.23}}
+globi_associations	Thu 2020-09-03 10:36:57 AM	{"association.tab":1908403, "occurrence_specific.tab":2817930, "reference.tab":1047221, "taxon.tab":227253, "time_elapsed":{"sec":3999.01, "min":66.65, "hr":1.11}}
 
 Stats:
 As of May 27, 2020
