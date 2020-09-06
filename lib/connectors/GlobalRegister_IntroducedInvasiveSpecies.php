@@ -508,7 +508,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 $save = array();
                 $save['taxon_id'] = $taxon_id;
                 $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
+                $save['measurementRemarks'] = $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']." (".@$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'].")";
                 $save['occur']['establishmentMeans'] = @$rec['http://rs.tdwg.org/dwc/terms/establishmentMeans'];
                 $save['occur']['locality'] = $occur_locality;
                 $save['occur']['eventDate'] = @$rec['http://rs.tdwg.org/dwc/terms/eventDate'];
