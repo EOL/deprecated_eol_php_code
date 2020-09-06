@@ -95,9 +95,6 @@ Total rows = 11256
 
 as of Sep 3, 2020:
 [change the associationType to pathogen_of] => 177
-Latest version, for review.
-- DwCA [OpenData|https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61]
-- refuted records [OpenData|https://opendata.eol.org/dataset/globi/resource/92595520-35f3-48f2-95cf-ea67f7c455c3]
 [1. Records of non-carnivorous plants eating animals are likely to be errors] => 990
 [2. Records of plants parasitizing animals are likely to be errors] => 840
 [3. Records of plants having animals as hosts are likely to be errors] => 1113
@@ -106,6 +103,22 @@ Latest version, for review.
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 2217
 [7. Records of organisms other than plants having flower visitors are probably errors] => 743
 Total rows = 6851
+
+Hi Katja,
+Field now renamed to "argumentReasonId".
+as of Sep 5, 2020:
+[change the associationType to pathogen_of] => 176
+Latest version, for review.
+- DwCA [OpenData|https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61]
+- refuted records [OpenData|https://opendata.eol.org/dataset/globi/resource/92595520-35f3-48f2-95cf-ea67f7c455c3]
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 990
+[2. Records of plants parasitizing animals are likely to be errors] => 840
+[3. Records of plants having animals as hosts are likely to be errors] => 1113
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 950
+[5. Records of plants laying eggs are likely to be errors] => 0
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 2218
+[7. Records of organisms other than plants having flower visitors are probably errors] => 741
+Total rows = 6852
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
