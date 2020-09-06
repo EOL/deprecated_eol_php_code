@@ -418,10 +418,9 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     // */
 
                     if(stripos($mValue, 'http://purl.obolibrary.org/obo/UO') !== false) { //string is found
-                        echo "\nprocess_speciesprofile"; print_r($rec); exit;
+                        echo "\nprocess_speciesprofile"; print_r($rec); exit("\nInvestigate!\n");
                     }
 
-                    
                     $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                     $save = array();
                     $save['taxon_id'] = $taxon_id;
@@ -493,9 +492,8 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 */
                 $mValue = self::get_uri(@$rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
                 if(stripos($mValue, 'http://purl.obolibrary.org/obo/UO') !== false) { //string is found
-                    echo "\nprocess_distribution"; print_r($rec); exit;
+                    echo "\nprocess_distribution"; print_r($rec); exit("\nInvestigate!\n");
                 }
-                
                 
                 if(!$mValue) continue; //new Apr 29, 2020
                 
@@ -857,12 +855,18 @@ class GlobalRegister_IntroducedInvasiveSpecies
         }
     }
     private function initialize_mapping()
-    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
+    {   
+        /* Excluded bec. it gets things like "mg" -> milligram instead of Madagascar [MG].
+        $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
+        */
+        $mappings = array();
         $this->uris = Functions::additional_mappings($mappings, 60*60*24); //add more mappings used in the past
-        // print_r($this->uris); exit;
+        // print_r($this->uris); exit; //debug only
+        /* from copied template
         if($this->uris['Oceanic'] == 'http://purl.obolibrary.org/obo/ENVO_00000447') echo "\nRe-mapping is good.\n";
         else echo "\nERROR: Re-mapping failed.\n";
+        */
         echo "\nURIs total: ".count($this->uris)."\n";
     }
     /*================================================================= copied templates below ======================================================================*/
