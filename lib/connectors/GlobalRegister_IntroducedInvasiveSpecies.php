@@ -402,6 +402,12 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 foreach($habitats as $habitat) {
                     if(!$habitat) continue;
                     $mValue = self::get_uri($habitat,'habitat');
+                    
+                    
+                    if(stripos($mValue, 'http://purl.obolibrary.org/obo/UO') !== false) { //string is found
+                        echo "\nprocess_speciesprofile"; print_r($rec); exit;
+                    }
+                    
                     // $mType = 'http://eol.org/schema/terms/Habitat'; //obsolete
                     $mType = 'http://purl.obolibrary.org/obo/RO_0002303'; //DATA-1841
                     if(!$mValue) continue;
@@ -486,6 +492,11 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 and I'll make you a mapping to measurementType from that.
                 */
                 $mValue = self::get_uri(@$rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
+                if(stripos($mValue, 'http://purl.obolibrary.org/obo/UO') !== false) { //string is found
+                    echo "\nprocess_distribution"; print_r($rec); exit;
+                }
+                
+                
                 if(!$mValue) continue; //new Apr 29, 2020
                 
                 $mType = self::get_mType_4distribution(@$rec['http://rs.tdwg.org/dwc/terms/occurrenceStatus'], $rec['http://rs.tdwg.org/dwc/terms/establishmentMeans']);
