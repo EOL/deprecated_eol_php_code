@@ -490,7 +490,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                 - measurementType will be determined by occurrenceStatus and establishmentMeans. I think you'd better send me a report of all combinations of the two fields in the dataset, 
                 and I'll make you a mapping to measurementType from that.
                 */
-                $mValue = self::get_uri(@$rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode');
+                $mValue = self::get_uri(@$rec['http://rs.tdwg.org/dwc/terms/countryCode'], 'countryCode', $rec);
                 if(stripos($mValue, 'http://purl.obolibrary.org/obo/UO') !== false) { //string is found
                     echo "\nprocess_distribution"; print_r($rec); exit("\nInvestigate!\n");
                 }
@@ -545,7 +545,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         // return "https://www.gbif.org/species/".$rec['http://rs.tdwg.org/dwc/terms/taxonID']; --- outright wrong! since not all taxonID is using GBIF convention for taxonID.
     }
     */
-    private function get_uri($value, $field)
+    private function get_uri($value, $field, $rec = array())
     {   
         $orig = $value;
         if($field == 'habitat') {
@@ -575,7 +575,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
         if($val = @$this->uris[$value]) return $val;
         elseif($val = @$this->uris[strtolower($value)]) return $val;
         else {
-            $this->debug["undefined"][$field][$value] = '';
+            $this->debug["undefined"][$field][$value][@$rec['http://rs.tdwg.org/dwc/terms/locationID']] = '';
             return $orig;
         }
     }
