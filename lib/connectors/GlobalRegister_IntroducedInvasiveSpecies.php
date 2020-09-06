@@ -403,11 +403,6 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     if(!$habitat) continue;
                     $mValue = self::get_uri($habitat,'habitat');
                     
-                    
-                    if(stripos($mValue, 'http://purl.obolibrary.org/obo/UO') !== false) { //string is found
-                        echo "\nprocess_speciesprofile"; print_r($rec); exit;
-                    }
-                    
                     // $mType = 'http://eol.org/schema/terms/Habitat'; //obsolete
                     $mType = 'http://purl.obolibrary.org/obo/RO_0002303'; //DATA-1841
                     if(!$mValue) continue;
@@ -421,6 +416,11 @@ class GlobalRegister_IntroducedInvasiveSpecies
                         }
                     }
                     // */
+
+                    if(stripos($mValue, 'http://purl.obolibrary.org/obo/UO') !== false) { //string is found
+                        echo "\nprocess_speciesprofile"; print_r($rec); exit;
+                    }
+
                     
                     $taxon_id = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                     $save = array();
