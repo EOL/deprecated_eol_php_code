@@ -11,6 +11,8 @@ class Environments2EOLAPI
     function __construct($param)
     {
         $this->param = $param; // print_r($param); exit;
+        if($param['resource_id'] => '617_ENV') $this->modulo = 10000; //Wikipedia EN
+        else                                   $this->modulo = 1000;
         /*-----------------------Resources-------------------*/
         // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         /*-----------------------Subjects-------------------*/
@@ -124,7 +126,7 @@ class Environments2EOLAPI
         echo "\nprocess media tab...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
@@ -241,7 +243,7 @@ class Environments2EOLAPI
         $agent_ids = array();
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
-            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
             if(!$row) continue;
             $row = Functions::conv_to_utf8($row); //possibly to fix special chars
