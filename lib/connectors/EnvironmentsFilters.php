@@ -50,14 +50,13 @@ class EnvironmentsFilters
             // echo "\n$sciname - "; print_r($mValues);
             foreach($mValues as $mValue => $occurID) {
                 // /* new https://eol-jira.bibalex.org/browse/DATA-1768?focusedCommentId=62965&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-62965
-                if(isset($this->excluded_eol_ids[$sciname]) && isset($this->excluded_terms[$mValue])) return $this->occurID_2delete[$occurID];
+                if(isset($this->excluded_eol_ids[$sciname]) && isset($this->excluded_terms[$mValue])) {
+                    $this->occurID_2delete[$occurID] = '';
+                    $this->debug['combination deleted MoF'][$sciname][$mValue] = ''; //good debug, but debug only
+                    // exit("\nAt last a resource with a hit\n"); //debug only
+                }
                 // */
             }
-        }
-        if($this->occurID_2delete) { //just a debug
-            print_r($this->occurID_2delete);
-            exit("\nAt last a resource with a hit\n"); //debug only
-            $this->debug['combination deleted MoF'][$sciname][$mValue] = '';
         }
     }
     private function borrow_data()
