@@ -265,6 +265,11 @@ class DwCA_Utility
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
+        } 
+        if(in_array($this->resource_id, array('wikipedia_en_traits'))) { //calls a generic utility
+            require_library('connectors/ResourceUtility');
+            $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->remove_taxa_without_MoF($info);
         }
         if(in_array($this->resource_id, array('368_merged_MoF'))) {
             require_library('connectors/MergeMoFrecordsAPI');
