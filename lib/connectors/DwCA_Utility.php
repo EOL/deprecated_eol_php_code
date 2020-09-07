@@ -251,17 +251,17 @@ class DwCA_Utility
             $func = new GBIF_classificationAPI_v2($this->resource_id, $this->archive_builder);
             $func->create_dwca_without_ancestry($info);
         }
-        if(in_array($this->resource_id, array('21_ENV'))) {
+        if(in_array($this->resource_id, array('21_ENV', '617_ENV'))) {
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('21_ENVO'))) {
+        if(in_array($this->resource_id, array('21_ENVO', '617_ENVO'))) {
             require_library('connectors/EnvironmentsFilters');
             $func = new EnvironmentsFilters($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('708', '21_final'))) {
+        if(in_array($this->resource_id, array('708', '21_final', '617_final'))) {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
