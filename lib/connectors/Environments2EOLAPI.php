@@ -15,6 +15,11 @@ class Environments2EOLAPI
         // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
         /*-----------------------Subjects-------------------*/
         $this->subjects['Distribution'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
+        $this->subjects['Description'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
+        /* Wikipedia EN
+        http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description:  389994
+        http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology: 382437
+        */
         /*-----------------------Paths----------------------*/
         if(Functions::is_production()) $this->root_path = '/u/scripts/vangelis_tagger/';
         else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
