@@ -18,6 +18,7 @@ class Environments2EOLAPI
         /*-----------------------Subjects-------------------*/
         $this->subjects['Distribution'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
         $this->subjects['Description'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
+        $this->subjects['TaxonBiology'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
         /* Wikipedia EN
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description:  389994
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology: 382437
