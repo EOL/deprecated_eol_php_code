@@ -147,7 +147,7 @@ class New_EnvironmentsEOLDataConnector
                 $field = pathinfo($uri, PATHINFO_BASENAME);
                 $o->$field = $rec[$uri];
             }
-            if($val = $o->referenceID) $this->referenceIDs[$val] = ''; //later, will write only refs actually used in MoF
+            if($val = @$o->referenceID) $this->referenceIDs[$val] = ''; //later, will write only refs actually used in MoF
             $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
@@ -204,7 +204,7 @@ class New_EnvironmentsEOLDataConnector
             $ranks = array('kingdom', 'phylum', 'class', 'order', 'family', 'genus');
             $ranks = array('phylum');
             foreach($ranks as $rangk) {
-                if($val = $rec['http://rs.tdwg.org/dwc/terms/'.$rangk]) {
+                if($val = @$rec['http://rs.tdwg.org/dwc/terms/'.$rangk]) {
                     $val = Functions::canonical_form($val);
                     if(!isset($ret['ancestry'][$rangk][$val])) {
                         // $this->debug["not $rangk in DH"][$val] = @$ret['taxa'][$val]." in DH";

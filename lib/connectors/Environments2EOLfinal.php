@@ -13,6 +13,11 @@ class Environments2EOLfinal
         else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
         $this->json_temp_path       = $this->root_path.'temp_json/';
+        
+        echo "\nEnvironments2EOLfinal resource_id: [$this->resource_id]\n";
+        if($this->resource_id == '617_ENV') $this->modulo = 10000; //Wikipedia EN
+        else                                $this->modulo = 1000;
+        
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -47,13 +52,14 @@ class Environments2EOLfinal
     }
     private function add_environmental_traits()
     {
+        echo "\nProcessing...Environments2EOLfinal...$this->resource_id\n";
         $old_func = self::borrow_data(); // print_r($this->excluded_uris); exit("\nexcluded uris\n");
         require_library('connectors/TraitGeneric');
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         $tsv = $this->eol_tags_path.'eol_tags_noParentTerms.tsv';
         $i = 0;
         foreach(new FileIterator($tsv) as $line_number => $row) {
-            $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
+            $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
             $arr = explode("\t", $row); // print_r($arr); exit;
             /* Array(
                 [0] => 1005_-_1005_distribution.txt
