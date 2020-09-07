@@ -15,7 +15,7 @@ class Environments2EOLfinal
         $this->json_temp_path       = $this->root_path.'temp_json/';
         
         echo "\nEnvironments2EOLfinal resource_id: [$this->resource_id]\n";
-        if($this->resource_id == '617_ENV') $this->modulo = 10000; //Wikipedia EN
+        if($this->resource_id == '617_ENV') $this->modulo = 50000; //Wikipedia EN
         else                                $this->modulo = 1000;
         
     }

@@ -11,7 +11,7 @@ class Environments2EOLAPI
     function __construct($param)
     {
         $this->param = $param; // print_r($param); exit;
-        if($param['resource_id'] == '617_ENV') $this->modulo = 10000; //Wikipedia EN
+        if($param['resource_id'] == '617_ENV') $this->modulo = 50000; //Wikipedia EN
         else                                   $this->modulo = 1000;
         /*-----------------------Resources-------------------*/
         // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
