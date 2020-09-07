@@ -17,7 +17,7 @@ class ResourceUtility
     }
     private function process_occurrence($meta)
     {   //print_r($meta);
-        echo "\nResourceUtility...process_occurrence...\n"; $i = 0;
+        echo "\nResourceUtility...read occurrences...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -40,7 +40,7 @@ class ResourceUtility
     }
     private function process_taxon($meta)
     {   //print_r($meta);
-        echo "\nResourceUtility...process_taxon...\n"; $i = 0;
+        echo "\nResourceUtility...write taxa...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
