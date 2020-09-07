@@ -151,7 +151,7 @@ class DwCA_Utility
             }
             if(@$this->extensions[$row_type]) { //process only defined row_types
                 // if(@$this->extensions[$row_type] == 'document') continue; //debug only
-                echo "\nprocessing...: [$row_type]: ".@$this->extensions[$row_type]."...\n";
+                echo "\nprocessing...DwCA_Utility...: [$row_type]: ".@$this->extensions[$row_type]."...\n";
                 self::process_fields($harvester->process_row_type($row_type), $this->extensions[$row_type]);
             }
             else echo "\nun-processed: [$row_type]: ".@$this->extensions[$row_type]."\n";
