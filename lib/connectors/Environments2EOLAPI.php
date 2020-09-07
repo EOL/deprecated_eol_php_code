@@ -46,7 +46,7 @@ class Environments2EOLAPI
         // */
         $info = self::parse_dwca($resource); // print_r($info); exit;
         $tables = $info['harvester']->tables;
-        print_r($tables); exit;
+        print_r(array_keys($tables)); //exit;
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
