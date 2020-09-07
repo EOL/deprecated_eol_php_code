@@ -44,6 +44,7 @@ class Environments2EOLAPI
         // */
         $info = self::parse_dwca($resource); // print_r($info); exit;
         $tables = $info['harvester']->tables;
+        print_r($tables); exit;
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
@@ -53,7 +54,7 @@ class Environments2EOLAPI
         /* ----- stat 2nd part ----- */
         $obj_identifiers = self::get_unique_obj_identifiers(); // get unique IDs from noParentTerms
         $agent_ids = self::save_media_metadata_for_these_objects($obj_identifiers, $tables['http://eol.org/schema/media/document'][0]);
-        self::save_agent_metadata_for_these_agents($agent_ids, $tables['http://eol.org/schema/agent/agent'][0]);
+        if($val = @$tables['http://eol.org/schema/agent/agent']) self::save_agent_metadata_for_these_agents($agent_ids, $val[0]);
         // /* un-comment in real operation
         recursive_rmdir($info['temp_dir']); //remove temp folder used for DwCA parsing
         // */
@@ -68,7 +69,10 @@ class Environments2EOLAPI
         */
         $preferred_rowtypes = false; //means process all rowtypes, except what's in $excluded_rowtypes
         // $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //not used
-        $func->convert_archive($preferred_rowtypes);
+        
+        if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        
+        $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
         // exit("\nstop muna - used in debugging\n");
         /* 4th part */
@@ -134,7 +138,7 @@ class Environments2EOLAPI
             // print_r($rec); exit("\n[1]\n");
             if(self::valid_record($rec)) {
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
-                $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = '';
+                // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
                 $saved++;
                 self::save_article_2_txtfile($rec);
                 if($saved == $this->num_of_saved_recs_bef_run_tagger) {
