@@ -22,6 +22,7 @@ Tuesday 2020-05-12 10:29:00 AM	{"measurement_or_fact_specific.tab":108348, "occu
 Tuesday 2020-07-28 02:11:04 AM	{"measurement_or_fact_specific.tab":84575, "occurrence_specific.tab":57077, "taxon.tab":14873, "time_elapsed":{"sec":1082.89, "min":18.05, "hr":0.3}}
 Sun 2020-09-06 10:26:31 AM	    {"measurement_or_fact_specific.tab":84575, "occurrence_specific.tab":57077, "taxon.tab":14873, "time_elapsed":{"sec":960.28, "min":16, "hr":0.27}}
 Mon 2020-09-07 11:51:45 PM	    {"measurement_or_fact_specific.tab":84800, "occurrence_specific.tab":57302, "taxon.tab":14873, "time_elapsed":{"sec":982.71, "min":16.38, "hr":0.27}}
+Tue 2020-09-08 08:30:03 AM	    {"measurement_or_fact_specific.tab":85503, "occurrence_specific.tab":57659, "taxon.tab":14891, "time_elapsed":{"sec":1008.26, "min":16.8, "hr":0.28}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/GlobalRegister_IntroducedInvasiveSpecies');
