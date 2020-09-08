@@ -570,10 +570,27 @@ class GlobalRegister_IntroducedInvasiveSpecies
         $value = $orig;
         switch($value) {
             case "KH": return "http://www.geonames.org/1527747";
+            case "MG": return "http://www.geonames.org/1062947";
+            case "LB": return "http://www.geonames.org/272103";
+            case "Lb": return "http://www.geonames.org/272103";
+            case "PG": return "http://www.geonames.org/2088628";
+            case "CM": return "http://www.geonames.org/2233387";
             default:
         }
+        /* from: https://eol-jira.bibalex.org/browse/DATA-1838?focusedCommentId=65139&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65139
+        These 5 added above:
+        [MG] => [Madagascar] =>http://www.geonames.org/1062947
+        [LB] => [Lebanon] =>http://www.geonames.org/272103
+        [Lb] => [Lebanon] =>http://www.geonames.org/272103
+        [PG] => [Papua New Guinea] =>http://www.geonames.org/2088628
+        [CM] => [Cameroon] =>http://www.geonames.org/2233387
+        This 1 added below:
+        [] => [Kenya|Tanzania] =>http://www.geonames.org/7729889
+        */
+        
         if($val = @$this->uris[$value]) return $val;
         elseif($val = @$this->uris[strtolower($value)]) return $val;
+        elseif(@$rec['http://rs.tdwg.org/dwc/terms/locationID'] == 'Kenya|Tanzania') return 'http://www.geonames.org/7729889';
         else {
             $this->debug["undefined"][$field][$value][@$rec['http://rs.tdwg.org/dwc/terms/locationID']] = '';
             return $orig;
