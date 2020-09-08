@@ -126,6 +126,7 @@ class Environments2EOLAPI
     private function process_table($meta) //generates individual text files & runs environment tagger
     {   //print_r($meta);
         echo "\nprocess media tab...\n";
+        echo "\nRun run_environment_tagger()...every $this->num_of_saved_recs_bef_run_tagger records.\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
@@ -146,7 +147,6 @@ class Environments2EOLAPI
                 $saved++;
                 self::save_article_2_txtfile($rec);
                 if($saved == $this->num_of_saved_recs_bef_run_tagger) {
-                    if(($i % $this->modulo) == 0) echo "\nRun run_environment_tagger()...";
                     self::run_environment_tagger();
                     $saved = 0;
                 }
