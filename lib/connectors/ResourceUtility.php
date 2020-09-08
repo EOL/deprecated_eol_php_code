@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from remove_taxa_without_MoF.php */
+/* This is a generic utility for DwCA post-processing.
+first client connector: [called from DwCA_Utility.php, which is called from remove_taxa_without_MoF.php */
 class ResourceUtility
 {
     function __construct($archive_builder, $resource_id)

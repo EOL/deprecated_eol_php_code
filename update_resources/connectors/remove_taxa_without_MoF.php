@@ -1,7 +1,8 @@
 <?php
 namespace php_active_record;
 /* This is generic way of removing taxa without MoF records.
-first client: environments_2_eol.php for Wikipedia EN 
+first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20tagger%20for%20EOL%20resources/job/Wikipedia%20EN%20(English)/
+              environments_2_eol.php for Wikipedia EN 
 
 php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
 */
