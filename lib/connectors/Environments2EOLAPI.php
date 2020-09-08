@@ -146,6 +146,7 @@ class Environments2EOLAPI
                 $saved++;
                 self::save_article_2_txtfile($rec);
                 if($saved == $this->num_of_saved_recs_bef_run_tagger) {
+                    if(($i % $this->modulo) == 0) echo "\nRun run_environment_tagger()...";
                     self::run_environment_tagger();
                     $saved = 0;
                 }
@@ -154,6 +155,7 @@ class Environments2EOLAPI
         }
         echo "\nLast round...\n";
         echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nShould be NOT empty - OK ";
+        echo "\nRun run_environment_tagger()...";
         self::run_environment_tagger(); //process remaining txt files.
         echo (count(glob("$this->text_data_path/*")) === 0) ? "\nShould be empty - OK\n" : "\nNot empty!\n";
     }
@@ -182,7 +184,7 @@ class Environments2EOLAPI
         }
     }
     private function run_environment_tagger()
-    {   echo "\nRun run_environment_tagger()...";
+    {
         $current_dir = getcwd(); //get current dir
         chdir($this->eol_tagger_path);
         /*
