@@ -48,7 +48,7 @@ class DWH_WoRMS_API
             echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         else { //local development only
-            $info = Array('temp_dir' => '/Library/WebServer/Documents/eol_php_code/tmp/dir_28209/',
+            $info = Array('temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81703/',
                           'tables' => Array('taxa' => "taxon.txt"));
 
             /* run to fill-in $info above:
@@ -106,7 +106,7 @@ class DWH_WoRMS_API
         return $rec;
     }
     private function main_WoRMS()
-    {
+    {   /* from TRAM-798
         $include['123081'] = "Crinoidea"; 
         $include['6'] = "Bacteria"; 
         $include['599656'] = "Glaucophyta"; 
@@ -133,10 +133,45 @@ class DWH_WoRMS_API
         $include['582261'] = "Ministeriida"; 
         $include['580116'] = "Choanoflagellatea"; 
         $include['391862'] = "Ichthyosporea";
+        */
+        // /* from TRAM-988
+        $include['536209'] = "Alveolata Cavalier-Smith";
+        $include['6'] = "Bacteria";
+        $include['1803'] = "Brachiopoda Duméril, 1805";
+        $include['146142'] = "Bryozoa";
+        $include['2081'] = "Chaetognatha";
+        $include['1267'] = "Cnidaria Hatschek, 1888";
+        $include['1248'] = "Ctenophora Eschscholtz, 1829";
+        $include['22586'] = "Cycliophora Funch & Kristensen, 1995";
+        $include['14221'] = "Dicyemida van Beneden";
+        $include['1806'] = "Echinodermata Bruguière, 1791 [ex Klein, 1734]";
+        $include['1271'] = "Entoprocta Nitsche, 1869";
+        $include['14262'] = "Gnathostomulida Riedl, 1969";
+        $include['1818'] = "Hemichordata Bateson, 1885";
+        $include['101060'] = "Kinorhyncha Reinhard, 1885";
+        $include['101061'] = "Loricifera Kristensen, 1983";
+        $include['51'] = "Mollusca";
+        $include['845959'] = "Multicrustacea Regier, Shultz, Zwick, Hussey, Ball, Wetzer, Martin & Cunningham, 2010";
+        $include['233983'] = "Myzostomida von Graff, 1877";
+        $include['799'] = "Nematoda";
+        $include['345465'] = "Ochrophyta Cavalier-Smith, 1995";
+        $include['845957'] = "Oligostraca Zrzavý, Hypša & Vlášková, 1997";
+        $include['14220'] = "Orthonectida Giard, 1877";
+        $include['1789'] = "Phoronida Hatschek, 1888";
+        $include['22737'] = "Placozoa Grell, 1971";
+        $include['883'] = "Polychaeta Grube, 1850";
+        $include['558'] = "Porifera Grant, 1836";
+        $include['101063'] = "Priapulida Théel, 1906";
+        $include['1067'] = "Remipedia Yager, 1981";
+        $include['582420'] = "Rhizaria";
+        $include['1268'] = "Sipuncula Stephen, 1964";
+        $include['146420'] = "Tunicata Lamarck, 1816";
+        // */
         $this->include = $include;
         
         $removed_branches = array();
         // /* un-comment in real operation
+        /*actual spreadsheet: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit?usp=sharing */
         $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
         $params['range']         = 'Sheet1!A2:B2000'; //actual range is up to B1030 only as of Aug 23, 2018. I set B2000 to put allowance for possible increase.
         $parts = self::get_removed_branches_from_spreadsheet($params);
