@@ -14,12 +14,8 @@ Next step now is to combine all the steps within a general connector:
       5.2.3 contributor - http://purl.org/dc/terms/contributor
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
       5.2.5 agendID -> contributor
-OLD implementation
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21_ENV", "subjects":"Distribution"}'
-php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21_ENVO"}'
-php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"21_final"}'
 
-NEW implementation
+Implementation:
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"21"}'
@@ -35,7 +31,6 @@ wikipedia_en_traits	Tue 2020-09-08 02:15:01 AM	{"measurement_or_fact.tab":818305
 
 617_final	Tue 2020-09-08 11:27:07 PM	        {"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":600.27, "min":10, "hr":0.17}}
 wikipedia_en_traits	Tue 2020-09-08 11:37:05 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
-
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
