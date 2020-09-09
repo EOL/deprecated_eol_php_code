@@ -21,8 +21,8 @@ class DWH_WoRMS_API
         
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'resource_id' => 26);
-        $this->download_options["expire_seconds"] = false; //debug - false means it will use cache
-        
+        $this->download_options["expire_seconds"] = false; //false means it will use cache always
+                                                           //false - primarily used in lookup from WoRMS using AphiaID
     }
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
     private function start()
