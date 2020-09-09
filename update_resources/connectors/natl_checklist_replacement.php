@@ -17,6 +17,9 @@ https://www.gbif.org/occurrence/search?country=MZ
 https://www.geonames.org/1036973
 */
 
+/* Original resources based on Anne's query use "SC_" and when replaced by the GBIF occurrence the convention is now "c_".
+The change is to not overwrite the original batch. */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // ini_set('memory_limit','8096M');
 $timestart = time_elapsed();
