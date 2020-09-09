@@ -17,9 +17,9 @@ exit("\nend test\n");
 
 exit("\nThis has been run already. Other connectors were created to further adjust the DwCA's. See below:\n");
 /* There is the:
-DATA-1833 - sc_australia.php
-DATA-1840 - natl_checklist_replacement.php
-DATA-1841 - species_checklist_terms_remapped.php
+DATA-1833 - sc_australia.php                            --> remapped one country: if mtype == 'present' then mvalue = {australia code}
+DATA-1840 - natl_checklist_replacement.php              --> replacing Anne's query with GBIF occurrence download as source
+DATA-1841 - species_checklist_terms_remapped.php        --> batch terms remapping...
 */
 
 echo "\nBoth main operation and utility report were already run.\n\n";
