@@ -10,6 +10,11 @@ namespace php_active_record;
     wget -q http://api.gbif.org/v1/occurrence/download/request/0027457-190918142434337.zip -O /extra/other_files/GBIF_DwCA/Bahrain_0027457-190918142434337.zip
     wget -q http://api.gbif.org/v1/occurrence/download/request/0027458-190918142434337.zip -O /extra/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip
     wget -q http://api.gbif.org/v1/occurrence/download/request/0027503-190918142434337.zip -O /extra/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip
+
+Request from Jen: Sep 9, 2020
+Mozambique
+https://www.gbif.org/occurrence/search?country=MZ
+https://www.geonames.org/1036973
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -21,6 +26,7 @@ $ctry_name                  = @$argv[2];
 $ctry['Anguilla'] = 'AI';
 $ctry['Aruba'] = 'AW';
 $ctry['Bahrain'] = 'BH';
+$ctry['Mozambique'] = 'MZ';
 if(!isset($ctry[$ctry_name])) exit("\nERROR: Wrong country parameter.\n");
 else $resource_id = 'c_'.$ctry[$ctry_name];
 

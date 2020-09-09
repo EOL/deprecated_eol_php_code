@@ -37,17 +37,25 @@ class NatlChecklistReplacementAPI
         $this->c_service['c_BH'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Bahrain_0027457-190918142434337.zip';
         $this->c_service['c_AI'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Anguilla_0027458-190918142434337.zip';
         $this->c_service['c_AW'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Aruba_0027503-190918142434337.zip';
+        $this->c_service['c_MZ'] = 'https://editors.eol.org/other_files/GBIF_DwCA/Mozambique_0057858-200613084148143.zip';
+        /* based from GBIF Mozambique downlod:
+        http://api.gbif.org/v1/occurrence/download/request/0057858-200613084148143.zip
+        */
         $this->c_citation['c_BH'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.tewqob';
         $this->c_citation['c_AI'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.psdkxm';
         $this->c_citation['c_AW'] = 'GBIF.org (23 October 2019) GBIF Occurrence Download https://doi.org/10.15468/dl.n3l3pq';
+        $this->c_citation['c_MZ'] = 'GBIF.org (9 September 2020) GBIF Occurrence Download https://doi.org/10.15468/dl.gshtu6';
 
         $this->c_source['c_BH'] = 'https://doi.org/10.15468/dl.tewqob';
         $this->c_source['c_AI'] = 'https://doi.org/10.15468/dl.psdkxm';
         $this->c_source['c_AW'] = 'https://doi.org/10.15468/dl.n3l3pq';
+        $this->c_source['c_MZ'] = 'https://doi.org/10.15468/dl.gshtu6';
 
         $this->c_mValue['c_BH'] = 'http://www.geonames.org/290291';
         $this->c_mValue['c_AI'] = 'http://www.geonames.org/3573512';
         $this->c_mValue['c_AW'] = 'http://www.geonames.org/3577279';
+        $this->c_mValue['c_MZ'] = 'https://www.geonames.org/1036973';
+        
         $this->debug = array();
         $this->fields_4taxa = array('http://rs.tdwg.org/dwc/terms/taxonID', 'http://rs.tdwg.org/dwc/terms/scientificName', 'http://rs.tdwg.org/dwc/terms/kingdom', 
             'http://rs.tdwg.org/dwc/terms/phylum', 'http://rs.tdwg.org/dwc/terms/class', 'http://rs.tdwg.org/dwc/terms/order', 'http://rs.tdwg.org/dwc/terms/family', 
