@@ -13,8 +13,8 @@ class ResourceUtility
     function remove_taxa_without_MoF($info)
     {   
         $tables = $info['harvester']->tables;
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
-        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);    //build $this->taxon_ids
+        self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);              //write taxa
     }
     private function process_occurrence($meta)
     {   //print_r($meta);
@@ -33,10 +33,10 @@ class ResourceUtility
             }
             // print_r($rec); exit("\ndebug...\n");
             /**/
-            //===========================================================================================================================================================
+            //------------------------------------------------------------------------------
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             $this->taxon_ids[$taxonID] = '';
-            //===========================================================================================================================================================
+            //------------------------------------------------------------------------------
         }
     }
     private function process_taxon($meta)
@@ -56,10 +56,10 @@ class ResourceUtility
             }
             // print_r($rec); exit("\ndebug...\n");
             /**/
-            //===========================================================================================================================================================
+            //------------------------------------------------------------------------------
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             if(!isset($this->taxon_ids[$taxonID])) continue;
-            //===========================================================================================================================================================
+            //------------------------------------------------------------------------------
             $uris = array_keys($rec);
             $o = new \eol_schema\Taxon();
             foreach($uris as $uri) {
@@ -67,7 +67,6 @@ class ResourceUtility
                 $o->$field = $rec[$uri];
             }
             $this->archive_builder->write_object_to_file($o);
-            // if($i >= 10) break; //debug only
         }
     }
     /*================================================================= ENDS remove_taxa_without_MoF ======================================================================*/
