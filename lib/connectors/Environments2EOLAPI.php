@@ -205,7 +205,9 @@ class Environments2EOLAPI
         $cmd = "./eol_scripts/exclude-parents-E.pl $this->eol_tags_destination $this->eol_scripts_path"."envo_child_parent.tsv > $this->eol_tags_path"."eol_tags_noParentTerms.tsv";
         shell_exec($cmd);
         chdir($current_dir); //go back to current dir
+        /* un-comment if you want to investigate raw source files: eol_tags.tsv and eol_tags_noParentTerms.tsv
         exit("\nStop muna, will investigate\n"); //comment in real operation
+        */
     }
     private function valid_record($rec)
     {   if($rec['http://purl.org/dc/terms/type'] == 'http://purl.org/dc/dcmitype/Text' &&
