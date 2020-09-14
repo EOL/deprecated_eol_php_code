@@ -150,10 +150,10 @@ class Environments2EOLAPI
         step 2: loop eol_tags_noParentTerms, exclude taxa included in info-list. But adding a single entry with concatenated strings.
         */
         
-        // step 1: build info-list
+        /* step 1: build info-list */
         if(copy($this->eol_tags_path."eol_tags_noParentTerms.tsv", $this->eol_tags_path."eol_tags_noParentTerms.tsv.old")) echo "\nCopied OK (eol_tags_noParentTerms.tsv)\n";
         else exit("\nERROR: Copy failed (eol_tags_noParentTerms.tsv)\n");
-        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w");
+        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w"); fclose($f);
         $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
         foreach(new FileIterator($file) as $line => $row) {
             $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
@@ -175,7 +175,6 @@ class Environments2EOLAPI
             $info_list[$taxon_id][$envo_term][$env_str] = '';
             $taxa_terms_id[$taxon_id][$envo_term]['id'] = $tmp[0];
         }
-        fclose($f);
         /* $info_list 
         [Q1767886] => Array(
                     [ENVO:00002040] => Array(
@@ -188,11 +187,10 @@ class Environments2EOLAPI
                         )
         */
         // print_r($info_list); exit;
-        foreach($info_list as $taxon_id => $arr) {
-            // echo "\n$taxon_id";
+        /* generate info_list2 using info_list */
+        foreach($info_list as $taxon_id => $arr) { // echo "\n$taxon_id";
             foreach($arr as $term => $strings) {
-                if(count($strings) > 1) {
-                    // echo "\n$term"; print_r($strings);
+                if(count($strings) > 1) { // echo "\n$term"; print_r($strings);
                     $arr_strings = array_keys($strings);
                     $info_list2[$taxon_id][$term] = implode("|", $arr_strings);
                 }
@@ -235,7 +233,7 @@ class Environments2EOLAPI
         }
         fclose($f);
 
-        // last step: add those concatenated strings, writing now
+        /* last step: add those concatenated strings, writing to eol_tags_noParentTerms.tsv now */
         /* $info_list2
             [Q942604] => Array(
                     [ENVO:00000182] => Plateau|highlands
@@ -252,7 +250,6 @@ class Environments2EOLAPI
             }
         }
         fclose($f);
-
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n2. eol_tags_noParentTerms.tsv.old ($out)\n";
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n2. eol_tags_noParentTerms.tsv ($out)\n";
     }
