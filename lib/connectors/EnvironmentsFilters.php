@@ -36,7 +36,7 @@ class EnvironmentsFilters
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'apply deletions');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'apply deletions');
         // if($this->debug) print_r($this->debug);
-        echo "\ncombination deleted MoF: No. of taxa with 1 or more MoF records removed: ".count($this->debug['combination deleted MoF'])."\n";
+        echo "\ncombination deleted MoF: No. of taxa with 1 or more MoF records removed: ".count(@$this->debug['combination deleted MoF'])."\n";
     }
     private function delete_combination_of_taxonName_mValue($taxonName_occurID_mValue)
     {   /* Array(

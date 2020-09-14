@@ -115,7 +115,9 @@ class Environments2EOLAPI
                 exit("\nInvestigate, first char not letter.\n");
             }
         }
-        print_r($this->debug['removed']); //exit; //un-comment if you want to see removed environment strings
+        /* un-comment if you want to see removed invalid environment strings
+        if($val = @$this->debug['removed']) print_r($val);
+        */
         fclose($f);
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags.tsv.old"); echo "\n eol_tags.tsv.old ($out)\n";
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags.tsv");     echo "\n eol_tags.tsv ($out)\n";
