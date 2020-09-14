@@ -22,6 +22,7 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 
 21_final	Mon 2020-09-07 06:20:02 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.32, "min":0.79, "hr":0.01}}
 21_final	Tue 2020-09-08 01:09:17 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":48.43, "min":0.81, "hr":0.01}}
+21_final	Mon 2020-09-14 04:24:19 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.69, "min":0.79, "hr":0.01}}
 
 617_final	        Mon 2020-09-07 11:41:14 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":596.04, "min":9.93, "hr":0.17}}
 wikipedia_en_traits	Mon 2020-09-07 11:51:11 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
@@ -31,6 +32,9 @@ wikipedia_en_traits	Tue 2020-09-08 02:15:01 AM	{"measurement_or_fact.tab":818305
 
 617_final	Tue 2020-09-08 11:27:07 PM	        {"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":600.27, "min":10, "hr":0.17}}
 wikipedia_en_traits	Tue 2020-09-08 11:37:05 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
+
+617_final	Mon 2020-09-14 05:26:31 AM	        {"measurement_or_fact.tab":818251, "occurrence.tab":818251, "taxon.tab":410005, "time_elapsed":{"sec":597.53, "min":9.96, "hr":0.17}}
+wikipedia_en_traits	Mon 2020-09-14 05:36:27 AM	{"measurement_or_fact.tab":818251, "occurrence.tab":818251, "taxon.tab":160591, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
@@ -40,6 +44,14 @@ $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $task = $param['task'];
 $resource = @$param['resource'];
+
+/* during development only. Not part of main operation
+require_library('connectors/Environments2EOLAPI');
+$func = new Environments2EOLAPI($param);
+// $func->clean_eol_tags_tsv(); //works OK
+$func->clean_noParentTerms(); //works OK
+exit("\n-end-\n");
+*/
 
 if($task == 'generate_eol_tags') {                      //step 1
     $param['resource_id'] .= "_ENV"; //e.g. 21_ENV
