@@ -27,6 +27,7 @@ if($task == 'remove_taxa_without_MoF') {
 }
 elseif($task == 'report_4_Wikipedia_EN_traits') { //for Jen: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65155&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65155
     $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikipedia_en_traits.tar.gz';
+    // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/708.tar.gz'; //testing investigation only
 }
 // /* ---------- customize here ----------
      if($resource_id == '617_final')      $resource_id = "wikipedia_en_traits";

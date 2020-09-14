@@ -21,7 +21,7 @@ class ResourceUtility
     function report_4_Wikipedia_EN_traits($info) //Func3
     {
         $tables = $info['harvester']->tables;
-        self::process_MoF_Func3($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write sciname list for gnparser');
+        self::process_MoF_Func3($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'report for Jen');
     }
     private function process_MoF_Func3($meta)
     {   //print_r($meta);
@@ -48,11 +48,24 @@ class ResourceUtility
                 [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "temperate"
                 [http://purl.org/dc/terms/source] => https://eol.org/search?q=Brentidae
             )*/
+            //-------------------------------------
             $debug[$rec['http://rs.tdwg.org/dwc/terms/measurementRemarks']][$rec['http://rs.tdwg.org/dwc/terms/measurementValue']] = '';
+            //-------------------------------------
+            /* Sample B:
+            Q1000266_-_c4c5f6b1da59da518a855dd311b66421.txt 1716 1720 coast ENVO:00000303
+            Q1000266_-_c4c5f6b1da59da518a855dd311b66421.txt 1862 1867 coasts ENVO:00000303
+            */
+            $debug2[$rec['http://rs.tdwg.org/dwc/terms/measurementValue']][$rec['http://rs.tdwg.org/dwc/terms/measurementRemarks']] = '';
+            //-------------------------------------
         }
         // print_r($debug); exit;
-        foreach($debug as $string => $terms)
-        {
+        /*
+        foreach($debug as $string => $terms) {  //works OK report
+            if(count($terms) > 1) {
+                echo "\n[$string]"; print_r($terms);
+            }
+        }*/
+        foreach($debug2 as $string => $terms) { //works OK report
             if(count($terms) > 1) {
                 echo "\n[$string]"; print_r($terms);
             }
