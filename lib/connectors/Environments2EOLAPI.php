@@ -52,6 +52,7 @@ class Environments2EOLAPI
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
         print_r($this->debug);
+        self::clean_eol_tags_tsv(); //remove rows with author-like strings e.g. "Hill S", "Urbani C"
         self::gen_noParentTerms();
         // */
         /* ----- stat 2nd part ----- */
@@ -84,6 +85,53 @@ class Environments2EOLAPI
             recursive_rmdir($this->json_temp_path);
             mkdir($this->json_temp_path);
         }
+    }
+    function clean_eol_tags_tsv()
+    {   echo "\nCleaning eol_tags.tsv...\n";
+        if(copy($this->eol_tags_path."eol_tags.tsv", $this->eol_tags_path."eol_tags.tsv.old")) echo "\nCopied OK (eol_tags.tsv)\n";
+        else exit("\nERROR: Copy failed (eol_tags.tsv)\n");
+        $f = Functions::file_open($this->eol_tags_path."eol_tags.tsv", "w");
+        $file = $this->eol_tags_path."eol_tags.tsv.old"; $i = 0;
+        foreach(new FileIterator($file) as $line => $row) {
+            $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            // print_r($tmp); exit;
+            /*Array(
+                [0] => Q140_-_3534a7422ad054e6972151018c05cb38.txt
+                [1] => 868
+                [2] => 877
+                [3] => grasslands
+                [4] => ENVO:00000106
+            )*/
+            $env_str = $tmp[3];
+            if(is_string(substr($env_str,0,1))) { //always starts with a letter. Never a number.
+                // exit("\n$env_str\n");
+                if(self::is_environment_string_valid($env_str)) fwrite($f, $row."\n");
+            }
+            else {
+                print_r($tmp);
+                exit("\nInvestigate, first char not letter.\n");
+            }
+        }
+        print_r($this->debug['removed']); //exit; //un-comment if you want to see removed environment strings
+        fclose($f);
+        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags.tsv.old"); echo "\n eol_tags.tsv.old ($out)\n";
+        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags.tsv");     echo "\n eol_tags.tsv ($out)\n";
+    }
+    private function is_environment_string_valid($str)
+    {
+        // "Hill S" or "Urbani C" -> invalid author-like strings...
+        $arr = explode(" ", $str);
+        if($second_word = @$arr[1]) { //means multiple words
+            $first_char_of_first_word = substr($arr[0], 0, 1);
+            if(strlen($second_word) == 1 && ctype_upper($first_char_of_first_word)) {
+                $this->debug['removed'][$str] = ''; //echo "\ninvalid $str\n";
+                return false;
+            }
+        }
+        return true;
     }
     private function initialize_files()
     {

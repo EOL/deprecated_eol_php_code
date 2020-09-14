@@ -1,0 +1,66 @@
+<?php
+namespace php_active_record;
+/* This is generic way of calling ResourceUtility
+removing taxa without MoF records.
+first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20tagger%20for%20EOL%20resources/job/Wikipedia%20EN%20(English)/
+              environments_2_eol.php for Wikipedia EN 
+
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "617_final", "task": "remove_taxa_without_MoF"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en_report", "task": "report_4_Wikipedia_EN_traits"}'
+
+*/
+
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+$timestart = time_elapsed();
+// $GLOBALS['ENV_DEBUG'] = true;
+
+// print_r($argv);
+$params['jenkins_or_cron'] = @$argv[1]; //not needed here
+$param                     = json_decode(@$argv[2], true);
+$resource_id = $param['resource_id'];
+$task = $param['task'];
+print_r($param);
+
+if($task == 'remove_taxa_without_MoF') {
+    if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+}
+elseif($task == 'report_4_Wikipedia_EN_traits') { //for Jen: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65155&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65155
+    $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikipedia_en_traits.tar.gz';
+}
+// /* ---------- customize here ----------
+     if($resource_id == '617_final')      $resource_id = "wikipedia_en_traits";
+elseif($resource_id  == 'wiki_en_report') {} //stat only
+else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
+// ----------------------------------------*/
+process_resource_url($dwca_file, $resource_id, $task);
+
+$elapsed_time_sec = time_elapsed() - $timestart;
+echo "\n\n";
+echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
+echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
+echo "\nDone processing.\n";
+
+function process_resource_url($dwca_file, $resource_id, $task)
+{
+    require_library('connectors/DwCA_Utility');
+    $func = new DwCA_Utility($resource_id, $dwca_file);
+    
+    if($task == 'remove_taxa_without_MoF') {
+        if(in_array($resource_id, array('wikipedia_en_traits'))) {
+            $preferred_rowtypes = array(); //best to set this to array() and just set $excluded_rowtypes to taxon
+            $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
+            /* These below will be processed in ResourceUtility.php which will be called from DwCA_Utility.php
+            http://rs.tdwg.org/dwc/terms/taxon
+            */
+        }
+    }
+    elseif($task == 'report_4_Wikipedia_EN_traits') {
+        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //best to set this to array() and just set $excluded_rowtypes to taxon
+        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact');
+    }
+    
+    $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
+    Functions::finalize_dwca_resource($resource_id);
+}
+?>
