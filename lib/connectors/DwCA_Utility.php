@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99894/',       //dir_89938 - GloBI dev
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99894/'            //dir_15078 - PaleoDB dev
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_47593/',       //dir_89938 - GloBI dev
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_47593/'            //dir_15078 - PaleoDB dev
         );
         */
         
@@ -139,8 +139,7 @@ class DwCA_Utility
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
             */
-            if($this->resource_id == '368_removed_aves') break; //all extensions will be processed elsewhere.
-            elseif($this->resource_id == 'BF') break; //all extensions will be processed elsewhere.
+                if(in_array($this->resource_id, array('368_removed_aves', 'wiki_en_report'))) break; //all extensions will be processed elsewhere.
             elseif(in_array($this->resource_id, array('BF', 'gbif_classification', 'gbif_classification_without_ancestry', '708'))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
@@ -270,6 +269,18 @@ class DwCA_Utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
             $func->remove_taxa_without_MoF($info);
+        }
+        if(in_array($this->resource_id, array('WoRMS2EoL_zip'))) { //calls a generic utility
+            require_library('connectors/ResourceUtility');
+            $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->add_canonical_in_taxa($info);
+            exit("\n-stop munax-\n");
+        }
+        if($this->resource_id == 'wiki_en_report') { //just a report, not creating a resource
+            require_library('connectors/ResourceUtility');
+            $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->report_4_Wikipedia_EN_traits($info);
+            exit("\n-stop munax-\n");
         }
         if(in_array($this->resource_id, array('368_merged_MoF'))) {
             require_library('connectors/MergeMoFrecordsAPI');
