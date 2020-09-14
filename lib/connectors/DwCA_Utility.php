@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_47593/',       //dir_89938 - GloBI dev
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_47593/'            //dir_15078 - PaleoDB dev
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_42456/',       //dir_89938 - GloBI dev     dir_42456 - wiki EN report
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_42456/'            //dir_15078 - PaleoDB dev
         );
         */
         
@@ -106,6 +106,7 @@ class DwCA_Utility
         //placeholder for customized resources with respective download_options
         if(in_array($this->resource_id, array('170_final', 'BF'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*30)); //1 month expire
         elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', 'itis_2020-07-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
+        elseif(in_array($this->resource_id, array('wiki_en_report'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array('globi_associations'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
         elseif(in_array($this->resource_id, array('gbif_classification', 'gbif_classification_without_ancestry', '26', '368_removed_aves'))) {
             if(Functions::is_production()) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
