@@ -54,6 +54,7 @@ class Environments2EOLAPI
         print_r($this->debug);
         self::clean_eol_tags_tsv(); //remove rows with author-like strings e.g. "Hill S", "Urbani C"
         self::gen_noParentTerms();
+        self::clean_noParentTerms();
         // */
         /* ----- stat 2nd part ----- */
         $obj_identifiers = self::get_unique_obj_identifiers(); // get unique IDs from noParentTerms
@@ -134,6 +135,126 @@ class Environments2EOLAPI
             }
         }
         return true;
+    }
+    function clean_noParentTerms()
+    {   echo "\nCleaning noParentTerms...\n";
+        /*[http://purl.obolibrary.org/obo/ENVO_00000887]Array
+            [source text: "Rivers"] => 
+            [source text: "large rivers"] => 
+            [source text: "Large River"] => 
+            [source text: "Large rivers"] => 
+            [source text: "large river"] => 
+            [source text: "Large Rivers"] => 
+            [source text: "large-river"] => 
+        step 1: build info-list
+        step 2: loop eol_tags_noParentTerms, exclude taxa included in info-list. But adding a single entry with concatenated strings.
+        */
+        
+        // step 1: build info-list
+        if(copy($this->eol_tags_path."eol_tags_noParentTerms.tsv", $this->eol_tags_path."eol_tags_noParentTerms.tsv.old")) echo "\nCopied OK (eol_tags_noParentTerms.tsv)\n";
+        else exit("\nERROR: Copy failed (eol_tags_noParentTerms.tsv)\n");
+        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w");
+        $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
+        foreach(new FileIterator($file) as $line => $row) {
+            $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            // print_r($tmp); //exit;
+            /*Array(
+                [0] => Q1000017_-_80cbe8729bb9d396571de120c10be4fe.txt
+                [1] => 509
+                [2] => 517
+                [3] => temperate
+                [4] => ENVO:01000206
+            )*/
+            $env_str = $tmp[3];
+            $arr = explode('_-_', $tmp[0]);
+            $taxon_id = $arr[0];
+            $envo_term = $tmp[4];
+            $info_list[$taxon_id][$envo_term][$env_str] = '';
+            $taxa_terms_id[$taxon_id][$envo_term]['id'] = $tmp[0];
+        }
+        fclose($f);
+        /* $info_list 
+        [Q1767886] => Array(
+                    [ENVO:00002040] => Array(
+                            [wood] => 
+                        )
+                    [ENVO:00000098] => Array(
+                            [islands] => 
+                            [island] => 
+                            [Islands] => 
+                        )
+        */
+        // print_r($info_list); exit;
+        foreach($info_list as $taxon_id => $arr) {
+            // echo "\n$taxon_id";
+            foreach($arr as $term => $strings) {
+                if(count($strings) > 1) {
+                    // echo "\n$term"; print_r($strings);
+                    $arr_strings = array_keys($strings);
+                    $info_list2[$taxon_id][$term] = implode("|", $arr_strings);
+                }
+            }
+        }
+        // print_r($info_list2); exit;
+        /*[Q942604] => Array(
+                    [ENVO:00000182] => Plateau|highlands
+                    [ENVO:00000300] => scrub|Scrub
+                    [ENVO:01000176] => scrub|Scrub
+                )
+        */
+        // step 2: loop eol_tags_noParentTerms, exclude taxa included in info-list2. But adding a single entry with concatenated strings.
+        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w");
+        $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
+        foreach(new FileIterator($file) as $line => $row) {
+            $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            // print_r($tmp); //exit;
+            /*Array(
+                [0] => Q1000017_-_80cbe8729bb9d396571de120c10be4fe.txt
+                [1] => 509
+                [2] => 517
+                [3] => temperate
+                [4] => ENVO:01000206
+            )*/
+            $arr = explode('_-_', $tmp[0]);
+            $taxon_id = $arr[0];
+            $env_str = $tmp[3];
+            $envo_term = $tmp[4];
+            if(isset($info_list2[$taxon_id][$envo_term])) continue; //exclude multiple records. Will add 1 record below
+            else {
+                if(!isset($unique[$taxon_id][$envo_term][$env_str])) {
+                    fwrite($f, $row."\n");
+                    $unique[$taxon_id][$envo_term][$env_str] = '';
+                }
+            }
+        }
+        fclose($f);
+
+        // last step: add those concatenated strings, writing now
+        /* $info_list2
+            [Q942604] => Array(
+                    [ENVO:00000182] => Plateau|highlands
+                    [ENVO:00000300] => scrub|Scrub
+                    [ENVO:01000176] => scrub|Scrub
+                )
+        */
+        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
+        foreach($info_list2 as $taxon_id => $arr) {
+            foreach($arr as $envo_term => $concatenated) {
+                $id = $taxa_terms_id[$taxon_id][$envo_term]['id'];
+                $input = array($id, "", "", $concatenated, $envo_term);
+                fwrite($f, implode("\t", $input)."\n");
+            }
+        }
+        fclose($f);
+
+        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n2. eol_tags_noParentTerms.tsv.old ($out)\n";
+        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n2. eol_tags_noParentTerms.tsv ($out)\n";
     }
     private function initialize_files()
     {
