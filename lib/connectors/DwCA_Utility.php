@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_42456/',       //dir_89938 - GloBI dev     dir_42456 - wiki EN report
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_42456/'            //dir_15078 - PaleoDB dev
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_45336/',       //dir_89938 - GloBI dev     dir_42456 - wiki EN report
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_45336/'            //dir_15078 - PaleoDB dev
         );
         */
         
@@ -274,8 +274,8 @@ class DwCA_Utility
         if(in_array($this->resource_id, array('WoRMS2EoL_zip'))) { //calls a generic utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
+            $func->gen_canonical_list_from_taxa($info);
             $func->add_canonical_in_taxa($info);
-            exit("\n-stop munax-\n");
         }
         if($this->resource_id == 'wiki_en_report') { //just a report, not creating a resource
             require_library('connectors/ResourceUtility');

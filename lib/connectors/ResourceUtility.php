@@ -18,13 +18,49 @@ class ResourceUtility
     }
     /*============================================================ STARTS add_canonical_in_taxa =================================================*/
     function add_canonical_in_taxa($info) //Func2
-    {   
+    {
+        //step 1: build-up sciname-canonical info list
+        $file_cnt = 0;
+        while(true) { $file_cnt++;
+            $destination = $this->gnparsed_scinames."_".$file_cnt;
+            if(file_exists($destination)) {
+                foreach(new FileIterator($destination) as $line => $row) {
+                    if(!$row) continue;
+                    // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+                    $rec = explode("\t", $row);
+                    // print_r($rec); //exit("\ndebug1...\n");
+                    /*Array(
+                        [0] => d0f24211-8123-5397-8685-485dac20542c
+                        [1] => Saccamminopsis camelopardalis Schallreuter, 1985
+                        [2] => Saccamminopsis camelopardalis
+                        [3] => Saccamminopsis camelopardalis
+                        [4] => Schallreuter 1985
+                        [5] => 1985
+                        [6] => 1
+                    )*/
+                    $this->sciname_canonical_info[trim($rec[1])] = trim($rec[3]);
+                }
+            }
+            else break;
+        }
+        //step 2: write to taxa the new column canonicalname
         $tables = $info['harvester']->tables;
-        self::process_taxon_Func2($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write sciname list for gnparser');
+        self::process_taxon_Func2($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write taxa');
+        //step 3: write document extension - just copy
+        /* working but not needed for DH purposes
+        self::carry_over_extension($tables['http://eol.org/schema/media/document'][0], 'document');
+        self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'measurementorfact');
+        */
+        print_r($this->debug);
+    }
+    function gen_canonical_list_from_taxa($info) //Func2
+    {
+        $tables = $info['harvester']->tables;
+        self::process_taxon_Func2($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'write scinames list for gnparser'); //generate WoRMS2EoL_zip_scinames.txt_1...
         self::insert_canonical_in_taxa();
     }
     private function insert_canonical_in_taxa()
-    {   //step 1: run gnparser
+    {   //step 1: run gnparser, generate WoRMS2EoL_zip_canonical.txt_1...
         $file_cnt = 0;
         while(true) { $file_cnt++;
             $source = $this->extracted_scinames."_".$file_cnt;
@@ -35,7 +71,6 @@ class ResourceUtility
             }
             else break;
         }
-        //step 2: 
     }
     private function process_taxon_Func2($meta, $task)
     {   //print_r($meta);
@@ -63,7 +98,7 @@ class ResourceUtility
                 [http://rs.tdwg.org/dwc/terms/parentNameUsageID] =>
                 ...
             )*/
-            if($task == 'write sciname list for gnparser') {
+            if($task == 'write scinames list for gnparser') {
                 if(($i % 400000) == 0) {
                     $file_cnt++;
                     fclose($WRITE);
@@ -75,6 +110,22 @@ class ResourceUtility
                 fwrite($WRITE, $rec['http://rs.tdwg.org/dwc/terms/scientificName'] . "\n");
             }
             elseif($task == 'write taxa') {
+                $scientificName = trim($rec['http://rs.tdwg.org/dwc/terms/scientificName']);
+                if($canonical = $this->sciname_canonical_info[$scientificName]) {
+                    $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $canonical;
+                }
+                else {
+                    // print_r($rec); exit("\nsciname no canonical generated\n");
+                    $this->debug['sciname no canonical generated'][$scientificName] = '';
+                    $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $scientificName;
+                }
+                
+                if($this->resource_id == 'WoRMS2EoL_zip') {
+                    $rec['http://purl.org/dc/terms/accessRights'] = $rec['http://purl.org/dc/terms/rights'];
+                    unset($rec['http://purl.org/dc/terms/rights']);
+                }
+                
+                
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
                 foreach($uris as $uri) {
@@ -84,9 +135,10 @@ class ResourceUtility
                 $this->archive_builder->write_object_to_file($o);
             }
         }
-        fclose($WRITE);
-        echo "\nelix = $eli\n";
-        // exit;
+        if($task == 'write scinames list for gnparser') {
+            fclose($WRITE);
+            echo "\nNo. of records without scientificName = $eli\n";
+        }
     }
     /*============================================================ ENDS add_canonical_in_taxa ===================================================*/
     
@@ -206,5 +258,39 @@ class ResourceUtility
         }
     }
     /*================================================== ENDS report_4_Wikipedia_EN_traits =================================================*/
+
+    private function carry_over_extension($meta, $class)
+    {   //print_r($meta);
+        echo "\nResourceUtility...carry_over_extension ($class)...\n"; $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug1...\n");
+            /**/
+            $uris = array_keys($rec);
+            if    ($class == "vernacular")          $c = new \eol_schema\VernacularName();
+            elseif($class == "agent")               $c = new \eol_schema\Agent();
+            elseif($class == "reference")           $c = new \eol_schema\Reference();
+            elseif($class == "taxon")               $c = new \eol_schema\Taxon();
+            elseif($class == "document")            $c = new \eol_schema\MediaResource();
+            elseif($class == "occurrence")          $c = new \eol_schema\Occurrence();
+            elseif($class == "measurementorfact")   $c = new \eol_schema\MeasurementOrFact();
+            foreach($uris as $uri) {
+                $field = pathinfo($uri, PATHINFO_BASENAME);
+                $o->$field = $rec[$uri];
+            }
+            $this->archive_builder->write_object_to_file($o);
+        }
+    }
+
 }
 ?>
