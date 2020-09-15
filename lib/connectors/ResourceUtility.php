@@ -112,7 +112,7 @@ class ResourceUtility
             elseif($task == 'write taxa') {
                 $scientificName = trim($rec['http://rs.tdwg.org/dwc/terms/scientificName']);
                 if($canonical = $this->sciname_canonical_info[$scientificName]) {
-                    $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $canonical;
+                    $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $canonical; //deliberately used vernacularName for canonical values
                 }
                 else {
                     // print_r($rec); exit("\nsciname no canonical generated\n");
@@ -124,7 +124,6 @@ class ResourceUtility
                     $rec['http://purl.org/dc/terms/accessRights'] = $rec['http://purl.org/dc/terms/rights'];
                     unset($rec['http://purl.org/dc/terms/rights']);
                 }
-                
                 
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Taxon();
