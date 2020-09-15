@@ -7,7 +7,7 @@ first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20t
 
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "617_final", "task": "remove_taxa_without_MoF"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en_report", "task": "report_4_Wikipedia_EN_traits"}'
-
+php update_resources/connectors/add_canonical_in_taxa.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -24,16 +24,23 @@ print_r($param);
 if($task == 'remove_taxa_without_MoF') {
     if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
     else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
+    // /* ---------- customize here ----------
+    if($resource_id == '617_final') $resource_id = "wikipedia_en_traits";
+    else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
+    // ----------------------------------------*/
 }
 elseif($task == 'report_4_Wikipedia_EN_traits') { //for Jen: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65155&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65155
     $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/wikipedia_en_traits.tar.gz';
     // $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/708.tar.gz'; //testing investigation only
 }
-// /* ---------- customize here ----------
-     if($resource_id == '617_final')      $resource_id = "wikipedia_en_traits";
-elseif($resource_id  == 'wiki_en_report') {} //stat only
-else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
-// ----------------------------------------*/
+elseif($task == 'add_canonical_in_taxa') {
+    if($resource_id == 'WoRMS2EoL_zip') {
+        if(Functions::is_production())  $dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";
+        else                            $dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
+    }
+    else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
+}
+else exit("\nERROR: task not yet initialized. Will terminate.\n");
 process_resource_url($dwca_file, $resource_id, $task);
 
 $elapsed_time_sec = time_elapsed() - $timestart;
@@ -60,7 +67,10 @@ function process_resource_url($dwca_file, $resource_id, $task)
         $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //best to set this to array() and just set $excluded_rowtypes to taxon
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact');
     }
-    
+    elseif($task == 'add_canonical_in_taxa') {
+        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon'); //best to set this to array() and just set $excluded_rowtypes to taxon
+        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
+    }
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id);
 }

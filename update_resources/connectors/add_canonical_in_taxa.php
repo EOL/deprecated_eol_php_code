@@ -4,7 +4,7 @@ namespace php_active_record;
 
 php update_resources/connectors/add_canonical_in_taxa.php _ '{"resource_id": "WoRMS2EoL_zip"}'
 */
-
+exit("\nNo longer used. Moved to resource_utility.php\n");
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 // $GLOBALS['ENV_DEBUG'] = true;
