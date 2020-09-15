@@ -69,47 +69,6 @@ class DWH_WoRMS_API
             // echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
     }
-    private function format_ids($rec)
-    {
-        $this->debug['taxonomicStatus values'][$rec['taxonomicStatus']] = '';
-        
-        $fields = array("taxonID", "parentNameUsageID", "acceptedNameUsageID");
-        foreach($fields as $fld) $rec[$fld] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec[$fld]);
-
-        if($rec['taxonID'] == $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = ''; //OK, valid adjustment
-        if($rec['taxonID'] == $rec['parentNameUsageID']) $rec['parentNameUsageID'] = ''; //just put it here, but may not be needed
-        
-        //root nodes in the includes should not have parents
-        if(isset($this->include[$rec['taxonID']])) $rec['parentNameUsageID'] = ''; //OK
-
-        /*
-        [taxonID] => 163137
-        [scientificName] => Chaetoceros throndsenii (Marino, Montresor & Zingone) Marino, Montresor & Zingone, 1991
-        [parentNameUsageID] => 148985
-        [taxonRank] => species
-        [taxonomicStatus] => accepted
-        [taxonRemarks] => [REMAP_ON_EOL]
-        [acceptedNameUsageID] => 163143
-        */
-        if(stripos($rec['taxonRemarks'], "REMAP_ON_EOL") !== false) { //string is found
-            if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) {
-                $rec['taxonomicStatus'] = 'synonym';
-                $rec['parentNameUsageID'] = ''; //will investigate if won't mess things up -> this actually lessens the no. of taxa
-            }
-        }
-
-        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. 
-        In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
-        So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
-        if($rec['taxonomicStatus'] && $rec['taxonomicStatus'] != 'accepted' && $rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = ''; //newly added
-        
-        // if(in_array($rec['taxonID'], array(700052,146143,1026180,681756,100983,427861))) {
-        // if(in_array($rec['taxonID'], array(169693, 170666, 208739, 216130, 233336, 251753))) {
-        //     print_r($rec); //exit;
-        // }
-
-        return $rec;
-    }
     private function main_WoRMS()
     {   /* from TRAM-798
         $include['123081'] = "Crinoidea"; 
@@ -323,7 +282,6 @@ class DWH_WoRMS_API
         } //end loop
         echo "\ntotal inclusive_taxon_ids: ".count($inclusive_taxon_ids)."\n";
         
-        
         //start 2nd loop
         $i = 0; echo "\nStart main process 2...WoRMS...\n";
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
@@ -370,6 +328,47 @@ class DWH_WoRMS_API
                 self::write_taxon_DH($rec);
             }
         }
+    }
+    private function format_ids($rec)
+    {
+        $this->debug['taxonomicStatus values'][$rec['taxonomicStatus']] = '';
+        
+        $fields = array("taxonID", "parentNameUsageID", "acceptedNameUsageID");
+        foreach($fields as $fld) $rec[$fld] = str_ireplace("urn:lsid:marinespecies.org:taxname:", "", $rec[$fld]);
+
+        if($rec['taxonID'] == $rec['acceptedNameUsageID']) $rec['acceptedNameUsageID'] = ''; //OK, valid adjustment
+        if($rec['taxonID'] == $rec['parentNameUsageID']) $rec['parentNameUsageID'] = ''; //just put it here, but may not be needed
+        
+        //root nodes in the includes should not have parents
+        if(isset($this->include[$rec['taxonID']])) $rec['parentNameUsageID'] = ''; //OK
+
+        /*
+        [taxonID] => 163137
+        [scientificName] => Chaetoceros throndsenii (Marino, Montresor & Zingone) Marino, Montresor & Zingone, 1991
+        [parentNameUsageID] => 148985
+        [taxonRank] => species
+        [taxonomicStatus] => accepted
+        [taxonRemarks] => [REMAP_ON_EOL]
+        [acceptedNameUsageID] => 163143
+        */
+        if(stripos($rec['taxonRemarks'], "REMAP_ON_EOL") !== false) { //string is found
+            if($rec['taxonID'] != $rec['acceptedNameUsageID'] && $rec['acceptedNameUsageID']) {
+                $rec['taxonomicStatus'] = 'synonym';
+                $rec['parentNameUsageID'] = ''; //will investigate if won't mess things up -> this actually lessens the no. of taxa
+            }
+        }
+
+        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. 
+        In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
+        So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
+        if($rec['taxonomicStatus'] && $rec['taxonomicStatus'] != 'accepted' && $rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = ''; //newly added
+        
+        // if(in_array($rec['taxonID'], array(700052,146143,1026180,681756,100983,427861))) {
+        // if(in_array($rec['taxonID'], array(169693, 170666, 208739, 216130, 233336, 251753))) {
+        //     print_r($rec); //exit;
+        // }
+
+        return $rec;
     }
     private function status_from_api($taxon_id)
     {
