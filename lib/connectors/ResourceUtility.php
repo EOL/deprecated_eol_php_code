@@ -104,12 +104,24 @@ class ResourceUtility
                     fclose($WRITE);
                     $WRITE = fopen($this->extracted_scinames."_".$file_cnt, "w");
                 }
-                if($val = trim($rec['http://rs.tdwg.org/dwc/terms/scientificName'])){}
+                // /* for scientificName
+                if($scientificName = trim($rec['http://rs.tdwg.org/dwc/terms/scientificName'])){}
                 else $eli++;
+                fwrite($WRITE, $scientificName . "\n");
+                // */
                 
-                fwrite($WRITE, $rec['http://rs.tdwg.org/dwc/terms/scientificName'] . "\n");
+                /* for genus - was never used though
+                if($genus = trim($rec['http://rs.tdwg.org/dwc/terms/genus'])){}
+                else $eli++;
+                if(!isset($written_taxa[$genus])) {
+                    fwrite($WRITE, $genus . "\n");
+                    $written_taxa[$genus] = '';
+                }
+                */
+                
             }
             elseif($task == 'write taxa') {
+                // /* for scientificName
                 $scientificName = trim($rec['http://rs.tdwg.org/dwc/terms/scientificName']);
                 if($canonical = $this->sciname_canonical_info[$scientificName]) {
                     $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $canonical; //deliberately used vernacularName for canonical values
@@ -119,10 +131,23 @@ class ResourceUtility
                     $this->debug['sciname no canonical generated'][$scientificName] = '';
                     $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $scientificName;
                 }
+                // */
+
+                /* for genus - was never used though
+                $genus = trim($rec['http://rs.tdwg.org/dwc/terms/genus']);
+                if($canonical = $this->sciname_canonical_info[$genus]) {
+                    $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $canonical; //deliberately used 'vernacularName' to store canonical values
+                }
+                else {
+                    // print_r($rec); exit("\nsciname no canonical generated\n");
+                    $this->debug['sciname no canonical generated'][$genus] = '';
+                    $rec['http://rs.tdwg.org/dwc/terms/vernacularName'] = $genus;
+                }
+                */
                 
                 if($this->resource_id == 'WoRMS2EoL_zip') {
                     $rec['http://purl.org/dc/terms/accessRights'] = $rec['http://purl.org/dc/terms/rights'];
-                    unset($rec['http://purl.org/dc/terms/rights']);
+                    unset($rec['http://purl.org/dc/terms/rights']); //'rights' is undefined in WoRMS taxon dictionary
                 }
                 
                 $uris = array_keys($rec);
