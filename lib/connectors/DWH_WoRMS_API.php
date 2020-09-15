@@ -33,10 +33,10 @@ class DWH_WoRMS_API
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($this->dwca_file, "taxon.txt", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $paths = $func->extract_archive_file($this->dwca_file, "taxon.tab", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
-        $tables['taxa'] = 'taxon.txt';
+        $tables['taxa'] = 'taxon.tab';
         return array("temp_dir" => $temp_dir, "tables" => $tables);
     }
     function start_WoRMS()
@@ -52,8 +52,8 @@ class DWH_WoRMS_API
             echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         else { //local development only
-            $info = Array('temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_81703/',
-                          'tables' => Array('taxa' => "taxon.txt"));
+            $info = Array('temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_14926/',
+                          'tables' => Array('taxa' => "taxon.tab"));
 
             /* run to fill-in $info above:
             if(!($info = self::start())) return; //uncomment in real operation
@@ -175,15 +175,15 @@ class DWH_WoRMS_API
         $this->include = $include;
         
         $removed_branches = array();
-        // /* un-comment in real operation
-        /*actual spreadsheet: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit?usp=sharing */
+        /* OBSOLETE now for TRAM-988
+        // actual spreadsheet: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit?usp=sharing
         $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
         $params['range']         = 'Sheet1!A2:B2000'; //actual range is up to B1030 only as of Aug 23, 2018. I set B2000 to put allowance for possible increase.
         $parts = self::get_removed_branches_from_spreadsheet($params);
         $removed_branches = $parts['removed_brances'];
         // $one_word_names = $parts['one_word_names']; may not be needed anymore...
         echo "\nremoved_branches total: ".count($removed_branches)."\n";
-        // */
+        */
         
         /*
         //IDs from WoRMS_DH_undefined_acceptedName_ids.txt
