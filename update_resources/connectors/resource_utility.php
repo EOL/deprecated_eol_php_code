@@ -41,15 +41,9 @@ elseif($task == 'add_canonical_in_taxa') {
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }
 else exit("\nERROR: task not yet initialized. Will terminate.\n");
-process_resource_url($dwca_file, $resource_id, $task);
+process_resource_url($dwca_file, $resource_id, $task, $timestart);
 
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n";
-echo "elapsed time = " . $elapsed_time_sec/60 . " minutes \n";
-echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
-echo "\nDone processing.\n";
-
-function process_resource_url($dwca_file, $resource_id, $task)
+function process_resource_url($dwca_file, $resource_id, $task, $timestart)
 {
     require_library('connectors/DwCA_Utility');
     $func = new DwCA_Utility($resource_id, $dwca_file);
@@ -76,6 +70,6 @@ function process_resource_url($dwca_file, $resource_id, $task)
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
     }
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-    Functions::finalize_dwca_resource($resource_id);
+    Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
 ?>

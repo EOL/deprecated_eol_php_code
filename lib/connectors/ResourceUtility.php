@@ -51,7 +51,7 @@ class ResourceUtility
         self::carry_over_extension($tables['http://eol.org/schema/media/document'][0], 'document');
         self::carry_over_extension($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'measurementorfact');
         */
-        print_r($this->debug);
+        echo "\nTotal scinames no canonical generated: ".count($this->debug['sciname no canonical generated']);
     }
     function gen_canonical_list_from_taxa($info) //Func2
     {
@@ -137,7 +137,7 @@ class ResourceUtility
         }
         if($task == 'write scinames list for gnparser') {
             fclose($WRITE);
-            echo "\nNo. of records without scientificName = $eli\n";
+            echo "\nNo. of records without scientificName (should be zero) = $eli\n";
         }
     }
     /*============================================================ ENDS add_canonical_in_taxa ===================================================*/
