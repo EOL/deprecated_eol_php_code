@@ -15,9 +15,13 @@ class DWH_WoRMS_API
         //start TRAM-797 -----------------------------------------------------------
         $this->prune_further = array();
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
-        
+        /* OLD
         if(Functions::is_production())  $this->dwca_file = "http://www.marinespecies.org/export/eol/WoRMS2EoL.zip";
         else                            $this->dwca_file = "http://localhost/cp/WORMS/WoRMS2EoL.zip";
+        */
+        // /* NEW
+        $this->dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "WoRMS2EoL_zip.tar.gz";
+        // */
         
         $this->webservice['AphiaRecordByAphiaID'] = "http://www.marinespecies.org/rest/AphiaRecordByAphiaID/";
         $this->download_options = array('download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 1, 'resource_id' => 26);
@@ -94,7 +98,8 @@ class DWH_WoRMS_API
             }
         }
 
-        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
+        /* One more thing: synonyms and other alternative names should not have parentNameUsageIDs. 
+        In general, if a taxon has an acceptedNameUsageID it should not also have a parentNameUsageID. 
         So in this specific case, we want acceptedNameUsageID's only if name class IS scientific name. */
         if($rec['taxonomicStatus'] && $rec['taxonomicStatus'] != 'accepted' && $rec['acceptedNameUsageID']) $rec['parentNameUsageID'] = ''; //newly added
         
@@ -134,7 +139,7 @@ class DWH_WoRMS_API
         $include['580116'] = "Choanoflagellatea"; 
         $include['391862'] = "Ichthyosporea";
         */
-        // /* from TRAM-988
+        // /* new batch for TRAM-988
         $include['536209'] = "Alveolata Cavalier-Smith";
         $include['6'] = "Bacteria";
         $include['1803'] = "Brachiopoda Duméril, 1805";
