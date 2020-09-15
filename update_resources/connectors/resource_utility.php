@@ -7,7 +7,7 @@ first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20t
 
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "617_final", "task": "remove_taxa_without_MoF"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en_report", "task": "report_4_Wikipedia_EN_traits"}'
-php update_resources/connectors/add_canonical_in_taxa.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -56,7 +56,7 @@ function process_resource_url($dwca_file, $resource_id, $task)
     
     if($task == 'remove_taxa_without_MoF') {
         if(in_array($resource_id, array('wikipedia_en_traits'))) {
-            $preferred_rowtypes = array(); //best to set this to array() and just set $excluded_rowtypes to taxon
+            $preferred_rowtypes = array();
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
             /* These below will be processed in ResourceUtility.php which will be called from DwCA_Utility.php
             http://rs.tdwg.org/dwc/terms/taxon
@@ -68,7 +68,11 @@ function process_resource_url($dwca_file, $resource_id, $task)
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact');
     }
     elseif($task == 'add_canonical_in_taxa') {
-        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon'); //best to set this to array() and just set $excluded_rowtypes to taxon
+        /* working but not needed for DH purposes
+        $preferred_rowtypes = array();
+        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        */
+        $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
     }
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
