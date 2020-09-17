@@ -53,10 +53,12 @@ class DWH_WoRMS_API
     {
         if(Functions::is_production()) {
             if(!($info = self::start())) return; //uncomment in real operation
+
             $this->extension_path = $info['temp_dir'];
             self::main_WoRMS();
             $this->archive_builder->finalize(TRUE);
             if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
+
             // remove temp dir
             recursive_rmdir($info['temp_dir']);
             echo ("\n temporary directory removed: " . $info['temp_dir']);
@@ -74,9 +76,6 @@ class DWH_WoRMS_API
             self::main_WoRMS();
             $this->archive_builder->finalize(TRUE);
             if($this->debug) Functions::start_print_debug($this->debug, $this->resource_id);
-            // remove temp dir
-            // recursive_rmdir($info['temp_dir']);
-            // echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         print_r($this->debug);
     }
@@ -625,9 +624,7 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
                         else {
                             // exit("\nneed to add more filter A\n");
-                            /* not enough
-                            $removed[] = $options[1]; //just pick 1 to remove
-                            */
+                            /* JUST PICK ONE, at this point... */
                             for ($x = 1; $x <= count($options)-1; $x++) $removed[] = $options[$x];
                             
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
@@ -648,12 +645,8 @@ class DWH_WoRMS_API
                         *authority date (4-digit number in authorship data) is smaller | authority date is larger
                         *authorship data WITH parentheses | authorship data WITHOUT parentheses
                         *scientificName does not include subgenus (a capitalized name in parentheses after the genus name) | scientificName includes subgenus
-                        taxonRank is subspecies | taxonRank is variety
-                        taxonRank is variety | taxonRank is form */
-                        
-                        // Actinia striata Rizzi, 1907
-                        // Actinia striata Quoy & Gaimard, 1833
-                        
+                        *taxonRank is subspecies | taxonRank is variety
+                        *taxonRank is variety | taxonRank is form */
                     }
                 }
             }
@@ -663,9 +656,10 @@ class DWH_WoRMS_API
         return $final;
     }
     private function write_report($rec3, $options, $taxID_info2)
-    {
-        // $taxID_info2[taxonID] = array("sn" => $rec['scientificName'], 'cn' => $rec['vernacularName']);
-        // $taxID_info[taxonID] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus'])
+    {   /* just for guide on how to use the info list
+        $taxID_info2[taxonID] = array("sn" => $rec['scientificName'], 'cn' => $rec['vernacularName']);
+        $taxID_info[taxonID] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus'])
+        */
         $WRITE = fopen($this->WoRMS_report, "a");
         $remain = $options[0];
         foreach($rec3 as $taxonID) {
@@ -674,7 +668,7 @@ class DWH_WoRMS_API
             $arr = array($taxonID, $taxID_info2[$taxonID]['sn'], $status);
             fwrite($WRITE, implode("\t", $arr) . "\n");
         }
-        echo "\n";
+        fwrite($WRITE, "\n");
         fclose($WRITE);
     }
     function call_gnparser($sciname)
