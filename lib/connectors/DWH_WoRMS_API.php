@@ -411,7 +411,7 @@ class DWH_WoRMS_API
                         authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
                         */
                         $options = $rec3;
-                        echo "\n0-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "\n0-"; print_r($options);}
                         
                         // start removing duplicates...
                         $i = -1;
@@ -425,7 +425,7 @@ class DWH_WoRMS_API
                         }
                         
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "1-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "1-"; print_r($options);}
                         
                         // /* copied block
                         if(count($options) == 0) { //just pick 1
@@ -454,7 +454,7 @@ class DWH_WoRMS_API
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "2-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "2-"; print_r($options);}
 
                         if(count($options) == 0) exit("\nnaku zero 2\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -479,7 +479,7 @@ class DWH_WoRMS_API
                         }
                         
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "3-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "3-"; print_r($options);}
 
                         if(count($options) == 0) exit("\nnaku zero 3\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -542,7 +542,7 @@ class DWH_WoRMS_API
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "4-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "4-"; print_r($options);}
 
                         $before_5 = $options;
 
@@ -562,7 +562,7 @@ class DWH_WoRMS_API
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "5-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "5-"; print_r($options);}
                         
                         // /* copied block
                         if(count($options) == 0) { //just pick 1
@@ -583,7 +583,7 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
-                            echo "5a-"; print_r($options);
+                            if($GLOBALS['ENV_DEBUG']) {echo "5a-"; print_r($options);}
                             foreach($options as $taxonID) { $i++;
                                 $arr = self::call_gnparser($taxID_info2[$taxonID]['sn']);
                                 if($subgenus = @$arr[0]['details'][0]['infragenericEpithet']['value']) $removed[] = $taxonID;
@@ -592,7 +592,7 @@ class DWH_WoRMS_API
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "6-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "6-"; print_r($options);}
 
                         if(count($options) == 0) exit("\nnaku zero 6\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -605,7 +605,7 @@ class DWH_WoRMS_API
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "7-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "7-"; print_r($options);}
 
                         if(count($options) == 0) exit("\nnaku zero 7\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -618,7 +618,7 @@ class DWH_WoRMS_API
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                        echo "8-"; print_r($options);
+                        if($GLOBALS['ENV_DEBUG']) {echo "8-"; print_r($options);}
 
                         if(count($options) == 0) exit("\nnaku zero 8\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -628,7 +628,7 @@ class DWH_WoRMS_API
                             for ($x = 1; $x <= count($options)-1; $x++) $removed[] = $options[$x];
                             
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                            echo "9-"; print_r($options);
+                            if($GLOBALS['ENV_DEBUG']) {echo "9-"; print_r($options);}
 
                             if(count($options) == 0) exit("\nnaku zero 8\n");
                             if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
