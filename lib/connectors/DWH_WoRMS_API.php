@@ -438,12 +438,12 @@ class DWH_WoRMS_API
                             else exit("\nA case with 4 duplicates!\n");
                             $options = $possible_bring_back;
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                            if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                            if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         }
                         // */
                         
                         if(count($options) == 0) exit("\nnaku zero 1\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
                             foreach($options as $taxonID) { $i++;
@@ -457,7 +457,7 @@ class DWH_WoRMS_API
                         echo "2-"; print_r($options);
 
                         if(count($options) == 0) exit("\nnaku zero 2\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
                             foreach($options as $taxonID) { $i++;
@@ -482,7 +482,7 @@ class DWH_WoRMS_API
                         echo "3-"; print_r($options);
 
                         if(count($options) == 0) exit("\nnaku zero 3\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             if(count($options) == 2) {
                                 $int1 = (int) filter_var($taxID_info2[$options[0]]['sn'], FILTER_SANITIZE_NUMBER_INT);
@@ -547,7 +547,7 @@ class DWH_WoRMS_API
                         $before_5 = $options;
 
                         if(count($options) == 0) exit("\nnaku zero 4\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
                             $possible_bring_back = array();
@@ -575,12 +575,12 @@ class DWH_WoRMS_API
                             else exit("\nA case with 4 duplicates!\n");
                             $options = $possible_bring_back;
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
-                            if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                            if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         }
                         // */
                         
                         if(count($options) == 0) $options = $before_5; //exit("\nnaku zero 5\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
                             echo "5a-"; print_r($options);
@@ -595,7 +595,7 @@ class DWH_WoRMS_API
                         echo "6-"; print_r($options);
 
                         if(count($options) == 0) exit("\nnaku zero 6\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
                             foreach($options as $taxonID) { $i++;
@@ -608,7 +608,7 @@ class DWH_WoRMS_API
                         echo "7-"; print_r($options);
 
                         if(count($options) == 0) exit("\nnaku zero 7\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
                             foreach($options as $taxonID) { $i++;
@@ -621,7 +621,7 @@ class DWH_WoRMS_API
                         echo "8-"; print_r($options);
 
                         if(count($options) == 0) exit("\nnaku zero 8\n");
-                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                        if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             // exit("\nneed to add more filter A\n");
                             /* JUST PICK ONE, at this point... */
@@ -631,7 +631,7 @@ class DWH_WoRMS_API
                             echo "9-"; print_r($options);
 
                             if(count($options) == 0) exit("\nnaku zero 8\n");
-                            if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2); continue;}
+                            if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                             else exit("\nneed to add more filter B\n");
                             @$this->debug['count need more filter']++;
                         }
@@ -655,7 +655,7 @@ class DWH_WoRMS_API
         foreach($removed as $taxon_id) $final[$taxon_id] = '';
         return $final;
     }
-    private function write_report($rec3, $options, $taxID_info2)
+    private function write_report($rec3, $options, $taxID_info2, $taxID_info)
     {   /* just for guide on how to use the info list
         $taxID_info2[taxonID] = array("sn" => $rec['scientificName'], 'cn' => $rec['vernacularName']);
         $taxID_info[taxonID] = array("pID" => $rec['parentNameUsageID'], 'r' => $rec['taxonRank'], 's' => $rec['taxonomicStatus'])
@@ -665,7 +665,7 @@ class DWH_WoRMS_API
         foreach($rec3 as $taxonID) {
             $status = '';
             if($taxonID != $remain) $status = "removed";
-            $arr = array($taxonID, $taxID_info2[$taxonID]['sn'], $status);
+            $arr = array($taxonID, $taxID_info2[$taxonID]['sn'], $taxID_info[$taxonID]['r'], $taxID_info[$taxonID]['s'], $status);
             fwrite($WRITE, implode("\t", $arr) . "\n");
         }
         fwrite($WRITE, "\n");
