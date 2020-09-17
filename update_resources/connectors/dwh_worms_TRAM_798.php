@@ -1,13 +1,16 @@
 <?php
 namespace php_active_record;
 /* WoRMS Extract for Dynamic Hierarchy - https://eol-jira.bibalex.org/browse/TRAM-798
+                 WoRMS Extract for DH2 - https://eol-jira.bibalex.org/browse/TRAM-988 
+   
 estimated execution time: Took 1 min 27 sec (eol-archive)
 WoRMS_DH	Wednesday 2018-08-22 06:55:05 PM	{"taxon.tab":63297} - eol-archive
 WoRMS_DH	Thursday 2018-08-23 08:27:28 AM	    {"taxon.tab":53272} - eol-archive
 WoRMS_DH	Wednesday 2019-03-27 08:01:50 AM	{"taxon.tab":57539} - eol-archive
-
 WoRMS_DH	Tuesday 2019-03-26 11:00:40 AM	    {"taxon.tab":57539} - MacMini
+Start TRAM-988:
 
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
 php update_resources/connectors/dwh_worms_TRAM_798.php
 */
 
@@ -50,9 +53,6 @@ php update_resources/connectors/dwh_worms_TRAM_798.php
 // $index = array_keys($int);
 // print_r($index);
 // exit;
-
-
-
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_WoRMS_API');
