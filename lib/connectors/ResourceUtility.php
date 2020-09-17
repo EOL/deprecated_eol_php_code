@@ -76,8 +76,10 @@ class ResourceUtility
     {   //print_r($meta);
         echo "\nResourceUtility...($task)...\n"; $i = 0;
         
-        $file_cnt = 1;
-        $WRITE = fopen($this->extracted_scinames."_".$file_cnt, "w"); $eli = 0;
+        if($task == 'write scinames list for gnparser') {
+            $file_cnt = 1;
+            $WRITE = fopen($this->extracted_scinames."_".$file_cnt, "w"); $eli = 0;
+        }
         
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
