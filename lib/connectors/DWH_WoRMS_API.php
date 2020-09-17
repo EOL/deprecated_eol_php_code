@@ -671,9 +671,10 @@ class DWH_WoRMS_API
         foreach($rec3 as $taxonID) {
             $status = '';
             if($taxonID != $remain) $status = "removed";
-            $arr = array($taxonID, $taxID_info2[$taxonID], $status);
-            fwrite($WRITE, explode("\n", $arr) . "\n");
+            $arr = array($taxonID, $taxID_info2[$taxonID]['sn'], $status);
+            fwrite($WRITE, implode("\t", $arr) . "\n");
         }
+        echo "\n";
         fclose($WRITE);
     }
     function call_gnparser($sciname)
@@ -684,8 +685,7 @@ class DWH_WoRMS_API
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($json = Functions::lookup_with_cache($url, $options)) {
-            $arr = json_decode($json, true);
-            // print_r($arr); exit;
+            $arr = json_decode($json, true); // print_r($arr); exit;
             return $arr;
         }
     }
