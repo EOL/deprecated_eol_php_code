@@ -8,10 +8,26 @@ WoRMS_DH	Wednesday 2018-08-22 06:55:05 PM	{"taxon.tab":63297} - eol-archive
 WoRMS_DH	Thursday 2018-08-23 08:27:28 AM	    {"taxon.tab":53272} - eol-archive
 WoRMS_DH	Wednesday 2019-03-27 08:01:50 AM	{"taxon.tab":57539} - eol-archive
 WoRMS_DH	Tuesday 2019-03-26 11:00:40 AM	    {"taxon.tab":57539} - MacMini
-Start TRAM-988:
 
+Start TRAM-988:
+Mac Mini
+WoRMS2EoL_zip	Thu 2020-09-17 06:56:00 AM	{"taxon.tab":633588, "time_elapsed":{"sec":668.88, "min":11.15, "hr":0.19}}
+WoRMS_DH	    Thu 2020-09-17 06:42:58 AM	{"taxon.tab":213534, "time_elapsed":false}
+
+eol-archive
+WoRMS2EoL_zip	Thu 2020-09-17 07:00:41 AM	{"taxon.tab":633588, "time_elapsed":{"sec":363.4, "min":6.06, "hr":0.1}}
+WoRMS_DH	    Thu 2020-09-17 07:11:22 AM	{"taxon.tab":213534, "time_elapsed":false}
+
+Duplicates report for Katja:
+https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/duplicates.txt
+
+How to run: Mac Mini
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
 php update_resources/connectors/dwh_worms_TRAM_798.php
+
+NOTE: there is no gnparser in Jenkins in eol-archive yet. So the first script should be run in command-line
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
+Then the 2nd script can be run in Jenkins.
 */
 
 // $a1 = array('a','b', 'c');
