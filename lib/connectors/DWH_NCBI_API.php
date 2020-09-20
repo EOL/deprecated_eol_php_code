@@ -22,7 +22,7 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/Feb5/
 https://editors.eol.org/eol_php_code/applications/content_server/resources/Feb5/NCBI_Taxonomy_Harvest_DH.tar.gz
 Thanks,
 Eli
-===========================================================
+=========================================================== run one after the other:
 php update_resources/connectors/dwh_ncbi_TRAM_795.php
 php update_resources/connectors/dwh_ncbi_TRAM_796.php
 ===========================================================
@@ -44,15 +44,18 @@ class DWH_NCBI_API
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
         $this->debug = array();
-        $this->file['names.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump_2020_02_03/names.dmp";
+        $dump_path = '/Volumes/AKiTiO4/d_w_h/TRAM-795/';
+        $date_folder = '2020_02_03';
+        $this->file['names.dmp']['path'] = $dump_path."taxdump_".$date_folder."/names.dmp";
         $this->file['names.dmp']['fields'] = array("tax_id", "name_txt", "unique_name", "name_class");
-        $this->file['nodes.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump_2020_02_03/nodes.dmp";
+        $this->file['nodes.dmp']['path'] = $dump_path."taxdump_".$date_folder."/nodes.dmp";
         $this->file['nodes.dmp']['fields'] = array("tax_id", "parent_tax_id", "rank", "embl_code", "division_id", "inherited div flag", "genetic code id", "inherited GC flag", "mitochondrial genetic code id", "inherited MGC flag", "GenBank hidden flag", "hidden subtree root flag", "comments");
-        $this->file['citations.dmp']['path'] = "/Volumes/AKiTiO4/d_w_h/TRAM-795/taxdump_2020_02_03/citations.dmp";
+        $this->file['citations.dmp']['path'] = $dump_path."taxdump_".$date_folder."/citations.dmp";
         $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-796 -----------------------------------------------------------
         $this->prune_further = array(10239, 12884, 3193, 4751, 33208, 29178);
+        /*It looks like they moved viroids (12884) into viruses, so we don't need to remove those separately -> TRAM-989*/
         if($this->with_comnames) $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest/";                //this folder is from TRAM-795
         else                     $this->extension_path = CONTENT_RESOURCE_LOCAL_PATH . "NCBI_Taxonomy_Harvest_no_vernaculars/"; //this folder is from TRAM-795
         $this->dwca['iterator_options'] = array('row_terminator' => "\n");
