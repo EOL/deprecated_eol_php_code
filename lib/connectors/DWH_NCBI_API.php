@@ -45,7 +45,7 @@ class DWH_NCBI_API
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
         $this->debug = array();
-        if(Functions::is_production()) $dump_path = '/Volumes/AKiTiO4/d_w_h/TRAM-795/';
+        if(Functions::is_production()) $dump_path = '/extra/other_files/DWH/TRAM-795/';
         else                           $dump_path = '/Volumes/AKiTiO4/d_w_h/TRAM-795/';
         $date_folder = 'taxdump_2020_02_03';
         $date_folder = 'taxdump_2020_09_20';
