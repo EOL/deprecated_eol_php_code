@@ -18,7 +18,7 @@ $func = new DWH_NCBI_API($resource_id, $with_comnames);
 
 // /* un-comment in normal operation
 $func->start_tram_796();
-Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //can delete working dir
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //won't delete working dir. Will be used for stats below.
 // */
 
 // /* utility - takes time for this resource but very helpful to catch if all parents have entries.
