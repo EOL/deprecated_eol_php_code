@@ -23,14 +23,10 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/Feb5/
 Thanks,
 Eli
 
-TRAM-989
-NCBI_Taxonomy_Harvest_no_vernaculars	Mon 2020-09-21 06:59:40 AM	{"reference.tab":50881, "taxon.tab":1635339, "time_elapsed":{"sec":2439.29, "min":40.65, "hr":0.68}}
-NCBI_Taxonomy_Harvest	                Mon 2020-09-21 07:36:01 AM	{"reference.tab":50881, "taxon.tab":1635339, "vernacular_name.tab":44046, "time_elapsed":{"sec":2049.97, "min":34.17, "hr":0.57}}
-NCBI_Taxonomy_Harvest_DH	            Mon 2020-09-21 07:45:39 AM	{"reference.tab":24843, "taxon.tab":173122, "time_elapsed":{"sec":448.62, "min":7.48, "hr":0.12}}
-
+TRAM-989 eol-archive (same result in Mac Mini)
 NCBI_Taxonomy_Harvest_no_vernaculars	Mon 2020-09-21 06:44:36 AM	{"reference.tab":50881, "taxon.tab":1635339, "time_elapsed":{"sec":1097.65, "min":18.29, "hr":0.3}}
 NCBI_Taxonomy_Harvest	                Mon 2020-09-21 07:03:24 AM	{"reference.tab":50881, "taxon.tab":1635339, "vernacular_name.tab":44046, "time_elapsed":{"sec":1078.24, "min":17.97, "hr":0.3}}
-NCBI_Taxonomy_Harvest_DH	            Mon 2020-09-21 07:07:20 AM	{"reference.tab":24843, "taxon.tab":173122, "time_elapsed":{"sec":186.46, "min":3.11, "hr":0.05}}
+NCBI_Taxonomy_Harvest_DH	            Mon 2020-09-21 10:39:33 AM	{"reference.tab":24828, "taxon.tab":172951, "time_elapsed":{"sec":203.53, "min":3.39, "hr":0.06}}
 
 =========================================================== run one after the other:
 php update_resources/connectors/dwh_ncbi_TRAM_795.php _ '{"with_Vernaculars": 1}'
