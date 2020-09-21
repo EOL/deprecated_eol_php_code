@@ -23,7 +23,8 @@ https://editors.eol.org/eol_php_code/applications/content_server/resources/Feb5/
 Thanks,
 Eli
 =========================================================== run one after the other:
-php update_resources/connectors/dwh_ncbi_TRAM_795.php
+php update_resources/connectors/dwh_ncbi_TRAM_795.php _ '{"with_Vernaculars": 1}'
+php update_resources/connectors/dwh_ncbi_TRAM_795.php _ '{"with_Vernaculars": 0}'
 php update_resources/connectors/dwh_ncbi_TRAM_796.php
 ===========================================================
 History:
@@ -44,13 +45,15 @@ class DWH_NCBI_API
         $this->taxon_ids = array();
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 60*2, 'download_attempts' => 1, 'cache' => 1); // 'expire_seconds' => 0
         $this->debug = array();
-        $dump_path = '/Volumes/AKiTiO4/d_w_h/TRAM-795/';
-        $date_folder = '2020_02_03';
-        $this->file['names.dmp']['path'] = $dump_path."taxdump_".$date_folder."/names.dmp";
+        if(Functions::is_production()) $dump_path = '/Volumes/AKiTiO4/d_w_h/TRAM-795/';
+        else                           $dump_path = '/Volumes/AKiTiO4/d_w_h/TRAM-795/';
+        $date_folder = 'taxdump_2020_02_03';
+        $date_folder = 'taxdump_2020_09_20';
+        $this->file['names.dmp']['path']     = $dump_path.$date_folder."/names.dmp";
+        $this->file['nodes.dmp']['path']     = $dump_path.$date_folder."/nodes.dmp";
+        $this->file['citations.dmp']['path'] = $dump_path.$date_folder."/citations.dmp";
         $this->file['names.dmp']['fields'] = array("tax_id", "name_txt", "unique_name", "name_class");
-        $this->file['nodes.dmp']['path'] = $dump_path."taxdump_".$date_folder."/nodes.dmp";
         $this->file['nodes.dmp']['fields'] = array("tax_id", "parent_tax_id", "rank", "embl_code", "division_id", "inherited div flag", "genetic code id", "inherited GC flag", "mitochondrial genetic code id", "inherited MGC flag", "GenBank hidden flag", "hidden subtree root flag", "comments");
-        $this->file['citations.dmp']['path'] = $dump_path."taxdump_".$date_folder."/citations.dmp";
         $this->file['citations.dmp']['fields'] = array("cit_id", "cit_key", "pubmed_id", "medline_id", "url", "text", "taxid_list");
         $this->alternative_names = array("synonym", "equivalent name", "in-part", "misspelling", "genbank synonym", "misnomer", "anamorph", "genbank anamorph", "teleomorph", "authority");
         //start TRAM-796 -----------------------------------------------------------
@@ -145,10 +148,10 @@ class DWH_NCBI_API
         $removed_branches = array(); $i = 0;
         foreach($this->prune_further as $id) $removed_branches[$id] = '';
         
-        // /* IMPORTANT: for every taxdump refresh, comment this block, then run, then fill-up more_ids_to_remove_TRAM_796() as needed. Then un-comment this block and run again to finalize.
+        /* IMPORTANT: for every taxdump refresh, comment this block, then run, then fill-up more_ids_to_remove_TRAM_796() as needed. Then un-comment this block and run again to finalize.
         $add = self::more_ids_to_remove_TRAM_796();
         foreach($add as $id) $removed_branches[$id] = '';
-        // */
+        */
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
@@ -651,6 +654,11 @@ Thanks.
             85262	|	Saintpaulia ionantha H.Wendl.	|		|	authority	|
             85262	|	Streptocarpus ionanthus (H.Wendl.) Christenh.	|		|	authority	|
             */
+            
+            // /* TRAM-989 - Please remove all taxa that have the string "endosymbiont of" in their name.
+            // filter it for all name types not just "scientific name"
+            if(stripos($rec['name_txt'], "endosymbiont of") !== false) {$filtered_ids[$rec['tax_id']] = ''; continue;} //string is found
+            // */
             
             /* TRAM-981
             1. Expanding 2b in TRAM-795:

@@ -18,7 +18,7 @@ $func = new DWH_NCBI_API($resource_id, $with_comnames);
 
 // /* un-comment in normal operation
 $func->start_tram_796();
-Functions::finalize_dwca_resource($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //can delete working dir
 // */
 
 // /* utility - takes time for this resource but very helpful to catch if all parents have entries.
@@ -39,11 +39,6 @@ else           echo "\nOK: All acceptedNameUsageID have entries.\n";
 // else           echo "\nOK: All taxonID(s) in vernacular_name.tab have entries.\n";
 
 // */
-
-/* this will delete the working dir --- never used here...
-$dir = CONTENT_RESOURCE_LOCAL_PATH."/".$resource_id;
-if(is_dir($dir)) recursive_rmdir($dir);
-*/
 
 $elapsed_time_sec = time_elapsed() - $timestart;
 echo "\n\n";
