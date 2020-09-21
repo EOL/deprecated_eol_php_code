@@ -39,7 +39,10 @@ class Eol_v3_API
         $this->api['search_name'] = 'https://eol.org/api/search/1.0.json?q=SCINAME&page=PAGE_NO&exact=true';
         $this->api['Pages6'] = 'https://eol.org/api/data_objects/1.0/dataObjectVersionID.json'; //first client is Katie image bundles. Gets taxon given object ID. Then get ancestry using taxon.
         $this->api['Pages7'] = 'https://eol.org/api/pages/1.0/EOL_PAGE_ID.json';                //first client is Katie image bundles. Gets sciname given eol ID.
-        /* https://eol.org/api/search/1.0.json?q=Sphinx&page=1&exact=true */
+        /* https://eol.org/api/search/1.0.json?q=Sphinx&page=1&exact=true 
+        https://eol.org/api/pages/1.0/46564415.json?details=true&images_per_page=50&images_page=1
+        https://eol.org/api/data_objects/1.0/6735948.json
+        */
 
         $this->api['DataObjects'][0] = "http://eol.org/api/data_objects/1.0/";
         $this->api['DataObjects'][1] = ".json?taxonomy=true&cache_ttl=";
