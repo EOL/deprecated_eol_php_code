@@ -11,14 +11,14 @@ require_library('connectors/DWH_Collembola_API');
 $timestart = time_elapsed();
 
 //############################################################ start main CoL DH
-// /*
 $resource_id = "Collembola_DH";
+// /*
 $func = new DWH_Collembola_API($resource_id);
 $func->start_tram_803();
 $func = null;
-Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-run_diagnostics($resource_id);
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 // */
+run_diagnostics($resource_id);
 //############################################################ end main CoL DH
 
 Function run_diagnostics($resource_id) // utility - takes time for this resource but very helpful to catch if all parents have entries.

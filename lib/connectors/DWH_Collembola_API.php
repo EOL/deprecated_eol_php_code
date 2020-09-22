@@ -38,11 +38,8 @@ class DWH_Collembola_API
     function start_tram_803()
     {
         /* test - from copied template
-        // 10145857 Amphileptus hirsutus Dumas, 1930
-        // 10147309 Aspidisca binucleata Kahl
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(10145857, $taxID_info); print_r($ancestry);
-        $ancestry = self::get_ancestry_of_taxID(10147309, $taxID_info); print_r($ancestry);
+        $ancestry = self::get_ancestry_of_taxID(3952391, $taxID_info); print_r($ancestry);
         exit("\n-end tests-\n");
         */
         /* - from copied template
@@ -112,15 +109,19 @@ class DWH_Collembola_API
             }
             $rec = array_map('trim', $rec);
             if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) continue;
+            if($rec['taxonID'] == '3952391') echo "\n[111]\n";
             //start filter
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
-            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $included_branches)) {}
+            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $included_branches)) {
+                if($rec['taxonID'] == '3952391') echo "\n[222]\n";
+            }
             else {
                 $filtered_ids[$rec['taxonID']] = '';
                 $removed_branches[$rec['taxonID']] = '';
                 continue;
             }
             //end filter
+            if($rec['taxonID'] == '3952391') echo "\n[333]\n";
         } //end loop
 
         echo "\nStart main process 2...Collembola DH...\n"; $i = 0;
@@ -136,7 +137,7 @@ class DWH_Collembola_API
             }
             $rec = array_map('trim', $rec);
             if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) continue;
-            
+            if($rec['taxonID'] == '3952391') echo "\n[444]\n";
             /*Array()*/
             
             if(isset($filtered_ids[$rec['taxonID']])) continue;
@@ -150,13 +151,17 @@ class DWH_Collembola_API
             // print_r($rec); exit("\nexit muna 2\n");
             /**/
             
+            if($rec['taxonID'] == '3952391') echo "\n[555]\n";
             /* Remove branches */
             $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
-            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $included_branches)) {}
+            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $included_branches)) {
+                if($rec['taxonID'] == '3952391') echo "\n[777]\n";
+            }
             else continue;
             
             $rec = self::replace_taxonID_with_identifier($rec, $taxID_info); //new - replace [taxonID] with [identifier]
             self::write_taxon_DH($rec);
+            if($rec['taxonID'] == '3952391') echo "\n[888]\n";
         } //end loop
     }
     private function replace_taxonID_with_identifier($rec, $taxID_info)
