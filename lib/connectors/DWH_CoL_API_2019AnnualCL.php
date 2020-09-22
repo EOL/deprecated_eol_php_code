@@ -92,7 +92,11 @@ class DWH_CoL_API_2019AnnualCL
         $params['first_row_is_headerYN'] = true;
         $params['sought_fields'] = array('taxonID');
         $parts = self::get_removed_branches_from_spreadsheet($params);
-        $removed_branches = $parts['taxonID']; // print_r($removed_branches);
+        $removed_branches = $parts['taxonID']; //print_r($removed_branches); exit;
+        // /* prune per TRAM-990. From 2019 Annual checklist
+        // 54770292 b0054ac395e8cf034cf10b5de3103e3c    Species 2000    Catalogue of Life in Species 2000 & ITIS Catalogue of Life: 2019        5477017order        Collembola  Animalia    Arthropoda  Entognatha  Collembola                                  false
+        $removed_branches[54770292] = '';
+        // */
         return $removed_branches;
     }
     private function main_tram_803()
