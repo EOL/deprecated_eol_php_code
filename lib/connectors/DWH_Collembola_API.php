@@ -139,14 +139,21 @@ class DWH_Collembola_API
             if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) continue;
             if($rec['taxonID'] == '3952391') echo "\n[444]\n";
             /*Array()*/
-            
+
+            if($rec['taxonID'] == '3952391') echo "\n['aaa']\n";
             if(isset($filtered_ids[$rec['taxonID']])) continue;
+            if($rec['taxonID'] == '3952391') echo "\n['bbb']\n";
             if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
+            if($rec['taxonID'] == '3952391') echo "\n['ccc']\n";
             if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
+            if($rec['taxonID'] == '3952391') echo "\n['ddd']\n";
 
             if(isset($removed_branches[$rec['taxonID']])) continue;
+            if($rec['taxonID'] == '3952391') echo "\n['eee']\n";
             if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
+            if($rec['taxonID'] == '3952391') echo "\n['fff']\n";
             if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
+            if($rec['taxonID'] == '3952391') echo "\n['ggg']\n";
             
             // print_r($rec); exit("\nexit muna 2\n");
             /**/
