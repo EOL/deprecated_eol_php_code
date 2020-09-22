@@ -35,11 +35,74 @@ class DWH_Collembola_API
         $this->unclassified_id_increments = 0;
     }
     // ----------------------------------------------------------------- start TRAM-803 -----------------------------------------------------------------
+    /*Array(
+        [taxonID] => 3952391
+        [identifier] => 18bd465a6c133112cd80f73f23776dee
+        [datasetID] => Species 2000
+        [datasetName] => Catalogue of Life in Species 2000 & ITIS Catalogue of Life: 2020-08-01 Beta
+        [acceptedNameUsageID] => 
+        [parentNameUsageID] => 3946738
+        [taxonomicStatus] => 
+        [taxonRank] => class
+        [verbatimTaxonRank] => 
+        [scientificName] => Collembola
+        [kingdom] => Animalia
+        [phylum] => Arthropoda
+        [class] => Collembola
+        [order] => 
+        [superfamily] => 
+        [family] => 
+        [genericName] => 
+        [genus] => 
+        [subgenus] => 
+        [specificEpithet] => 
+        [infraspecificEpithet] => 
+        [scientificNameAuthorship] => 
+        [source] => 
+        [namePublishedIn] => 
+        [nameAccordingTo] => 
+        [modified] => 
+        [description] => 
+        [taxonConceptID] => 
+        [scientificNameID] => 
+        [references] => 
+        [isExtinct] => false
+    )*/
+    
+    private function get_children_of_taxa_group($taxon_ids)
+    {
+        require_library('connectors/PaleoDBAPI_v2');
+        $func = new PaleoDBAPI_v2("");
+        // $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "368".".tar.gz";
+        if(Functions::is_production()) $dwca_file = DOC_ROOT."../other_files/DWH/dumps/2020-08-01-archive-complete.zip";
+        else                           $dwca_file = DOC_ROOT."../cp/COL/2020-08-01-archive-complete.zip";
+        $descendant_taxon_ids = $func->get_descendants_given_parent_ids($dwca_file, $taxon_ids);
+        print_r($descendant_taxon_ids); exit;
+        return $descendant_taxon_ids;
+    }
+    
     function start_tram_803()
     {
+        $children_of_Collembola = self::get_children_of_taxa_group(array(3952391));
         /* test - from copied template
         $taxID_info = self::get_taxID_nodes_info();
-        $ancestry = self::get_ancestry_of_taxID(3952391, $taxID_info); print_r($ancestry);
+        
+        $ids = array(3946738, 3952391);
+        foreach($ids as $id) {
+            $ancestry = self::get_ancestry_of_taxID($id, $taxID_info); print_r($ancestry);
+        }
+        
+        // $ancestry = self::get_ancestry_of_taxID(3952391, $taxID_info); print_r($ancestry);
+
+        Array( 3946738 - parent of Collambelo
+            [0] => 3946738
+            [1] => 3946316
+        )
+        // Array( 3952391 - Collambelo
+        //     [0] => 3952391
+        //     [1] => 3946738
+        //     [2] => 3946316
+        // )
         exit("\n-end tests-\n");
         */
         /* - from copied template
@@ -227,6 +290,7 @@ class DWH_Collembola_API
             }
             $rec = array_map('trim', $rec);
             // print_r($rec); exit("\nelix\n");
+            if($rec['taxonID'] == '3952391') print_r($rec);
             /*Array
             (
                 [taxonID] => 1001
