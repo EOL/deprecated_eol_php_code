@@ -108,7 +108,7 @@ class ImageBundleClassifierAPI
                         if(preg_match("/<div class='ui label'>(.*?)<\/div>/ims", $html2, $arr2)) $ret['license'] = $arr2[1];
                         if($ret['media_url'] && $ret['object_id'] && $ret['license']) {
                             print_r($ret);
-                            self:write_report($ret);
+                            self::write_report($ret, 'herbarium_sheets');
                         }
                         else exit("\ninvestigate [$page_id] [$resource_id]\n");
                     }
@@ -121,14 +121,14 @@ class ImageBundleClassifierAPI
         $page_ids = array();
         $url = str_replace('RESOURCE_ID', $resource_id, $this->pages['taxa_per_resource'])."?page=";
         for($i = 1; $i <= $page_max; $i++) {
-            echo "\n$i";
+            echo "\n$i of $page_max ";
             if($html = Functions::lookup_with_cache($url.$i, $this->download_options)) {
                 /* <a href="/pages/49745334">× <i>Chiranthofremontia lenzii</i> Dorr</a> */
                 if(preg_match_all("/<a href=\"\/pages\/(.*?)\">/ims", $html, $arr)) {
                     $page_ids = array_merge($page_ids, $arr[1]);
                 }
             }
-            if($i >= 3) break; //debug only
+            // if($i >= 3) break; //debug only
         }
         echo "\nTaxa pages total: ".count($page_ids)."\n";
         return $page_ids;
@@ -166,9 +166,20 @@ class ImageBundleClassifierAPI
             }
         }
     }
-    private function write_report($ret)
+    private function write_report($ret, $report)
     {
+        /*Array(
+            [media_url] => https://content.eol.org/data/media/70/d8/0c/519.10300438.jpg
+            [object_id] => 8450393
+            [license] => cc-by-nc-sa-3.0
+        )*/
         
+        @$this->total_write++;
+        if($FILE = Functions::file_open($this->path['destination'].$report.'.txt', 'a')) {
+            fwrite($FILE, implode("\t", $ret)."\n");
+            fclose($FILE);
+        }
+        if($this->total_write >= 3000) exit("\n3000 saved rows. Will stop process.\n");
     }
 }
 ?>
