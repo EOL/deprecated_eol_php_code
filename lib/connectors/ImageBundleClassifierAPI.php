@@ -9,6 +9,19 @@ then view source get:
 e.g.
 https://live.staticflickr.com/6222/6298833546_5a7eb31c73.jpg
 
+https://eol.org/resources/416   NMNH Birds in DwC A 
+https://eol.org/resources/463   NMNH Entomology (nmnh_entomology_)
+https://eol.org/resources/638   NMNH Marine Dinoflagellates (nmnh_marine_dino)
+https://eol.org/resources/42    NMNH Primate Measurements   (NMNH primates)
+https://eol.org/resources/462   NMNH Mammals    (nmnh_mammals_mam)
+https://eol.org/resources/464   NMNH Invertebrate Zoology   (nmnh_invertebrat)
+https://eol.org/resources/417   NMNH Fishes (nmnh_fishes_in_d)
+https://eol.org/resources/464   NMNH Invertebrate Zoology   (nmnh_invertebrat)
+https://eol.org/resources/462   NMNH Mammals    (nmnh_mammals_mam)
+https://eol.org/resources/415    NMNH Entomology in DwC A   (nmnh_entomology_)
+https://eol.org/resources/419   NMNH Mammals in DwC A   (nmnh_mammals)
+https://eol.org/resources/414   NMNH Invertebrate Zoology in DwC A  (NMNH IZ)
+
 */
 class ImageBundleClassifierAPI
 {
