@@ -224,10 +224,10 @@ class DWH_Collembola_API
             else continue;
 
             if($rec['taxonID'] == '3952391') $rec['parentNameUsageID'] = '';
+            if($rec['taxonID'] == '3952391') echo "\n[888]\n";
             $rec = self::replace_taxonID_with_identifier($rec, $taxID_info); //new - replace [taxonID] with [identifier]
             
             self::write_taxon_DH($rec);
-            if($rec['taxonID'] == '3952391') echo "\n[888]\n";
         } //end loop
     }
     private function replace_taxonID_with_identifier($rec, $taxID_info)
