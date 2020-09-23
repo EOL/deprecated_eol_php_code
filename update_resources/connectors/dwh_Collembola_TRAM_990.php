@@ -1,7 +1,10 @@
 <?php
 namespace php_active_record;
 /* Collembola Patch for DH2 - TRAM-990
-estimated execution time: 
+estimated execution time:
+
+Collembola_DH	Wed 2020-09-23 03:25:04 AM	{"taxon.tab":9301, "time_elapsed":{"sec":1042.85, "min":17.38, "hr":0.29}} - Mac Mini
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_Collembola_API');
@@ -14,7 +17,7 @@ $timestart = time_elapsed();
 $resource_id = "Collembola_DH";
 // /*
 $func = new DWH_Collembola_API($resource_id);
-$func->start_tram_803();
+$func->start_tram_990();
 $func = null;
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart);
 // */
