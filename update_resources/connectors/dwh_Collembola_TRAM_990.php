@@ -4,7 +4,7 @@ namespace php_active_record;
 estimated execution time:
 
 Collembola_DH	Wed 2020-09-23 03:25:04 AM	{"taxon.tab":9301, "time_elapsed":{"sec":1042.85, "min":17.38, "hr":0.29}} - Mac Mini
-
+Collembola_DH	Wed 2020-09-23 05:23:44 AM	{"taxon.tab":9301, "time_elapsed":{"sec":524.36, "min":8.74, "hr":0.15}} - eol-archive
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/DWH_Collembola_API');
