@@ -2,14 +2,12 @@
 namespace php_active_record;
 /* connector: [image_bundle_classifier.php] - DATA-1865
 
-
 For 3-c -- works OK
 e.g.
 https://www.flickr.com/photos/biodivlibrary/sets/72157628019337516/
 then view source get:
 e.g.
 https://live.staticflickr.com/6222/6298833546_5a7eb31c73.jpg
-
 
 */
 class ImageBundleClassifierAPI
@@ -24,6 +22,16 @@ class ImageBundleClassifierAPI
         
         $this->pages['taxa_per_resource'] = 'https://eol.org/resources/RESOURCE_ID/nodes';
         $this->pages['media_per_taxon_per_resource'] = 'https://eol.org/pages/PAGE_ID/media?resource_id=RESOURCE_ID';
+        
+        if(Functions::is_production()) {
+            $this->path['destination'] = '/extra/other_files/bundle_images/classifier/';
+            $this->prefix = 'https://editors.eol.org/other_files/';
+        }
+        else {
+            $this->path['destination'] = '/Volumes/AKiTiO4/other_files/bundle_images/classifier/';
+            $this->prefix = 'http://localhost/other_files/';
+        }
+        if(!is_dir($this->path['destination'])) mkdir($this->path['destination']);
     }
     function task1_Herbarium_Sheets()
     {   
@@ -67,7 +75,7 @@ class ImageBundleClassifierAPI
         $url = str_replace('RESOURCE_ID', $resource_id, $url);
         $url .= "&page=";
         for($i = 1; $i <= $page_max; $i++) {
-            echo "\n$i $url".$i;
+            echo "\n$i of $page_max $url".$i;
             /*
             <div class='lightbox-img-contain uk-flex'>
             <img alt="Image of manioc hibiscus" src="https://content.eol.org/data/media/71/20/dc/519.10615598.jpg" />
@@ -92,9 +100,17 @@ class ImageBundleClassifierAPI
             */
             if($html = Functions::lookup_with_cache($url.$i, $this->download_options)) {
                 if(preg_match_all("/<div class='lightbox-img-contain uk-flex'>(.*?)<i class='copyright icon'>/ims", $html, $arr)) {
-                    echo "\n".count($arr[1])."\n";
+                    echo "\nImages: ".count($arr[1])."\n";
                     foreach($arr[1] as $html2) {
-                        
+                        $ret = array();
+                        if(preg_match("/src=\"(.*?)\"/ims", $html2, $arr2)) $ret['media_url'] = $arr2[1];
+                        if(preg_match("/\"\/media\/(.*?)\">/ims", $html2, $arr2)) $ret['object_id'] = $arr2[1];
+                        if(preg_match("/<div class='ui label'>(.*?)<\/div>/ims", $html2, $arr2)) $ret['license'] = $arr2[1];
+                        if($ret['media_url'] && $ret['object_id'] && $ret['license']) {
+                            print_r($ret);
+                            self:write_report($ret);
+                        }
+                        else exit("\ninvestigate [$page_id] [$resource_id]\n");
                     }
                 }
             }
@@ -150,6 +166,9 @@ class ImageBundleClassifierAPI
             }
         }
     }
-    
+    private function write_report($ret)
+    {
+        
+    }
 }
 ?>
