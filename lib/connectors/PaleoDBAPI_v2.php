@@ -844,7 +844,7 @@ class PaleoDBAPI_v2
         return $r;
     }
 
-    function get_descendants_given_parent_ids($dwca_file, $parent_ids)
+    function get_descendants_given_parent_ids($dwca_file, $parent_ids, $resource_id = false) //first client of $resource_id is Collembola_DH TRAM-
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
@@ -860,8 +860,15 @@ class PaleoDBAPI_v2
             return false;
         }
         
-        $taxa_records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
-        $this->parentID_taxonID = self::get_ids($taxa_records);
+        if($resource_id) { //new block since below give out of memory prob for big DwCA. First client is 'Collembola_DH'.
+            if(in_array($resource_id, array('Collembola_DH'))) {
+                $this->parentID_taxonID = self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
+            }
+        }
+        else { //original block
+            $taxa_records = $harvester->process_row_type('http://rs.tdwg.org/dwc/terms/Taxon');
+            $this->parentID_taxonID = self::get_ids($taxa_records);
+        }
         $descendant_ids = self::get_all_descendants_of_these_parents($parent_ids);
         
         // remove temp dir
@@ -1017,6 +1024,38 @@ class PaleoDBAPI_v2
         }
         return $final;
     }
-
+    private function process_taxon($meta)
+    {   //print_r($meta);
+        echo "\nprocess_taxon...PaleoDBAPI_v2...\n"; $i = 0;
+        $final = array();
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 500000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit("\ndebug...\n");
+            /*Array
+            (
+                [http://rs.tdwg.org/dwc/terms/taxonID] => 1001
+                [http://purl.org/dc/terms/identifier] => 40c1c4c8925fb02ce99db87c0221a6f6
+                [http://rs.tdwg.org/dwc/terms/datasetID] => 18
+                [http://rs.tdwg.org/dwc/terms/datasetName] => LepIndex in Species 2000 & ITIS Catalogue of Life: 2020-08-01 Beta
+                [http://rs.tdwg.org/dwc/terms/acceptedNameUsageID] => 
+                [http://rs.tdwg.org/dwc/terms/parentNameUsageID] => 3997251
+                ...and other fields...
+            )*/
+            $parent_id = @$rec["http://rs.tdwg.org/dwc/terms/parentNameUsageID"];
+            $taxon_id = @$rec["http://rs.tdwg.org/dwc/terms/taxonID"];
+            if($parent_id && $taxon_id) $final[$parent_id][] = $taxon_id;
+        }
+        return $final;
+    }
 }
 ?>

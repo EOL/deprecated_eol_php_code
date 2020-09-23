@@ -76,14 +76,18 @@ class DWH_Collembola_API
         // $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "368".".tar.gz";
         if(Functions::is_production()) $dwca_file = DOC_ROOT."../other_files/DWH/dumps/2020-08-01-archive-complete.zip";
         else                           $dwca_file = DOC_ROOT."../cp/COL/2020-08-01-archive-complete.zip";
-        $descendant_taxon_ids = $func->get_descendants_given_parent_ids($dwca_file, $taxon_ids);
-        print_r($descendant_taxon_ids); exit;
-        return $descendant_taxon_ids;
+        $ids = $func->get_descendants_given_parent_ids($dwca_file, $taxon_ids, $this->resource_id);
+        unset($func);
+        foreach($ids as $id) $final[$id] = '';
+        // print_r($final); exit("\nDescendants of Collembola\n");
+        return $final;
     }
     
     function start_tram_803()
     {
-        $children_of_Collembola = self::get_children_of_taxa_group(array(3952391));
+        $this->children_of_Collembola = self::get_children_of_taxa_group(array(3952391));
+        $this->children_of_Collembola[3952391] = '';
+        
         /* test - from copied template
         $taxID_info = self::get_taxID_nodes_info();
         
@@ -103,20 +107,6 @@ class DWH_Collembola_API
         //     [1] => 3946738
         //     [2] => 3946316
         // )
-        exit("\n-end tests-\n");
-        */
-        /* - from copied template
-        $taxID_info = self::get_taxID_nodes_info();
-        $parts = self::get_removed_branches_from_spreadsheet();
-        $removed_branches = $parts['removed_brances'];
-        $one_word_names = $parts['one_word_names'];
-        $ids = array(42987761,42987788,42987780,42987793,42987792,42987781,42987798,42987775,42987777,40160866,40212453);
-        foreach($ids as $id) {
-            $ancestry = self::get_ancestry_of_taxID($id, $taxID_info);
-            echo "\n ancestry of [$id]:"; print_r($ancestry);
-            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $removed_branches)) echo "\n[$id] removed\n";
-            else                                                                                    echo "\n[$id] NOT removed\n";
-        }
         exit("\n-end tests-\n");
         */
         
@@ -151,10 +141,10 @@ class DWH_Collembola_API
         echo "\nremoved_branches total B COL: ".count($removed_branches)."\n"; //exit("\n222\n");
         */
         
-        // /* Include per TRAM-990. From COL 2020-08-01 snapshot
+        /* Include per TRAM-990. From COL 2020-08-01 snapshot
         // 3952391  18bd465a6c133112cd80f73f23776dee    Species 2000    Catalogue of Life in Species 2000 & ITIS Catalogue of Life: 2020-08-01 Beta     3946738class        Collembola  Animalia    Arthropoda  Collembola                                          false
         $included_branches[3952391] = '';
-        // */
+        */
         
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
@@ -173,9 +163,9 @@ class DWH_Collembola_API
             $rec = array_map('trim', $rec);
             if(in_array($rec['taxonomicStatus'], array("synonym", "ambiguous synonym", "misapplied name"))) continue;
             if($rec['taxonID'] == '3952391') echo "\n[111]\n";
+            
             //start filter
-            $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
-            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $included_branches)) {
+            if(isset($this->children_of_Collembola[$rec['taxonID']])) {
                 if($rec['taxonID'] == '3952391') echo "\n[222]\n";
             }
             else {
@@ -184,6 +174,7 @@ class DWH_Collembola_API
                 continue;
             }
             //end filter
+            
             if($rec['taxonID'] == '3952391') echo "\n[333]\n";
         } //end loop
 
@@ -208,14 +199,18 @@ class DWH_Collembola_API
             if($rec['taxonID'] == '3952391') echo "\n['bbb']\n";
             if(isset($filtered_ids[$rec['acceptedNameUsageID']])) continue;
             if($rec['taxonID'] == '3952391') echo "\n['ccc']\n";
-            if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
+            if($rec['taxonID'] != '3952391') {
+                if(isset($filtered_ids[$rec['parentNameUsageID']])) continue;
+            }
             if($rec['taxonID'] == '3952391') echo "\n['ddd']\n";
 
             if(isset($removed_branches[$rec['taxonID']])) continue;
             if($rec['taxonID'] == '3952391') echo "\n['eee']\n";
             if(isset($removed_branches[$rec['acceptedNameUsageID']])) continue;
             if($rec['taxonID'] == '3952391') echo "\n['fff']\n";
-            if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
+            if($rec['taxonID'] != '3952391') {
+                if(isset($removed_branches[$rec['parentNameUsageID']])) continue;
+            }
             if($rec['taxonID'] == '3952391') echo "\n['ggg']\n";
             
             // print_r($rec); exit("\nexit muna 2\n");
@@ -223,13 +218,14 @@ class DWH_Collembola_API
             
             if($rec['taxonID'] == '3952391') echo "\n[555]\n";
             /* Remove branches */
-            $ancestry = self::get_ancestry_of_taxID($rec['taxonID'], $taxID_info);
-            if(self::an_id_from_ancestry_is_part_of_a_removed_branch($ancestry, $included_branches)) {
+            if(isset($this->children_of_Collembola[$rec['taxonID']])) {
                 if($rec['taxonID'] == '3952391') echo "\n[777]\n";
             }
             else continue;
-            
+
+            if($rec['taxonID'] == '3952391') $rec['parentNameUsageID'] = '';
             $rec = self::replace_taxonID_with_identifier($rec, $taxID_info); //new - replace [taxonID] with [identifier]
+            
             self::write_taxon_DH($rec);
             if($rec['taxonID'] == '3952391') echo "\n[888]\n";
         } //end loop
