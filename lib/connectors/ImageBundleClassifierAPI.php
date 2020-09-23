@@ -47,6 +47,7 @@ class ImageBundleClassifierAPI
         https://eol.org/pages/71348/media?resource_id=420 - list of media per species per resource
         https://eol.org/pages/71348/media?resource_id=410
         */
+        if($FILE = Functions::file_open($this->path['destination'].$report.'.txt', 'w')) fclose($FILE); //initialize report
         $resource_id = 420;
         $page_max = self::get_page_range($resource_id);
         self::loop_taxa_pages_per_resource($page_max, $resource_id);
@@ -63,7 +64,7 @@ class ImageBundleClassifierAPI
         $url = str_replace('PAGE_ID', $page_id, $this->pages['media_per_taxon_per_resource']);
         $url = str_replace('RESOURCE_ID', $resource_id, $url);
         // $url = 'https://eol.org/pages/71348/media?resource_id=410'; //debug only
-        echo "\nprocessing [$page_id]\n";
+        echo "\nprocessing page: [$page_id]\n";
         $page_max = self::get_page_range('x', $url, 'pages');
         if(!$page_max) $page_max = 1;
         // exit("\n[$page_max]\n");
@@ -128,7 +129,7 @@ class ImageBundleClassifierAPI
                     $page_ids = array_merge($page_ids, $arr[1]);
                 }
             }
-            // if($i >= 3) break; //debug only
+            if($i >= 60) break; //debug only
         }
         echo "\nTaxa pages total: ".count($page_ids)."\n";
         return $page_ids;
