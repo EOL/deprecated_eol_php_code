@@ -46,7 +46,12 @@ class ImageBundleClassifierAPI
         }
         if(!is_dir($this->path['destination'])) mkdir($this->path['destination']);
     }
-    function task1_Herbarium_Sheets()
+    function task_3a_Zoological_illustrations()
+    {
+        
+    }
+    //========================================================================================================================
+    function task_1_Herbarium_Sheets()
     {   
         /* works OK
         $page_max = self::get_page_range('x', 'https://eol.org/pages/71348/media?resource_id=410', 'pages');
@@ -121,7 +126,7 @@ class ImageBundleClassifierAPI
                         if(preg_match("/\"\/media\/(.*?)\">/ims", $html2, $arr2)) $ret['object_id'] = $arr2[1];
                         if(preg_match("/<div class='ui label'>(.*?)<\/div>/ims", $html2, $arr2)) $ret['license'] = $arr2[1];
                         if($ret['media_url'] && $ret['object_id'] && $ret['license']) {
-                            print_r($ret);
+                            // print_r($ret); //good debug
                             self::write_report($ret, 'herbarium_sheets');
                         }
                         else exit("\ninvestigate [$page_id] [$resource_id]\n");

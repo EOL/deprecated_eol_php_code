@@ -8,5 +8,8 @@ require_library('connectors/ImageBundleClassifierAPI');
 $timestart = time_elapsed();
 
 $func = new ImageBundleClassifierAPI();
-$func->task1_Herbarium_Sheets();
+
+$func->task_1_Herbarium_Sheets();
+// $func->task_3a_Zoological_illustrations();
+
 ?>
