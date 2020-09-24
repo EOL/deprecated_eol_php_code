@@ -7,7 +7,13 @@ php5.6 image_bundle_classifier.php jenkins '{"task": "task_1"}'
 php5.6 image_bundle_classifier.php jenkins '{"task": "task_3a"}'
 php5.6 image_bundle_classifier.php jenkins '{"task": "task_3c"}'
 
+https://editors.eol.org/other_files/bundle_images/classifier/herbarium_sheets.txt
+https://editors.eol.org/other_files/bundle_images/classifier/herbarium_sheets_download.txt
+
+https://editors.eol.org/other_files/bundle_images/classifier/Zoological_illustrations.txt
+https://editors.eol.org/other_files/bundle_images/classifier/Zoological_illustrations_download.txt
 */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ImageBundleClassifierAPI');
 $timestart = time_elapsed();

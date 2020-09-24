@@ -54,10 +54,66 @@ class ImageBundleClassifierAPI
     }
     function task_3c_Botanical_illustrations()
     {
+        if($FILE = Functions::file_open($this->path['destination'].'Botanical_illustrations'.'.txt', 'w')) fclose($FILE); //initialize report
+        if($FILE = Functions::file_open($this->path['destination'].'Botanical_illustrations'.'_download.txt', 'w')) fclose($FILE); //initialize report
+        
         $flickr_BHL_albums = array('https://www.flickr.com/photos/biodivlibrary/sets/72157628019337516/', 'https://www.flickr.com/photos/biodivlibrary/sets/72157668561080736/', 
         'https://www.flickr.com/photos/biodivlibrary/albums/72157666154067184/', 'https://www.flickr.com/photos/biodivlibrary/sets/72157668837832862/', 
         'https://www.flickr.com/photos/biodivlibrary/sets/72157629695027605/', 'https://www.flickr.com/photos/biodivlibrary/albums/72157638854392084/', 
         'https://www.flickr.com/photos/biodivlibrary/albums/72157629680443310/', 'https://www.flickr.com/photos/biodivlibrary/albums/72157713173596393/');
+        $flickr_BHL_albums = array('72157628019337516', '72157668561080736', '72157666154067184', '72157668837832862', '72157629695027605', 
+                                   '72157638854392084', '72157629680443310', '72157713173596393');
+        foreach($flickr_BHL_albums as $photoset_id) {
+            echo "\n$photoset_id\n";
+            self::get_images_from_album($photoset_id);
+            // break; //debug only
+        }
+    }
+    private function photo_url($photo_id, $secret, $server, $farm)
+    {
+        return "http://farm".$farm.".static.flickr.com/".$server."/".$photo_id."_".$secret.".jpg";
+    }
+    private function get_images_from_album($photoset_id) //https://www.flickr.com/services/api/flickr.photosets.getPhotos.html
+    {
+        $user_id = '61021753@N02'; //BioDivLibrary
+        $api_key = FLICKR_API_KEY; //7856957eced5a8ddbad50f1bca0db452
+        $url = "https://api.flickr.com/services/rest/?method=flickr.photosets.getPhotos&api_key=$api_key&user_id=$user_id&format=json&photoset_id=$photoset_id";
+        // echo "\n$url\n";
+        if($json = Functions::lookup_with_cache($url, $this->download_options)) {
+            // echo "\n$json\n";
+            $json = str_replace('jsonFlickrApi(', '', $json);
+            $json = substr($json, 0, strlen($json)-1);
+            $arr = json_decode($json, true);
+            // print_r($arr);
+            echo " - ".count($arr['photoset']['photo'])."\n";
+            foreach($arr['photoset']['photo'] as $rec) {
+                // print_r($rec); exit;
+                /*Array(
+                    [id] => 6298833546
+                    [secret] => 5a7eb31c73
+                    [server] => 6222
+                    [farm] => 7
+                    [title] => n307_w1150
+                    [isprimary] => 0
+                    [ispublic] => 1
+                    [isfriend] => 0
+                    [isfamily] => 0
+                )*/
+
+                //start write report:
+                $ret = array();
+                $ret['media_url'] = self::photo_url($rec['id'], $rec['secret'], $rec['server'], $rec['farm']);
+                $ret['object_id'] = $rec['id'];
+                $ret['source'] = 'BioDivLibrary';
+                if($ret['media_url'] && $ret['object_id']) {
+                    // print_r($ret); //good debug
+                    self::write_report($ret, 'Botanical_illustrations');
+                }
+                else exit("\ninvestigate Botanical_illustrations\n");
+                
+            }
+        }
+        else echo "\nERROR: photoset_id not found [$photoset_id]\n";
     }
     //========================================================================================================================
     function task_3a_Zoological_illustrations()
