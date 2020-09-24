@@ -52,6 +52,14 @@ class ImageBundleClassifierAPI
         $this->task_3a_DwCA['NMNH Fishes'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/342.tar.gz';
         $this->task_3a_DwCA['NMNH Entomology'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/176.tar.gz';
     }
+    function task_3c_Botanical_illustrations()
+    {
+        $flickr_BHL_albums = array('https://www.flickr.com/photos/biodivlibrary/sets/72157628019337516/', 'https://www.flickr.com/photos/biodivlibrary/sets/72157668561080736/', 
+        'https://www.flickr.com/photos/biodivlibrary/albums/72157666154067184/', 'https://www.flickr.com/photos/biodivlibrary/sets/72157668837832862/', 
+        'https://www.flickr.com/photos/biodivlibrary/sets/72157629695027605/', 'https://www.flickr.com/photos/biodivlibrary/albums/72157638854392084/', 
+        'https://www.flickr.com/photos/biodivlibrary/albums/72157629680443310/', 'https://www.flickr.com/photos/biodivlibrary/albums/72157713173596393/');
+    }
+    //========================================================================================================================
     function task_3a_Zoological_illustrations()
     {   /* 
         1. Grep for illustration in column 5 of these resource files: Mammals, Fishes, Entomology 
