@@ -45,10 +45,66 @@ class ImageBundleClassifierAPI
             $this->prefix = 'http://localhost/other_files/';
         }
         if(!is_dir($this->path['destination'])) mkdir($this->path['destination']);
+        /*
+        https://editors.eol.org/other_files/bundle_images/classifier/herbarium_sheets.txt
+        */
+        $this->task_3a_DwCA['NMNH Mammals'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/344.tar.gz';
+        $this->task_3a_DwCA['NMNH Fishes'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/342.tar.gz';
+        $this->task_3a_DwCA['NMNH Entomology'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/176.tar.gz';
     }
     function task_3a_Zoological_illustrations()
+    {   /* 
+        1. Grep for illustration in column 5 of these resource files: Mammals, Fishes, Entomology 
+        2. Get accessURI for matching lines
+        3. Download each image using accessURI
+        */
+        foreach($this->task_3a_DwCA as $resource_name => $dwca) {
+            echo "\n $resource_name $dwca\n";
+            self::process_Zoological_illustrations($resource_name, $dwca);
+        }
+    }
+    private function process_Zoological_illustrations($resource_name, $dwca)
     {
-        
+        if(!($info = self::extract_get_path_info($dwca))) return; //uncomment in real operation
+        $this->extension_path = $info['temp_dir'];
+        self::main_task_3a();
+    }
+    private function main_task_3a()
+    {
+        $meta = self::get_meta_info();
+        $i = 0; $filtered_ids = array();
+        echo "\nStart main process...WoRMS...\n";
+        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+            $i++;
+            if(($i % 200000) == 0) echo "\n count:[$i] ";
+            if($meta['ignoreHeaderLines'] && $i == 1) continue;
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta['fields'] as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            print_r($rec); exit;
+        }
+    }
+    private function extract_get_path_info($dwca)
+    {
+        require_library('connectors/INBioAPI');
+        $func = new INBioAPI();
+        $paths = $func->extract_archive_file($dwca, "taxon.tab", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        $archive_path = $paths['archive_path'];
+        $temp_dir = $paths['temp_dir'];
+        $tables['taxa'] = 'taxon.tab';
+        return array("temp_dir" => $temp_dir, "tables" => $tables);
+    }
+    private function get_meta_info($row_type = false)
+    {
+        require_library('connectors/DHSourceHierarchiesAPI'); $func = new DHSourceHierarchiesAPI();
+        $meta = $func->analyze_eol_meta_xml($this->extension_path."meta.xml", $row_type); //2nd param $row_type is rowType in meta.xml
+        if($GLOBALS['ENV_DEBUG']) print_r($meta);
+        return $meta;
     }
     //========================================================================================================================
     function task_1_Herbarium_Sheets()

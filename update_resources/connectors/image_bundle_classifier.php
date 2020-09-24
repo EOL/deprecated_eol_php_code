@@ -9,7 +9,7 @@ $timestart = time_elapsed();
 
 $func = new ImageBundleClassifierAPI();
 
-$func->task_1_Herbarium_Sheets();
-// $func->task_3a_Zoological_illustrations();
+// $func->task_1_Herbarium_Sheets();
+$func->task_3a_Zoological_illustrations();
 
 ?>
