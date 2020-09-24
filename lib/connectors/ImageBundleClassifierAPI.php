@@ -52,6 +52,16 @@ class ImageBundleClassifierAPI
         $this->task_3a_DwCA['NMNH Fishes'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/342.tar.gz';
         $this->task_3a_DwCA['NMNH Entomology'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/176.tar.gz';
     }
+    function print_totals()
+    {
+        Functions::show_totals($this->path['destination'].'herbarium_sheets'.'.txt');
+        Functions::show_totals($this->path['destination'].'herbarium_sheets'.'_download.txt');
+        Functions::show_totals($this->path['destination'].'Zoological_illustrations'.'.txt');
+        Functions::show_totals($this->path['destination'].'Zoological_illustrations'.'_download.txt');
+        Functions::show_totals($this->path['destination'].'Botanical_illustrations'.'.txt');
+        Functions::show_totals($this->path['destination'].'Botanical_illustrations'.'_download.txt');
+        echo "\n-end\n";
+    }
     function task_3c_Botanical_illustrations()
     {
         if($FILE = Functions::file_open($this->path['destination'].'Botanical_illustrations'.'.txt', 'w')) fclose($FILE); //initialize report

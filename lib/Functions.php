@@ -2436,7 +2436,11 @@ class Functions
         }
         return $file_ctr; // total number of work tasks
     }
-
+    public static function show_totals($file)
+    {
+        $total = shell_exec("wc -l < ".escapeshellarg($file));
+        $total = trim($total);  echo "\n$file: [$total]\n";
+    }
     function combine_all_eol_resource_xmls($resource_id, $files)
     {
         debug("\n\n Start compiling all XML...");
