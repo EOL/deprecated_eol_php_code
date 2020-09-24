@@ -59,9 +59,11 @@ class ImageBundleClassifierAPI
         3. Download each image using accessURI
         */
         if($FILE = Functions::file_open($this->path['destination'].'Zoological_illustrations'.'.txt', 'w')) fclose($FILE); //initialize report
+        if($FILE = Functions::file_open($this->path['destination'].'Zoological_illustrations'.'_download.txt', 'w')) fclose($FILE); //initialize report
         foreach($this->task_3a_DwCA as $resource_name => $dwca) {
             echo "\n $resource_name $dwca\n";
             self::process_Zoological_illustrations($resource_name, $dwca);
+            // break; //debug only
         }
     }
     private function process_Zoological_illustrations($resource_name, $dwca)
@@ -69,12 +71,13 @@ class ImageBundleClassifierAPI
         if(!($info = self::extract_get_path_info($dwca))) return; //uncomment in real operation
         $this->extension_path = $info['temp_dir'];
         self::main_task_3a($resource_name);
+        recursive_rmdir($info['temp_dir']);
     }
     private function main_task_3a($resource_name) //Zoological illustrations
     {
         $meta = self::get_meta_info('http://eol.org/schema/media/Document');
         $i = 0; $filtered_ids = array();
-        echo "\nStart main process...WoRMS...\n";
+        echo "\nStart main process...$resource_name...\n";
         foreach(new FileIterator($this->extension_path.$meta['file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 200000) == 0) echo "\n count:[$i] ";
@@ -117,35 +120,34 @@ class ImageBundleClassifierAPI
             Fishes (3299 images), 
             and Entomology (3720 images) by grepping for "illustration" (not case sensitive) in column 5 (title)."
             */
-            if(stripos($rec['title'], "illustration") !== false) { //string is found
+            if(stripos($rec['title'], "illustrat") !== false) { //string is found
                 $ret = array();
                 $ret['media_url'] = $rec['accessURI'];
                 $ret['object_id'] = $rec['identifier'];
-                $ret['license'] = $rec['UsageTerms'];
+                if(preg_match("/licenses\/(.*?)\//ims", $rec['UsageTerms'], $arr)) $ret['license'] = $arr[1];
                 $ret['source'] = $resource_name;
                 if($ret['media_url'] && $ret['object_id'] && $ret['license']) {
                     // print_r($ret); //good debug
                     self::write_report($ret, 'Zoological_illustrations');
                 }
                 else exit("\ninvestigate [$page_id] [$resource_id]\n");
-                
             }
         }
     }
     private function extract_get_path_info($dwca)
     {
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($dwca, "taxon.tab", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
-        */
-        // /* debug only
+        // */
+        /* debug only
         $paths = Array
         (
             'archive_path' => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_20494/",
             'temp_dir' => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_20494/"
         );
-        // */
+        */
         print_r($paths);
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
@@ -175,6 +177,8 @@ class ImageBundleClassifierAPI
         https://eol.org/pages/71348/media?resource_id=410
         */
         if($FILE = Functions::file_open($this->path['destination'].'herbarium_sheets'.'.txt', 'w')) fclose($FILE); //initialize report
+        if($FILE = Functions::file_open($this->path['destination'].'herbarium_sheets'.'_download.txt', 'w')) fclose($FILE); //initialize report
+
         $resource_id = 420;
         $page_max = self::get_page_range($resource_id);
         self::loop_taxa_pages_per_resource($page_max, $resource_id);
@@ -307,7 +311,14 @@ class ImageBundleClassifierAPI
             fwrite($FILE, implode("\t", $ret)."\n");
             fclose($FILE);
         }
-        if($this->total_write >= 3000) exit("\n3000 saved rows. Will stop process.\n");
+        if($FILE2 = Functions::file_open($this->path['destination'].$report.'_download.txt', 'a')) {
+            fwrite($FILE2, $ret['media_url']."\n");
+            fclose($FILE2);
+        }
+        
+        if($report == 'herbarium_sheets') {
+            if($this->total_write >= 3000) exit("\n3000 saved rows. Will stop process.\n");
+        }
     }
 }
 ?>
