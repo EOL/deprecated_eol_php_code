@@ -58,6 +58,7 @@ class ImageBundleClassifierAPI
         2. Get accessURI for matching lines
         3. Download each image using accessURI
         */
+        if($FILE = Functions::file_open($this->path['destination'].'Zoological_illustrations'.'.txt', 'w')) fclose($FILE); //initialize report
         foreach($this->task_3a_DwCA as $resource_name => $dwca) {
             echo "\n $resource_name $dwca\n";
             self::process_Zoological_illustrations($resource_name, $dwca);
@@ -67,14 +68,14 @@ class ImageBundleClassifierAPI
     {
         if(!($info = self::extract_get_path_info($dwca))) return; //uncomment in real operation
         $this->extension_path = $info['temp_dir'];
-        self::main_task_3a();
+        self::main_task_3a($resource_name);
     }
-    private function main_task_3a()
+    private function main_task_3a($resource_name) //Zoological illustrations
     {
-        $meta = self::get_meta_info();
+        $meta = self::get_meta_info('http://eol.org/schema/media/Document');
         $i = 0; $filtered_ids = array();
         echo "\nStart main process...WoRMS...\n";
-        foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
+        foreach(new FileIterator($this->extension_path.$meta['file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             if(($i % 200000) == 0) echo "\n count:[$i] ";
             if($meta['ignoreHeaderLines'] && $i == 1) continue;
@@ -86,14 +87,66 @@ class ImageBundleClassifierAPI
                 $k++;
             }
             $rec = array_map('trim', $rec);
-            print_r($rec); exit;
+            // print_r($rec); exit;
+            /*
+            Array
+            (
+                [identifier] => 10396971
+                [taxonID] => 1516979fecd7d12180c6e6029a09d5e5
+                [type] => http://purl.org/dc/dcmitype/StillImage
+                [format] => image/jpeg
+                [title] => USNM 398699; Saimiri sciureus
+                [description] => Cebidae; Primate xray; lateral
+                [accessURI] => https://collections.nmnh.si.edu/services/media.php?env=mammals&irn=10396971
+                [thumbnailURL] => https://collections.nmnh.si.edu/services/media.php?env=mammals&irn=10396971&thumb=yes
+                [furtherInformationURL] => https://collections.nmnh.si.edu/search/mammals/?irn=7049433
+                [CreateDate] => 24 Apr 2013
+                [modified] => 19 Dec 2019
+                [language] => En
+                [Rating] => 2
+                [audience] => General public
+                [UsageTerms] => http://creativecommons.org/licenses/by-nc-sa/3.0/
+                [rights] => This image was obtained from the Smithsonian Institution. Unless otherwise noted, this image or its contents may be protected by international copyright laws.
+                [Owner] => Smithsonian Institution, National Museum of Natural History, Department of Vertebrate Zoology, Division of Mammals
+                [agentID] => 5677f0c8bb82480769d1803bf325dbba
+                [LocationCreated] => Locality Unknown
+            )
+            */
+            /* "So you could ask Eli to make you NMNH illustration bundles for 
+            Mammals (72 images), 
+            Fishes (3299 images), 
+            and Entomology (3720 images) by grepping for "illustration" (not case sensitive) in column 5 (title)."
+            */
+            if(stripos($rec['title'], "illustration") !== false) { //string is found
+                $ret = array();
+                $ret['media_url'] = $rec['accessURI'];
+                $ret['object_id'] = $rec['identifier'];
+                $ret['license'] = $rec['UsageTerms'];
+                $ret['source'] = $resource_name;
+                if($ret['media_url'] && $ret['object_id'] && $ret['license']) {
+                    // print_r($ret); //good debug
+                    self::write_report($ret, 'Zoological_illustrations');
+                }
+                else exit("\ninvestigate [$page_id] [$resource_id]\n");
+                
+            }
         }
     }
     private function extract_get_path_info($dwca)
     {
+        /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($dwca, "taxon.tab", array('timeout' => 60*10, 'expire_seconds' => 60*60*24*25)); //expires in 25 days
+        */
+        // /* debug only
+        $paths = Array
+        (
+            'archive_path' => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_20494/",
+            'temp_dir' => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_20494/"
+        );
+        // */
+        print_r($paths);
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $tables['taxa'] = 'taxon.tab';
@@ -121,7 +174,7 @@ class ImageBundleClassifierAPI
         https://eol.org/pages/71348/media?resource_id=420 - list of media per species per resource
         https://eol.org/pages/71348/media?resource_id=410
         */
-        if($FILE = Functions::file_open($this->path['destination'].$report.'.txt', 'w')) fclose($FILE); //initialize report
+        if($FILE = Functions::file_open($this->path['destination'].'herbarium_sheets'.'.txt', 'w')) fclose($FILE); //initialize report
         $resource_id = 420;
         $page_max = self::get_page_range($resource_id);
         self::loop_taxa_pages_per_resource($page_max, $resource_id);
@@ -181,6 +234,7 @@ class ImageBundleClassifierAPI
                         if(preg_match("/src=\"(.*?)\"/ims", $html2, $arr2)) $ret['media_url'] = $arr2[1];
                         if(preg_match("/\"\/media\/(.*?)\">/ims", $html2, $arr2)) $ret['object_id'] = $arr2[1];
                         if(preg_match("/<div class='ui label'>(.*?)<\/div>/ims", $html2, $arr2)) $ret['license'] = $arr2[1];
+                        $ret['source'] = "EOL";
                         if($ret['media_url'] && $ret['object_id'] && $ret['license']) {
                             // print_r($ret); //good debug
                             self::write_report($ret, 'herbarium_sheets');
@@ -248,7 +302,6 @@ class ImageBundleClassifierAPI
             [object_id] => 8450393
             [license] => cc-by-nc-sa-3.0
         )*/
-        
         @$this->total_write++;
         if($FILE = Functions::file_open($this->path['destination'].$report.'.txt', 'a')) {
             fwrite($FILE, implode("\t", $ret)."\n");
