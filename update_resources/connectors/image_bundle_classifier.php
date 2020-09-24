@@ -18,6 +18,14 @@ https://editors.eol.org/other_files/bundle_images/classifier/Zoological_illustra
 3c. Botanical illustrations
 https://editors.eol.org/other_files/bundle_images/classifier/Botanical_illustrations.txt
 https://editors.eol.org/other_files/bundle_images/classifier/Botanical_illustrations_download.txt
+
+As of 24 Sep 2020
+/extra/other_files/bundle_images/classifier/herbarium_sheets.txt: [3000]
+/extra/other_files/bundle_images/classifier/herbarium_sheets_download.txt: [3000]
+/extra/other_files/bundle_images/classifier/Zoological_illustrations.txt: [7067]
+/extra/other_files/bundle_images/classifier/Zoological_illustrations_download.txt: [7067]
+/extra/other_files/bundle_images/classifier/Botanical_illustrations.txt: [1144]
+/extra/other_files/bundle_images/classifier/Botanical_illustrations_download.txt: [1144]
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
