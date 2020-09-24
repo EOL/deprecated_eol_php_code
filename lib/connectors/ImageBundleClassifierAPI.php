@@ -61,7 +61,7 @@ class ImageBundleClassifierAPI
         Functions::show_totals($this->path['destination'].'Zoological_illustrations'.'_download.txt');
         Functions::show_totals($this->path['destination'].'Botanical_illustrations'.'.txt');
         Functions::show_totals($this->path['destination'].'Botanical_illustrations'.'_download.txt');
-        echo "\n-end\n";
+        echo "\n-end-\n";
     }
     function task_3c_Botanical_illustrations()
     {
