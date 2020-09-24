@@ -54,6 +54,7 @@ class ImageBundleClassifierAPI
     }
     function print_totals()
     {
+        echo "\nAs of ".date("d M Y")."\n";
         Functions::show_totals($this->path['destination'].'herbarium_sheets'.'.txt');
         Functions::show_totals($this->path['destination'].'herbarium_sheets'.'_download.txt');
         Functions::show_totals($this->path['destination'].'Zoological_illustrations'.'.txt');
