@@ -739,8 +739,8 @@ class DWH_WoRMS_API
             }
             else exit("\nundefined parent id: [$parentNameUsageID]\n");
         }
-        else {
-            echo "\nNO parent ID: [$parentNameUsageID] [$rec[scientificName]] [$rec[vernacularName]]\n"; //good debug only
+        else { //mostly if not all, these are roots that's why there are no parents. Given list of roots from the ticket.
+            // echo "\nNO parent ID: [$parentNameUsageID] [$rec[scientificName]] [$rec[vernacularName]]\n"; //good debug only
             // print_r($rec); exit;
             $parent_name = '';
             $parent_name_canonical = '';
