@@ -575,7 +575,7 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "5-"; print_r($options);}
                         
-                        // /* copied block
+                        /* copied block
                         if(count($options) == 0) { //just pick 1
                             $removed = array_diff($removed, $possible_bring_back);
                             if(count($possible_bring_back) == 2) $removed[] = $possible_bring_back[1];
@@ -588,7 +588,7 @@ class DWH_WoRMS_API
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                             if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         }
-                        // */
+                        */
                         
                         $before_6 = $options;
                         
@@ -821,7 +821,7 @@ class DWH_WoRMS_API
         $grandparent = @$ancestry[2]; 
         $parent_rec = $taxID_info[$parent];
         // echo "\nparent rec: "; print_r($parent_rec);
-        if($parent_rec['r'] == 'subgenus') { echo "\nuse grandparent for comparison\n";
+        if($parent_rec['r'] == 'subgenus') { //echo "\nuse grandparent for comparison\n";
             return $grandparent;
             // $grandparent_rec = $taxID_info[$grandparent];
             // echo "\ngrandparent rec: "; print_r($grandparent_rec);
