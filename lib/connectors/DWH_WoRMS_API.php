@@ -582,14 +582,20 @@ class DWH_WoRMS_API
                         }
                         // */
                         
+                        $before_6 = $options;
+                        
                         if(count($options) == 0) $options = $before_5; //exit("\nnaku zero 5\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
+                            $possible_bring_back = array();
                             if($GLOBALS['ENV_DEBUG']) {echo "5a-"; print_r($options);}
                             foreach($options as $taxonID) { $i++;
                                 $arr = self::call_gnparser($taxID_info2[$taxonID]['sn']);
-                                if($subgenus = @$arr[0]['details'][0]['infragenericEpithet']['value']) $removed[] = $taxonID;
+                                if($subgenus = @$arr[0]['details'][0]['infragenericEpithet']['value']) {
+                                    $removed[] = $taxonID;
+                                    $possible_bring_back[] = $taxonID;
+                                }
                                 // reject with subgenus
                             }
                         }
@@ -597,7 +603,24 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "6-"; print_r($options);}
 
-                        if(count($options) == 0) exit("\nnaku zero 6\n");
+                        // /* copied block
+                        if(count($options) == 0) { //just pick 1
+                            $removed = array_diff($removed, $possible_bring_back);
+                            if(count($possible_bring_back) == 2) $removed[] = $possible_bring_back[1];
+                            elseif(count($possible_bring_back) == 3) {
+                                $removed[] = $possible_bring_back[1];
+                                $removed[] = $possible_bring_back[2];
+                            }
+                            else exit("\nA case with 4 duplicates!\n");
+                            $options = $possible_bring_back;
+                            $options = array_diff($options, $removed); $options = array_values($options); //reindex key
+                            if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
+                        }
+                        // */
+
+                        $before_7 = $options;
+
+                        if(count($options) == 0) $options = $before_6; //exit("\nnaku zero 6\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
@@ -715,7 +738,7 @@ class DWH_WoRMS_API
             $parent_name_canonical = '';
         }
         
-        // /* adjustment for e.g. "Abyssocypris subgen. Abyssocypris" should be compared using "Abyssocypris" only.
+        // /* adjustment for e.g. "Abyssocypris subgen. Abyssocypris" should be compared as "Abyssocypris" only.
         // That is remove everything after "subgen.", inclusive.
         // https://eol-jira.bibalex.org/browse/TRAM-988?focusedCommentId=65174&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65174
         if(stripos($parent_name_canonical, " subgen. ") !== false) { //string is found
