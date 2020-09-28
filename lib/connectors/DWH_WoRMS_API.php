@@ -499,6 +499,7 @@ class DWH_WoRMS_API
                         $before_4 = $options;
 
                         if(count($options) == 0) $options = $before_3; //exit("\nnaku zero 3\n");
+                        if(count($options) == 0) exit("\nnaku zero 3 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             if(count($options) == 2) {
