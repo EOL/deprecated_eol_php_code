@@ -471,6 +471,7 @@ class DWH_WoRMS_API
 
                         $before_3 = $options;
                         if(!$before_3) $before_3 = $before_2;
+                        if(!$before_3) $before_3 = $rec3;
                         
                         if(count($options) == 0) $options = $before_2; //exit("\nnaku zero 2\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
