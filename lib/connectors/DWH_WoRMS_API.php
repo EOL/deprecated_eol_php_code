@@ -757,12 +757,14 @@ class DWH_WoRMS_API
         */
         
         // /* KATJA'S PATH - https://eol-jira.bibalex.org/browse/TRAM-988?focusedCommentId=65179&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65179
-        $parentID = self::get_parentID_for_comparison($rec['taxonID'], $taxID_info); //returns either the parent or grandparent
-        if($parent_name = @$this->taxonID_scientificName_info[$parentID]) {
-            if($parent_name_canonical = @$this->scientificName_canonical_info[$parent_name]) {}
-            else exit("\nundefined parent name2: [$parent_name]\n");
+        if($parentNameUsageID = $rec['parentNameUsageID']) {
+            $parentID = self::get_parentID_for_comparison($rec['taxonID'], $taxID_info); //returns either the parent or grandparent
+            if($parent_name = @$this->taxonID_scientificName_info[$parentID]) {
+                if($parent_name_canonical = @$this->scientificName_canonical_info[$parent_name]) {}
+                else exit("\nundefined parent name2: [$parent_name]\n");
+            }
+            else exit("\nundefined parent id2: [$parentID]\n");
         }
-        else exit("\nundefined parent id2: [$parentID]\n");
         // */
         
         $genus = $rec['genus'];
@@ -815,10 +817,10 @@ class DWH_WoRMS_API
         // $id = 156099; $id = 132874;
         $ancestry = self::get_ancestry_of_taxID($id, $taxID_info);
         // echo "\nancestry of [$id]\n"; print_r($ancestry);
-        $parent = $ancestry[1];
-        $grandparent = $ancestry[2]; 
+        $parent = @$ancestry[1];
+        $grandparent = @$ancestry[2]; 
         $parent_rec = $taxID_info[$parent];
-        echo "\nparent rec: "; print_r($parent_rec);
+        // echo "\nparent rec: "; print_r($parent_rec);
         if($parent_rec['r'] == 'subgenus') { echo "\nuse grandparent for comparison\n";
             return $grandparent;
             // $grandparent_rec = $taxID_info[$grandparent];
