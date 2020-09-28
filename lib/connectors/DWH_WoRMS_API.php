@@ -729,15 +729,13 @@ class DWH_WoRMS_API
         if(self::number_of_words($genus_canonical) != 1) $genus_canonical = self::canonical_form_gnparser($genus);
         $scientificName = $rec['scientificName'];
         $canonical = $rec['vernacularName']; //canonical name from gnparser is stored here in vernacularName
-        
+        /* debug only
         if(in_array($rec['taxonID'], array(156099, 132874))) $this->eli[$canonical][$scientificName]["$genus_canonical|$parent_name_canonical"] = '';
-        
+        */
         if(in_array($taxonomicStatus, array('accepted', 'doubtful'))) {
             if(in_array($taxonRank, array('species', 'subspecies', 'variety', 'form'))) {
-                // if($parent_name_canonical == $genus_canonical) { exclude this.... add $parent_name_canonical in criteria 2become duplicates...
-                    if($taxonRank == 'species') $this->duplicates[$canonical]["$genus_canonical|$parent_name_canonical"][$taxonRank][] = $rec['taxonID'];
-                    else                        $this->duplicates[$canonical]["$genus_canonical|$parent_name_canonical"]['SVF'][] = $rec['taxonID'];
-                // }
+                if($taxonRank == 'species') $this->duplicates[$canonical]["$genus_canonical|$parent_name_canonical"][$taxonRank][] = $rec['taxonID'];
+                else                        $this->duplicates[$canonical]["$genus_canonical|$parent_name_canonical"]['SVF'][] = $rec['taxonID'];
             }
         }
         /*A set of duplicates is where:
