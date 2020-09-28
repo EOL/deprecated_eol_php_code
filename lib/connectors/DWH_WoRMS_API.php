@@ -496,7 +496,9 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "3-"; print_r($options);}
 
-                        if(count($options) == 0) exit("\nnaku zero 3\n");
+                        $before_4 = $options;
+
+                        if(count($options) == 0) $options = $before_3; //exit("\nnaku zero 3\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             if(count($options) == 2) {
