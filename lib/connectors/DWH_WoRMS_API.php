@@ -453,6 +453,8 @@ class DWH_WoRMS_API
                         }
                         */
                         
+                        $before_2 = $options;
+                        
                         if(count($options) == 0) $options = $rec3; //exit("\nnaku zero 1\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
@@ -467,7 +469,9 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "2-"; print_r($options);}
 
-                        if(count($options) == 0) exit("\nnaku zero 2\n");
+                        $before_3 = $options;
+                        
+                        if(count($options) == 0) $options = $before_2; //exit("\nnaku zero 2\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
