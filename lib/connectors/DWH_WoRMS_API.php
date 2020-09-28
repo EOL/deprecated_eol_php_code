@@ -36,7 +36,7 @@ class DWH_WoRMS_API
                                                            //false - primarily used in lookup from WoRMS using AphiaID
         $this->download_options["expire_seconds"] = 60*60*24*30;
         $this->gnparser_api = 'https://parser.globalnames.org/api?q=';
-        $this->WoRMS_report = CONTENT_RESOURCE_LOCAL_PATH."reports/duplicates".date("Y_m_d").".txt";
+        $this->WoRMS_report = CONTENT_RESOURCE_LOCAL_PATH."reports/duplicates_".date("Y_m_d").".txt";
     }
     // ----------------------------------------------------------------- start TRAM-797 -----------------------------------------------------------------
     private function start()
