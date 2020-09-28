@@ -64,7 +64,7 @@ class DWH_WoRMS_API
             echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         else { //local development only
-            $info = Array('temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_14926/',
+            $info = Array('temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_41927/',
                           'tables' => Array('taxa' => "taxon.tab"));
 
             /* run to fill-in $info above:
@@ -320,7 +320,10 @@ class DWH_WoRMS_API
                 */
             }
         }
-        
+        /* debug only
+        print_r($this->eli);
+        print_r($this->duplicates["Haliclona varia"]); exit("\n-end munax-\n");
+        */
         $removed_duplicate_taxon_ids = self::choose_1_among_duplicates($taxID_info, $taxID_info2);
         
         //start 3rd loop - this loop is basically just copied from loop 2. Except for the last part -> write_taxon_DH()
@@ -387,10 +390,10 @@ class DWH_WoRMS_API
         $WRITE = fopen($this->WoRMS_report, "w"); fclose($WRITE);
         $removed = array();
         foreach($this->duplicates as $sciname => $rec) {
-            foreach($rec as $genus => $rec2) {
+            foreach($rec as $genus_parent => $rec2) {
                 foreach($rec2 as $rank => $rec3) {
                     if(count($rec3) > 1) {
-                        echo "\nDuplicate: [$sciname][$genus][$rank]";
+                        echo "\nDuplicate: [$sciname][$genus_parent][$rank]";
                         // print_r($rec3);
                         @$final_duplicates++;
 
@@ -671,6 +674,11 @@ class DWH_WoRMS_API
         fwrite($WRITE, "\n");
         fclose($WRITE);
     }
+    function canonical_form_gnparser($sciname)
+    {
+        $arr = self::call_gnparser($sciname);
+        return trim(@$arr[0]['canonicalName']['full']);
+    }
     function call_gnparser($sciname)
     {   //source https://parser.globalnames.org/doc/api
         $sciname = str_replace(" ", "+", $sciname);
@@ -696,27 +704,40 @@ class DWH_WoRMS_API
         if($parentNameUsageID = $rec['parentNameUsageID']) {
             if($parent_name = @$this->taxonID_scientificName_info[$parentNameUsageID]) {
                 if($parent_name_canonical = @$this->scientificName_canonical_info[$parent_name]) {}
-                else echo "\nundefined parent name: [$parent_name]\n";
+                else exit("\nundefined parent name: [$parent_name]\n");
             }
-            else echo "\nundefined parent id: [$parentNameUsageID]\n";
+            else exit("\nundefined parent id: [$parentNameUsageID]\n");
         }
         else {
-            // echo "\nNO parent ID: [$parentNameUsageID] [$rec[scientificName]] [$rec[vernacularName]]\n"; //good debug only
-            // print_r($rec);
+            echo "\nNO parent ID: [$parentNameUsageID] [$rec[scientificName]] [$rec[vernacularName]]\n"; //good debug only
+            // print_r($rec); exit;
             $parent_name = '';
             $parent_name_canonical = '';
         }
         
+        // /* adjustment for e.g. "Abyssocypris subgen. Abyssocypris" should be compared using "Abyssocypris" only.
+        // That is remove everything after "subgen.", inclusive.
+        // https://eol-jira.bibalex.org/browse/TRAM-988?focusedCommentId=65174&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65174
+        if(stripos($parent_name_canonical, " subgen. ") !== false) { //string is found
+            $tmp = explode(" subgen. ", $parent_name_canonical);
+            $parent_name_canonical = trim($tmp[0]);
+        }
+        // */
+        
         $genus = $rec['genus'];
         $genus_canonical = Functions::canonical_form($genus);
+        if(self::number_of_words($genus_canonical) != 1) $genus_canonical = self::canonical_form_gnparser($genus);
         $scientificName = $rec['scientificName'];
         $canonical = $rec['vernacularName']; //canonical name from gnparser is stored here in vernacularName
+        
+        if(in_array($rec['taxonID'], array(156099, 132874))) $this->eli[$canonical][$scientificName]["$genus_canonical|$parent_name_canonical"] = '';
+        
         if(in_array($taxonomicStatus, array('accepted', 'doubtful'))) {
             if(in_array($taxonRank, array('species', 'subspecies', 'variety', 'form'))) {
-                if($parent_name_canonical == $genus_canonical) {
-                    if($taxonRank == 'species') @$this->duplicates[$canonical][$genus_canonical][$taxonRank][] = $rec['taxonID'];
-                    else                        @$this->duplicates[$canonical][$genus_canonical]['SVF'][] = $rec['taxonID'];
-                }
+                // if($parent_name_canonical == $genus_canonical) { exclude this.... add $parent_name_canonical in criteria 2become duplicates...
+                    if($taxonRank == 'species') $this->duplicates[$canonical]["$genus_canonical|$parent_name_canonical"][$taxonRank][] = $rec['taxonID'];
+                    else                        $this->duplicates[$canonical]["$genus_canonical|$parent_name_canonical"]['SVF'][] = $rec['taxonID'];
+                // }
             }
         }
         /*A set of duplicates is where:
@@ -749,6 +770,12 @@ class DWH_WoRMS_API
             [accessRights] => 
             [datasetName] => 
         )*/
+    }
+    private function number_of_words($str)
+    {
+        $str = trim($str);
+        $arr = explode(" ", $str);
+        return count($arr);
     }
     private function format_ids($rec)
     {

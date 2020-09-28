@@ -62,6 +62,22 @@ Then the 2nd script can be run in Jenkins.
 // echo "\n".@$arr[0]['details'][0]['infragenericEpithet']['value']."\n";
 // exit;
 
+/*
+include_once(dirname(__FILE__) . "/../../config/environment.php");
+require_library('connectors/DWH_WoRMS_API');
+$func = new DWH_WoRMS_API(1);
+// $sciname = "Haliclona (Gellius) Gray, 1867";
+// $sciname = "Haliclona Grant, 1841";
+// $canonical = $func->canonical_form_gnparser($sciname);
+// echo "\n[$canonical]\n";
+
+$str = 'eli boy ';
+$num = $func->number_of_words($str);
+echo "\n[$num]\n";
+exit("\n-test-\n");
+*/
+
+
 // $int[0] = 1928;
 // $int[1] = 1909;
 // $int[2] = 1905;
