@@ -438,7 +438,7 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "1-"; print_r($options);}
                         
-                        // /* copied block
+                        /* copied block
                         if(count($options) == 0) { //just pick 1
                             $removed = array_diff($removed, $possible_bring_back);
                             if(count($possible_bring_back) == 2) $removed[] = $possible_bring_back[1];
@@ -451,9 +451,9 @@ class DWH_WoRMS_API
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                             if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         }
-                        // */
+                        */
                         
-                        if(count($options) == 0) exit("\nnaku zero 1\n");
+                        if(count($options) == 0) $options = $rec3; //exit("\nnaku zero 1\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
@@ -611,7 +611,7 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "6-"; print_r($options);}
 
-                        // /* copied block
+                        /* copied block
                         if(count($options) == 0) { //just pick 1
                             $removed = array_diff($removed, $possible_bring_back);
                             if(count($possible_bring_back) == 2) $removed[] = $possible_bring_back[1];
@@ -624,7 +624,7 @@ class DWH_WoRMS_API
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                             if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         }
-                        // */
+                        */
 
                         $before_7 = $options;
 
