@@ -470,6 +470,7 @@ class DWH_WoRMS_API
                         if($GLOBALS['ENV_DEBUG']) {echo "2-"; print_r($options);}
 
                         $before_3 = $options;
+                        if(!$before_3) $before_3 = $before_2;
                         
                         if(count($options) == 0) $options = $before_2; //exit("\nnaku zero 2\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -540,7 +541,7 @@ class DWH_WoRMS_API
                                     print_r($options); //exit("\ndebug muna\n");
                                 }
                             }
-                            else exit("\nComparing more than 3 numbers. No script for this yet.\n");
+                            else exit("\nComparing more than 3 numbers. No script for this yet.\n"); //should not go here
                             // authority date (4-digit number in authorship data) is smaller | authority date is larger
 
                             // Antipathes irregularis (Thomson & Simpson, 1905)
