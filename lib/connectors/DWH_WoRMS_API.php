@@ -131,6 +131,13 @@ class DWH_WoRMS_API
         
         $taxID_info = self::get_taxID_nodes_info();
         echo "\ntaxID_info (taxon.tab) total rows: ".count($taxID_info)."\n";
+        
+        /* just test
+        $id = 156099;
+        $id = 132874;
+        $parentID = self::get_parentID_for_comparison($id, $taxID_info);
+        exit("\n-end test-\n");
+        */
 
         $meta = self::get_meta_info();
         $i = 0; $filtered_ids = array();
@@ -309,7 +316,7 @@ class DWH_WoRMS_API
                 }
                 
                 // ------------- start flag duplicates --------------------
-                self::flag_duplicates($rec);
+                self::flag_duplicates($rec, $taxID_info);
                 // ------------- end flag duplicates --------------------
                 
                 // /* build new set of $taxID_info 
@@ -715,7 +722,7 @@ class DWH_WoRMS_API
             return $arr;
         }
     }
-    private function flag_duplicates($rec)
+    private function flag_duplicates($rec, $taxID_info)
     {   /*There are going to be a bunch of duplicate taxa in these branches that we don't want for the DH. 
         I suggest that we deal with them as described below. 
         We only care about duplicate taxa with taxonomicStatus accepted or doubtful here, not about synonyms (unaccepted).
@@ -739,13 +746,23 @@ class DWH_WoRMS_API
             $parent_name_canonical = '';
         }
         
-        // /* adjustment for e.g. "Abyssocypris subgen. Abyssocypris" should be compared as "Abyssocypris" only.
+        /* THIS IS ELI'S STRATEGY, IS NOW COMMENTED. WILL USE KATJA'S PATH.
+        // adjustment for e.g. "Abyssocypris subgen. Abyssocypris" should be compared as "Abyssocypris" only. 
         // That is remove everything after "subgen.", inclusive.
         // https://eol-jira.bibalex.org/browse/TRAM-988?focusedCommentId=65174&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65174
         if(stripos($parent_name_canonical, " subgen. ") !== false) { //string is found
             $tmp = explode(" subgen. ", $parent_name_canonical);
             $parent_name_canonical = trim($tmp[0]);
         }
+        */
+        
+        // /* KATJA'S PATH - https://eol-jira.bibalex.org/browse/TRAM-988?focusedCommentId=65179&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65179
+        $parentID = self::get_parentID_for_comparison($rec['taxonID'], $taxID_info); //returns either the parent or grandparent
+        if($parent_name = @$this->taxonID_scientificName_info[$parentID]) {
+            if($parent_name_canonical = @$this->scientificName_canonical_info[$parent_name]) {}
+            else exit("\nundefined parent name2: [$parent_name]\n");
+        }
+        else exit("\nundefined parent id2: [$parentID]\n");
         // */
         
         $genus = $rec['genus'];
@@ -792,6 +809,35 @@ class DWH_WoRMS_API
             [accessRights] => 
             [datasetName] => 
         )*/
+    }
+    public function get_parentID_for_comparison($id, $taxID_info)
+    {
+        // $id = 156099; $id = 132874;
+        $ancestry = self::get_ancestry_of_taxID($id, $taxID_info);
+        // echo "\nancestry of [$id]\n"; print_r($ancestry);
+        $parent = $ancestry[1];
+        $grandparent = $ancestry[2]; 
+        $parent_rec = $taxID_info[$parent];
+        echo "\nparent rec: "; print_r($parent_rec);
+        if($parent_rec['r'] == 'subgenus') { echo "\nuse grandparent for comparison\n";
+            return $grandparent;
+            // $grandparent_rec = $taxID_info[$grandparent];
+            // echo "\ngrandparent rec: "; print_r($grandparent_rec);
+        }
+        else { //echo "\nuse parent for comparison\n";
+            return $parent;
+        }
+        // ancestry of [156099]
+        // Array(
+        //     [0] => 156099 - given
+        //     [1] => 131922 - parent
+        //     [2] => 131834 - grandparent
+        //     [3] => 131636
+        //     [4] => 131598
+        //     [5] => 607950
+        //     [6] => 164811
+        //     [7] => 558
+        // )
     }
     private function number_of_words($str)
     {
