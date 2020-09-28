@@ -124,10 +124,10 @@ class DWH_WoRMS_API
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
         */
         
-        /*IDs from WoRMS_DH_undefined_parent_ids.txt - from initial run TRAM-988
+        // /*IDs from WoRMS_DH_undefined_parent_ids.txt - from initial run TRAM-988
         $ids_2remove = array(1253263, 1311887, 1315383, 1402365, 1411195, 1403036, 1412780, 1408309, 1413119);
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
-        */
+        // */
         
         $taxID_info = self::get_taxID_nodes_info();
         echo "\ntaxID_info (taxon.tab) total rows: ".count($taxID_info)."\n";
