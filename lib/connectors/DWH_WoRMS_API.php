@@ -651,6 +651,12 @@ class DWH_WoRMS_API
                         */
 
                         $before_7 = $options;
+                        if(!$before_7) $before_7 = $before_6;
+                        if(!$before_7) $before_7 = $before_5;
+                        if(!$before_7) $before_7 = $before_4;
+                        if(!$before_7) $before_7 = $before_3;
+                        if(!$before_7) $before_7 = $before_2;
+                        if(!$before_7) $before_7 = $rec3;
 
                         if(count($options) == 0) $options = $before_6; //exit("\nnaku zero 6\n");
                         if(count($options) == 0) exit("\nnaku zero 6 pa rin\n");
@@ -667,6 +673,13 @@ class DWH_WoRMS_API
                         if($GLOBALS['ENV_DEBUG']) {echo "7-"; print_r($options);}
 
                         $before_8 = $options;
+                        if(!$before_8) $before_8 = $before_7;
+                        if(!$before_8) $before_8 = $before_6;
+                        if(!$before_8) $before_8 = $before_5;
+                        if(!$before_8) $before_8 = $before_4;
+                        if(!$before_8) $before_8 = $before_3;
+                        if(!$before_8) $before_8 = $before_2;
+                        if(!$before_8) $before_8 = $rec3;
 
                         if(count($options) == 0) $options = $before_7; //exit("\nnaku zero 7\n");
                         if(count($options) == 0) exit("\nnaku zero 7 pa rin\n");
