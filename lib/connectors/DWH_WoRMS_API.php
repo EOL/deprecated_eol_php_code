@@ -430,6 +430,7 @@ class DWH_WoRMS_API
                         // start removing duplicates...
                         $i = -1;
                         $possible_bring_back = array();
+                        $removed = array();
                         foreach($rec3 as $taxonID) { $i++;
                             if($taxID_info[$taxonID]['s'] == 'doubtful') {
                                 $removed[] = $taxonID;
@@ -463,6 +464,7 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
+                            $removed = array();
                             foreach($options as $taxonID) { $i++;
                                 $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
                                 if(!$authorship) $removed[] = $taxonID;
@@ -481,6 +483,7 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
+                            $removed = array();
                             foreach($options as $taxonID) { $i++;
                                 /* first implementation - not enough e.g. "Halofolliculina annulata (Andrews, 1944) Hadzi, 1951"
                                 $int = (int) filter_var($taxID_info2[$taxonID]['sn'], FILTER_SANITIZE_NUMBER_INT);
@@ -524,6 +527,7 @@ class DWH_WoRMS_API
                                 $int = array();
                                 $i = -1;
                                 $cont = true;
+                                $removed = array();
                                 foreach($options as $taxonID) { $i++;
                                     $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
                                     $int[$i] = (int) filter_var($authorship, FILTER_SANITIZE_NUMBER_INT);
@@ -533,9 +537,7 @@ class DWH_WoRMS_API
                                     print_r($int); asort($int); print_r($int);
                                     $index = array_keys($int);
                                     print_r($index);
-                                    
                                     for ($x = 1; $x <= count($options)-1; $x++) $removed[] = $options[$index[$x]];
-                                    
                                     print_r($options); //exit("\ndebug muna\n");
                                 }
                             }
@@ -574,6 +576,7 @@ class DWH_WoRMS_API
                             // if(in_array(798813, $options)) echo "\nMonitoring 111\n";
                             $i = -1;
                             $possible_bring_back = array();
+                            $removed = array();
                             foreach($options as $taxonID) { $i++;
                                 $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
                                 // if(in_array(798813, $options)) echo "\nauthorship: [$authorship]\n";
@@ -625,6 +628,7 @@ class DWH_WoRMS_API
                             $i = -1;
                             $possible_bring_back = array();
                             if($GLOBALS['ENV_DEBUG']) {echo "5a-"; print_r($options);}
+                            $removed = array();
                             foreach($options as $taxonID) { $i++;
                                 if(in_array(286731, $rec3)) echo "\n taxonID xxx [$taxonID]";
                                 $arr = self::call_gnparser($taxID_info2[$taxonID]['sn']);
@@ -640,7 +644,7 @@ class DWH_WoRMS_API
                             }
                         }
                         if(in_array(286731, $rec3)) {
-                            print_r($options); print_r($removed); exit("\n-end muna-\n");
+                            print_r($options); print_r($removed); //exit("\n-end muna-\n");
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
@@ -674,6 +678,7 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
+                            $removed = array();
                             foreach($options as $taxonID) { $i++;
                                 if($taxID_info[$taxonID]['r'] == 'variety') $removed[] = $taxonID;
                                 // taxonRank is subspecies | taxonRank is variety
