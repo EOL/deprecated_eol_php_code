@@ -568,6 +568,10 @@ class DWH_WoRMS_API
                         if($GLOBALS['ENV_DEBUG']) {echo "4-"; print_r($options);}
 
                         $before_5 = $options;
+                        if(!$before_5) $before_5 = $before_4;
+                        if(!$before_5) $before_5 = $before_3;
+                        if(!$before_5) $before_5 = $before_2;
+                        if(!$before_5) $before_5 = $rec3;
 
                         if(count($options) == 0) $options = $before_4; //exit("\nnaku zero 4\n");
                         if(count($options) == 0) exit("\nnaku zero 4 pa rin\n");
