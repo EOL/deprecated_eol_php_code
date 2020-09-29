@@ -581,7 +581,8 @@ class DWH_WoRMS_API
                             $i = -1;
                             $possible_bring_back = array();
                             foreach($options as $taxonID) { $i++;
-                                if(preg_match("/\((.*?)\)/ims", $taxID_info2[$taxonID]['sn'], $arr)){}
+                                $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                if(preg_match("/\((.*?)\)/ims", $authorship, $arr)){}
                                 else {
                                     $removed[] = $taxonID;
                                     $possible_bring_back[] = $taxonID;
