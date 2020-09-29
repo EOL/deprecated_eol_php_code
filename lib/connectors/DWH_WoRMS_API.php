@@ -650,7 +650,9 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "7-"; print_r($options);}
 
-                        if(count($options) == 0) exit("\nnaku zero 7\n");
+                        $before_8 = $options;
+
+                        if(count($options) == 0) $options = $before_7; //exit("\nnaku zero 7\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
@@ -663,7 +665,9 @@ class DWH_WoRMS_API
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                         if($GLOBALS['ENV_DEBUG']) {echo "8-"; print_r($options);}
 
-                        if(count($options) == 0) exit("\nnaku zero 8\n");
+                        $before_9 = $options;
+
+                        if(count($options) == 0) exit("\nnaku zero 8a\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             // exit("\nneed to add more filter A\n");
@@ -673,7 +677,7 @@ class DWH_WoRMS_API
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                             if($GLOBALS['ENV_DEBUG']) {echo "9-"; print_r($options);}
 
-                            if(count($options) == 0) exit("\nnaku zero 8\n");
+                            if(count($options) == 0) exit("\nnaku zero 8b\n");
                             if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                             else exit("\nneed to add more filter B\n");
                             @$this->debug['count need more filter']++;
