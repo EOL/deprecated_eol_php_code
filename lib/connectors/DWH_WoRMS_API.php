@@ -486,7 +486,8 @@ class DWH_WoRMS_API
                                 */
                                 
                                 $without_4digit_no = true;
-                                if(preg_match_all('!\d+!', $taxID_info2[$taxonID]['sn'], $matches)) {
+                                $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                if(preg_match_all('!\d+!', $authorship, $matches)) {
                                     foreach($matches[0] as $num) {
                                         if(strlen((string) $num) == 4) $without_4digit_no = false;
                                     }
@@ -509,8 +510,10 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             if(count($options) == 2) {
-                                $int1 = (int) filter_var($taxID_info2[$options[0]]['sn'], FILTER_SANITIZE_NUMBER_INT);
-                                $int2 = (int) filter_var($taxID_info2[$options[1]]['sn'], FILTER_SANITIZE_NUMBER_INT);
+                                $authorship1 = trim(str_ireplace($taxID_info2[$options[0]]['cn'], "", $taxID_info2[$options[0]]['sn']));
+                                $authorship2 = trim(str_ireplace($taxID_info2[$options[1]]['cn'], "", $taxID_info2[$options[1]]['sn']));
+                                $int1 = (int) filter_var($authorship1, FILTER_SANITIZE_NUMBER_INT);
+                                $int2 = (int) filter_var($authorship2, FILTER_SANITIZE_NUMBER_INT);
                                 if($int2 > $int1) $removed[] = $options[1];
                                 if($int1 > $int2) $removed[] = $options[0];
                             }
@@ -533,7 +536,8 @@ class DWH_WoRMS_API
                                 $i = -1;
                                 $cont = true;
                                 foreach($options as $taxonID) { $i++;
-                                    $int[$i] = (int) filter_var($taxID_info2[$taxonID]['sn'], FILTER_SANITIZE_NUMBER_INT);
+                                    $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                    $int[$i] = (int) filter_var($authorship, FILTER_SANITIZE_NUMBER_INT);
                                     if(strlen((string) $int[$i]) != 4) $cont = false;
                                 }
                                 if($cont) {
