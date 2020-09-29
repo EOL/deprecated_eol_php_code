@@ -626,13 +626,21 @@ class DWH_WoRMS_API
                             $possible_bring_back = array();
                             if($GLOBALS['ENV_DEBUG']) {echo "5a-"; print_r($options);}
                             foreach($options as $taxonID) { $i++;
+                                if(in_array(286731, $rec3)) echo "\n taxonID xxx [$taxonID]";
                                 $arr = self::call_gnparser($taxID_info2[$taxonID]['sn']);
                                 if($subgenus = @$arr[0]['details'][0]['infragenericEpithet']['value']) {
                                     $removed[] = $taxonID;
                                     $possible_bring_back[] = $taxonID;
+                                    if(in_array(286731, $rec3)) echo " - with subgenus [$subgenus]";
+                                }
+                                else {
+                                    if(in_array(286731, $rec3)) echo " - without subgenus [$subgenus]";
                                 }
                                 // reject with subgenus
                             }
+                        }
+                        if(in_array(286731, $rec3)) {
+                            print_r($options); print_r($removed); exit("\n-end muna-\n");
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
