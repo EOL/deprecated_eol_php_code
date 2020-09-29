@@ -744,16 +744,20 @@ class DWH_WoRMS_API
     {
         $canonical = $taxID_info2[$taxonID]['cn'];
         $sciname = $taxID_info2[$taxonID]['sn'];
-        $authorship = trim(str_ireplace($canonical, "", $sciname));
         if($canonical) {
+            $authorship = trim(str_replace($canonical, "", $sciname));
             if($authorship == $sciname) { //echo "\nmay problema\n";
                 $arr = self::call_gnparser($sciname);
                 if($val = @$arr[0]['authorship']) return $val;
                 else {} //exit("\n[$sciname] no authorship detected by gnparser\n");
             }
-            else return $authorship;
+            else return $authorship; //result of sciname - canonical = authorship
         }
-        return $sciname;
+        else { //no canonical
+            $arr = self::call_gnparser($sciname);
+            if($val = @$arr[0]['authorship']) return $val;
+        }
+        return ""; //$sciname;
     }
     private function write_report($rec3, $options, $taxID_info2, $taxID_info)
     {   /* just for guide on how to use the info list
