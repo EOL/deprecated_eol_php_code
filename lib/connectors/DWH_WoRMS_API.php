@@ -397,11 +397,12 @@ class DWH_WoRMS_API
                 )
         */
         $WRITE = fopen($this->WoRMS_report, "w"); fclose($WRITE);
-        $removed = array();
+        $removed = array(); $this->removed = array();
         foreach($this->duplicates as $sciname => $rec) {
             foreach($rec as $genus_parent => $rec2) {
                 foreach($rec2 as $rank => $rec3) {
                     if(count($rec3) > 1) {
+                        $this->removed = array_merge($this->removed, $removed);
                         echo "\nDuplicate: [$sciname][$genus_parent][$rank]";
                         // print_r($rec3);
                         @$final_duplicates++;
@@ -738,7 +739,7 @@ class DWH_WoRMS_API
             }
         }
         echo "\nDuplicates: [$final_duplicates]\n";
-        foreach($removed as $taxon_id) $final[$taxon_id] = '';
+        foreach($this->removed as $taxon_id) $final[$taxon_id] = '';
         return $final;
     }
     public function get_correct_authorship($taxonID, $taxID_info2)
