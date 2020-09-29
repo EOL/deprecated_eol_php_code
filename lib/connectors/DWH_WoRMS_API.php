@@ -613,7 +613,7 @@ class DWH_WoRMS_API
                         if(!$before_6) $before_6 = $before_4;
                         if(!$before_6) $before_6 = $before_3;
                         if(!$before_6) $before_6 = $before_2;
-                        if(!$before_6) $before_6 = $rec3;
+                        if(!$before_6) {$before_6 = $rec3; $removed = array();}
                         
                         if(count($options) == 0) $options = $before_5; //exit("\nnaku zero 5\n");
                         if(count($options) == 0) exit("\nnaku zero 5 pa rin\n");
@@ -656,7 +656,7 @@ class DWH_WoRMS_API
                         if(!$before_7) $before_7 = $before_4;
                         if(!$before_7) $before_7 = $before_3;
                         if(!$before_7) $before_7 = $before_2;
-                        if(!$before_7) $before_7 = $rec3;
+                        if(!$before_7) {$before_7 = $rec3; $removed = array();}
 
                         if(count($options) == 0) $options = $before_6; //exit("\nnaku zero 6\n");
                         if(count($options) == 0) exit("\nnaku zero 6 pa rin\n");
@@ -679,7 +679,7 @@ class DWH_WoRMS_API
                         if(!$before_8) $before_8 = $before_4;
                         if(!$before_8) $before_8 = $before_3;
                         if(!$before_8) $before_8 = $before_2;
-                        if(!$before_8) $before_8 = $rec3;
+                        if(!$before_8) {$before_8 = $rec3; $removed = array();}
                         if(!$before_8) {
                             echo "\nrec3 is: "; print_r($rec3);
                             exit("\nCannot go here...\n");
