@@ -80,6 +80,7 @@ class DWH_WoRMS_API
         print_r($this->debug);
         echo "\nDuplicates report: [$this->WoRMS_report]\n";
         copy($this->WoRMS_report, CONTENT_RESOURCE_LOCAL_PATH."reports/duplicates.txt");
+        Functions::show_totals($this->WoRMS_report);
     }
     private function main_WoRMS()
     {   /* from TRAM-798
