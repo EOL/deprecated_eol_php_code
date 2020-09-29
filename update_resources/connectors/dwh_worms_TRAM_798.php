@@ -20,7 +20,8 @@ WoRMS2EoL_zip	Tue 2020-09-29 03:59:57 AM	{"taxon.tab":633588, "time_elapsed":{"s
 
 WoRMS_DH	    Thu 2020-09-17 07:11:22 AM	{"taxon.tab":213534, "time_elapsed":false}
 WoRMS_DH	    Mon 2020-09-28 01:42:53 PM	{"taxon.tab":213455, "time_elapsed":false}
-WoRMS_DH	    Tue 2020-09-29 03:43:48 AM	{"taxon.tab":214007, "time_elapsed":false}
+WoRMS_DH	    Tue 2020-09-29 03:43:48 AM	{"taxon.tab":214007, "time_elapsed":false} - wrong
+WoRMS_DH	    Tue 2020-09-29 07:21:28 AM	{"taxon.tab":213458, "time_elapsed":false}
 
 Duplicates report for Katja:
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/duplicates.txt
