@@ -499,6 +499,9 @@ class DWH_WoRMS_API
                         if($GLOBALS['ENV_DEBUG']) {echo "3-"; print_r($options);}
 
                         $before_4 = $options;
+                        if(!$before_4) $before_4 = $before_3;
+                        if(!$before_4) $before_4 = $before_2;
+                        if(!$before_4) $before_4 = $rec3;
 
                         if(count($options) == 0) $options = $before_3; //exit("\nnaku zero 3\n");
                         if(count($options) == 0) exit("\nnaku zero 3 pa rin\n");
