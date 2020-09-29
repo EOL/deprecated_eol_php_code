@@ -680,6 +680,11 @@ class DWH_WoRMS_API
                         if(!$before_8) $before_8 = $before_3;
                         if(!$before_8) $before_8 = $before_2;
                         if(!$before_8) $before_8 = $rec3;
+                        if(!$before_8) {
+                            echo "\nrec3 is: "; print_r($rec3);
+                            exit("\nCannot go here...\n");
+                        }
+                        
 
                         if(count($options) == 0) $options = $before_7; //exit("\nnaku zero 7\n");
                         if(count($options) == 0) exit("\nnaku zero 7 pa rin\n");
@@ -702,7 +707,8 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             // exit("\nneed to add more filter A\n");
-                            /* JUST PICK ONE, at this point... */
+                            echo "\nJUST PICK ONE, at this point...\n";
+                            print_r($options);
                             for ($x = 1; $x <= count($options)-1; $x++) $removed[] = $options[$x];
                             
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
