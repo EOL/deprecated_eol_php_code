@@ -708,9 +708,10 @@ class DWH_WoRMS_API
                         else {
                             // exit("\nneed to add more filter A\n");
                             echo "\nJUST PICK ONE, at this point...\n";
+                            $removed = array();
                             print_r($options);
                             for ($x = 1; $x <= count($options)-1; $x++) $removed[] = $options[$x];
-                            
+                            echo "\nremoved: "; print_r($removed);
                             $options = array_diff($options, $removed); $options = array_values($options); //reindex key
                             if($GLOBALS['ENV_DEBUG']) {echo "9-"; print_r($options);}
 
