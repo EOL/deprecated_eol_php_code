@@ -572,13 +572,15 @@ class DWH_WoRMS_API
                             $i = -1;
                             $possible_bring_back = array();
                             foreach($options as $taxonID) { $i++;
-                                $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                // $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
+                                
                                 if(in_array(798813, $options)) echo "\nauthorship: [$authorship]\n";
                                 if(preg_match("/\((.*?)\)/ims", $authorship, $arr)) {
-                                    if(in_array(798813, $options)) echo " - with parenthesis";
+                                    if(in_array(798813, $options)) echo " $taxonID - with parenthesis";
                                 }
                                 else {
-                                    if(in_array(798813, $options)) echo " - without parenthesis";
+                                    if(in_array(798813, $options)) echo " $taxonID - without parenthesis";
                                     $removed[] = $taxonID;
                                     $possible_bring_back[] = $taxonID;
                                 }
@@ -739,6 +741,23 @@ class DWH_WoRMS_API
         echo "\nDuplicates: [$final_duplicates]\n";
         foreach($removed as $taxon_id) $final[$taxon_id] = '';
         return $final;
+    }
+    public function get_correct_authorship($taxonID, $taxID_info2)
+    {
+        $canonical = $taxID_info2[$taxonID]['cn'];
+        $sciname = $taxID_info2[$taxonID]['sn'];
+        $authorship = trim(str_ireplace($canonical, "", $sciname));
+        if($canonical) {
+            if($authorship == $sciname) { echo "\nmay problema\n";
+                $arr = self::call_gnparser($sciname);
+                if($val = @$arr[0]['authorship']) return $val;
+                else exit "\nInvestigate [$sciname] no authorship detected by gnparser\n";
+            }
+            else {
+                return $authorship;
+            }
+        }
+        return $sciname;
     }
     private function write_report($rec3, $options, $taxID_info2, $taxID_info)
     {   /* just for guide on how to use the info list
