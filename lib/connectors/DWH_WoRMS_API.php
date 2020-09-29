@@ -568,26 +568,26 @@ class DWH_WoRMS_API
                         if(count($options) == 0) exit("\nnaku zero 4 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
-                            if(in_array(798813, $options)) echo "\nMonitoring 111\n";
+                            // if(in_array(798813, $options)) echo "\nMonitoring 111\n";
                             $i = -1;
                             $possible_bring_back = array();
                             foreach($options as $taxonID) { $i++;
                                 $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
-                                if(in_array(798813, $options)) echo "\nauthorship: [$authorship]\n";
+                                // if(in_array(798813, $options)) echo "\nauthorship: [$authorship]\n";
                                 if(preg_match("/\((.*?)\)/ims", $authorship, $arr)) {
-                                    if(in_array(798813, $options)) echo " $taxonID - with parenthesis";
+                                    // if(in_array(798813, $options)) echo " $taxonID - with parenthesis";
                                 }
                                 else {
-                                    if(in_array(798813, $options)) echo " $taxonID - without parenthesis";
+                                    // if(in_array(798813, $options)) echo " $taxonID - without parenthesis";
                                     $removed[] = $taxonID;
                                     $possible_bring_back[] = $taxonID;
                                 }
                                 // reject without parenthesis
                             }
-                            if(in_array(798813, $options)) echo "\nMonitoring 222\n";
-                            if(in_array(798813, $options)) {
-                                echo "\noptions: "; print_r($options); echo "\nremoved: "; print_r($removed); //exit("\nend monitor\n");
-                            }
+                            // if(in_array(798813, $options)) echo "\nMonitoring 222\n";
+                            // if(in_array(798813, $options)) {
+                            //     echo "\noptions: "; print_r($options); echo "\nremoved: "; print_r($removed); //exit("\nend monitor\n");
+                            // }
                         }
 
                         $options = array_diff($options, $removed); $options = array_values($options); //reindex key
