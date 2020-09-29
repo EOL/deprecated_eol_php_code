@@ -461,7 +461,7 @@ class DWH_WoRMS_API
                         else {
                             $i = -1;
                             foreach($options as $taxonID) { $i++;
-                                $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
                                 if(!$authorship) $removed[] = $taxonID;
                                 // reject has no authorship data
                             }
@@ -486,7 +486,7 @@ class DWH_WoRMS_API
                                 */
                                 
                                 $without_4digit_no = true;
-                                $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
                                 if(preg_match_all('!\d+!', $authorship, $matches)) {
                                     foreach($matches[0] as $num) {
                                         if(strlen((string) $num) == 4) $without_4digit_no = false;
@@ -510,8 +510,8 @@ class DWH_WoRMS_API
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             if(count($options) == 2) {
-                                $authorship1 = trim(str_ireplace($taxID_info2[$options[0]]['cn'], "", $taxID_info2[$options[0]]['sn']));
-                                $authorship2 = trim(str_ireplace($taxID_info2[$options[1]]['cn'], "", $taxID_info2[$options[1]]['sn']));
+                                $authorship1 = self::get_correct_authorship($options[0], $taxID_info2);
+                                $authorship2 = self::get_correct_authorship($options[1], $taxID_info2);
                                 $int1 = (int) filter_var($authorship1, FILTER_SANITIZE_NUMBER_INT);
                                 $int2 = (int) filter_var($authorship2, FILTER_SANITIZE_NUMBER_INT);
                                 if($int2 > $int1) $removed[] = $options[1];
@@ -522,7 +522,7 @@ class DWH_WoRMS_API
                                 $i = -1;
                                 $cont = true;
                                 foreach($options as $taxonID) { $i++;
-                                    $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
+                                    $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
                                     $int[$i] = (int) filter_var($authorship, FILTER_SANITIZE_NUMBER_INT);
                                     if(strlen((string) $int[$i]) != 4) $cont = false;
                                 }
@@ -572,9 +572,7 @@ class DWH_WoRMS_API
                             $i = -1;
                             $possible_bring_back = array();
                             foreach($options as $taxonID) { $i++;
-                                // $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
                                 $authorship = self::get_correct_authorship($taxonID, $taxID_info2);
-                                
                                 if(in_array(798813, $options)) echo "\nauthorship: [$authorship]\n";
                                 if(preg_match("/\((.*?)\)/ims", $authorship, $arr)) {
                                     if(in_array(798813, $options)) echo " $taxonID - with parenthesis";
@@ -748,14 +746,12 @@ class DWH_WoRMS_API
         $sciname = $taxID_info2[$taxonID]['sn'];
         $authorship = trim(str_ireplace($canonical, "", $sciname));
         if($canonical) {
-            if($authorship == $sciname) { echo "\nmay problema\n";
+            if($authorship == $sciname) { //echo "\nmay problema\n";
                 $arr = self::call_gnparser($sciname);
                 if($val = @$arr[0]['authorship']) return $val;
                 else exit("\nInvestigate [$sciname] no authorship detected by gnparser\n");
             }
-            else {
-                return $authorship;
-            }
+            else return $authorship;
         }
         return $sciname;
     }

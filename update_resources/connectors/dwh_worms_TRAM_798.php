@@ -72,9 +72,17 @@ $func = new DWH_WoRMS_API(1);
 // $canonical = $func->canonical_form_gnparser($sciname);
 // echo "\n[$canonical]\n";
 
-$str = 'eli boy ';
-$num = $func->number_of_words($str);
-echo "\n[$num]\n";
+// $str = 'eli boy ';
+// $num = $func->number_of_words($str);
+// echo "\n[$num]\n";
+
+$sciname = "Rutiderma (Rutiderma) compressa Brady & Norman, 1896";
+$arr = $func->call_gnparser($sciname);
+print_r($arr);
+if($subgenus = @$arr[0]['details'][0]['infragenericEpithet']['value']) {
+    echo "\n[$subgenus]\n";
+}
+
 exit("\n-test-\n");
 */
 
