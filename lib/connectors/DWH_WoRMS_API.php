@@ -517,20 +517,6 @@ class DWH_WoRMS_API
                                 if($int2 > $int1) $removed[] = $options[1];
                                 if($int1 > $int2) $removed[] = $options[0];
                             }
-                            // elseif(count($options) == 3) {
-                            //     $int = array();
-                            //     $int[0] = (int) filter_var($taxID_info2[$options[0]]['sn'], FILTER_SANITIZE_NUMBER_INT);
-                            //     $int[1] = (int) filter_var($taxID_info2[$options[1]]['sn'], FILTER_SANITIZE_NUMBER_INT);
-                            //     $int[2] = (int) filter_var($taxID_info2[$options[2]]['sn'], FILTER_SANITIZE_NUMBER_INT);
-                            // 
-                            //     print_r($int); asort($int); print_r($int);
-                            //     $index = array_keys($int);
-                            //     print_r($index);
-                            //     
-                            //     $removed[] = $options[$index[1]];
-                            //     $removed[] = $options[$index[2]];
-                            //     print_r($options); //exit("\ndebug muna\n");
-                            // }
                             elseif(count($options) >= 3) {
                                 $int = array();
                                 $i = -1;
@@ -582,6 +568,7 @@ class DWH_WoRMS_API
                         if(count($options) == 0) exit("\nnaku zero 4 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
+                            if($options == array(798813, 798813)) echo "\nMonitoring 111\n";
                             $i = -1;
                             $possible_bring_back = array();
                             foreach($options as $taxonID) { $i++;
@@ -592,6 +579,10 @@ class DWH_WoRMS_API
                                     $possible_bring_back[] = $taxonID;
                                 }
                                 // reject without parenthesis
+                            }
+                            if($options == array(798813, 798813)) echo "\nMonitoring 222\n";
+                            if($options == array(798813, 798813)) {
+                                print_r($options); print_r($removed); exit("\nend monitor\n");
                             }
                         }
 
