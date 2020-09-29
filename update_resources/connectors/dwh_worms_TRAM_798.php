@@ -18,6 +18,7 @@ eol-archive
 WoRMS2EoL_zip	Thu 2020-09-17 07:00:41 AM	{"taxon.tab":633588, "time_elapsed":{"sec":363.4, "min":6.06, "hr":0.1}}
 WoRMS_DH	    Thu 2020-09-17 07:11:22 AM	{"taxon.tab":213534, "time_elapsed":false}
 WoRMS_DH	    Mon 2020-09-28 01:42:53 PM	{"taxon.tab":213455, "time_elapsed":false}
+WoRMS_DH	    Tue 2020-09-29 03:43:48 AM	{"taxon.tab":214007, "time_elapsed":false}
 
 Duplicates report for Katja:
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/duplicates.txt
