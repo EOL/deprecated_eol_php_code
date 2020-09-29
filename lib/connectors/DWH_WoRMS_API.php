@@ -454,7 +454,7 @@ class DWH_WoRMS_API
                         */
                         
                         $before_2 = $options;
-                        if(!$before_2) $before_2 = $rec3;
+                        if(!$before_2) {$before_2 = $rec3; $removed = array();}
                         
                         if(count($options) == 0) $options = $rec3; //exit("\nnaku zero 1\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -472,7 +472,7 @@ class DWH_WoRMS_API
 
                         $before_3 = $options;
                         if(!$before_3) $before_3 = $before_2;
-                        if(!$before_3) $before_3 = $rec3;
+                        if(!$before_3) {$before_3 = $rec3; $removed = array();}
                         
                         if(count($options) == 0) $options = $before_2; //exit("\nnaku zero 2\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -502,7 +502,7 @@ class DWH_WoRMS_API
                         $before_4 = $options;
                         if(!$before_4) $before_4 = $before_3;
                         if(!$before_4) $before_4 = $before_2;
-                        if(!$before_4) $before_4 = $rec3;
+                        if(!$before_4) {$before_4 = $rec3; $removed = array();}
 
                         if(count($options) == 0) $options = $before_3; //exit("\nnaku zero 3\n");
                         if(count($options) == 0) exit("\nnaku zero 3 pa rin\n");
@@ -572,7 +572,7 @@ class DWH_WoRMS_API
                         if(!$before_5) $before_5 = $before_4;
                         if(!$before_5) $before_5 = $before_3;
                         if(!$before_5) $before_5 = $before_2;
-                        if(!$before_5) $before_5 = $rec3;
+                        if(!$before_5) {$before_5 = $rec3; $removed = array();}
 
                         if(count($options) == 0) $options = $before_4; //exit("\nnaku zero 4\n");
                         if(count($options) == 0) exit("\nnaku zero 4 pa rin\n");
