@@ -568,7 +568,7 @@ class DWH_WoRMS_API
                         if(count($options) == 0) exit("\nnaku zero 4 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
-                            if($options == array(798813, 798813)) echo "\nMonitoring 111\n";
+                            if(in_array(798813, $options)) echo "\nMonitoring 111\n";
                             $i = -1;
                             $possible_bring_back = array();
                             foreach($options as $taxonID) { $i++;
@@ -580,9 +580,9 @@ class DWH_WoRMS_API
                                 }
                                 // reject without parenthesis
                             }
-                            if($options == array(798813, 798813)) echo "\nMonitoring 222\n";
-                            if($options == array(798813, 798813)) {
-                                print_r($options); print_r($removed); exit("\nend monitor\n");
+                            if(in_array(798813, $options)) echo "\nMonitoring 222\n";
+                            if(in_array(798813, $options)) {
+                                // print_r($options); print_r($removed); exit("\nend monitor\n");
                             }
                         }
 
