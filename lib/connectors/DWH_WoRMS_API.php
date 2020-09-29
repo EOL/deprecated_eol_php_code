@@ -573,8 +573,12 @@ class DWH_WoRMS_API
                             $possible_bring_back = array();
                             foreach($options as $taxonID) { $i++;
                                 $authorship = trim(str_ireplace($taxID_info2[$taxonID]['cn'], "", $taxID_info2[$taxonID]['sn']));
-                                if(preg_match("/\((.*?)\)/ims", $authorship, $arr)){}
+                                if(in_array(798813, $options)) echo "\nauthorship: [$authorship]\n";
+                                if(preg_match("/\((.*?)\)/ims", $authorship, $arr)) {
+                                    if(in_array(798813, $options)) echo " - with parenthesis";
+                                }
                                 else {
+                                    if(in_array(798813, $options)) echo " - without parenthesis";
                                     $removed[] = $taxonID;
                                     $possible_bring_back[] = $taxonID;
                                 }
@@ -582,7 +586,7 @@ class DWH_WoRMS_API
                             }
                             if(in_array(798813, $options)) echo "\nMonitoring 222\n";
                             if(in_array(798813, $options)) {
-                                // print_r($options); print_r($removed); exit("\nend monitor\n");
+                                echo "\noptions: "; print_r($options); echo "\nremoved: "; print_r($removed); //exit("\nend monitor\n");
                             }
                         }
 
