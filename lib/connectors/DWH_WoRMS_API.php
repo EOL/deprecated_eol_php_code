@@ -454,6 +454,7 @@ class DWH_WoRMS_API
                         */
                         
                         $before_2 = $options;
+                        if(!$before_2) $before_2 = $rec3;
                         
                         if(count($options) == 0) $options = $rec3; //exit("\nnaku zero 1\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
@@ -608,6 +609,11 @@ class DWH_WoRMS_API
                         */
                         
                         $before_6 = $options;
+                        if(!$before_6) $before_6 = $before_5;
+                        if(!$before_6) $before_6 = $before_4;
+                        if(!$before_6) $before_6 = $before_3;
+                        if(!$before_6) $before_6 = $before_2;
+                        if(!$before_6) $before_6 = $rec3;
                         
                         if(count($options) == 0) $options = $before_5; //exit("\nnaku zero 5\n");
                         if(count($options) == 0) exit("\nnaku zero 5 pa rin\n");
