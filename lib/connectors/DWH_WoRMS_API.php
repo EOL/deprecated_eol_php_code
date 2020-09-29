@@ -749,7 +749,7 @@ class DWH_WoRMS_API
             if($authorship == $sciname) { //echo "\nmay problema\n";
                 $arr = self::call_gnparser($sciname);
                 if($val = @$arr[0]['authorship']) return $val;
-                else exit("\nInvestigate [$sciname] no authorship detected by gnparser\n");
+                else {} //exit("\n[$sciname] no authorship detected by gnparser\n");
             }
             else return $authorship;
         }
