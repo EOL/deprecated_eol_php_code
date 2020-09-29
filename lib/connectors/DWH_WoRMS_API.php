@@ -567,6 +567,7 @@ class DWH_WoRMS_API
                         $before_5 = $options;
 
                         if(count($options) == 0) $options = $before_4; //exit("\nnaku zero 4\n");
+                        if(count($options) == 0) exit("\nnaku zero 4 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
@@ -602,6 +603,7 @@ class DWH_WoRMS_API
                         $before_6 = $options;
                         
                         if(count($options) == 0) $options = $before_5; //exit("\nnaku zero 5\n");
+                        if(count($options) == 0) exit("\nnaku zero 5 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
@@ -638,6 +640,7 @@ class DWH_WoRMS_API
                         $before_7 = $options;
 
                         if(count($options) == 0) $options = $before_6; //exit("\nnaku zero 6\n");
+                        if(count($options) == 0) exit("\nnaku zero 6 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
@@ -653,6 +656,7 @@ class DWH_WoRMS_API
                         $before_8 = $options;
 
                         if(count($options) == 0) $options = $before_7; //exit("\nnaku zero 7\n");
+                        if(count($options) == 0) exit("\nnaku zero 7 pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             $i = -1;
@@ -667,7 +671,8 @@ class DWH_WoRMS_API
 
                         $before_9 = $options;
 
-                        if(count($options) == 0) exit("\nnaku zero 8a\n");
+                        if(count($options) == 0) $options = $before_8; //exit("\nnaku zero 8a\n");
+                        if(count($options) == 0) exit("\nnaku zero 8a pa rin\n");
                         if(count($options) == 1) {self::write_report($rec3, $options, $taxID_info2, $taxID_info); continue;}
                         else {
                             // exit("\nneed to add more filter A\n");
