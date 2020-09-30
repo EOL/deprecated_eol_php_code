@@ -63,6 +63,20 @@ class ImageBundleClassifierAPI
         Functions::show_totals($this->path['destination'].'Botanical_illustrations'.'_download.txt');
         echo "\n-end-\n";
     }
+    function task_2_Maps()
+    {
+        $url = "https://commons.wikimedia.org/w/index.php?title=Special:Search&limit=500&offset=0&ns0=1&ns6=1&ns12=1&ns14=1&ns100=1&ns106=1&search=%22map%22&advancedSearch-current=%7B%7D";
+        if($html = Functions::lookup_with_cache($url.$i, $this->download_options)) {
+            /*
+            <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Turgot_map_of_Paris%2C_sheet_2_-_Norman_B._Leventhal_Map_Center.jpg/120px-Turgot_map_of_Paris%2C_sheet_2_-_Norman_B._Leventhal_Map_Center.jpg" decoding="async" width="120" height="74" data-file-width="8950" data-file-height="5540" />
+            */
+            if(preg_match_all("/<img alt=\"\" src=\"https\:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/(.*?)\"/ims", $html, $arr)) {
+                print_r($arr[1]);
+            }
+        }
+        
+        
+    }
     function task_3c_Botanical_illustrations()
     {
         if($FILE = Functions::file_open($this->path['destination'].'Botanical_illustrations'.'.txt', 'w')) fclose($FILE); //initialize report
