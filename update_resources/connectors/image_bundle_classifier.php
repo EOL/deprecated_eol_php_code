@@ -8,6 +8,7 @@ php5.6 image_bundle_classifier.php jenkins '{"task": "task_3a"}'
 php5.6 image_bundle_classifier.php jenkins '{"task": "task_3c"}'
 
 php5.6 image_bundle_classifier.php jenkins '{"task": "task_2"}'
+php5.6 image_bundle_classifier.php jenkins '{"task": "task_3b"}'
 
 
 
@@ -45,9 +46,10 @@ $task = $param['task'];
 
 $func = new ImageBundleClassifierAPI();
 if($task == 'task_1')       $func->task_1_Herbarium_Sheets();
-if($task == 'task_2')       $func->task_2_Maps();
+elseif($task == 'task_2')       $func->task_2_Maps("maps");
 elseif($task == 'task_3a')  $func->task_3a_Zoological_illustrations();
+elseif($task == 'task_3b')  $func->task_2_Maps("Phylogeny_images");
 elseif($task == 'task_3c')  $func->task_3c_Botanical_illustrations();
 else exit("\nNo specified task.\n");
-// $func->print_totals();
+$func->print_totals();
 ?>

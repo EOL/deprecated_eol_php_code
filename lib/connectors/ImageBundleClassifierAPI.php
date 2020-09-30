@@ -61,12 +61,23 @@ class ImageBundleClassifierAPI
         Functions::show_totals($this->path['destination'].'Zoological_illustrations'.'_download.txt');
         Functions::show_totals($this->path['destination'].'Botanical_illustrations'.'.txt');
         Functions::show_totals($this->path['destination'].'Botanical_illustrations'.'_download.txt');
+        Functions::show_totals($this->path['destination'].'maps'.'.txt');
+        Functions::show_totals($this->path['destination'].'Phylogeny_images'.'.txt');
         echo "\n-end-\n";
     }
-    function task_2_Maps()
+    function task_2_Maps($report)
     {
         $media_urls = array();
-        $url = "https://commons.wikimedia.org/w/index.php?title=Special:Search&limit=500&offset=0&ns0=1&ns6=1&ns12=1&ns14=1&ns100=1&ns106=1&search=%22map%22&advancedSearch-current=%7B%7D";
+        if($report == 'maps') {
+            $options['url'] = "https://commons.wikimedia.org/w/index.php?title=Special:Search&limit=500&offset=0&ns0=1&ns6=1&ns12=1&ns14=1&ns100=1&ns106=1&search=%22map%22&advancedSearch-current=%7B%7D";
+            $options['limit'] = 3000;
+        }
+        elseif($report == 'Phylogeny_images')
+        {
+            $options['url'] = "https://commons.wikimedia.org/w/index.php?title=Special:Search&limit=500&offset=0&ns0=1&ns6=1&ns12=1&ns14=1&ns100=1&ns106=1&search=%22phylogenetic+tree%22&advancedSearch-current=%7b%7d";
+            $options['limit'] = 1000;
+        }
+        $url = $options['url'];
         while(true) {
             if($html = Functions::lookup_with_cache($url, $this->download_options)) {
                 $url = false;
@@ -76,14 +87,19 @@ class ImageBundleClassifierAPI
                 $urls = self::get_media_urls_from_page($html);
                 
                 foreach($urls as $u) $media_urls[$u] = '';
-                echo "\n".count($media_urls)."\n";
-                if(count($media_urls) > 3000) break;
+                echo "\nCounts: ".count($media_urls)."\n";
+                if(count($media_urls) > $options['limit']) break;
                 
                 if($url = self::has_next500_link($html)) {}
                 else break;
             }
+            else break;
         }
-        // print_r($final);
+        
+        //write the report
+        if($FILE = Functions::file_open($this->path['destination'].$report.'.txt', 'w')) {}
+        foreach($media_urls as $url => $val) fwrite($FILE, $url."\n");
+        fclose($FILE);
     }
     private function get_media_urls_from_page($html)
     {
@@ -92,11 +108,27 @@ class ImageBundleClassifierAPI
             $parts = $arr[1];
             foreach($parts as $part) {
                 $url = "https://upload.wikimedia.org/wikipedia/commons/thumb/".$part;
-                $url = str_replace("120px", "800px", $url);
+                $num_px = self::get_num_px($url); //e.g. f/page1-70px-The_American_na -> 70px
+                $url = str_replace($num_px, "800px", $url);
                 $final[] = $url;
             }
         }
         return $final;
+    }
+    private function get_num_px($str)
+    {
+        // $str = "oya%29.pdf/page1-72px-";
+        $px_pos = strpos($str, "px");
+        echo "\n[$px_pos]\n";
+        while(true) {
+            $px_pos--;
+            $char = substr($str, $px_pos, 1);
+            if(is_numeric($char)) $chars[] = $char;
+            else break;
+        }
+        $chars = array_reverse($chars);
+        $num = implode("", $chars);
+        return $num."px";
     }
     private function has_next500_link($html)
     {
