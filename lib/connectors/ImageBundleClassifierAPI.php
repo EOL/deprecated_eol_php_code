@@ -65,16 +65,59 @@ class ImageBundleClassifierAPI
     }
     function task_2_Maps()
     {
+        $media_urls = array();
         $url = "https://commons.wikimedia.org/w/index.php?title=Special:Search&limit=500&offset=0&ns0=1&ns6=1&ns12=1&ns14=1&ns100=1&ns106=1&search=%22map%22&advancedSearch-current=%7B%7D";
-        if($html = Functions::lookup_with_cache($url.$i, $this->download_options)) {
-            /*
-            <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Turgot_map_of_Paris%2C_sheet_2_-_Norman_B._Leventhal_Map_Center.jpg/120px-Turgot_map_of_Paris%2C_sheet_2_-_Norman_B._Leventhal_Map_Center.jpg" decoding="async" width="120" height="74" data-file-width="8950" data-file-height="5540" />
-            */
-            if(preg_match_all("/<img alt=\"\" src=\"https\:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/(.*?)\"/ims", $html, $arr)) {
-                print_r($arr[1]);
+        while(true) {
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                $url = false;
+                /*
+                <img alt="" src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Turgot_map_of_Paris%2C_sheet_2_-_Norman_B._Leventhal_Map_Center.jpg/120px-Turgot_map_of_Paris%2C_sheet_2_-_Norman_B._Leventhal_Map_Center.jpg" decoding="async" width="120" height="74" data-file-width="8950" data-file-height="5540" />
+                */
+                $urls = self::get_media_urls_from_page($html);
+                
+                foreach($urls as $u) $media_urls[$u] = '';
+                echo "\n".count($media_urls)."\n";
+                if(count($media_urls) > 3000) break;
+                
+                if($url = self::has_next500_link($html)) {}
+                else break;
             }
         }
-        
+        // print_r($final);
+    }
+    private function get_media_urls_from_page($html)
+    {
+        $final = array();
+        if(preg_match_all("/<img alt=\"\" src=\"https\:\/\/upload.wikimedia.org\/wikipedia\/commons\/thumb\/(.*?)\"/ims", $html, $arr)) {
+            $parts = $arr[1];
+            foreach($parts as $part) {
+                $url = "https://upload.wikimedia.org/wikipedia/commons/thumb/".$part;
+                $url = str_replace("120px", "800px", $url);
+                $final[] = $url;
+            }
+        }
+        return $final;
+    }
+    private function has_next500_link($html)
+    {
+        // https://commons.wikimedia.org/w/index.php
+        // previous 500 | <a href="/w/index.php?title=Special:Search&amp;limit=500&amp;offset=500&amp;profile=default&amp;search=%22map%22" title="Next 500 results"
+        // previous 500</a> | <a href="/w/index.php?title=Special:Search&amp;limit=500&amp;offset=1000&amp;profile=default&amp;search=%22map%22" title="Next 500 results"
+
+        if(preg_match("/previous 500 \| \<a href\=\"(.*?)\" title\=\"Next 500 results\"/ims", $html, $arr)) {
+            $part = str_replace("&amp;", "&", $arr[1]);
+            echo "\nHas 'next 500'\n"."https://commons.wikimedia.org/".$part."\n";
+            return "https://commons.wikimedia.org/".$part;
+        }
+        elseif(preg_match("/previous 500\<\/a\> \| \<a href\=\"(.*?)\" title\=\"Next 500 results\"/ims", $html, $arr)) {
+            $part = str_replace("&amp;", "&", $arr[1]);
+            echo "\nHas 'next 500'\n"."https://commons.wikimedia.org/".$part."\n";
+            return "https://commons.wikimedia.org/".$part;
+        }
+        else {
+            echo "\nNo 'next 500'\n";
+            return false;
+        }
         
     }
     function task_3c_Botanical_illustrations()
