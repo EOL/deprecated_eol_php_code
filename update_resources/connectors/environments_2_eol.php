@@ -40,6 +40,8 @@ wikipedia_en_traits	Mon 2020-09-14 05:36:27 AM	{"measurement_or_fact.tab":818251
 Started cleaning eol_tags.tsv and eol_tags_noParentTerms.tsv
 617_final	Mon 2020-09-14 01:02:29 PM	        {"measurement_or_fact.tab":509013, "occurrence.tab":509013, "taxon.tab":410005, "time_elapsed":{"sec":433.21, "min":7.22, "hr":0.12}}
 wikipedia_en_traits	Mon 2020-09-14 01:08:45 PM	{"measurement_or_fact.tab":509013, "occurrence.tab":509013, "taxon.tab":160580, "time_elapsed":false}
+wikipedia_en_traits	Thu 2020-10-01 12:41:54 PM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
