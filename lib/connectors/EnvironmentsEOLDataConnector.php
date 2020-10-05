@@ -635,7 +635,7 @@ class EnvironmentsEOLDataConnector
         return $rec;
     }
     private function more_to_delete($final)
-    {
+    {   //removed temporarily http://purl.obolibrary.org/obo/ENVO_00000022 Oct 5, 2020
         $str = "http://purl.obolibrary.org/obo/ENVO_00000113, http://purl.obolibrary.org/obo/ENVO_00002232, http://purl.obolibrary.org/obo/ENVO_02000047, http://purl.obolibrary.org/obo/ENVO_00003031, 
         http://purl.obolibrary.org/obo/ENVO_00002276, http://purl.obolibrary.org/obo/ENVO_00000121, http://purl.obolibrary.org/obo/ENVO_00000099, http://purl.obolibrary.org/obo/ENVO_00000377, 
         http://purl.obolibrary.org/obo/ENVO_00000165, http://purl.obolibrary.org/obo/ENVO_00003903, http://purl.obolibrary.org/obo/ENVO_02000054, http://purl.obolibrary.org/obo/ENVO_00010624, 
@@ -663,7 +663,7 @@ class EnvironmentsEOLDataConnector
         http://purl.obolibrary.org/obo/ENVO_02000004, http://purl.obolibrary.org/obo/ENVO_00002271, http://purl.obolibrary.org/obo/ENVO_00000480, http://purl.obolibrary.org/obo/ENVO_00002139, 
         http://purl.obolibrary.org/obo/ENVO_00000305, http://purl.obolibrary.org/obo/ENVO_00000134, http://purl.obolibrary.org/obo/ENVO_00002984, http://purl.obolibrary.org/obo/ENVO_00000191, 
         http://purl.obolibrary.org/obo/ENVO_00000339, http://purl.obolibrary.org/obo/ENVO_00003860, http://purl.obolibrary.org/obo/ENVO_00000481, http://purl.obolibrary.org/obo/ENVO_00002214, 
-        http://purl.obolibrary.org/obo/ENVO_00000358, http://purl.obolibrary.org/obo/ENVO_00000302, http://purl.obolibrary.org/obo/ENVO_00000022, http://purl.obolibrary.org/obo/ENVO_00001995, 
+        http://purl.obolibrary.org/obo/ENVO_00000358, http://purl.obolibrary.org/obo/ENVO_00000302, http://purl.obolibrary.org/obo/ENVO_00001995, 
         http://purl.obolibrary.org/obo/ENVO_01000017, http://purl.obolibrary.org/obo/ENVO_00002055, http://purl.obolibrary.org/obo/ENVO_00004638, http://purl.obolibrary.org/obo/ENVO_00003930, 
         http://purl.obolibrary.org/obo/ENVO_00000092, http://purl.obolibrary.org/obo/ENVO_00002016, http://purl.obolibrary.org/obo/ENVO_00002018, http://purl.obolibrary.org/obo/ENVO_00003043, 
         http://purl.obolibrary.org/obo/ENVO_00002056, http://purl.obolibrary.org/obo/ENVO_00000403, http://purl.obolibrary.org/obo/ENVO_00003030, http://purl.obolibrary.org/obo/ENVO_00000539, 
