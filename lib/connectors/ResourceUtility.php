@@ -294,16 +294,19 @@ class ResourceUtility
             //-------------------------------------
         }
         // print_r($debug); exit;
-        // /*
-        foreach($debug as $string => $terms) {  //works OK report - multiple_terms_single_string.txt
+        
+        // /* works OK report - multiple_terms_single_string.txt
+        echo "\nmultiple_terms_single_string report";
+        echo "\nLEGEND: ** To be deleted in environments_names.tsv\n";
+        foreach($debug as $string => $terms) {
             if(count($terms) > 1) {
-                echo "\n----------------\n[$string]"; print_r($terms);
+                echo "\n------------------------------------------------------\n[$string]"; print_r($terms);
                 // get what is to be deleted in environments_names
                 foreach($terms as $uri => $wala) {
                     $filename = pathinfo($uri, PATHINFO_FILENAME);
                     $filename = str_replace("_", ":", $filename);
                     // /* good debug
-                    if($code1 = @$this->env_names_string_code[$filename]) echo "\nLookup [$filename] ".$code1;
+                    if($code1 = @$this->env_names_string_code[$filename]) echo "\nLookup [$filename] => ".$code1;
                     // */
                     if(preg_match("/\"(.*?)\"/ims", $string, $a)) {
                         $habitats = explode("|", $a[1]);
@@ -311,14 +314,15 @@ class ResourceUtility
                         foreach($habitats as $habitat) {
                             if(isset($this->env_names_joined[$habitat][$code1])) {
                                 $to_delete[$code1."\t".$habitat] = '';
-                                echo "\n -- ".$code1." $habitat";
+                                echo "\n ** ".$code1." $habitat";
                             }
                         }
                     }
                 }
             }
         }
-        echo "\nTo be deleted in environments_names.tsv:";
+        echo "\n------------------------------------------------------\n";
+        echo "SUMMARY: To be deleted in environments_names.tsv:";
         $to_delete = array_keys($to_delete);
         print_r($to_delete);
         // */
