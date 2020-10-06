@@ -15,6 +15,9 @@ class ResourceUtility
         /* For task: add_canonical_in_taxa */
         $this->extracted_scinames = $GLOBALS['MAIN_TMP_PATH'] . $this->resource_id . "_scinames.txt";
         $this->gnparsed_scinames = $GLOBALS['MAIN_TMP_PATH'] . $this->resource_id . "_canonical.txt";
+        
+        /* For environments_names.tsv processing */
+        $this->ontology['env_names'] = "https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/environments_names.tsv";
     }
     /*============================================================ STARTS add_canonical_in_taxa =================================================*/
     function add_canonical_in_taxa($info) //Func2
@@ -232,8 +235,28 @@ class ResourceUtility
     /*================================================== STARTS report_4_Wikipedia_EN_traits ===============================================*/
     function report_4_Wikipedia_EN_traits($info) //Func3
     {
+        self::get_env_names_info_list(); // print_r($env_names_info_list); exit("\nstop munax\n");
         $tables = $info['harvester']->tables;
         self::process_MoF_Func3($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'report for Jen');
+    }
+    private function get_env_names_info_list()
+    {
+        $options = array('expire_seconds' => 60*60*24);
+        $local_file = Functions::save_remote_file_to_local($this->ontology['env_names'], $options);
+        /*
+        1007000016	ocean
+        1007000032	wadi
+        1007000048	canopy
+        1007000064	water body
+        */
+        foreach(new FileIterator($local_file) as $line => $row) {
+            // $i++; if(($i % 100) == 0) echo "\n".number_format($i);
+            if(!$row) continue;
+            $arr = explode("\t", $row);
+            $this->env_names_string_code[$arr[1]] = $arr[0];
+            $this->env_names_joined[$arr[1]][$arr[0]] = '';
+        }
+        unlink($local_file);
     }
     private function process_MoF_Func3($meta)
     {   //print_r($meta);
@@ -274,10 +297,32 @@ class ResourceUtility
         // /*
         foreach($debug as $string => $terms) {  //works OK report - multiple_terms_single_string.txt
             if(count($terms) > 1) {
-                echo "\n[$string]"; print_r($terms);
+                echo "\n----------------\n[$string]"; print_r($terms);
+                // get what is to be deleted in environments_names
+                foreach($terms as $uri => $wala) {
+                    $filename = pathinfo($uri, PATHINFO_FILENAME);
+                    $filename = str_replace("_", ":", $filename);
+                    // /* good debug
+                    if($code1 = @$this->env_names_string_code[$filename]) echo "\nLookup [$filename] ".$code1;
+                    // */
+                    if(preg_match("/\"(.*?)\"/ims", $string, $a)) {
+                        $habitats = explode("|", $a[1]);
+                        // echo "\nTo be deleted in environments_names.tsv:";
+                        foreach($habitats as $habitat) {
+                            if(isset($this->env_names_joined[$habitat][$code1])) {
+                                $to_delete[$code1."\t".$habitat] = '';
+                                echo "\n -- ".$code1." $habitat";
+                            }
+                        }
+                    }
+                }
             }
         }
+        echo "\nTo be deleted in environments_names.tsv:";
+        $to_delete = array_keys($to_delete);
+        print_r($to_delete);
         // */
+
         /*
         foreach($debug2 as $string => $terms) { //works OK report - Sample_B.txt
             if(count($terms) > 1) {
