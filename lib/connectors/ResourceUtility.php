@@ -271,17 +271,20 @@ class ResourceUtility
             //-------------------------------------
         }
         // print_r($debug); exit;
-        /*
-        foreach($debug as $string => $terms) {  //works OK report
-            if(count($terms) > 1) {
-                echo "\n[$string]"; print_r($terms);
-            }
-        }*/
-        foreach($debug2 as $string => $terms) { //works OK report
+        // /*
+        foreach($debug as $string => $terms) {  //works OK report - multiple_terms_single_string.txt
             if(count($terms) > 1) {
                 echo "\n[$string]"; print_r($terms);
             }
         }
+        // */
+        /*
+        foreach($debug2 as $string => $terms) { //works OK report - Sample_B.txt
+            if(count($terms) > 1) {
+                echo "\n[$string]"; print_r($terms);
+            }
+        }
+        */
     }
     /*================================================== ENDS report_4_Wikipedia_EN_traits =================================================*/
 
