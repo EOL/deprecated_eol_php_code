@@ -636,7 +636,7 @@ class EnvironmentsEOLDataConnector
     }
     private function more_to_delete($final)
     {   //removed temporarily http://purl.obolibrary.org/obo/ENVO_00000022 Oct 5, 2020
-        $str = "http://purl.obolibrary.org/obo/ENVO_00000022, http://purl.obolibrary.org/obo/ENVO_00000113, http://purl.obolibrary.org/obo/ENVO_00002232, http://purl.obolibrary.org/obo/ENVO_02000047, http://purl.obolibrary.org/obo/ENVO_00003031, 
+        $str = "http://purl.obolibrary.org/obo/ENVO_00000113, http://purl.obolibrary.org/obo/ENVO_00002232, http://purl.obolibrary.org/obo/ENVO_02000047, http://purl.obolibrary.org/obo/ENVO_00003031, 
         http://purl.obolibrary.org/obo/ENVO_00002276, http://purl.obolibrary.org/obo/ENVO_00000121, http://purl.obolibrary.org/obo/ENVO_00000099, http://purl.obolibrary.org/obo/ENVO_00000377, 
         http://purl.obolibrary.org/obo/ENVO_00000165, http://purl.obolibrary.org/obo/ENVO_00003903, http://purl.obolibrary.org/obo/ENVO_02000054, http://purl.obolibrary.org/obo/ENVO_00010624, 
         http://purl.obolibrary.org/obo/ENVO_01000243, http://purl.obolibrary.org/obo/ENVO_01000114, http://purl.obolibrary.org/obo/ENVO_00003885, http://purl.obolibrary.org/obo/ENVO_00003044, 
