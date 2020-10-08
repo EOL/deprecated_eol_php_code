@@ -25,6 +25,30 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 21_final	Mon 2020-09-14 04:24:19 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.69, "min":0.79, "hr":0.01}}
 21_final	Mon 2020-09-14 12:23:34 PM	{"agent.tab":743, "measurement_or_fact.tab":7094, "media_resource.tab":8138, "occurrence.tab":7094, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.03, "min":0.78, "hr":0.01}}
 
+Implementation: Jenkins
+cd /u/scripts/eol_php_code/
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
+-> generates 617_ENV.tar.gz
+php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"617"}'
+-> generates 617_ENVO.tar.gz
+php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"617"}'
+-> generates 617_final.tar.gz
+
+## Wikipedia EN creates a new DwCA for its traits. Not like 'AmphibiaWeb text'.
+## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
+php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
+-> generates wikipedia_en_traits.tar.gz
+
+## diff. DwCA to submit for Wikipedia EN
+cd /u/scripts/eol_php_code/applications/content_server/resources/
+sshpass -f "/home/eagbayani/.pwd_file" scp wikipedia_en_traits.tar.gz eagbayani@eol-archive:/extra/eol_php_resources/.
+#ends here...
+
+## move this file for all connectors:
+sshpass -f "/home/eagbayani/.pwd_file" scp EOL_FreshData_connectors.txt eagbayani@eol-archive:/extra/eol_php_resources/eol_backend2_connectors.txt
+
+
+
 617_final	        Mon 2020-09-07 11:41:14 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":596.04, "min":9.93, "hr":0.17}}
 wikipedia_en_traits	Mon 2020-09-07 11:51:11 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
 
@@ -41,6 +65,7 @@ Started cleaning eol_tags.tsv and eol_tags_noParentTerms.tsv
 617_final	Mon 2020-09-14 01:02:29 PM	        {"measurement_or_fact.tab":509013, "occurrence.tab":509013, "taxon.tab":410005, "time_elapsed":{"sec":433.21, "min":7.22, "hr":0.12}}
 wikipedia_en_traits	Mon 2020-09-14 01:08:45 PM	{"measurement_or_fact.tab":509013, "occurrence.tab":509013, "taxon.tab":160580, "time_elapsed":false}
 wikipedia_en_traits	Thu 2020-10-01 12:41:54 PM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
+wikipedia_en_traits	Thu 2020-10-08 02:10:08 AM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
