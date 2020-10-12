@@ -86,15 +86,15 @@ exit("\n-end-\n");
 */
 
 if($task == 'generate_eol_tags') {                      //step 1
-    $param['resource_id'] .= "_ENV"; //e.g. 21_ENV
+    $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
     require_library('connectors/Environments2EOLAPI');
     $func = new Environments2EOLAPI($param);
     $func->generate_eol_tags($resource);
 }
 elseif($task == 'apply_formats_filters') {              //step 2
     $param['resource_id'] .= "_ENVO";
-    $resource_id = $param['resource_id']; //e.g. 21_ENVO
-    $old_resource_id = substr($resource_id, 0, strlen($resource_id)-1); //should get "21_ENV"
+    $resource_id = $param['resource_id']; //e.g. 21_ENVO 617_ENVO (destination)
+    $old_resource_id = substr($resource_id, 0, strlen($resource_id)-1); //should get "21_ENV" "617_ENV"
     $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     require_library('connectors/DwCA_Utility');
@@ -107,8 +107,8 @@ elseif($task == 'apply_formats_filters') {              //step 2
 }
 elseif($task == 'apply_formats_filters_latest') {       //step 3
     $param['resource_id'] .= "_final";
-    $resource_id = $param['resource_id']; //e.g. 21_final
-    $old_resource_id = str_replace('_final', '_ENVO', $resource_id); //e.g. 21_ENVO
+    $resource_id = $param['resource_id']; //e.g. 21_final 617_final (destination)
+    $old_resource_id = str_replace('_final', '_ENVO', $resource_id); //e.g. 21_ENVO 617_ENVO
     if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$old_resource_id.'.tar.gz';
     require_library('connectors/DwCA_Utility');
