@@ -66,7 +66,8 @@ Started cleaning eol_tags.tsv and eol_tags_noParentTerms.tsv
 wikipedia_en_traits	Mon 2020-09-14 01:08:45 PM	{"measurement_or_fact.tab":509013, "occurrence.tab":509013, "taxon.tab":160580, "time_elapsed":false}
 wikipedia_en_traits	Thu 2020-10-01 12:41:54 PM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
 wikipedia_en_traits	Thu 2020-10-08 02:10:08 AM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
-
+start deduplication below:
+wikipedia_en_traits	Mon 2020-10-12 10:36:39 AM	{"measurement_or_fact.tab":426193, "occurrence.tab":426193, "taxon.tab":157390, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
