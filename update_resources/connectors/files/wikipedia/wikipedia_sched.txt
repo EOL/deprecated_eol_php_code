@@ -274,6 +274,7 @@ wikipedia-en	Friday 2017-12-01 03:59:01 AM	{"media_resource.tab":671062,"taxon.t
 80	Friday 2020-04-17 11:53:56 PM	  {"media_resource.tab":766134, "taxon.tab":407031, "time_elapsed":{"sec":43978.59, "min":732.98, "hr":12.22}} expected decrease with new 'en' connector
 80	Thursday 2020-05-07 12:56:07 AM	{"media_resource.tab":766346, "taxon.tab":407051, "time_elapsed":{"sec":44092.89, "min":734.88, "hr":12.25}} OK - start updated gen. connector
 80	Tuesday 2020-07-28 06:04:54 PM	{"media_resource.tab":772431, "taxon.tab":410005, "time_elapsed":{"sec":96793.74, "min":1613.23, "hr":26.89, "day":1.12}} consistent OK
+80	Sun 2020-10-11 03:06:21 AM	    {"media_resource.tab":776135, "taxon.tab":411865, "time_elapsed":{"sec":98899.51, "min":1648.33, "hr":27.47, "day":1.14}}
 
 wikipedia-es	Sunday 2017-12-03 12:21:46 AM	{"media_resource.tab":300492,"taxon.tab":165487}
 wikipedia-es	Saturday 2018-05-05 03:59:03 AM	{"media_resource.tab":300473,"taxon.tab":165477}
@@ -292,6 +293,7 @@ wikipedia-es	Tuesday 2020-04-14 06:13:01 PM	{"media_resource.tab":315674, "taxon
 wikipedia-es	Monday 2020-04-20 12:36:02 PM	  {"media_resource.tab":314924, "taxon.tab":173579, "time_elapsed":{"sec":17942.69, "min":299.04, "hr":4.98}} expected decrease with new 'es' connector
 wikipedia-es	Thursday 2020-05-07 07:47:46 AM	{"media_resource.tab":315058, "taxon.tab":173605, "time_elapsed":{"sec":19515.3, "min":325.26, "hr":5.42}} OK - start updated gen. connector
 wikipedia-es	Wednesday 2020-07-29 04:21:20 PM{"media_resource.tab":319705, "taxon.tab":175913, "time_elapsed":{"sec":28860.25, "min":481, "hr":8.02}} consistent OK
+wikipedia-es	Mon 2020-10-12 01:06:01 AM	    {"media_resource.tab":324055, "taxon.tab":178175, "time_elapsed":{"sec":28331.05, "min":472.18, "hr":7.87}}
 
 wikipedia-it	Tuesday 2017-11-14 04:48:25 AM	{"media_resource.tab":64723,"taxon.tab":39992}
 wikipedia-it	Monday 2017-12-04 05:16:39 AM	{"media_resource.tab":64861,"taxon.tab":40069}
