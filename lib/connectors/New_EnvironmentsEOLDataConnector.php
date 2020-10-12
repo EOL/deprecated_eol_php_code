@@ -37,12 +37,15 @@ class New_EnvironmentsEOLDataConnector
         self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], $ret);
         unset($ret);
         print_r($this->debug);
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'info'); //generates this->oID_taxonID_info
         self::process_measurementorfact_info($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //to get $this->occurrence_id_2delete
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]); //this is to exclude taxonID = EOL:11584278 (undescribed)
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write'); //this is to exclude taxonID = EOL:11584278 (undescribed)
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]); //fix source links bec. of obsolete taxonIDs
         unset($this->linkage_oID_tID);
         unset($this->linkage_tID_sName);
+        // /* start customize
         if($this->resource_id == '708') self::process_reference($tables['http://eol.org/schema/reference/reference'][0]); //write references actually used in MoF. Not all references from source.
+        // */
     }
     private function process_measurementorfact_info($meta)
     {   //print_r($meta);
@@ -75,9 +78,24 @@ class New_EnvironmentsEOLDataConnector
                 [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            $mVal = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            $mRem = $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
+
+            // /* For deduplication:
+            if($taxonID = $this->oID_taxonID_info[$occurrenceID]) {}
+            else exit("\nERROR: should not go here!\n");
+            if(isset($unique[$taxonID][$mRem][$mVal])) {
+                $this->occurrence_id_2delete[$occurrenceID] = '';
+                $this->measurement_id_2delete[$measurementID] = '';
+            }
+            else     $unique[$taxonID][$mRem][$mVal] = '';
+            // */
+
             /* --------------------------------------------------- */
             foreach($remove_rec_4mRemarks as $rem) {
-                if($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == $rem) $this->occurrence_id_2delete[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                if($mRem == $rem) $this->occurrence_id_2delete[$occurrenceID] = '';
             }
             /* --------------------------------------------------- */
         }
@@ -113,7 +131,11 @@ class New_EnvironmentsEOLDataConnector
                 [http://purl.org/dc/terms/contributor] => <a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>
                 [http://eol.org/schema/reference/referenceID] => 
             )*/
-
+            /* --------------------------------------------------- */
+            $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            if(isset($this->measurement_id_2delete[$measurementID])) continue; //for deduplication
+            if(isset($this->occurrence_id_2delete[$occurrenceID])) continue; //for deduplication
             /* --------------------------------------------------- */
             /* per https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=64619&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64619 */
             if($rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] == 'source text: "seamounts"')              $rec['http://rs.tdwg.org/dwc/terms/measurementValue'] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
@@ -133,8 +155,7 @@ class New_EnvironmentsEOLDataConnector
             /* fix source link */
             $taxonID = $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']];
             if($taxonID == "EOL:11584278") continue; //exclude
-            $sciname = $this->linkage_tID_sName[$taxonID];
-            $rec['http://purl.org/dc/terms/source'] = "https://eol.org/search?q=".str_replace(" ", "%20", $sciname);
+            if($sciname = @$this->linkage_tID_sName[$taxonID]) $rec['http://purl.org/dc/terms/source'] = "https://eol.org/search?q=".str_replace(" ", "%20", $sciname);
             
             /* START DATA-1841 terms remapping */
             $index = 'http://rs.tdwg.org/dwc/terms/measurementType';    if($new_uri = @$this->remapped_terms[$rec[$index]]) $rec[$index] = $new_uri;
@@ -285,7 +306,7 @@ class New_EnvironmentsEOLDataConnector
         
         return $sci;
     }
-    private function process_occurrence($meta)
+    private function process_occurrence($meta, $task)
     {   //print_r($meta);
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -305,32 +326,33 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
                 [http://rs.tdwg.org/dwc/terms/taxonID] => EOL:2
             )*/
-            
-            // /* May 13, 2020: remove higher rank taxa
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if(isset($this->remove_higher_rank_taxonIDs[$taxonID])) {
-                $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
-                continue;
+            if($task == 'info') {
+                $this->oID_taxonID_info[$occurrenceID] = $taxonID;
             }
-            // */
-            
-            if(isset($this->exclude['taxonID'][$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) {
-                $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
-                continue;
+            elseif($task == 'write') {
+                // /* May 13, 2020: remove higher rank taxa
+                if(isset($this->remove_higher_rank_taxonIDs[$taxonID])) {
+                    $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                    continue;
+                }
+                // */
+                if(isset($this->exclude['taxonID'][$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) {
+                    $this->exclude['occurrenceID'][$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                    continue;
+                }
+                if(isset($this->occurrence_id_2delete[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
+                $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $o = new \eol_schema\Occurrence();
+                $uris = array_keys($rec);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                if($o->taxonID == 'EOL:11584278') continue; //exclude scientificName = '(undescribed)'
+                $this->archive_builder->write_object_to_file($o);
             }
-            
-            if(isset($this->occurrence_id_2delete[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
-            
-            $this->linkage_oID_tID[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            
-            $o = new \eol_schema\Occurrence();
-            $uris = array_keys($rec);
-            foreach($uris as $uri) {
-                $field = pathinfo($uri, PATHINFO_BASENAME);
-                $o->$field = $rec[$uri];
-            }
-            if($o->taxonID == 'EOL:11584278') continue; //exclude scientificName = '(undescribed)'
-            $this->archive_builder->write_object_to_file($o);
             // if($i >= 10) break; //debug only
         }
     }
