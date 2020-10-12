@@ -76,8 +76,9 @@ class Environments2EOLAPI
         // $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //not used
         
         $excluded_rowtypes = array();
+        // /* start customize
         if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document');
-        
+        // */
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
         // exit("\nstop muna - used in debugging\n");
