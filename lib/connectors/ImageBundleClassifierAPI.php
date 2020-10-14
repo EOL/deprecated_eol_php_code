@@ -75,7 +75,7 @@ class ImageBundleClassifierAPI
         elseif($report == 'Phylogeny_images')
         {
             $options['url'] = "https://commons.wikimedia.org/w/index.php?title=Special:Search&limit=500&offset=0&ns0=1&ns6=1&ns12=1&ns14=1&ns100=1&ns106=1&search=%22phylogenetic+tree%22&advancedSearch-current=%7b%7d";
-            $options['limit'] = 1000;
+            $options['limit'] = 3000; //1000;
         }
         $url = $options['url'];
         while(true) {

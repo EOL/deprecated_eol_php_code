@@ -16,9 +16,15 @@ php5.6 image_bundle_classifier.php jenkins '{"task": "task_3b"}'
 https://editors.eol.org/other_files/bundle_images/classifier/herbarium_sheets.txt
 https://editors.eol.org/other_files/bundle_images/classifier/herbarium_sheets_download.txt
 
+2. Maps [3246]
+https://editors.eol.org/other_files/bundle_images/classifier/maps.txt
+
 3a. Zoological illustrations
 https://editors.eol.org/other_files/bundle_images/classifier/Zoological_illustrations.txt
 https://editors.eol.org/other_files/bundle_images/classifier/Zoological_illustrations_download.txt
+
+3b. Phylogeny images [1017]
+https://editors.eol.org/other_files/bundle_images/classifier/Phylogeny_images.txt
 
 3c. Botanical illustrations
 https://editors.eol.org/other_files/bundle_images/classifier/Botanical_illustrations.txt
