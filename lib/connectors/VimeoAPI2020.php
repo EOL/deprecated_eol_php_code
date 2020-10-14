@@ -52,9 +52,9 @@ class VimeoAPI2020
         while(true) {
             $videos = $client->request($uri, array(), 'GET');
             echo "\n".count($videos['body']['data'])."\n";
-            // print_r($videos); exit;
+            // print_r($videos); exit("\n100\n");
             // /* loop process
-            foreach($videos as $rec) {
+            foreach($videos['body']['data'] as $rec) {
                 self::process_video($rec);
             }
             // */
@@ -62,10 +62,130 @@ class VimeoAPI2020
             else break;
         }//end while loop
     }
+    
     private function process_video($rec)
     {
-        print_r($rec); exit("\nelix\n");
+        // print_r($rec); exit("\nelix\n");
+        /*Array(
+            [uri] => /videos/48269442
+            [name] => Argyrodes elevatus
+            [description] => Argyrodes elevatus on the web of the yellow garden spider, Argiope aurantia. Heritage Island, Anacostia River, Washington, DC, USA. 15 August 2012.
+        You can see Argyrodes moving around in the web of its host and in one of the clips it settles down on the prey while Argiope is feeding on the other side.
+        It was a rainy day and not many things were flying between showers, so I thought I'd do a little video of this Argiope sucking on its food.  Initially, I didn't even see the little kleptoparasite lurking in the web.  When I finally saw it, I knew immediately what it was because I had seen it in a David Attenborough movie.  It was great fun to finally see one in real life.  From now on, I'll have to stop and closely inspect every one of these webs.
+            [type] => video
+            [link] => https://vimeo.com/48269442
+            ...
+        */
+        
+        $arr_data = array();
+        $description = Functions::import_decode($rec['description']);
+        $description = str_ireplace("<br />", "", $description);
+
+        $license = "";
+        $arr_sciname = array();
+        if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) {//gets everything between brackets []
+            $smallest_taxa = self::get_smallest_rank($matches[1]);
+            $smallest_rank = $smallest_taxa['rank'];
+            $sciname       = $smallest_taxa['name'];
+            //smallest rank sciname: [$smallest_rank][$sciname]
+            $multiple_taxa_YN = self::is_multiple_taxa_video($matches[1]);
+            if(!$multiple_taxa_YN) $arr_sciname = self::initialize($sciname);
+            foreach($matches[1] as $tag) {
+                $tag=trim($tag);
+                if($multiple_taxa_YN) {
+                    if(is_numeric(stripos($tag,$smallest_rank))) {
+                        if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
+                        $arr_sciname = self::initialize($sciname,$arr_sciname);
+                    }
+                }
+                if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))       $arr_sciname[$sciname]['binomial']  = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:trinomial=(.*)$/i", $tag, $arr))  $arr_sciname[$sciname]['trinomial'] = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:genus=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['genus']     = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:family=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['family']    = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:order=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['order']     = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:class=(.*)$/i", $tag, $arr))      $arr_sciname[$sciname]['class']     = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:phylum=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['phylum']    = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:kingdom=(.*)$/i", $tag, $arr))    $arr_sciname[$sciname]['kingdom']   = ucfirst(trim($arr[1]));
+                elseif(preg_match("/^taxonomy:common=(.*)$/i", $tag, $arr))     $arr_sciname[$sciname]['commonNames'][]  = trim($arr[1]);
+                elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr))          $license = strtolower(trim($arr[1]));
+            }
+            foreach($matches[0] as $str) $description = str_ireplace($str, "", trim($description));
+        }
+
+        $with_eol_tag = false;
+        if(isset($rec->tags)) {
+            foreach($rec->tags->tag as $tag) {
+                $tag = trim($tag->{"_content"});
+                if($tag == "eol") $with_eol_tag = true;
+                elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr)) $license = strtolower(trim($arr[1])); //users might put the license in a tag
+            }
+        }
+
+        /* Not a pre-requisite anymore to have an 'eol' tag
+        if(!$with_eol_tag) return array();
+        */
+
+        if($license) $license = self::get_cc_license($license); //license from Vimeo tag or description section
+        else {
+            if($license = $rec->license) $license = self::get_cc_license($license);
+            else {
+                /* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
+                $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
+                */
+                $license = false;
+            }
+        }
+
+        //has to have a valid license
+        if(!$license) {
+            echo("\ninvalid license: " . $rec->urls->url{0}->{"_content"});
+            return array();
+        }
+
+        foreach($arr_sciname as $sciname => $temp) {
+            if(!$sciname && @$arr_sciname[$sciname]['trinomial']) $sciname = @$arr_sciname[$sciname]['trinomial'];
+            if(!$sciname && @$arr_sciname[$sciname]['genus'] && @$arr_sciname[$sciname]['species'] && !preg_match("/ /", @$arr_sciname[$sciname]['genus']) && !preg_match("/ /", @$arr_sciname[$sciname]['species'])) $sciname = @$arr_sciname[$sciname]['genus']." ".@$arr_sciname[$sciname]['species'];                        
+            if(!$sciname && !@$arr_sciname[$sciname]['genus'] && !@$arr_sciname[$sciname]['family'] && !@$arr_sciname[$sciname]['order'] && !@$arr_sciname[$sciname]['class'] && !@$arr_sciname[$sciname]['phylum'] && !@$arr_sciname[$sciname]['kingdom']) return array();
+
+            //start data objects //----------------------------------------------------------------------------------------
+            $arr_objects = array();
+            $identifier  = $rec->id;
+            $dataType    = "http://purl.org/dc/dcmitype/MovingImage";
+            $mimeType    = "video/x-flv";
+            if(trim($rec->title)) $title = $rec->title;
+            else                  $title = "Vimeo video";
+            $source      = $rec->urls->url{0}->{"_content"};
+            $mediaURL    = VIMEO_PLAYER_URL . $rec->id;
+            $thumbnailURL = $rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
+            $agent = array();
+            if($rec->owner->display_name) $user_name = $rec->owner->display_name;
+            elseif($rec->owner->realname) $user_name = $rec->owner->realname;
+            if($user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->owner->profileurl , $user_name));
+            $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
+            //end data objects //----------------------------------------------------------------------------------------
+
+            $taxon_id   = str_ireplace(" ", "_", $sciname) . "_" . $rec->id;
+            if($val = self::adjust_sciname($arr_sciname, $sciname)) $new_sciname = $val;
+            else                                                    $new_sciname = $sciname;
+            $arr_data[]=array(  "identifier"   => "",
+                                "source"       => "",
+                                "kingdom"      => $arr_sciname[$sciname]['kingdom'],
+                                "phylum"       => $arr_sciname[$sciname]['phylum'],
+                                "class"        => $arr_sciname[$sciname]['class'],
+                                "order"        => $arr_sciname[$sciname]['order'],
+                                "family"       => $arr_sciname[$sciname]['family'],
+                                "genus"        => $arr_sciname[$sciname]['genus'],
+                                "sciname"      => $new_sciname,
+                                "taxon_id"     => $taxon_id,
+                                "commonNames"  => @$arr_sciname[$sciname]['commonNames'],
+                                "arr_objects"  => $arr_objects
+                             );
+        }
+        return $arr_data;
     }
+    
+    
+    
     private function get_all_users_from_group($group_id, $client)
     {
         /* normal operation
