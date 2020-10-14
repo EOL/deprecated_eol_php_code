@@ -27,20 +27,17 @@ class VimeoAPI
         if(!$user_ids) $user_ids = self::get_list_of_user_ids($vimeo);
         $count_of_users = count($user_ids);
         $i = 0;
-        foreach($user_ids as $user_id)
-        {
+        foreach($user_ids as $user_id) {
             $i++;
             $page = 1;
             $count_of_videos = 0;
-            while($page == 1 || $count_of_videos == 50) //if $count_of_videos < 50 it means that this current page is the last page; default per_page = 50
-            {
+            while($page == 1 || $count_of_videos == 50) { //if $count_of_videos < 50 it means that this current page is the last page; default per_page = 50
                 sleep(1);
                 if($return = self::vimeo_call_with_retry($vimeo, 'vimeo.videos.getUploaded', array('user_id' => $user_id, 'page' => $page, "full_response" => true)))
                 {
                     $count_of_videos = count($return->videos->video);
                     $j = 0;
-                    foreach($return->videos->video as $video)
-                    {
+                    foreach($return->videos->video as $video) {
                         $j++;
                         echo("\nUser $i of $count_of_users (UserID: $user_id); Video $j of $count_of_videos on page $page (VideoID: $video->id)");
                         $arr = self::get_vimeo_taxa($video, $used_collection_ids);
@@ -54,17 +51,14 @@ class VimeoAPI
         }
         return $all_taxa;
     }
-
     public static function vimeo_call_with_retry($vimeo, $command, $param)
     {
         $no_of_trials = 2;
         $trials = 1;
-        while($trials <= $no_of_trials)
-        {
+        while($trials <= $no_of_trials) {
             // if($obj = $vimeo->call($command, $param)) return $obj; => old version, without caching
             if($obj = self::lookup_with_cache_vimeo_call($vimeo, $command, $param)) return $obj;
-            else
-            {
+            else {
                 echo("\n Fail. Will try again in 30 seconds.");
                 sleep(30);
                 $trials++;
@@ -73,7 +67,6 @@ class VimeoAPI
         echo("\nFailed after $no_of_trials tries.");
         return false;
     }
-    
     private static function lookup_with_cache_vimeo_call($vimeo, $command, $param, $options = array())
     {
         // default expire time is 30 days
@@ -93,14 +86,12 @@ class VimeoAPI
         if(!file_exists($options['cache_path'] . $cache1)) mkdir($options['cache_path'] . $cache1);
         if(!file_exists($options['cache_path'] . "$cache1/$cache2")) mkdir($options['cache_path'] . "$cache1/$cache2");
         $cache_path = $options['cache_path'] . "$cache1/$cache2/$md5.cache";
-        if(file_exists($cache_path))
-        {
+        if(file_exists($cache_path)) {
             $file_contents = file_get_contents($cache_path);
             if(!Functions::is_utf8($file_contents)) $file_contents = utf8_encode($file_contents);
             $obj = json_decode($file_contents);
             
-            if(($file_contents) || (strval($file_contents) == "0"))
-            {
+            if(($file_contents) || (strval($file_contents) == "0")) {
                 $file_age_in_seconds = time() - filemtime($cache_path);
                 if($file_age_in_seconds < $options['expire_seconds']) return $obj;
                 if($options['expire_seconds'] === false) return $obj;
@@ -108,16 +99,13 @@ class VimeoAPI
             @unlink($cache_path);
         }
 
-        if($obj = $vimeo->call($command, $param))
-        {
+        if($obj = $vimeo->call($command, $param)) {
             $file_contents = json_encode($obj);
-            if($FILE = Functions::file_open($cache_path, 'w+')) // normal
-            {
+            if($FILE = Functions::file_open($cache_path, 'w+')) { // normal
                 fwrite($FILE, $file_contents);
                 fclose($FILE);
             }
-            else // can happen when cache_path is from external drive with corrupt dir/file
-            {
+            else { // can happen when cache_path is from external drive with corrupt dir/file
                 if(!($h = Functions::file_open(DOC_ROOT . "/public/tmp/cant_delete.txt", 'a'))) return;
                 fwrite($h, $cache_path . "\n");
                 fclose($h);
@@ -126,7 +114,6 @@ class VimeoAPI
         }
         return false;
     }
-
     private static function get_list_of_user_ids($vimeo)
     {
         //get the members of the group
@@ -158,13 +145,11 @@ class VimeoAPI
         unset($user_ids["1632860"]); //Tamborine's videos are moved to the main Tamborine EOL account (DATA-1592)
         return array_keys($user_ids);
     }
-
     public static function get_vimeo_taxa($rec, $used_collection_ids)
     {
         $response = self::parse_xml($rec); //this will output the raw (but structured) array
         $page_taxa = array();
-        foreach($response as $rec)
-        {
+        foreach($response as $rec) {
             if(@$used_collection_ids[$rec["taxon_id"]]) continue;
             $taxon = self::get_taxa_for_photo($rec);
             if($taxon) $page_taxa[] = $taxon;
@@ -172,7 +157,6 @@ class VimeoAPI
         }
         return array($page_taxa, $used_collection_ids);
     }
-
     private static function parse_xml($rec)
     {
         $arr_data = array();
@@ -281,7 +265,6 @@ class VimeoAPI
         }
         return $arr_data;
     }
-
     private static function adjust_sciname($arr_sciname, $sciname)
     {
         /* if there is genus e.g. "Testudo", and species e.g. "T. marginata", then it will return "Testudo marginata" */
@@ -294,7 +277,6 @@ class VimeoAPI
         }
         return false;
     }
-    
     private static function initialize($sciname, $arr_sciname=NULL)
     {
         $arr_sciname[$sciname]['binomial']    = "";
@@ -310,14 +292,11 @@ class VimeoAPI
         $arr_sciname[$sciname]['commonNames'] = array();
         return $arr_sciname;
     }
-
     private static function is_multiple_taxa_video($arr)
     {
-        $taxa=array();
-        foreach($arr as $tag)
-        {
-            if(preg_match("/^taxonomy:(.*)\=/i", $tag, $arr))
-            {
+        $taxa = array();
+        foreach($arr as $tag) {
+            if(preg_match("/^taxonomy:(.*)\=/i", $tag, $arr)) {
                 $rank = trim($arr[1]);
                 if(in_array($rank,$taxa)) return 1;
                 $taxa[] = $rank;
@@ -325,36 +304,28 @@ class VimeoAPI
         }
         return 0;
     }
-
     private static function get_smallest_rank($match)
-    {
-        /*
-          [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
+    {   /*
+        [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
         */
         $rank_id = array("trinomial" => 1, "binomial" => 2, "species" => 3, "genus" => 4, "family" => 5, "order" => 6, "class" => 7, "phylum" => 8, "kingdom" => 9);
         $smallest_rank_id = 10;
         $smallest_rank = "";
-        foreach($match as $tag)
-        {
-            if(preg_match("/^taxonomy:(.*)\=/i", $tag, $arr))
-            {
+        foreach($match as $tag) {
+            if(preg_match("/^taxonomy:(.*)\=/i", $tag, $arr)) {
                 $rank = strtolower(trim($arr[1]));
-                if(in_array($rank, array_keys($rank_id)))
-                {
-                    if($rank_id[$rank] < $smallest_rank_id)
-                    {
+                if(in_array($rank, array_keys($rank_id))) {
+                    if($rank_id[$rank] < $smallest_rank_id) {
                         $smallest_rank_id = $rank_id[$rank];
                         $smallest_rank = $rank;
                     }
                 }
             }
         }
-        foreach($match as $tag)
-        {
+        foreach($match as $tag) {
             if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
         }
-        if(!isset($sciname))
-        {
+        if(!isset($sciname)) {
             echo("\nThis needs checking...");
             print_r($match);
             $sciname = '';
@@ -364,7 +335,6 @@ class VimeoAPI
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
-
     private static function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
     {
         $arr_objects[] = array( "identifier"   => $identifier,
@@ -380,7 +350,6 @@ class VimeoAPI
                               );
         return $arr_objects;
     }
-
     private static function get_taxa_for_photo($rec)
     {
         $taxon = array();
@@ -395,15 +364,12 @@ class VimeoAPI
         if($rec["sciname"]!=@$rec["phylum"])$taxon["phylum"] = ucfirst(trim(@$rec["phylum"]));
         if($rec["sciname"]!=@$rec["kingdom"])$taxon["kingdom"] = ucfirst(trim(@$rec["kingdom"]));
 
-        foreach($rec["commonNames"] as $comname)
-        {
+        foreach($rec["commonNames"] as $comname) {
             $taxon["commonNames"][] = new \SchemaCommonName(array("name" => $comname, "language" => ""));
         }
 
-        if($rec["arr_objects"])
-        {
-            foreach($rec["arr_objects"] as $object)
-            {
+        if($rec["arr_objects"]) {
+            foreach($rec["arr_objects"] as $object) {
                 $data_object = self::get_data_object($object);
                 if(!$data_object) return false;
                 $taxon["dataObjects"][] = new \SchemaDataObject($data_object);
@@ -412,7 +378,6 @@ class VimeoAPI
         $taxon_object = new \SchemaTaxon($taxon);
         return $taxon_object;
     }
-
     private static function get_data_object($rec)
     {
         $data_object_parameters = array();
@@ -421,7 +386,7 @@ class VimeoAPI
         $data_object_parameters["dataType"]     = trim($rec["dataType"]);
         $data_object_parameters["mimeType"]     = trim($rec["mimeType"]);
         $data_object_parameters["mediaURL"]     = trim(@$rec["mediaURL"]);
-        $data_object_parameters["thumbnailURL"]     = trim(@$rec["thumbnailURL"]);
+        $data_object_parameters["thumbnailURL"] = trim(@$rec["thumbnailURL"]);
         $data_object_parameters["created"]      = trim(@$rec["created"]);
         $data_object_parameters["description"]  = Functions::import_decode(@$rec["description"]);
         $data_object_parameters["source"]       = @$rec["source"];
@@ -431,8 +396,7 @@ class VimeoAPI
         $data_object_parameters["language"]     = "en";
         //==========================================================================================
         $agents = array();
-        foreach(@$rec["agent"] as $agent)
-        {
+        foreach(@$rec["agent"] as $agent) {
             $agentParameters = array();
             $agentParameters["role"]     = $agent["role"];
             $agentParameters["homepage"] = $agent["homepage"];
@@ -444,11 +408,9 @@ class VimeoAPI
         //==========================================================================================
         return $data_object_parameters;
     }
-
     private static function get_cc_license($license)
     {
-        switch($license)
-        {
+        switch($license) {
             case 'cc-by':
                 return 'http://creativecommons.org/licenses/by/3.0/'; break;
             case 'cc-by-sa':
@@ -471,7 +433,6 @@ class VimeoAPI
                 return false;
         }
     }
-
     function get_license_from_page($video_page_url)
     {
         $html = Functions::lookup_with_cache($video_page_url, array('expire_seconds' => 2592000)); // 30 days until cache expires //debug orig value = 2592000
