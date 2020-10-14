@@ -22,9 +22,21 @@ class VimeoAPI2020
 {
     public function start()
     {
+        require_library('connectors/VimeoAPI');
+        $this->func = new VimeoAPI();
+        
         // use Vimeo\Vimeo;
         $client = new \Vimeo\Vimeo(CLIENT_ID, CLIENT_SECRET, ACCESS_TOKEN);
+        /* normal operation
         $all_users = self::get_all_users_from_group('encyclopediaoflife', $client); //group ID = 'encyclopediaoflife'
+        */
+        $all_users = Array(
+                5814509 => Array(
+                        "name" => "Katja S.",
+                        "link" => "https://vimeo.com/user5814509",
+                        "videos" => "/users/5814509/videos"
+                    )
+            );
         self::main_prog($all_users, $client);
         exit("\n-end for now-\n");
     }
@@ -55,7 +67,9 @@ class VimeoAPI2020
             // print_r($videos); exit("\n100\n");
             // /* loop process
             foreach($videos['body']['data'] as $rec) {
-                self::process_video($rec);
+                $eli = self::process_video($rec);
+                // exit("\naaa\n");
+                // if($eli) exit("\nbbb\n");
             }
             // */
             if($next = $videos['body']['paging']['next']) $uri = $next;
@@ -84,18 +98,18 @@ class VimeoAPI2020
         $license = "";
         $arr_sciname = array();
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) {//gets everything between brackets []
-            $smallest_taxa = self::get_smallest_rank($matches[1]);
+            $smallest_taxa = $this->func->get_smallest_rank($matches[1]);
             $smallest_rank = $smallest_taxa['rank'];
             $sciname       = $smallest_taxa['name'];
             //smallest rank sciname: [$smallest_rank][$sciname]
-            $multiple_taxa_YN = self::is_multiple_taxa_video($matches[1]);
-            if(!$multiple_taxa_YN) $arr_sciname = self::initialize($sciname);
+            $multiple_taxa_YN = $this->func->is_multiple_taxa_video($matches[1]);
+            if(!$multiple_taxa_YN) $arr_sciname = $this->func->initialize($sciname);
             foreach($matches[1] as $tag) {
                 $tag=trim($tag);
                 if($multiple_taxa_YN) {
                     if(is_numeric(stripos($tag,$smallest_rank))) {
                         if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
-                        $arr_sciname = self::initialize($sciname,$arr_sciname);
+                        $arr_sciname = $this->func->initialize($sciname,$arr_sciname);
                     }
                 }
                 if(preg_match("/^taxonomy:binomial=(.*)$/i", $tag, $arr))       $arr_sciname[$sciname]['binomial']  = ucfirst(trim($arr[1]));
@@ -112,6 +126,7 @@ class VimeoAPI2020
             foreach($matches[0] as $str) $description = str_ireplace($str, "", trim($description));
         }
 
+        /* Not a pre-requisite anymore to have an 'eol' tag
         $with_eol_tag = false;
         if(isset($rec->tags)) {
             foreach($rec->tags->tag as $tag) {
@@ -120,14 +135,12 @@ class VimeoAPI2020
                 elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr)) $license = strtolower(trim($arr[1])); //users might put the license in a tag
             }
         }
-
-        /* Not a pre-requisite anymore to have an 'eol' tag
         if(!$with_eol_tag) return array();
         */
 
-        if($license) $license = self::get_cc_license($license); //license from Vimeo tag or description section
+        if($license) $license = $this->func->get_cc_license($license); //license from Vimeo tag or description section
         else {
-            if($license = $rec->license) $license = self::get_cc_license($license);
+            if($license = $rec['license']) $license = $this->func->get_cc_license($license);
             else {
                 /* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
                 $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
@@ -138,7 +151,7 @@ class VimeoAPI2020
 
         //has to have a valid license
         if(!$license) {
-            echo("\ninvalid license: " . $rec->urls->url{0}->{"_content"});
+            echo("\ninvalid license:\n[$license]\n");
             return array();
         }
 
@@ -149,24 +162,23 @@ class VimeoAPI2020
 
             //start data objects //----------------------------------------------------------------------------------------
             $arr_objects = array();
-            $identifier  = $rec->id;
+            $identifier  = pathinfo($rec['uri'], PATHINFO_FILENAME); //e.g. 48269442
             $dataType    = "http://purl.org/dc/dcmitype/MovingImage";
-            $mimeType    = "video/x-flv";
-            if(trim($rec->title)) $title = $rec->title;
-            else                  $title = "Vimeo video";
-            $source      = $rec->urls->url{0}->{"_content"};
-            $mediaURL    = VIMEO_PLAYER_URL . $rec->id;
-            $thumbnailURL = $rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
+            $mimeType    = "video/mp4";
+            if($val = trim($rec['name'])) $title = $val;
+            else                          $title = "Vimeo video";
+            $source      = $rec['link']; //$rec->urls->url{0}->{"_content"};
+            $mediaURL    = self::get_mp4_url($rec['embed']['html']);
+            $thumbnailURL = @$rec['pictures']['sizes'][0]['link']; //$rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
             $agent = array();
-            if($rec->owner->display_name) $user_name = $rec->owner->display_name;
-            elseif($rec->owner->realname) $user_name = $rec->owner->realname;
-            if($user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->owner->profileurl , $user_name));
-            $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
+            if($val = $rec['user']['name']) $user_name = $val;
+            if($user_name) $agent = array(0 => array("role" => "creator", "homepage" => $rec['user']['link'], "logoURL" => $rec['user']['pictures']['sizes'][1]['link'],"fullName" => $user_name));
+            $arr_objects = $this->func->add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
-            $taxon_id   = str_ireplace(" ", "_", $sciname) . "_" . $rec->id;
-            if($val = self::adjust_sciname($arr_sciname, $sciname)) $new_sciname = $val;
-            else                                                    $new_sciname = $sciname;
+            $taxon_id   = str_ireplace(" ", "_", $sciname);
+            if($val = $this->func->adjust_sciname($arr_sciname, $sciname)) $new_sciname = $val;
+            else                                                           $new_sciname = $sciname;
             $arr_data[]=array(  "identifier"   => "",
                                 "source"       => "",
                                 "kingdom"      => $arr_sciname[$sciname]['kingdom'],
@@ -181,9 +193,34 @@ class VimeoAPI2020
                                 "arr_objects"  => $arr_objects
                              );
         }
+        print_r($arr_data);
         return $arr_data;
     }
-    
+    private function get_mp4_url($html)
+    {
+        /*
+        src="https://player.vimeo.com/video/48269442?badge=...
+        */
+        preg
+        /* works on parsing out the media URL, an mp4 for that matter!
+        $url = 'https://player.vimeo.com/video/19082391';
+        $url = 'https://player.vimeo.com/video/19083211';
+        $html = Functions::lookup_with_cache($url);
+        // "mime":"video/mp4","fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601456~acl=%2A%2F38079480.mp4%2A~hmac=92351066b44bf9ac9dffafa207e1bc60f68f42ddb7a283938ae650a3bde2c8e8/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480.mp4","cdn"
+        if(preg_match("/\"mime\":\"video\/mp4\"(.*?)\.mp4\"/ims", $html, $arr)) {
+            $str = $arr[1];
+            echo "\n$str\n";
+            // ,"fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601908~acl=%2A%2F38079480.mp4%2A~hmac=1853127a5ec9959d6be10883146d0a544bf19d7e1834d2168dd239bb54900050/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480
+            $str .= '.mp4 xxx';
+            if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) {
+                $str = $arr[1];
+                echo "\n$str\n";
+            }
+        }
+        else exit("\nInvestigate: no mp4!\n");
+        */
+        
+    }
     
     
     private function get_all_users_from_group($group_id, $client)
@@ -252,6 +289,7 @@ class VimeoAPI2020
         return $final;
     }
     //################################################################################# Below this line is from old connector.
+    /*
     public static function get_all_taxa($user_ids = false)
     {
         $vimeo = new \phpVimeo(CONSUMER_KEY, CONSUMER_SECRET);
@@ -380,14 +418,12 @@ class VimeoAPI2020
         $return = self::vimeo_call_with_retry($vimeo, 'vimeo.groups.getModerators', array('group_id' => "encyclopediaoflife", 'page' => 1));
         foreach($return->moderators->moderator as $moderator) $user_ids[(string) $moderator->id] = 1;
 
-        /*
-        $user_ids = array();
-        $user_ids['user7837321'] = 1;
-        $user_ids['user5814509'] = 1; //katja
-        $user_ids['user5352360'] = 1; //eli
-        $user_ids['5352360']     = 1; //eli
-        $user_ids['user1632860'] = 1; //peter kuttner
-        */
+        // $user_ids = array();
+        // $user_ids['user7837321'] = 1;
+        // $user_ids['user5814509'] = 1; //katja
+        // $user_ids['user5352360'] = 1; //eli
+        // $user_ids['5352360']     = 1; //eli
+        // $user_ids['user1632860'] = 1; //peter kuttner
         unset($user_ids["1632860"]); //Tamborine's videos are moved to the main Tamborine EOL account (DATA-1592)
         return array_keys($user_ids);
     }
@@ -458,9 +494,8 @@ class VimeoAPI2020
             }
         }
 
-        /* Not a pre-requisite anymore to have an 'eol' tag
-        if(!$with_eol_tag) return array();
-        */
+        // Not a pre-requisite anymore to have an 'eol' tag
+        // if(!$with_eol_tag) return array();
 
         if($license) $license = self::get_cc_license($license); //license from Vimeo tag or description section
         else
@@ -468,9 +503,9 @@ class VimeoAPI2020
             if($license = $rec->license) $license = self::get_cc_license($license);
             else
             {
-                /* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
-                $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
-                */
+                // working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
+                // $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
+                
                 $license = false;
             }
         }
@@ -527,7 +562,7 @@ class VimeoAPI2020
 
     private static function adjust_sciname($arr_sciname, $sciname)
     {
-        /* if there is genus e.g. "Testudo", and species e.g. "T. marginata", then it will return "Testudo marginata" */
+        // if there is genus e.g. "Testudo", and species e.g. "T. marginata", then it will return "Testudo marginata"
         if(@$arr_sciname[$sciname]['genus'])
         {
             $string = substr($sciname,0,2);
@@ -573,9 +608,7 @@ class VimeoAPI2020
 
     private static function get_smallest_rank($match)
     {
-        /*
-          [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
-        */
+        // [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
         $rank_id = array("trinomial" => 1, "binomial" => 2, "species" => 3, "genus" => 4, "family" => 5, "order" => 6, "class" => 7, "phylum" => 8, "kingdom" => 9);
         $smallest_rank_id = 10;
         $smallest_rank = "";
@@ -603,9 +636,8 @@ class VimeoAPI2020
             echo("\nThis needs checking...");
             print_r($match);
             $sciname = '';
-            /* for debugging
-            if(stripos($match[0], 'Higa') !== false) exit("\n - investigate - \n");
-            */
+            // for debugging
+            // if(stripos($match[0], 'Higa') !== false) exit("\n - investigate - \n");
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
@@ -716,12 +748,12 @@ class VimeoAPI2020
                 return false;
         }
     }
-
     function get_license_from_page($video_page_url)
     {
         $html = Functions::lookup_with_cache($video_page_url, array('expire_seconds' => 2592000)); // 30 days until cache expires //debug orig value = 2592000
         if(preg_match("/<a href=\"http:\/\/creativecommons.org\/licenses\/(.*?)\//ims", $html, $matches)) return self::get_cc_license("cc-" . trim($matches[1]));
         return false;
     }
+    */
 }
 ?>

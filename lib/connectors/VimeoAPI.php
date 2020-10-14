@@ -167,7 +167,7 @@ class VimeoAPI
         $arr_sciname = array();
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) {//gets everything between brackets []
             $smallest_taxa = self::get_smallest_rank($matches[1]);
-            $smallest_rank = $smallest_taxa['rank'];
+            $smallest_rank = @$smallest_taxa['rank'];
             $sciname       = $smallest_taxa['name'];
             //smallest rank sciname: [$smallest_rank][$sciname]
             $multiple_taxa_YN = self::is_multiple_taxa_video($matches[1]);
@@ -242,7 +242,7 @@ class VimeoAPI
             $agent = array();
             if($rec->owner->display_name) $user_name = $rec->owner->display_name;
             elseif($rec->owner->realname) $user_name = $rec->owner->realname;
-            if($user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->owner->profileurl , $user_name));
+            if($user_name) $agent = array(0 => array("role" => "creator" , "homepage" => $rec->owner->profileurl , 'fullName' => $user_name));
             $arr_objects = self::add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
             //end data objects //----------------------------------------------------------------------------------------
 
@@ -265,7 +265,7 @@ class VimeoAPI
         }
         return $arr_data;
     }
-    private static function adjust_sciname($arr_sciname, $sciname)
+    public static function adjust_sciname($arr_sciname, $sciname)
     {
         /* if there is genus e.g. "Testudo", and species e.g. "T. marginata", then it will return "Testudo marginata" */
         if(@$arr_sciname[$sciname]['genus']) {
@@ -277,7 +277,7 @@ class VimeoAPI
         }
         return false;
     }
-    private static function initialize($sciname, $arr_sciname=NULL)
+    public static function initialize($sciname, $arr_sciname=NULL)
     {
         $arr_sciname[$sciname]['binomial']    = "";
         $arr_sciname[$sciname]['trinomial']   = "";
@@ -292,7 +292,7 @@ class VimeoAPI
         $arr_sciname[$sciname]['commonNames'] = array();
         return $arr_sciname;
     }
-    private static function is_multiple_taxa_video($arr)
+    public static function is_multiple_taxa_video($arr)
     {
         $taxa = array();
         foreach($arr as $tag) {
@@ -304,7 +304,7 @@ class VimeoAPI
         }
         return 0;
     }
-    private static function get_smallest_rank($match)
+    public static function get_smallest_rank($match)
     {   /*
         [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
         */
@@ -335,7 +335,7 @@ class VimeoAPI
         }
         return array("rank" => $smallest_rank, "name" => $sciname);
     }
-    private static function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
+    public static function add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects)
     {
         $arr_objects[] = array( "identifier"   => $identifier,
                                 "dataType"     => $dataType,
@@ -401,14 +401,14 @@ class VimeoAPI
             $agentParameters["role"]     = $agent["role"];
             $agentParameters["homepage"] = $agent["homepage"];
             $agentParameters["logoURL"]  = "";
-            $agentParameters["fullName"] = $agent[0];
+            $agentParameters["fullName"] = $agent['fullName'];
             $agents[] = new \SchemaAgent($agentParameters);
         }
         $data_object_parameters["agents"] = $agents;
         //==========================================================================================
         return $data_object_parameters;
     }
-    private static function get_cc_license($license)
+    public static function get_cc_license($license)
     {
         switch($license) {
             case 'cc-by':
@@ -421,14 +421,14 @@ class VimeoAPI
                 return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'; break;
             case 'public domain':
                 return 'http://creativecommons.org/licenses/publicdomain/'; break;
+            case 'by':
+                return 'http://creativecommons.org/licenses/by/3.0/'; break;
             case 'by-sa':
                 return 'http://creativecommons.org/licenses/by-sa/3.0/'; break;
             case 'by-nc':
                 return 'http://creativecommons.org/licenses/by-nc/3.0/'; break;
             case 'by-nc-sa':
                 return 'http://creativecommons.org/licenses/by-nc-sa/3.0/'; break;
-            case 'public domain':
-                return 'http://creativecommons.org/licenses/publicdomain/'; break;
             default:
                 return false;
         }
