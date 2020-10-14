@@ -23,7 +23,7 @@ https://editors.eol.org/other_files/bundle_images/classifier/maps.txt
 https://editors.eol.org/other_files/bundle_images/classifier/Zoological_illustrations.txt
 https://editors.eol.org/other_files/bundle_images/classifier/Zoological_illustrations_download.txt
 
-3b. Phylogeny images [1017]
+3b. Phylogeny images [1017] [1034]
 https://editors.eol.org/other_files/bundle_images/classifier/Phylogeny_images.txt
 
 3c. Botanical illustrations

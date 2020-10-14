@@ -2,16 +2,16 @@
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
-$resource_id = "protisten";
+$resource_id = 214;
 
-/* un-comment in real operation
-require_library('connectors/Protisten_deAPI');
-$func = new Protisten_deAPI($resource_id);
+// /* main operation
+require_library('connectors/VimeoAPI2020');
+$func = new VimeoAPI2020($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
-*/
+// */
 
-// /* API test working OK
+/* API test working OK
 require DOC_ROOT.'/vendor/vimeo_api/vendor/autoload.php';
 use Vimeo\Vimeo;
 $client_id = '8498d03ee2e3276f878fbbeb2354a1552bfea767';
@@ -23,6 +23,8 @@ $client = new Vimeo("$client_id", "$client_secret", "$access_token");
 // $response = $client->request('/groups/77006/users', array(), 'GET');
 // $response = $client->request('/users/5814509', array(), 'GET'); //Katja
 $response = $client->request('/users/5814509/videos', array(), 'GET'); //Katja's videos
+                              /users/83097635/videos
+                              
 print_r($response); exit("\n");
 // */
 
@@ -43,10 +45,4 @@ if(preg_match("/\"mime\":\"video\/mp4\"(.*?)\.mp4\"/ims", $html, $arr)) {
 }
 else exit("\nInvestigate: no mp4!\n");
 */
-
-$elapsed_time_sec = time_elapsed() - $timestart;
-echo "\n\n elapsed time = " . $elapsed_time_sec . " seconds";
-echo "\n elapsed time = " . $elapsed_time_sec/60 . " minutes";
-echo "\n elapsed time = " . $elapsed_time_sec/60/60 . " hours";
-echo "\n Done processing\n";
 ?>
