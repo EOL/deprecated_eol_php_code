@@ -30,7 +30,7 @@ class ImageBundleClassifierAPI
         $this->debug = array();
         $this->download_options = array(
             'resource_id'        => 'Katie',  //resource_id here is just a folder name in cache
-            'expire_seconds'     => 60*60*24*30, //expires in a month
+            'expire_seconds'     => 60*60*24*1, //expires in a day
             'download_wait_time' => 1000000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5, 'cache' => 1);
         
         $this->pages['taxa_per_resource'] = 'https://eol.org/resources/RESOURCE_ID/nodes';
