@@ -181,21 +181,17 @@ class VimeoAPI
 
         $license = "";
         $arr_sciname = array();
-        if(preg_match_all("/\[(.*?)\]/ims", $description, $matches))//gets everything between brackets []
-        {
+        if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) {//gets everything between brackets []
             $smallest_taxa = self::get_smallest_rank($matches[1]);
             $smallest_rank = $smallest_taxa['rank'];
             $sciname       = $smallest_taxa['name'];
             //smallest rank sciname: [$smallest_rank][$sciname]
             $multiple_taxa_YN = self::is_multiple_taxa_video($matches[1]);
             if(!$multiple_taxa_YN) $arr_sciname = self::initialize($sciname);
-            foreach($matches[1] as $tag)
-            {
+            foreach($matches[1] as $tag) {
                 $tag=trim($tag);
-                if($multiple_taxa_YN)
-                {
-                    if(is_numeric(stripos($tag,$smallest_rank)))
-                    {
+                if($multiple_taxa_YN) {
+                    if(is_numeric(stripos($tag,$smallest_rank))) {
                         if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr))$sciname = ucfirst(trim($arr[1]));
                         $arr_sciname = self::initialize($sciname,$arr_sciname);
                     }
@@ -215,10 +211,8 @@ class VimeoAPI
         }
 
         $with_eol_tag = false;
-        if(isset($rec->tags))
-        {
-            foreach($rec->tags->tag as $tag)
-            {
+        if(isset($rec->tags)) {
+            foreach($rec->tags->tag as $tag) {
                 $tag = trim($tag->{"_content"});
                 if($tag == "eol") $with_eol_tag = true;
                 elseif(preg_match("/^dc:license=(.*)$/i", $tag, $arr)) $license = strtolower(trim($arr[1])); //users might put the license in a tag
@@ -230,11 +224,9 @@ class VimeoAPI
         */
 
         if($license) $license = self::get_cc_license($license); //license from Vimeo tag or description section
-        else
-        {
+        else {
             if($license = $rec->license) $license = self::get_cc_license($license);
-            else
-            {
+            else {
                 /* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
                 $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
                 */
@@ -243,14 +235,12 @@ class VimeoAPI
         }
 
         //has to have a valid license
-        if(!$license)
-        {
+        if(!$license) {
             echo("\ninvalid license: " . $rec->urls->url{0}->{"_content"});
             return array();
         }
 
-        foreach($arr_sciname as $sciname => $temp)
-        {
+        foreach($arr_sciname as $sciname => $temp) {
             if(!$sciname && @$arr_sciname[$sciname]['trinomial']) $sciname = @$arr_sciname[$sciname]['trinomial'];
             if(!$sciname && @$arr_sciname[$sciname]['genus'] && @$arr_sciname[$sciname]['species'] && !preg_match("/ /", @$arr_sciname[$sciname]['genus']) && !preg_match("/ /", @$arr_sciname[$sciname]['species'])) $sciname = @$arr_sciname[$sciname]['genus']." ".@$arr_sciname[$sciname]['species'];                        
             if(!$sciname && !@$arr_sciname[$sciname]['genus'] && !@$arr_sciname[$sciname]['family'] && !@$arr_sciname[$sciname]['order'] && !@$arr_sciname[$sciname]['class'] && !@$arr_sciname[$sciname]['phylum'] && !@$arr_sciname[$sciname]['kingdom']) return array();
@@ -295,11 +285,9 @@ class VimeoAPI
     private static function adjust_sciname($arr_sciname, $sciname)
     {
         /* if there is genus e.g. "Testudo", and species e.g. "T. marginata", then it will return "Testudo marginata" */
-        if(@$arr_sciname[$sciname]['genus'])
-        {
+        if(@$arr_sciname[$sciname]['genus']) {
             $string = substr($sciname,0,2);
-            if($string == substr($arr_sciname[$sciname]['genus'],0,1) . ".")
-            {
+            if($string == substr($arr_sciname[$sciname]['genus'],0,1) . ".") {
                 $parts = explode(" ", $sciname);
                 if(count($parts) == 2) return trim($arr_sciname[$sciname]['genus'] . " " . $parts[1]);
             }
