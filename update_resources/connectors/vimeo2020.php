@@ -1,9 +1,12 @@
 <?php
 namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
+/*
+214	Thu 2020-10-15 10:44:09 AM	{"agent.tab":22, "media_resource.tab":290, "taxon.tab":208, "vernacular_name.tab":22, "time_elapsed":{"sec":472.48, "min":7.87, "hr":0.13}}
+*/
+
 $timestart = time_elapsed();
 $resource_id = 214;
-
 // /* main - normal operation
 require_library('connectors/VimeoAPI2020');
 $func = new VimeoAPI2020($resource_id);

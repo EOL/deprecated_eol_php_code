@@ -155,7 +155,6 @@ class VimeoAPI2020
         if(!$with_eol_tag) return array();
         */
 
-        $this->debug['licenses'][$license] = '';
         if($license) $license = $this->func->get_cc_license($license); //license from Vimeo tag or description section
         else {
             if($license = $rec['license']) {
@@ -168,6 +167,7 @@ class VimeoAPI2020
                 $license = false;
             }
         }
+        $this->debug['licenses'][$license] = '';
 
         //has to have a valid license
         if(!$license) {
