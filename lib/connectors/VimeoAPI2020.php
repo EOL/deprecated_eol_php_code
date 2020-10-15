@@ -305,8 +305,10 @@ class VimeoAPI2020
                 if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) return 'https://'.$arr[1];
             }
             else {
-                print_r($rec);
-                exit("\nInvestigate: no mp4!\n");
+                if(!in_array($rec['uri'], array('/videos/49579196'))) {
+                    print_r($rec);
+                    exit("\nInvestigate: no mp4!\n");
+                }
             }
         }
     }
