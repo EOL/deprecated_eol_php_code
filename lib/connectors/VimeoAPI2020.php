@@ -275,7 +275,7 @@ class VimeoAPI2020
         $filename = $ret['filename'];
         if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
         else {
-            $mp4_media_url = self::get_mp4_media_url($rec['embed']['html']);
+            $mp4_media_url = self::get_mp4_media_url($rec['embed']['html'], $rec);
             $cmd = "wget -q --output-document $video_path $mp4_media_url";
             sleep(10);
             shell_exec($cmd);
@@ -284,7 +284,7 @@ class VimeoAPI2020
             else exit("\nERROR: wget didn't work!\n");
         }
     }
-    private function get_mp4_media_url($html)
+    private function get_mp4_media_url($html, $rec)
     {
         /*
         src="https://player.vimeo.com/video/48269442?badge=...
@@ -304,7 +304,10 @@ class VimeoAPI2020
                 $str .= '.mp4 xxx';
                 if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) return 'https://'.$arr[1];
             }
-            else exit("\nInvestigate: no mp4!\n");
+            else {
+                print_r($rec);
+                exit("\nInvestigate: no mp4!\n");
+            }
         }
     }
     private function write_DwCA($reks)
