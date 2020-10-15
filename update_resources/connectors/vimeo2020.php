@@ -8,7 +8,7 @@ $resource_id = 214;
 require_library('connectors/VimeoAPI2020');
 $func = new VimeoAPI2020($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param true means to delete working resource folder
 // exit;
 // */
 
