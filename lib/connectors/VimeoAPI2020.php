@@ -278,7 +278,7 @@ class VimeoAPI2020
         else {
             if($mp4_media_url = self::get_mp4_media_url($rec['embed']['html'], $rec)) {
                 $cmd = "wget -q --output-document $video_path $mp4_media_url";
-                sleep(10);
+                sleep(3);
                 shell_exec($cmd);
                 // wget --output-document example.html https://www.electrictoolbox.com/wget-save-different-filename/
                 if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
