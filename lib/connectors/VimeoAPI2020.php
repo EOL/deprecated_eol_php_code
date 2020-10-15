@@ -167,7 +167,7 @@ class VimeoAPI2020
 
         //has to have a valid license
         if(!$license) {
-            echo("\ninvalid license:\n[$license]\n");
+            echo("\ninvalid license: [$license]\n");
             return array();
         }
 
@@ -337,8 +337,22 @@ class VimeoAPI2020
         )*/
         foreach($reks as $rek) {
             self::write_taxon($rek);
-            if($val = $rek['commonNames']) self::write_comnames($val);
+            if($val = $rek['commonNames']) self::write_comnames($val, $rek['taxon_id']);
             if($val = $rek['arr_objects']) self::write_objects($val, $rek['taxon_id']);
+        }
+    }
+    private function write_comnames($comnames, $taxon_id)
+    {
+        foreach($comnames as $name) {
+            $v = new \eol_schema\VernacularName();
+            $v->taxonID         = $taxon_id;
+            $v->vernacularName  = $name;
+            $v->language        = 'en';
+            $id = md5("$v->taxonID|$v->vernacularName|$v->language");
+            if(!isset($this->vernaculars[$id])) {
+                $this->archive_builder->write_object_to_file($v);
+                $this->vernaculars[$id] = '';
+            }
         }
     }
     private function write_objects($objects, $taxonID) //normally just 1 object pass here
