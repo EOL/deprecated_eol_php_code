@@ -4,11 +4,12 @@ include_once(dirname(__FILE__) . "/../../config/environment.php");
 $timestart = time_elapsed();
 $resource_id = 214;
 
-// /* main operation
+// /* main - normal operation
 require_library('connectors/VimeoAPI2020');
 $func = new VimeoAPI2020($resource_id);
 $func->start();
 Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param true means to delete working resource folder
+// exit;
 // */
 
 /* API test working OK
@@ -24,14 +25,14 @@ $client = new Vimeo("$client_id", "$client_secret", "$access_token");
 // $response = $client->request('/users/5814509', array(), 'GET'); //Katja
 $response = $client->request('/users/5814509/videos', array(), 'GET'); //Katja's videos
                               /users/83097635/videos
-                              
 print_r($response); exit("\n");
 // */
 
 /* works on parsing out the media URL, an mp4 for that matter!
 $url = 'https://player.vimeo.com/video/19082391';
-$url = 'https://player.vimeo.com/video/19083211';
-$html = Functions::lookup_with_cache($url);
+// $url = 'https://player.vimeo.com/video/19083211';
+$options['expire_seconds'] = 60*50; //1 hr
+$html = Functions::lookup_with_cache($url, $options);
 // "mime":"video/mp4","fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601456~acl=%2A%2F38079480.mp4%2A~hmac=92351066b44bf9ac9dffafa207e1bc60f68f42ddb7a283938ae650a3bde2c8e8/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480.mp4","cdn"
 if(preg_match("/\"mime\":\"video\/mp4\"(.*?)\.mp4\"/ims", $html, $arr)) {
     $str = $arr[1];

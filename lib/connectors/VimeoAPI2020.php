@@ -27,6 +27,15 @@ class VimeoAPI2020
 
         $this->download_options = array('resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 1000000, 
         'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        
+        if(Functions::is_production()) {
+            $this->vimeo_mp4['download_path'] = '/extra/other_files/Vimeo/mp4/';
+            $this->vimeo_mp4['web_access'] = 'https://editors.eol.org/other_files/Vimeo/mp4/';
+        }
+        else {
+            $this->vimeo_mp4['download_path'] = '/Volumes/AKiTiO4/other_files/Vimeo/mp4/';
+            $this->vimeo_mp4['web_access'] = 'http://localhost/other_files/Vimeo/mp4/';
+        }
     }
     public function start()
     {
@@ -47,6 +56,7 @@ class VimeoAPI2020
         // */
         self::main_prog($all_users, $client);
         $this->archive_builder->finalize(true);
+        print_r($this->debug);
         // exit("\n-end for now-\n");
     }
     private function main_prog($all_users, $client)
@@ -143,7 +153,10 @@ class VimeoAPI2020
 
         if($license) $license = $this->func->get_cc_license($license); //license from Vimeo tag or description section
         else {
-            if($license = $rec['license']) $license = $this->func->get_cc_license($license);
+            if($license = $rec['license']) {
+                $license = $this->func->get_cc_license($license);
+                $this->debug['licenses'][$license] = '';
+            }
             else {
                 /* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
                 $license = self::get_license_from_page($rec->urls->url{0}->{"_content"}); //license from Vimeo license settings - scraped from the video page
@@ -172,7 +185,7 @@ class VimeoAPI2020
             if($val = trim($rec['name'])) $v['title'] = $val;
             else                          $v['title'] = "Vimeo video";
             $v['furtherInformationURL'] = $rec['link']; //$rec->urls->url{0}->{"_content"};
-            $v['mediaURL']    = self::get_mp4_url($rec['embed']['html']);
+            $v['mediaURL']    = self::get_mp4_url($rec, $v['identifier']);
             $v['thumbnailURL'] = @$rec['pictures']['sizes'][0]['link']; //$rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
             $v['CreateDate']     = $rec['created_time'];
             $v['modified']       = $rec['modified_time'];
@@ -240,15 +253,47 @@ class VimeoAPI2020
         }
         $this->object_agent_ids[$do_id] = $agent_ids;
     }
-    private function get_mp4_url($html) //works on parsing out the mp4 media URL
-    {   /*
+    private function get_mp4_path($video_id)
+    {
+        $cache_path = $this->vimeo_mp4['download_path'];
+        $md5 = $video_id; //md5($video_id);
+        $cache1 = substr($md5, 0, 2);
+        $cache2 = substr($md5, 2, 2);
+        if(!file_exists($cache_path . $cache1)) mkdir($cache_path . $cache1);
+        if(!file_exists($cache_path . "$cache1/$cache2")) mkdir($cache_path . "$cache1/$cache2");
+        $cache_path = $cache_path . "$cache1/$cache2/$video_id.mp4";
+        return array('video_path' => $cache_path, 'filename' => "$cache1/$cache2/$video_id.mp4");
+    }
+    private function get_mp4_url($rec, $video_id) //works on parsing out the mp4 media URL
+    {
+        $ret = self::get_mp4_path($video_id);
+        $video_path = $ret['video_path'];
+        $filename = $ret['filename'];
+        if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
+        else {
+            $mp4_media_url = self::get_mp4_media_url($rec['embed']['html']);
+            // $cmd = "wget $mp4_media_url -P $video_path";
+            $cmd = "wget --output-document $video_path $mp4_media_url";
+            sleep(10);
+            shell_exec($cmd);
+            // wget --output-document example.html https://www.electrictoolbox.com/wget-save-different-filename/
+            // wget url -P /path/to/folder
+            if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
+            else exit("\nERROR: wget didn't work!\n");
+        }
+    }
+    private function get_mp4_media_url($html)
+    {
+        /*
         src="https://player.vimeo.com/video/48269442?badge=...
         */
         if(preg_match("/src=\"(.*?)\?/ims", $html, $arr)) {
             $url = $arr[1];
             // $url = 'https://player.vimeo.com/video/19082391';
             // $url = 'https://player.vimeo.com/video/19083211';
-            $html = Functions::lookup_with_cache($url, $this->download_options);
+            $options = $this->download_options;
+            $options['expire_seconds'] = 60*50; //50 mins
+            $html = Functions::lookup_with_cache($url, $options);
             // "mime":"video/mp4","fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601456~acl=%2A%2F38079480.mp4%2A~hmac=92351066b44bf9ac9dffafa207e1bc60f68f42ddb7a283938ae650a3bde2c8e8/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480.mp4","cdn"
             if(preg_match("/\"mime\":\"video\/mp4\"(.*?)\.mp4\"/ims", $html, $arr)) {
                 $str = $arr[1];
