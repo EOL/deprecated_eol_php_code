@@ -190,6 +190,7 @@ class VimeoAPI2020
             else                          $v['title'] = "Vimeo video";
             $v['furtherInformationURL'] = $rec['link']; //$rec->urls->url{0}->{"_content"};
             $v['mediaURL']    = self::get_mp4_url($rec, $v['identifier']);
+            if(!$v['mediaURL']) continue;
             $v['thumbnailURL'] = @$rec['pictures']['sizes'][0]['link']; //$rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
             $v['CreateDate']     = $rec['created_time'];
             $v['modified']       = $rec['modified_time'];
@@ -275,14 +276,16 @@ class VimeoAPI2020
         $filename = $ret['filename'];
         if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
         else {
-            $mp4_media_url = self::get_mp4_media_url($rec['embed']['html'], $rec);
-            $cmd = "wget -q --output-document $video_path $mp4_media_url";
-            sleep(10);
-            shell_exec($cmd);
-            // wget --output-document example.html https://www.electrictoolbox.com/wget-save-different-filename/
-            if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
-            else exit("\nERROR: wget didn't work!\n");
+            if($mp4_media_url = self::get_mp4_media_url($rec['embed']['html'], $rec)) {
+                $cmd = "wget -q --output-document $video_path $mp4_media_url";
+                sleep(10);
+                shell_exec($cmd);
+                // wget --output-document example.html https://www.electrictoolbox.com/wget-save-different-filename/
+                if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
+                else exit("\nERROR: wget didn't work!\n");
+            }
         }
+        return false;
     }
     private function get_mp4_media_url($html, $rec)
     {
