@@ -151,11 +151,11 @@ class VimeoAPI2020
         if(!$with_eol_tag) return array();
         */
 
+        $this->debug['licenses'][$license] = '';
         if($license) $license = $this->func->get_cc_license($license); //license from Vimeo tag or description section
         else {
             if($license = $rec['license']) {
                 $license = $this->func->get_cc_license($license);
-                $this->debug['licenses'][$license] = '';
             }
             else {
                 /* working but commented since it is too heavy with all those extra page loads, the total no. didn't actually change so this step can be excluded
@@ -453,7 +453,7 @@ class VimeoAPI2020
             // */
             if($next = $arr['body']['paging']['next']) $uri = $next;
             else break;
-            break; //debug only
+            // break; //debug only
         }//end while loop
         return $final;
     }
