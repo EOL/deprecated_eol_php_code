@@ -69,7 +69,8 @@ class VimeoAPI2020
             // print_r($videos); exit("\n100\n");
             // /* loop process
             foreach($videos['body']['data'] as $rec) {
-                $eli = self::process_video($rec);
+                $arr_data = self::process_video($rec); // print_r($arr_data);
+                if($arr_data) self::write_DwCA($arr_data);
                 // exit("\naaa\n");
                 // if($eli) exit("\nbbb\n");
             }
@@ -194,7 +195,6 @@ class VimeoAPI2020
                                 "arr_objects"  => $arr_objects
                              );
         }
-        print_r($arr_data);
         return $arr_data;
     }
     private function get_mp4_url($html) //works on parsing out the mp4 media URL
@@ -216,6 +216,10 @@ class VimeoAPI2020
             }
             else exit("\nInvestigate: no mp4!\n");
         }
+    }
+    private function write_DwCA($arr)
+    {
+        print_r($arr); exit("\nelix 100\n");
     }
     private function write_taxon()
     {
