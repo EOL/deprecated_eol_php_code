@@ -25,7 +25,7 @@ class VimeoAPI2020
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
 
-        $this->download_options = array('resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*25*2, 'download_wait_time' => 1000000, 
+        $this->download_options = array('resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*30*1, 'download_wait_time' => 1000000, 
         'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
     }
     public function start()
@@ -62,16 +62,10 @@ class VimeoAPI2020
     }
     private function process_user($user_id, $rec, $client) //process all videos of a user
     {
-        /*
-        $videos = $client->request($rec['videos'], array(), 'GET'); // print_r($videos);
-        foreach($videos as $rec) {
-            self::process_video($rec);
-        }
-        */
         $uri = $rec['videos'];
-        while(true) {
+        while(true) { //loop videos per user; per 25 batch
             $videos = $client->request($uri, array(), 'GET');
-            echo "\n".count($videos['body']['data'])."\n";
+            echo "\nvideos batch for user [$user_id]: ".count($videos['body']['data'])."\n";
             // print_r($videos); exit("\n100\n");
             // /* loop process
             foreach($videos['body']['data'] as $rec) {
@@ -84,7 +78,6 @@ class VimeoAPI2020
             else break;
         }//end while loop
     }
-    
     private function process_video($rec)
     {
         // print_r($rec); exit("\nelix\n");
@@ -204,39 +197,36 @@ class VimeoAPI2020
         print_r($arr_data);
         return $arr_data;
     }
-    private function get_mp4_url($html)
-    {
-        /*
+    private function get_mp4_url($html) //works on parsing out the mp4 media URL
+    {   /*
         src="https://player.vimeo.com/video/48269442?badge=...
         */
-        
         if(preg_match("/src=\"(.*?)\?/ims", $html, $arr)) {
             $url = $arr[1];
-            
+            // $url = 'https://player.vimeo.com/video/19082391';
+            // $url = 'https://player.vimeo.com/video/19083211';
             $html = Functions::lookup_with_cache($url, $this->download_options);
             // "mime":"video/mp4","fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601456~acl=%2A%2F38079480.mp4%2A~hmac=92351066b44bf9ac9dffafa207e1bc60f68f42ddb7a283938ae650a3bde2c8e8/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480.mp4","cdn"
             if(preg_match("/\"mime\":\"video\/mp4\"(.*?)\.mp4\"/ims", $html, $arr)) {
                 $str = $arr[1];
-                echo "\n$str\n";
+                // echo "\n$str\n";
                 // ,"fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601908~acl=%2A%2F38079480.mp4%2A~hmac=1853127a5ec9959d6be10883146d0a544bf19d7e1834d2168dd239bb54900050/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480
                 $str .= '.mp4 xxx';
-                if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) {
-                    $str = $arr[1];
-                    echo "\n$str\n";
-                }
+                if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) return $arr[1];
             }
             else exit("\nInvestigate: no mp4!\n");
-            
-            
         }
-        
-        /* works on parsing out the media URL, an mp4 for that matter!
-        $url = 'https://player.vimeo.com/video/19082391';
-        $url = 'https://player.vimeo.com/video/19083211';
-        */
-        
     }
-    
+    private function write_taxon()
+    {
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID             = '';
+        $taxon->scientificName      = '';
+        if(!isset($this->taxonIDs[$taxon->taxonID])) {
+            $this->taxonIDs[$taxon->taxonID] = '';
+            $this->archive_builder->write_object_to_file($taxon);
+        }
+    }
     
     private function get_all_users_from_group($group_id, $client)
     {

@@ -9,7 +9,7 @@ media_resource.tab  [254]
 taxon.tab           [172]
 vernacular_name.tab [38]
 */
-
+exit("\nOBSOLETE: use vimeo2020.php instead.\n");
 $timestart = microtime(1);
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/VimeoAPI');
