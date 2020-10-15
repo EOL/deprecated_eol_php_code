@@ -171,7 +171,7 @@ class VimeoAPI2020
 
         //has to have a valid license
         if(!$license) {
-            echo("\ninvalid license: [$license]\n");
+            // echo("\ninvalid license: [$license]\n");
             return array();
         }
 
