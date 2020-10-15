@@ -179,26 +179,34 @@ class VimeoAPI2020
 
             $v['license']       = $license;
             $v['description']   = $rec['description'];
-            
+            $v['Owner'] = $rec['user']['name'];
             
             self::write_agent($rec, $v['identifier']);
+            $v['agentID'] = $this->object_agent_ids[$v['identifier']];
             
             $arr_objects[] = $v;
             //end data objects //----------------------------------------------------------------------------------------
 
-            $taxon_id   = str_ireplace(" ", "_", $sciname);
             if($val = $this->func->adjust_sciname($arr_sciname, $sciname)) $new_sciname = $val;
             else                                                           $new_sciname = $sciname;
-            $arr_data[]=array(  "identifier"   => "",
-                                "source"       => "",
-                                "kingdom"      => $arr_sciname[$sciname]['kingdom'],
-                                "phylum"       => $arr_sciname[$sciname]['phylum'],
-                                "class"        => $arr_sciname[$sciname]['class'],
-                                "order"        => $arr_sciname[$sciname]['order'],
-                                "family"       => $arr_sciname[$sciname]['family'],
-                                "genus"        => $arr_sciname[$sciname]['genus'],
+            
+            $kingdom = ($arr_sciname[$sciname]['kingdom'] != $new_sciname) ? ($arr_sciname[$sciname]['kingdom']) : "";
+            $phylum = ($arr_sciname[$sciname]['phylum'] != $new_sciname) ? ($arr_sciname[$sciname]['phylum']) : "";
+            $class = ($arr_sciname[$sciname]['class'] != $new_sciname) ? ($arr_sciname[$sciname]['class']) : "";
+            $order = ($arr_sciname[$sciname]['order'] != $new_sciname) ? ($arr_sciname[$sciname]['order']) : "";
+            $family = ($arr_sciname[$sciname]['family'] != $new_sciname) ? ($arr_sciname[$sciname]['family']) : "";
+            $genus = ($arr_sciname[$sciname]['genus'] != $new_sciname) ? ($arr_sciname[$sciname]['genus']) : "";
+            
+            $arr_data[]=array(  //"identifier"   => "",
+                                // "source"       => "",
+                                "kingdom"      => $kingdom,
+                                "phylum"       => $phylum,
+                                "class"        => $class,
+                                "order"        => $order,
+                                "family"       => $family,
+                                "genus"        => $genus,
                                 "sciname"      => $new_sciname,
-                                "taxon_id"     => $taxon_id,
+                                "taxon_id"     => md5($new_sciname),
                                 "commonNames"  => @$arr_sciname[$sciname]['commonNames'],
                                 "arr_objects"  => $arr_objects
                              );
@@ -247,7 +255,7 @@ class VimeoAPI2020
                 // echo "\n$str\n";
                 // ,"fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601908~acl=%2A%2F38079480.mp4%2A~hmac=1853127a5ec9959d6be10883146d0a544bf19d7e1834d2168dd239bb54900050/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480
                 $str .= '.mp4 xxx';
-                if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) return $arr[1];
+                if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) return 'https://'.$arr[1];
             }
             else exit("\nInvestigate: no mp4!\n");
         }
@@ -302,8 +310,8 @@ class VimeoAPI2020
             $mr->furtherInformationURL = $o['furtherInformationURL'];
             $mr->accessURI      = $o['mediaURL'];
             $mr->thumbnailURL   = $o['thumbnailURL'];
-            $mr->Owner          = ''; //$o['dc_rightsHolder'];
-            $mr->rights         = ''; //$o['dc_rights'];
+            $mr->Owner          = $o['Owner']; //$o['dc_rightsHolder'];
+            // $mr->rights         = ''; //$o['dc_rights'];
             $mr->title          = $o['title'];
             $mr->UsageTerms     = $o['license'];
             $mr->description    = utf8_encode($o['description']);
@@ -317,7 +325,7 @@ class VimeoAPI2020
             $mr->modified       = $o['modified'];
             
             // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
-            // if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
+            if($agent_ids     =     @$this->object_agent_ids[$o['identifier']])  $mr->agentID = implode("; ", $agent_ids);
             
             if(!isset($this->object_ids[$mr->identifier])) {
                 $this->archive_builder->write_object_to_file($mr);
