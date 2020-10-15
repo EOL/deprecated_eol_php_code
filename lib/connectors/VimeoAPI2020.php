@@ -46,7 +46,8 @@ class VimeoAPI2020
                         "videos" => "/users/5814509/videos"));
         // */
         self::main_prog($all_users, $client);
-        exit("\n-end for now-\n");
+        $this->archive_builder->finalize(true);
+        // exit("\n-end for now-\n");
     }
     private function main_prog($all_users, $client)
     {   /*Array(
@@ -68,7 +69,7 @@ class VimeoAPI2020
             echo "\nvideos batch for user [$user_id]: ".count($videos['body']['data'])."\n";
             // print_r($videos); exit("\n100\n");
             // /* loop process
-            foreach($videos['body']['data'] as $rec) {
+            foreach($videos['body']['data'] as $rec) { //print_r($rec); exit("\nelix 200\n");
                 $arr_data = self::process_video($rec); // print_r($arr_data);
                 if($arr_data) self::write_DwCA($arr_data);
                 // exit("\naaa\n");
@@ -164,18 +165,25 @@ class VimeoAPI2020
 
             //start data objects //----------------------------------------------------------------------------------------
             $arr_objects = array();
-            $identifier  = pathinfo($rec['uri'], PATHINFO_FILENAME); //e.g. 48269442
-            $dataType    = "http://purl.org/dc/dcmitype/MovingImage";
-            $mimeType    = "video/mp4";
-            if($val = trim($rec['name'])) $title = $val;
-            else                          $title = "Vimeo video";
-            $source      = $rec['link']; //$rec->urls->url{0}->{"_content"};
-            $mediaURL    = self::get_mp4_url($rec['embed']['html']);
-            $thumbnailURL = @$rec['pictures']['sizes'][0]['link']; //$rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
-            $agent = array();
-            if($val = $rec['user']['name']) $user_name = $val;
-            if($user_name) $agent = array(0 => array("role" => "creator", "homepage" => $rec['user']['link'], "logoURL" => $rec['user']['pictures']['sizes'][1]['link'],"fullName" => $user_name));
-            $arr_objects = $this->func->add_objects($identifier, $dataType, $mimeType, $title, $source, $description, $mediaURL, $agent, $license, $thumbnailURL, $arr_objects);
+            $v = array(); //as values
+            $v['identifier']  = pathinfo($rec['uri'], PATHINFO_FILENAME); //e.g. 48269442
+            $v['dataType']    = "http://purl.org/dc/dcmitype/MovingImage";
+            $v['mimeType']    = "video/mp4";
+            if($val = trim($rec['name'])) $v['title'] = $val;
+            else                          $v['title'] = "Vimeo video";
+            $v['furtherInformationURL'] = $rec['link']; //$rec->urls->url{0}->{"_content"};
+            $v['mediaURL']    = self::get_mp4_url($rec['embed']['html']);
+            $v['thumbnailURL'] = @$rec['pictures']['sizes'][0]['link']; //$rec->thumbnails->thumbnail{2}->{"_content"}; //$rec->thumbnail_large;
+            $v['CreateDate']     = $rec['created_time'];
+            $v['modified']       = $rec['modified_time'];
+
+            $v['license']       = $license;
+            $v['description']   = $rec['description'];
+            
+            
+            self::write_agent($rec, $v['identifier']);
+            
+            $arr_objects[] = $v;
             //end data objects //----------------------------------------------------------------------------------------
 
             $taxon_id   = str_ireplace(" ", "_", $sciname);
@@ -197,6 +205,33 @@ class VimeoAPI2020
         }
         return $arr_data;
     }
+    private function write_agent($rec, $do_id)
+    {
+        $agents = array();
+        if($fullName = $rec['user']['name']) {
+            $agents[] = array("role"     => "creator", 
+                              "homepage" => $rec['user']['link'], 
+                              "logoURL"  => $rec['user']['pictures']['sizes'][1]['link'], 
+                              "fullName" => $fullName);
+        }
+        
+        $agent_ids = array();
+        foreach($agents as $a) {
+            if(!$a['fullName']) continue;
+            $r = new \eol_schema\Agent();
+            $r->term_name       = $a['fullName'];
+            $r->agentRole       = $a['role'];
+            $r->term_homepage   = $a['homepage'];
+            $r->term_logo       = $a['logoURL'];
+            $r->identifier      = md5("$r->term_name|$r->agentRole");
+            $agent_ids[] = $r->identifier;
+            if(!isset($this->agent_ids[$r->identifier])) {
+               $this->agent_ids[$r->identifier] = '';
+               $this->archive_builder->write_object_to_file($r);
+            }
+        }
+        $this->object_agent_ids[$do_id] = $agent_ids;
+    }
     private function get_mp4_url($html) //works on parsing out the mp4 media URL
     {   /*
         src="https://player.vimeo.com/video/48269442?badge=...
@@ -217,21 +252,95 @@ class VimeoAPI2020
             else exit("\nInvestigate: no mp4!\n");
         }
     }
-    private function write_DwCA($arr)
+    private function write_DwCA($reks)
     {
-        print_r($arr); exit("\nelix 100\n");
+        // print_r($reks); exit("\nelix 100\n");
+        /*Array(
+            [0] => Array(
+                    [identifier] => 
+                    [source] => 
+                    [kingdom] => 
+                    [phylum] => 
+                    [class] => 
+                    [order] => 
+                    [family] => 
+                    [genus] => 
+                    [sciname] => Odontoloxozus longicornis
+                    [taxon_id] => Odontoloxozus_longicornis
+                    [commonNames] => Array()
+                    [arr_objects] => Array(
+                            [0] => Array(
+                                    [identifier] => 31027218
+                                    [dataType] => http://purl.org/dc/dcmitype/MovingImage
+                                    [mimeType] => video/mp4
+                                    [title] => Cactus flies sexual competition
+                                    [source] => https://vimeo.com/31027218
+                                    [description] => On the cracking surface of a rotting opuntia branch, a large male cactus fly (Odontoloxozus longicornis) chases away a small male that has just dismounted a female. The large male guards the female by standing over her while she is feeding in crevices on the cactus surface. The large male then goes on to feed, while the female begins to oviposit into a crevice. Undetected by the large male, the small male approaches the female again and mates with her. When other males approach the mating pair, the large male defends the female, who has started ovipositing again while the small male crouches behind her, apparently hiding from the large male. Even as he is standing above the pair, the large male does not seem to notice the small male who swiftly slips away. The large male establishes genital contact, repeatedly stroking the female's ovipositor with his aedeagus, then dismounts. Tucson, Pima County, Arizona, USA.  16 November 2008.&nbsp;&nbsp;
+                                    [mediaURL] => vod-progressive.akamaized.net/exp=1602735520~acl=%2A%2F70034528.mp4%2A~hmac=dc6e3207d93ae4d63f0cafc094d8e435d48ccc5f7c10d1dedf5f4edaf036c4bf/vimeo-prod-skyfire-std-us/01/1205/1/31027218/70034528.mp4
+                                    [agentID] => 
+                                    [license] => http://creativecommons.org/licenses/by/3.0/
+                                    [thumbnailURL] => https://i.vimeocdn.com/video/208771712_100x75.jpg?r=pad
+                                )
+                        )
+                )
+        )*/
+        foreach($reks as $rek) {
+            self::write_taxon($rek);
+            if($val = $rek['commonNames']) self::write_comnames($val);
+            if($val = $rek['arr_objects']) self::write_objects($val, $rek['taxon_id']);
+        }
     }
-    private function write_taxon()
+    private function write_objects($objects, $taxonID) //normally just 1 object pass here
+    {
+        foreach($objects as $o) {
+            $mr = new \eol_schema\MediaResource();
+            $mr->taxonID        = $taxonID;
+            $mr->identifier     = $o['identifier'];
+            $mr->type           = $o['dataType'];
+            $mr->language       = 'en';
+            $mr->format         = $o['mimeType'];
+            $mr->furtherInformationURL = $o['furtherInformationURL'];
+            $mr->accessURI      = $o['mediaURL'];
+            $mr->thumbnailURL   = $o['thumbnailURL'];
+            $mr->Owner          = ''; //$o['dc_rightsHolder'];
+            $mr->rights         = ''; //$o['dc_rights'];
+            $mr->title          = $o['title'];
+            $mr->UsageTerms     = $o['license'];
+            $mr->description    = utf8_encode($o['description']);
+
+            // $mr->bibliographicCitation = ''; //$o['dcterms_bibliographicCitation'];
+            // $mr->audience       = 'Everyone';
+            // $mr->CVterm         = '';
+            // $mr->LocationCreated = ''; //$o['location'];
+
+            $mr->CreateDate     = $o['CreateDate'];
+            $mr->modified       = $o['modified'];
+            
+            // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+            // if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
+            
+            if(!isset($this->object_ids[$mr->identifier])) {
+                $this->archive_builder->write_object_to_file($mr);
+                $this->object_ids[$mr->identifier] = '';
+            }
+        }
+    }
+    private function write_taxon($rek)
     {
         $taxon = new \eol_schema\Taxon();
-        $taxon->taxonID             = '';
-        $taxon->scientificName      = '';
+        $taxon->taxonID         = $rek['taxon_id'];
+        $taxon->scientificName  = $rek['sciname'];
+        $taxon->kingdom         = $rek['kingdom'];
+        $taxon->phylum          = $rek['phylum'];
+        $taxon->class           = $rek['class'];
+        $taxon->order           = $rek['order'];
+        $taxon->family          = $rek['family'];
+        $taxon->genus           = $rek['genus'];
         if(!isset($this->taxonIDs[$taxon->taxonID])) {
             $this->taxonIDs[$taxon->taxonID] = '';
             $this->archive_builder->write_object_to_file($taxon);
         }
     }
-    
     private function get_all_users_from_group($group_id, $client)
     {
         /* normal operation
