@@ -44,9 +44,13 @@ class VimeoAPI2020
         
         // use Vimeo\Vimeo; //from API doc reference but did not use. Used below instead to work in EOL codebase.
         $client = new \Vimeo\Vimeo(CLIENT_ID, CLIENT_SECRET, ACCESS_TOKEN);
+        
         // /* normal operation
         $all_users = self::get_all_users_from_group('encyclopediaoflife', $client); //group ID = 'encyclopediaoflife'
+        // print_r($all_users);
+        unset($all_users["1632860"]); //Peter Kuttner -> Tamborine's videos are moved to the main Tamborine EOL account (DATA-1592)
         // */
+        
         /* during dev only
         $all_users = Array(
                 5814509 => Array(
