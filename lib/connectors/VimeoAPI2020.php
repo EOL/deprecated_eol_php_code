@@ -44,16 +44,16 @@ class VimeoAPI2020
         
         // use Vimeo\Vimeo; //from API doc reference but did not use. Used below instead to work in EOL codebase.
         $client = new \Vimeo\Vimeo(CLIENT_ID, CLIENT_SECRET, ACCESS_TOKEN);
-        /* normal operation
+        // /* normal operation
         $all_users = self::get_all_users_from_group('encyclopediaoflife', $client); //group ID = 'encyclopediaoflife'
-        */
-        // /* during dev only
+        // */
+        /* during dev only
         $all_users = Array(
                 5814509 => Array(
                         "name" => "Katja S.",
                         "link" => "https://vimeo.com/user5814509",
                         "videos" => "/users/5814509/videos"));
-        // */
+        */
         self::main_prog($all_users, $client);
         $this->archive_builder->finalize(true);
         print_r($this->debug);
@@ -272,12 +272,10 @@ class VimeoAPI2020
         if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
         else {
             $mp4_media_url = self::get_mp4_media_url($rec['embed']['html']);
-            // $cmd = "wget $mp4_media_url -P $video_path";
-            $cmd = "wget --output-document $video_path $mp4_media_url";
+            $cmd = "wget -q --output-document $video_path $mp4_media_url";
             sleep(10);
             shell_exec($cmd);
             // wget --output-document example.html https://www.electrictoolbox.com/wget-save-different-filename/
-            // wget url -P /path/to/folder
             if(file_exists($video_path)) return $this->vimeo_mp4['web_access'].$filename;
             else exit("\nERROR: wget didn't work!\n");
         }
@@ -396,15 +394,15 @@ class VimeoAPI2020
     }
     private function get_all_users_from_group($group_id, $client)
     {
-        /* normal operation
+        // /* normal operation
         $arr = $client->request('/groups/encyclopediaoflife', array(), 'GET');
         $users_uri = $arr['body']['metadata']['connections']['users']['uri']; //users_uri -> "/groups/77006/users"
-        */
+        // */
         // echo "\n[$users_uri]\n"; print_r($arr);
         
-        /* normal operation
+        // /* normal operation
         $all_users = self::get_all_users($users_uri, $client);
-        */
+        // */
         // print_r($all_users); exit;
         /*Array(
             [113877002] => Array(
@@ -420,13 +418,13 @@ class VimeoAPI2020
         )
         */
         
-        // /* during dev only:
+        /* during dev only:
         $all_users = array(5814509 => Array(
                 "name" => "Katja S.",
                 "link" => "https://vimeo.com/user5814509",
                 "videos" => "/users/5814509/videos"
             ));
-        // */
+        */
         // print_r($all_users); exit;
         return $all_users;
     }
