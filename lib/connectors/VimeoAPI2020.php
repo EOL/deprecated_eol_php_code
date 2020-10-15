@@ -158,6 +158,7 @@ class VimeoAPI2020
         if($license) $license = $this->func->get_cc_license($license); //license from Vimeo tag or description section
         else {
             if($license = $rec['license']) {
+                $this->debug['raw license'][$license] = '';
                 $license = $this->func->get_cc_license($license);
             }
             else {
