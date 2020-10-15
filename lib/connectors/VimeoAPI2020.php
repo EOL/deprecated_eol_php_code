@@ -17,26 +17,34 @@ define("CLIENT_ID", "8498d03ee2e3276f878fbbeb2354a1552bfea767");
 define("CLIENT_SECRET", "579812c7f9e9cef30ab1bf088c3d3b92073e115c");
 define("ACCESS_TOKEN", "be68020e45bf5677e69034c8c2cfc91b");
 
-
 class VimeoAPI2020
 {
+    function __construct($folder)
+    {
+        $this->resource_id = $folder;
+        $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
+        $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+
+        $this->download_options = array('resource_id' => $this->resource_id, 'expire_seconds' => 60*60*24*25*2, 'download_wait_time' => 1000000, 
+        'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+    }
     public function start()
     {
         require_library('connectors/VimeoAPI');
         $this->func = new VimeoAPI();
         
-        // use Vimeo\Vimeo;
+        // use Vimeo\Vimeo; //from API doc reference but did not use. Used below instead to work in EOL codebase.
         $client = new \Vimeo\Vimeo(CLIENT_ID, CLIENT_SECRET, ACCESS_TOKEN);
         /* normal operation
         $all_users = self::get_all_users_from_group('encyclopediaoflife', $client); //group ID = 'encyclopediaoflife'
         */
+        // /* during dev only
         $all_users = Array(
                 5814509 => Array(
                         "name" => "Katja S.",
                         "link" => "https://vimeo.com/user5814509",
-                        "videos" => "/users/5814509/videos"
-                    )
-            );
+                        "videos" => "/users/5814509/videos"));
+        // */
         self::main_prog($all_users, $client);
         exit("\n-end for now-\n");
     }
@@ -201,23 +209,30 @@ class VimeoAPI2020
         /*
         src="https://player.vimeo.com/video/48269442?badge=...
         */
-        preg
+        
+        if(preg_match("/src=\"(.*?)\?/ims", $html, $arr)) {
+            $url = $arr[1];
+            
+            $html = Functions::lookup_with_cache($url, $this->download_options);
+            // "mime":"video/mp4","fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601456~acl=%2A%2F38079480.mp4%2A~hmac=92351066b44bf9ac9dffafa207e1bc60f68f42ddb7a283938ae650a3bde2c8e8/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480.mp4","cdn"
+            if(preg_match("/\"mime\":\"video\/mp4\"(.*?)\.mp4\"/ims", $html, $arr)) {
+                $str = $arr[1];
+                echo "\n$str\n";
+                // ,"fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601908~acl=%2A%2F38079480.mp4%2A~hmac=1853127a5ec9959d6be10883146d0a544bf19d7e1834d2168dd239bb54900050/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480
+                $str .= '.mp4 xxx';
+                if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) {
+                    $str = $arr[1];
+                    echo "\n$str\n";
+                }
+            }
+            else exit("\nInvestigate: no mp4!\n");
+            
+            
+        }
+        
         /* works on parsing out the media URL, an mp4 for that matter!
         $url = 'https://player.vimeo.com/video/19082391';
         $url = 'https://player.vimeo.com/video/19083211';
-        $html = Functions::lookup_with_cache($url);
-        // "mime":"video/mp4","fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601456~acl=%2A%2F38079480.mp4%2A~hmac=92351066b44bf9ac9dffafa207e1bc60f68f42ddb7a283938ae650a3bde2c8e8/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480.mp4","cdn"
-        if(preg_match("/\"mime\":\"video\/mp4\"(.*?)\.mp4\"/ims", $html, $arr)) {
-            $str = $arr[1];
-            echo "\n$str\n";
-            // ,"fps":29,"url":"https://vod-progressive.akamaized.net/exp=1602601908~acl=%2A%2F38079480.mp4%2A~hmac=1853127a5ec9959d6be10883146d0a544bf19d7e1834d2168dd239bb54900050/vimeo-prod-skyfire-std-us/01/3816/0/19082391/38079480
-            $str .= '.mp4 xxx';
-            if(preg_match("/https\:\/\/(.*?) xxx/ims", $str, $arr)) {
-                $str = $arr[1];
-                echo "\n$str\n";
-            }
-        }
-        else exit("\nInvestigate: no mp4!\n");
         */
         
     }
