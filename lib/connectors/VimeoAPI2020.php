@@ -115,7 +115,7 @@ class VimeoAPI2020
         $license = "";
         $arr_sciname = array();
         if(preg_match_all("/\[(.*?)\]/ims", $description, $matches)) {//gets everything between brackets []
-            $smallest_taxa = $this->func->get_smallest_rank($matches[1]);
+            $smallest_taxa = $this->func->get_smallest_rank($matches[1], $rec);
             $smallest_rank = $smallest_taxa['rank'];
             $sciname       = $smallest_taxa['name'];
             //smallest rank sciname: [$smallest_rank][$sciname]

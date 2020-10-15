@@ -304,7 +304,7 @@ class VimeoAPI
         }
         return 0;
     }
-    public static function get_smallest_rank($match)
+    public static function get_smallest_rank($match, $rec) //$rec is just for debug
     {   /*
         [0] => taxonomy:order=Lepidoptera&nbsp;[taxonomy:family=Lymantriidae
         */
@@ -326,7 +326,7 @@ class VimeoAPI
             if(preg_match("/^taxonomy:" . $smallest_rank . "=(.*)$/i", $tag, $arr)) $sciname = ucfirst(trim($arr[1]));
         }
         if(!isset($sciname)) {
-            echo("\nThis needs checking...");
+            echo("\nThis needs checking...".$rec['uri']);
             print_r($match);
             $sciname = '';
             /* for debugging
