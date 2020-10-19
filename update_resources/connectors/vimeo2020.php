@@ -3,6 +3,46 @@ namespace php_active_record;
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 /*
 214	Thu 2020-10-15 10:44:09 AM	{"agent.tab":22, "media_resource.tab":290, "taxon.tab":208, "vernacular_name.tab":22, "time_elapsed":{"sec":472.48, "min":7.87, "hr":0.13}}
+
+Steps on how Vimeo users can share their videos to eol.org:
+
+1. Add a "taxonomic tag"
+It can be as simple as:
+[taxonomy:binomial=Anarhichas lupus]
+
+Or as complete as:
+[taxonomy:binomial=Anarhichas lupus]
+[taxonomy:kingdom=Animalia]
+[taxonomy:phylum=Chordata]
+[taxonomy:class=Actinopterygii]
+[taxonomy:order=Perciformes]
+[taxonomy:family=Anarhichadidae]
+[taxonomy:common=Atlantic wolffish]
+
+Two places where you can put your "taxonomic tag":
+1. You can add this in the description section.
+Settings - General - Info - Description
+Below your actual description of your video.
+
+2. Or you can add it as tags:
+Settings - Distribution - Discovery - Tags
+
+2. Choose a Creative Commons License
+Settings - Distribution - Discovery - Creative Commons license
+
+Choose any of these:
+- Attribution
+- Attribution Share Alike
+- Attribution Non-Commercial
+- Attribution Non-Commercial Share Alike
+
+3. Make sure your photo is public
+Settings - General - Privacy - Who can watch? - Anyone
+
+4. Share your photo with the "Encyclopedia of Life Videos" group.
+Settings - General - Privacy - Groups
+Add group "Encyclopedia of Life Videos".
+
 */
 
 $timestart = time_elapsed();
