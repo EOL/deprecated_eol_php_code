@@ -194,7 +194,7 @@ class MCZHarvardArchiveAPI
                 self::add_string_types($rec, $institution_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", $measurementRemarks);
                 self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
 
-                if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])   self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/eventDate");
+                if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])   self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/measurementDeterminedDate");
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"])      self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName");
             }
             // else
