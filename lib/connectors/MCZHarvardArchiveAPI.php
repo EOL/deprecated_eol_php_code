@@ -116,6 +116,7 @@ class MCZHarvardArchiveAPI
             $mr->Owner          = (string) $rec["http://ns.adobe.com/xap/1.0/rights/Owner"];
             $mr->rights         = "";
             $mr->UsageTerms     = self::get_license((string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"]);
+            $this->debug['licenses'][(string) $rec["http://ns.adobe.com/xap/1.0/rights/UsageTerms"]] = '';
             $mr->audience       = 'Everyone';
             $mr->description    = (string) $rec["http://purl.org/dc/terms/description"];
             $mr->accessURI      = $mediaURL;
@@ -131,7 +132,8 @@ class MCZHarvardArchiveAPI
     private function get_license($str)
     {
         if($str == "Available under Creative Commons Attribution Share Alike Non Commerical (CC-BY-NC-SA 3.0) license") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
-        else echo "\nUpdate code, unknown license\n";
+        elseif($str == "Available under Creative Commons Attribution-NonCommercial-ShareAlike (CC BY-NC-SA) license") return "http://creativecommons.org/licenses/by-nc-sa/3.0/";
+        else echo "\nUpdate code, unknown license [$str]\n";
         return;
     }
     /* no longer being used at the moment, but working before...
