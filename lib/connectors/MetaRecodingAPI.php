@@ -20,8 +20,10 @@ class MetaRecodingAPI
         /* END DATA-1841 terms remapping */
         
         $tables = $info['harvester']->tables;
-        // self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0]);
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0]);
+        
+        /* task 1: individualCount */
+        if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_1($tables);
+        
         
         self::initialize_mapping(); //for location string mappings
     }
@@ -32,7 +34,18 @@ class MetaRecodingAPI
         // self::use_mapping_from_jen();
         // print_r($this->uris);
     }
-    private function process_measurementorfact($meta)
+    private function task_1($tables)
+    {   /*  http://rs.tdwg.org/dwc/terms/individualCount - probably the easiest to move; from its column in occurrences 
+            to a "measurementOfTaxon=FALSE record in the MoF file, 
+            with measurementType=http://eol.org/schema/terms/SampleSize
+        */
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_1_info'); 
+            /* generates $this->oID_individualCount[$occurrenceID] = $individualCount */
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_1_info');
+            /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
+        
+    }
+    private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
         echo "\nprocess_measurementorfact...\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -57,27 +70,31 @@ class MetaRecodingAPI
                 [http://eol.org/schema/terms/statisticalMethod] => http://semanticscience.org/resource/SIO_001113
             )*/
             //===========================================================================================================================================================
-            //===========================================================================================================================================================
-            //===========================================================================================================================================================
-            $o = new \eol_schema\MeasurementOrFact_specific();
-            $uris = array_keys($rec);
-            foreach($uris as $uri) {
-                $field = pathinfo($uri, PATHINFO_BASENAME);
-                $o->$field = $rec[$uri];
+            if($what == 'task_1_info') {
+                continue here...
             }
-            
-            /* START DATA-1841 terms remapping */
-            $o = $this->func->given_m_update_mType_mValue($o);
-            // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
-            /* END DATA-1841 terms remapping */
-            
-            $this->archive_builder->write_object_to_file($o);
+            //===========================================================================================================================================================
+            if($what == 'write') {
+                $o = new \eol_schema\MeasurementOrFact_specific();
+                $uris = array_keys($rec);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+
+                /* START DATA-1841 terms remapping */
+                $o = $this->func->given_m_update_mType_mValue($o);
+                // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+                /* END DATA-1841 terms remapping */
+
+                $this->archive_builder->write_object_to_file($o);
+            }
             // if($i >= 10) break; //debug only
         }
     }
-    private function process_occurrence($meta)
+    private function process_occurrence($meta, $what)
     {   //print_r($meta);
-        echo "\nprocess_occurrence...\n"; $i = 0;
+        echo "\nprocess_occurrence...[$what]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -90,6 +107,7 @@ class MetaRecodingAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             }
+            $rec = array_map('trim', $rec);
             // print_r($rec); exit("\ndebug...\n");
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 12e1aea54c7d8dc661f84043155a5cde_692
@@ -99,14 +117,20 @@ class MetaRecodingAPI
                 [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
             )*/
             //===========================================================================================================================================================
-            //===========================================================================================================================================================
-            $uris = array_keys($rec);
-            $o = new \eol_schema\Occurrence_specific();
-            foreach($uris as $uri) {
-                $field = pathinfo($uri, PATHINFO_BASENAME);
-                $o->$field = $rec[$uri];
+            if($what == 'task_1_info') {
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+                if($val = $rec['[http://rs.tdwg.org/dwc/terms/individualCount]']) $this->oID_individualCount[$occurrenceID] = $val;
             }
-            $this->archive_builder->write_object_to_file($o);
+            //===========================================================================================================================================================
+            elseif($what = 'write') {
+                $uris = array_keys($rec);
+                $o = new \eol_schema\Occurrence_specific();
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
+            }
             // if($i >= 10) break; //debug only
         }
     }
