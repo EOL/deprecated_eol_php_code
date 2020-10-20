@@ -60,11 +60,9 @@ class MCZHarvardArchiveAPI
         echo ("\n temporary directory removed: " . $temp_dir);
         print_r($this->debug);
     }
-
     private function create_instances_from_taxon_object($records)
     {
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $taxon = new \eol_schema\Taxon();
             $taxon->taxonID         = (string) $rec["http://rs.tdwg.org/dwc/terms/taxonID"];
             $taxon->scientificName  = (string) $rec["http://rs.tdwg.org/dwc/terms/scientificName"];
@@ -79,14 +77,12 @@ class MCZHarvardArchiveAPI
             $this->archive_builder->write_object_to_file($taxon);
         }
     }
-
     private function get_images($records)
     {
         // now we need first to retrieve the first 40k images and use the identifiers used before
         $first40k = self::get_first40k_images();
 
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             if($rec["http://purl.org/dc/terms/type"] != "image") continue;
 
             $format = (string) $rec["http://purl.org/dc/terms/format"];
@@ -126,8 +122,7 @@ class MCZHarvardArchiveAPI
             $mr->thumbnailURL   = $thumbnailURL;
             $mr->furtherInformationURL = (string) $rec["http://rs.tdwg.org/ac/terms/furtherInformationURL"];
             if((string) $mr->accessURI == $mr->furtherInformationURL) continue;
-            if(!isset($this->object_ids[$mr->identifier]))
-            {
+            if(!isset($this->object_ids[$mr->identifier])) {
                $this->object_ids[$mr->identifier] = '';
                $this->archive_builder->write_object_to_file($mr);
             }
@@ -139,13 +134,11 @@ class MCZHarvardArchiveAPI
         else echo "\nUpdate code, unknown license\n";
         return;
     }
-
     /* no longer being used at the moment, but working before...
     private function get_texts($records)
     {
         $not_utf8 = 0;
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $desc = "";
             if($rec["http://rs.tdwg.org/dwc/terms/typeStatus"]) $desc .= "Type status: " . $rec["http://rs.tdwg.org/dwc/terms/typeStatus"] . "<br>";
             if($rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"]) $desc .= "Type designated by: " . $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"] . "<br>";
@@ -157,8 +150,7 @@ class MCZHarvardArchiveAPI
             if($rec["http://rs.tdwg.org/dwc/terms/locality"]) $desc .= "Locality: " . $rec["http://rs.tdwg.org/dwc/terms/locality"] . "<br>";
             if($rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"]) $desc .= "Event date: " . $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"] . "<br>";
             $desc = utf8_encode($desc);
-            if(!Functions::is_utf8($desc))
-            {
+            if(!Functions::is_utf8($desc)) {
                 $not_utf8++;
                 continue;
             }
@@ -182,35 +174,28 @@ class MCZHarvardArchiveAPI
         echo "\n Not utf8: [$not_utf8] \n";
     }
     */
-
     private function get_texts_v2($records) // structured data
     {
         $i = 0;
-        foreach($records as $rec)
-        {
+        foreach($records as $rec) {
             $this->types[$rec["http://rs.tdwg.org/dwc/terms/typeStatus"]] = 1;
             $measurementRemarks = "";
-            if($val = $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"])
-            {
+            if($val = $rec["http://rs.gbif.org/terms/1.0/typeDesignatedBy"]) {
                 if($val != "no citation available") $measurementRemarks .= "Type designated by: " . $val . "<br>";
             }
 
             $institution_uri = "http://biocol.org/urn:lsid:biocol.org:col:33791"; //Museum of Comparative Zoology, Harvard University
             $typeStatus_uri = false;
-            if($val = self::format_type_status($rec["http://rs.tdwg.org/dwc/terms/typeStatus"]))
-            {
+            if($val = self::format_type_status($rec["http://rs.tdwg.org/dwc/terms/typeStatus"])) {
                 $typeStatus_uri = self::get_uri($val, "typeStatus");
             }
 
-            if($institution_uri && $typeStatus_uri)
-            {
+            if($institution_uri && $typeStatus_uri) {
                 self::add_string_types($rec, $institution_uri, "http://eol.org/schema/terms/TypeSpecimenRepository", $measurementRemarks);
                 self::add_string_types($rec, $typeStatus_uri, "http://rs.tdwg.org/dwc/terms/typeStatus");
-                
 
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/verbatimEventDate"])   self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/eventDate");
                 if($val = $rec["http://rs.tdwg.org/dwc/terms/scientificName"])      self::add_string_types($rec, $val, "http://rs.tdwg.org/dwc/terms/scientificName");
-                
             }
             // else
             // {
@@ -221,7 +206,6 @@ class MCZHarvardArchiveAPI
             // if($i >= 1000) break; //debug - just first 1000 records during preview phase
         }
     }
-
     private function add_string_types($rec, $value, $mtype, $measurementRemarks = null)
     {
         $taxon_id = (string) $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
@@ -233,8 +217,7 @@ class MCZHarvardArchiveAPI
         $m->measurementType     = $mtype;
         $m->measurementValue    = utf8_encode((string) $value);
         $m->measurementMethod   = '';
-        if($measurementRemarks) // so that measurementRemarks (and source, contributor) appears only once in the [measurement_or_fact.tab]
-        {
+        if($measurementRemarks) { // so that measurementRemarks (and source, contributor) appears only once in the [measurement_or_fact.tab]
             $m->measurementRemarks = $measurementRemarks;
             $m->source = $this->page_by_guid . $rec["http://rs.tdwg.org/dwc/terms/occurrenceID"];
             $m->contributor = 'Museum of Comparative Zoology, Harvard';
@@ -245,7 +228,6 @@ class MCZHarvardArchiveAPI
             $this->measurement_ids[$m->measurementID] = '';
         }
     }
-
     private function get_uris()
     {
         /*
@@ -276,19 +258,16 @@ class MCZHarvardArchiveAPI
         */
         return $uris;
     }
-
     private function get_uri($value, $field)
     {
         if(in_array($field, array("typeStatus"))) $value = strtoupper($value);
         if($field == "typeStatus") $value = str_ireplace("TYPES", "TYPE", $value);
         if($val = @$this->uris[$value]) return $val;
-        else
-        {
+        else {
             $this->debug["undefined"][$field][$value] = '';
             return $value;
         }
     }
-
     private function format_type_status($type_status)
     {
         // manual adjustments
@@ -299,7 +278,6 @@ class MCZHarvardArchiveAPI
         if(in_array($type_status, array("FIGURED", "VOUCHER", "ADDITIONAL MATERIAL", "ERRONEOUS CITATION"))) return false;
         return $type_status;
     }
-
     private function add_occurrence($taxon_id, $catnum, $rec)
     {
         $occurrence_id = $taxon_id . 'O' . $catnum;
@@ -323,7 +301,6 @@ class MCZHarvardArchiveAPI
         return $occurrence_id;
         */
     }
-
     private function get_first40k_images()
     {
         $first40k = array();
@@ -337,20 +314,16 @@ class MCZHarvardArchiveAPI
         else echo "\n Investigate: first 40k images text file is missing. \n";
         return $first40k;
     }
-
     function get_mediaURL_for_first_40k_images() // a utility
     {
         require_library('connectors/BOLDSysAPI');
         $func = new BOLDSysAPI();
         $source = "http://localhost/eol_php_code/update_resources/connectors/files/MCZ_Harvard/MCZimages_still40k.tsv";
         $destination = DOC_ROOT .                         "/update_resources/connectors/files/MCZ_Harvard/First40k.txt";
-        if($temp_filepath = Functions::save_remote_file_to_local($source, array('timeout' => 4800, 'download_attempts' => 2)))
-        {
+        if($temp_filepath = Functions::save_remote_file_to_local($source, array('timeout' => 4800, 'download_attempts' => 2))) {
             $records = array();
-            foreach(new FileIterator($temp_filepath, true) as $line_number => $line) // 'true' will auto delete temp_filepath
-            {
-                if($line)
-                {
+            foreach(new FileIterator($temp_filepath, true) as $line_number => $line) { // 'true' will auto delete temp_filepath
+                if($line) {
                     $cols = explode("\t", $line);
                     if(count($cols) == 80) $records[str_replace('"', '', $cols[1])] = 1;
                 }
@@ -358,6 +331,5 @@ class MCZHarvardArchiveAPI
         }
         $func::save_to_json_file(array_keys($records), $destination);
     }
-
 }
 ?>
