@@ -13,9 +13,11 @@ estimated execution time: 55 minutes for:
  occurrences                                                26,154
  taxa:                  17,499      17,499      19,627      19,627
 
-201	Tuesday 2018-02-27 09:28:41 AM	{"measurement_or_fact.tab":129220,"media_resource.tab":180170,"occurrence.tab":31424,"taxon.tab":25467}
-201	Wednesday 2018-03-21 12:24:43 AM{"measurement_or_fact.tab":130476,"media_resource.tab":181033,"occurrence.tab":31733,"taxon.tab":25494} no measurementID yet
-201	Wednesday 2018-03-21 12:48:40 AM{"measurement_or_fact.tab":128349,"media_resource.tab":181033,"occurrence.tab":31733,"taxon.tab":25494} with measurementID and unique at that.
+201	Tuesday 2018-02-27 09:28:41 AM	{"measurement_or_fact.tab":129220, "media_resource.tab":180170, "occurrence.tab":31424,"taxon.tab":25467}
+201	Wednesday 2018-03-21 12:24:43 AM{"measurement_or_fact.tab":130476, "media_resource.tab":181033, "occurrence.tab":31733,"taxon.tab":25494} no measurementID yet
+201	Wednesday 2018-03-21 12:48:40 AM{"measurement_or_fact.tab":128349, "media_resource.tab":181033, "occurrence.tab":31733,"taxon.tab":25494} with measurementID and unique at that.
+201	Mon 2020-09-14 02:15:07 PM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":487.16, "min":8.119999999999999, "hr":0.14}}
+201	Wed 2020-10-14 02:15:39 PM	    {"measurement_or_fact.tab":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":518.17, "min":8.640000000000001, "hr":0.14}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
