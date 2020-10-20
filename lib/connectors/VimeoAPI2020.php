@@ -65,6 +65,11 @@ class VimeoAPI2020
                         "name" => "Katja S.",
                         "link" => "https://vimeo.com/user5814509",
                         "videos" => "/users/5814509/videos"));
+        $all_users = Array(
+                5352360 => Array(
+                        "name" => "Eli A.",
+                        "link" => "https://vimeo.com/user5352360",
+                        "videos" => "/users/5352360/videos"));
         */
         self::main_prog($all_users, $client);
         $this->archive_builder->finalize(true);
