@@ -1,22 +1,30 @@
 <?php
 namespace php_active_record;
 require_once DOC_ROOT.'/vendor/vimeo_api/vendor/autoload.php';
-/* connector: vimeo2020.php --- DATA-1864 */
-/* connector: 214 
-Connector makes use of the Advanced Vimeo API to generate the EOL XML.
+/* connector: vimeo2020.php --- DATA-1864
+resource_id: 214 
+
+The Vimeo Advanced API (we are using before) has been deprecated.
+We are now using the new (working) version:
+new API: https://developer.vimeo.com/api
+new library : https://github.com/vimeo/vimeo.php
+
 There is a vimeo group called: Encyclopedia of Life Videos 
 https://vimeo.com/groups/encyclopediaoflife
 
 First step is to get the user IDs of all users from the group called 'encyclopediaoflife'.
 Second step is to then access/get each user's list of videos using their ID.
 
-There WAS also an instruction here outlining the steps on how to setup your video so it can be shown in eol.org
+The old Vimeo Forum was now removed.
+There WAS an instruction here outlining the steps on how to setup your video so it can be shown in eol.org
 https://vimeo.com/groups/encyclopediaoflife/forum/topic:237888
+
+This is now the latest instruction page for the latest Vimeo:
+https://eol-jira.bibalex.org/browse/DATA-1864?focusedCommentId=65322&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65322
 */
 define("CLIENT_ID", "8498d03ee2e3276f878fbbeb2354a1552bfea767");
 define("CLIENT_SECRET", "579812c7f9e9cef30ab1bf088c3d3b92073e115c");
 define("ACCESS_TOKEN", "be68020e45bf5677e69034c8c2cfc91b");
-
 class VimeoAPI2020
 {
     function __construct($folder)
