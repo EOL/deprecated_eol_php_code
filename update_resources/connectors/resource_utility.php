@@ -8,6 +8,9 @@ first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20t
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "617_final", "task": "remove_taxa_without_MoF"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en_report", "task": "report_4_Wikipedia_EN_traits"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
+START of metadata_recoding
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "692_meta_recoded", "task": "metadata_recoding"}'
+END of metadata_recoding
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -41,6 +44,14 @@ elseif($task == 'add_canonical_in_taxa') {
     }
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }
+elseif($task == 'metadata_recoding') {
+    if($resource_id == '692_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/692.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/692.tar.gz";
+    }
+    else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
+}
+
 else exit("\nERROR: task not yet initialized. Will terminate.\n");
 process_resource_url($dwca_file, $resource_id, $task, $timestart);
 
@@ -70,6 +81,16 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
         $preferred_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon');
     }
+
+    elseif($task == 'metadata_recoding') {
+        /* working but not needed for DH purposes
+        $preferred_rowtypes = array();
+        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+        */
+        $preferred_rowtypes = array();
+        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
+    }
+    
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
