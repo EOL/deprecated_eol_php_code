@@ -24,15 +24,17 @@ class MetaRecodingAPI
         /* task 1: individualCount */
         if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_1($tables);
         
+        /* task 2: eventDate */
+        if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_2($tables);
         
-        self::initialize_mapping(); //for location string mappings
     }
-    private function initialize_mapping()
-    {   $mappings = Functions::get_eol_defined_uris(false, true);     //1st param: false means will use 1day cache | 2nd param: opposite direction is true
-        echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uris = Functions::additional_mappings($mappings); //add more mappings used in the past
-        // self::use_mapping_from_jen();
-        // print_r($this->uris);
+    private function task_2($tables)
+    {   /*
+        http://rs.tdwg.org/dwc/terms/eventDate - the more awkward moving method which will apply to the rest of the cases; 
+        from a column in occurrences, to a new column in MoF, with the occurrence record being applied to all MoF records for that occurrence. 
+        The uri for the meta file for the new column: http://rs.tdwg.org/dwc/terms/measurementDeterminedDate
+        */
+        
     }
     private function task_1($tables)
     {   /*  http://rs.tdwg.org/dwc/terms/individualCount - probably the easiest to move; from its column in occurrences 
@@ -49,7 +51,7 @@ class MetaRecodingAPI
 
         // self::organize_MoF_mOfTaxon_false_create_if_needed();
     }
-    private function organize_MoF_mOfTaxon_false_create_if_needed($occurrenceID)
+    private function organize_MoF_mOfTaxon_false_create_if_needed($occurrenceID) //not used
     {   /*
         $this->oID_individualCount
         Array(
@@ -133,13 +135,18 @@ class MetaRecodingAPI
             }
             //===========================================================================================================================================================
             if($what == 'write_task_1') {
-                $o = new \eol_schema\MeasurementOrFact_specific();
+                $m = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec);
+                // /* task_2
+                if($eventDate = @$this->oID_eventDate[$$occurrenceID]) { //task_2
+                    $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
+                }
+                // */
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $o->$field = $rec[$uri];
+                    $m->$field = $rec[$uri];
                 }
-                $this->archive_builder->write_object_to_file($o);
+                $this->archive_builder->write_object_to_file($m);
                 
                 /*
                 child record in MoF:
@@ -152,34 +159,36 @@ class MetaRecodingAPI
                     - measurementValue
                     - parentMeasurementID
                 */
-                if($individualCount = @$this->oID_individualCount[$o->occurrenceID]) {
-                    $o2 = new \eol_schema\MeasurementOrFact_specific();
+                // /* task_1
+                if($individualCount = @$this->oID_individualCount[$m->occurrenceID]) { //create a new row (child row)
+                    $m2 = new \eol_schema\MeasurementOrFact_specific();
                     $rek = array();
-                    $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$o->measurementID|$individualCount|SampleSize");
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$m->measurementID|$individualCount|SampleSize");
                     $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://eol.org/schema/terms/SampleSize';
                     $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $individualCount;
-                    $rek['http://eol.org/schema/parentMeasurementID'] = $o->measurementID;
+                    $rek['http://eol.org/schema/parentMeasurementID'] = $m->measurementID;
                     $uris = array_keys($rek);
                     foreach($uris as $uri) {
                         $field = pathinfo($uri, PATHINFO_BASENAME);
-                        $o2->$field = $rek[$uri];
+                        $m2->$field = $rek[$uri];
                     }
-                    $this->archive_builder->write_object_to_file($o2);
+                    $this->archive_builder->write_object_to_file($m2);
                 }
+                // */
             }
             //===========================================================================================================================================================
             if($what == 'write') {
-                $o = new \eol_schema\MeasurementOrFact_specific();
+                $m = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec);
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $o->$field = $rec[$uri];
+                    $m->$field = $rec[$uri];
                 }
                 /* START DATA-1841 terms remapping */
-                $o = $this->func->given_m_update_mType_mValue($o);
+                $m = $this->func->given_m_update_mType_mValue($m);
                 // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
                 /* END DATA-1841 terms remapping */
-                $this->archive_builder->write_object_to_file($o);
+                $this->archive_builder->write_object_to_file($m);
             }
             //===========================================================================================================================================================
             // if($i >= 10) break; //debug only
@@ -213,12 +222,13 @@ class MetaRecodingAPI
             if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue;
             //===========================================================================================================================================================
             if($what == 'task_1_info') {
-                if($val = $rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;   //task_1
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/eventDate']) $this->oID_eventDate[$occurrenceID] = $val;               //task_2
             }
             //===========================================================================================================================================================
             elseif($what = 'write_task_1') {
                 unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']);
-                print_r($rec); exit;
+                // print_r($rec); exit;
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Occurrence_specific();
                 foreach($uris as $uri) {
