@@ -105,7 +105,8 @@ class MetaRecodingAPI
             $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $measurementOfTaxon = $rec['http://eol.org/schema/measurementOfTaxon'];
-            if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue;
+            // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
+            // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
             if($what == 'task_1_info') {
                 /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
@@ -205,7 +206,8 @@ class MetaRecodingAPI
                 [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
             )*/
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-            if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue;
+            // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
+            // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
             if($what == 'task_1_info') {
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;    //task_1

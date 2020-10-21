@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_45336/',       //dir_89938 - GloBI dev     dir_42456 - wiki EN report
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_45336/'            //dir_15078 - PaleoDB dev
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_41999/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_41999/'
         );
         */
         
@@ -113,6 +113,7 @@ class DwCA_Utility
             else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
         elseif(substr($this->resource_id,0,3) == 'SC_' || substr($this->resource_id,0,2) == 'c_') $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24*1)); //1 day expire
+        elseif(stripos($this->resource_id, "_meta_recoded") !== false) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
         else $info = self::start(); //default doesn't expire. Your call.
 
         $temp_dir = $info['temp_dir'];
@@ -137,6 +138,8 @@ class DwCA_Utility
             */
             // if($this->resource_id == '368_merged_MoF') break; //all extensions will be processed elsewhere. debug only, during dev only
             // if($this->resource_id == 'globi_associations') break; //all extensions will be processed elsewhere. debug only, during dev only
+            // if(stripos($this->resource_id, "_meta_recoded") !== false) break; //all extensions will be processed elsewhere. debug only, during dev only
+            
             /* not used
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
             */
@@ -286,6 +289,11 @@ class DwCA_Utility
         if(in_array($this->resource_id, array('368_merged_MoF'))) {
             require_library('connectors/MergeMoFrecordsAPI');
             $func = new MergeMoFrecordsAPI($this->archive_builder, $this->resource_id);
+            $func->start($info);
+        }
+        if(stripos($this->resource_id, "_meta_recoded") !== false) {
+            require_library('connectors/MetaRecodingAPI');
+            $func = new MetaRecodingAPI($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
         // ================================= end of customization ================================= */ 
