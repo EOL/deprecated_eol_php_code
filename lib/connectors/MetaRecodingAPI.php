@@ -24,15 +24,13 @@ class MetaRecodingAPI
         /* task 1: individualCount */
         if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_1($tables);
         
-        /* task 2: eventDate */
-        if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_2($tables);
-        
-    }
-    private function task_2($tables)
-    {   /*
+        /* task 2: eventDate
         http://rs.tdwg.org/dwc/terms/eventDate - the more awkward moving method which will apply to the rest of the cases; 
         from a column in occurrences, to a new column in MoF, with the occurrence record being applied to all MoF records for that occurrence. 
         The uri for the meta file for the new column: http://rs.tdwg.org/dwc/terms/measurementDeterminedDate
+        */
+        /* task 3: occurrenceRemarks
+        http://rs.tdwg.org/dwc/terms/occurrenceRemarks - same sort of move, to a MoF column with uri http://rs.tdwg.org/dwc/terms/measurementRemarks
         */
         
     }
@@ -122,6 +120,12 @@ class MetaRecodingAPI
                     $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
                 }
                 // */
+                // /* task_3
+                if($occurrenceRemarks = @$this->oID_occurrenceRemarks[$occurrenceID]) { //task_2
+                    $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] = $occurrenceRemarks;
+                }
+                // */
+                
                 $m = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec);
                 foreach($uris as $uri) {
@@ -204,13 +208,16 @@ class MetaRecodingAPI
             if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue;
             //===========================================================================================================================================================
             if($what == 'task_1_info') {
-                if($val = $rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;   //task_1
-                if($val = $rec['http://rs.tdwg.org/dwc/terms/eventDate']) $this->oID_eventDate[$occurrenceID] = $val;               //task_2
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;    //task_1
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/eventDate']) $this->oID_eventDate[$occurrenceID] = $val;                //task_2
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']) $this->oID_occurrenceRemarks[$occurrenceID] = $val;//task_3
             }
             //===========================================================================================================================================================
             elseif($what = 'write_task_1') {
-                if(isset($rec['http://rs.tdwg.org/dwc/terms/individualCount'])) unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']); //task_1
-                if(isset($rec['http://rs.tdwg.org/dwc/terms/eventDate']))       unset($rec['http://rs.tdwg.org/dwc/terms/eventDate']);       //task_2
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/individualCount']))   unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']);  //task_1
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/eventDate']))         unset($rec['http://rs.tdwg.org/dwc/terms/eventDate']);        //task_2
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) unset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']);//task_3
+
                 // print_r($rec); exit;
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Occurrence_specific();
