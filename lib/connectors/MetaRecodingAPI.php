@@ -43,11 +43,61 @@ class MetaRecodingAPI
             /* generates $this->oID_individualCount[$occurrenceID] = $individualCount */
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_1_info');
             /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
+        // print_r($this->oID_individualCount); print_r($this->oID_mID_mOfTaxon); exit;
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_1');
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_1'); 
+
+        // self::organize_MoF_mOfTaxon_false_create_if_needed();
+    }
+    private function organize_MoF_mOfTaxon_false_create_if_needed($occurrenceID)
+    {   /*
+        $this->oID_individualCount
+        Array(
+            [12e1aea54c7d8dc661f84043155a5cde_692] => 743
+        )
+        
+        $this->oID_mID_mOfTaxon
+        Array(
+            [12e1aea54c7d8dc661f84043155a5cde_692] => Array(
+                    [701b0a2f26dc29fb010578363b0b29ef_692] => Array(
+                            [true] => 
+                        )
+                    [aa9b7b5ad7a0de7f2cf1a5a1e0795353_692] => Array(
+                            [true] => 
+                        )
+                    [db61bc0d012b92f0025972e0a96f526d_692] => Array(
+                            [true] => 
+                        )
+                    [eec24afe1ca94f9a60f3d4db85b557cb_692] => Array(
+                            [true] => 
+                        )
+                )
+        )
+        */
+        print_r($this->oID_individualCount[$occurrenceID]);
+        print_r($this->oID_mID_mOfTaxon[$occurrenceID]); //exit;
+        /*
+        child record in MoF:
+            - doesn't have: occurrenceID | measurementOfTaxon
+            - has parentMeasurementID
+            - has also a unique measurementID, as expected.
+        minimum cols on a child record in MoF
+            - measurementID
+            - measurementType
+            - measurementValue
+            - parentMeasurementID
+        */
+        /* Get mIDs, this will become parentMeasurementIDs in the new rows */
+        foreach($this->oID_individualCount as $oID => $individualCount) {
+            $mIDs = array_keys($this->oID_mID_mOfTaxon[$oID]);
+            print_r($mIDs); //exit("\nxxx\n");
+        }
+        /* Create child records */
         
     }
     private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
-        echo "\nprocess_measurementorfact...\n"; $i = 0;
+        echo "\nprocess_measurementorfact...[$what]\n"; $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
             if($meta->ignore_header_lines && $i == 1) continue;
@@ -60,6 +110,7 @@ class MetaRecodingAPI
                 $rec[$field['term']] = $tmp[$k];
                 $k++;
             } //print_r($rec); exit;
+            $rec = array_map('trim', $rec);
             /*Array(
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 701b0a2f26dc29fb010578363b0b29ef_692
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 12e1aea54c7d8dc661f84043155a5cde_692
@@ -69,9 +120,52 @@ class MetaRecodingAPI
                 [http://rs.tdwg.org/dwc/terms/measurementUnit] => http://purl.obolibrary.org/obo/UO_0000185
                 [http://eol.org/schema/terms/statisticalMethod] => http://semanticscience.org/resource/SIO_001113
             )*/
+            $measurementID = $rec['http://rs.tdwg.org/dwc/terms/measurementID'];
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            $measurementOfTaxon = $rec['http://eol.org/schema/measurementOfTaxon'];
+            if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue;
             //===========================================================================================================================================================
             if($what == 'task_1_info') {
-                continue here...
+                /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
+                if(isset($this->oID_individualCount[$occurrenceID])) {
+                    $this->oID_mID_mOfTaxon[$occurrenceID][$measurementID][$measurementOfTaxon] = '';
+                }
+            }
+            //===========================================================================================================================================================
+            if($what == 'write_task_1') {
+                $o = new \eol_schema\MeasurementOrFact_specific();
+                $uris = array_keys($rec);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
+                
+                /*
+                child record in MoF:
+                    - doesn't have: occurrenceID | measurementOfTaxon
+                    - has parentMeasurementID
+                    - has also a unique measurementID, as expected.
+                minimum cols on a child record in MoF
+                    - measurementID
+                    - measurementType
+                    - measurementValue
+                    - parentMeasurementID
+                */
+                if($individualCount = @$this->oID_individualCount[$o->occurrenceID]) {
+                    $o2 = new \eol_schema\MeasurementOrFact_specific();
+                    $rek = array();
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementID'] = md5("$o->measurementID|$individualCount|SampleSize");
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://eol.org/schema/terms/SampleSize';
+                    $rek['http://rs.tdwg.org/dwc/terms/measurementValue'] = $individualCount;
+                    $rek['http://eol.org/schema/parentMeasurementID'] = $o->measurementID;
+                    $uris = array_keys($rek);
+                    foreach($uris as $uri) {
+                        $field = pathinfo($uri, PATHINFO_BASENAME);
+                        $o2->$field = $rek[$uri];
+                    }
+                    $this->archive_builder->write_object_to_file($o2);
+                }
             }
             //===========================================================================================================================================================
             if($what == 'write') {
@@ -81,14 +175,13 @@ class MetaRecodingAPI
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $o->$field = $rec[$uri];
                 }
-
                 /* START DATA-1841 terms remapping */
                 $o = $this->func->given_m_update_mType_mValue($o);
                 // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
                 /* END DATA-1841 terms remapping */
-
                 $this->archive_builder->write_object_to_file($o);
             }
+            //===========================================================================================================================================================
             // if($i >= 10) break; //debug only
         }
     }
@@ -116,10 +209,23 @@ class MetaRecodingAPI
                 [http://rs.tdwg.org/dwc/terms/eventDate] => 1968-08-11 11:00:00+00 to 1974-01-05 11:00:00+00
                 [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
             )*/
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue;
             //===========================================================================================================================================================
             if($what == 'task_1_info') {
-                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-                if($val = $rec['[http://rs.tdwg.org/dwc/terms/individualCount]']) $this->oID_individualCount[$occurrenceID] = $val;
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;
+            }
+            //===========================================================================================================================================================
+            elseif($what = 'write_task_1') {
+                unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']);
+                print_r($rec); exit;
+                $uris = array_keys($rec);
+                $o = new \eol_schema\Occurrence_specific();
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
             }
             //===========================================================================================================================================================
             elseif($what = 'write') {
