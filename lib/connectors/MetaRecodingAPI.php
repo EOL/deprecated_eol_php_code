@@ -51,34 +51,24 @@ class MetaRecodingAPI
 
         // self::organize_MoF_mOfTaxon_false_create_if_needed();
     }
-    private function organize_MoF_mOfTaxon_false_create_if_needed($occurrenceID) //not used
-    {   /*
+    /* not used
+    private function organize_MoF_mOfTaxon_false_create_if_needed($occurrenceID)
+    {   
         $this->oID_individualCount
         Array(
             [12e1aea54c7d8dc661f84043155a5cde_692] => 743
         )
-        
         $this->oID_mID_mOfTaxon
         Array(
             [12e1aea54c7d8dc661f84043155a5cde_692] => Array(
-                    [701b0a2f26dc29fb010578363b0b29ef_692] => Array(
-                            [true] => 
-                        )
-                    [aa9b7b5ad7a0de7f2cf1a5a1e0795353_692] => Array(
-                            [true] => 
-                        )
-                    [db61bc0d012b92f0025972e0a96f526d_692] => Array(
-                            [true] => 
-                        )
-                    [eec24afe1ca94f9a60f3d4db85b557cb_692] => Array(
-                            [true] => 
-                        )
+                    [701b0a2f26dc29fb010578363b0b29ef_692] => Array([true] => )
+                    [aa9b7b5ad7a0de7f2cf1a5a1e0795353_692] => Array([true] => )
+                    [db61bc0d012b92f0025972e0a96f526d_692] => Array([true] => )
+                    [eec24afe1ca94f9a60f3d4db85b557cb_692] => Array([true] => )
                 )
         )
-        */
         print_r($this->oID_individualCount[$occurrenceID]);
         print_r($this->oID_mID_mOfTaxon[$occurrenceID]); //exit;
-        /*
         child record in MoF:
             - doesn't have: occurrenceID | measurementOfTaxon
             - has parentMeasurementID
@@ -88,15 +78,7 @@ class MetaRecodingAPI
             - measurementType
             - measurementValue
             - parentMeasurementID
-        */
-        /* Get mIDs, this will become parentMeasurementIDs in the new rows */
-        foreach($this->oID_individualCount as $oID => $individualCount) {
-            $mIDs = array_keys($this->oID_mID_mOfTaxon[$oID]);
-            print_r($mIDs); //exit("\nxxx\n");
-        }
-        /* Create child records */
-        
-    }
+    } */
     private function process_measurementorfact($meta, $what)
     {   //print_r($meta);
         echo "\nprocess_measurementorfact...[$what]\n"; $i = 0;
