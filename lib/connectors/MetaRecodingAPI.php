@@ -117,13 +117,13 @@ class MetaRecodingAPI
             }
             //===========================================================================================================================================================
             if($what == 'write_task_1') {
-                $m = new \eol_schema\MeasurementOrFact_specific();
-                $uris = array_keys($rec);
                 // /* task_2
-                if($eventDate = @$this->oID_eventDate[$$occurrenceID]) { //task_2
+                if($eventDate = @$this->oID_eventDate[$occurrenceID]) { //task_2
                     $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
                 }
                 // */
+                $m = new \eol_schema\MeasurementOrFact_specific();
+                $uris = array_keys($rec);
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $m->$field = $rec[$uri];
@@ -209,7 +209,8 @@ class MetaRecodingAPI
             }
             //===========================================================================================================================================================
             elseif($what = 'write_task_1') {
-                unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']);
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/individualCount'])) unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']); //task_1
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/eventDate']))       unset($rec['http://rs.tdwg.org/dwc/terms/eventDate']);       //task_2
                 // print_r($rec); exit;
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Occurrence_specific();
