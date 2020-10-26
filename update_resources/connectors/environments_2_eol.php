@@ -4,7 +4,7 @@ namespace php_active_record;
 Next step now is to combine all the steps within a general connector:
 1. read any EOL DwCA resource (with text objects)
 2. generate individual txt files for the articles with filename convention.
-3. run environment_tagger against these text files
+3. run environment_tagger (or Pensoft annotator) against these text files
 4. generate the raw file: eol_tags_noParentTerms.tsv
 5. generate the updated DwCA resource, now with Trait data from Environments
     5.1 append in MoF the new environments trait data
@@ -40,6 +40,13 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
 -> generates wikipedia_en_traits.tar.gz
 ================================================== Vangelis tagger END
+
+================================================== Pensoft annotator START
+Implementation: Jenkins
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
+-> generates 617_ENV.tar.gz
+================================================== Pensoft annotator END
+
 
 
 ## different DwCA to submit for Wikipedia EN
@@ -81,6 +88,8 @@ $param                     = json_decode(@$argv[2], true);
 $task = $param['task'];
 $resource = @$param['resource'];
 
+// echo "\n". urlencode("https://en.wikipedia.org/wiki/Atlantic(cod)"); exit;
+
 /* during development only. Not part of main operation
 require_library('connectors/Environments2EOLAPI');
 $func = new Environments2EOLAPI($param);
@@ -89,11 +98,17 @@ $func->clean_noParentTerms(); //works OK
 exit("\n-end-\n");
 */
 
-if($task == 'generate_eol_tags') {                      //step 1
+if($task == 'generate_eol_tags') {                      //step 1            this will become OBSOLETE
     $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
     require_library('connectors/Environments2EOLAPI');
     $func = new Environments2EOLAPI($param);
     $func->generate_eol_tags($resource);
+}
+elseif($task == 'generate_eol_tags_pensoft') {          //step 1
+    $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
+    require_library('connectors/Pensoft2EOLAPI');
+    $func = new Pensoft2EOLAPI($param);
+    $func->generate_eol_tags_pensoft($resource);
 }
 elseif($task == 'apply_formats_filters') {              //step 2
     $param['resource_id'] .= "_ENVO";
