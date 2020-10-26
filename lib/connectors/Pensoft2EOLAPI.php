@@ -441,8 +441,8 @@ class Pensoft2EOLAPI
                 )
         */
         foreach($arr as $rek) {
-            // if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
-            $this->results[$rek['id']] = $rek['lbl'];
+            if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
+            // $this->results[$rek['id']] = $rek['lbl'];
         }
     }
     private function retrieve_json($id, $what, $desc)
