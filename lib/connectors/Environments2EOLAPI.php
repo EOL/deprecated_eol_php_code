@@ -2,9 +2,10 @@
 namespace php_active_record;
 /* connector: [environments_2_eol.php] 
 
+This is for Vangelis tagger. While Pensoft2EOLAPI.php is for Pensoft annotator.
+
 https://opendata.eol.org/api/3/action/resource_search?query=name:AmphibiaWeb%20text
 https://opendata.eol.org/api/3/action/resource_show?id=639efbfb-3b79-49e7-894f-50df4fa25da8
-
 */
 class Environments2EOLAPI
 {
