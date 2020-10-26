@@ -44,6 +44,10 @@ php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "
 ================================================== Pensoft annotator START
 Implementation: Jenkins
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Distribution"}'
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"TaxonBiology"}'
+
+
 -> generates 617_ENV.tar.gz
 ================================================== Pensoft annotator END
 

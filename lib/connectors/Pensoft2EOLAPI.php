@@ -36,9 +36,12 @@ class Pensoft2EOLAPI
         $this->eol_tags_destination = $this->eol_tags_path.'eol_tags.tsv';
         $this->json_temp_path['agent'] = $this->root_path.'json_agent/';
         $this->json_temp_path['annotation'] = $this->root_path.'json_annotation/';
+        $this->json_temp_path['partial'] = $this->root_path.'json_partial/'; //for partial, every 2000 chars long
+        
         
         if(!is_dir($this->json_temp_path['agent'])) mkdir($this->json_temp_path['agent']);
         if(!is_dir($this->json_temp_path['annotation'])) mkdir($this->json_temp_path['annotation']);
+        if(!is_dir($this->json_temp_path['partial'])) mkdir($this->json_temp_path['partial']);
         
         /*-----------------------Others---------------------*/
         $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
@@ -323,6 +326,8 @@ class Pensoft2EOLAPI
                 $k++;
             }
             // print_r($rec); exit("\n[1]\n");
+
+            if($i != 2) continue; //debug only
             if(self::valid_record($rec)) {
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
@@ -332,8 +337,9 @@ class Pensoft2EOLAPI
                     self::run_environment_tagger();
                     $saved = 0;
                 }
+                // exit("\nstop muna\n");
             }
-            if($i >= 5) break; //debug only
+            if($i >= 2) break; //debug only
         }
         echo "\nLast round...\n";
         echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nShould be NOT empty - OK ";
@@ -356,6 +362,7 @@ class Pensoft2EOLAPI
         [http://eol.org/schema/agent/agentID] => 40dafcb8c613187d62bc1033004b43b9
         [http://eol.org/schema/reference/referenceID] => d08a99802fc760abbbfc178a391f9336; 8d5b9dee4f523c6243387c962196b8e0; 4d496c9853b52d6d4ee443b4a6103cca
         )*/
+        // exit("\n".$rec['http://rs.tdwg.org/dwc/terms/taxonID']."\n");
         $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
         $file = $this->text_data_path.$basename.".txt";
         // if($f = Functions::file_open($file, "w")) {
@@ -364,20 +371,71 @@ class Pensoft2EOLAPI
             $desc = trim(Functions::remove_whitespace($desc));
             self::retrieve_annotation($basename, $desc);
 
-
             // fwrite($f, $basename."\n".$desc."\n");
             // fclose($f);
         // }
     }
     private function retrieve_annotation($id, $desc)
     {
-        if($arr = self::retrieve_json($id, 'annotation', $desc)) {
-            print_r($arr); exit("\nretrieved OK\n");
+        $all_annot = self::run_annotation($desc);
+        exit("\nGenerated all OK\n");
+    }
+    private function run_annotation($desc)
+    {
+        $len = strlen($desc);
+        $loops = $len/2000; echo("\n[$loops]\n");
+        $loops = ceil($loops);
+        $ctr = 0;
+        for($loop = 1; $loop <= $loops; $loop++) { echo "\n[$loop]";
+            $str = substr($desc, $ctr, 2000);
+            $str = utf8_encode($str);
+            // if($loop == 29) exit("\n--------\n[$str]\n---------\n");
+            $id = md5($str);
+            //----------------
+            self::retrieve_partial($id, $str, $loop);
+            //----------------
+            $ctr = $ctr + 2000;
+        }
+        print_r($this->results);
+        exit("\n[$loops]\n");
+    }
+    private function retrieve_partial($id, $desc, $loop)
+    {
+        if($arr = self::retrieve_json($id, 'partial', $desc)) {
+            // if($loop == 29) {
+                // print_r($arr['data']); //exit;
+            // }
+            self::select_envo($arr['data']);
+            echo("\nretrieved partial OK\n"); //exit;
         }
         else {
-            $json = self::run_annotation($desc);
-            self::save_json($id, $json, 'annotation');
-            exit("\nSaved OK\n");
+            if($json = self::run_partial($desc)) {
+                self::save_json($id, $json, 'partial');
+                echo("\nSaved partial OK\n"); //exit;
+                // exit("\n[$json]\n");
+            }
+            else echo " -- nothing to save..."; //doesn't go here
+        }
+    }
+    private function select_envo($arr)
+    {   
+        /*Array(
+            [0] => Array(
+                    [id] => http://purl.obolibrary.org/obo/ENVO_00000083
+                    [lbl] => Hill
+                    [context] => 2015. ^ Patterson, B. D. (2004). The Lions of Tsavo: Exploring the Legacy of Africa's Notorious Man-Eaters. New York: McGraw <b>Hill</b> Professional. ISBN 978-0-07-136333-4. ^ Patterson, B. D.; Neiburger, E. J.; Kasiki, S. M. (2003). 2.0.CO;2 "Tooth Breakage and Dental Disease
+                    [length] => 4
+                    [position] => 877
+                    [ontology] => envo
+                    [type] => CLASS
+                    [is_synonym] => 
+                    [color] => #F7F3E3
+                    [is_word] => 1
+                    [hash] => dda9a35f1c55d220ce83d768af23bfd5
+                )
+        */
+        foreach($arr as $rek) {
+            if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
         }
     }
     private function retrieve_json($id, $what, $desc)
@@ -389,33 +447,15 @@ class Pensoft2EOLAPI
             return json_decode($json, true);
         }
     }
-    private function run_annotation($desc)
-    {
-        $len = strlen($desc);
-        $loops = $len/2000;
-        echo("\n[$loops]\n");
-        $loops = ceil($loops);
-        exit("\n[$loops]\n");
-        
-        // $desc = str_replace(" ", "%20", $desc);
-        // $desc = str_replace("(", "\(", $desc);
-        // $desc = str_replace(")", "\)", $desc);
-        
-        $desc = substr($desc,0,2000);
-        // $json = shell_exec('curl -s -i -X GET "http://api.pensoft.net/annotator?text='.$desc.'&ontologies=ro,envo" > /dev/null');
-        // $json = shell_exec('curl --silent --output /dev/null GET "http://api.pensoft.net/annotator?text='.$desc.'&ontologies=ro,envo"');
-
+    private function run_partial($desc)
+    {   sleep(2);
+        echo "\nRunning Pensoft annotator...";
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"';
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
-        echo "\n$desc\n---------\n$json\n-------------\n"; //exit("\n111\n");
+        // echo "\n$desc\n---------";
+        // echo "\n$json\n-------------\n"; //exit("\n111\n");
         return $json;
-        
-        // $cmd = '/usr/bin/curl -I -X POST -H "'.JENKINS_CRUMB.'" http://'.JENKINS_USER_TOKEN.'@'.JENKINS_DOMAIN.'/job/'.JENKINS_FOLDER.'/job/'.$jenkins_job.'/buildWithParameters?myShell='.urlencode($cmd);
-        // $cmd .= " 2>&1";
-        // return $c;
-        
-        
     }
     private function retrieve_path($id, $what) //$id is "$taxonID_$identifier"
     {
