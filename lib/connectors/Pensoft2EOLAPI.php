@@ -327,7 +327,12 @@ class Pensoft2EOLAPI
             }
             // print_r($rec); exit("\n[1]\n");
 
-            if($i != 2) continue; //debug only
+            // if($i != 4) continue; //debug only
+            
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            if($taxonID != 'Q1000262') continue; //debug only
+            
+            
             if(self::valid_record($rec)) {
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
@@ -339,7 +344,7 @@ class Pensoft2EOLAPI
                 }
                 // exit("\nstop muna\n");
             }
-            if($i >= 2) break; //debug only
+            // if($i >= 5) break; //debug only
         }
         echo "\nLast round...\n";
         echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nShould be NOT empty - OK ";
@@ -362,7 +367,8 @@ class Pensoft2EOLAPI
         [http://eol.org/schema/agent/agentID] => 40dafcb8c613187d62bc1033004b43b9
         [http://eol.org/schema/reference/referenceID] => d08a99802fc760abbbfc178a391f9336; 8d5b9dee4f523c6243387c962196b8e0; 4d496c9853b52d6d4ee443b4a6103cca
         )*/
-        // exit("\n".$rec['http://rs.tdwg.org/dwc/terms/taxonID']."\n");
+
+        // exit("\ntaxonID: ".$rec['http://rs.tdwg.org/dwc/terms/taxonID']."\n"); //debug only
         $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
         $file = $this->text_data_path.$basename.".txt";
         // if($f = Functions::file_open($file, "w")) {
@@ -378,7 +384,7 @@ class Pensoft2EOLAPI
     private function retrieve_annotation($id, $desc)
     {
         $all_annot = self::run_annotation($desc);
-        exit("\nGenerated all OK\n");
+        // exit("\nGenerated all OK\n");
     }
     private function run_annotation($desc)
     {
@@ -397,7 +403,7 @@ class Pensoft2EOLAPI
             $ctr = $ctr + 2000;
         }
         print_r($this->results);
-        exit("\n[$loops]\n");
+        // exit("\n[$loops]\n");
     }
     private function retrieve_partial($id, $desc, $loop)
     {
@@ -435,7 +441,8 @@ class Pensoft2EOLAPI
                 )
         */
         foreach($arr as $rek) {
-            if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
+            // if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
+            $this->results[$rek['id']] = $rek['lbl'];
         }
     }
     private function retrieve_json($id, $what, $desc)
