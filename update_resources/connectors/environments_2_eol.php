@@ -25,6 +25,7 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 21_final	Mon 2020-09-14 04:24:19 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.69, "min":0.79, "hr":0.01}}
 21_final	Mon 2020-09-14 12:23:34 PM	{"agent.tab":743, "measurement_or_fact.tab":7094, "media_resource.tab":8138, "occurrence.tab":7094, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.03, "min":0.78, "hr":0.01}}
 
+================================================== Vangelis tagger START
 Implementation: Jenkins
 cd /u/scripts/eol_php_code/
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
@@ -38,8 +39,10 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 ## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
 php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
 -> generates wikipedia_en_traits.tar.gz
+================================================== Vangelis tagger END
 
-## diff. DwCA to submit for Wikipedia EN
+
+## different DwCA to submit for Wikipedia EN
 cd /u/scripts/eol_php_code/applications/content_server/resources/
 sshpass -f "/home/eagbayani/.pwd_file" scp wikipedia_en_traits.tar.gz eagbayani@eol-archive:/extra/eol_php_resources/.
 #ends here...
