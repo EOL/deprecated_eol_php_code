@@ -271,7 +271,7 @@ class Pensoft2EOLAPI
         $loops = $len/2000; echo("\n\n[$loops]");
         $loops = ceil($loops);
         $ctr = 0;
-        for($loop = 1; $loop <= $loops; $loop++) { echo "\n[$loop of $loops]";
+        for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
             $str = substr($desc, $ctr, 2000);
             $str = utf8_encode($str);
             // if($loop == 29) exit("\n--------\n[$str]\n---------\n");
