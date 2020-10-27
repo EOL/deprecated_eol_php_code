@@ -14,7 +14,7 @@ class Pensoft2EOLAPI
     function __construct($param)
     {
         $this->param = $param; // print_r($param); exit;
-        if($param['resource_id'] == '617_ENV') $this->modulo = 50000; //Wikipedia EN
+        if($param['resource_id'] == '617_ENV') $this->modulo = 100; //50000; //Wikipedia EN
         else                                   $this->modulo = 1000;
         /*-----------------------Resources-------------------*/
         // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
@@ -225,7 +225,7 @@ class Pensoft2EOLAPI
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
-            if($i >= 20) break; //debug only
+            // if($i >= 20) break; //debug only
         }
     }
     private function save_article_2_txtfile($rec)
@@ -268,7 +268,7 @@ class Pensoft2EOLAPI
     private function retrieve_annotation($id, $desc)
     {
         $len = strlen($desc);
-        $loops = $len/2000; echo("\n\n[$loops]");
+        $loops = $len/2000; //echo("\n\n[$loops]");
         $loops = ceil($loops);
         $ctr = 0;
         for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
