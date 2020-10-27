@@ -279,7 +279,7 @@ class Pensoft2EOLAPI
             self::retrieve_partial($id, $str, $loop);
             $ctr = $ctr + 2000;
         }
-        print_r($this->results);
+        // print_r($this->results);
         // exit("\n[$loops]\n");
     }
     private function retrieve_partial($id, $desc, $loop)
@@ -287,16 +287,16 @@ class Pensoft2EOLAPI
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
             self::select_envo($arr['data']);
-            echo("\nretrieved partial OK\n"); //good debug
+            // echo("\nretrieved partial OK\n"); //good debug
         }
         else {
             if($json = self::run_partial($desc)) {
                 self::save_json($id, $json, 'partial');
-                echo("\nSaved partial OK\n"); // exit("\n[$json]\n");
+                // echo("\nSaved partial OK\n"); //good debug
                 /* now start access newly created. The var $this->results should be populated. */
                 if($arr = self::retrieve_json($id, 'partial', $desc)) {
                     self::select_envo($arr['data']);
-                    echo("\nretrieved (newly created) partial OK\n"); //good debug
+                    // echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
                 else exit("\nShould not go here, since record should be created now.\n");
             }
