@@ -335,7 +335,7 @@ class Pensoft2EOLAPI
     }
     private function run_partial($desc)
     {   sleep(2);
-        echo "\nRunning Pensoft annotator...";
+        // echo "\nRunning Pensoft annotator...";
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"';
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
