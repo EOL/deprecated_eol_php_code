@@ -67,7 +67,7 @@ class Pensoft2EOLAPI
         // These 3 may not be needed anymore for Pensoft
         // self::clean_eol_tags_tsv(); //remove rows with author-like strings e.g. "Hill S", "Urbani C"
         // self::gen_noParentTerms();
-        // self::clean_noParentTerms();
+        // self::clean_noParentTerms(); //concatenate e.g. "cliff|cliffs"
         
         // */
         /* ----- stat 2nd part ----- */
@@ -98,10 +98,10 @@ class Pensoft2EOLAPI
         // exit("\nstop muna - used in debugging\n");
 
         /* 4th part */
-        // if(is_dir($this->json_temp_path)) {
-        //     recursive_rmdir($this->json_temp_path);
-        //     mkdir($this->json_temp_path);
-        // }
+        if(is_dir($this->json_temp_path['metadata'])) {
+            recursive_rmdir($this->json_temp_path['metadata']);
+            mkdir($this->json_temp_path['metadata']);
+        }
     }
     function clean_eol_tags_tsv()
     {   echo "\nCleaning eol_tags.tsv...\n";
@@ -152,123 +152,6 @@ class Pensoft2EOLAPI
         }
         return true;
     }
-    function clean_noParentTerms()
-    {   echo "\nCleaning noParentTerms...\n";
-        /*[http://purl.obolibrary.org/obo/ENVO_00000887]Array
-            [source text: "Rivers"] => 
-            [source text: "large rivers"] => 
-            [source text: "Large River"] => 
-            [source text: "Large rivers"] => 
-            [source text: "large river"] => 
-            [source text: "Large Rivers"] => 
-            [source text: "large-river"] => 
-        step 1: build info-list
-        step 2: loop eol_tags_noParentTerms, exclude taxa included in info-list. But adding a single entry with concatenated strings.
-        */
-        
-        /* step 1: build info-list */
-        if(copy($this->eol_tags_path."eol_tags_noParentTerms.tsv", $this->eol_tags_path."eol_tags_noParentTerms.tsv.old")) echo "\nCopied OK (eol_tags_noParentTerms.tsv)\n";
-        else exit("\nERROR: Copy failed (eol_tags_noParentTerms.tsv)\n");
-        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w"); fclose($f);
-        $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
-        foreach(new FileIterator($file) as $line => $row) {
-            $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
-            if(!$row) continue;
-            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
-            $tmp = explode("\t", $row);
-            // print_r($tmp); //exit;
-            /*Array(
-                [0] => Q1000017_-_80cbe8729bb9d396571de120c10be4fe.txt
-                [1] => 509
-                [2] => 517
-                [3] => temperate
-                [4] => ENVO:01000206
-            )*/
-            $env_str = $tmp[3];
-            $arr = explode('_-_', $tmp[0]);
-            $taxon_id = $arr[0];
-            $envo_term = $tmp[4];
-            $info_list[$taxon_id][$envo_term][$env_str] = '';
-            $taxa_terms_id[$taxon_id][$envo_term]['id'] = $tmp[0];
-        }
-        /* $info_list 
-        [Q1767886] => Array(
-                    [ENVO:00002040] => Array(
-                            [wood] => 
-                        )
-                    [ENVO:00000098] => Array(
-                            [islands] => 
-                            [island] => 
-                            [Islands] => 
-                        )
-        */
-        // print_r($info_list); exit;
-        /* generate info_list2 using info_list */
-        foreach($info_list as $taxon_id => $arr) { // echo "\n$taxon_id";
-            foreach($arr as $term => $strings) {
-                if(count($strings) > 1) { // echo "\n$term"; print_r($strings);
-                    $arr_strings = array_keys($strings);
-                    $info_list2[$taxon_id][$term] = implode("|", $arr_strings);
-                }
-            }
-        }
-        // print_r($info_list2); exit;
-        /*[Q942604] => Array(
-                    [ENVO:00000182] => Plateau|highlands
-                    [ENVO:00000300] => scrub|Scrub
-                    [ENVO:01000176] => scrub|Scrub
-                )
-        */
-        // step 2: loop eol_tags_noParentTerms, exclude taxa included in info-list2. But adding a single entry with concatenated strings.
-        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w");
-        $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
-        foreach(new FileIterator($file) as $line => $row) {
-            $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
-            if(!$row) continue;
-            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
-            $tmp = explode("\t", $row);
-            // print_r($tmp); //exit;
-            /*Array(
-                [0] => Q1000017_-_80cbe8729bb9d396571de120c10be4fe.txt
-                [1] => 509
-                [2] => 517
-                [3] => temperate
-                [4] => ENVO:01000206
-            )*/
-            $arr = explode('_-_', $tmp[0]);
-            $taxon_id = $arr[0];
-            $env_str = $tmp[3];
-            $envo_term = $tmp[4];
-            if(isset($info_list2[$taxon_id][$envo_term])) continue; //exclude multiple records. Will add 1 record below
-            else {
-                if(!isset($unique[$taxon_id][$envo_term][$env_str])) {
-                    fwrite($f, $row."\n");
-                    $unique[$taxon_id][$envo_term][$env_str] = '';
-                }
-            }
-        }
-        fclose($f);
-
-        /* last step: add those concatenated strings, writing to eol_tags_noParentTerms.tsv now */
-        /* $info_list2
-            [Q942604] => Array(
-                    [ENVO:00000182] => Plateau|highlands
-                    [ENVO:00000300] => scrub|Scrub
-                    [ENVO:01000176] => scrub|Scrub
-                )
-        */
-        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
-        foreach($info_list2 as $taxon_id => $arr) {
-            foreach($arr as $envo_term => $concatenated) {
-                $id = $taxa_terms_id[$taxon_id][$envo_term]['id'];
-                $input = array($id, "", "", $concatenated, $envo_term);
-                fwrite($f, implode("\t", $input)."\n");
-            }
-        }
-        fclose($f);
-        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n2. eol_tags_noParentTerms.tsv.old ($out)\n";
-        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n2. eol_tags_noParentTerms.tsv ($out)\n";
-    }
     private function initialize_files()
     {
         // /* copied template, not needed in Pensoft yet
@@ -289,16 +172,16 @@ class Pensoft2EOLAPI
     }
     private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   
-        /* un-comment in real operation
+        // /* un-comment in real operation
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
         $paths = $func->extract_archive_file($this->DwCA_URLs[$resource], "meta.xml", $download_options); //true 'expire_seconds' means it will re-download, will NOT use cache. Set TRUE when developing
-        print_r($paths); exit("\n-exit muna-\n");
-        */
-        // /* development only
+        print_r($paths); //exit("\n-exit muna-\n");
+        // */
+        /* development only
         $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_03111/",
                        "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_03111/");
-        // */
+        */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
         $harvester = new ContentArchiveReader(NULL, $archive_path);
@@ -313,7 +196,7 @@ class Pensoft2EOLAPI
     private function process_table($meta) //generates individual text files & runs environment tagger
     {   //print_r($meta);
         echo "\nprocess media tab...\n";
-        echo "\nRun run_environment_tagger()...every $this->num_of_saved_recs_bef_run_tagger records.\n";
+        echo "\nRun Pensoft annotator...\n";
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % $this->modulo) == 0) echo "\n".number_format($i);
@@ -396,7 +279,7 @@ class Pensoft2EOLAPI
             self::retrieve_partial($id, $str, $loop);
             $ctr = $ctr + 2000;
         }
-        // print_r($this->results);
+        print_r($this->results);
         // exit("\n[$loops]\n");
     }
     private function retrieve_partial($id, $desc, $loop)
@@ -480,18 +363,6 @@ class Pensoft2EOLAPI
         if(!file_exists($this->json_temp_path[$what] . $cache1)) mkdir($this->json_temp_path[$what] . $cache1);
         if(!file_exists($this->json_temp_path[$what] . "$cache1/$cache2")) mkdir($this->json_temp_path[$what] . "$cache1/$cache2");
         return $this->json_temp_path[$what] . "$cache1/$cache2/$filename";
-    }
-    private function run_environment_tagger()
-    {   exit("\ndoes not go here anymore...\n");
-        $current_dir = getcwd(); //get current dir
-        chdir($this->eol_tagger_path);
-        /*
-        ./environments_tagger /u/scripts/vangelis_tagger/test_text_data/ &> /u/scripts/vangelis_tagger/eol_tags/eol_tags.tsv
-        */
-        $cmd = "./environments_tagger $this->text_data_path &>> $this->eol_tags_destination";
-        shell_exec($cmd);
-        chdir($current_dir); //go back to current dir
-        Functions::delete_temp_files($this->text_data_path, 'txt'); //un-comment in real operation
     }
     private function gen_noParentTerms()
     {   echo "\nRun gen_noParentTerms()...\n";
