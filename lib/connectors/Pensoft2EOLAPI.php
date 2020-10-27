@@ -38,10 +38,10 @@ class Pensoft2EOLAPI
         $this->json_temp_path['annotation'] = $this->root_path.'json_annotation/';
         $this->json_temp_path['partial'] = $this->root_path.'json_partial/'; //for partial, every 2000 chars long
         
-        
         if(!is_dir($this->json_temp_path['agent'])) mkdir($this->json_temp_path['agent']);
         if(!is_dir($this->json_temp_path['annotation'])) mkdir($this->json_temp_path['annotation']);
         if(!is_dir($this->json_temp_path['partial'])) mkdir($this->json_temp_path['partial']);
+        if(!is_dir($this->eol_tags_path)) mkdir($this->eol_tags_path);
         
         /*-----------------------Others---------------------*/
         $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
@@ -61,7 +61,7 @@ class Pensoft2EOLAPI
         print_r(array_keys($tables)); //exit;
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
-        // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
+        exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
         print_r($this->debug);
         
         // These 3 may not be needed anymore for Pensoft
@@ -270,7 +270,7 @@ class Pensoft2EOLAPI
     }
     private function initialize_files()
     {
-        /* copied template, not needed in Pensoft yet
+        // /* copied template, not needed in Pensoft yet
         $files = array($this->eol_tags_destination, $this->eol_tags_path.'eol_tags_noParentTerms.tsv');
         foreach($files as $file) {
             if($f = Functions::file_open($file, "w")) {
@@ -278,7 +278,7 @@ class Pensoft2EOLAPI
                 echo "\nFile truncated: [$file]\n";
             }
         }
-        */
+        // */
         if(is_dir($this->json_temp_path['agent'])) {
             recursive_rmdir($this->json_temp_path['agent']);
             mkdir($this->json_temp_path['agent']);
@@ -338,19 +338,10 @@ class Pensoft2EOLAPI
                 $saved++;
                 $this->results = array();
                 self::save_article_2_txtfile($rec);
-                if($saved == $this->num_of_saved_recs_bef_run_tagger) {
-                    self::run_environment_tagger();
-                    $saved = 0;
-                }
                 // exit("\nstop muna\n");
             }
-            if($i >= 5) break; //debug only
+            if($i >= 6) break; //debug only
         }
-        echo "\nLast round...\n";
-        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nShould be NOT empty - OK ";
-        echo "\nRun run_environment_tagger()...";
-        self::run_environment_tagger(); //process remaining txt files.
-        echo (count(glob("$this->text_data_path/*")) === 0) ? "\nShould be empty - OK\n" : "\nNot empty!\n";
     }
     private function save_article_2_txtfile($rec)
     {   /* Array(
@@ -370,34 +361,40 @@ class Pensoft2EOLAPI
 
         // exit("\ntaxonID: ".$rec['http://rs.tdwg.org/dwc/terms/taxonID']."\n"); //debug only
         $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
-        $file = $this->text_data_path.$basename.".txt";
-        // if($f = Functions::file_open($file, "w")) {
-
-            $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
-            $desc = trim(Functions::remove_whitespace($desc));
-            self::retrieve_annotation($basename, $desc);
-
-            // fwrite($f, $basename."\n".$desc."\n");
-            // fclose($f);
-        // }
+        $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
+        $desc = trim(Functions::remove_whitespace($desc));
+        self::retrieve_annotation($basename, $desc);
+        self::write_to_pensoft_tags($basename);
+    }
+    private function write_to_pensoft_tags($basename)
+    {
+        $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv";
+        if($f = Functions::file_open($file, "a")) {
+            /*Array( [http://purl.obolibrary.org/obo/ENVO_00002011] => freshwater
+                     [http://purl.obolibrary.org/obo/ENVO_00000026] => well
+            )*/
+            foreach($this->results as $uri => $label) {
+                $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME));
+                fwrite($f, implode("\t", $arr)."\n");
+            }
+            fclose($f);
+        }
     }
     private function retrieve_annotation($id, $desc)
     {
         $len = strlen($desc);
-        $loops = $len/2000; echo("\n[$loops]\n");
+        $loops = $len/2000; echo("\n\n[$loops]");
         $loops = ceil($loops);
         $ctr = 0;
-        for($loop = 1; $loop <= $loops; $loop++) { echo "\n[$loop]";
+        for($loop = 1; $loop <= $loops; $loop++) { echo "\n[$loop of $loops]";
             $str = substr($desc, $ctr, 2000);
             $str = utf8_encode($str);
             // if($loop == 29) exit("\n--------\n[$str]\n---------\n");
             $id = md5($str);
-            //----------------
             self::retrieve_partial($id, $str, $loop);
-            //----------------
             $ctr = $ctr + 2000;
         }
-        print_r($this->results);
+        // print_r($this->results);
         // exit("\n[$loops]\n");
     }
     private function retrieve_partial($id, $desc, $loop)
@@ -405,20 +402,18 @@ class Pensoft2EOLAPI
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
             self::select_envo($arr['data']);
-            echo("\nretrieved partial OK\n"); //exit;
+            // echo("\nretrieved partial OK\n"); //exit;
         }
         else {
             if($json = self::run_partial($desc)) {
                 self::save_json($id, $json, 'partial');
-                echo("\nSaved partial OK\n"); //exit;
-                // exit("\n[$json]\n");
+                echo("\nSaved partial OK\n"); // exit("\n[$json]\n");
             }
             else exit(" -- nothing to save..."); //doesn't go here
         }
     }
     private function select_envo($arr)
-    {   
-        /*Array(
+    {   /*Array(
             [0] => Array(
                     [id] => http://purl.obolibrary.org/obo/ENVO_00000083
                     [lbl] => Hill
@@ -441,7 +436,7 @@ class Pensoft2EOLAPI
     private function retrieve_json($id, $what, $desc)
     {
         $file = self::retrieve_path($id, $what);
-        echo "\nfile = [$file]\n";
+        // echo "\nfile = [$file]\n"; //good debug
         if(is_file($file)) {
             $json = file_get_contents($file); // echo "\nRetrieved OK [$id]";
             return json_decode($json, true);
