@@ -29,17 +29,17 @@ class Pensoft2EOLAPI
         /*-----------------------Paths----------------------*/
         if(Functions::is_production()) $this->root_path = '/var/www/html/Pensoft_annotator/';
         else                           $this->root_path = '/Library/WebServer/Documents/Pensoft_annotator/';
+        /*
         $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
         $this->text_data_path       = $this->root_path.'test_text_data/';
         $this->eol_scripts_path     = $this->root_path.'eol_scripts/';
+        */
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
         $this->eol_tags_destination = $this->eol_tags_path.'eol_tags.tsv';
-        $this->json_temp_path['metadata'] = $this->root_path.'json_agent/';
-        // $this->json_temp_path['annotation'] = $this->root_path.'json_annotation/';
+        $this->json_temp_path['metadata'] = $this->root_path.'temp_json/';
         $this->json_temp_path['partial'] = $this->root_path.'json_partial/'; //for partial, every 2000 chars long
         
         if(!is_dir($this->json_temp_path['metadata'])) mkdir($this->json_temp_path['metadata']);
-        // if(!is_dir($this->json_temp_path['annotation'])) mkdir($this->json_temp_path['annotation']);
         if(!is_dir($this->json_temp_path['partial'])) mkdir($this->json_temp_path['partial']);
         if(!is_dir($this->eol_tags_path)) mkdir($this->eol_tags_path);
         
@@ -272,7 +272,8 @@ class Pensoft2EOLAPI
     private function initialize_files()
     {
         // /* copied template, not needed in Pensoft yet
-        $files = array($this->eol_tags_destination, $this->eol_tags_path.'eol_tags_noParentTerms.tsv');
+        $files = array($this->eol_tags_destination, $this->eol_tags_path.'eol_tags_noParentTerms.tsv');     //Vangelis tagger
+        $files = array($this->eol_tags_path.'eol_tags_noParentTerms.tsv');                                  //Pensoft annotator
         foreach($files as $file) {
             if($f = Functions::file_open($file, "w")) {
                 fclose($f);
@@ -295,8 +296,8 @@ class Pensoft2EOLAPI
         print_r($paths); exit("\n-exit muna-\n");
         */
         // /* development only
-        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_28795/",
-                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_28795/");
+        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_03111/",
+                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_03111/");
         // */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
