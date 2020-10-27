@@ -225,7 +225,7 @@ class Pensoft2EOLAPI
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
-            if($i >= 6) break; //debug only
+            if($i >= 20) break; //debug only
         }
     }
     private function save_article_2_txtfile($rec)
@@ -287,12 +287,18 @@ class Pensoft2EOLAPI
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
             self::select_envo($arr['data']);
-            // echo("\nretrieved partial OK\n"); //exit;
+            // echo("\nretrieved partial OK\n"); //good debug
         }
         else {
             if($json = self::run_partial($desc)) {
                 self::save_json($id, $json, 'partial');
                 echo("\nSaved partial OK\n"); // exit("\n[$json]\n");
+                /* now start access newly created. The var $this->results should be populated. */
+                if($arr = self::retrieve_json($id, 'partial', $desc)) {
+                    self::select_envo($arr['data']);
+                    // echo("\nretrieved (newly created) partial OK\n"); //good debug
+                }
+                else exit("\nShould not go here, since record should be created now.\n");
             }
             else exit(" -- nothing to save..."); //doesn't go here
         }
