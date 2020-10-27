@@ -330,13 +330,13 @@ class Pensoft2EOLAPI
             // if($i != 4) continue; //debug only
             
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            if($taxonID != 'Q1000262') continue; //debug only
-            
+            // if($taxonID != 'Q1000262') continue; //debug only
             
             if(self::valid_record($rec)) {
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
                 $saved++;
+                $this->results = array();
                 self::save_article_2_txtfile($rec);
                 if($saved == $this->num_of_saved_recs_bef_run_tagger) {
                     self::run_environment_tagger();
@@ -344,7 +344,7 @@ class Pensoft2EOLAPI
                 }
                 // exit("\nstop muna\n");
             }
-            // if($i >= 5) break; //debug only
+            if($i >= 5) break; //debug only
         }
         echo "\nLast round...\n";
         echo (count(glob("$this->text_data_path/*")) === 0) ? "\nEmpty!" : "\nShould be NOT empty - OK ";
@@ -383,11 +383,6 @@ class Pensoft2EOLAPI
     }
     private function retrieve_annotation($id, $desc)
     {
-        $all_annot = self::run_annotation($desc);
-        // exit("\nGenerated all OK\n");
-    }
-    private function run_annotation($desc)
-    {
         $len = strlen($desc);
         $loops = $len/2000; echo("\n[$loops]\n");
         $loops = ceil($loops);
@@ -408,9 +403,7 @@ class Pensoft2EOLAPI
     private function retrieve_partial($id, $desc, $loop)
     {
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
-            // if($loop == 29) {
-                // print_r($arr['data']); //exit;
-            // }
+            // if($loop == 29) { print_r($arr['data']); //exit; }
             self::select_envo($arr['data']);
             echo("\nretrieved partial OK\n"); //exit;
         }
@@ -420,7 +413,7 @@ class Pensoft2EOLAPI
                 echo("\nSaved partial OK\n"); //exit;
                 // exit("\n[$json]\n");
             }
-            else echo " -- nothing to save..."; //doesn't go here
+            else exit(" -- nothing to save..."); //doesn't go here
         }
     }
     private function select_envo($arr)
