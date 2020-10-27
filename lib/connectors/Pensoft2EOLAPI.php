@@ -34,12 +34,12 @@ class Pensoft2EOLAPI
         $this->eol_scripts_path     = $this->root_path.'eol_scripts/';
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
         $this->eol_tags_destination = $this->eol_tags_path.'eol_tags.tsv';
-        $this->json_temp_path['agent'] = $this->root_path.'json_agent/';
-        $this->json_temp_path['annotation'] = $this->root_path.'json_annotation/';
+        $this->json_temp_path['metadata'] = $this->root_path.'json_agent/';
+        // $this->json_temp_path['annotation'] = $this->root_path.'json_annotation/';
         $this->json_temp_path['partial'] = $this->root_path.'json_partial/'; //for partial, every 2000 chars long
         
-        if(!is_dir($this->json_temp_path['agent'])) mkdir($this->json_temp_path['agent']);
-        if(!is_dir($this->json_temp_path['annotation'])) mkdir($this->json_temp_path['annotation']);
+        if(!is_dir($this->json_temp_path['metadata'])) mkdir($this->json_temp_path['metadata']);
+        // if(!is_dir($this->json_temp_path['annotation'])) mkdir($this->json_temp_path['annotation']);
         if(!is_dir($this->json_temp_path['partial'])) mkdir($this->json_temp_path['partial']);
         if(!is_dir($this->eol_tags_path)) mkdir($this->eol_tags_path);
         
@@ -61,7 +61,7 @@ class Pensoft2EOLAPI
         print_r(array_keys($tables)); //exit;
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
-        exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
+        // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
         print_r($this->debug);
         
         // These 3 may not be needed anymore for Pensoft
@@ -96,11 +96,12 @@ class Pensoft2EOLAPI
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
         // exit("\nstop muna - used in debugging\n");
+
         /* 4th part */
-        if(is_dir($this->json_temp_path)) {
-            recursive_rmdir($this->json_temp_path);
-            mkdir($this->json_temp_path);
-        }
+        // if(is_dir($this->json_temp_path)) {
+        //     recursive_rmdir($this->json_temp_path);
+        //     mkdir($this->json_temp_path);
+        // }
     }
     function clean_eol_tags_tsv()
     {   echo "\nCleaning eol_tags.tsv...\n";
@@ -279,11 +280,11 @@ class Pensoft2EOLAPI
             }
         }
         // */
-        if(is_dir($this->json_temp_path['agent'])) {
-            recursive_rmdir($this->json_temp_path['agent']);
-            mkdir($this->json_temp_path['agent']);
+        if(is_dir($this->json_temp_path['metadata'])) {
+            recursive_rmdir($this->json_temp_path['metadata']);
+            mkdir($this->json_temp_path['metadata']);
         }
-        else mkdir($this->json_temp_path['agent']);
+        else mkdir($this->json_temp_path['metadata']);
     }
     private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   
@@ -542,7 +543,7 @@ class Pensoft2EOLAPI
     private function save_media_metadata_for_these_objects($obj_identifiers, $meta)
     {   echo "\nsave_media_metadata_for_these_objects()...";
         // $this->json_temp_path = create_temp_dir() . "/"; //abandoned. not used anymore.
-        echo("\njson temp path: $this->json_temp_path\n");
+        echo("\njson temp path: ".$this->json_temp_path['metadata']."\n");
         $agent_ids = array();
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
@@ -591,7 +592,7 @@ class Pensoft2EOLAPI
                 }
                 if($final) {
                     $json = json_encode($final);
-                    self::save_json($taxonID."_".$identifier, $json);
+                    self::save_json($taxonID."_".$identifier, $json, 'metadata');
                 }
             }
         }
@@ -599,7 +600,7 @@ class Pensoft2EOLAPI
     }
     private function save_agent_metadata_for_these_agents($agent_ids, $meta)
     {   echo "\nsave_agent_metadata_for_these_agents()...";
-        echo("\njson temp path: $this->json_temp_path\n");
+        echo("\njson temp path: ".$this->json_temp_path['metadata']."\n");
         $i = 0; $saved = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
             $i++; if(($i % 1000) == 0) echo "\n".number_format($i);
@@ -629,7 +630,7 @@ class Pensoft2EOLAPI
                 if($val = @$rec['http://xmlns.com/foaf/spec/#term_homepage']) $final['term_homepage'] = $val;
                 if($final) {
                     $json = json_encode($final);
-                    self::save_json("agent_".$identifier, $json);
+                    self::save_json("agent_".$identifier, $json, 'metadata');
                 }
             }
         }
