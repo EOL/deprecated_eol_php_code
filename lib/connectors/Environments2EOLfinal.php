@@ -14,7 +14,7 @@ class Environments2EOLfinal
         else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
         */
         // /* NEW - Pensoft
-        if(Functions::is_production()) $this->root_path = '/var/www/html/Pensoft_annotator/';
+        if(Functions::is_production()) $this->root_path = '/html/Pensoft_annotator/';
         else                           $this->root_path = '/Library/WebServer/Documents/Pensoft_annotator/';
         // */
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
