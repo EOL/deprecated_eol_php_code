@@ -287,7 +287,7 @@ class Pensoft2EOLAPI
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
             self::select_envo($arr['data']);
-            // echo("\nretrieved partial OK\n"); //good debug
+            echo("\nretrieved partial OK\n"); //good debug
         }
         else {
             if($json = self::run_partial($desc)) {
@@ -296,7 +296,7 @@ class Pensoft2EOLAPI
                 /* now start access newly created. The var $this->results should be populated. */
                 if($arr = self::retrieve_json($id, 'partial', $desc)) {
                     self::select_envo($arr['data']);
-                    // echo("\nretrieved (newly created) partial OK\n"); //good debug
+                    echo("\nretrieved (newly created) partial OK\n"); //good debug
                 }
                 else exit("\nShould not go here, since record should be created now.\n");
             }
