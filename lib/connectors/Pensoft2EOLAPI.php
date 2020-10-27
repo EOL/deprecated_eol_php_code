@@ -27,7 +27,7 @@ class Pensoft2EOLAPI
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology: 382437
         */
         /*-----------------------Paths----------------------*/
-        if(Functions::is_production()) $this->root_path = '/var/www/html/Pensoft_annotator/';
+        if(Functions::is_production()) $this->root_path = '/html/Pensoft_annotator/';
         else                           $this->root_path = '/Library/WebServer/Documents/Pensoft_annotator/';
         /*
         $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
