@@ -9,15 +9,19 @@ class Environments2EOLfinal
         $this->archive_builder = $archive_builder;
         $this->download_options = array('cache' => 1, 'resource_id' => $resource_id, 'expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->debug = array();
+        /* OLD - Vangelis
         if(Functions::is_production()) $this->root_path = '/u/scripts/vangelis_tagger/';
         else                           $this->root_path = '/Library/WebServer/Documents/vangelis_tagger/';
+        */
+        // /* NEW - Pensoft
+        if(Functions::is_production()) $this->root_path = '/var/www/html/Pensoft_annotator/';
+        else                           $this->root_path = '/Library/WebServer/Documents/Pensoft_annotator/';
+        // */
         $this->eol_tags_path        = $this->root_path.'eol_tags/';
         $this->json_temp_path       = $this->root_path.'temp_json/';
-        
         echo "\nEnvironments2EOLfinal resource_id: [$this->resource_id]\n";
         if($this->resource_id == '617_ENV') $this->modulo = 50000; //Wikipedia EN
         else                                $this->modulo = 1000;
-        
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
