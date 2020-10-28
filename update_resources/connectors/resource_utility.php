@@ -10,6 +10,7 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
 START of metadata_recoding
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "692_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "770_meta_recoded", "task": "metadata_recoding"}'
 END of metadata_recoding
 */
 
@@ -49,6 +50,10 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/692.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/692.tar.gz";
     }
+    if($resource_id == '770_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/770.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/770.tar.gz";
+    }
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }
 
@@ -83,10 +88,6 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
     }
 
     elseif($task == 'metadata_recoding') {
-        /* working but not needed for DH purposes
-        $preferred_rowtypes = array();
-        $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/taxon', 'http://eol.org/schema/media/document', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
-        */
         $preferred_rowtypes = array();
         $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
     }

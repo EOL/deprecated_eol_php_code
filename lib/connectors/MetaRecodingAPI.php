@@ -32,7 +32,17 @@ class MetaRecodingAPI
         /* task 3: occurrenceRemarks
         http://rs.tdwg.org/dwc/terms/occurrenceRemarks - same sort of move, to a MoF column with uri http://rs.tdwg.org/dwc/terms/measurementRemarks
         */
-        
+
+        if(in_array($this->resource_id, array('770_meta_recoded'))) self::task_67($tables);
+        /* http://rs.tdwg.org/dwc/terms/lifeStage - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
+           http://rs.tdwg.org/dwc/terms/sex - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
+        */
+    }
+    private function task_67($tables)
+    {
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_67_info');
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_67'); 
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_67');
     }
     private function task_123($tables)
     {   /*  http://rs.tdwg.org/dwc/terms/individualCount - probably the easiest to move; from its column in occurrences 
@@ -117,6 +127,10 @@ class MetaRecodingAPI
                 if(isset($this->oID_individualCount[$occurrenceID])) {
                     $this->oID_mID_mOfTaxon[$occurrenceID][$measurementID][$measurementOfTaxon] = '';
                 }
+            }
+            if($what == 'task_67_info') { //lifeStage | sex
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/lifeStage']) $this->oID_lifeStage[$occurrenceID] = $val;   //task_6
+                if($val = $rec['http://rs.tdwg.org/dwc/terms/sex'])       $this->oID_sex[$occurrenceID] = $val;         //task_7
             }
             //===========================================================================================================================================================
             if($what == 'write_task_123') {
