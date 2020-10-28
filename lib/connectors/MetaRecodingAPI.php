@@ -40,14 +40,18 @@ class MetaRecodingAPI
             with measurementType=http://eol.org/schema/terms/SampleSize
         */
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_1_info'); 
-            /* generates $this->oID_individualCount[$occurrenceID] = $individualCount */
+            /* generates:
+            $this->oID_individualCount[$occurrenceID]   = $individualCount     //task_1
+            $this->oID_eventDate[$occurrenceID]         = $eventDate           //task_2
+            $this->oID_occurrenceRemarks[$occurrenceID] = $occurrenceRemarks   //task_3
+            */
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_1_info');
             /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
         // print_r($this->oID_individualCount); print_r($this->oID_mID_mOfTaxon); exit;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_1');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_1'); 
 
-        // self::organize_MoF_mOfTaxon_false_create_if_needed();
+        // self::organize_MoF_mOfTaxon_false_create_if_needed(); //not used at the moment
     }
     /* not used
     private function organize_MoF_mOfTaxon_false_create_if_needed($occurrenceID)
@@ -164,6 +168,7 @@ class MetaRecodingAPI
                 // */
             }
             //===========================================================================================================================================================
+            /* not used at the moment...
             if($what == 'write') {
                 $m = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec);
@@ -171,12 +176,12 @@ class MetaRecodingAPI
                     $field = pathinfo($uri, PATHINFO_BASENAME);
                     $m->$field = $rec[$uri];
                 }
-                /* START DATA-1841 terms remapping */
+                // START DATA-1841 terms remapping
                 $m = $this->func->given_m_update_mType_mValue($m);
                 // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
-                /* END DATA-1841 terms remapping */
+                // END DATA-1841 terms remapping
                 $this->archive_builder->write_object_to_file($m);
-            }
+            } */
             //===========================================================================================================================================================
             // if($i >= 10) break; //debug only
         }
