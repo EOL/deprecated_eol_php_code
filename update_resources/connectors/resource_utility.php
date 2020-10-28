@@ -9,8 +9,12 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "617_fin
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en_report", "task": "report_4_Wikipedia_EN_traits"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
 START of metadata_recoding
+task_123
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "692_meta_recoded", "task": "metadata_recoding"}'
+task_67
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "770_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "copepods_meta_recoded", "task": "metadata_recoding"}'
 END of metadata_recoding
 */
 
@@ -53,6 +57,14 @@ elseif($task == 'metadata_recoding') {
     if($resource_id == '770_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/770.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/770.tar.gz";
+    }
+    if($resource_id == 'natdb_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/natdb.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/natdb.tar.gz";
+    }
+    if($resource_id == 'copepods_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/copepods.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/copepods.tar.gz";
     }
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }

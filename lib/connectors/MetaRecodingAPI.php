@@ -33,7 +33,7 @@ class MetaRecodingAPI
         http://rs.tdwg.org/dwc/terms/occurrenceRemarks - same sort of move, to a MoF column with uri http://rs.tdwg.org/dwc/terms/measurementRemarks
         */
 
-        if(in_array($this->resource_id, array('770_meta_recoded'))) self::task_67($tables);
+        if(in_array($this->resource_id, array('770_meta_recoded', 'natdb_meta_recoded', 'copepods_meta_recoded'))) self::task_67($tables);
         /* http://rs.tdwg.org/dwc/terms/lifeStage - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
            http://rs.tdwg.org/dwc/terms/sex - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
         */
@@ -43,6 +43,7 @@ class MetaRecodingAPI
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_67_info');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_67'); 
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_67');
+        print_r($this->debug); //exit("\n---------------------\n");
     }
     private function task_123($tables)
     {   /*  http://rs.tdwg.org/dwc/terms/individualCount - probably the easiest to move; from its column in occurrences 
@@ -131,6 +132,7 @@ class MetaRecodingAPI
             if($what == 'task_67_info') { //lifeStage | sex
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) $this->oID_lifeStage[$occurrenceID] = $val;   //task_6
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/sex'])       $this->oID_sex[$occurrenceID] = $val;         //task_7
+                $this->debug['contents']['M lifeStage'][@$rec['http://rs.tdwg.org/dwc/terms/lifeStage']] = '';
             }
             if($what == 'write_task_67') {
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/lifeStage'])) unset($rec['http://rs.tdwg.org/dwc/terms/lifeStage']);    //task_6
@@ -239,13 +241,18 @@ class MetaRecodingAPI
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
+            $this->debug['contents']['O lifeStage'][@$rec['http://rs.tdwg.org/dwc/terms/lifeStage']] = '';
+            
             if($what == 'task_123_info') {
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;    //task_1
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/eventDate']) $this->oID_eventDate[$occurrenceID] = $val;                //task_2
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']) $this->oID_occurrenceRemarks[$occurrenceID] = $val;//task_3
             }
             elseif($what == 'write_task_67') {
-                if($val = @$this->oID_lifeStage[$occurrenceID]) $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $val;  //task_6
+                if($val = @$this->oID_lifeStage[$occurrenceID]) {
+                    if($val2 = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) echo "\nmay laman [$val2] [$val]\n"; //stats only
+                                                                $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $val;  //task_6
+                }
                 if($val = @$this->oID_sex[$occurrenceID])       $rec['http://rs.tdwg.org/dwc/terms/sex'] = $val;        //task_7
                 self::write_occurrence($rec);
             }
