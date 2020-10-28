@@ -247,21 +247,15 @@ class MetaRecodingAPI
             elseif($what == 'write_task_67') {
                 if($val = @$this->oID_lifeStage[$occurrenceID]) $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $val;  //task_6
                 if($val = @$this->oID_sex[$occurrenceID])       $rec['http://rs.tdwg.org/dwc/terms/sex'] = $val;        //task_7
+                self::write_occurrence($rec);
             }
             //===========================================================================================================================================================
             elseif($what == 'write_task_123') {
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/individualCount']))   unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']);  //task_1
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/eventDate']))         unset($rec['http://rs.tdwg.org/dwc/terms/eventDate']);        //task_2
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) unset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']);//task_3
-
                 // print_r($rec); exit;
-                $uris = array_keys($rec);
-                $o = new \eol_schema\Occurrence_specific();
-                foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $o->$field = $rec[$uri];
-                }
-                $this->archive_builder->write_object_to_file($o);
+                self::write_occurrence($rec);
             }
             //===========================================================================================================================================================
             /* not used atm.
@@ -277,6 +271,16 @@ class MetaRecodingAPI
             */
             // if($i >= 10) break; //debug only
         }
+    }
+    private function write_occurrence($rec)
+    {
+        $uris = array_keys($rec);
+        $o = new \eol_schema\Occurrence_specific();
+        foreach($uris as $uri) {
+            $field = pathinfo($uri, PATHINFO_BASENAME);
+            $o->$field = $rec[$uri];
+        }
+        $this->archive_builder->write_object_to_file($o);
     }
     /* not used, from copied template
     private function create_taxon($rec)
