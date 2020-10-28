@@ -132,6 +132,17 @@ class MetaRecodingAPI
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/lifeStage']) $this->oID_lifeStage[$occurrenceID] = $val;   //task_6
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/sex'])       $this->oID_sex[$occurrenceID] = $val;         //task_7
             }
+            if($what == 'write_task_67') {
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/lifeStage'])) unset($rec['http://rs.tdwg.org/dwc/terms/lifeStage']);    //task_6
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/sex']))       unset($rec['http://rs.tdwg.org/dwc/terms/sex']);          //task_7
+                $m = new \eol_schema\MeasurementOrFact_specific();
+                $uris = array_keys($rec);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $m->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($m);
+            }
             //===========================================================================================================================================================
             if($what == 'write_task_123') {
                 // /* task_2
@@ -233,8 +244,12 @@ class MetaRecodingAPI
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/eventDate']) $this->oID_eventDate[$occurrenceID] = $val;                //task_2
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']) $this->oID_occurrenceRemarks[$occurrenceID] = $val;//task_3
             }
+            elseif($what == 'write_task_67') {
+                if($val = @$this->oID_lifeStage[$occurrenceID]) $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $val;  //task_6
+                if($val = @$this->oID_sex[$occurrenceID])       $rec['http://rs.tdwg.org/dwc/terms/sex'] = $val;        //task_7
+            }
             //===========================================================================================================================================================
-            elseif($what = 'write_task_123') {
+            elseif($what == 'write_task_123') {
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/individualCount']))   unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']);  //task_1
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/eventDate']))         unset($rec['http://rs.tdwg.org/dwc/terms/eventDate']);        //task_2
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) unset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']);//task_3
@@ -249,7 +264,8 @@ class MetaRecodingAPI
                 $this->archive_builder->write_object_to_file($o);
             }
             //===========================================================================================================================================================
-            elseif($what = 'write') {
+            /* not used atm.
+            elseif($what == 'write') {
                 $uris = array_keys($rec);
                 $o = new \eol_schema\Occurrence_specific();
                 foreach($uris as $uri) {
@@ -258,6 +274,7 @@ class MetaRecodingAPI
                 }
                 $this->archive_builder->write_object_to_file($o);
             }
+            */
             // if($i >= 10) break; //debug only
         }
     }
