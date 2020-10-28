@@ -22,7 +22,7 @@ class MetaRecodingAPI
         $tables = $info['harvester']->tables;
         
         /* task 1: individualCount */
-        if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_1($tables);
+        if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_123($tables);
         
         /* task 2: eventDate
         http://rs.tdwg.org/dwc/terms/eventDate - the more awkward moving method which will apply to the rest of the cases; 
@@ -34,22 +34,22 @@ class MetaRecodingAPI
         */
         
     }
-    private function task_1($tables)
+    private function task_123($tables)
     {   /*  http://rs.tdwg.org/dwc/terms/individualCount - probably the easiest to move; from its column in occurrences 
             to a "measurementOfTaxon=FALSE record in the MoF file, 
             with measurementType=http://eol.org/schema/terms/SampleSize
         */
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_1_info'); 
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_123_info'); 
             /* generates:
             $this->oID_individualCount[$occurrenceID]   = $individualCount     //task_1
             $this->oID_eventDate[$occurrenceID]         = $eventDate           //task_2
             $this->oID_occurrenceRemarks[$occurrenceID] = $occurrenceRemarks   //task_3
             */
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_1_info');
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_123_info');
             /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
         // print_r($this->oID_individualCount); print_r($this->oID_mID_mOfTaxon); exit;
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_1');
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_1'); 
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_123');
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_123'); 
 
         // self::organize_MoF_mOfTaxon_false_create_if_needed(); //not used at the moment
     }
@@ -112,14 +112,14 @@ class MetaRecodingAPI
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
-            if($what == 'task_1_info') {
+            if($what == 'task_123_info') {
                 /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
                 if(isset($this->oID_individualCount[$occurrenceID])) {
                     $this->oID_mID_mOfTaxon[$occurrenceID][$measurementID][$measurementOfTaxon] = '';
                 }
             }
             //===========================================================================================================================================================
-            if($what == 'write_task_1') {
+            if($what == 'write_task_123') {
                 // /* task_2
                 if($eventDate = @$this->oID_eventDate[$occurrenceID]) { //task_2
                     $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
@@ -214,13 +214,13 @@ class MetaRecodingAPI
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
-            if($what == 'task_1_info') {
+            if($what == 'task_123_info') {
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;    //task_1
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/eventDate']) $this->oID_eventDate[$occurrenceID] = $val;                //task_2
                 if($val = $rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']) $this->oID_occurrenceRemarks[$occurrenceID] = $val;//task_3
             }
             //===========================================================================================================================================================
-            elseif($what = 'write_task_1') {
+            elseif($what = 'write_task_123') {
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/individualCount']))   unset($rec['http://rs.tdwg.org/dwc/terms/individualCount']);  //task_1
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/eventDate']))         unset($rec['http://rs.tdwg.org/dwc/terms/eventDate']);        //task_2
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks'])) unset($rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']);//task_3
