@@ -54,15 +54,15 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/692.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/692.tar.gz";
     }
-    if($resource_id == '770_meta_recoded') {
+    elseif($resource_id == '770_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/770.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/770.tar.gz";
     }
-    if($resource_id == 'natdb_meta_recoded') {
+    elseif($resource_id == 'natdb_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/natdb.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/natdb.tar.gz";
     }
-    if($resource_id == 'copepods_meta_recoded') {
+    elseif($resource_id == 'copepods_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/copepods.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/copepods.tar.gz";
     }
