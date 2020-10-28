@@ -14,7 +14,7 @@ class Pensoft2EOLAPI
     function __construct($param)
     {
         $this->param = $param; // print_r($param); exit;
-        if($param['resource_id'] == '617_ENV') $this->modulo = 100; //50000; //Wikipedia EN
+        if($param['resource_id'] == '617_ENV') $this->modulo = 1000; //50000; //Wikipedia EN
         else                                   $this->modulo = 1000;
         /*-----------------------Resources-------------------*/
         // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
@@ -334,7 +334,7 @@ class Pensoft2EOLAPI
         }
     }
     private function run_partial($desc)
-    {   sleep(2);
+    {   sleep(1);
         // echo "\nRunning Pensoft annotator...";
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"';
         $cmd .= " 2>&1";
