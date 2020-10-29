@@ -16,6 +16,13 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "770_met
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "copepods_meta_recoded", "task": "metadata_recoding"}'
 END of metadata_recoding
+
+770	                Tue 2020-09-15 09:20:16 AM	{"measurement_or_fact_specific.tab":979, "occurrence_specific.tab":978, "reference.tab":1, "taxon.tab":921, "time_elapsed":false}
+770_meta_recoded	Wed 2020-10-28 09:37:23 AM	{"measurement_or_fact_specific.tab":979, "occurrence_specific.tab":978, "reference.tab":1, "taxon.tab":921, "time_elapsed":{"sec":8.01, "min":0.13, "hr":0}}
+natdb	        Friday 2020-07-17 11:24:08 AM	{"measurement_or_fact_specific.tab":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":293.77, "min":4.9, "hr":0.08}}
+natdb_meta_recoded	Wed 2020-10-28 09:43:50 AM	{"measurement_or_fact_specific.tab":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":82.73, "min":1.38, "hr":0.02}}
+copepods	        Thursday 2019-07-11 08:30:46 AM	{"measurement_or_fact_specific.tab":21345,"occurrence.tab":18259,"reference.tab":925,"taxon.tab":2644}
+copepods_meta_recoded	Wed 2020-10-28 09:47:22 AM	{"measurement_or_fact_specific.tab":21345, "occurrence_specific.tab":18259, "reference.tab":925, "taxon.tab":2644, "time_elapsed":{"sec":21.39, "min":0.36, "hr":0.01}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
