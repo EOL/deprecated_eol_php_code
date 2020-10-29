@@ -12,6 +12,8 @@ START of metadata_recoding
 task_123
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "692_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "201_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "726_meta_recoded", "task": "metadata_recoding"}'
+
 task_67
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "770_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
@@ -69,6 +71,10 @@ elseif($task == 'metadata_recoding') {
     if($resource_id == '201_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/201.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/201.tar.gz";
+    }
+    if($resource_id == '726_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/726.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/726.tar.gz";
     }
     elseif($resource_id == '770_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/770.tar.gz";
@@ -128,7 +134,9 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
 
     elseif($task == 'metadata_recoding') {
         $preferred_rowtypes = array();
-        if($resource_id == '201_meta_recoded')          $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact');
+        if(in_array($resource_id, array('201_meta_recoded', '726_meta_recoded'))) {
+            $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrenct tab is just carry-over
+        }
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
     }
     

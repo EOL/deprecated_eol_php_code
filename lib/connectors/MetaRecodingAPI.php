@@ -23,13 +23,14 @@ class MetaRecodingAPI
         
         /* task 1: individualCount */
         if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_123($tables);
+        if(in_array($this->resource_id, array('726_meta_recoded'))) self::task_individualCount_as_child_in_MoF($tables);
         
         /* task 2: eventDate
         http://rs.tdwg.org/dwc/terms/eventDate - the more awkward moving method which will apply to the rest of the cases; 
         from a column in occurrences, to a new column in MoF, with the occurrence record being applied to all MoF records for that occurrence. 
         The uri for the meta file for the new column: http://rs.tdwg.org/dwc/terms/measurementDeterminedDate
         DONE: from a column in occurrences, to a new column in MoF measurementDeterminedDate
-        TODO: - a new variation of the eventDate: where eventDate is in MoF with measurementOfTaxon = false with mType = eventDate
+        DONE_2: where eventDate is in MoF with measurementOfTaxon = false with mType = eventDate
         transferred to MoF column measurementDeterminedDate, applied to all MoF records for that occurrence.
         e.g. Harvard Museum of Comparative Zoology [OpenData|https://opendata.eol.org/dataset/harvard-museum-of-comparative-zoology/resource/c70577a3-7ba7-472f-b3de-bf3043beebfd]
         */
@@ -52,6 +53,10 @@ class MetaRecodingAPI
         TODO: no implementation yet if measurementUnit or statisticalMethod is a child row in MoF
         DONE: if mUnit and sMethod is a column in occurrence -> moved to a column in MoF
         */
+    }
+    private function task_individualCount_as_child_in_MoF($tables) //replace mType to 'http://eol.org/schema/terms/SampleSize'
+    {
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_indivCount');
     }
     private function task_eventDate_as_row_in_MoF($tables)
     {
@@ -156,6 +161,7 @@ class MetaRecodingAPI
             $measurementOfTaxon = $rec['http://eol.org/schema/measurementOfTaxon'];
             $measurementType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            $parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID'];
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
@@ -171,11 +177,20 @@ class MetaRecodingAPI
                     $this->delete_mIDs[$measurementID] = '';
                 }
             }
-            if($what == 'write_task_eventDate') {
+            elseif($what == 'write_task_eventDate') {
                 if(isset($this->delete_mIDs[$measurementID])) continue;
                 if($eventDate = @$this->oID_eventDate[$occurrenceID]) $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
                 self::write_MoF_rec($rec);
             }
+
+            if($what == 'write_task_indivCount') {
+                if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/individualCount') {
+                    $rec['http://rs.tdwg.org/dwc/terms/measurementType'] = 'http://eol.org/schema/terms/SampleSize';
+                }
+                self::write_MoF_rec($rec);
+            }
+            
+            
             if($what == 'task_67_info') { //lifeStage | sex
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) $this->oID_lifeStage[$occurrenceID] = $val;   //task_6
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/sex'])       $this->oID_sex[$occurrenceID] = $val;         //task_7
