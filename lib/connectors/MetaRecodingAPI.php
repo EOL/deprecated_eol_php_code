@@ -34,16 +34,30 @@ class MetaRecodingAPI
         */
 
         if(in_array($this->resource_id, array('770_meta_recoded', 'natdb_meta_recoded', 'copepods_meta_recoded',
-                                              '42_meta_recoded'))) self::task_67($tables);
+                                              '42_meta_recoded', 'cotr_meta_recoded'))) self::task_67($tables);
         /* http://rs.tdwg.org/dwc/terms/lifeStage - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
            http://rs.tdwg.org/dwc/terms/sex - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
         */
+        
+        if(in_array($this->resource_id, array('test_meta_recoded'))) self::task_45($tables);
+        /* http://rs.tdwg.org/dwc/terms/measurementUnit - from wherever it is (child record?), this should move to a column in MoF
+           http://eol.org/schema/terms/statisticalMethod - from wherever it is (child record?), this should move to a column in MoF
+        */
+    }
+    private function task_45($tables)
+    {
+        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_45_info_write');
+        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_45');
+        unset($this->oID_measurementUnit);     //task_4
+        unset($this->oID_statisticalMethod);   //task_5
     }
     private function task_67($tables)
     {
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_67_info');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_67'); 
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_67');
+        unset($this->oID_lifeStage);   //task_6
+        unset($this->oID_sex);         //task_7
         print_r($this->debug); //exit("\n---------------------\n");
     }
     private function task_123($tables)
@@ -62,6 +76,11 @@ class MetaRecodingAPI
         // print_r($this->oID_individualCount); print_r($this->oID_mID_mOfTaxon); exit;
         self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_123');
         self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_123'); 
+
+        unset($this->oID_individualCount);      //task_1
+        unset($this->oID_eventDate);            //task_2
+        unset($this->oID_occurrenceRemarks);    //task_3
+        unset($this->oID_mID_mOfTaxon);
 
         // self::organize_MoF_mOfTaxon_false_create_if_needed(); //not used at the moment
     }
@@ -135,16 +154,21 @@ class MetaRecodingAPI
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/sex'])       $this->oID_sex[$occurrenceID] = $val;         //task_7
                 $this->debug['contents']['M lifeStage'][@$rec['http://rs.tdwg.org/dwc/terms/lifeStage']] = '';
             }
+            if($what == 'write_task_45') {
+                if(!@$rec['http://eol.org/schema/parentMeasurementID']) { //not a child MoF
+                    if($measurementUnit = @$this->oID_measurementUnit[$occurrenceID]) { //task_4
+                        $rec['http://rs.tdwg.org/dwc/terms/measurementUnit'] = $measurementUnit;
+                    }
+                    if($statisticalMethod = @$this->oID_statisticalMethod[$occurrenceID]) { //task_5
+                        $rec['http://eol.org/schema/terms/statisticalMethod'] = $statisticalMethod;
+                    }
+                }
+                self::write_MoF_rec($rec);
+            }
             if($what == 'write_task_67') {
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/lifeStage'])) unset($rec['http://rs.tdwg.org/dwc/terms/lifeStage']);    //task_6
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/sex']))       unset($rec['http://rs.tdwg.org/dwc/terms/sex']);          //task_7
-                $m = new \eol_schema\MeasurementOrFact_specific();
-                $uris = array_keys($rec);
-                foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $m->$field = $rec[$uri];
-                }
-                $this->archive_builder->write_object_to_file($m);
+                self::write_MoF_rec($rec);
             }
             //===========================================================================================================================================================
             if($what == 'write_task_123') {
@@ -158,15 +182,7 @@ class MetaRecodingAPI
                     $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] = $occurrenceRemarks;
                 }
                 // */
-                
-                $m = new \eol_schema\MeasurementOrFact_specific();
-                $uris = array_keys($rec);
-                foreach($uris as $uri) {
-                    $field = pathinfo($uri, PATHINFO_BASENAME);
-                    $m->$field = $rec[$uri];
-                }
-                $this->archive_builder->write_object_to_file($m);
-                
+                $m = self::write_MoF_rec($rec);
                 /*
                 child record in MoF:
                     - doesn't have: occurrenceID | measurementOfTaxon
@@ -214,6 +230,17 @@ class MetaRecodingAPI
             // if($i >= 10) break; //debug only
         }
     }
+    private function write_MoF_rec($rec)
+    {
+        $m = new \eol_schema\MeasurementOrFact_specific();
+        $uris = array_keys($rec);
+        foreach($uris as $uri) {
+            $field = pathinfo($uri, PATHINFO_BASENAME);
+            $m->$field = $rec[$uri];
+        }
+        $this->archive_builder->write_object_to_file($m);
+        return $m;
+    }
     private function process_occurrence($meta, $what)
     {   //print_r($meta);
         echo "\nprocess_occurrence...[$what]\n"; $i = 0;
@@ -248,6 +275,14 @@ class MetaRecodingAPI
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/individualCount']) $this->oID_individualCount[$occurrenceID] = $val;    //task_1
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/eventDate']) $this->oID_eventDate[$occurrenceID] = $val;                //task_2
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/occurrenceRemarks']) $this->oID_occurrenceRemarks[$occurrenceID] = $val;//task_3
+            }
+            elseif($what == 'task_45_info_write') {
+                if($val = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) $this->oID_measurementUnit[$occurrenceID] = $val;    //task_4
+                if($val = @$rec['http://eol.org/schema/terms/statisticalMethod']) $this->oID_statisticalMethod[$occurrenceID] = $val; //task_5
+                //write
+                if(isset($rec['http://rs.tdwg.org/dwc/terms/measurementUnit']))  unset($rec['http://rs.tdwg.org/dwc/terms/measurementUnit']);   //task_4
+                if(isset($rec['http://eol.org/schema/terms/statisticalMethod'])) unset($rec['http://eol.org/schema/terms/statisticalMethod']);  //task_5
+                self::write_occurrence($rec);
             }
             elseif($what == 'write_task_67') {
                 if($val = @$this->oID_lifeStage[$occurrenceID]) {

@@ -16,7 +16,9 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "770_met
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "copepods_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "42_meta_recoded", "task": "metadata_recoding"}'
-
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded", "task": "metadata_recoding"}'
+task_45
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "test_meta_recoded", "task": "metadata_recoding"}'
 END of metadata_recoding
 
 770	                Tue 2020-09-15 09:20:16 AM	{"measurement_or_fact_specific.tab":979, "occurrence_specific.tab":978, "reference.tab":1, "taxon.tab":921, "time_elapsed":false}
@@ -78,6 +80,13 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == '42_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/42.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/42.tar.gz";
+    }
+    elseif($resource_id == 'cotr_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/cotr.tar.gz";
+    }
+    elseif($resource_id == 'test_meta_recoded') {
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_mUnit_sMethod.zip";
     }
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }
