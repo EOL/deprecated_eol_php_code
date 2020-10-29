@@ -28,6 +28,9 @@ END of metadata_recoding
 201_meta_recoded	Thu 2020-10-29 10:54:43 AM	{"measurement_or_fact_specific.tab":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":216.07, "min":3.6, "hr":0.06}}
 less MoF is expected for 201_meta_recoded
 
+726	            Thursday 2019-12-05 09:09:30 AM	{"measurement_or_fact.tab"         :21485, "occurrence.tab":2838, "taxon.tab":968, "time_elapsed":{"sec":17.5,"min":0.29,"hr":0}}
+726_meta_recoded	Thu 2020-10-29 11:44:26 AM	{"measurement_or_fact_specific.tab":21485, "occurrence.tab":2838, "taxon.tab":968, "time_elapsed":{"sec":15.11, "min":0.25, "hr":0}}
+
 770	                Tue 2020-09-15 09:20:16 AM	{"measurement_or_fact_specific.tab":979, "occurrence_specific.tab":978, "reference.tab":1, "taxon.tab":921, "time_elapsed":false}
 770_meta_recoded	Wed 2020-10-28 09:37:23 AM	{"measurement_or_fact_specific.tab":979, "occurrence_specific.tab":978, "reference.tab":1, "taxon.tab":921, "time_elapsed":{"sec":8.01, "min":0.13, "hr":0}}
 natdb	        Friday 2020-07-17 11:24:08 AM	{"measurement_or_fact_specific.tab":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":293.77, "min":4.9, "hr":0.08}}
