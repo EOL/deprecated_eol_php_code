@@ -37,6 +37,11 @@ natdb	        Friday 2020-07-17 11:24:08 AM	{"measurement_or_fact_specific.tab":
 natdb_meta_recoded	Wed 2020-10-28 09:43:50 AM	{"measurement_or_fact_specific.tab":129380, "occurrence_specific.tab":96894, "reference.tab":11, "taxon.tab":2778, "time_elapsed":{"sec":82.73, "min":1.38, "hr":0.02}}
 copepods	        Thursday 2019-07-11 08:30:46 AM	{"measurement_or_fact_specific.tab":21345,"occurrence.tab":18259,"reference.tab":925,"taxon.tab":2644}
 copepods_meta_recoded	Wed 2020-10-28 09:47:22 AM	{"measurement_or_fact_specific.tab":21345, "occurrence_specific.tab":18259, "reference.tab":925, "taxon.tab":2644, "time_elapsed":{"sec":21.39, "min":0.36, "hr":0.01}}
+
+42	            Sun 2020-09-13 04:41:23 PM	{"agent.tab":146, "measurement_or_fact_specific.tab":177712, "media_resource.tab":135702, "occurrence_specific.tab":161031, "reference.tab":32237, "taxon.tab":95593, "vernacular_name.tab":157469, "time_elapsed":{"sec":7343.42, "min":122.39, "hr":2.04}}
+42_meta_recoded	Thu 2020-10-29 12:22:42 PM	{"agent.tab":146, "measurement_or_fact_specific.tab":177712, "media_resource.tab":135702, "occurrence_specific.tab":161031, "reference.tab":32237, "taxon.tab":95593, "vernacular_name.tab":157469, "time_elapsed":{"sec":313.42, "min":5.22, "hr":0.09}}
+
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
