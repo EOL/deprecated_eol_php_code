@@ -212,12 +212,10 @@ class Pensoft2EOLAPI
             }
             // print_r($rec); exit("\n[1]\n");
 
-            // if($i != 4) continue; //debug only
-            
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             // if($taxonID != 'Q1000262') continue; //debug only
             
-            if($i <= 61000) continue; //debug only
+            if($i <= 600000) continue; //debug only
             if(self::valid_record($rec)) {
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
