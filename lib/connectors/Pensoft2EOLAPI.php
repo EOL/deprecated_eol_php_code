@@ -215,13 +215,18 @@ class Pensoft2EOLAPI
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             // if($taxonID != 'Q1000262') continue; //debug only
             
-            if($i <= 600000) continue; //debug only
+            // if($i <= 600000) continue; //debug only
+            
+            // /* debug only
+            if($i >= 500000 && $i <= 600000) {}
+            else continue; 
+            // */
+            
             if(self::valid_record($rec)) {
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
                 $saved++;
                 $this->results = array();
-                // sleep(0.5);
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
@@ -271,7 +276,8 @@ class Pensoft2EOLAPI
         $loops = $len/2000; //echo("\n\n[$loops]");
         $loops = ceil($loops);
         $ctr = 0;
-        sleep(0.5);
+        // sleep(0.5);
+        sleep(1);
         for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
             $str = substr($desc, $ctr, 2000);
             $str = utf8_encode($str);
@@ -335,8 +341,7 @@ class Pensoft2EOLAPI
         }
     }
     private function run_partial($desc)
-    {   //sleep(1);
-        // echo "\nRunning Pensoft annotator...";
+    {   // echo "\nRunning Pensoft annotator...";
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"';
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
