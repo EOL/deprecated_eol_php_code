@@ -219,7 +219,7 @@ class Pensoft2EOLAPI
             
             // /* debug only
             // if($i >= 1 && $i <= 400000) {}
-            if($i >= 495000 && $i <= 500000) {}
+            if($i >= 590000 && $i <= 600000) {}
             else continue; 
             // */
             
