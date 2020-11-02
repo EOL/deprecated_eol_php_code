@@ -20,6 +20,7 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "770_met
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "copepods_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "42_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "727_meta_recoded", "task": "metadata_recoding"}'
 
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded_1", "task": "metadata_recoding"}'
 -> fixes lifeStage
@@ -113,6 +114,10 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == '42_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/42.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/42.tar.gz";
+    }
+    elseif($resource_id == '727_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/727.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/727.tar.gz";
     }
     elseif($resource_id == 'cotr_meta_recoded_1') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr.tar.gz";
