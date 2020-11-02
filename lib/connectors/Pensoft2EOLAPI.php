@@ -218,7 +218,7 @@ class Pensoft2EOLAPI
             // if($i <= 600000) continue; //debug only
             
             // /* debug only
-            if($i >= 500000 && $i <= 600000) {}
+            if($i >= 560000 && $i <= 600000) {}
             else continue; 
             // */
             
@@ -277,7 +277,7 @@ class Pensoft2EOLAPI
         $loops = ceil($loops);
         $ctr = 0;
         // sleep(0.5);
-        sleep(1);
+        sleep(0.5);
         for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
             $str = substr($desc, $ctr, 2000);
             $str = utf8_encode($str);
