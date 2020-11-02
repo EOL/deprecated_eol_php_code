@@ -218,9 +218,9 @@ class Pensoft2EOLAPI
             // if($i <= 600000) continue; //debug only
             
             // /* debug only
-            // if($i >= 560000 && $i <= 600000) {}
+            if($i >= 1 && $i <= 400000) {}
             // if($i >= 495000 && $i <= 500000) {}
-            if($i >= 487000 && $i <= 500000) {}
+            // if($i >= 487000 && $i <= 500000) {}
             else continue; 
             // */
             
