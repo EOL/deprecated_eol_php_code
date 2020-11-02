@@ -48,6 +48,15 @@ copepods_meta_recoded	Wed 2020-10-28 09:47:22 AM	{"measurement_or_fact_specific.
 42	            Sun 2020-09-13 04:41:23 PM	{"agent.tab":146, "measurement_or_fact_specific.tab":177712, "media_resource.tab":135702, "occurrence_specific.tab":161031, "reference.tab":32237, "taxon.tab":95593, "vernacular_name.tab":157469, "time_elapsed":{"sec":7343.42, "min":122.39, "hr":2.04}}
 42_meta_recoded	Thu 2020-10-29 12:22:42 PM	{"agent.tab":146, "measurement_or_fact_specific.tab":177712, "media_resource.tab":135702, "occurrence_specific.tab":161031, "reference.tab":32237, "taxon.tab":95593, "vernacular_name.tab":157469, "time_elapsed":{"sec":313.42, "min":5.22, "hr":0.09}}
 
+griis	            Wed 2020-10-28 02:09:49 AM	{"measurement_or_fact_specific.tab":85499, "occurrence_specific.tab":57655, "taxon.tab":14891, "time_elapsed":{"sec":1007.65, "min":16.79, "hr":0.28}}
+griis_meta_recoded	Mon 2020-11-02 08:36:01 AM	{"measurement_or_fact_specific.tab":85499, "occurrence_specific.tab":57655, "taxon.tab":14891, "time_elapsed":{"sec":57.34, "min":0.96, "hr":0.02}}
+
+cotr	            Sat 2020-10-10 06:43:23 AM	{"measurement_or_fact_specific.tab":56648, "occurrence_specific.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":82.14, "min":1.37, "hr":0.02}}
+cotr_meta_recoded_1	Mon 2020-11-02 08:41:36 AM	{"measurement_or_fact_specific.tab":56648, "occurrence_specific.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":41.5, "min":0.69, "hr":0.01}}
+cotr_meta_recoded	Mon 2020-11-02 08:42:00 AM	{"measurement_or_fact_specific.tab":9031, "occurrence.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":23.91, "min":0.4, "hr":0.01}}
+
+727	                Fri 2020-09-11 12:40:30 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
+727_meta_recoded	Mon 2020-11-02 08:59:01 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":524.71, "min":8.75, "hr":0.15}}
 
 */
 
