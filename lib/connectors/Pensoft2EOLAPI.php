@@ -14,7 +14,7 @@ class Pensoft2EOLAPI
     function __construct($param)
     {
         $this->param = $param; // print_r($param); exit;
-        if($param['resource_id'] == '617_ENV') $this->modulo = 1000; //50000; //Wikipedia EN
+        if($param['resource_id'] == '617_ENV') $this->modulo = 10000; //50000; //Wikipedia EN
         else                                   $this->modulo = 1000;
         /*-----------------------Resources-------------------*/
         // $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
@@ -215,13 +215,11 @@ class Pensoft2EOLAPI
             $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             // if($taxonID != 'Q1000262') continue; //debug only
             
-            // if($i <= 600000) continue; //debug only
-            
-            // /* debug only
+            /* debug only
             // if($i >= 1 && $i <= 400000) {}
             if($i >= 590000 && $i <= 600000) {}
             else continue; 
-            // */
+            */
             
             if(self::valid_record($rec)) {
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
@@ -277,7 +275,6 @@ class Pensoft2EOLAPI
         $loops = $len/2000; //echo("\n\n[$loops]");
         $loops = ceil($loops);
         $ctr = 0;
-        // sleep(0.5);
         sleep(0.5);
         for($loop = 1; $loop <= $loops; $loop++) { //echo "\n[$loop of $loops]";
             $str = substr($desc, $ctr, 2000);

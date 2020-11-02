@@ -15,7 +15,7 @@ Next step now is to combine all the steps within a general connector:
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
       5.2.5 agendID -> contributor
 
-Implementation:
+Implementation: Pensoft: we can run 3 connectors simultaneously.
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
 
