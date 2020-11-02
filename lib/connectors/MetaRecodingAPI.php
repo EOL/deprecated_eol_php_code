@@ -22,7 +22,7 @@ class MetaRecodingAPI
         $tables = $info['harvester']->tables;
         
         /* task 1: individualCount */
-        if(in_array($this->resource_id, array('692_meta_recoded'))) self::task_123($tables);
+        if(in_array($this->resource_id, array('692_meta_recoded', 'griis_meta_recoded'))) self::task_123($tables);
         if(in_array($this->resource_id, array('726_meta_recoded'))) self::task_individualCount_as_child_in_MoF($tables);
         
         /* task 2: eventDate
@@ -34,14 +34,14 @@ class MetaRecodingAPI
         transferred to MoF column measurementDeterminedDate, applied to all MoF records for that occurrence.
         e.g. Harvard Museum of Comparative Zoology [OpenData|https://opendata.eol.org/dataset/harvard-museum-of-comparative-zoology/resource/c70577a3-7ba7-472f-b3de-bf3043beebfd]
         */
-        if(in_array($this->resource_id, array('201_meta_recoded'))) self::task_eventDate_as_row_in_MoF($tables);
+        if(in_array($this->resource_id, array('201_meta_recoded', 'cotr_meta_recoded'))) self::task_eventDate_as_row_in_MoF($tables);
         
         /* task 3: occurrenceRemarks
         http://rs.tdwg.org/dwc/terms/occurrenceRemarks - same sort of move, to a MoF column with uri http://rs.tdwg.org/dwc/terms/measurementRemarks
         */
 
         if(in_array($this->resource_id, array('770_meta_recoded', 'natdb_meta_recoded', 'copepods_meta_recoded',
-                                              '42_meta_recoded', 'cotr_meta_recoded'))) self::task_67($tables);
+                                              '42_meta_recoded', 'cotr_meta_recoded_1'))) self::task_67($tables);
         /* http://rs.tdwg.org/dwc/terms/lifeStage - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
            http://rs.tdwg.org/dwc/terms/sex - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
         TODO: no implementation yet if lifeStage or sex is a child row in MoF.
@@ -162,6 +162,7 @@ class MetaRecodingAPI
             $measurementType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
             $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             $parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID'];
+            $measurementRemarks = $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
@@ -173,14 +174,33 @@ class MetaRecodingAPI
             }
             if($what == 'task_eventDate_info') {
                 if($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/eventDate') {
-                    $this->oID_eventDate[$occurrenceID] = $measurementValue;
-                    $this->delete_mIDs[$measurementID] = '';
+                    if($occurrenceID) {
+                        $this->oID_eventDate[$occurrenceID] = $measurementValue;
+                        $this->delete_mIDs[$measurementID] = '';
+                    }
+                    elseif($parentMeasurementID) {
+                        $this->parentID_eventDate[$parentMeasurementID] = $measurementValue;
+                        $this->delete_mIDs[$measurementID] = '';
+                    }
+                    else exit("\nFigure out the link...\n");
                 }
             }
             elseif($what == 'write_task_eventDate') {
                 if(isset($this->delete_mIDs[$measurementID])) continue;
-                if($eventDate = @$this->oID_eventDate[$occurrenceID]) $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
-                self::write_MoF_rec($rec);
+
+                //when occurrenceID is used e.g. 201
+                if($eventDate = @$this->oID_eventDate[$occurrenceID]) {
+                    $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
+                    self::write_MoF_rec($rec);
+                }
+                
+                //when parentmeasurementID is used e.g. cotr.tar.gz
+                if($eventDate = @$this->parentID_eventDate[$parentMeasurementID]) {
+                    $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
+                    self::write_MoF_rec($rec);
+                }
+                
+                
             }
 
             if($what == 'write_task_indivCount') {
@@ -221,7 +241,11 @@ class MetaRecodingAPI
                 // */
                 // /* task_3
                 if($occurrenceRemarks = @$this->oID_occurrenceRemarks[$occurrenceID]) { //task_2
-                    $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] = $occurrenceRemarks;
+                    if($measurementRemarks) $tmp = $measurementRemarks.". ".$occurrenceRemarks.".";
+                    else                    $tmp = $occurrenceRemarks;
+                    $tmp = Functions::remove_whitespace($tmp);
+                    $tmp = trim(str_replace("..", ".", $tmp));
+                    $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'] = $tmp;
                 }
                 // */
                 $m = self::write_MoF_rec($rec);
