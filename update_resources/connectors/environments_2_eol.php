@@ -15,7 +15,7 @@ Next step now is to combine all the steps within a general connector:
       5.2.4 referenceID - http://eol.org/schema/reference/referenceID
       5.2.5 agendID -> contributor
 
-Implementation: Pensoft: we can run 3 connectors simultaneously.
+Implementation: Vangelis - OBSOLETE
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
 
@@ -44,7 +44,7 @@ php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "
 ================================================== Vangelis tagger END
 
 ================================================== Pensoft annotator START
-Implementation: Jenkins
+Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simultaneously.
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
 // php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Distribution"}'
 // php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"TaxonBiology"}'
