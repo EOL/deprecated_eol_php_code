@@ -341,10 +341,7 @@ class Pensoft2EOLAPI
                 )
         */
         foreach($arr as $rek) {
-            if(ctype_lower(substr($rek['lbl'],0,1))) {
-                $this->results[$rek['id']] = $rek['lbl'];
-                // $this->all_envo_terms[$rek['id']] = $rek['lbl']; //for stats only - report for Jen
-            }
+            if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
         }
     }
     private function retrieve_json($id, $what, $desc)
