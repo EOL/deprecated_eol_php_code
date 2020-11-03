@@ -71,16 +71,12 @@ class Pensoft2EOLAPI
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
-        print_r($this->debug);
+        // print_r($this->debug);
         
-        // /* report for Jen - 'difference' report
+        /* report for Jen - 'difference' report
         self::generate_difference_report(); exit("\n-end report-\n");
-        // */
-        
-        // These 3 may not be needed anymore for Pensoft
-        // self::clean_eol_tags_tsv(); //remove rows with author-like strings e.g. "Hill S", "Urbani C"
-        // self::gen_noParentTerms();
-        // self::clean_noParentTerms(); //concatenate e.g. "cliff|cliffs"
+        */
+        self::noParentTerms_less_entities_file(); //exit("\nstop muna 1\n");
         
         // */
         /* ----- stat 2nd part ----- */
@@ -132,7 +128,7 @@ class Pensoft2EOLAPI
         echo "\n difference: ".count($difference)."\n";
         $difference = array_values($difference); //reindex key
         // print_r($difference);
-        /*$old Array(
+        /* $old e.g. Array(
             [http://purl.obolibrary.org/obo/ENVO_01000739] => habitat
             [http://purl.obolibrary.org/obo/ENVO_01001023] => radiation
             [http://purl.obolibrary.org/obo/ENVO_00002164] => fossil
@@ -563,6 +559,49 @@ class Pensoft2EOLAPI
         }
         else exit("\nOpenData resource not found [$resource_name]\n");
         // exit("\n-exit muna-\n");
+    }
+    private function noParentTerms_less_entities_file()
+    {   echo "\nCleaning noParentTerms...\n";
+        /* step 1: get_envo_from_entities_file */
+        $envo_from_entities = self::get_envo_from_entities_file();
+        // print_r($envo_from_entities); exit;
+        /*Array(
+            [0] => _entities_3
+            [1] => ENVO_00000002
+            [2] => ENVO_00000012
+            [3] => ENVO_00000013
+            [4] => ENVO_00000014
+        */
+        foreach($envo_from_entities as $envo_term) $envoFromEntities[$envo_term] = '';
+        unset($envo_from_entities);
+        
+        /* step 2: loop */
+        if(copy($this->eol_tags_path."eol_tags_noParentTerms.tsv", $this->eol_tags_path."eol_tags_noParentTerms.tsv.old")) echo "\nCopied OK (eol_tags_noParentTerms.tsv)\n";
+        else exit("\nERROR: Copy failed (eol_tags_noParentTerms.tsv)\n");
+        $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w"); fclose($f); //initialize
+        $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
+        foreach(new FileIterator($file) as $line => $row) {
+            $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
+            if(!$row) continue;
+            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            // print_r($tmp); exit;
+            /*Array(
+                [0] => Q140_-_3534a7422ad054e6972151018c05cb38
+                [1] => 
+                [2] => 
+                [3] => habitat
+                [4] => ENVO_01000739
+            )*/
+            $envo_term = $tmp[4];
+            if(isset($envoFromEntities[$envo_term])) {
+                $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
+                fwrite($f, $row."\n");
+                fclose($f);
+            }
+        }
+        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n eol_tags_noParentTerms.tsv.old ($out)\n";
+        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n eol_tags_noParentTerms.tsv ($out)\n";
     }
     private function apply_adjustments($uri, $label) //apply it here: ALL_remap_replace_remove.txt
     {
