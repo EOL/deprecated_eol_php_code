@@ -60,6 +60,14 @@ class Pensoft2EOLAPI
         $info = self::parse_dwca($resource); // print_r($info); exit;
         $tables = $info['harvester']->tables;
         print_r(array_keys($tables)); //exit;
+
+        // /* this is used to apply all the remaps, deletions, adjustments:
+        self::init_DATA_1841_terms_remapped();
+        self::initialize_mRemark_assignments();
+        self::initialize_delete_mRemarks();
+        self::initialize_delete_uris();
+        // */
+
         // /* un-comment in real operation
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
@@ -154,55 +162,6 @@ class Pensoft2EOLAPI
         // print_r($final); exit;
         return array_keys($final);
     }
-    function clean_eol_tags_tsv()
-    {   echo "\nCleaning eol_tags.tsv...\n";
-        if(copy($this->eol_tags_path."eol_tags.tsv", $this->eol_tags_path."eol_tags.tsv.old")) echo "\nCopied OK (eol_tags.tsv)\n";
-        else exit("\nERROR: Copy failed (eol_tags.tsv)\n");
-        $f = Functions::file_open($this->eol_tags_path."eol_tags.tsv", "w");
-        $file = $this->eol_tags_path."eol_tags.tsv.old"; $i = 0;
-        foreach(new FileIterator($file) as $line => $row) {
-            $i++; //if(($i % $this->modulo) == 0) echo "\n".number_format($i);
-            if(!$row) continue;
-            // $row = Functions::conv_to_utf8($row); //possibly to fix special chars
-            $tmp = explode("\t", $row);
-            // print_r($tmp); exit;
-            /*Array(
-                [0] => Q140_-_3534a7422ad054e6972151018c05cb38.txt
-                [1] => 868
-                [2] => 877
-                [3] => grasslands
-                [4] => ENVO:00000106
-            )*/
-            $env_str = $tmp[3];
-            if(is_string(substr($env_str,0,1))) { //always starts with a letter. Never a number.
-                // exit("\n$env_str\n");
-                if(self::is_environment_string_valid($env_str)) fwrite($f, $row."\n");
-            }
-            else {
-                print_r($tmp);
-                exit("\nInvestigate, first char not letter.\n");
-            }
-        }
-        /* un-comment if you want to see removed invalid environment strings
-        if($val = @$this->debug['removed']) print_r($val);
-        */
-        fclose($f);
-        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags.tsv.old"); echo "\n eol_tags.tsv.old ($out)\n";
-        $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags.tsv");     echo "\n eol_tags.tsv ($out)\n";
-    }
-    private function is_environment_string_valid($str)
-    {
-        // "Hill S" or "Urbani C" -> invalid author-like strings...
-        $arr = explode(" ", $str);
-        if($second_word = @$arr[1]) { //means multiple words
-            $first_char_of_first_word = substr($arr[0], 0, 1);
-            if(strlen($second_word) == 1 && ctype_upper($first_char_of_first_word)) {
-                $this->debug['removed'][$str] = ''; //echo "\ninvalid $str\n";
-                return false;
-            }
-        }
-        return true;
-    }
     private function initialize_files()
     {
         // /* copied template, not needed in Pensoft yet
@@ -230,8 +189,8 @@ class Pensoft2EOLAPI
         print_r($paths); //exit("\n-exit muna-\n");
         // */
         /* development only
-        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_71886/",
-                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_71886/");
+        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_04626/",
+                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_04626/");
         */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
@@ -314,6 +273,12 @@ class Pensoft2EOLAPI
                      [http://purl.obolibrary.org/obo/ENVO_00000026] => well
             )*/
             foreach($this->results as $uri => $label) {
+                if($ret = self::apply_adjustments($uri, $label)) {
+                    $uri = $ret['uri'];
+                    $label = $ret['label'];
+                    $this->all_envo_terms[$uri] = $label; //for stats only - report for Jen
+                }
+                else continue;
                 $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME));
                 fwrite($f, implode("\t", $arr)."\n");
             }
@@ -378,7 +343,7 @@ class Pensoft2EOLAPI
         foreach($arr as $rek) {
             if(ctype_lower(substr($rek['lbl'],0,1))) {
                 $this->results[$rek['id']] = $rek['lbl'];
-                $this->all_envo_terms[$rek['id']] = $rek['lbl']; //for stats only - report for Jen
+                // $this->all_envo_terms[$rek['id']] = $rek['lbl']; //for stats only - report for Jen
             }
         }
     }
@@ -601,6 +566,275 @@ class Pensoft2EOLAPI
         }
         else exit("\nOpenData resource not found [$resource_name]\n");
         // exit("\n-exit muna-\n");
+    }
+    private function apply_adjustments($uri, $label) //apply it here: ALL_remap_replace_remove.txt
+    {
+        if(in_array($uri, array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) && $label == 'ravine') $uri = "http://purl.obolibrary.org/obo/ENVO_00000100";
+        if($new_uri = @$this->mRemarks[$label]) $uri = $new_uri;
+        if($new_uri = @$this->remapped_terms[$uri]) $uri = $new_uri;
+        if(isset($this->delete_MoF_with_these_labels[$label])) return false;
+        if(isset($this->delete_MoF_with_these_uris[$uri])) return false;
+        return array('label' => $label, 'uri' => $uri);
+    }
+    private function init_DATA_1841_terms_remapped()
+    {
+        require_library('connectors/TropicosArchiveAPI');
+        /* START DATA-1841 terms remapping */
+        $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
+        $func = new TropicosArchiveAPI(NULL); //to initialize variable $this->uri_values in TropicosArchiveAPI
+        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24); //*this is not add_additional_mappings()
+        echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
+        /* END DATA-1841 terms remapping */
+    }
+    private function initialize_delete_mRemarks()
+    {
+        // if measurementRemarks is any of these, then delete MoF
+        $a1 = array('range s', 'ranges', 'range s', 'rang e', 'bamboo', 'barrens', 'breaks', 'mulga', 'chanaral');
+        $a2 = array('ridge', 'plateau', 'plateaus', 'crests', 'canyon', 'terrace', 'canyons', 'gullies', 'notches', 'terraces', 'bluff', 'cliffs', 'gulch', 'gully', 'llanos', 'plantations', 'sierra', 'tunnel');
+        $a3 = array('chemical product', 'cosmetic product', 'paper product', 'zoological garden', 'world heritage site', 'wildlife management area', 'warehouse', 'vivarium', 'terrarium', 'saline water aquarium', 
+        'road cut', 'road', 'populated place', 'plant feed', 'oil spill', 'oil tank', 'oil well', 'oil reservoir', 'oil', 'nature reserve', 'national nature reserve', 'national park', 
+        'national wildlife refuge', 'mouth', 'military training area', 'industrial waste', 'geographic feature', 'geothermal field', 'geothermal power plant', 'fresh water aquarium', 'elevation', 
+        'bridge', 'blowhole', 'bakery', 'aquarium', 'anthropogenic geographic feature', 'animal habitation', 'air conditioning unit', 'activated sludge', 'agricultural feature');
+        $labels = array_merge($a1, $a2, $a3);
+        foreach($labels as $label) $this->delete_MoF_with_these_labels[$label] = '';
+    }
+    private function initialize_mRemark_assignments()
+    {
+        $mRemarks["open waters"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["open-water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["openwater"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["open water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["dry stream beds"] = "http://purl.obolibrary.org/obo/ENVO_00000278";
+        $mRemarks["dry streambeds"] = "http://purl.obolibrary.org/obo/ENVO_00000278";
+        $mRemarks["dry stream-beds"] = "http://purl.obolibrary.org/obo/ENVO_00000278";
+        $mRemarks["dry stream bed"] = "http://purl.obolibrary.org/obo/ENVO_00000278";
+        $mRemarks["dry streambed"] = "http://purl.obolibrary.org/obo/ENVO_00000278";
+        $mRemarks["coral heads"] = "http://purl.obolibrary.org/obo/ENVO_01000049";
+        $mRemarks["coral head"] = "http://purl.obolibrary.org/obo/ENVO_01000049";
+        $mRemarks["glades"] = "http://purl.obolibrary.org/obo/ENVO_00000444";
+        $mRemarks["glade"] = "http://purl.obolibrary.org/obo/ENVO_00000444";
+        $mRemarks["seaway"] = "http://purl.obolibrary.org/obo/ENVO_00000447";
+        $mRemarks["tide way"] = "http://purl.obolibrary.org/obo/ENVO_00000447";
+        $mRemarks["tideway"] = "http://purl.obolibrary.org/obo/ENVO_00000447";
+        $mRemarks["sea-way"] = "http://purl.obolibrary.org/obo/ENVO_00000447";
+        $mRemarks["herbaceous areas"] = "http://purl.obolibrary.org/obo/ENVO_01001305";
+        $mRemarks["loch"] = "http://purl.obolibrary.org/obo/ENVO_01000252";
+        $mRemarks["croplands"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["cropland"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["crop land"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["agricultural regions"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["agricultural region"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["crop-lands"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["cultivated croplands"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["cultivated s"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["crop lands"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["sea vents"] = "http://purl.obolibrary.org/obo/ENVO_01000030";
+        $mRemarks["active chimneys"] = "http://purl.obolibrary.org/obo/ENVO_01000030";
+        $mRemarks["sea vent"] = "http://purl.obolibrary.org/obo/ENVO_01000030";
+        $mRemarks["active chimney"] = "http://purl.obolibrary.org/obo/ENVO_01000030";
+        $mRemarks["embayments"] = "http://purl.obolibrary.org/obo/ENVO_00000032";
+        $mRemarks["embayment"] = "http://purl.obolibrary.org/obo/ENVO_00000032";
+        $mRemarks["brush"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["bush"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["brushes"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["caatinga"] = "http://purl.obolibrary.org/obo/ENVO_00000883";
+        $mRemarks["caatingas"] = "http://purl.obolibrary.org/obo/ENVO_00000883";
+        $mRemarks["coniferous forest"] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        $mRemarks["coniferous forest"] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        $mRemarks["coniferous forests"] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        $mRemarks["coniferousforest"] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        $mRemarks["coniferousforests"] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        $mRemarks["deciduous forests"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["deciduous forest"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["deciduous forests"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["deciduous-forest"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["deciduousforest"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["deciduousforests"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["equatorial forest"] = "http://purl.obolibrary.org/obo/ENVO_01000220";
+        $mRemarks["equatorial forests"] = "http://purl.obolibrary.org/obo/ENVO_01000220";
+        $mRemarks["equatorial rain forest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["equatorial rain forests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["equatorial rainforest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["equatorial rainforests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["jungle"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["jungles"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["mallee scrub"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["mangrove forest"] = "http://purl.obolibrary.org/obo/ENVO_01000181";
+        $mRemarks["mangrove forests"] = "http://purl.obolibrary.org/obo/ENVO_01000181";
+        $mRemarks["mangrove- forest"] = "http://purl.obolibrary.org/obo/ENVO_01000181";
+        $mRemarks["monsoon forest"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["monsoon forests"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["monsoon-forest"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["mulga scrub"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["pine grove"] = "http://purl.obolibrary.org/obo/ENVO_01000240";
+        $mRemarks["pine groves"] = "http://purl.obolibrary.org/obo/ENVO_01000240";
+        $mRemarks["pinegrove"] = "http://purl.obolibrary.org/obo/ENVO_01000240";
+        $mRemarks["rain forest"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["rain forest"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["rain forests"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["rain-forest"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["rain-forests"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["rainforest"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["rainforests"] = "http://eol.org/schema/terms/wet_forest";
+        $mRemarks["sage brush"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["sage-brush"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["sagebrush"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["sagebrushes"] = "http://purl.obolibrary.org/obo/ENVO_01000176";
+        $mRemarks["taiga"] = "http://eol.org/schema/terms/boreal_forests_taiga";
+        $mRemarks["taigas"] = "http://eol.org/schema/terms/boreal_forests_taiga";
+        $mRemarks["thorn forest"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["thorn forests"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["thorn-forest"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["thornforest"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["thornforests"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["tropical rain forest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["tropical rain forests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["tropical rain-forest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["tropical rainforest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["tropical rainforests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["tropicalrainforests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+
+        $mRemarks["coast"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["coastal"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["coastal areas"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["coastal strip"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["coastal region"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["coasts"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["coastal regions"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["costal"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["littoral"] = "http://eol.org/schema/terms/littoralZone";
+        $mRemarks["Sea coast"] = "http://purl.obolibrary.org/obo/ENVO_01000687";
+        $mRemarks["forests"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["forest"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["deciduous forests"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["groves"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["deciduous forest"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["Forest Reserve"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["Forest Reserves"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["open-water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["open water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["rivers"] = "http://purl.obolibrary.org/obo/ENVO_01000253";
+        $mRemarks["foothill"] = "http://purl.obolibrary.org/obo/ENVO_00000083";
+        $mRemarks["foothills"] = "http://purl.obolibrary.org/obo/ENVO_00000083";
+        $mRemarks["palm grove"] = "http://purl.obolibrary.org/obo/ENVO_01000220";
+        $mRemarks["glades"] = "http://purl.obolibrary.org/obo/ENVO_00000444";
+        $mRemarks["agricultural sites"] = "http://purl.obolibrary.org/obo/ENVO_00000077";
+        $mRemarks["open-water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["open water"] = "http://purl.obolibrary.org/obo/ENVO_00002030";
+        $mRemarks["mountains"] = "http://purl.obolibrary.org/obo/ENVO_00000081";
+        $mRemarks["hills"] = "http://purl.obolibrary.org/obo/ENVO_00000083";
+        $mRemarks["rainforests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["rainforest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["tropical rainforests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["rain forest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["thorn forest"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["deciduous forest"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["tropical rainforest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["tropical rain forests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["deciduous forests"] = "http://purl.obolibrary.org/obo/ENVO_01000816";
+        $mRemarks["tropical rain forest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["coniferous forests"] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        $mRemarks["thorn forests"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["rain-forest"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["rain forests"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["Jungle"] = "http://purl.obolibrary.org/obo/ENVO_01000228";
+        $mRemarks["coniferous forest"] = "http://purl.obolibrary.org/obo/ENVO_01000196";
+        $mRemarks["equatorial forest"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["monsoon forests"] = "http://purl.obolibrary.org/obo/ENVO_00000879";
+        $mRemarks["thornforest"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        $mRemarks["reforested areas"] = "http://purl.obolibrary.org/obo/ENVO_01000174";
+        // per https://eol-jira.bibalex.org/browse/DATA-1739?focusedCommentId=64619&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64619 */
+        $mRemarks["seamounts"] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+        $mRemarks["seamount"] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+        $mRemarks["seamount chain"] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+        $mRemarks["range of seamounts"] = 'http://purl.obolibrary.org/obo/ENVO_00000264';
+        $this->mRemarks = $mRemarks;
+    }
+    private function initialize_delete_uris()
+    {
+        $uris = array('http://purl.obolibrary.org/obo/ENVO_00000104', 'http://purl.obolibrary.org/obo/ENVO_00002033', 'http://purl.obolibrary.org/obo/ENVO_00000304', 
+        'http://purl.obolibrary.org/obo/ENVO_00000486', 'http://purl.obolibrary.org/obo/ENVO_00002000', 'http://purl.obolibrary.org/obo/ENVO_00000086', 
+        'http://purl.obolibrary.org/obo/ENVO_00000220', 'http://purl.obolibrary.org/obo/ENVO_00000113', 'http://purl.obolibrary.org/obo/ENVO_00002232', 
+        'http://purl.obolibrary.org/obo/ENVO_02000047', 'http://purl.obolibrary.org/obo/ENVO_00003031', 'http://purl.obolibrary.org/obo/ENVO_00002276', 
+        'http://purl.obolibrary.org/obo/ENVO_00000121', 'http://purl.obolibrary.org/obo/ENVO_00000099', 'http://purl.obolibrary.org/obo/ENVO_00000377', 
+        'http://purl.obolibrary.org/obo/ENVO_00000165', 'http://purl.obolibrary.org/obo/ENVO_00003903', 'http://purl.obolibrary.org/obo/ENVO_02000054', 
+        'http://purl.obolibrary.org/obo/ENVO_00010624', 'http://purl.obolibrary.org/obo/ENVO_01000243', 'http://purl.obolibrary.org/obo/ENVO_01000114', 
+        'http://purl.obolibrary.org/obo/ENVO_00003885', 'http://purl.obolibrary.org/obo/ENVO_00003044', 'http://purl.obolibrary.org/obo/ENVO_00000369', 
+        'http://purl.obolibrary.org/obo/ENVO_00000158', 'http://purl.obolibrary.org/obo/ENVO_00000526', 'http://purl.obolibrary.org/obo/ENVO_02000058', 
+        'http://purl.obolibrary.org/obo/ENVO_00002169', 'http://purl.obolibrary.org/obo/ENVO_00002206', 'http://purl.obolibrary.org/obo/ENVO_00002026', 
+        'http://purl.obolibrary.org/obo/ENVO_00002170', 'http://purl.obolibrary.org/obo/ENVO_00000272', 'http://purl.obolibrary.org/obo/ENVO_00002116', 
+        'http://purl.obolibrary.org/obo/ENVO_00002186', 'http://purl.obolibrary.org/obo/ENVO_00000293', 'http://purl.obolibrary.org/obo/ENVO_00000223', 
+        'http://purl.obolibrary.org/obo/ENVO_00000514', 'http://purl.obolibrary.org/obo/ENVO_2000001', 'http://purl.obolibrary.org/obo/ENVO_00000320', 
+        'http://purl.obolibrary.org/obo/ENVO_02000006', 'http://purl.obolibrary.org/obo/ENVO_00000474', 'http://purl.obolibrary.org/obo/ENVO_00000523', 
+        'http://purl.obolibrary.org/obo/ENVO_00000074', 'http://purl.obolibrary.org/obo/ENVO_00000309', 'http://purl.obolibrary.org/obo/ENVO_00000037', 
+        'http://purl.obolibrary.org/obo/ENVO_00002158', 'http://purl.obolibrary.org/obo/ENVO_00000291', 'http://purl.obolibrary.org/obo/ENVO_00003064', 
+        'http://purl.obolibrary.org/obo/ENVO_00000449', 'http://purl.obolibrary.org/obo/ENVO_01000136', 'http://purl.obolibrary.org/obo/ENVO_00010506', 
+        'http://purl.obolibrary.org/obo/ENVO_00002020', 'http://purl.obolibrary.org/obo/ENVO_00002027', 'http://purl.obolibrary.org/obo/ENVO_00000114', 
+        'http://purl.obolibrary.org/obo/ENVO_00000294', 'http://purl.obolibrary.org/obo/ENVO_00000295', 'http://purl.obolibrary.org/obo/ENVO_00000471', 
+        'http://purl.obolibrary.org/obo/ENVO_00000443', 'http://purl.obolibrary.org/obo/ENVO_00002002', 'http://purl.obolibrary.org/obo/ENVO_00000411', 
+        'http://purl.obolibrary.org/obo/ENVO_00002164', 'http://purl.obolibrary.org/obo/ENVO_00002983', 'http://purl.obolibrary.org/obo/ENVO_00000011', 
+        'http://purl.obolibrary.org/obo/ENVO_00000050', 'http://purl.obolibrary.org/obo/ENVO_00000131', 'http://purl.obolibrary.org/obo/ENVO_00002168', 
+        'http://purl.obolibrary.org/obo/ENVO_00000340', 'http://purl.obolibrary.org/obo/ENVO_00005780', 'http://purl.obolibrary.org/obo/ENVO_00002041', 
+        'http://purl.obolibrary.org/obo/ENVO_00002171', 'http://purl.obolibrary.org/obo/ENVO_00002028', 'http://purl.obolibrary.org/obo/ENVO_00002023', 
+        'http://purl.obolibrary.org/obo/ENVO_00002025', 'http://purl.obolibrary.org/obo/ENVO_00003859', 'http://purl.obolibrary.org/obo/ENVO_00000468', 
+        'http://purl.obolibrary.org/obo/ENVO_02000000', 'http://purl.obolibrary.org/obo/ENVO_00000098', 'http://purl.obolibrary.org/obo/ENVO_00000174', 
+        'http://purl.obolibrary.org/obo/ENVO_00000311', 'http://purl.obolibrary.org/obo/ENVO_00000424', 'http://purl.obolibrary.org/obo/ENVO_00000391', 
+        'http://purl.obolibrary.org/obo/ENVO_00000533', 'http://purl.obolibrary.org/obo/ENVO_00000178', 'http://purl.obolibrary.org/obo/ENVO_00000066', 
+        'http://purl.obolibrary.org/obo/ENVO_01000057', 'http://purl.obolibrary.org/obo/ENVO_01000066', 'http://purl.obolibrary.org/obo/ENVO_00000509', 
+        'http://purl.obolibrary.org/obo/ENVO_00000427', 'http://purl.obolibrary.org/obo/ENVO_00010621', 'http://purl.obolibrary.org/obo/ENVO_01000207', 
+        'http://purl.obolibrary.org/obo/ENVO_00002035', 'http://purl.obolibrary.org/obo/ENVO_00010442', 'http://purl.obolibrary.org/obo/ENVO_00000076', 
+        'http://purl.obolibrary.org/obo/ENVO_00001996', 'http://purl.obolibrary.org/obo/ENVO_00000003', 'http://purl.obolibrary.org/obo/ENVO_00000180', 
+        'http://purl.obolibrary.org/obo/ENVO_00000477', 'http://purl.obolibrary.org/obo/ENVO_00000414', 'http://purl.obolibrary.org/obo/ENVO_00000359', 
+        'http://purl.obolibrary.org/obo/ENVO_00000048', 'http://purl.obolibrary.org/obo/ENVO_00005804', 'http://purl.obolibrary.org/obo/ENVO_00005805', 
+        'http://purl.obolibrary.org/obo/ENVO_2000006', 'http://purl.obolibrary.org/obo/ENVO_02000004', 'http://purl.obolibrary.org/obo/ENVO_00002271', 
+        'http://purl.obolibrary.org/obo/ENVO_00000480', 'http://purl.obolibrary.org/obo/ENVO_00002139', 'http://purl.obolibrary.org/obo/ENVO_00000305', 
+        'http://purl.obolibrary.org/obo/ENVO_00000134', 'http://purl.obolibrary.org/obo/ENVO_00002984', 'http://purl.obolibrary.org/obo/ENVO_00000191', 
+        'http://purl.obolibrary.org/obo/ENVO_00000339', 'http://purl.obolibrary.org/obo/ENVO_00003860', 'http://purl.obolibrary.org/obo/ENVO_00000481', 
+        'http://purl.obolibrary.org/obo/ENVO_00002214', 'http://purl.obolibrary.org/obo/ENVO_00000358', 'http://purl.obolibrary.org/obo/ENVO_00000302', 
+        'http://purl.obolibrary.org/obo/ENVO_00001995', 'http://purl.obolibrary.org/obo/ENVO_00000022', 'http://purl.obolibrary.org/obo/ENVO_01000017', 
+        'http://purl.obolibrary.org/obo/ENVO_00002055', 'http://purl.obolibrary.org/obo/ENVO_00004638', 'http://purl.obolibrary.org/obo/ENVO_00003930', 
+        'http://purl.obolibrary.org/obo/ENVO_00000092', 'http://purl.obolibrary.org/obo/ENVO_00002016', 'http://purl.obolibrary.org/obo/ENVO_00002018', 
+        'http://purl.obolibrary.org/obo/ENVO_00003043', 'http://purl.obolibrary.org/obo/ENVO_00002056', 'http://purl.obolibrary.org/obo/ENVO_00000403', 
+        'http://purl.obolibrary.org/obo/ENVO_00003030', 'http://purl.obolibrary.org/obo/ENVO_00000539', 'http://purl.obolibrary.org/obo/ENVO_01000016', 
+        'http://purl.obolibrary.org/obo/ENVO_00000361', 'http://purl.obolibrary.org/obo/ENVO_00002044', 'http://purl.obolibrary.org/obo/ENVO_00000393', 
+        'http://purl.obolibrary.org/obo/ENVO_00000027', 'http://purl.obolibrary.org/obo/ENVO_00000419', 'http://purl.obolibrary.org/obo/ENVO_00000331', 
+        'http://purl.obolibrary.org/obo/ENVO_00000330', 'http://purl.obolibrary.org/obo/ENVO_00000394', 'http://purl.obolibrary.org/obo/ENVO_00010504', 
+        'http://purl.obolibrary.org/obo/ENVO_00000543', 'http://purl.obolibrary.org/obo/ENVO_00003323', 'http://purl.obolibrary.org/obo/ENVO_00003096', 
+        'http://purl.obolibrary.org/obo/ENVO_02000001', 'http://purl.obolibrary.org/obo/ENVO_00000122', 'http://purl.obolibrary.org/obo/ENVO_00000499', 
+        'http://purl.obolibrary.org/obo/ENVO_00000094', 'http://purl.obolibrary.org/obo/ENVO_00002264', 'http://purl.obolibrary.org/obo/ENVO_00002272', 
+        'http://purl.obolibrary.org/obo/ENVO_00002001', 'http://purl.obolibrary.org/obo/ENVO_00002043', 'http://purl.obolibrary.org/obo/ENVO_00000029', 
+        'http://purl.obolibrary.org/obo/ENVO_00000547', 'http://purl.obolibrary.org/obo/ENVO_00000292', 'http://purl.obolibrary.org/obo/ENVO_00000421', 
+        'http://purl.obolibrary.org/obo/ENVO_00000043', 'http://purl.obolibrary.org/obo/ENVO_00000409', 'http://purl.obolibrary.org/obo/ENVO_00002040', 
+        'http://purl.obolibrary.org/obo/ENVO_00001998', 'http://purl.obolibrary.org/obo/ENVO_00000376', 'http://purl.obolibrary.org/obo/ENVO_00002152', 
+        'http://purl.obolibrary.org/obo/ENVO_00002123', 'http://purl.obolibrary.org/obo/ENVO_00000530', 'http://purl.obolibrary.org/obo/ENVO_00000564', 
+        'http://purl.obolibrary.org/obo/ENVO_00002277', 'http://purl.obolibrary.org/obo/ENVO_00000438', 'http://purl.obolibrary.org/obo/ENVO_2000004',     
+        'http://purl.obolibrary.org/obo/ENVO_00000367', 'http://purl.obolibrary.org/obo/ENVO_00000363', 'http://purl.obolibrary.org/obo/ENVO_00000305', 
+        'http://purl.obolibrary.org/obo/ENVO_00000358', 'http://purl.obolibrary.org/obo/ENVO_00000064', 'http://purl.obolibrary.org/obo/ENVO_00000515', 
+        'http://purl.obolibrary.org/obo/ENVO_01000246', 'http://purl.obolibrary.org/obo/ENVO_00010622', 'http://purl.obolibrary.org/obo/ENVO_00010625', 
+        'http://purl.obolibrary.org/obo/ENVO_00002000', 'http://purl.obolibrary.org/obo/ENVO_00000376', 'http://purl.obolibrary.org/obo/ENVO_00000011', 
+        'http://purl.obolibrary.org/obo/ENVO_00000291', 'http://purl.obolibrary.org/obo/ENVO_00002277', 'http://purl.obolibrary.org/obo/ENVO_00000393', 
+        'http://purl.obolibrary.org/obo/ENVO_00000547', 'http://purl.obolibrary.org/obo/ENVO_01000243', 'http://purl.obolibrary.org/obo/ENVO_00000514', 
+        'http://purl.obolibrary.org/obo/ENVO_00000533', 'http://purl.obolibrary.org/obo/ENVO_00000104', 'http://purl.obolibrary.org/obo/ENVO_00000320', 
+        'http://purl.obolibrary.org/obo/ENVO_00000220', 'http://purl.obolibrary.org/obo/ENVO_00000029', 'http://purl.obolibrary.org/obo/ENVO_00000293', 
+        'http://purl.obolibrary.org/obo/ENVO_00000174', 'http://purl.obolibrary.org/obo/ENVO_00000480', 'http://purl.obolibrary.org/obo/ENVO_00004638', 
+        'http://purl.obolibrary.org/obo/ENVO_00002139', 'http://purl.obolibrary.org/obo/ENVO_00000477', 'http://purl.obolibrary.org/obo/ENVO_2000001', 
+        'http://purl.obolibrary.org/obo/ENVO_00000331', 'http://purl.obolibrary.org/obo/ENVO_00000292', 'http://purl.obolibrary.org/obo/ENVO_01000016', 
+        'http://purl.obolibrary.org/obo/ENVO_00000499', 'http://purl.obolibrary.org/obo/ENVO_00000427', 'http://purl.obolibrary.org/obo/ENVO_00002041', 
+        'http://purl.obolibrary.org/obo/ENVO_00000294', 'http://purl.obolibrary.org/obo/ENVO_00000122', 'http://purl.obolibrary.org/obo/ENVO_00010624', 
+        'http://purl.obolibrary.org/obo/ENVO_00002271', 'http://purl.obolibrary.org/obo/ENVO_00002026', 'http://purl.obolibrary.org/obo/ENVO_00000302', 
+        'http://purl.obolibrary.org/obo/ENVO_00000550', 'http://purl.obolibrary.org/obo/ENVO_00000178', 'http://purl.obolibrary.org/obo/ENVO_00000480', 
+        'http://purl.obolibrary.org/obo/ENVO_00000086', 'http://purl.obolibrary.org/obo/ENVO_00002055', 'http://purl.obolibrary.org/obo/ENVO_01000047',
+        'http://purl.obolibrary.org/obo/ENVO_2000000', 'http://purl.obolibrary.org/obo/ENVO_00003893', 'http://purl.obolibrary.org/obo/ENVO_00003895', 'http://purl.obolibrary.org/obo/ENVO_00010625', 
+        'http://purl.obolibrary.org/obo/ENVO_00000375', 'http://purl.obolibrary.org/obo/ENVO_00000374', 'http://purl.obolibrary.org/obo/ENVO_00003963', 'http://purl.obolibrary.org/obo/ENVO_00010622', 
+        'http://purl.obolibrary.org/obo/ENVO_00000349', 'http://purl.obolibrary.org/obo/ENVO_00002197', 'http://purl.obolibrary.org/obo/ENVO_00000515', 'http://purl.obolibrary.org/obo/ENVO_00000064', 
+        'http://purl.obolibrary.org/obo/ENVO_00000062', 'http://purl.obolibrary.org/obo/ENVO_02000055', 'http://purl.obolibrary.org/obo/ENVO_00002061', 'http://purl.obolibrary.org/obo/ENVO_00002183', 
+        'http://purl.obolibrary.org/obo/ENVO_01000003', 'http://purl.obolibrary.org/obo/ENVO_00002185', 'http://purl.obolibrary.org/obo/ENVO_00002985', 'http://purl.obolibrary.org/obo/ENVO_00000363', 
+        'http://purl.obolibrary.org/obo/ENVO_00000366', 'http://purl.obolibrary.org/obo/ENVO_00000367', 'http://purl.obolibrary.org/obo/ENVO_00000364', 'http://purl.obolibrary.org/obo/ENVO_00000479', 
+        'http://purl.obolibrary.org/obo/ENVO_00000561', 'http://purl.obolibrary.org/obo/ENVO_00002267', 'http://purl.obolibrary.org/obo/ENVO_00000000', 'http://purl.obolibrary.org/obo/ENVO_00000373', 
+        'http://purl.obolibrary.org/obo/ENVO_00002215', 'http://purl.obolibrary.org/obo/ENVO_00002198', 'http://purl.obolibrary.org/obo/ENVO_00000176', 'http://purl.obolibrary.org/obo/ENVO_00000075', 
+        'http://purl.obolibrary.org/obo/ENVO_00000168', 'http://purl.obolibrary.org/obo/ENVO_00003864', 'http://purl.obolibrary.org/obo/ENVO_00002196', 'http://purl.obolibrary.org/obo/ENVO_00000002', 
+        'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077');
+        foreach($uris as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
     }
 }
 ?>
