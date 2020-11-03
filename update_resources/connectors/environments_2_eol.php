@@ -94,8 +94,13 @@ $param                     = json_decode(@$argv[2], true);
 $task = $param['task'];
 $resource = @$param['resource'];
 
-// echo "\n". urlencode("https://en.wikipedia.org/wiki/Atlantic(cod)"); exit;
-
+/*
+$a1 = array('blue', 'orange', 'green', 'red');
+$a2 = array('orange', 'red');
+$a3 = array_diff($a1, $a2);
+// $a3 = array_diff($a2, $a1);
+print_r($a1); print_r($a2); print_r($a3); exit;
+*/
 /* during development only. Not part of main operation
 require_library('connectors/Environments2EOLAPI');
 $func = new Environments2EOLAPI($param);

@@ -49,6 +49,7 @@ class Pensoft2EOLAPI
         
         $this->download_options = array('expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
         $this->call['opendata resource via name'] = "https://opendata.eol.org/api/3/action/resource_search?query=name:RESOURCE_NAME";
+        $this->entities_file = 'https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/for_entities.txt';
     }
     function generate_eol_tags_pensoft($resource)
     {
@@ -63,6 +64,10 @@ class Pensoft2EOLAPI
         self::process_table($tables['http://eol.org/schema/media/document'][0]); //generates individual text files & runs environment tagger
         // exit("\nDebug early exit...\n"); //if u want to investigate the individual text files.
         print_r($this->debug);
+        
+        // /* report for Jen - 'difference' report
+        self::generate_difference_report(); exit("\n-end report-\n");
+        // */
         
         // These 3 may not be needed anymore for Pensoft
         // self::clean_eol_tags_tsv(); //remove rows with author-like strings e.g. "Hill S", "Urbani C"
@@ -102,6 +107,40 @@ class Pensoft2EOLAPI
             recursive_rmdir($this->json_temp_path['metadata']);
             mkdir($this->json_temp_path['metadata']);
         }
+    }
+    private function generate_difference_report()
+    {
+        // print_r($this->all_envo_terms); exit;
+        $this->all_envo_terms = array_keys($this->all_envo_terms);
+        print_r($this->all_envo_terms); //exit;
+        foreach($this->all_envo_terms as $t) $pensoft_envo_terms[] = pathinfo($t, PATHINFO_BASENAME);
+        $envo_from_entities = self::get_envo_from_entities_file();
+        // print_r($envo_from_entities); exit;
+        $difference = array_diff($pensoft_envo_terms, $envo_from_entities);
+        echo "\n pensoft_envo_terms: ".count($pensoft_envo_terms);
+        echo "\n envo_from_entities: ".count($envo_from_entities);
+        echo "\n difference: ".count($difference)."\n";
+        $difference = array_values($difference); //reindex key
+        print_r($difference);
+        exit("\n-end difference report-\n");
+    }
+    private function get_envo_from_entities_file()
+    {
+        $local = Functions::save_remote_file_to_local($this->entities_file, array('cache' => 1, 'expire_seconds' => 60*60*24));
+        foreach(new FileIterator($local) as $line => $row) {
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            // print_r($tmp); //exit;
+            /*Array(
+                [0] => 1009000003
+                [1] => -27
+                [2] => ENVO:01000057
+            )*/
+            $final[str_replace('ENVO:', 'ENVO_', $tmp[2])] = '';
+        }
+        unlink($local);
+        // print_r($final); exit;
+        return array_keys($final);
     }
     function clean_eol_tags_tsv()
     {   echo "\nCleaning eol_tags.tsv...\n";
@@ -179,8 +218,8 @@ class Pensoft2EOLAPI
         print_r($paths); //exit("\n-exit muna-\n");
         // */
         /* development only
-        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_03111/",
-                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_03111/");
+        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_71886/",
+                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_71886/");
         */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
@@ -229,7 +268,7 @@ class Pensoft2EOLAPI
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
-            // if($i >= 20) break; //debug only
+            // if($i >= 5) break; //debug only
         }
     }
     private function save_article_2_txtfile($rec)
@@ -298,7 +337,7 @@ class Pensoft2EOLAPI
             if($json = self::run_partial($desc)) {
                 self::save_json($id, $json, 'partial');
                 // echo("\nSaved partial OK\n"); //good debug
-                /* now start access newly created. The var $this->results should be populated. */
+                /* now start access newly created. The var $this->results will now be populated. */
                 if($arr = self::retrieve_json($id, 'partial', $desc)) {
                     self::select_envo($arr['data']);
                     // echo("\nretrieved (newly created) partial OK\n"); //good debug
@@ -325,8 +364,10 @@ class Pensoft2EOLAPI
                 )
         */
         foreach($arr as $rek) {
-            if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
-            // $this->results[$rek['id']] = $rek['lbl'];
+            if(ctype_lower(substr($rek['lbl'],0,1))) {
+                $this->results[$rek['id']] = $rek['lbl'];
+                $this->all_envo_terms[$rek['id']] = $rek['lbl']; //for stats only - report for Jen
+            }
         }
     }
     private function retrieve_json($id, $what, $desc)
