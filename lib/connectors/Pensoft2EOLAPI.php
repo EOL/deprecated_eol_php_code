@@ -111,8 +111,10 @@ class Pensoft2EOLAPI
     private function generate_difference_report()
     {
         // print_r($this->all_envo_terms); exit;
+        $old = $this->all_envo_terms;
+        print_r($old);
         $this->all_envo_terms = array_keys($this->all_envo_terms);
-        print_r($this->all_envo_terms); //exit;
+        // print_r($this->all_envo_terms); //exit;
         foreach($this->all_envo_terms as $t) $pensoft_envo_terms[] = pathinfo($t, PATHINFO_BASENAME);
         $envo_from_entities = self::get_envo_from_entities_file();
         // print_r($envo_from_entities); exit;
@@ -121,7 +123,17 @@ class Pensoft2EOLAPI
         echo "\n envo_from_entities: ".count($envo_from_entities);
         echo "\n difference: ".count($difference)."\n";
         $difference = array_values($difference); //reindex key
-        print_r($difference);
+        // print_r($difference);
+        /*$old Array(
+            [http://purl.obolibrary.org/obo/ENVO_01000739] => habitat
+            [http://purl.obolibrary.org/obo/ENVO_01001023] => radiation
+            [http://purl.obolibrary.org/obo/ENVO_00002164] => fossil
+        */
+        $i = 0;
+        foreach($difference as $term) { $i++;
+            $uri = 'http://purl.obolibrary.org/obo/'.$term;
+            echo "\n[$i] $uri -> ".$old[$uri];
+        }
         exit("\n-end difference report-\n");
     }
     private function get_envo_from_entities_file()
