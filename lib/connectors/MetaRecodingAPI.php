@@ -191,14 +191,14 @@ class MetaRecodingAPI
                 //when occurrenceID is used e.g. 201
                 if($eventDate = @$this->oID_eventDate[$occurrenceID]) {
                     $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
-                    self::write_MoF_rec($rec);
                 }
                 
                 //when parentmeasurementID is used e.g. cotr.tar.gz
                 if($eventDate = @$this->parentID_eventDate[$parentMeasurementID]) {
                     $rec['http://rs.tdwg.org/dwc/terms/measurementDeterminedDate'] = $eventDate;
-                    self::write_MoF_rec($rec);
                 }
+                
+                self::write_MoF_rec($rec);
             }
 
             if($what == 'write_task_indivCount') {

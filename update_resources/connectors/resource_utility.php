@@ -53,7 +53,8 @@ griis_meta_recoded	Mon 2020-11-02 08:36:01 AM	{"measurement_or_fact_specific.tab
 
 cotr	            Sat 2020-10-10 06:43:23 AM	{"measurement_or_fact_specific.tab":56648, "occurrence_specific.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":82.14, "min":1.37, "hr":0.02}}
 cotr_meta_recoded_1	Mon 2020-11-02 08:41:36 AM	{"measurement_or_fact_specific.tab":56648, "occurrence_specific.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":41.5, "min":0.69, "hr":0.01}}
-cotr_meta_recoded	Mon 2020-11-02 08:42:00 AM	{"measurement_or_fact_specific.tab":9031, "occurrence.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":23.91, "min":0.4, "hr":0.01}}
+*cotr_meta_recoded	Mon 2020-11-02 08:42:00 AM	{"measurement_or_fact_specific.tab":9031,  "occurrence.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":23.91, "min":0.4, "hr":0.01}}
+cotr_meta_recoded	Tue 2020-11-03 09:04:08 PM	{"measurement_or_fact_specific.tab":52298, "occurrence.tab":33475, "reference.tab":555, "taxon.tab":1547, "time_elapsed":{"sec":82.47, "min":1.37, "hr":0.02}}
 
 727	                Fri 2020-09-11 12:40:30 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727_meta_recoded	Mon 2020-11-02 08:59:01 AM	{"agent.tab":1, "measurement_or_fact_specific.tab":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":524.71, "min":8.75, "hr":0.15}}
@@ -96,15 +97,15 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/692.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/692.tar.gz";
     }
-    if($resource_id == '201_meta_recoded') {
+    elseif($resource_id == '201_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/201.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/201.tar.gz";
     }
-    if($resource_id == '726_meta_recoded') {
+    elseif($resource_id == '726_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/726.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/726.tar.gz";
     }
-    if($resource_id == 'griis_meta_recoded') {
+    elseif($resource_id == 'griis_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/griis.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/griis.tar.gz";
     }
