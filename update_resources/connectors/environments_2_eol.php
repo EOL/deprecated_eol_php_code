@@ -17,8 +17,6 @@ Next step now is to combine all the steps within a general connector:
 
 Implementation: Vangelis - OBSOLETE
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
-
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"21"}'
 
@@ -45,6 +43,10 @@ php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "
 
 ================================================== Pensoft annotator START
 Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simultaneously.
+
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
+-> haven't run Pensoft for AmphibiaWeb text yet.
+
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
 // php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Distribution"}'
 // php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"TaxonBiology"}'
