@@ -3,8 +3,8 @@ namespace php_active_record;
 /* This is generic way of removing taxa without MoF records.
 first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20tagger%20for%20EOL%20resources/job/Wikipedia%20EN%20(English)/
               environments_2_eol.php for Wikipedia EN 
-
-php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
+Used during Vangelis:   php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
+Used during Pensoft:    php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_ENV"}'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -20,7 +20,10 @@ if(Functions::is_production()) $dwca_file = '/u/scripts/eol_php_code/application
 else                           $dwca_file = 'http://localhost/eol_php_code/applications/content_server/resources/'.$resource_id.'.tar.gz';
 
 // /* ---------- customize here ----------
+/* during Vangelis:
 if($resource_id == '617_final') $resource_id = "wikipedia_en_traits";
+*/
+if($resource_id == '617_ENV') $resource_id = "wikipedia_en_traits"; //during Pensoft
 else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
 process_resource_url($dwca_file, $resource_id);
