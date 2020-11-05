@@ -89,6 +89,15 @@ wikipedia_en_traits	Thu 2020-10-01 12:41:54 PM	{"measurement_or_fact.tab":500273
 wikipedia_en_traits	Thu 2020-10-08 02:10:08 AM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
 start deduplication below:
 wikipedia_en_traits	Mon 2020-10-12 10:36:39 AM	{"measurement_or_fact.tab":426193, "occurrence.tab":426193, "taxon.tab":157390, "time_elapsed":false}
+
+Started using Pensoft:
+617_ENV	            Thu 2020-11-05 07:49:33 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":411865, "time_elapsed":false}
+wikipedia_en_traits	Thu 2020-11-05 07:52:07 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":91492, "time_elapsed":false}
+Started Jen's mapping:
+617_ENV	            Thu 2020-11-05 08:55:41 AM	{"MoF.tab":234579, "occurrence.tab":234579, "taxon.tab":411865, "time_elapsed":false}
+wikipedia_en_traits	Thu 2020-11-05 08:58:54 AM	{"MoF.tab":234579, "occurrence.tab":234579, "taxon.tab":120059, "time_elapsed":false}
+
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
