@@ -163,6 +163,13 @@ class MetaRecodingAPI
             $measurementValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             $parentMeasurementID = @$rec['http://eol.org/schema/parentMeasurementID'];
             $measurementRemarks = $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
+            
+            // /* manual correction of not-needed value. e.g. 'Unit' for measurementUnit.
+            if($mUnit = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) {
+                if($mUnit == 'Unit') $rec['http://rs.tdwg.org/dwc/terms/measurementUnit'] = '';
+            }
+            // */
+            
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
@@ -330,6 +337,13 @@ class MetaRecodingAPI
                 [http://rs.tdwg.org/dwc/terms/occurrenceRemarks] => 
             )*/
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            
+            // /* manual correction of not-needed value. e.g. 'Unit' for measurementUnit.
+            if($mUnit = @$rec['http://rs.tdwg.org/dwc/terms/measurementUnit']) {
+                if($mUnit == 'Unit') $rec['http://rs.tdwg.org/dwc/terms/measurementUnit'] = '';
+            }
+            // */
+            
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
