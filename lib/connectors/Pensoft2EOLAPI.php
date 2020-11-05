@@ -142,7 +142,7 @@ class Pensoft2EOLAPI
     }
     private function get_envo_from_entities_file()
     {
-        $local = Functions::save_remote_file_to_local($this->entities_file, array('cache' => 1, 'expire_seconds' => 60*60*24));
+        $local = Functions::save_remote_file_to_local($this->entities_file, array('cache' => 1, 'expire_seconds' => 60)); //60*60*24
         foreach(new FileIterator($local) as $line => $row) {
             if(!$row) continue;
             $tmp = explode("\t", $row);
@@ -618,7 +618,7 @@ class Pensoft2EOLAPI
         /* START DATA-1841 terms remapping */
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
         $func = new TropicosArchiveAPI(NULL); //to initialize variable $this->uri_values in TropicosArchiveAPI
-        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24); //*this is not add_additional_mappings()
+        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60); //*this is not add_additional_mappings() 60*60*24
         echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
         /* END DATA-1841 terms remapping */
     }
