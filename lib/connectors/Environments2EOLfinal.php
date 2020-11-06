@@ -88,7 +88,12 @@ class Environments2EOLfinal
                 $rec["catnum"] = md5($row);
                 $rec['measurementType'] = 'http://purl.obolibrary.org/obo/RO_0002303';
                 $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
-                $string_uri = 'http://purl.obolibrary.org/obo/'.str_replace(':', '_', $arr[4]);
+                
+                $basename = $arr[4]; //e.g. 'ENVO:00000300'
+                if(stripos($basename, "ENVO") !== false) { //string is found
+                    $string_uri = 'http://purl.obolibrary.org/obo/'.str_replace(':', '_', $basename);
+                }
+                else $string_uri = $basename;
 
                 // /* from legacy filters: EnvironmentsEOLDataConnector.php
                 if(in_array($string_uri, $this->excluded_uris)) {

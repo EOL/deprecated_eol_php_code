@@ -156,7 +156,12 @@ class Pensoft2EOLAPI
         }
         unlink($local);
         // print_r($final); exit;
-        return array_keys($final);
+        $final = array_keys($final);
+        echo "\nentities count 1: ".count($final);
+        $filter_out = self::filter_out_from_entities();
+        $final = array_diff($final, $filter_out);
+        echo "\nentities count 2: ".count($final);
+        return $final;
     }
     private function initialize_files()
     {
@@ -235,7 +240,7 @@ class Pensoft2EOLAPI
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
-            // if($i >= 5) break; //debug only
+            // if($i >= 10) break; //debug only
         }
     }
     private function save_article_2_txtfile($rec)
@@ -275,7 +280,12 @@ class Pensoft2EOLAPI
                     $this->all_envo_terms[$uri] = $label; //for stats only - report for Jen
                 }
                 else continue;
-                $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME));
+                
+                if(stripos($uri, "ENVO_") !== false) { //string is found
+                    $arr = array($basename, '', '', $label, pathinfo($uri, PATHINFO_FILENAME));
+                }
+                else $arr = array($basename, '', '', $label, $uri);
+                
                 fwrite($f, implode("\t", $arr)."\n");
             }
             fclose($f);
@@ -871,6 +881,21 @@ class Pensoft2EOLAPI
         'http://purl.obolibrary.org/obo/ENVO_00000168', 'http://purl.obolibrary.org/obo/ENVO_00003864', 'http://purl.obolibrary.org/obo/ENVO_00002196', 'http://purl.obolibrary.org/obo/ENVO_00000002', 
         'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077');
         foreach($uris as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
+    }
+    private function filter_out_from_entities()
+    {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359
+        return array('ENVO_00000026', 'ENVO_01000342', 'ENVO_00000241', 'ENVO_01000001', 'ENVO_00002982', 'ENVO_01000628', 'ENVO_00002053', 'ENVO_00000014', 'ENVO_01000018', 'ENVO_00000167', 
+        'ENVO_00002007', 'ENVO_00000856', 'ENVO_00000084', 'ENVO_00000040', 'ENVO_00000083', 'ENVO_01000155', 'ENVO_00000078', 'ENVO_00000444', 'ENVO_00000025', 'ENVO_00000032', 'ENVO_00002008', 
+        'ENVO_00000495', 'ENVO_00000101', 'ENVO_00002015', 'ENVO_00000255', 'ENVO_00002054', 'ENVO_00000418', 'ENVO_00000463', 'ENVO_00000247', 'ENVO_01000236', 'ENVO_00000284', 'ENVO_00002034', 
+        'ENVO_00000439', 'ENVO_00000115', 'ENVO_00000381', 'ENVO_00000133', 'ENVO_01000005', 'ENVO_00002140', 'ENVO_00000231', 'ENVO_00000166', 'ENVO_00012408', 'ENVO_00010505', 'ENVO_00002226', 
+        'ENVO_00000235', 'ENVO_00000275', 'ENVO_00002870', 'ENVO_00000475', 'ENVO_00002269', 'ENVO_00000138', 'ENVO_01000158', 'ENVO_00000195', 'ENVO_00001997', 'ENVO_02000059', 'ENVO_00000440', 
+        'ENVO_00002013', 'ENVO_00000102', 'ENVO_00005792', 'ENVO_00000298', 'ENVO_00010358', 'ENVO_01000002', 'ENVO_01000006', 'ENVO_00000085', 'ENVO_00000163', 'ENVO_00000520', 'ENVO_00002118', 
+        'ENVO_00002144', 'ENVO_00003982', 'ENVO_00000149', 'ENVO_00000110', 'ENVO_00000313', 'ENVO_00000429', 'ENVO_00000500', 'ENVO_00000236', 'ENVO_00000245', 'ENVO_00005754', 'ENVO_00000422', 
+        'ENVO_00000535', 'ENVO_00000120', 'ENVO_00000155', 'ENVO_01000019', 'ENVO_00000069', 'ENVO_00000139', 'ENVO_00000145', 'ENVO_00000473', 'ENVO_00000534', 'ENVO_00005742', 'ENVO_00005747', 
+        'ENVO_00000072', 'ENVO_00000287', 'ENVO_00000400', 'ENVO_00000496', 'ENVO_00000497', 'ENVO_00000544', 'ENVO_00002270', 'ENVO_00000036', 'ENVO_00000119', 'ENVO_00000140', 'ENVO_00000157', 
+        'ENVO_00000256', 'ENVO_00002063', 'ENVO_00003041', 'ENVO_00005799', 'ENVO_01000063', 'ENVO_00000042', 'ENVO_00000079', 'ENVO_00000152', 'ENVO_00000160', 'ENVO_00000252', 'ENVO_00000271', 
+        'ENVO_00000282', 'ENVO_00000289', 'ENVO_00000290', 'ENVO_00000470', 'ENVO_00000483', 'ENVO_00000522', 'ENVO_00000548', 'ENVO_00002231', 'ENVO_00005739', 'ENVO_00005756', 'ENVO_00005767', 
+        'ENVO_00005775', 'ENVO_01000219', 'ENVO_02000084');
     }
 }
 ?>
