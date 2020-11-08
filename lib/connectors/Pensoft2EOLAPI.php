@@ -588,6 +588,15 @@ class Pensoft2EOLAPI
         /* step 2: loop */
         if(copy($this->eol_tags_path."eol_tags_noParentTerms.tsv", $this->eol_tags_path."eol_tags_noParentTerms.tsv.old")) echo "\nCopied OK (eol_tags_noParentTerms.tsv)\n";
         else exit("\nERROR: Copy failed (eol_tags_noParentTerms.tsv)\n");
+        /* sample entry in eol_tags_noParentTerms.tsv.old
+        Q27075389_-_3fbbae3f2254cfaa6d3116e0289bf7a5			boreal	http://www.wikidata.org/entity/Q1342399
+        Q27075917_-_1513ce4574ed644a72e3f8471b848964			boreal	http://www.wikidata.org/entity/Q1342399
+        Q28122714_-_6403c7c5a4729f8a0a26c58725779c5b			subarctic	http://www.wikidata.org/entity/Q1342399
+        Q62854736_-_f1bc9ada6ddeb011d7e1c3037a71f6fe			subarctic	http://www.wikidata.org/entity/Q1342399
+        Q140_-_3534a7422ad054e6972151018c05cb38			habitat	ENVO_01000739
+        Q140_-_3534a7422ad054e6972151018c05cb38			radiation	ENVO_01001023
+        Q140_-_3534a7422ad054e6972151018c05cb38			climate	ENVO_01001082
+        */
         $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "w"); fclose($f); //initialize
         $file = $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"; $i = 0;
         foreach(new FileIterator($file) as $line => $row) {
@@ -603,7 +612,7 @@ class Pensoft2EOLAPI
                 [3] => habitat
                 [4] => ENVO_01000739
             )*/
-            $envo_term = $tmp[4];
+            $envo_term = pathinfo($tmp[4], PATHINFO_BASENAME); //bec it can be "http://www.wikidata.org/entity/Q1342399" or "ENVO_01001082".
             if(isset($envoFromEntities[$envo_term])) {
                 $f = Functions::file_open($this->eol_tags_path."eol_tags_noParentTerms.tsv", "a");
                 fwrite($f, $row."\n");
