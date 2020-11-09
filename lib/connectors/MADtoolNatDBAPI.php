@@ -619,6 +619,7 @@ class MADtoolNatDBAPI
         $final = array();
         $options = $this->download_options;
         $options['file_extension'] = 'xlsx';
+        $options['expire_seconds'] = 60;
         $local_xls = Functions::save_remote_file_to_local($this->spreadsheet_for_mapping, $options);
         require_library('XLSParser');
         $parser = new XLSParser();
