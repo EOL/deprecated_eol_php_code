@@ -63,8 +63,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_41999/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_41999/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_39416/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_39416/'
         );
         */
         
@@ -108,7 +108,8 @@ class DwCA_Utility
         elseif(in_array($this->resource_id, array('wikimedia_comnames', '71_new', '368_removed_aves', 'itis_2019-08-28', 'itis_2020-07-28', '368_final'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array('wiki_en_report'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array('globi_associations'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
-        elseif(in_array($this->resource_id, array('gbif_classification', 'gbif_classification_without_ancestry', '26', '368_removed_aves'))) {
+        elseif(in_array($this->resource_id, array('gbif_classification', 'gbif_classification_without_ancestry', 'gbif_classification_final', 
+                                                  '26', '368_removed_aves'))) {
             if(Functions::is_production()) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
@@ -144,7 +145,8 @@ class DwCA_Utility
             if($this->resource_id == 'globi_associations_refuted') break; //all extensions will be processed elsewhere IN real operation.
             */
                 if(in_array($this->resource_id, array('368_removed_aves', 'wiki_en_report'))) break; //all extensions will be processed elsewhere.
-            elseif(in_array($this->resource_id, array('BF', 'gbif_classification', 'gbif_classification_without_ancestry', '708'))) break; //all extensions will be processed elsewhere.
+            elseif(in_array($this->resource_id, array('BF', 'gbif_classification', 'gbif_classification_without_ancestry', 'gbif_classification_final', 
+                                                      '708'))) break; //all extensions will be processed elsewhere.
             /* ----------customized end-------------- */
             if($preferred_rowtypes) {
                 if(!in_array($row_type, $preferred_rowtypes)) continue;
@@ -253,6 +255,11 @@ class DwCA_Utility
             require_library('connectors/GBIF_classificationAPI_v2');
             $func = new GBIF_classificationAPI_v2($this->resource_id, $this->archive_builder);
             $func->create_dwca_without_ancestry($info);
+        }
+        if($this->resource_id == 'gbif_classification_final') {
+            require_library('connectors/RemoveSurrogatesGBIF');
+            $func = new RemoveSurrogatesGBIF($this->resource_id, $this->archive_builder);
+            $func->remove_surrogates_from_GBIF($info);
         }
         if(in_array($this->resource_id, array('21_ENV', '617_ENV'))) {
             require_library('connectors/Environments2EOLfinal');

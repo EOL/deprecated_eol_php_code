@@ -848,7 +848,7 @@ class PaleoDBAPI_v2
     {
         require_library('connectors/INBioAPI');
         $func = new INBioAPI();
-        $paths = $func->extract_archive_file($dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => 0, 'cahce' => 0)); //true means it will re-download, will not use cache. Set TRUE when developing
+        $paths = $func->extract_archive_file($dwca_file, "meta.xml", array('timeout' => 172800, 'expire_seconds' => 0, 'cache' => 0)); //true means it will re-download, will not use cache. Set TRUE when developing
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
 
@@ -861,7 +861,7 @@ class PaleoDBAPI_v2
         }
         
         if($resource_id) { //new block since below give out of memory prob for big DwCA. First client is 'Collembola_DH'.
-            if(in_array($resource_id, array('Collembola_DH'))) {
+            if(in_array($resource_id, array('Collembola_DH', 'gbif_classification_final'))) {
                 $this->parentID_taxonID = self::process_taxon($tables['http://rs.tdwg.org/dwc/terms/taxon'][0]);
             }
         }
