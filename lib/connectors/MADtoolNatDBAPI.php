@@ -227,6 +227,7 @@ class MADtoolNatDBAPI
         that value also appears in measurementRemarks. Please remove it. I can't think of anything else that would need to be there; 
         they can be left blank. Thanks! */
         if(in_array($mValue, array('http://purl.obolibrary.org/obo/PATO_0001733', 'http://purl.obolibrary.org/obo/PATO_0001731'))) $rek['measurementRemarks'] = '';
+        if($rek['measurementUnit'] == 'kg/kg') $rek['measurementUnit'] = 'http://purl.obolibrary.org/obo/UO_0010006';
         return $rek;
     }
     private function additional_occurrence_property($arr, $retx, $metadata_x, $dataset_x)
