@@ -27,6 +27,8 @@ class RemoveSurrogatesGBIF
         $taxonIDs_of_surrogates = self::get_IDs_of_surrogates($tables); //e.g. 10549716, 9954965
         //----------------------------------------------------------------------------------------------
         $this->children_of_Aves = array();
+        foreach($taxonIDs_of_surrogates as $surrogates) $this->children_of_Aves[$surrogates] = ''; //include the actual surrogates, of course!
+        
         $children = self::get_children_of_taxa_group($taxonIDs_of_surrogates);
         foreach($children as $child) $this->children_of_Aves[$child] = '';
         unset($children);
