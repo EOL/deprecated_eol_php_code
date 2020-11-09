@@ -97,7 +97,9 @@ Started Jen's mapping:
 617_ENV	            Thu 2020-11-05 08:55:41 AM	{"MoF.tab":234579, "occurrence.tab":234579, "taxon.tab":411865, "time_elapsed":false}
 wikipedia_en_traits	Thu 2020-11-05 08:58:54 AM	{"MoF.tab":234579, "occurrence.tab":234579, "taxon.tab":120059, "time_elapsed":false}
 
-
+Addtl Jen's mapping: filtering out (removing) more rows in entities file.
+617_ENV	            Sun 2020-11-08 11:29:51 AM	{"MoF.tab":169640, "occurrence.tab":169640, "taxon.tab":411865, "time_elapsed":false}
+wikipedia_en_traits	Sun 2020-11-08 11:32:21 AM	{"MoF.tab":169640, "occurrence.tab":169640, "taxon.tab":102305, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;
