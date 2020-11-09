@@ -23,6 +23,22 @@ gbif_classification_pre	                Tuesday 2020-05-19 03:15:57 AM	{"taxon.t
 gbif_classification	                    Tuesday 2020-05-19 04:05:53 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":5312.28, "min":88.54, "hr":1.48}}
 gbif_classification_without_ancestry	Tuesday 2020-05-19 04:45:14 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":7673.19, "min":127.89, "hr":2.13}}
 */
+/* Notes as of Nov 9, 2020:
+This script (gbif_classification_v2.php) generates 3 DwCA files:
+1. gbif_classification_pre.tar.gz              -> a pre step to generate desired DwCA
+2. gbif_classification.tar.gz                  -> final classification DwCA
+3. gbif_classification_without_ancestry.tar.gz -> another adjustment, ancestry removed
+*Both 2 & 3 are used separately historicaly. Each with its intended purpose.
+
+Then came another adjustment from Katja. DATA-1868: Remove surrogates from GBIF classification resource
+Connector is gbif_classification_DATA_1868.php
+
+So, in Jenkins we run both scripts:
+php5.6 gbif_classification_v2.php jenkins
+php5.6 gbif_classification_DATA_1868.php jenkins
+# input is gbif_classification_without_ancestry.tar.gz
+# generates gbif_classification_final.tar.gz
+*/
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 // $GLOBALS['ENV_DEBUG'] = false;
