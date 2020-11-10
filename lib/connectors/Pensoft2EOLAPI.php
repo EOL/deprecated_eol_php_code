@@ -237,6 +237,7 @@ class Pensoft2EOLAPI
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
                 $saved++;
                 $this->results = array();
+                // $this->eli = array(); //good debug
                 self::save_article_2_txtfile($rec);
                 // exit("\nstop muna\n");
             }
@@ -273,6 +274,7 @@ class Pensoft2EOLAPI
             /*Array( [http://purl.obolibrary.org/obo/ENVO_00002011] => freshwater
                      [http://purl.obolibrary.org/obo/ENVO_00000026] => well
             )*/
+            // print_r($this->eli); //good debug
             foreach($this->results as $uri => $label) {
                 if($ret = self::apply_adjustments($uri, $label)) {
                     $uri = $ret['uri'];
@@ -347,7 +349,10 @@ class Pensoft2EOLAPI
                 )
         */
         foreach($arr as $rek) {
-            if(ctype_lower(substr($rek['lbl'],0,1))) $this->results[$rek['id']] = $rek['lbl'];
+            if(ctype_lower(substr($rek['lbl'],0,1))) {
+                $this->results[$rek['id']] = $rek['lbl'];
+                // $this->eli[$rek['id']][] = $rek['lbl']; //good debug
+            }
         }
     }
     private function retrieve_json($id, $what, $desc)
