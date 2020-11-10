@@ -22,6 +22,10 @@ eol-archive - much faster to run in eol-archive
 gbif_classification_pre	                Tuesday 2020-05-19 03:15:57 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":2315.6, "min":38.59, "hr":0.64}}
 gbif_classification	                    Tuesday 2020-05-19 04:05:53 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":5312.28, "min":88.54, "hr":1.48}}
 gbif_classification_without_ancestry	Tuesday 2020-05-19 04:45:14 AM	{"taxon.tab":4438420, "time_elapsed":{"sec":7673.19, "min":127.89, "hr":2.13}}
+start when surrogates are removed:
+gbif_classification_final	            Mon 2020-11-09 12:15:19 PM	    {"taxon.tab":3889747, "time_elapsed":{"sec":1740.66, "min":29.01, "hr":0.48}}
+
+
 */
 /* Notes as of Nov 9, 2020:
 This script (gbif_classification_v2.php) generates 3 DwCA files:
