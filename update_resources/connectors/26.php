@@ -79,6 +79,8 @@ Expected reduced no. of MoF and Occurrence --- so consistent OK
 Batches of 2 rows:
 26	Friday 2020-06-12 01:22:50 AM	{"agent.tab":1664, "measurement_or_fact_specific.tab":3417987, "media_resource.tab":87379, "occurrence_specific.tab":2121662, "reference.tab":648535, "taxon.tab":355711, "vernacular_name.tab":80309, "time_elapsed":{"sec":3890.43, "min":64.84, "hr":1.08}}
 26	Friday 2020-06-12 02:14:25 AM	{"agent.tab":1664, "measurement_or_fact_specific.tab":3414249, "media_resource.tab":87379, "occurrence_specific.tab":2121662, "reference.tab":648535, "taxon.tab":355711, "vernacular_name.tab":80309, "time_elapsed":false}
+26	Tue 2020-11-10 01:07:43 AM	    "agent.tab":1682, "measurement_or_fact_specific.tab":3425398, "media_resource.tab":91653, "occurrence_specific.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":3581.52, "min":59.69, "hr":0.99}}
+26	Tue 2020-11-10 01:54:23 AM	    "agent.tab":1682, "measurement_or_fact_specific.tab":3325053, "media_resource.tab":91653, "occurrence_specific.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
