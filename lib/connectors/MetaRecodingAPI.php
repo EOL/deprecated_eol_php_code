@@ -45,13 +45,13 @@ class MetaRecodingAPI
                                               '707_meta_recoded', 'test3_meta_recoded', '26_meta_recoded'))) self::task_67($tables);
         /* http://rs.tdwg.org/dwc/terms/lifeStage - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
            http://rs.tdwg.org/dwc/terms/sex - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
-        TODO: no implementation yet if lifeStage or sex is a child row in MoF.
+        DONE2: if lifeStage or sex is a child row in MoF. Implemented in WoRMS (26).
         */
         
         if(in_array($this->resource_id, array('test_meta_recoded', 'test2_meta_recoded', '26_meta_recoded_1'))) self::task_45($tables);
         /* http://rs.tdwg.org/dwc/terms/measurementUnit - from wherever it is (child record?), this should move to a column in MoF
            http://eol.org/schema/terms/statisticalMethod - from wherever it is (child record?), this should move to a column in MoF
-        TODO: no implementation yet if measurementUnit or statisticalMethod is a child row in MoF
+        DONE2: if measurementUnit or statisticalMethod is a child row in MoF. Implemented in WoRMS (26).
         DONE: if mUnit and sMethod is a column in occurrence -> moved to a column in MoF
         */
     }
