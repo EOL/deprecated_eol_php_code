@@ -41,13 +41,14 @@ class MetaRecodingAPI
         */
 
         if(in_array($this->resource_id, array('770_meta_recoded', 'natdb_meta_recoded', 'copepods_meta_recoded',
-                                              '42_meta_recoded', 'cotr_meta_recoded_1', '727_meta_recoded'))) self::task_67($tables);
+                                              '42_meta_recoded', 'cotr_meta_recoded_1', '727_meta_recoded',
+                                              '707_meta_recoded', 'test3_meta_recoded', '26_meta_recoded'))) self::task_67($tables);
         /* http://rs.tdwg.org/dwc/terms/lifeStage - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
            http://rs.tdwg.org/dwc/terms/sex - from a column in MoF (or possibly a child record?), this should move to a column in occurrences
         TODO: no implementation yet if lifeStage or sex is a child row in MoF.
         */
         
-        if(in_array($this->resource_id, array('test_meta_recoded'))) self::task_45($tables);
+        if(in_array($this->resource_id, array('test_meta_recoded', 'test2_meta_recoded', '26_meta_recoded_1'))) self::task_45($tables);
         /* http://rs.tdwg.org/dwc/terms/measurementUnit - from wherever it is (child record?), this should move to a column in MoF
            http://eol.org/schema/terms/statisticalMethod - from wherever it is (child record?), this should move to a column in MoF
         TODO: no implementation yet if measurementUnit or statisticalMethod is a child row in MoF
@@ -65,19 +66,42 @@ class MetaRecodingAPI
     }
     private function task_45($tables)
     {
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_45_info_write');
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_45');
-        unset($this->oID_measurementUnit);     //task_4
-        unset($this->oID_statisticalMethod);   //task_5
+        if(in_array($this->resource_id, array('test_meta_recoded'))) {
+            // DONE: if mUnit and sMethod is a column in occurrence -> moved to a column in MoF
+            self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'task_45_info_write');
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_45_1');
+            unset($this->oID_measurementUnit);     //task_4
+            unset($this->oID_statisticalMethod);   //task_5
+        }
+        elseif(in_array($this->resource_id, array('test2_meta_recoded', '26_meta_recoded_1'))) {
+            // TODO: no implementation yet if measurementUnit or statisticalMethod is a child row in MoF
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_45_info_2');
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_45_2');
+        }
     }
     private function task_67($tables)
-    {
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_67_info');
-        self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_67'); 
-        self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_67');
-        unset($this->oID_lifeStage);   //task_6
-        unset($this->oID_sex);         //task_7
-        print_r($this->debug); //exit("\n---------------------\n");
+    {   
+        if(in_array($this->resource_id, array('test3_meta_recoded', '26_meta_recoded'))) {
+            // /* lifeStage & sex as row child in MoF, move to column in occurrence
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_67_info_2_pre'); //gen $this->mID_oID
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_67_info_2');
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_67_2');
+            self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_67_2');
+            unset($this->mID_oID);
+            unset($this->oID_lifeStage);
+            unset($this->oID_sex);
+            // */
+        }
+        else { //the rest
+            // /* lifeStage & sex, column in MoF, move to column in occurrence
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'task_67_info_1');
+            self::process_occurrence($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'write_task_67_1');
+            self::process_measurementorfact($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'write_task_67_1');
+            unset($this->oID_lifeStage);   //task_6
+            unset($this->oID_sex);         //task_7
+            print_r($this->debug); //exit("\n---------------------\n");
+            // */
+        }
     }
     private function task_123($tables)
     {   /*  http://rs.tdwg.org/dwc/terms/individualCount - probably the easiest to move; from its column in occurrences 
@@ -141,9 +165,10 @@ class MetaRecodingAPI
             // $row = Functions::conv_to_utf8($row); //possibly to fix special chars. but from copied template
             $tmp = explode("\t", $row);
             $rec = array(); $k = 0;
+            // print_r($meta->fields);
             foreach($meta->fields as $field) {
                 if(!$field['term']) continue;
-                $rec[$field['term']] = $tmp[$k];
+                $rec[$field['term']] = $tmp[$k]; //put "@" as @$tmp[$k] during development
                 $k++;
             } //print_r($rec); exit;
             $rec = array_map('trim', $rec);
@@ -173,6 +198,46 @@ class MetaRecodingAPI
             // if($occurrenceID != '12e1aea54c7d8dc661f84043155a5cde_692') continue; //debug only
             // if($occurrenceID != 'b33cb50b7899db1686454eb60113ca25_692') continue; //debug only - has both eventDate and occurrenceRemarks
             //===========================================================================================================================================================
+            // /*
+            if($what == 'task_45_info_2') {
+                // /* statisticalMethod
+                if($parentMeasurementID && $measurementType == 'http://eol.org/schema/terms/statisticalMethod') { //via parentMeasurementID
+                    $this->mID_sMethod[$parentMeasurementID] = $measurementValue;
+                }
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://eol.org/schema/terms/statisticalMethod') { //via mOfTaxon not 'true'
+                    $this->oID_sMethod[$occurrenceID] = $measurementValue;
+                }
+                // */
+                // /* measurementUnit
+                if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/measurementUnit') { //via parentMeasurementID
+                    $this->mID_mUnit[$parentMeasurementID] = $measurementValue;
+                }
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/measurementUnit') { //via mOfTaxon not 'true'
+                    $this->oID_mUnit[$occurrenceID] = $measurementValue;
+                }
+                // */
+            }
+            if($what == 'write_task_45_2') {
+                // /* statisticalMethod
+                if($val = @$this->mID_sMethod[$measurementID]) $rec['http://eol.org/schema/terms/statisticalMethod'] = $val;
+                if(@$this->oID_sMethod[$occurrenceID] && $measurementOfTaxon == 'true') $rec['http://eol.org/schema/terms/statisticalMethod'] = $this->oID_sMethod[$occurrenceID];
+                // */
+                // /* measurementUnit
+                if($val = @$this->mID_mUnit[$measurementID]) $rec['http://rs.tdwg.org/dwc/terms/measurementUnit'] = $val;
+                if(@$this->oID_mUnit[$occurrenceID] && $measurementOfTaxon == 'true') $rec['http://rs.tdwg.org/dwc/terms/measurementUnit'] = $this->oID_mUnit[$occurrenceID];
+                // */
+                
+                //statisticalMethod
+                if($parentMeasurementID && $measurementType == 'http://eol.org/schema/terms/statisticalMethod') continue; //via parentMeasurementID
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://eol.org/schema/terms/statisticalMethod') continue; //via mOfTaxon not 'true'
+                //measurementUnit
+                if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/measurementUnit') continue; //via parentMeasurementID
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/measurementUnit') continue; //via mOfTaxon not 'true'
+
+                self::write_MoF_rec($rec);
+            }
+            // */
+            
             if($what == 'task_123_info') {
                 /* Loops MoF build info -> $this->oID_mID_mOfTaxon[oID][mID][mOfTaxon] = '' */
                 if(isset($this->oID_individualCount[$occurrenceID])) {
@@ -216,12 +281,49 @@ class MetaRecodingAPI
             }
             
             
-            if($what == 'task_67_info') { //lifeStage | sex
+            if($what == 'task_67_info_1') { //lifeStage | sex
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) $this->oID_lifeStage[$occurrenceID] = $val;   //task_6
                 if($val = @$rec['http://rs.tdwg.org/dwc/terms/sex'])       $this->oID_sex[$occurrenceID] = $val;         //task_7
                 $this->debug['contents']['M lifeStage'][@$rec['http://rs.tdwg.org/dwc/terms/lifeStage']] = '';
             }
-            if($what == 'write_task_45') {
+            // /*
+            if($what == 'task_67_info_2_pre') { //for lifeStage | sex as row chile in MoF
+                $this->mID_oID[$measurementID] = $occurrenceID;
+            }
+            if($what == 'task_67_info_2') { //lifeStage | sex
+                // /* lifeStage
+                if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/lifeStage') { //via parentMeasurementID
+                    $occur_id = $this->mID_oID[$parentMeasurementID];
+                    $this->oID_lifeStage[$occur_id] = $measurementValue;
+                }
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/lifeStage') { //via mOfTaxon not 'true'
+                    $this->oID_lifeStage[$occurrenceID] = $measurementValue;
+                }
+                // */
+                // /* sex
+                if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/sex') { //via parentMeasurementID
+                    $occur_id = $this->mID_oID[$parentMeasurementID];
+                    $this->oID_sex[$occur_id] = $measurementValue;
+                }
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/sex') { //via mOfTaxon not 'true'
+                    $this->oID_sex[$occurrenceID] = $measurementValue;
+                }
+                // */
+            }
+            // */
+            if($what == 'write_task_67_2') { //lifeStage | sex
+                // /* lifeStage
+                if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/lifeStage') continue; //via parentMeasurementID
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/lifeStage') continue; //via mOfTaxon not 'true'
+                // */
+                // /* sex
+                if($parentMeasurementID && $measurementType == 'http://rs.tdwg.org/dwc/terms/sex') continue; //via parentMeasurementID
+                elseif($measurementOfTaxon != 'true' && $measurementType == 'http://rs.tdwg.org/dwc/terms/sex') continue; //via mOfTaxon not 'true'
+                // */
+                self::write_MoF_rec($rec);
+            }
+            
+            if($what == 'write_task_45_1') {
                 if(!@$rec['http://eol.org/schema/parentMeasurementID']) { //not a child MoF
                     if($measurementUnit = @$this->oID_measurementUnit[$occurrenceID]) { //task_4
                         $rec['http://rs.tdwg.org/dwc/terms/measurementUnit'] = $measurementUnit;
@@ -232,7 +334,7 @@ class MetaRecodingAPI
                 }
                 self::write_MoF_rec($rec);
             }
-            if($what == 'write_task_67') {
+            if($what == 'write_task_67_1') {
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/lifeStage'])) unset($rec['http://rs.tdwg.org/dwc/terms/lifeStage']);    //task_6
                 if(isset($rec['http://rs.tdwg.org/dwc/terms/sex']))       unset($rec['http://rs.tdwg.org/dwc/terms/sex']);          //task_7
                 self::write_MoF_rec($rec);
@@ -362,7 +464,7 @@ class MetaRecodingAPI
                 if(isset($rec['http://eol.org/schema/terms/statisticalMethod'])) unset($rec['http://eol.org/schema/terms/statisticalMethod']);  //task_5
                 self::write_occurrence($rec);
             }
-            elseif($what == 'write_task_67') {
+            elseif($what == 'write_task_67_1' || $what == 'write_task_67_2') {
                 if($val = @$this->oID_lifeStage[$occurrenceID]) {
                     if($val2 = @$rec['http://rs.tdwg.org/dwc/terms/lifeStage']) echo "\nmay laman [$val2] [$val]\n"; //stats only
                                                                 $rec['http://rs.tdwg.org/dwc/terms/lifeStage'] = $val;  //task_6

@@ -8,7 +8,7 @@ first client: https://jenkins.eol.org/job/EOL%20Connectors/job/Environmental%20t
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "617_final", "task": "remove_taxa_without_MoF"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "wiki_en_report", "task": "report_4_Wikipedia_EN_traits"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "WoRMS2EoL_zip", "task": "add_canonical_in_taxa"}'
-START of metadata_recoding
+ -------------------------- START of metadata_recoding  --------------------------
 task_123
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "692_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "201_meta_recoded", "task": "metadata_recoding"}'
@@ -21,15 +21,21 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_m
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "copepods_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "42_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "727_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "707_meta_recoded", "task": "metadata_recoding"}'
 
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded_1", "task": "metadata_recoding"}'
 -> fixes lifeStage
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded", "task": "metadata_recoding"}'
 -> fixes eventDate as row in MoF
 
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "26_meta_recoded_1", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "26_meta_recoded", "task": "metadata_recoding"}'
+
 task_45
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "test_meta_recoded", "task": "metadata_recoding"}'
-END of metadata_recoding
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "test2_meta_recoded", "task": "metadata_recoding"}'
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "test3_meta_recoded", "task": "metadata_recoding"}'
+ -------------------------- END of metadata_recoding --------------------------
 
 201	                Wed 2020-10-14 02:15:39 PM	{"MoF":195703, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":518.17, "min":8.640000000000001, "hr":0.14}}
 201_meta_recoded	Thu 2020-10-29 10:54:43 AM	{"MoF":148096, "media_resource.tab":204028, "occurrence.tab":47607, "taxon.tab":28808, "time_elapsed":{"sec":216.07, "min":3.6, "hr":0.06}}
@@ -133,6 +139,10 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/727.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/727.tar.gz";
     }
+    elseif($resource_id == '707_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/707.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/707.tar.gz";
+    }
     elseif($resource_id == 'cotr_meta_recoded_1') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/cotr.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/cotr.tar.gz";
@@ -145,6 +155,22 @@ elseif($task == 'metadata_recoding') {
     elseif($resource_id == 'test_meta_recoded') { //task_45: no actual resource atm.
         $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_mUnit_sMethod.zip";
     }
+    elseif($resource_id == 'test2_meta_recoded') { //task_45: first client is WorMS (26).
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_mUnit_sMethod_asChildInMoF.zip";
+    }
+    elseif($resource_id == 'test3_meta_recoded') { //task_67: first client is WorMS (26).
+        $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/test_lifeStage_sex_asChildInMoF.zip";
+    }
+
+    elseif($resource_id == '26_meta_recoded_1') { //task_45: statisticalMethod | measurementUnit
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/26.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26.tar.gz";
+    }
+    elseif($resource_id == '26_meta_recoded') { //task_67: lifeStage | sex
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/26_meta_recoded_1.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/26_meta_recoded_1.tar.gz";
+    }
+    
     else exit("\nERROR: [$task] resource_id not yet initialized. Will terminate.\n");
 }
 
@@ -180,7 +206,8 @@ function process_resource_url($dwca_file, $resource_id, $task, $timestart)
 
     elseif($task == 'metadata_recoding') {
         $preferred_rowtypes = array();
-        if(in_array($resource_id, array('201_meta_recoded', '726_meta_recoded', 'cotr_meta_recoded'))) {
+        if(in_array($resource_id, array('201_meta_recoded', '726_meta_recoded', 'cotr_meta_recoded', 'test2_meta_recoded',
+                                        '26_meta_recoded_1'))) {
             $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //means occurrence tab is just carry-over
         }
         else $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact');
