@@ -21,15 +21,24 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_m
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "copepods_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "42_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "727_meta_recoded", "task": "metadata_recoding"}'
-php update_resources/connectors/resource_utility.php _ '{"resource_id": "707_meta_recoded", "task": "metadata_recoding"}'
 
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "707_meta_recoded", "task": "metadata_recoding"}'
+-> case where lifeStage is a col in MoF => move to a col in occurrence.
+
+----------start Coral traits
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded_1", "task": "metadata_recoding"}'
 -> fixes lifeStage
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "cotr_meta_recoded", "task": "metadata_recoding"}'
 -> fixes eventDate as row in MoF
+----------end Coral traits
 
+----------start WoRMS
+WoRMS
+-> case where lifeStage & sex is a row child in MoF => move to a col in occurrence
+-> case where statisticalMethod is a row in MoF => move to a col in MoF
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "26_meta_recoded_1", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "26_meta_recoded", "task": "metadata_recoding"}'
+----------end WoRMS
 
 task_45
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "test_meta_recoded", "task": "metadata_recoding"}'
@@ -69,6 +78,8 @@ cotr_meta_recoded	Wed 2020-11-04 05:28:32 AM	{"MoF":52298, "occurrence.tab":3347
 727	                Fri 2020-09-11 12:40:30 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727_meta_recoded	Mon 2020-11-02 08:59:01 AM	{"agent.tab":1, "MoF":581778, "media_resource.tab":5, "occurrence_specific.tab":636468, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":524.71, "min":8.75, "hr":0.15}}
 
+26_meta_recoded_1	Wed 2020-11-11 08:13:07 AM	{"agent.tab":1682, "MoF.tab":3180852, "media":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":3044.71, "min":50.75, "hr":0.85}}
+26_meta_recoded	    Wed 2020-11-11 09:00:11 AM	{"agent.tab":1682, "MoF.tab":2535563, "media":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":2824, "min":47.07, "hr":0.78}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
