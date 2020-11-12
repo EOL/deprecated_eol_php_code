@@ -17,7 +17,14 @@ php update_resources/connectors/resource_utility.php _ '{"resource_id": "griis_m
 
 task_67
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "770_meta_recoded", "task": "metadata_recoding"}'
+
+
+php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_meta_recoded_1", "task": "metadata_recoding"}'
+->occurrenceRemarks
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "natdb_meta_recoded", "task": "metadata_recoding"}'
+->lifeStage
+
+
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "copepods_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "42_meta_recoded", "task": "metadata_recoding"}'
 php update_resources/connectors/resource_utility.php _ '{"resource_id": "727_meta_recoded", "task": "metadata_recoding"}'
@@ -80,6 +87,9 @@ cotr_meta_recoded	Wed 2020-11-04 05:28:32 AM	{"MoF":52298, "occurrence.tab":3347
 
 26_meta_recoded_1	Wed 2020-11-11 08:13:07 AM	{"agent.tab":1682, "MoF.tab":3180852, "media":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":3044.71, "min":50.75, "hr":0.85}}
 26_meta_recoded	    Wed 2020-11-11 09:00:11 AM	{"agent.tab":1682, "MoF.tab":2535563, "media":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":2824, "min":47.07, "hr":0.78}}
+
+707	            Tuesday 2020-01-28 08:46:58 AM	{"MoF.tab":4078, "occurrence_specific.tab":632, "taxon.tab":632, "time_elapsed":{"sec":34.47,"min":0.57,"hr":0.01}}
+707_meta_recoded	Wed 2020-11-11 08:09:23 AM	{"MoF.tab":4078, "occurrence_specific.tab":632, "taxon.tab":632, "time_elapsed":{"sec":16.94, "min":0.28, "hr":0}}
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -134,10 +144,16 @@ elseif($task == 'metadata_recoding') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/770.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/770.tar.gz";
     }
-    elseif($resource_id == 'natdb_meta_recoded') {
+
+    elseif($resource_id == 'natdb_meta_recoded_1') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/natdb.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/natdb.tar.gz";
     }
+    elseif($resource_id == 'natdb_meta_recoded') {
+        if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/natdb_meta_recoded_1.tar.gz";
+        else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/natdb_meta_recoded_1.tar.gz";
+    }
+
     elseif($resource_id == 'copepods_meta_recoded') {
         if(Functions::is_production())  $dwca_file = "https://editors.eol.org/eol_php_code/applications/content_server/resources/copepods.tar.gz";
         else                            $dwca_file = "http://localhost/eol_php_code/applications/content_server/resources/copepods.tar.gz";

@@ -22,7 +22,7 @@ class MetaRecodingAPI
         $tables = $info['harvester']->tables;
         
         /* task 1: individualCount */
-        if(in_array($this->resource_id, array('692_meta_recoded', 'griis_meta_recoded'))) self::task_123($tables);
+        if(in_array($this->resource_id, array('692_meta_recoded', 'griis_meta_recoded', 'natdb_meta_recoded_1'))) self::task_123($tables);
         if(in_array($this->resource_id, array('726_meta_recoded'))) self::task_individualCount_as_child_in_MoF($tables);
         
         /* task 2: eventDate
