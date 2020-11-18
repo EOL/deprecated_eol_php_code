@@ -98,11 +98,11 @@ class ResourceConnectorMngmt
         $arr2 = json_decode($json_2, true);
         $media2 = $arr2['media_resource.tab'];
         
-        print_r($arr1); print_r($arr2);
-        
         $difference = $media2 - $media1;
+        /* good debug
+        print_r($arr1); print_r($arr2);
         echo "\n$media1 --- $media2 --- $difference\n";
-        
+        */
         if($media2 < $media1) return $difference; //'latest harvest is less than previous';
         return true;
     }
