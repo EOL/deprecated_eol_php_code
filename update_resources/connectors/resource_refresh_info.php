@@ -18,7 +18,15 @@ $func->get_harvests_for_resource_id($resource_id, array(), $sought); //2nd param
 */
 
 // /* Main operation
-$sought['month_year'] = '10_2020'; //month 01-12 for Jan-Dec
+
+/* Implementation:
+php update_resources/connectors/resource_refresh_info.php _ 10_2020
+*/
+
+$params['jenkins_or_cron']  = @$argv[1];
+$sought['month_year']       = @$argv[2];
+
+// $sought['month_year'] = '10_2020'; //month 01-12 for Jan-Dec
 $func->get_harvests_for_wikipedias(array(), $sought); //1st param is download_options
 // */
 
