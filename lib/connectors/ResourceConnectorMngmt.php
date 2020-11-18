@@ -53,9 +53,10 @@ class ResourceConnectorMngmt
             }
             
         } //end loop
+        /* good debug
         print_r($final);
         print_r($summary);
-        
+        */
         if($summary[$resource_id]["sought date"] == 'not present') {
             if($final) $this->debug['no latest harvest']['with previous harvests'][$resource_id] = '';
             /*
