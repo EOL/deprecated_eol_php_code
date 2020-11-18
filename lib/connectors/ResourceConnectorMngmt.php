@@ -53,10 +53,12 @@ class ResourceConnectorMngmt
             }
             
         } //end loop
-        /* good debug
-        print_r($final);
-        print_r($summary);
-        */
+        // /* good debug
+        if($GLOBALS['ENV_DEBUG']) {
+            print_r($final);
+            print_r($summary);
+        }
+        // */
         if($summary[$resource_id]["sought date"] == 'not present') {
             if($final) $this->debug['no latest harvest']['with previous harvests'][$resource_id] = '';
             /*
@@ -100,10 +102,12 @@ class ResourceConnectorMngmt
         $media2 = $arr2['media_resource.tab'];
         
         $difference = $media2 - $media1;
-        /* good debug
-        print_r($arr1); print_r($arr2);
-        echo "\n$media1 --- $media2 --- $difference\n";
-        */
+        // /* good debug
+        if($GLOBALS['ENV_DEBUG']) {
+            print_r($arr1); print_r($arr2);
+            echo "\n$media1 --- $media2 --- $difference\n";
+        }
+        // */
         if($media2 < $media1) return $difference; //'latest harvest is less than previous';
         return true;
     }
@@ -116,13 +120,15 @@ class ResourceConnectorMngmt
         $final = array_merge($orig, $langs[1]);
         $final = array_merge($final, $langs[2]);
         echo "\ntotal: ".count($final)."\n"; //exit;
-        foreach($final as $lang) {
+        $i = 0;
+        foreach($final as $lang) { $i++;
+            if(($i % 20) == 0) echo "\n [".number_format($i)."] ";
             if(is_numeric($lang)) $resource_id = $lang;
             else $resource_id = 'wikipedia-'.$lang;
             self::get_harvests_for_resource_id($resource_id, $options, $sought); //2nd param is download_options
             // exit;
         }
-        print_r($this->debug);
+        echo "\n"; print_r($this->debug);
     }
     /*
     private function main()
