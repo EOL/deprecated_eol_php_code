@@ -68,7 +68,7 @@ class ResourceConnectorMngmt
         
         if($final) {
             $ret = self::compare_last_two_harvests($final);
-            if($ret < 0) $this->debug['latest harvest is less than previous'][$resource_id] = "media decreased by ".$ret*-1;
+            if($ret < 0) $this->debug['latest harvest is less than previous'][$resource_id] = "articles decreased by ".$ret*-1;
         }
         
         unlink($local);
