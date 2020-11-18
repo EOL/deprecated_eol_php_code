@@ -12,6 +12,10 @@ class ResourceConnectorMngmt
     function get_harvests_for_resource_id($resource_id, $options = array(), $sought = array())
     {
         $final = array(); $summary = array();
+        if($month_year = @$sought['month_year']) {
+            $summary[$resource_id]["sought date"] = 'not present';
+        }
+        
         if(!$options) $options = $this->download_options;
         $local = Functions::save_remote_file_to_local($this->log, $options);
         $i = 0;
@@ -19,7 +23,7 @@ class ResourceConnectorMngmt
         foreach(new FileIterator($local, false, true) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
             $i++;
             $tmp = explode("\t", $row);
-            if(($i % 1000) == 0) echo "\n count:[".number_format($i)."] ";
+            // if(($i % 1000) == 0) echo "\n count:[".number_format($i)."] ";
             if(!$row) continue;
             $rec = array(); $k = 0;
             foreach($fields as $field) {
@@ -40,20 +44,84 @@ class ResourceConnectorMngmt
             
             if($rec['resource'] == $resource_id) {
                 $final[] = $rec;
-                print_r($rec);
+                // print_r($rec);
                 if($month_year = @$sought['month_year']) {
                     $current_month_year = date('m_Y', $date_string);
-                    echo("\n[$current_month_year]\n");
-                    if($current_month_year == $month_year) $summary[$resource_id]["sought date $month_year"] = 'present';
+                    // echo("\n[$current_month_year]\n");
+                    if($current_month_year == $month_year) $summary[$resource_id]["sought date"] = 'present';
                 }
             }
             
         } //end loop
         print_r($final);
         print_r($summary);
-        print_r($sought);
+        
+        if($summary[$resource_id]["sought date"] == 'not present') {
+            if($final) $this->debug['not present']['with prev'][$resource_id] = '';
+            else       $this->debug['not present']['without prev'][$resource_id] = '';
+        }
+        
+        if($ret = self::compare_last_two_harvests($final)) {}
+        else $this->debug['latest harvest is less than previous'][$resource_id] = $ret;
+        
+        
+        
         unlink($local);
     }
+    private function compare_last_two_harvests($final)
+    {   /*
+        [25] => Array(
+                [resource] => wikipedia-es
+                [date] => Wednesday 2020-07-29 04:21:20 PM
+                [info] => {"media_resource.tab":319705, "taxon.tab":175913, "time_elapsed":{"sec":28860.25, "min":481, "hr":8.02}}
+            )
+
+        [26] => Array(
+                [resource] => wikipedia-es
+                [date] => Mon 2020-10-12 01:06:01 AM
+                [info] => {"media_resource.tab":324055, "taxon.tab":178175, "time_elapsed":{"sec":28331.05, "min":472.18, "hr":7.87}}
+            )
+        */
+        $total = count($final);
+        $last_rec = $total-1;
+        $second_to_last_rec = $last_rec-1;
+        // print_r($final[$second_to_last_rec]);
+        // print_r($final[$last_rec]); exit;
+        
+        $json_1 = $final[$second_to_last_rec]['info'];
+        $arr1 = json_decode($json_1, true);
+        $media1 = $arr1['media_resource.tab'];
+
+        $json_2 = $final[$last_rec]['info'];
+        $arr2 = json_decode($json_2, true);
+        $media2 = $arr2['media_resource.tab'];
+        
+        print_r($arr1); print_r($arr2);
+        
+        $difference = $media2 - $media1;
+        echo "\n$media1 --- $media2 --- $difference\n";
+        
+        if($media2 < $media1) return $difference; //'latest harvest is less than previous';
+        return true;
+    }
+    function get_harvests_for_wikipedias($options = array(), $sought = array())
+    {
+        require_library('connectors/DwCA_Aggregator');
+        $func = new DwCA_Aggregator('');
+        $orig = array('80', '957', 'es', 'it', 'fr', 'ja', 'ko', 'pt', 'ru', 'zh', 'nl', 'pl', 'uk', 'hy', 'mrj', 'pms', 'ga');
+        $langs = $func->get_langs(); // print_r($langs);
+        $final = array_merge($orig, $langs[1]);
+        $final = array_merge($final, $langs[2]);
+        echo "\ntotal: ".count($final)."\n"; //exit;
+        foreach($final as $lang) {
+            if(is_numeric($lang)) $resource_id = $lang;
+            else $resource_id = 'wikipedia-'.$lang;
+            self::get_harvests_for_resource_id($resource_id, $options, $sought); //2nd param is download_options
+            // exit;
+        }
+        print_r($this->debug);
+    }
+    /*
     private function main()
     {
         foreach(new FileIterator($this->extension_path.$meta['taxon_file'], false, true, @$this->dwc['iterator_options']) as $line => $row) { //2nd and 3rd param; false and true respectively are default values
@@ -71,5 +139,6 @@ class ResourceConnectorMngmt
             print_r($rec); exit;
         } //end loop
     }
+    */
 }
 ?>
