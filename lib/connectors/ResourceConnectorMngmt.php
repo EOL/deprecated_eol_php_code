@@ -57,14 +57,16 @@ class ResourceConnectorMngmt
         print_r($summary);
         
         if($summary[$resource_id]["sought date"] == 'not present') {
-            if($final) $this->debug['not present']['with prev'][$resource_id] = '';
-            else       $this->debug['not present']['without prev'][$resource_id] = '';
+            if($final) $this->debug['no latest harvest']['with previous harvests'][$resource_id] = '';
+            /*
+            else       $this->debug['not present']['without previous harvests'][$resource_id] = '';
+            */
         }
         
-        if($ret = self::compare_last_two_harvests($final)) {}
-        else $this->debug['latest harvest is less than previous'][$resource_id] = $ret;
-        
-        
+        if($final) {
+            $ret = self::compare_last_two_harvests($final);
+            if($ret < 0) $this->debug['latest harvest is less than previous'][$resource_id] = "media decreased by ".$ret*-1;
+        }
         
         unlink($local);
     }
