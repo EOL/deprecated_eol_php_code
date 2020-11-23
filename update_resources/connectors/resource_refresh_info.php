@@ -1,7 +1,7 @@
 <?php
 namespace php_active_record;
-/* 
-*/
+/* First client was Wikipedia FR */
+
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ResourceConnectorMngmt');
 // ini_set('memory_limit','15096M');
@@ -12,9 +12,10 @@ $func = new ResourceConnectorMngmt('');
 
 /* A utility to investigate one resource:
 $GLOBALS['ENV_DEBUG'] = true;
-$resource_id = 'wikipedia-fr';
-$sought['month_year'] = '10_2020'; //month 01-12 for Jan-Dec
+$resource_id = '24'; //'wikipedia-fr';
+$sought['month_year'] = '11_2020'; //month 01-12 for Jan-Dec
 $func->get_harvests_for_resource_id($resource_id, array(), $sought); //2nd param is download_options
+exit;
 */
 
 // /* Main operation
