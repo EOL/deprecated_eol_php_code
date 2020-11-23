@@ -349,6 +349,8 @@ wikipedia-fr	Wednesday 2020-04-15 10:53:34 PM	{"media_resource.tab":242414, "tax
 wikipedia-fr	Tuesday 2020-04-21 10:44:37 PM	  {"media_resource.tab":236261, "taxon.tab":134378, "time_elapsed":{"sec":13333.16, "min":222.22, "hr":3.7}} expected decrease due to new code
 wikipedia-fr	Thursday 2020-05-07 05:25:29 PM	  {"media_resource.tab":236366, "taxon.tab":134394, "time_elapsed":{"sec":14052.37, "min":234.21, "hr":3.9}} OK - start updated gen. connector
 wikipedia-fr	Friday 2020-07-31 01:54:47 AM	    {"media_resource.tab":241386, "taxon.tab":136694, "time_elapsed":{"sec":22568.44, "min":376.14, "hr":6.27}} OK
+wikipedia-fr	Mon 2020-11-23 07:19:04 AM	      {"media_resource.tab":242884, "taxon.tab":137331, "time_elapsed":{"sec":16572.19, "min":276.2, "hr":4.6}}
+
 
 wikipedia-ja	Friday 2017-11-10 08:35:41 AM	{"media_resource.tab":26208,"taxon.tab":20431}
 wikipedia-ja	Saturday 2017-12-02 10:53:40 PM	{"media_resource.tab":26264,"taxon.tab":20475}
