@@ -196,6 +196,15 @@ class WikipediaRegionalAPI
 //                      <div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">
 //                      <div id="mw-content-text" lang="bs" dir="ltr" class="mw-content-ltr">
 //                      <div id="mw-navigation">
+
+        /*
+        For 'fr' the wiki template structure has changed. Starting range is the same, no change:
+                                        <div id="mw-content-text" lang="fr" dir="ltr" class="mw-content-ltr">
+        While our ending range is now:  <div id='mw-data-after-content'> ---> Works OK
+        */
+        elseif($lang == 'fr') {
+            if(preg_match("/<div id=\"mw-content-text\" lang=\"$lang\" dir=\"ltr\" class=\"mw-content-ltr\">(.*?)<div id=\'mw-data-after-content\'>/ims", $html, $arr)) return self::format_wiki_substr($arr[1]);
+        }
         else {
             if($lang == 'no')               $lang = 'nb'; //2nd option for 'no' Norwegian is to use 'nb'.
             elseif($lang == 'zh-min-nan')   $lang = 'nan';
