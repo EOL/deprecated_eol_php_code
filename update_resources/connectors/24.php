@@ -24,7 +24,14 @@ eol-archive
 24	Monday 2018-10-15 01:28:17 AM	{"agent.tab":158,                                  "media_resource.tab":169091,                         "taxon.tab":16054}
 Tried it again after a few months, still API is down:
 24	Monday 2019-07-08 05:49:34 AM	{"agent.tab":158,                                  "media_resource.tab":169091,                         "taxon.tab":16054} their API is still down
+
+On Nov 23, 2020 we creted a new connector that will scrape the site.
+So we saved the last DwCA for posterity.
+[root@eol-archive resources]# cp 24.tar.gz 24_api.tar.gz
+[root@eol-archive resources]# cp 24-adjusted.tar.gz 24-adjusted_api.tar.gz
+24_new.php is the new connector.
 */
+exit("\nObsolete. See 24.php for more details.\n");
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 require_library('connectors/ConvertEOLtoDWCaAPI');
