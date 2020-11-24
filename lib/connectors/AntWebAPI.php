@@ -84,6 +84,12 @@ class AntWebAPI
     {
         if($html = Functions::lookup_with_cache($rek['source_url'], $this->download_options)) {
             
+            // phylum:arthropoda class:insecta order:hymenoptera family:formicidae 
+            if(preg_match("/phylum\:(.*?) /ims", $html, $arr)) $rek['ancestry']['phylum'] = ucfirst($arr[1]);
+            if(preg_match("/class\:(.*?) /ims", $html, $arr)) $rek['ancestry']['class'] = ucfirst($arr[1]);
+            if(preg_match("/order\:(.*?) /ims", $html, $arr)) $rek['ancestry']['order'] = ucfirst($arr[1]);
+            if(preg_match("/family\:(.*?) /ims", $html, $arr)) $rek['ancestry']['family'] = ucfirst($arr[1]);
+            
             $html = str_replace("// Distribution", "<!--", $html);
             
             if(preg_match("/<h3 style=\"float\:left\;\">Distribution Notes\:<\/h3>(.*?)<\!\-\-/ims", $html, $arr)) {
@@ -110,7 +116,7 @@ class AntWebAPI
                 $rek['Taxonomic History'] = self::format_html_string($arr[1]);
                 // print_r($rek); exit;
             }
-            print_r($rek); //exit;
+            // print_r($rek); //exit;
         }
         return $rek;
     }
