@@ -30,7 +30,7 @@ class AntWebAPI
                 foreach($arr[1] as $str) {
                     if(preg_match_all("/<div (.*?)<\/div>/ims", $str, $arr2)) {
                         $rec = array_map('trim', $arr2[1]);
-                        print_r($rec);
+                        // print_r($rec);
                         /*Array(
                             [0] => class="sd_name pad">
                             <a href='https://www.antweb.org/common/statusDisplayPage.jsp' target="new"> 
@@ -53,9 +53,12 @@ class AntWebAPI
                             if(preg_match("/allantwebants\">(.*?)<\/a>/ims", $rec[0], $arr3)) $rek['sciname'] = str_replace(array('&dagger;'), '', $arr3[1]);
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            if($rek['sciname'] == 'Acromyrmex octospinosus')     $rek = self::parse_summary_page($rek);
+                            if($rek['sciname'] == 'Acromyrmex octospinosus') {
+                            // if($rek['sciname'] == 'Acanthognathus ocellatus') {
+                                $rek = self::parse_summary_page($rek);
+                                print_r($rek); exit;
+                            }
                             // $rek = self::parse_summary_page($rek);
-                            // print_r($rek);
                         }
                         
                     }
@@ -64,6 +67,19 @@ class AntWebAPI
         }
         print_r($this->debug);
     }
+    private function format_html_string($str)
+    {
+        $str = strip_tags($str,'<em><i><span><p><a>');
+        // \t --- chr(9) tab key
+        // \r --- chr(13) = Carriage Return - (moves cursor to lefttmost side)
+        // \n --- chr(10) = New Line (drops cursor down one line) 
+        // $str = str_replace(array("\n", chr(10)), "<br>", $str);
+        // $str = str_replace(array("\r", chr(13)), "<br>", $str);
+        // $str = str_replace(array("\t", chr(9)), "", $str);
+        $str = Functions::remove_whitespace(trim($str));
+        $str = str_replace(array("<p></p>"), "", $str);
+        return $str;
+    }
     private function parse_summary_page($rek)
     {
         if($html = Functions::lookup_with_cache($rek['source_url'], $this->download_options)) {
@@ -71,23 +87,36 @@ class AntWebAPI
             $html = str_replace("// Distribution", "<!--", $html);
             
             if(preg_match("/<h3 style=\"float\:left\;\">Distribution Notes\:<\/h3>(.*?)<\!\-\-/ims", $html, $arr)) {
-                $rek['Dist_notes'] = Functions::remove_whitespace(strip_tags($arr[1],'<em><span><p>'));
+                $rek['Distribution_Notes'] = self::format_html_string($arr[1]);
                 // print_r($rek); exit;
             }
             if(preg_match("/<h3 style=\"float\:left\;\">Identification\:<\/h3>(.*?)<\!\-\-/ims", $html, $arr)) {
-                $rek['Identification'] = Functions::remove_whitespace(strip_tags($arr[1],'<em><span><p>'));
+                $rek['Identification'] = self::format_html_string($arr[1]);;
                 // print_r($rek); exit;
             }
             if(preg_match("/<h3 style=\"float\:left\;\">Overview\:<\/h3>(.*?)<\!\-\-/ims", $html, $arr)) {
-                $rek['Overview'] = Functions::remove_whitespace(strip_tags($arr[1],'<em><span><p>'));
-                print_r($rek); exit;
+                $rek['Overview'] = self::format_html_string($arr[1]);
+                // print_r($rek); exit;
             }
             if(preg_match("/<h3 style=\"float\:left\;\">Biology\:<\/h3>(.*?)<\!\-\-/ims", $html, $arr)) {
-                $rek['Biology'] = Functions::remove_whitespace(strip_tags($arr[1],'<em><span><p>'));
-                print_r($rek); exit;
+                $rek['Biology'] = self::format_html_string($arr[1]);
+                // print_r($rek); exit;
             }
             
+            $complete = self::complete_header('<h2>Taxonomic History ', '<\/h2>', $html);
+            // <h2>Taxonomic History (provided by Barry Bolton, 2020)</h2>
+            // exit("\n$complete\n".preg_quote($complete,"/")."\n");
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
+                $rek['Taxonomic History'] = self::format_html_string($arr[1]);
+                // print_r($rek); exit;
+            }
+            print_r($rek); //exit;
         }
+        return $rek;
+    }
+    private function complete_header($start, $end, $html)
+    {
+        if(preg_match("/".$start."(.*?)".$end."/ims", $html, $arr)) return $start.$arr[1].str_replace('<\/h2>', '</h2>', $end);
     }
 }
 ?>
