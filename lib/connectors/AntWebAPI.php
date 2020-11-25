@@ -27,6 +27,7 @@ class AntWebAPI
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($html = Functions::lookup_with_cache($this->page['all_taxa'], $options)) {
+            $html = str_replace("&nbsp;", ' ', $html);
             // echo $html; exit;
             if(preg_match_all("/<div class=\"sd_data\">(.*?)<div class=\"clear\"><\/div>/ims", $html, $arr)) {
                 foreach($arr[1] as $str) {
@@ -56,13 +57,16 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            if($rek['sciname'] == 'Acromyrmex octospinosus') {
-                            // if($rek['sciname'] == 'Acanthognathus ocellatus') {
+                            // /* good debug
+                            // if($rek['sciname'] == 'Acromyrmex octospinosus') {
+                            if($rek['sciname'] == 'Acanthognathus ocellatus') {
                                 $rek = self::parse_summary_page($rek);
                                 print_r($rek); exit("\naaa\n");
                             }
-                            // $rek = self::parse_summary_page($rek);
-                            
+                            // */
+                            /* normal operation
+                            $rek = self::parse_summary_page($rek);
+                            */
                         }
                         
                     }
@@ -74,7 +78,7 @@ class AntWebAPI
     private function parse_summary_page($rek)
     {
         if($html = Functions::lookup_with_cache($rek['source_url'], $this->download_options)) {
-            
+            $html = str_replace("&nbsp;", ' ', $html);
             // phylum:arthropoda class:insecta order:hymenoptera family:formicidae 
             if(preg_match("/phylum\:(.*?) /ims", $html, $arr)) $rek['ancestry']['phylum'] = ucfirst($arr[1]);
             if(preg_match("/class\:(.*?) /ims", $html, $arr)) $rek['ancestry']['class'] = ucfirst($arr[1]);
@@ -124,7 +128,7 @@ class AntWebAPI
             $url = str_replace('GENUS_NAME', $name[0], $url);
             $url = str_replace('SPECIES_NAME', $name[1], $url);
             if($html = Functions::lookup_with_cache($url, $this->download_options)) {
-                // exit("\n$html\n");
+                $html = str_replace("&nbsp;", ' ', $html); // exit("\n$html\n");
                 $complete = '<div class="specimen_layout';
                 if(preg_match_all("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
                     echo("\nTotal Specimens: ".count($arr[1])."\n");
@@ -185,6 +189,7 @@ class AntWebAPI
                 }
             }
             if($habitat = @$r['habitat']) {
+                if(strlen($habitat) <= 3) continue; //filter out e.g. 'SSO'
                 if(!isset($debug[$habitat])) {
                     $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => $r['collection_code'], 'habitat' => $r['habitat']);
                     $debug[$habitat] = '';
@@ -222,10 +227,13 @@ class AntWebAPI
         // \n --- chr(10) = New Line (drops cursor down one line) 
         // $str = str_replace(array("\n", chr(10)), "<br>", $str);
         // $str = str_replace(array("\r", chr(13)), "<br>", $str);
-        // $str = str_replace(array("\t", chr(9)), "", $str);
+        $str = str_replace(array("\n", chr(10)), " ", $str);
+        $str = str_replace(array("\r", chr(13)), " ", $str);
+        $str = str_replace(array("\t", chr(9)), " ", $str);
         $str = Functions::remove_whitespace(trim($str));
         $str = str_replace(array("<p></p>"), "", $str);
-        return $str;
+        $str = str_replace(array("<p> </p>"), "", $str);
+        return Functions::remove_whitespace($str);
     }
 }
 ?>
