@@ -325,7 +325,7 @@ class AntWebAPI
                 $str = $arr[1];
                 /* <a href='https://www.antweb.org/artist.do?id=105'>Andrea Walker</a> */
                 if(preg_match("/>(.*?)</ims", $str, $arr)) $image['photographer'] = $arr[1];
-                if(preg_match("/<a href=\'(.*?)\'/ims", $str, $arr)) $image['photographer_website'] = $arr[1];
+                if(preg_match("/<a href=\'(.*?)\'/ims", $str, $arr)) $image['photographer_homepage'] = $arr[1];
             }
             $complete = '<li><b>Date Uploaded:</b>';
             if(preg_match("/".preg_quote($complete,"/")."(.*?)<\/li>/ims", $html, $arr)) $image['date_uploaded'] = trim($arr[1]);
