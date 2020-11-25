@@ -15,12 +15,13 @@ class AntWebAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
-        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
+        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 4000000); // expire_seconds = every 45 days in normal operation
         $this->download_options['expire_seconds'] = false; //doesn't expire
         
         $this->page['all_taxa'] = 'https://www.antweb.org/taxonomicPage.do?rank=species';
         $this->page['specimens'] = 'https://www.antweb.org/browse.do?species=SPECIES_NAME&genus=GENUS_NAME&rank=species';
         $this->page['specimen_info'] = 'https://www.antweb.org/specimen.do?code=';
+        $this->debug = array();
     }
     function start()
     {
@@ -57,16 +58,21 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            // /* good debug
+                            /* good debug
                             // if($rek['sciname'] == 'Acromyrmex octospinosus') {
-                            if($rek['sciname'] == 'Acanthognathus ocellatus') {
+                            // if($rek['sciname'] == 'Acanthognathus ocellatus') {
+                            if($rek['sciname'] == 'Acanthoponera minor') {
                                 $rek = self::parse_summary_page($rek);
-                                print_r($rek); exit("\naaa\n");
+                                // print_r($rek); exit("\naaa\n");
                             }
-                            // */
-                            /* normal operation
-                            $rek = self::parse_summary_page($rek);
                             */
+                            
+                            // /* normal operation
+                            echo "\n$rek[sciname] - ";
+                            $rek = self::parse_summary_page($rek);
+                            // print_r($rek); exit("\nbbb\n");
+                            // break; //debug only
+                            // */
                         }
                         
                     }
@@ -74,6 +80,7 @@ class AntWebAPI
             }
         }
         print_r($this->debug);
+        exit("\n-stop muna-\n");
     }
     private function parse_summary_page($rek)
     {
@@ -131,7 +138,7 @@ class AntWebAPI
                 $html = str_replace("&nbsp;", ' ', $html); // exit("\n$html\n");
                 $complete = '<div class="specimen_layout';
                 if(preg_match_all("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
-                    echo("\nTotal Specimens: ".count($arr[1])."\n");
+                    echo("Total Specimens: ".count($arr[1])."\n");
                     if($country_habitat = self::get_specimens_metadata($arr[1])) $rek['country_habitat'] = $country_habitat;
                 }
             }
@@ -143,7 +150,6 @@ class AntWebAPI
     }
     private function get_specimens_metadata($specimen_rows)
     {
-        // exit("\nTotal Specimens: ".count($specimen_rows)."\n");
         $final = array();
         foreach($specimen_rows as $row) {
             $rec = array();
