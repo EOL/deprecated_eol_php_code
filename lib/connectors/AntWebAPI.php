@@ -20,6 +20,7 @@ class AntWebAPI
         
         $this->page['all_taxa'] = 'https://www.antweb.org/taxonomicPage.do?rank=species';
         $this->page['specimens'] = 'https://www.antweb.org/browse.do?species=SPECIES_NAME&genus=GENUS_NAME&rank=species';
+        $this->page['specimen_info'] = 'https://www.antweb.org/specimen.do?code=';
     }
     function start()
     {
@@ -70,19 +71,6 @@ class AntWebAPI
         }
         print_r($this->debug);
     }
-    private function format_html_string($str)
-    {
-        $str = strip_tags($str,'<em><i><span><p><a>');
-        // \t --- chr(9) tab key
-        // \r --- chr(13) = Carriage Return - (moves cursor to lefttmost side)
-        // \n --- chr(10) = New Line (drops cursor down one line) 
-        // $str = str_replace(array("\n", chr(10)), "<br>", $str);
-        // $str = str_replace(array("\r", chr(13)), "<br>", $str);
-        // $str = str_replace(array("\t", chr(9)), "", $str);
-        $str = Functions::remove_whitespace(trim($str));
-        $str = str_replace(array("<p></p>"), "", $str);
-        return $str;
-    }
     private function parse_summary_page($rek)
     {
         if($html = Functions::lookup_with_cache($rek['source_url'], $this->download_options)) {
@@ -119,7 +107,7 @@ class AntWebAPI
                 $rek['Taxonomic History'] = self::format_html_string($arr[1]);
                 // print_r($rek); exit;
             }
-            // print_r($rek); //exit;
+            // print_r($rek); exit;
             
             // /* start with specimens
             $rek = self::parse_specimens($rek, $html);
@@ -140,7 +128,7 @@ class AntWebAPI
                 $complete = '<div class="specimen_layout';
                 if(preg_match_all("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
                     echo("\nTotal Specimens: ".count($arr[1])."\n");
-                    $rek = self::get_specimens_metadata($arr[1]);
+                    if($country_habitat = self::get_specimens_metadata($arr[1])) $rek['country_habitat'] = $country_habitat;
                 }
             }
         }
@@ -164,15 +152,80 @@ class AntWebAPI
             /* <span class="">Location: Brazil: Amazonas: Itacoatiara:&nbsp;&nbsp; */
             if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) $rec['country'] = $arr[1];
             /* <span class="">Habitat: </span><br /> */
-            if(preg_match("/>Habitat: (.*?)<\/span>/ims", $row, $arr)) $rec['habitat'] = $arr[1];
+            if(preg_match("/>Habitat: (.*?)<\/span>/ims", $row, $arr)) {
+                $rec['habitat'] = $arr[1];
+                if(substr($rec['habitat'], -3) == '...') {
+                    // print_r($rec);
+                    $rec = self::parse_specimen_summary($rec); //this will complete the habitat string with "...".
+                    // print_r($rec); exit;
+                }
+            }
             if($rec['country'] || $rec['habitat']) $final[] = $rec;
         }
-        print_r($final); exit;
-        /* deduplicate country */
+        // print_r($final); //exit("\nbbb\n");
+        /* normalize and deduplicate country */
+        $final = self::normalize_deduplicate_country_and_habitat($final);
+        // print_r($final); exit("\nccc\n");
+        return $final;
+    }
+    private function normalize_deduplicate_country_and_habitat($raw)
+    {
+        $final = array();
+        foreach($raw as $r) {
+            /*Array(
+                [specimen_code] => jtl748681
+                [collection_code] => Go-E-02-1-04
+                [country] => Costa Rica
+                [habitat] => tropical rainforest, 2nd growth, some big trees
+            )*/
+            if($country = @$r['country']) {
+                if(!isset($debug[$country])) {
+                    $debug[$country] = '';
+                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => $r['collection_code'], 'country' => $r['country']);
+                }
+            }
+            if($habitat = @$r['habitat']) {
+                if(!isset($debug[$habitat])) {
+                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => $r['collection_code'], 'habitat' => $r['habitat']);
+                    $debug[$habitat] = '';
+                }
+            }
+        }
+        return $final;
+    }
+    private function parse_specimen_summary($rec)
+    {
+        $options = $this->download_options;
+        $options['expire_seconds'] = false;
+        if($html = Functions::lookup_with_cache($this->page['specimen_info'].$rec['specimen_code'], $options)) {
+            $html = str_replace("&nbsp;", ' ', $html);
+            /*get Habitat
+            <ul>
+            <li><b>Habitat: </b></li>
+            <li>&nbsp;</li>
+            </ul>
+            */
+            $complete = '<b>Habitat: </b>';
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)<\/ul>/ims", $html, $arr)) $rec['habitat'] = trim(strip_tags($arr[1]));
+        }
+        return $rec;
     }
     private function complete_header($start, $end, $html)
     {
         if(preg_match("/".$start."(.*?)".$end."/ims", $html, $arr)) return $start.$arr[1].str_replace('<\/h2>', '</h2>', $end);
+    }
+    private function format_html_string($str)
+    {
+        $str = strip_tags($str,'<em><i><span><p><a>');
+        // \t --- chr(9) tab key
+        // \r --- chr(13) = Carriage Return - (moves cursor to lefttmost side)
+        // \n --- chr(10) = New Line (drops cursor down one line) 
+        // $str = str_replace(array("\n", chr(10)), "<br>", $str);
+        // $str = str_replace(array("\r", chr(13)), "<br>", $str);
+        // $str = str_replace(array("\t", chr(9)), "", $str);
+        $str = Functions::remove_whitespace(trim($str));
+        $str = str_replace(array("<p></p>"), "", $str);
+        return $str;
     }
 }
 ?>
