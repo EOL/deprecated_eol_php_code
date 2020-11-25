@@ -19,6 +19,7 @@ class AntWebAPI
         $this->download_options['expire_seconds'] = false; //doesn't expire
         
         $this->page['all_taxa'] = 'https://www.antweb.org/taxonomicPage.do?rank=species';
+        $this->page['specimens'] = 'https://www.antweb.org/browse.do?species=SPECIES_NAME&genus=GENUS_NAME&rank=species';
     }
     function start()
     {
@@ -51,14 +52,16 @@ class AntWebAPI
                         if(stripos($rec[0], "Valid name") !== false) { //string is found
                             $rek = array();
                             if(preg_match("/allantwebants\">(.*?)<\/a>/ims", $rec[0], $arr3)) $rek['sciname'] = str_replace(array('&dagger;'), '', $arr3[1]);
+                            $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
                             if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                                 $rek = self::parse_summary_page($rek);
-                                print_r($rek); exit;
+                                print_r($rek); exit("\naaa\n");
                             }
                             // $rek = self::parse_summary_page($rek);
+                            
                         }
                         
                     }
@@ -117,8 +120,55 @@ class AntWebAPI
                 // print_r($rek); exit;
             }
             // print_r($rek); //exit;
+            
+            // /* start with specimens
+            $rek = self::parse_specimens($rek, $html);
+            // */
+            
         }
         return $rek;
+    }
+    private function parse_specimens($rek, $html)
+    {
+        if(stripos($html, '">Specimens</a>') !== false) { //string is found
+            $name = explode(' ', $rek['sciname']);
+            $url = $this->page['specimens'];
+            $url = str_replace('GENUS_NAME', $name[0], $url);
+            $url = str_replace('SPECIES_NAME', $name[1], $url);
+            if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+                // exit("\n$html\n");
+                $complete = '<div class="specimen_layout';
+                if(preg_match_all("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
+                    echo("\nTotal Specimens: ".count($arr[1])."\n");
+                    $rek = self::get_specimens_metadata($arr[1]);
+                }
+            }
+        }
+        else {
+            print_r($rek); exit("\nNo specimens\n[$url]\n");
+        }
+        return $rek;
+    }
+    private function get_specimens_metadata($specimen_rows)
+    {
+        // exit("\nTotal Specimens: ".count($specimen_rows)."\n");
+        $final = array();
+        foreach($specimen_rows as $row) {
+            $rec = array();
+            /* <a href="https://www.antweb.org/specimen.do?code=awlit-ba00716"> */
+            $complete = '/specimen.do?code=';
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)\"/ims", $row, $arr)) $rec['specimen_code'] = $arr[1];
+            /* Collection: <a href=https://www.antweb.org/collection.do?name=tc1462219020>tc1462219020</a> */
+            $complete = '/collection.do?name=';
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)>/ims", $row, $arr)) $rec['collection_code'] = $arr[1];
+            /* <span class="">Location: Brazil: Amazonas: Itacoatiara:&nbsp;&nbsp; */
+            if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) $rec['country'] = $arr[1];
+            /* <span class="">Habitat: </span><br /> */
+            if(preg_match("/>Habitat: (.*?)<\/span>/ims", $row, $arr)) $rec['habitat'] = $arr[1];
+            if($rec['country'] || $rec['habitat']) $final[] = $rec;
+        }
+        print_r($final); exit;
+        /* deduplicate country */
     }
     private function complete_header($start, $end, $html)
     {
