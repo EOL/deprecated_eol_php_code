@@ -21,6 +21,9 @@ class AntWebAPI
         $this->page['all_taxa'] = 'https://www.antweb.org/taxonomicPage.do?rank=species';
         $this->page['specimens'] = 'https://www.antweb.org/browse.do?species=SPECIES_NAME&genus=GENUS_NAME&rank=species';
         $this->page['specimen_info'] = 'https://www.antweb.org/specimen.do?code=';
+        $this->page['images'] = 'https://www.antweb.org/images.do?genus=GENUS_NAME&species=SPECIES_NAME';
+        $this->page['specimen_images'] = 'https://www.antweb.org/specimenImages.do?name=SPECIMEN_CODE&project=allantwebants';
+        $this->page['specimen_image'] = 'https://www.antweb.org/bigPicture.do?name=SPECIMEN_CODE&shot=SHOT_LETTER&number=1';
         $this->debug = array();
     }
     function start()
@@ -58,21 +61,22 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            /* good debug
-                            // if($rek['sciname'] == 'Acromyrmex octospinosus') {
+                            // /* good debug
+                            if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
-                            if($rek['sciname'] == 'Acanthoponera minor') {
+                            // if($rek['sciname'] == 'Acanthoponera minor') {
                                 $rek = self::parse_summary_page($rek);
-                                // print_r($rek); exit("\naaa\n");
+                                if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
+                                print_r($rek); exit("\naaa\n");
                             }
-                            */
+                            // */
                             
-                            // /* normal operation
+                            /* normal operation
                             echo "\n$rek[sciname] - ";
                             $rek = self::parse_summary_page($rek);
                             // print_r($rek); exit("\nbbb\n");
                             // break; //debug only
-                            // */
+                            */
                         }
                         
                     }
@@ -240,6 +244,103 @@ class AntWebAPI
         $str = str_replace(array("<p></p>"), "", $str);
         $str = str_replace(array("<p> </p>"), "", $str);
         return Functions::remove_whitespace($str);
+    }
+    private function get_images($sciname)
+    {
+        $final = array();
+        $name = explode(' ', $sciname);
+        $url = $this->page['images'];
+        $url = str_replace('GENUS_NAME', $name[0], $url);
+        $url = str_replace('SPECIES_NAME', $name[1], $url);
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            $html = str_replace("&nbsp;", ' ', $html); // exit("\n$html\n");
+            /*
+            <div class="name"><a href="https://www.antweb.org/specimenImages.do?name=psw7796-21&project=allantwebants">PSW7796-21</a></div>
+            */
+            $complete = 'specimenImages.do?name=';
+            if(preg_match_all("/".preg_quote($complete,"/")."(.*?)\&project\=/ims", $html, $arr)) {
+                $a = $arr[1];
+                $a = array_filter($a); //remove null arrays
+                $a = array_unique($a); //make unique
+                $a = array_values($a); //reindex key
+                // print_r($a); exit;
+                /*Array(
+                    [0] => casent0246632
+                    [1] => casent0900490
+                    [2] => casent0922028
+                    [3] => fmnhins0000046890
+                    [4] => psw7796-21
+                )*/
+                foreach($a as $specimen_code) {
+                    if($images = self::get_specimen_images($specimen_code)) $final = array_merge($final, $images);
+                }
+            }
+        }
+        // print_r($final); exit("\nccc\n"); //good debug
+        return $final;
+    }
+    private function get_specimen_images($specimen_code)
+    {
+        $final = array();
+        $url = str_replace('SPECIMEN_CODE', $specimen_code, $this->page['specimen_images']);
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            $html = str_replace("&nbsp;", ' ', $html); // exit("\n$html\n");
+            /*
+            onclick="window.location='bigPicture.do?name=psw7796-21&shot=h&number=1'"
+            */
+            $complete = 'bigPicture.do?name='.$specimen_code.'&shot=';
+            if(preg_match_all("/".preg_quote($complete,"/")."(.*?)\&number\=/ims", $html, $arr)) {
+                // print_r($arr[1]); exit;
+                $a = $arr[1];
+                $a = array_filter($a); //remove null arrays
+                $a = array_unique($a); //make unique
+                $a = array_values($a); //reindex key
+                // print_r($a); exit;
+                /*Array(
+                    [0] => h
+                    [1] => p
+                    [2] => d
+                    [3] => l
+                )*/
+                foreach($a as $shot_letter) {
+                    if($shot_letter == 'l') continue;
+                    if($image_info = self::parse_specimen_image_summary($specimen_code, $shot_letter)) $final[] = $image_info;
+                }
+            }
+        }
+        return $final;
+    }
+    private function parse_specimen_image_summary($specimen_code, $shot_letter)
+    {
+        $url = str_replace('SPECIMEN_CODE', $specimen_code, $this->page['specimen_image']);
+        $url = str_replace('SHOT_LETTER', $shot_letter, $url);
+        if($html = Functions::lookup_with_cache($url, $this->download_options)) {
+            /*
+            <li><b>Uploaded By:</b> <a href='https://www.antweb.org/group.do?id=1'>California Academy of Sciences</a></li>
+            <li><b>Photographer:</b> <a href='https://www.antweb.org/artist.do?id=69'>April Nobile</a></li>
+            <li><b>Date Uploaded:</b> 2007-12-18 14:39:32.0</li>
+            */
+            $complete = '<li><b>Photographer:</b>';
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)<\/li>/ims", $html, $arr)) {
+                $str = $arr[1];
+                /* <a href='https://www.antweb.org/artist.do?id=105'>Andrea Walker</a> */
+                if(preg_match("/>(.*?)</ims", $str, $arr)) $image['photographer'] = $arr[1];
+                if(preg_match("/<a href=\'(.*?)\'/ims", $str, $arr)) $image['photographer_website'] = $arr[1];
+            }
+            $complete = '<li><b>Date Uploaded:</b>';
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)<\/li>/ims", $html, $arr)) $image['date_uploaded'] = trim($arr[1]);
+            /*
+            <div class="big_picture">
+                <img src="https://www.antweb.org/images/psw7796-21/psw7796-21_h_1_high.jpg">
+            </div>
+            */
+            $complete = '<div class="big_picture">';
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)<\/div>/ims", $html, $arr)) {
+                if(preg_match("/<img src=\"(.*?)\"/ims", $arr[1], $arr)) $image['media_url'] = $arr[1];
+            }
+            // print_r($image); exit;
+            return $image;
+        }
     }
 }
 ?>
