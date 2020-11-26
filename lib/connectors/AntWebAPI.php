@@ -61,7 +61,7 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            // /* good debug
+                            /* good debug
                             if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
@@ -70,23 +70,26 @@ class AntWebAPI
                                 print_r($rek); //exit("\naaa\n");
                                 if($rek['sciname']) self::write_archive($rek);
                             }
-                            // */
+                            */
                             
-                            /* normal operation
+                            // /* normal operation
                             echo "\n$rek[sciname] - ";
                             $rek = self::parse_summary_page($rek);
+                            if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
+                            echo "\nimages: ".count($rek['images'])."\n";
                             // print_r($rek); exit("\nbbb\n");
+                            // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
-                            */
+                            // */
                         }
                         
                     }
                 }
             }
         }
+        exit("\n-stop muna-\n");
         $this->archive_builder->finalize(true);
         print_r($this->debug);
-        // exit("\n-stop muna-\n");
     }
     private function parse_summary_page($rek)
     {
