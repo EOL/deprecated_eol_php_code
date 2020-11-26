@@ -62,12 +62,13 @@ class AntWebAPI
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
                             /* good debug
-                            if($rek['sciname'] == 'Acromyrmex octospinosus') {
+                            // if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
+                            if($rek['sciname'] == 'Acanthognathus rudis') {
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
-                                print_r($rek); //exit("\naaa\n");
+                                print_r($rek); exit("\naaa\n");
                                 if($rek['sciname']) self::write_archive($rek);
                             }
                             */
@@ -76,7 +77,7 @@ class AntWebAPI
                             echo "\n$rek[sciname] - ";
                             $rek = self::parse_summary_page($rek);
                             if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
-                            echo "\nimages: ".count($rek['images'])."\n";
+                            echo "\nimages: ".count(@$rek['images'])."\n";
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
@@ -206,7 +207,7 @@ class AntWebAPI
             if($habitat = @$r['habitat']) {
                 if(strlen($habitat) <= 3) continue; //filter out e.g. 'SSO'
                 if(!isset($debug[$habitat])) {
-                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => $r['collection_code'], 'habitat' => $r['habitat']);
+                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'habitat' => $r['habitat']);
                     $debug[$habitat] = '';
                 }
             }
