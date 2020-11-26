@@ -61,7 +61,7 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            /* good debug
+                            // /* good debug
                             // if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
@@ -71,17 +71,17 @@ class AntWebAPI
                                 print_r($rek); exit("\naaa\n");
                                 if($rek['sciname']) self::write_archive($rek);
                             }
-                            */
+                            // */
                             
-                            // /* normal operation
+                            /* normal operation
                             echo "\n$rek[sciname] - ";
                             $rek = self::parse_summary_page($rek);
                             if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
-                            echo "\nimages: ".count(@$rek['images'])."\n";
+                            echo "images: ".count(@$rek['images'])."\n";
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
-                            // */
+                            */
                         }
                         
                     }
@@ -171,6 +171,16 @@ class AntWebAPI
             if(preg_match("/".preg_quote($complete,"/")."(.*?)>/ims", $row, $arr)) $rec['collection_code'] = $arr[1];
             /* <span class="">Location: Brazil: Amazonas: Itacoatiara:&nbsp;&nbsp; */
             if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) $rec['country'] = $arr[1];
+            
+            /* <span class="">Date Collected: 2011-12-05</span><br /> */
+            if(preg_match("/>Date Collected: (.*?)<\/span>/ims", $row, $arr)) $rec['date_collected'] = $arr[1]; //eventDate
+            
+            /* <span class="">Determined By: Chaul, J.</span><br /> */
+            if(preg_match("/>Determined By: (.*?)<\/span>/ims", $row, $arr)) $rec['determined_by'] = $arr[1]; //identifiedBy
+            
+            /* <span class="">Owned By: <a href='https://www.antweb.org/museum.do?code=UFV-LABECOL'>UFV-LABECOL</a></span><br /> */
+            if(preg_match("/>Owned By: (.*?)<\/span>/ims", $row, $arr)) $rec['owned_by'] = strip_tags($arr[1]); //contributor
+            
             /* <span class="">Habitat: </span><br /> */
             if(preg_match("/>Habitat: (.*?)<\/span>/ims", $row, $arr)) {
                 $rec['habitat'] = $arr[1];
@@ -180,6 +190,9 @@ class AntWebAPI
                     // print_r($rec); exit;
                 }
             }
+            
+            // print_r($rec); exit; //good debug
+            
             if($rec['country'] || $rec['habitat']) $final[] = $rec;
         }
         // print_r($final); //exit("\nbbb\n");
@@ -197,17 +210,29 @@ class AntWebAPI
                 [collection_code] => Go-E-02-1-04
                 [country] => Costa Rica
                 [habitat] => tropical rainforest, 2nd growth, some big trees
-            )*/
+            )
+            Array(
+                [specimen_code] => antweb1038249
+                [collection_code] => tc368115418
+                [country] => Brazil
+                [date_collected] => 2011-12-05
+                [determined_by] => Chaul, J.
+                [owned_by] => UFV-LABECOL
+                [habitat] => 
+            )
+            */
             if($country = @$r['country']) {
                 if(!isset($debug[$country])) {
                     $debug[$country] = '';
-                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'country' => $r['country']);
+                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'country' => $r['country'],
+                    'date_collected' => $r['date_collected'], 'determined_by' => $r['determined_by'], 'owned_by' => $r['owned_by']);
                 }
             }
             if($habitat = @$r['habitat']) {
                 if(strlen($habitat) <= 3) continue; //filter out e.g. 'SSO'
                 if(!isset($debug[$habitat])) {
-                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'habitat' => $r['habitat']);
+                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'habitat' => $r['habitat'],
+                    'date_collected' => $r['date_collected'], 'determined_by' => $r['determined_by'], 'owned_by' => $r['owned_by']);
                     $debug[$habitat] = '';
                 }
             }
@@ -361,6 +386,7 @@ class AntWebAPI
         $taxonID = self::write_taxon($rek);
         self::write_text_objects($rek, $taxonID);
         self::write_image_objects($rek, $taxonID);
+        self::write_traits($rek, $taxonID);
     }
     private function write_taxon($rek)
     {   /*Array(
