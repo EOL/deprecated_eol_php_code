@@ -14,6 +14,8 @@ $timestart = time_elapsed();
 // 25 November 2020
 // exit("\n".date("d F Y")."\n");
 
+// print_r(pathinfo("https://www.antweb.org/images/psw7796-21/psw7796-21_d_1_high.jpg")); exit;
+
 // /* //main operation
 $resource_id = 24;
 $func = new AntWebAPI($resource_id);

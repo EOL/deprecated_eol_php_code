@@ -306,16 +306,17 @@ class AntWebAPI
                 )*/
                 foreach($a as $shot_letter) {
                     if($shot_letter == 'l') continue;
-                    if($image_info = self::parse_specimen_image_summary($specimen_code, $shot_letter)) $final[] = $image_info;
+                    if($image_info = self::parse_specimen_image_summary($specimen_code, $shot_letter, $url)) $final[] = $image_info;
                 }
             }
         }
         return $final;
     }
-    private function parse_specimen_image_summary($specimen_code, $shot_letter)
+    private function parse_specimen_image_summary($specimen_code, $shot_letter, $urlx)
     {
         $url = str_replace('SPECIMEN_CODE', $specimen_code, $this->page['specimen_image']);
         $url = str_replace('SHOT_LETTER', $shot_letter, $url);
+        $image['source_url'] = $url;
         if($html = Functions::lookup_with_cache($url, $this->download_options)) {
             /*
             <li><b>Uploaded By:</b> <a href='https://www.antweb.org/group.do?id=1'>California Academy of Sciences</a></li>
@@ -347,7 +348,7 @@ class AntWebAPI
             $complete = "<meta name='description' content='";
             if(preg_match("/".preg_quote($complete,"/")."(.*?)\'/ims", $html, $arr)) $image['title'] = $arr[1]." (".$image['sciname'].")";
             
-            print_r($image); exit;
+            // print_r($image); exit;
             return $image;
         }
     }
@@ -407,38 +408,81 @@ class AntWebAPI
             $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution'; //subject
             $o['title'] = 'Distribution Notes';
             $o['description'] = $text;
-            self::write_text_object($o);
+            self::write_data_object($o);
         }
         if($text = @$rek['Identification']) {
             $o['identifier'] = $taxonID.'_Ide';
             $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription'; //subject
             $o['title'] = 'Identification';
             $o['description'] = $text;
-            self::write_text_object($o);
+            self::write_data_object($o);
         }
         if($text = @$rek['Overview']) {
             $o['identifier'] = $taxonID.'_Ove';
             $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology'; //subject
             $o['title'] = 'Overview';
             $o['description'] = $text;
-            self::write_text_object($o);
+            self::write_data_object($o);
         }
         if($text = @$rek['Biology']) {
             $o['identifier'] = $taxonID.'_Bio';
             $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //subject
             $o['title'] = 'Biology';
             $o['description'] = $text;
-            self::write_text_object($o);
+            self::write_data_object($o);
         }
         if($text = @$rek['Taxonomic_History']) {
             $o['identifier'] = $taxonID.'_TaxHis';
             $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //subject
             $o['title'] = 'Taxonomic History';
             $o['description'] = $text;
-            self::write_text_object($o);
+            self::write_data_object($o);
         }
     }
-    private function write_text_object($o)
+    private function write_image_objects($rek, $taxonID)
+    {   /*[images] => Array
+            (
+                [0] => Array
+                    (
+                        [photographer] => Andrea Walker
+                        [photographer_homepage] => https://www.antweb.org/artist.do?id=105
+                        [date_uploaded] => 2011-09-14 14:36:07.0
+                        [media_url] => https://www.antweb.org/images/casent0246632/casent0246632_h_1_high.jpg
+                    )
+
+                [1] => Array
+                    (
+                        [source_url] => https://www.antweb.org/bigPicture.do?name=psw7796-21&shot=d&number=1
+                        [photographer] => April Nobile
+                        [photographer_homepage] => https://www.antweb.org/artist.do?id=69
+                        [date_uploaded] => 2007-12-18 14:39:32.0
+                        [media_url] => https://www.antweb.org/images/psw7796-21/psw7796-21_d_1_high.jpg
+                        [sciname] => Acromyrmex octospinosus
+                        [title] => Closeup dorsal view of Specimen PSW7796-21 from AntWeb. (Acromyrmex octospinosus)
+                    )
+        */
+        foreach($rek['images'] as $i) {
+            $i['role'] = 'photographer';
+            $agent_id = self::add_agent($i);
+            $o = array();
+            $o['identifier'] = pathinfo($i['media_url'], PATHINFO_FILENAME);
+            $o['title'] = $i['sciname'];
+            $o['description'] = $i['title'];
+            $o['taxonID'] = $taxonID;
+            $o['type'] = 'http://purl.org/dc/dcmitype/StillImage'; //dataType
+            $o['format'] = 'image/jpeg'; //mimetype
+            $o['language'] = 'en';
+            $o['furtherInformationURL'] = $i['source_url'];
+            $o['UsageTerms'] = 'http://creativecommons.org/licenses/by-nc-sa/4.0/'; //license
+            $o['Owner'] = 'California Academy of Sciences';
+            $o['bibliographicCitation'] = "AntWeb. Version 8.45.1. California Academy of Science, online at https://www.antweb.org. Accessed ".date("d F Y").".";
+            $o['agentID'] = $agent_id;
+            $o['accessURI'] = $i['media_url'];
+            $o['CreateDate'] = $i['date_uploaded'];
+            self::write_data_object($o);
+        }
+    }
+    private function write_data_object($o)
     {
         $fields = array_keys($o);
         $mr = new \eol_schema\MediaResource();
@@ -456,29 +500,18 @@ class AntWebAPI
             $this->object_ids[$mr->identifier] = '';
         }
     }
-    private function write_image_objects($rek, $taxonID)
-    {   /*[images] => Array
-            (
-                [0] => Array
-                    (
-                        [photographer] => Andrea Walker
-                        [photographer_homepage] => https://www.antweb.org/artist.do?id=105
-                        [date_uploaded] => 2011-09-14 14:36:07.0
-                        [media_url] => https://www.antweb.org/images/casent0246632/casent0246632_h_1_high.jpg
-                    )
-
-                [1] => Array
-                    (
-                        [photographer] => Andrea Walker
-                        [photographer_homepage] => https://www.antweb.org/artist.do?id=105
-                        [date_uploaded] => 2011-09-14 14:36:07.0
-                        [media_url] => https://www.antweb.org/images/casent0246632/casent0246632_p_1_high.jpg
-                    )
-        */
-        foreach($rek['images'] as $i) {
-            
+    private function add_agent($a)
+    {
+        $r = new \eol_schema\Agent();
+        $r->term_name       = $a['photographer'];
+        $r->agentRole       = $a['role'];
+        $r->identifier      = md5("$r->term_name|$r->agentRole");
+        $r->term_homepage   = $a['photographer_homepage'];
+        if(!isset($this->agent_ids[$r->identifier])) {
+           $this->agent_ids[$r->identifier] = '';
+           $this->archive_builder->write_object_to_file($r);
         }
-        
+        return $r->identifier;
     }
 }
 ?>
