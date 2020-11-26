@@ -67,7 +67,8 @@ class AntWebAPI
                             // if($rek['sciname'] == 'Acanthoponera minor') {
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
-                                print_r($rek); exit("\naaa\n");
+                                print_r($rek); //exit("\naaa\n");
+                                if($rek['sciname']) self::write_archive($rek);
                             }
                             // */
                             
@@ -83,8 +84,9 @@ class AntWebAPI
                 }
             }
         }
+        $this->archive_builder->finalize(true);
         print_r($this->debug);
-        exit("\n-stop muna-\n");
+        // exit("\n-stop muna-\n");
     }
     private function parse_summary_page($rek)
     {
@@ -119,7 +121,7 @@ class AntWebAPI
             // <h2>Taxonomic History (provided by Barry Bolton, 2020)</h2>
             // exit("\n$complete\n".preg_quote($complete,"/")."\n");
             if(preg_match("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
-                $rek['Taxonomic History'] = self::format_html_string($arr[1]);
+                $rek['Taxonomic_History'] = self::format_html_string($arr[1]);
                 // print_r($rek); exit;
             }
             // print_r($rek); exit;
@@ -338,9 +340,145 @@ class AntWebAPI
             if(preg_match("/".preg_quote($complete,"/")."(.*?)<\/div>/ims", $html, $arr)) {
                 if(preg_match("/<img src=\"(.*?)\"/ims", $arr[1], $arr)) $image['media_url'] = $arr[1];
             }
-            // print_r($image); exit;
+            /* content="1 of 4 images of Acromyrmex octospinosus from AntWeb." */
+            $complete = ' images of ';
+            if(preg_match("/".preg_quote($complete,"/")."(.*?) from AntWeb./ims", $html, $arr)) $image['sciname'] = $arr[1];
+            /* <meta name='description' content='Closeup head view of Specimen CASENT0900490 from AntWeb.'/> */
+            $complete = "<meta name='description' content='";
+            if(preg_match("/".preg_quote($complete,"/")."(.*?)\'/ims", $html, $arr)) $image['title'] = $arr[1]." (".$image['sciname'].")";
+            
+            print_r($image); exit;
             return $image;
         }
+    }
+    private function write_archive($rek)
+    {
+        $taxonID = self::write_taxon($rek);
+        self::write_text_objects($rek, $taxonID);
+        self::write_image_objects($rek, $taxonID);
+    }
+    private function write_taxon($rek)
+    {   /*Array(
+        [sciname] => Acromyrmex octospinosus
+        [rank] => species
+        [source_url] => https://www.antweb.org/description.do?genus=acromyrmex&species=octospinosus&rank=species&project=allantwebants
+        [ancestry] => Array(
+                [phylum] => Arthropoda
+                [class] => Insecta
+                [order] => Hymenoptera
+                [family] => Formicidae
+            )
+        */
+        $taxon = new \eol_schema\Taxon();
+        $taxon->taxonID         = strtolower(str_replace(' ','_',$rek['sciname']));
+        $taxon->scientificName  = $rek['sciname'];
+        $taxon->phylum  = $rek['ancestry']['phylum'];
+        $taxon->class   = $rek['ancestry']['class'];
+        $taxon->order   = $rek['ancestry']['order'];
+        $taxon->family  = $rek['ancestry']['family'];
+        $taxon->furtherInformationURL = $rek['source_url'];
+        /* copied template
+        $taxon->kingdom         = $t['dwc_Kingdom'];
+        $taxon->genus           = $t['dwc_Genus'];
+        $taxon->furtherInformationURL = $t['dc_source'];
+        if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
+        */
+        $this->taxon_ids[$taxon->taxonID] = '';
+        $this->archive_builder->write_object_to_file($taxon);
+        return $taxon->taxonID;
+    }
+    private function write_text_objects($rek, $taxonID)
+    {   /*[Distribution_Notes]
+          [Identification] 
+          [Overview]
+          [Biology]
+          [Taxonomic_History]
+        */
+        $o['taxonID'] = $taxonID;
+        $o['type'] = 'http://purl.org/dc/dcmitype/Text'; //dataType
+        $o['format'] = 'text/html'; //mimetype
+        $o['language'] = 'en';
+        $o['furtherInformationURL'] = $rek['source_url'];
+        $o['UsageTerms'] = 'http://creativecommons.org/licenses/by-nc-sa/4.0/'; //license
+        $o['Owner'] = 'California Academy of Sciences';
+        $o['bibliographicCitation'] = "AntWeb. Version 8.45.1. California Academy of Science, online at https://www.antweb.org. Accessed ".date("d F Y").".";
+        if($text = @$rek['Distribution_Notes']) {
+            $o['identifier'] = $taxonID.'_DisNot';
+            $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution'; //subject
+            $o['title'] = 'Distribution Notes';
+            $o['description'] = $text;
+            self::write_text_object($o);
+        }
+        if($text = @$rek['Identification']) {
+            $o['identifier'] = $taxonID.'_Ide';
+            $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#DiagnosticDescription'; //subject
+            $o['title'] = 'Identification';
+            $o['description'] = $text;
+            self::write_text_object($o);
+        }
+        if($text = @$rek['Overview']) {
+            $o['identifier'] = $taxonID.'_Ove';
+            $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology'; //subject
+            $o['title'] = 'Overview';
+            $o['description'] = $text;
+            self::write_text_object($o);
+        }
+        if($text = @$rek['Biology']) {
+            $o['identifier'] = $taxonID.'_Bio';
+            $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //subject
+            $o['title'] = 'Biology';
+            $o['description'] = $text;
+            self::write_text_object($o);
+        }
+        if($text = @$rek['Taxonomic_History']) {
+            $o['identifier'] = $taxonID.'_TaxHis';
+            $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description'; //subject
+            $o['title'] = 'Taxonomic History';
+            $o['description'] = $text;
+            self::write_text_object($o);
+        }
+    }
+    private function write_text_object($o)
+    {
+        $fields = array_keys($o);
+        $mr = new \eol_schema\MediaResource();
+        foreach($fields as $field) $mr->$field = $o[$field];
+        // $mr->accessURI      = self::use_best_fishbase_server($o['mediaURL']);
+        // $mr->thumbnailURL   = self::use_best_fishbase_server($o['thumbnailURL']);
+        // $mr->rights         = $o['dc_rights'];
+        // $mr->audience       = 'Everyone';
+        // $mr->LocationCreated = $o['location'];
+        // if($reference_ids = @$this->object_reference_ids[$o['int_do_id']])  $mr->referenceID = implode("; ", $reference_ids);
+        // if($agent_ids     =     @$this->object_agent_ids[$o['int_do_id']])  $mr->agentID = implode("; ", $agent_ids);
+        
+        if(!isset($this->object_ids[$mr->identifier])) {
+            $this->archive_builder->write_object_to_file($mr);
+            $this->object_ids[$mr->identifier] = '';
+        }
+    }
+    private function write_image_objects($rek, $taxonID)
+    {   /*[images] => Array
+            (
+                [0] => Array
+                    (
+                        [photographer] => Andrea Walker
+                        [photographer_homepage] => https://www.antweb.org/artist.do?id=105
+                        [date_uploaded] => 2011-09-14 14:36:07.0
+                        [media_url] => https://www.antweb.org/images/casent0246632/casent0246632_h_1_high.jpg
+                    )
+
+                [1] => Array
+                    (
+                        [photographer] => Andrea Walker
+                        [photographer_homepage] => https://www.antweb.org/artist.do?id=105
+                        [date_uploaded] => 2011-09-14 14:36:07.0
+                        [media_url] => https://www.antweb.org/images/casent0246632/casent0246632_p_1_high.jpg
+                    )
+        */
+        foreach($rek['images'] as $i) {
+            
+        }
+        
     }
 }
 ?>

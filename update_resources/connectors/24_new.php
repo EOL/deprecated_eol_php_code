@@ -11,11 +11,14 @@ require_library('connectors/AntWebAPI');
 $timestart = time_elapsed();
 // ini_set('memory_limit','7096M'); //required
 
+// 25 November 2020
+// exit("\n".date("d F Y")."\n");
+
 // /* //main operation
 $resource_id = 24;
 $func = new AntWebAPI($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param if false it will not remove the /24/ folder
+Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param if false it will not remove the /24/ folder
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
