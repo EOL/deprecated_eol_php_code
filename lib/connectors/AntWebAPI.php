@@ -201,7 +201,7 @@ class AntWebAPI
             if($country = @$r['country']) {
                 if(!isset($debug[$country])) {
                     $debug[$country] = '';
-                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => $r['collection_code'], 'country' => $r['country']);
+                    $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'country' => $r['country']);
                 }
             }
             if($habitat = @$r['habitat']) {
