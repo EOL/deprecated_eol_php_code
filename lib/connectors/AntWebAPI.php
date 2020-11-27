@@ -79,8 +79,8 @@ class AntWebAPI
                             echo "\n$rek[sciname] - ";
                             
                             $letter = substr($rek['sciname'],0,1);
-                            if($letter <= "J") continue;
-                            // if($letter > "J") continue;
+                            // if($letter <= "J") continue;
+                            if($letter > "J") continue;
                             
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
