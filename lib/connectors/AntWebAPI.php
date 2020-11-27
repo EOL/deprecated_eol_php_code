@@ -15,7 +15,7 @@ class AntWebAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
-        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 4000000); // expire_seconds = every 45 days in normal operation
+        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 3000000); // expire_seconds = every 45 days in normal operation
         $this->download_options['expire_seconds'] = false; //doesn't expire
         
         $this->page['all_taxa'] = 'https://www.antweb.org/taxonomicPage.do?rank=species';
@@ -61,27 +61,35 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            // /* good debug
+                            /* good debug
                             // if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
                             if($rek['sciname'] == 'Acanthognathus rudis') {
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
+                                echo "images: ".count(@$rek['images'])."\n";
+
                                 print_r($rek); exit("\naaa\n");
                                 if($rek['sciname']) self::write_archive($rek);
                             }
-                            // */
+                            */
                             
-                            /* normal operation
+                            // /* normal operation
                             echo "\n$rek[sciname] - ";
-                            $rek = self::parse_summary_page($rek);
-                            if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
-                            echo "images: ".count(@$rek['images'])."\n";
+                            
+                            $letter = substr($rek['sciname'],0,1);
+                            if($letter <= "J") continue;
+                            // if($letter > "J") continue;
+                            
+                                $rek = self::parse_summary_page($rek);
+                                if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
+                                echo "images: ".count(@$rek['images'])."\n";
+
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
-                            */
+                            // */
                         }
                         
                     }
