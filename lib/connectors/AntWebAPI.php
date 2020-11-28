@@ -78,8 +78,8 @@ class AntWebAPI
 
                             // /* used when caching
                             $letter = substr($rek['sciname'],0,1);
-                            if($letter <= "J") continue;
-                            // if($letter > "J") continue;
+                            // if($letter <= "J") continue;
+                            if($letter > "J") continue;
                             // */
                             
                             // /* normal operation
