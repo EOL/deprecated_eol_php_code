@@ -15,7 +15,7 @@ class AntWebAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
-        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 3000000); // expire_seconds = every 45 days in normal operation
+        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
         $this->download_options['expire_seconds'] = false; //doesn't expire
         
         $this->page['all_taxa'] = 'https://www.antweb.org/taxonomicPage.do?rank=species';
@@ -34,6 +34,7 @@ class AntWebAPI
             $html = str_replace("&nbsp;", ' ', $html);
             // echo $html; exit;
             if(preg_match_all("/<div class=\"sd_data\">(.*?)<div class=\"clear\"><\/div>/ims", $html, $arr)) {
+                $eli = 0;
                 foreach($arr[1] as $str) {
                     if(preg_match_all("/<div (.*?)<\/div>/ims", $str, $arr2)) {
                         $rec = array_map('trim', $arr2[1]);
@@ -74,22 +75,25 @@ class AntWebAPI
                                 if($rek['sciname']) self::write_archive($rek);
                             }
                             */
+
+                            // /* used when caching
+                            $letter = substr($rek['sciname'],0,1);
+                            if($letter <= "J") continue;
+                            // if($letter > "J") continue;
+                            // */
                             
                             // /* normal operation
                             echo "\n$rek[sciname] - ";
-                            
-                            $letter = substr($rek['sciname'],0,1);
-                            // if($letter <= "J") continue;
-                            if($letter > "J") continue;
-                            
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
                                 echo "images: ".count(@$rek['images'])."\n";
-
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
                             // */
+
+                            $eli++;
+                            // if($eli > 3) break; //debug only
                         }
                         
                     }
