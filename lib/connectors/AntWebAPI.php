@@ -80,8 +80,12 @@ class AntWebAPI
                             $letter = substr($rek['sciname'],0,1);
                             // if($letter <= "J") continue;
                             // if($letter > "J") continue;
-                            if($letter >= "V") {}
+
+                            if($letter >= "P" && $letter <= "U") {}
                             else continue;
+
+                            // if($letter >= "V") {}
+                            // else continue;
                             // */
                             
                             // /* normal operation
