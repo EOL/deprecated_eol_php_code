@@ -39,6 +39,7 @@ class AntWebAPI
         require_library('connectors/AntWebDataAPI');
         $func = new AntWebDataAPI(false, false, false);
         $this->habitat_map = $func->initialize_habitat_mapping();
+        $this->uri_values = $func->initialize_mapping();
         // */
         
         $options = $this->download_options;
@@ -84,6 +85,7 @@ class AntWebAPI
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
                                 echo "images: ".count(@$rek['images'])."\n";
                                 if($rek['sciname']) self::write_archive($rek);
+                                // break;
                                 // print_r($rek); exit("\naaa\n");
                             }
                             // */
@@ -116,14 +118,14 @@ class AntWebAPI
                             */
 
                             $eli++;
-                            // if($eli > 3) break; //debug only
+                            if($eli > 3) break; //debug only
                         }
                         
                     }
                 }
             }
         }
-        exit("\n-stop muna-\n");
+        // exit("\n-stop muna-\n");
         $this->archive_builder->finalize(true);
         print_r($this->debug);
     }
@@ -608,12 +610,12 @@ class AntWebAPI
         $save['source'] = $rek['source_url'];
         $save['bibliographicCitation'] = $this->bibliographicCitation;
         // $save['measurementRemarks'] = '';
-        echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
-        // $this->func->pre_add_string_types($save, $mValue, $mType, "true");
+        // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
         
         foreach($rek['country_habitat'] as $t) {
             if($country = @$t['country']) { $mType = 'http://eol.org/schema/terms/Present';
                 if($mValue = self::get_country_uri($country)) {
+                    $save['measurementRemarks'] = $country;
                     $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                     $this->func->add_string_types($save, $mValue, $mType, "true");
                 }
@@ -621,16 +623,17 @@ class AntWebAPI
             }
             if($habitat = @$t['habitat']) { $mType = 'http://eol.org/schema/terms/Habitat';
                 if($mValue = @$this->uri_values[$habitat]) {
+                    $save['measurementRemarks'] = $habitat;
                     $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                     $this->func->add_string_types($save, $mValue, $mType, "true");
                 }
-                elseif($val = @$this->$habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
+                elseif($val = @$this->habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
                     // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
                     $habitat_uris = explode(";", $val);
                     $habitat_uris = array_map('trim', $habitat_uris);
                     foreach($habitat_uris as $mValue) {
                         if(!$mValue) continue;
-                        $rec['measurementRemarks'] = $habitat;
+                        $save['measurementRemarks'] = $habitat;
                         $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                         $this->func->add_string_types($save, $mValue, $mType, "true");
                     }
@@ -663,6 +666,7 @@ class AntWebAPI
     */
     private function get_country_uri($country)
     {
+        // print_r($this->uri_values); exit("\ntotal: ".count($this->uri_values)."\n"); //debug only
         if($country_uri = @$this->uri_values[$country]) return $country_uri;
         else {
             switch ($country) { //put here customized mapping
