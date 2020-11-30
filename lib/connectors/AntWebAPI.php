@@ -8,6 +8,7 @@ class AntWebAPI
         $this->resource_id = $folder;
         $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
         $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
+        /* copied template
         $this->taxa_ids             = array();
         $this->taxa_reference_ids   = array(); // $this->taxa_reference_ids[taxon_id] = reference_ids
         $this->object_ids           = array();
@@ -15,6 +16,7 @@ class AntWebAPI
         $this->object_agent_ids     = array();
         $this->reference_ids        = array();
         $this->agent_ids            = array();
+        */
         $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
         $this->download_options['expire_seconds'] = false; //doesn't expire
         
@@ -451,7 +453,6 @@ class AntWebAPI
         /* copied template
         $taxon->kingdom         = $t['dwc_Kingdom'];
         $taxon->genus           = $t['dwc_Genus'];
-        $taxon->furtherInformationURL = $t['dc_source'];
         if($reference_ids = @$this->taxa_reference_ids[$t['int_id']]) $taxon->referenceID = implode("; ", $reference_ids);
         */
         $this->taxon_ids[$taxon->taxonID] = '';
@@ -611,7 +612,6 @@ class AntWebAPI
         $save['taxon_id'] = $taxonID;
         $save['source'] = $rek['source_url'];
         $save['bibliographicCitation'] = $this->bibliographicCitation;
-        // $save['measurementRemarks'] = '';
         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
         
         if($loop = @$rek['country_habitat']) {
