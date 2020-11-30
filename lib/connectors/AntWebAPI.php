@@ -101,7 +101,7 @@ class AntWebAPI
                             // else continue;
 
                             if($letter >= "P" && $letter <= "Q") {
-                                if($rec['sciname'] <= 'Proceratium mancum') continue;
+                                if($rek['sciname'] <= 'Proceratium mancum') continue;
                                 else {}
                             }
                             else continue;
