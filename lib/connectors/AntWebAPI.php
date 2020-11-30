@@ -25,9 +25,22 @@ class AntWebAPI
         $this->page['specimen_images'] = 'https://www.antweb.org/specimenImages.do?name=SPECIMEN_CODE&project=allantwebants';
         $this->page['specimen_image'] = 'https://www.antweb.org/bigPicture.do?name=SPECIMEN_CODE&shot=SHOT_LETTER&number=1';
         $this->debug = array();
+        $this->bibliographicCitation = "AntWeb. Version 8.45.1. California Academy of Science, online at https://www.antweb.org. Accessed ".date("d F Y").".";
     }
     function start()
     {
+        require_library('connectors/TraitGeneric'); 
+        $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
+        /* START DATA-1841 terms remapping */
+        $this->func->initialize_terms_remapping(60*60*24); //param is $expire_seconds. 0 means expire now.
+        /* END DATA-1841 terms remapping */
+        
+        // /*
+        require_library('connectors/AntWebDataAPI');
+        $func = new AntWebDataAPI(false, false, false);
+        $this->habitat_map = $func->initialize_habitat_mapping();
+        // */
+        
         $options = $this->download_options;
         $options['expire_seconds'] = false;
         if($html = Functions::lookup_with_cache($this->page['all_taxa'], $options)) {
@@ -62,21 +75,20 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            /* good debug
-                            // if($rek['sciname'] == 'Acromyrmex octospinosus') {
+                            // /* good debug
+                            if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
-                            if($rek['sciname'] == 'Acanthognathus rudis') {
+                            // if($rek['sciname'] == 'Acanthognathus rudis') {
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
                                 echo "images: ".count(@$rek['images'])."\n";
-
-                                print_r($rek); exit("\naaa\n");
                                 if($rek['sciname']) self::write_archive($rek);
+                                // print_r($rek); exit("\naaa\n");
                             }
-                            */
+                            // */
 
-                            // /* used when caching
+                            /* used when caching
                             $letter = substr($rek['sciname'],0,1);
                             // if($letter <= "J") continue;
                             // if($letter > "J") continue;
@@ -90,17 +102,18 @@ class AntWebAPI
 
                             // if($letter >= "V") {}
                             // else continue;
-                            // */
+                            */
                             
-                            // /* normal operation
+                            /* normal operation
                             echo "\n$rek[sciname] - ";
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
                                 echo "images: ".count(@$rek['images'])."\n";
+                                if($rek['sciname']) self::write_archive($rek);
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
-                            // */
+                            */
 
                             $eli++;
                             // if($eli > 3) break; //debug only
@@ -171,7 +184,7 @@ class AntWebAPI
                 $complete = '<div class="specimen_layout';
                 if(preg_match_all("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
                     echo("Total Specimens: ".count($arr[1])."\n");
-                    if($country_habitat = self::get_specimens_metadata($arr[1])) $rek['country_habitat'] = $country_habitat;
+                    if($country_habitat = self::get_specimens_metadata($arr[1], $url)) $rek['country_habitat'] = $country_habitat;
                 }
             }
         }
@@ -180,11 +193,12 @@ class AntWebAPI
         }
         return $rek;
     }
-    private function get_specimens_metadata($specimen_rows)
+    private function get_specimens_metadata($specimen_rows, $source_url)
     {
         $final = array();
         foreach($specimen_rows as $row) {
             $rec = array();
+            $rec['source_url'] = $source_url;
             /* <a href="https://www.antweb.org/specimen.do?code=awlit-ba00716"> */
             $complete = '/specimen.do?code=';
             if(preg_match("/".preg_quote($complete,"/")."(.*?)\"/ims", $row, $arr)) $rec['specimen_code'] = $arr[1];
@@ -247,14 +261,16 @@ class AntWebAPI
                 if(!isset($debug[$country])) {
                     $debug[$country] = '';
                     $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'country' => $r['country'],
-                    'date_collected' => $r['date_collected'], 'determined_by' => $r['determined_by'], 'owned_by' => $r['owned_by']);
+                    'date_collected' => $r['date_collected'], 'determined_by' => $r['determined_by'], 'owned_by' => $r['owned_by'],
+                    'source_url' => $r['source_url']);
                 }
             }
             if($habitat = @$r['habitat']) {
                 if(strlen($habitat) <= 3) continue; //filter out e.g. 'SSO'
                 if(!isset($debug[$habitat])) {
                     $final[] = array('specimen_code' => $r['specimen_code'], 'collection_code' => @$r['collection_code'], 'habitat' => $r['habitat'],
-                    'date_collected' => $r['date_collected'], 'determined_by' => $r['determined_by'], 'owned_by' => $r['owned_by']);
+                    'date_collected' => $r['date_collected'], 'determined_by' => $r['determined_by'], 'owned_by' => $r['owned_by'],
+                    'source_url' => $r['source_url']);
                     $debug[$habitat] = '';
                 }
             }
@@ -454,7 +470,7 @@ class AntWebAPI
         $o['furtherInformationURL'] = $rek['source_url'];
         $o['UsageTerms'] = 'http://creativecommons.org/licenses/by-nc-sa/4.0/'; //license
         $o['Owner'] = 'California Academy of Sciences';
-        $o['bibliographicCitation'] = "AntWeb. Version 8.45.1. California Academy of Science, online at https://www.antweb.org. Accessed ".date("d F Y").".";
+        $o['bibliographicCitation'] = $this->bibliographicCitation;
         if($text = @$rek['Distribution_Notes']) {
             $o['identifier'] = $taxonID.'_DisNot';
             $o['CVterm'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution'; //subject
@@ -527,7 +543,7 @@ class AntWebAPI
             $o['furtherInformationURL'] = $i['source_url'];
             $o['UsageTerms'] = 'http://creativecommons.org/licenses/by-nc-sa/4.0/'; //license
             $o['Owner'] = 'California Academy of Sciences';
-            $o['bibliographicCitation'] = "AntWeb. Version 8.45.1. California Academy of Science, online at https://www.antweb.org. Accessed ".date("d F Y").".";
+            $o['bibliographicCitation'] = $this->bibliographicCitation;
             $o['agentID'] = $agent_id;
             $o['accessURI'] = $i['media_url'];
             $o['CreateDate'] = $i['date_uploaded'];
@@ -564,6 +580,98 @@ class AntWebAPI
            $this->archive_builder->write_object_to_file($r);
         }
         return $r->identifier;
+    }
+    private function write_traits($rek, $taxonID)
+    {
+        // print_r($rek); exit("\n123\n");
+        // for Mof
+        // bibliographicCitation
+        /*[1] => Array(
+            [specimen_code] => casent0191007
+            [collection_code] => ANTC9005
+            [country] => Colombia
+            [date_collected] => 1992-08-01
+            [determined_by] => 
+            [owned_by] => CASC, San Francisco, CA, USA
+        )
+        [12] => Array(
+            [specimen_code] => casent0630452
+            [collection_code] => RSA2012-148
+            [habitat] => deciduous forest
+            [date_collected] => 2012-05-26
+            [determined_by] => B. Boudinot
+            [owned_by] => Rabeling
+        )*/
+        
+        $save = array();
+        $save['taxon_id'] = $taxonID;
+        $save['source'] = $rek['source_url'];
+        $save['bibliographicCitation'] = $this->bibliographicCitation;
+        // $save['measurementRemarks'] = '';
+        echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
+        // $this->func->pre_add_string_types($save, $mValue, $mType, "true");
+        
+        foreach($rek['country_habitat'] as $t) {
+            if($country = @$t['country']) { $mType = 'http://eol.org/schema/terms/Present';
+                if($mValue = self::get_country_uri($country)) {
+                    $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $this->func->add_string_types($save, $mValue, $mType, "true");
+                }
+                else $this->debug['undefined country'][$country] = '';
+            }
+            if($habitat = @$t['habitat']) { $mType = 'http://eol.org/schema/terms/Habitat';
+                if($mValue = @$this->uri_values[$habitat]) {
+                    $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $this->func->add_string_types($save, $mValue, $mType, "true");
+                }
+                elseif($val = @$this->$habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
+                    // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
+                    $habitat_uris = explode(";", $val);
+                    $habitat_uris = array_map('trim', $habitat_uris);
+                    foreach($habitat_uris as $mValue) {
+                        if(!$mValue) continue;
+                        $rec['measurementRemarks'] = $habitat;
+                        $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                        $this->func->add_string_types($save, $mValue, $mType, "true");
+                    }
+                }
+                else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
+            }
+            
+        } //end loop
+    }
+    /* copied template
+    private function write_presence_measurement_for_state($state_id, $rec)
+    {   $string_value = $this->area_id_info[$state_id];
+        if($string_uri = self::get_string_uri($string_value)) {}
+        else {
+            $this->debug['no uri mapping yet'][$string_value];
+            $string_uri = $string_value;
+        }
+        $mValue = $string_uri;
+        $mType = 'http://eol.org/schema/terms/Present'; //for generic range
+        $taxon_id = $rec['Symbol'];
+        $save = array();
+        $save['taxon_id'] = $taxon_id;
+        $save["catnum"] = $taxon_id.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+        $save['source'] = $rec['source_url'];
+        $save['measurementRemarks'] = $string_value;
+        // $save['measurementID'] = '';
+        // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; //just testing
+        $this->func->pre_add_string_types($save, $mValue, $mType, "true");
+    }
+    */
+    private function get_country_uri($country)
+    {
+        if($country_uri = @$this->uri_values[$country]) return $country_uri;
+        else {
+            switch ($country) { //put here customized mapping
+                case "Port of Entry":   return false; //"DO NOT USE";
+                // just examples below. Real entries here were already added to /cp_new/GISD/mapped_location_strings.txt
+                // case "United States of America":        return "http://www.wikidata.org/entity/Q30";
+                // case "Dutch West Indies":               return "http://www.wikidata.org/entity/Q25227";
+            }
+        }
     }
 }
 ?>

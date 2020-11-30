@@ -155,6 +155,7 @@ class AntWebDataAPI
             }
         }
         unlink($local_xls);
+        // print_r($final); exit("\nJust checking the spreadsheet\n");
         return $final;
     }
     private function fix_scientific_name($rec)
