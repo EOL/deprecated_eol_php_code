@@ -103,8 +103,12 @@ class AntWebAPI
                             // if($letter >= "S" && $letter <= "U") {}
                             // else continue;
 
-                            if($letter == "R") {}
+                            // if($letter == "R") {}
+                            // else continue;
+
+                            if($letter == "U") {}
                             else continue;
+
                             // */
                             
                             // /* normal operation
