@@ -92,7 +92,7 @@ class AntWebAPI
                             }
                             */
 
-                            /* used when caching
+                            // /* used when caching
                             $letter = substr($rek['sciname'],0,1);
                             // if($letter <= "J") continue;
                             // if($letter > "J") continue;
@@ -100,13 +100,12 @@ class AntWebAPI
                             // if($letter >= "P" && $letter <= "R") {}
                             // else continue;
 
-                            if($letter >= "S" && $letter <= "U") {}
-                            else continue;
-
-
-                            // if($letter >= "V") {}
+                            // if($letter >= "S" && $letter <= "U") {}
                             // else continue;
-                            */
+
+                            if($letter == "R") {}
+                            else continue;
+                            // */
                             
                             // /* normal operation
                             echo "\n$rek[sciname] - ";
@@ -120,7 +119,7 @@ class AntWebAPI
                             // */
 
                             $eli++;
-                            if($eli > 5) break; //debug only
+                            // if($eli > 5) break; //debug only
                         }
                         
                     }
