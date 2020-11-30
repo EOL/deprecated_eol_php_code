@@ -76,7 +76,7 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            // /* good debug
+                            /* good debug
                             if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
@@ -88,7 +88,7 @@ class AntWebAPI
                                 // break;
                                 // print_r($rek); exit("\naaa\n");
                             }
-                            // */
+                            */
 
                             /* used when caching
                             $letter = substr($rek['sciname'],0,1);
@@ -106,7 +106,7 @@ class AntWebAPI
                             // else continue;
                             */
                             
-                            /* normal operation
+                            // /* normal operation
                             echo "\n$rek[sciname] - ";
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
@@ -115,10 +115,10 @@ class AntWebAPI
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
-                            */
+                            // */
 
                             $eli++;
-                            if($eli > 3) break; //debug only
+                            if($eli > 5) break; //debug only
                         }
                         
                     }
@@ -531,25 +531,27 @@ class AntWebAPI
                         [title] => Closeup dorsal view of Specimen PSW7796-21 from AntWeb. (Acromyrmex octospinosus)
                     )
         */
-        foreach($rek['images'] as $i) {
-            $i['role'] = 'photographer';
-            $agent_id = self::add_agent($i);
-            $o = array();
-            $o['identifier'] = pathinfo($i['media_url'], PATHINFO_FILENAME);
-            $o['title'] = $i['sciname'];
-            $o['description'] = $i['title'];
-            $o['taxonID'] = $taxonID;
-            $o['type'] = 'http://purl.org/dc/dcmitype/StillImage'; //dataType
-            $o['format'] = 'image/jpeg'; //mimetype
-            $o['language'] = 'en';
-            $o['furtherInformationURL'] = $i['source_url'];
-            $o['UsageTerms'] = 'http://creativecommons.org/licenses/by-nc-sa/4.0/'; //license
-            $o['Owner'] = 'California Academy of Sciences';
-            $o['bibliographicCitation'] = $this->bibliographicCitation;
-            $o['agentID'] = $agent_id;
-            $o['accessURI'] = $i['media_url'];
-            $o['CreateDate'] = $i['date_uploaded'];
-            self::write_data_object($o);
+        if($loop = @$rek['images']) {
+            foreach($loop as $i) {
+                $i['role'] = 'photographer';
+                $agent_id = self::add_agent($i);
+                $o = array();
+                $o['identifier'] = pathinfo($i['media_url'], PATHINFO_FILENAME);
+                $o['title'] = $i['sciname'];
+                $o['description'] = $i['title'];
+                $o['taxonID'] = $taxonID;
+                $o['type'] = 'http://purl.org/dc/dcmitype/StillImage'; //dataType
+                $o['format'] = 'image/jpeg'; //mimetype
+                $o['language'] = 'en';
+                $o['furtherInformationURL'] = $i['source_url'];
+                $o['UsageTerms'] = 'http://creativecommons.org/licenses/by-nc-sa/4.0/'; //license
+                $o['Owner'] = 'California Academy of Sciences';
+                $o['bibliographicCitation'] = $this->bibliographicCitation;
+                $o['agentID'] = $agent_id;
+                $o['accessURI'] = $i['media_url'];
+                $o['CreateDate'] = $i['date_uploaded'];
+                self::write_data_object($o);
+            }
         }
     }
     private function write_data_object($o)
@@ -612,36 +614,38 @@ class AntWebAPI
         // $save['measurementRemarks'] = '';
         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
         
-        foreach($rek['country_habitat'] as $t) {
-            if($country = @$t['country']) { $mType = 'http://eol.org/schema/terms/Present';
-                if($mValue = self::get_country_uri($country)) {
-                    $save['measurementRemarks'] = $country;
-                    $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                    $this->func->add_string_types($save, $mValue, $mType, "true");
+        if($loop = @$rek['country_habitat']) {
+            foreach($loop as $t) {
+                if($country = @$t['country']) { $mType = 'http://eol.org/schema/terms/Present';
+                    if($mValue = self::get_country_uri($country)) {
+                        $save['measurementRemarks'] = $country;
+                        $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                        $this->func->add_string_types($save, $mValue, $mType, "true");
+                    }
+                    else $this->debug['undefined country'][$country] = '';
                 }
-                else $this->debug['undefined country'][$country] = '';
-            }
-            if($habitat = @$t['habitat']) { $mType = 'http://eol.org/schema/terms/Habitat';
-                if($mValue = @$this->uri_values[$habitat]) {
-                    $save['measurementRemarks'] = $habitat;
-                    $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
-                    $this->func->add_string_types($save, $mValue, $mType, "true");
-                }
-                elseif($val = @$this->habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
-                    // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
-                    $habitat_uris = explode(";", $val);
-                    $habitat_uris = array_map('trim', $habitat_uris);
-                    foreach($habitat_uris as $mValue) {
-                        if(!$mValue) continue;
+                if($habitat = @$t['habitat']) { $mType = 'http://eol.org/schema/terms/Habitat';
+                    if($mValue = @$this->uri_values[$habitat]) {
                         $save['measurementRemarks'] = $habitat;
                         $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                         $this->func->add_string_types($save, $mValue, $mType, "true");
                     }
+                    elseif($val = @$this->habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
+                        // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
+                        $habitat_uris = explode(";", $val);
+                        $habitat_uris = array_map('trim', $habitat_uris);
+                        foreach($habitat_uris as $mValue) {
+                            if(!$mValue) continue;
+                            $save['measurementRemarks'] = $habitat;
+                            $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                            $this->func->add_string_types($save, $mValue, $mType, "true");
+                        }
+                    }
+                    else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
                 }
-                else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
-            }
-            
-        } //end loop
+
+            } //end loop
+        }
     }
     /* copied template
     private function write_presence_measurement_for_state($state_id, $rec)
