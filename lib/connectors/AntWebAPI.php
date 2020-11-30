@@ -106,11 +106,18 @@ class AntWebAPI
                             // }
                             // else continue;
 
-                            if($letter == "P") {
-                                if($rek['sciname'] >= 'Pseudomyrmex reconditus') {}
+                            // if($letter == "P") {
+                            //     if($rek['sciname'] >= 'Pseudomyrmex reconditus') {}
+                            //     else continue;
+                            // }
+                            // else continue;
+                            
+                            if($letter == "T") {
+                                if($rek['sciname'] >= 'Tetramorium sericeum') {}
                                 else continue;
                             }
                             else continue;
+                            
                             
                             
 
