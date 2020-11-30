@@ -109,8 +109,11 @@ class AntWebAPI
                             // if($letter == "U") {} //just 1 species
                             // else continue;
 
-                            if($letter == "T") {} //just 1 species
+                            if($letter == "S") {} //just 1 species
                             else continue;
+
+                            // if($letter == "T") {} //just 1 species
+                            // else continue;
 
                             // */
                             
