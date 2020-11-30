@@ -100,11 +100,19 @@ class AntWebAPI
                             // if($letter >= "P" && $letter <= "R") {}
                             // else continue;
 
-                            if($letter >= "P" && $letter <= "Q") {
-                                if($rek['sciname'] <= 'Proceratium mancum') continue;
-                                else {}
+                            // if($letter >= "P" && $letter <= "Q") {
+                            //     if($rek['sciname'] <= 'Proceratium mancum') continue;
+                            //     else {}
+                            // }
+                            // else continue;
+
+                            if($letter == "P") {
+                                if($rek['sciname'] >= 'Pseudomyrmex reconditus') {}
+                                else continue;
                             }
                             else continue;
+                            
+                            
 
                             // if($letter >= "S" && $letter <= "U") {}
                             // else continue;
