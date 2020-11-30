@@ -549,8 +549,6 @@ class AntWebAPI
         */
         if($loop = @$rek['images']) {
             foreach($loop as $i) {
-                $i['role'] = 'photographer';
-                $agent_id = self::add_agent($i);
                 $o = array();
                 $o['identifier'] = pathinfo($i['media_url'], PATHINFO_FILENAME);
                 $o['title'] = $i['sciname'];
@@ -563,9 +561,10 @@ class AntWebAPI
                 $o['UsageTerms'] = 'http://creativecommons.org/licenses/by-nc-sa/4.0/'; //license
                 $o['Owner'] = 'California Academy of Sciences';
                 $o['bibliographicCitation'] = $this->bibliographicCitation;
-                $o['agentID'] = $agent_id;
                 $o['accessURI'] = $i['media_url'];
                 $o['CreateDate'] = $i['date_uploaded'];
+                $i['role'] = 'photographer';
+                if(@$i['photographer']) $o['agentID'] = self::add_agent($i);
                 self::write_data_object($o);
             }
         }
