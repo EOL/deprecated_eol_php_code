@@ -28,7 +28,7 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 617_ENV	            Wed 2020-11-04 08:10:56 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":411865, "time_elapsed":false}
 wikipedia_en_traits	Wed 2020-11-04 08:39:13 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":91492, "time_elapsed":false}
 
-================================================== Vangelis tagger START
+================================================== Vangelis tagger START ================================================== 
 Implementation: Jenkins
 cd /u/scripts/eol_php_code/
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
@@ -42,9 +42,9 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 ## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
 php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
 -> generates wikipedia_en_traits.tar.gz
-================================================== Vangelis tagger END
+================================================== Vangelis tagger END ================================================== 
 
-================================================== Pensoft annotator START
+================================================== Pensoft annotator START ================================================== 
 Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simultaneously.
 
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
@@ -56,7 +56,7 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol
 
 
 -> generates 617_ENV.tar.gz
-================================================== Pensoft annotator END
+================================================== Pensoft annotator END ================================================== 
 
 
 
@@ -125,17 +125,19 @@ $func->clean_noParentTerms(); //works OK
 exit("\n-end-\n");
 */
 
+if($task == 'generate_eol_tags_pensoft') {
+    $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
+    require_library('connectors/Pensoft2EOLAPI');
+    $func = new Pensoft2EOLAPI($param);
+    $func->generate_eol_tags_pensoft($resource);
+}
+
+/* OBSOLETE: used using Vangelis tagger
 if($task == 'generate_eol_tags') {                      //step 1            this will become OBSOLETE
     $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
     require_library('connectors/Environments2EOLAPI');
     $func = new Environments2EOLAPI($param);
     $func->generate_eol_tags($resource);
-}
-elseif($task == 'generate_eol_tags_pensoft') {          //step 1
-    $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
-    require_library('connectors/Pensoft2EOLAPI');
-    $func = new Pensoft2EOLAPI($param);
-    $func->generate_eol_tags_pensoft($resource);
 }
 elseif($task == 'apply_formats_filters') {              //step 2
     $param['resource_id'] .= "_ENVO";
@@ -166,4 +168,5 @@ elseif($task == 'apply_formats_filters_latest') {       //step 3
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
 }
+*/
 ?>
