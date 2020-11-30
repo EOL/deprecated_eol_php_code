@@ -81,8 +81,12 @@ class AntWebAPI
                             // if($letter <= "J") continue;
                             // if($letter > "J") continue;
 
-                            if($letter >= "P" && $letter <= "U") {}
+                            // if($letter >= "P" && $letter <= "R") {}
+                            // else continue;
+
+                            if($letter >= "S" && $letter <= "U") {}
                             else continue;
+
 
                             // if($letter >= "V") {}
                             // else continue;
