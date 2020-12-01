@@ -54,6 +54,8 @@ class AntWebAPI
                 foreach($arr[1] as $str) {
                     if(preg_match_all("/<div (.*?)<\/div>/ims", $str, $arr2)) {
                         $rec = array_map('trim', $arr2[1]);
+                        if(($eli % 100) == 0) echo "\n".number_format($eli)." ";
+                        
                         // print_r($rec);
                         /*Array(
                             [0] => class="sd_name pad">
@@ -159,10 +161,10 @@ class AntWebAPI
                             */
                             
                             // /* normal operation
-                            echo "\n$rek[sciname] - ";
+                            debug("\n$rek[sciname] - ");
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
-                                echo "images: ".count(@$rek['images'])." | ";
+                                debug("images: ".count(@$rek['images'])." | ");
                                 if($rek['sciname']) self::write_archive($rek);
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
@@ -237,7 +239,7 @@ class AntWebAPI
                 $html = str_replace("&nbsp;", ' ', $html); // exit("\n$html\n");
                 $complete = '<div class="specimen_layout';
                 if(preg_match_all("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
-                    echo("Total Specimens: ".count($arr[1])." | ");
+                    debug("Total Specimens: ".count($arr[1])." | ");
                     if($country_habitat = self::get_specimens_metadata($arr[1], $url)) $rek['country_habitat'] = $country_habitat;
                 }
             }
