@@ -42,33 +42,6 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 ## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
 php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
 -> generates wikipedia_en_traits.tar.gz
-================================================== Vangelis tagger END ================================================== 
-
-================================================== Pensoft annotator START ================================================== 
-Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simultaneously.
-
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
--> haven't run Pensoft for AmphibiaWeb text yet.
-
-php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
-// php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Distribution"}'
-// php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"TaxonBiology"}'
-
-
--> generates 617_ENV.tar.gz
-================================================== Pensoft annotator END ================================================== 
-
-
-
-## different DwCA to submit for Wikipedia EN
-cd /u/scripts/eol_php_code/applications/content_server/resources/
-sshpass -f "/home/eagbayani/.pwd_file" scp wikipedia_en_traits.tar.gz eagbayani@eol-archive:/extra/eol_php_resources/.
-#ends here...
-
-## move this file for all connectors:
-sshpass -f "/home/eagbayani/.pwd_file" scp EOL_FreshData_connectors.txt eagbayani@eol-archive:/extra/eol_php_resources/eol_backend2_connectors.txt
-
-
 
 617_final	        Mon 2020-09-07 11:41:14 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":596.04, "min":9.93, "hr":0.17}}
 wikipedia_en_traits	Mon 2020-09-07 11:51:11 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
@@ -89,6 +62,36 @@ wikipedia_en_traits	Thu 2020-10-01 12:41:54 PM	{"measurement_or_fact.tab":500273
 wikipedia_en_traits	Thu 2020-10-08 02:10:08 AM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
 start deduplication below:
 wikipedia_en_traits	Mon 2020-10-12 10:36:39 AM	{"measurement_or_fact.tab":426193, "occurrence.tab":426193, "taxon.tab":157390, "time_elapsed":false}
+================================================== Vangelis tagger END ================================================== 
+## different DwCA to submit for Wikipedia EN
+cd /u/scripts/eol_php_code/applications/content_server/resources/
+sshpass -f "/home/eagbayani/.pwd_file" scp wikipedia_en_traits.tar.gz eagbayani@eol-archive:/extra/eol_php_resources/.
+#ends here...
+
+## move this file for all connectors:
+sshpass -f "/home/eagbayani/.pwd_file" scp EOL_FreshData_connectors.txt eagbayani@eol-archive:/extra/eol_php_resources/eol_backend2_connectors.txt
+
+
+
+================================================== Pensoft annotator START ================================================== 
+Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simultaneously.
+
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
+-> haven't run Pensoft for AmphibiaWeb text yet.
+
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
+// php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Distribution"}'
+// php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"TaxonBiology"}'
+
+Implementation: Jenkins: English Wikipedia
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
+#generates 617_ENV.tar.gz
+
+## Wikipedia EN creates a new DwCA for its traits. Not like 'AmphibiaWeb text'.
+## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
+php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "617_ENV"}'
+#generates wikipedia_en_traits.tar.gz
+================================================== Pensoft annotator END ================================================== 
 
 Started using Pensoft:
 617_ENV	            Thu 2020-11-05 07:49:33 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":411865, "time_elapsed":false}
