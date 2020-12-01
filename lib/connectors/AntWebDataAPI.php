@@ -1,9 +1,7 @@
 <?php
 namespace php_active_record;
 /*  connector: [dwca_utility.php _ 24 | first run took: 4 hrs 57 mins] 
-
 This is run after 24.php
-
 */
 class AntWebDataAPI
 {
@@ -387,12 +385,14 @@ class AntWebDataAPI
     {
         if($country_uri = @$this->uri_values[$country]) return $country_uri;
         else {
+            /*
             switch ($country) { //put here customized mapping
                 case "Port of Entry":   return false; //"DO NOT USE";
                 // just examples below. Real entries here were already added to /cp_new/GISD/mapped_location_strings.txt
                 // case "United States of America":        return "http://www.wikidata.org/entity/Q30";
                 // case "Dutch West Indies":               return "http://www.wikidata.org/entity/Q25227";
             }
+            */
         }
     }
     private function compute_furtherInformationURL($sciname)
