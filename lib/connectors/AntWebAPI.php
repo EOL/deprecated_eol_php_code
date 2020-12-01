@@ -584,6 +584,7 @@ class AntWebAPI
         */
         if($loop = @$rek['images']) {
             foreach($loop as $i) {
+                if(!@$i['media_url']) continue;
                 $o = array();
                 $o['identifier'] = pathinfo($i['media_url'], PATHINFO_FILENAME);
                 $o['title'] = $i['sciname'];
