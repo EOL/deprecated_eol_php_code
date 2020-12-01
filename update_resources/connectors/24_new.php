@@ -20,7 +20,7 @@ $timestart = time_elapsed();
 $resource_id = 24;
 $func = new AntWebAPI($resource_id);
 $func->start();
-Functions::finalize_dwca_resource($resource_id, false, false, $timestart); //3rd param if false it will not remove the /24/ folder
+Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //3rd param if false it will not remove the /24/ folder
 // */
 
 $elapsed_time_sec = time_elapsed() - $timestart;
