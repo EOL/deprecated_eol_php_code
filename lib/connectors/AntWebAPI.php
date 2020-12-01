@@ -261,8 +261,11 @@ class AntWebAPI
             $complete = '/collection.do?name=';
             if(preg_match("/".preg_quote($complete,"/")."(.*?)>/ims", $row, $arr)) $rec['collection_code'] = $arr[1];
             /* <span class="">Location: Brazil: Amazonas: Itacoatiara:&nbsp;&nbsp; */
-            if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) $rec['country'] = trim(Functions::remove_whitespace(strip_tags($arr[1])));
-            
+            if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) {
+                $tmp = trim(Functions::remove_whitespace(strip_tags($arr[1])));
+                if(stripos($tmp, '&deg;,&deg;') !== false) {} //string is found
+                else $rec['country'] = $tmp;
+            }
             /* <span class="">Date Collected: 2011-12-05</span><br /> */
             if(preg_match("/>Date Collected: (.*?)<\/span>/ims", $row, $arr)) $rec['date_collected'] = $arr[1]; //eventDate
             
