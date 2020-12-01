@@ -25,6 +25,8 @@ eol-archive
 Tried it again after a few months, still API is down:
 24	Monday 2019-07-08 05:49:34 AM	{"agent.tab":158,                                  "media_resource.tab":169091,                         "taxon.tab":16054} their API is still down
 
+24	Tue 2020-12-01 06:45:53 AM	    {"agent.tab":173, "measurement_or_fact_specific.tab":69540, "media_resource.tab":140143, "occurrence_specific.tab":46927, "taxon.tab":16470, "time_elapsed":{"sec":1410.32, "min":23.51, "hr":0.39}}
+
 On Nov 23, 2020 we creted a new connector that will scrape the site.
 So we saved the last DwCA for posterity.
 [root@eol-archive resources]# cp 24.tar.gz 24_api.tar.gz
