@@ -30,7 +30,7 @@ class AntWebDataAPI
     {
         $mappings = Functions::get_eol_defined_uris(false, true); //1st param: false means will use 1day cache | 2nd param: opposite direction is true
         echo "\n".count($mappings). " - default URIs from EOL registry.";
-        $this->uri_values = Functions::additional_mappings($mappings); //add more mappings used in the past
+        $this->uri_values = Functions::additional_mappings($mappings, 60*60*24); //add more mappings used in the past
         // echo("\n Philippines: ".$this->uri_values['Philippines']."\n");
         // echo("\n Brazil: ".$this->uri_values['Brazil']."\n"); exit;
         return $this->uri_values;
