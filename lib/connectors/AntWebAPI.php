@@ -261,6 +261,7 @@ class AntWebAPI
             $complete = '/collection.do?name=';
             if(preg_match("/".preg_quote($complete,"/")."(.*?)>/ims", $row, $arr)) $rec['collection_code'] = $arr[1];
             /* <span class="">Location: Brazil: Amazonas: Itacoatiara:&nbsp;&nbsp; */
+            $rec['country'] = '';
             if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) {
                 $tmp = trim(Functions::remove_whitespace(strip_tags($arr[1])));
                 if(stripos($tmp, '&deg;,&deg;') !== false) {} //string is found
@@ -276,6 +277,7 @@ class AntWebAPI
             if(preg_match("/>Owned By: (.*?)<\/span>/ims", $row, $arr)) $rec['owned_by'] = strip_tags($arr[1]); //contributor
             
             /* <span class="">Habitat: </span><br /> */
+            $rec['habitat'] = '';
             if(preg_match("/>Habitat: (.*?)<\/span>/ims", $row, $arr)) {
                 $rec['habitat'] = $arr[1];
                 if(substr($rec['habitat'], -3) == '...') {
