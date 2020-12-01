@@ -170,7 +170,7 @@ class AntWebAPI
                             // */
 
                             $eli++;
-                            if(($eli % 100) == 0) echo "\n".number_format($eli)." ";
+                            if(($eli % 1000) == 0) echo "\n".number_format($eli)." ";
                             // if($eli > 5) break; //debug only
                         }
                         
@@ -261,7 +261,7 @@ class AntWebAPI
             $complete = '/collection.do?name=';
             if(preg_match("/".preg_quote($complete,"/")."(.*?)>/ims", $row, $arr)) $rec['collection_code'] = $arr[1];
             /* <span class="">Location: Brazil: Amazonas: Itacoatiara:&nbsp;&nbsp; */
-            if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) $rec['country'] = $arr[1];
+            if(preg_match("/Location: (.*?)\:/ims", $row, $arr)) $rec['country'] = trim(Functions::remove_whitespace(strip_tags($arr[1])));
             
             /* <span class="">Date Collected: 2011-12-05</span><br /> */
             if(preg_match("/>Date Collected: (.*?)<\/span>/ims", $row, $arr)) $rec['date_collected'] = $arr[1]; //eventDate
