@@ -152,12 +152,18 @@ class AntWebDataAPI
                 
                 $val = "";
                 foreach($choices as $choice) {
+                    /* Original, good for the longest time. But it doesn't include those habitat e.g. 'port of entry' with blank URIs. n = 17,861
                     if($val = trim(@$temp[$choice][$i])) $final[$s] = $val;
+                    */
+                    // /* New, this one now includes the likes of 'port of entry'. That is even with blank URI. n = 29,349
+                    $URI_or_blank = trim(@$temp[$choice][$i]);
+                    $final[$s] = $URI_or_blank;
+                    // */
                 }
             }
         }
         unlink($local_xls);
-        // print_r($final); exit("\nJust checking the spreadsheet\n");
+        // print_r($final); exit("\n".count($final)."\nJust checking the spreadsheet\n");
         return $final;
     }
     private function fix_scientific_name($rec)

@@ -78,7 +78,7 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            /* good debug
+                            // /* good debug - during development
                             if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
@@ -90,9 +90,9 @@ class AntWebAPI
                                 // break;
                                 // print_r($rek); exit("\naaa\n");
                             }
-                            */
+                            // */
 
-                            // /* used when caching
+                            /* used when caching
                             $letter = substr($rek['sciname'],0,1);
                             // if($letter <= "J") continue;
                             // if($letter > "J") continue;
@@ -142,10 +142,6 @@ class AntWebAPI
                             }
                             else continue;
 
-
- 
-                            
-
                             // if($letter >= "S" && $letter <= "U") {}
                             // else continue;
 
@@ -160,10 +156,9 @@ class AntWebAPI
 
                             // if($letter == "T") {} //just 1 species
                             // else continue;
-
-                            // */
+                            */
                             
-                            // /* normal operation
+                            /* normal operation
                             echo "\n$rek[sciname] - ";
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
@@ -172,7 +167,7 @@ class AntWebAPI
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
-                            // */
+                            */
 
                             $eli++;
                             // if($eli > 5) break; //debug only
@@ -684,6 +679,9 @@ class AntWebAPI
                         $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                         $this->func->add_string_types($save, $mValue, $mType, "true");
                     }
+                    /* Original. Worked for the longest time. But it doesn't differentiate with e.g. 'port of entry' without URI;
+                    and those terms that are not yet seen by Jen. And hasn't been classified yet to have or not to have a URI.
+                    
                     elseif($val = @$this->habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
                         // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
                         $habitat_uris = explode(";", $val);
@@ -696,6 +694,26 @@ class AntWebAPI
                         }
                     }
                     else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
+                    */
+                    // /* New. This one will now differentiate terms that are classified and are not.
+                    else {
+                        if(isset($this->habitat_map[$habitat])) {
+                            if($val = @$this->habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
+                                // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
+                                $habitat_uris = explode(";", $val);
+                                $habitat_uris = array_map('trim', $habitat_uris);
+                                foreach($habitat_uris as $mValue) {
+                                    if(!$mValue) continue;
+                                    $save['measurementRemarks'] = $habitat;
+                                    $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                                    $this->func->add_string_types($save, $mValue, $mType, "true");
+                                }
+                            }
+                            else $this->debug['habitat classified as no URI'][$habitat] = ''; //commented so that build text will not be too long.
+                        }
+                        else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
+                    }
+                    // */
                 }
 
             } //end loop
