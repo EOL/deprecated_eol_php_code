@@ -112,13 +112,30 @@ class AntWebAPI
                             // }
                             // else continue;
                             
+                            // if($letter == "T") {
+                            //     if($rek['sciname'] >= 'Tetramorium sericeum') {}
+                            //     else continue;
+                            // }
+                            // else continue;
+
                             if($letter == "T") {
-                                if($rek['sciname'] >= 'Tetramorium sericeum') {}
+                                if($rek['sciname'] >= 'Tetramorium phasias' && $rek['sciname'] <= 'Tetramorium transversarium') {}
                                 else continue;
                             }
                             else continue;
-                            
-                            
+
+                            // if($letter == "T") {
+                            //     if($rek['sciname'] >= 'Tetramorium transversarium' && $rek['sciname'] <= 'Tetraponera rakotonis') {}
+                            //     else continue;
+                            // }
+                            // else continue;
+                            // 
+                            // if($letter == "T") {
+                            //     if($rek['sciname'] >= 'Tetraponera rakotonis') {}
+                            //     else continue;
+                            // }
+                            // else continue;
+
                             
 
                             // if($letter >= "S" && $letter <= "U") {}
