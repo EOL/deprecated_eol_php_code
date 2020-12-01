@@ -54,8 +54,6 @@ class AntWebAPI
                 foreach($arr[1] as $str) {
                     if(preg_match_all("/<div (.*?)<\/div>/ims", $str, $arr2)) {
                         $rec = array_map('trim', $arr2[1]);
-                        if(($eli % 100) == 0) echo "\n".number_format($eli)." ";
-                        
                         // print_r($rec);
                         /*Array(
                             [0] => class="sd_name pad">
@@ -172,6 +170,7 @@ class AntWebAPI
                             // */
 
                             $eli++;
+                            if(($eli % 100) == 0) echo "\n".number_format($eli)." ";
                             // if($eli > 5) break; //debug only
                         }
                         
