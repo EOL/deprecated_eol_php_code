@@ -130,12 +130,20 @@ class AntWebAPI
                             // }
                             // else continue;
                             
+                            // if($letter == "T") {
+                            //     if($rek['sciname'] >= 'Tetramorium legone') {}
+                            //     else continue;
+                            // }
+                            // else continue;
+
                             if($letter == "T") {
-                                if($rek['sciname'] >= 'Tetramorium legone') {}
+                                if($rek['sciname'] >= 'Tetramorium microgyna') {}
                                 else continue;
                             }
                             else continue;
 
+
+ 
                             
 
                             // if($letter >= "S" && $letter <= "U") {}
