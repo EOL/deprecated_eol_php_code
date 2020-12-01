@@ -17,7 +17,7 @@ class AntWebAPI
         $this->reference_ids        = array();
         $this->agent_ids            = array();
         */
-        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 2000000); // expire_seconds = every 45 days in normal operation
+        $this->download_options = array('resource_id' => 24, 'timeout' => 172800, 'expire_seconds' => 60*60*24*45, 'download_wait_time' => 1000000); // expire_seconds = every 45 days in normal operation
         $this->download_options['expire_seconds'] = false; //doesn't expire
         
         $this->page['all_taxa'] = 'https://www.antweb.org/taxonomicPage.do?rank=species';
@@ -131,7 +131,7 @@ class AntWebAPI
                             // else continue;
                             
                             if($letter == "T") {
-                                if($rek['sciname'] >= 'Tetraponera rakotonis') {}
+                                if($rek['sciname'] >= 'Tetramorium legone') {}
                                 else continue;
                             }
                             else continue;
