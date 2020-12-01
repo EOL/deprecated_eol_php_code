@@ -143,7 +143,7 @@ class AntWebDataAPI
             
             $choices = array_keys($temp);
             array_shift($choices);
-            
+            // print_r($choices); exit;
             $i = -1;
             foreach($temp['string'] as $s) {
                 $i++;
@@ -156,8 +156,11 @@ class AntWebDataAPI
                     if($val = trim(@$temp[$choice][$i])) $final[$s] = $val;
                     */
                     // /* New, this one now includes the likes of 'port of entry'. That is even with blank URI. n = 29,349
-                    $URI_or_blank = trim(@$temp[$choice][$i]);
-                    $final[$s] = $URI_or_blank;
+                    if(@$final[$s]) {}
+                    else {
+                        if($val = trim(@$temp[$choice][$i])) $final[$s] = $val;
+                        else $final[$s] = ''; //initialize
+                    }
                     // */
                 }
             }

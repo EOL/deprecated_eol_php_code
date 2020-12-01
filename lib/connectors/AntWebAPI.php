@@ -78,7 +78,7 @@ class AntWebAPI
                             $rek['rank'] = 'species';
                             if(preg_match("/description\.do\?(.*?)\">/ims", $rec[0], $arr3)) $rek['source_url'] = 'https://www.antweb.org/description.do?'.$arr3[1];
 
-                            // /* good debug - during development
+                            /* good debug - during development
                             if($rek['sciname'] == 'Acromyrmex octospinosus') {
                             // if($rek['sciname'] == 'Acanthognathus ocellatus') {
                             // if($rek['sciname'] == 'Acanthoponera minor') {
@@ -90,7 +90,7 @@ class AntWebAPI
                                 // break;
                                 // print_r($rek); exit("\naaa\n");
                             }
-                            // */
+                            */
 
                             /* used when caching
                             $letter = substr($rek['sciname'],0,1);
@@ -158,16 +158,16 @@ class AntWebAPI
                             // else continue;
                             */
                             
-                            /* normal operation
+                            // /* normal operation
                             echo "\n$rek[sciname] - ";
                                 $rek = self::parse_summary_page($rek);
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
-                                echo "images: ".count(@$rek['images'])."\n";
+                                echo "images: ".count(@$rek['images'])." | ";
                                 if($rek['sciname']) self::write_archive($rek);
                             // print_r($rek); exit("\nbbb\n");
                             // if($rek['sciname']) self::write_archive($rek);
                             // break; //debug only
-                            */
+                            // */
 
                             $eli++;
                             // if($eli > 5) break; //debug only
@@ -237,7 +237,7 @@ class AntWebAPI
                 $html = str_replace("&nbsp;", ' ', $html); // exit("\n$html\n");
                 $complete = '<div class="specimen_layout';
                 if(preg_match_all("/".preg_quote($complete,"/")."(.*?)<\!\-\-/ims", $html, $arr)) {
-                    echo("Total Specimens: ".count($arr[1])."\n");
+                    echo("Total Specimens: ".count($arr[1])." | ");
                     if($country_habitat = self::get_specimens_metadata($arr[1], $url)) $rek['country_habitat'] = $country_habitat;
                 }
             }
@@ -745,12 +745,14 @@ class AntWebAPI
         // print_r($this->uri_values); exit("\ntotal: ".count($this->uri_values)."\n"); //debug only
         if($country_uri = @$this->uri_values[$country]) return $country_uri;
         else {
+            /*
             switch ($country) { //put here customized mapping
-                case "Port of Entry":   return false; //"DO NOT USE";
+                // case "Port of Entry":   return false; //"DO NOT USE";
                 // just examples below. Real entries here were already added to /cp_new/GISD/mapped_location_strings.txt
                 // case "United States of America":        return "http://www.wikidata.org/entity/Q30";
                 // case "Dutch West Indies":               return "http://www.wikidata.org/entity/Q25227";
             }
+            */
         }
     }
 }
