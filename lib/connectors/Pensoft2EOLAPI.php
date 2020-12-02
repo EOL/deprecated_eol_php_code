@@ -109,8 +109,8 @@ class Pensoft2EOLAPI
         
         $excluded_rowtypes = array();
         // /* start customize
-        if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN
-        if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text
+        if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN -> creates a new DwCA
+        if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
         // */
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
@@ -176,7 +176,9 @@ class Pensoft2EOLAPI
     private function initialize_files()
     {
         // /* copied template, not needed in Pensoft yet
+        /* OBSOLETE
         $files = array($this->eol_tags_destination, $this->eol_tags_path.'eol_tags_noParentTerms.tsv');     //Vangelis tagger
+        */
         $files = array($this->eol_tags_path.'eol_tags_noParentTerms.tsv');                                  //Pensoft annotator
         foreach($files as $file) {
             if($f = Functions::file_open($file, "w")) {
