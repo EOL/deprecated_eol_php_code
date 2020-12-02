@@ -31,6 +31,12 @@ class AntWebAPI
     }
     function start()
     {
+        // /* This is used for accessing Pensoft annotator to get ENVO URI given habitat string.
+        $param['resource_id'] = 24; //AntWeb resource ID
+        require_library('connectors/Pensoft2EOLAPI');
+        $this->pensoft = new Pensoft2EOLAPI($param);
+        // */
+        
         require_library('connectors/TraitGeneric'); 
         $this->func = new TraitGeneric($this->resource_id, $this->archive_builder);
         /* START DATA-1841 terms remapping */
@@ -87,7 +93,7 @@ class AntWebAPI
                                 if($all_images_per_species = self::get_images($rek['sciname'])) $rek['images'] = $all_images_per_species;
                                 echo "images: ".count(@$rek['images'])."\n";
                                 if($rek['sciname']) self::write_archive($rek);
-                                // break;
+                                break;
                                 // print_r($rek); exit("\naaa\n");
                             }
                             */
@@ -716,15 +722,54 @@ class AntWebAPI
                                     $this->func->add_string_types($save, $mValue, $mType, "true");
                                 }
                             }
-                            else $this->debug['habitat classified as no URI'][$habitat] = ''; //commented so that build text will not be too long.
+                            else {
+                                if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
+                                    $this->debug['habitats recognized by Pensoft'][$habitat] = '';
+                                    foreach($habitat_uris as $mValue) {
+                                        if(!$mValue) continue;
+                                        $save['measurementRemarks'] = $habitat;
+                                        $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                                        $this->func->add_string_types($save, $mValue, $mType, "true");
+                                    }
+                                }
+                                else $this->debug['habitat classified as no URI'][$habitat] = ''; //commented so that build text will not be too long.
+                            }
                         }
-                        else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
+                        else {
+                            if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
+                                $this->debug['habitats recognized by Pensoft'][$habitat] = '';
+                                foreach($habitat_uris as $mValue) {
+                                    if(!$mValue) continue;
+                                    $save['measurementRemarks'] = $habitat;
+                                    $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                                    $this->func->add_string_types($save, $mValue, $mType, "true");
+                                }
+                            }
+                            else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
+                        }
                     }
                     // */
                 }
 
             } //end loop
         }
+    }
+    private function use_pensoft_annotator_to_get_envo_uri($habitat)
+    {
+        echo "\ninput: [$habitat]...";
+        $basename = md5($habitat);
+        $desc = strip_tags($habitat);
+        $desc = trim(Functions::remove_whitespace($desc));
+        $this->pensoft->results = array();
+        if($arr = $this->pensoft->retrieve_annotation($basename, $desc)) {
+            // print_r($arr); //exit("\n-test muna\n");
+            /*Array(
+                [http://purl.obolibrary.org/obo/ENVO_01000204] => tropical
+            )
+            */
+            return array_keys($arr);
+        }
+        else echo " - nothing from Pensoft";
     }
     /* copied template
     private function write_presence_measurement_for_state($state_id, $rec)

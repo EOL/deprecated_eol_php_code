@@ -29,6 +29,15 @@ class Pensoft2EOLAPI
         /*-----------------------Paths----------------------*/
         if(Functions::is_production()) $this->root_path = '/html/Pensoft_annotator/';
         else                           $this->root_path = '/Library/WebServer/Documents/Pensoft_annotator/';
+        
+        if($this->param['resource_id'] == '617_ENV') {} //Wikipedia EN
+        else { //rest of the resources
+            $tmp = str_replace('_ENV', '', $param['resource_id']);
+            $this->root_path .= $tmp.'/';
+            if(!is_dir($this->root_path)) mkdir($this->root_path);
+            // exit($this->root_path);
+        }
+        
         /*
         $this->eol_tagger_path      = $this->root_path.'eol_tagger/';
         $this->text_data_path       = $this->root_path.'test_text_data/';
@@ -101,6 +110,7 @@ class Pensoft2EOLAPI
         $excluded_rowtypes = array();
         // /* start customize
         if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document');
+        if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array();
         // */
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
@@ -261,6 +271,7 @@ class Pensoft2EOLAPI
         )*/
 
         // exit("\ntaxonID: ".$rec['http://rs.tdwg.org/dwc/terms/taxonID']."\n"); //debug only
+        // exit("\n[".$this->param['resource_id']."]\n"); //e.g. '617_ENV'
         $basename = $rec['http://rs.tdwg.org/dwc/terms/taxonID']."_-_".$rec['http://purl.org/dc/terms/identifier'];
         $desc = strip_tags($rec['http://purl.org/dc/terms/description']);
         $desc = trim(Functions::remove_whitespace($desc));
@@ -293,7 +304,7 @@ class Pensoft2EOLAPI
             fclose($f);
         }
     }
-    private function retrieve_annotation($id, $desc)
+    public function retrieve_annotation($id, $desc)
     {
         $len = strlen($desc);
         $loops = $len/2000; //echo("\n\n[$loops]");
@@ -310,9 +321,11 @@ class Pensoft2EOLAPI
         }
         // print_r($this->results);
         // exit("\n[$loops]\n");
+        if(isset($this->results)) return $this->results;
     }
     private function retrieve_partial($id, $desc, $loop)
     {
+        // echo "\n[$id]\n";
         if($arr = self::retrieve_json($id, 'partial', $desc)) {
             // if($loop == 29) { print_r($arr['data']); //exit; }
             self::select_envo($arr['data']);
