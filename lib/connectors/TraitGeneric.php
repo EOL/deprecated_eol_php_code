@@ -15,6 +15,17 @@ class TraitGeneric
     {
         if($value == 'DISCARD') return false;
         if($measurementType == 'DISCARD') return false;
+
+        // /* Per Jen: https://eol-jira.bibalex.org/browse/DATA-1863?focusedCommentId=65399&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65399
+        // - MeasurementOfTaxon should be blank for child records.
+        // - MeasurementOfTaxon should be 'false' if to represent additional metadata.
+        if($measurementOfTaxon == '') {
+            if(@$rec['http://eol.org/schema/parentMeasurementID']) {} //means a child record
+            else $measurementOfTaxon = 'false';
+        }
+        if(@$rec['http://eol.org/schema/parentMeasurementID']) $measurementOfTaxon = ''; //means a child record
+        // */
+
         $taxon_id = $rec["taxon_id"];
         $catnum   = $rec["catnum"].$measurementType; //because one catalog no. can have 2 MeasurementOrFact entries. Each for country and habitat.
 

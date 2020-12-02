@@ -406,11 +406,13 @@ class MetaRecodingAPI
     private function write_MoF_rec($rec)
     {
         // /* Per Jen: https://eol-jira.bibalex.org/browse/DATA-1863?focusedCommentId=65399&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65399
+        // - MeasurementOfTaxon should be blank for child records.
+        // - MeasurementOfTaxon should be 'false' if to represent additional metadata.
         if($rec['http://eol.org/schema/measurementOfTaxon'] == '') {
             if(@$rec['http://eol.org/schema/parentMeasurementID']) {} //means a child record
             else $rec['http://eol.org/schema/measurementOfTaxon'] = 'false';
         }
-        if(@$rec['http://eol.org/schema/parentMeasurementID']) $rec['http://eol.org/schema/measurementOfTaxon'] = '' //means a child record
+        if(@$rec['http://eol.org/schema/parentMeasurementID']) $rec['http://eol.org/schema/measurementOfTaxon'] = ''; //means a child record
         // */
         
         $m = new \eol_schema\MeasurementOrFact_specific();
