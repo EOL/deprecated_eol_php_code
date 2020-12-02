@@ -756,7 +756,7 @@ class AntWebAPI
     }
     private function use_pensoft_annotator_to_get_envo_uri($habitat)
     {
-        echo "\ninput: [$habitat]...";
+        // echo "\ninput: [$habitat]...";
         $basename = md5($habitat);
         $desc = strip_tags($habitat);
         $desc = trim(Functions::remove_whitespace($desc));
@@ -769,7 +769,7 @@ class AntWebAPI
             */
             return array_keys($arr);
         }
-        else echo " - nothing from Pensoft";
+        // else echo " - nothing from Pensoft";
     }
     /* copied template
     private function write_presence_measurement_for_state($state_id, $rec)
