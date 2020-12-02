@@ -109,8 +109,8 @@ class Pensoft2EOLAPI
         
         $excluded_rowtypes = array();
         // /* start customize
-        if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document');
-        if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array();
+        if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN
+        if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text
         // */
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
