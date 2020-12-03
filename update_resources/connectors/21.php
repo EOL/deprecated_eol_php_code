@@ -7,8 +7,9 @@ Connector parses this XML and generates the EOL-compliant XML.
 <taxon> and <dataObject> have dc:identifier
 
 See environments_2_eol.php for more details.
-21.php                  -> generates 21.tar.gz
-environments_2_eol.php  -> generates 21_ENV.tar.gz
+21.php                  -> generates 21.tar.gz (problem with source XML from Amphibiaweb. Probably connector also needs updating.)
+environments_2_eol.php  -> generates 21_ENV.tar.gz  (CURRENT OK - Pensoft Annotator)
+                        -> generates at one time 21_final.tar.gz (OBSOLETE - Vangelis tagger)
 */
 
 $timestart = microtime(1);
