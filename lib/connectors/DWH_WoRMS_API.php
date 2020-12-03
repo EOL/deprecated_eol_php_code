@@ -82,6 +82,57 @@ class DWH_WoRMS_API
         copy($this->WoRMS_report, CONTENT_RESOURCE_LOCAL_PATH."reports/duplicates.txt");
         Functions::show_totals($this->WoRMS_report);
     }
+    private function ids_for_2_and_3()
+    {
+        $i = 0; $final = array();
+        $taxon_tab_file = CONTENT_RESOURCE_LOCAL_PATH."$resource_id/taxon.tab";
+        foreach(new FileIterator($this->extension_path.'taxon.tab') as $line => $row) {
+            $i++;
+            if(($i % 200000) == 0) echo "\n count:[$i] ";
+            if($i == 1) {
+                $fields = explode("\t", $row);
+                continue;
+            }
+            if(!$row) continue;
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($fields as $field) {
+                $rec[$field] = $tmp[$k];
+                $k++;
+            }
+            $rec = array_map('trim', $rec);
+            $rec = self::format_ids($rec);
+            // print_r($rec); exit("\n111\n");
+            /*Array(
+                [taxonID] => 1
+                [furtherInformationURL] => http://www.marinespecies.org/aphia.php?p=taxdetails&id=1
+                [referenceID] => WoRMS:citation:1
+                [acceptedNameUsageID] => 
+                [parentNameUsageID] => 
+                [scientificName] => Biota
+                [namePublishedIn] => 
+                [kingdom] => 
+                [phylum] => 
+                [class] => 
+                [order] => 
+                [family] => 
+                [genus] => 
+                [taxonRank] => kingdom
+                [vernacularName] => Biota
+                [taxonomicStatus] => accepted
+                [taxonRemarks] => 
+                [rightsHolder] => 
+                [accessRights] => 
+                [datasetName] => 
+            )*/
+            if(stripos($rec['taxonRemarks'], "REMAP_ON_EOL") !== false) $final[$rec['taxonID']] = ''; //string is found
+            if($rec['taxonRank'] == 'species') {
+                if(stripos($rec['scientificName'], "incertae sedis") !== false) $final[$rec['taxonID']] = ''; //string is found
+            }
+        }
+        print_r($final); exit("\nTaxa added to removed_branches: ".count($final)."\n");
+        return array_keys($final);
+    }
     private function main_WoRMS()
     {   /* from TRAM-798
         $include['123081'] = "Crinoidea";       $include['6'] = "Bacteria";         $include['599656'] = "Glaucophyta";     $include['852'] = "Rhodophyta"; 
@@ -113,8 +164,8 @@ class DWH_WoRMS_API
         Hi Eli,
         I'd like to make a few more tweaks to the WoRMS for DH resource:
         1. Please remove the following branches: Polychaeta, Ochrophyta, Bacteria, Alveolata, and Rhizaria. It was too difficult to try to align the WoRMS data for these taxa with other resources, so they are now integrated in the Annelida and Microbes patches.
-        2. There are still a few taxa with [REMAP_ON_EOL] in the taxonRemarks column. Please remove those and their children, currently 33 taxa total.
-        3. Please also remove all taxa of rank species that contain the string "incertae sedis" in the scientificName.
+        #2. There are still a few taxa with [REMAP_ON_EOL] in the taxonRemarks column. Please remove those and their children, currently 33 taxa total.
+        #3. Please also remove all taxa of rank species that contain the string "incertae sedis" in the scientificName.
         Thanks!
         Polychaeta  - $include['883'] = "Polychaeta Grube, 1850";
         Ochrophyta  - $include['345465'] = "Ochrophyta Cavalier-Smith, 1995";
@@ -122,8 +173,10 @@ class DWH_WoRMS_API
         Alveolata   - $include['536209'] = "Alveolata Cavalier-Smith";
         Rhizaria    - $include['582420'] = "Rhizaria";
         */
-        
         $removed_branches = array();
+        $ids_2remove = self::ids_for_2_and_3(); //#2 and #3 above
+        foreach($ids_2remove as $id) $removed_branches[$id] = '';
+        
         /* OBSOLETE now for TRAM-988
         // actual spreadsheet: https://docs.google.com/spreadsheets/d/11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ/edit?usp=sharing
         $params['spreadsheetID'] = '11jQ-6CUJIbZiNwZrHqhR_4rqw10mamdA17iaNELWCBQ';
@@ -141,7 +194,7 @@ class DWH_WoRMS_API
         */
         
         /*IDs from WoRMS_DH_undefined_parent_ids.txt - from initial run TRAM-988
-        $ids_2remove = array(1253263, 1311887, 1315383, 1402365, 1411195, 1403036, 1412780, 1408309, 1413119);
+        $ids_2remove = array(1402365, 1411195, 1403036, 1412780, 1408309, 1413119);
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
         */
         
