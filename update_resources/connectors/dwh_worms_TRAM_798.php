@@ -24,6 +24,7 @@ WoRMS_DH	    Tue 2020-09-29 03:43:48 AM	{"taxon.tab":214007, "time_elapsed":fals
 WoRMS_DH	    Tue 2020-09-29 07:21:28 AM	{"taxon.tab":213458, "time_elapsed":false}
 WoRMS_DH	    Wed 2020-12-02 09:32:12 PM	{"taxon.tab":193823, "time_elapsed":false} - expected decrease, more removed branches
 WoRMS_DH	    Wed 2020-12-02 11:56:18 PM	{"taxon.tab":193746, "time_elapsed":false} - expected decrease, removed incertae sedis and REMAP_ON_EOL
+WoRMS_DH	    Thu 2020-12-03 01:16:22 AM	{"taxon.tab":193739, "time_elapsed":false} - expected decrease, undefined parents after initial run
 
 Duplicates report for Katja:
 https://editors.eol.org/eol_php_code/applications/content_server/resources/reports/duplicates.txt
