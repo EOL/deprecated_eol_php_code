@@ -105,7 +105,7 @@ Addtl Jen's mapping: filtering out (removing) more rows in entities file.
 wikipedia_en_traits	Sun 2020-11-08 11:32:21 AM	{"MoF.tab":169640, "occurrence.tab":169640, "taxon.tab":102305, "time_elapsed":false}
 
 21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "measurement_or_fact_specific.tab":2202, "media_resource.tab":8138, "occurrence_specific.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
-START differentiate Wikipedia EN and other resources when treated by Pensoft.
+START differentiate Wikipedia EN and other resources when treated by Pensoft. Expected increase in MoF
 21_ENV	Wed 2020-12-02 08:18:37 PM	{"agent.tab":743, "measurement_or_fact_specific.tab":2468, "media_resource.tab":8138, "occurrence_specific.tab":2468, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
