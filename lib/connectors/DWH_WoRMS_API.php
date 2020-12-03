@@ -85,7 +85,6 @@ class DWH_WoRMS_API
     private function ids_for_2_and_3()
     {
         $i = 0; $final = array();
-        $taxon_tab_file = CONTENT_RESOURCE_LOCAL_PATH."$resource_id/taxon.tab";
         foreach(new FileIterator($this->extension_path.'taxon.tab') as $line => $row) {
             $i++;
             if(($i % 200000) == 0) echo "\n count:[$i] ";
