@@ -64,7 +64,7 @@ class DWH_WoRMS_API
             echo ("\n temporary directory removed: " . $info['temp_dir']);
         }
         else { //local development only
-            $info = Array('temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_41927/',
+            $info = Array('temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_52843/',
                           'tables' => Array('taxa' => "taxon.tab"));
 
             /* run to fill-in $info above:
@@ -93,7 +93,7 @@ class DWH_WoRMS_API
         $include['582263'] = "Nucleariida";     $include['582261'] = "Ministeriida";$include['580116'] = "Choanoflagellatea"; $include['391862'] = "Ichthyosporea";
         */
         // /* new batch for TRAM-988
-        $include['536209'] = "Alveolata Cavalier-Smith";    $include['6'] = "Bacteria";     $include['1803'] = "Brachiopoda Duméril, 1805";     
+        $include['1803'] = "Brachiopoda Duméril, 1805";     
         $include['146142'] = "Bryozoa";                     $include['2081'] = "Chaetognatha";  $include['1267'] = "Cnidaria Hatschek, 1888";
         $include['1248'] = "Ctenophora Eschscholtz, 1829";  $include['22586'] = "Cycliophora Funch & Kristensen, 1995";
         $include['14221'] = "Dicyemida van Beneden";        $include['1806'] = "Echinodermata Bruguière, 1791 [ex Klein, 1734]";
@@ -101,13 +101,27 @@ class DWH_WoRMS_API
         $include['1818'] = "Hemichordata Bateson, 1885";    $include['101060'] = "Kinorhyncha Reinhard, 1885";
         $include['101061'] = "Loricifera Kristensen, 1983"; $include['51'] = "Mollusca";
         $include['845959'] = "Multicrustacea Regier, Shultz, Zwick, Hussey, Ball, Wetzer, Martin & Cunningham, 2010";
-        $include['233983'] = "Myzostomida von Graff, 1877"; $include['799'] = "Nematoda";   $include['345465'] = "Ochrophyta Cavalier-Smith, 1995";
+        $include['233983'] = "Myzostomida von Graff, 1877"; $include['799'] = "Nematoda";   
         $include['845957'] = "Oligostraca Zrzavý, Hypša & Vlášková, 1997";  $include['14220'] = "Orthonectida Giard, 1877";
-        $include['1789'] = "Phoronida Hatschek, 1888";  $include['22737'] = "Placozoa Grell, 1971"; $include['883'] = "Polychaeta Grube, 1850"; 
+        $include['1789'] = "Phoronida Hatschek, 1888";  $include['22737'] = "Placozoa Grell, 1971";  
         $include['558'] = "Porifera Grant, 1836";   $include['101063'] = "Priapulida Théel, 1906";  $include['1067'] = "Remipedia Yager, 1981";
-        $include['582420'] = "Rhizaria";    $include['1268'] = "Sipuncula Stephen, 1964";   $include['146420'] = "Tunicata Lamarck, 1816";
+        $include['1268'] = "Sipuncula Stephen, 1964";   $include['146420'] = "Tunicata Lamarck, 1816";
         // */
         $this->include = $include;
+        
+        /* per Katja: https://eol-jira.bibalex.org/browse/TRAM-988?focusedCommentId=65403&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65403
+        Hi Eli,
+        I'd like to make a few more tweaks to the WoRMS for DH resource:
+        1. Please remove the following branches: Polychaeta, Ochrophyta, Bacteria, Alveolata, and Rhizaria. It was too difficult to try to align the WoRMS data for these taxa with other resources, so they are now integrated in the Annelida and Microbes patches.
+        2. There are still a few taxa with [REMAP_ON_EOL] in the taxonRemarks column. Please remove those and their children, currently 33 taxa total.
+        3. Please also remove all taxa of rank species that contain the string "incertae sedis" in the scientificName.
+        Thanks!
+        Polychaeta  - $include['883'] = "Polychaeta Grube, 1850";
+        Ochrophyta  - $include['345465'] = "Ochrophyta Cavalier-Smith, 1995";
+        Bacteria    - $include['6'] = "Bacteria";
+        Alveolata   - $include['536209'] = "Alveolata Cavalier-Smith";
+        Rhizaria    - $include['582420'] = "Rhizaria";
+        */
         
         $removed_branches = array();
         /* OBSOLETE now for TRAM-988
@@ -126,10 +140,10 @@ class DWH_WoRMS_API
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
         */
         
-        // /*IDs from WoRMS_DH_undefined_parent_ids.txt - from initial run TRAM-988
+        /*IDs from WoRMS_DH_undefined_parent_ids.txt - from initial run TRAM-988
         $ids_2remove = array(1253263, 1311887, 1315383, 1402365, 1411195, 1403036, 1412780, 1408309, 1413119);
         foreach($ids_2remove as $id) $removed_branches[$id] = '';
-        // */
+        */
         
         $taxID_info = self::get_taxID_nodes_info();
         echo "\ntaxID_info (taxon.tab) total rows: ".count($taxID_info)."\n";
