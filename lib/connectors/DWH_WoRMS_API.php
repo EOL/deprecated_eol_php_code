@@ -129,7 +129,7 @@ class DWH_WoRMS_API
                 if(stripos($rec['scientificName'], "incertae sedis") !== false) $final[$rec['taxonID']] = ''; //string is found
             }
         }
-        print_r($final); exit("\nTaxa added to removed_branches: ".count($final)."\n");
+        // print_r($final); exit("\nTaxa added to removed_branches: ".count($final)."\n");
         return array_keys($final);
     }
     private function main_WoRMS()
