@@ -580,6 +580,11 @@ class PaleoDBAPI_v2
         $m->occurrenceID = $occurrence_id;
         foreach($rec as $key => $value) $m->$key = $value;
         $m->measurementID = Functions::generate_measurementID($m, $this->resource_id);
+        
+        // /* removal in MoF where mtype == 'http://purl.obolibrary.org/obo/UBERON_0002104'. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1831?focusedCommentId=65410&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65410
+        if($m->measurementType == 'http://purl.obolibrary.org/obo/UBERON_0002104') return;
+        // */
+        
         if(!isset($this->measurement_ids[$m->measurementID])) {
             $this->archive_builder->write_object_to_file($m);
             $this->measurement_ids[$m->measurementID] = '';
