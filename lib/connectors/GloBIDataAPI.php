@@ -413,13 +413,15 @@ class GloBIDataAPI extends Globi_Refuted_Records
                                        "pathogen of" (http://purl.obolibrary.org/obo/RO_0002556) OR 
                                        "eats" (http://purl.obolibrary.org/obo/RO_0002470) OR 
                                        "preys on" (http://purl.obolibrary.org/obo/RO_0002439)
+                */
+                // /*
                 if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002632', 'http://purl.obolibrary.org/obo/RO_0002634', 'http://purl.obolibrary.org/obo/RO_0002444', 'http://purl.obolibrary.org/obo/RO_0008503', 'http://purl.obolibrary.org/obo/RO_0002208', 'http://purl.obolibrary.org/obo/RO_0002556', 'http://purl.obolibrary.org/obo/RO_0002470', 'http://purl.obolibrary.org/obo/RO_0002439'))) { //
                     $sourceTaxon_kingdom = self::get_taxon_kingdom_4occurID($occurrenceID, 'source');
                     if(!self::kingdom_is_viruses_YN($sourceTaxon_kingdom)) {
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(self::kingdom_is_viruses_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is not VIRUSES; targetTaxon is VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
-                            @$this->debug['stats']['6. Records of other organisms parasitizing or eating viruses are likely to be errors']++;
+                            @$this->debug['stats']['6a. Records of other organisms parasitizing or eating viruses are likely to be errors']++;
                             self::write_refuted_report($rec, 6);
                             $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
                             $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
@@ -427,7 +429,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         }
                     }
                 }
-                */
+                // */
                 /* Version 2.0: DATA-1872 as of Dec 7, 2020
                 (f)[6] Records of other organisms parasitizing or eating viruses are likely to be errors
                 sourceTaxon has kingdom "Viruses"
@@ -448,7 +450,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
                         if(!self::kingdom_is_viruses_YN($targetTaxon_kingdom)) {
                             // echo "\nFound: sourceTaxon is VIRUSES; targetTaxon is not VIRUSES; [$associationType]; organisms parasitizing or eating viruses...\n";
-                            @$this->debug['stats']['6. Records of other organisms parasitizing or eating viruses are likely to be errors']++;
+                            @$this->debug['stats']['6b. Records of other organisms parasitizing or eating viruses are likely to be errors']++;
                             self::write_refuted_report($rec, 6);
                             $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
                             $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
