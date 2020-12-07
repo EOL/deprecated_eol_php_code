@@ -96,6 +96,7 @@ eol-archive:
 368_merged_MoF	Wednesday 2020-08-26 09:52:55 AM	{"MoF":2353864, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":{"sec":1199.53, "min":19.99, "hr":0.33}}
 
 368	Thu 2020-12-03 09:06:57 PM	                    {"MoF":2354502, "occurrence.tab":567911, "taxon.tab":418498, "vernacular_name.tab":7202, "time_elapsed":false}
+EXPECTED DECREASE SINCE Now removed in MoF, measurementType=http://purl.obolibrary.org/obo/UBERON_0002104.
 368	Thu 2020-12-03 09:43:31 PM	                    {"MoF":2338562, "occurrence.tab":563416, "taxon.tab":414945, "vernacular_name.tab":7186, "time_elapsed":false}
 368_removed_aves	Thu 2020-12-03 10:02:04 PM	    {"MoF":2233159, "occurrence.tab":540001, "taxon.tab":405382, "vernacular_name.tab":4756, "time_elapsed":false}
 368_final	Thu 2020-12-03 10:22:18 PM	            {"MoF":2233159, "occurrence.tab":540001, "taxon.tab":394515, "vernacular_name.tab":4756, "time_elapsed":false}
