@@ -24,8 +24,10 @@ itis_2020-07-28	Tue 2020-09-01 11:01:33 PM	{"taxon.tab":104014, "vernacular_name
 itis_2020-07-28	Tue 2020-09-01 11:02:23 PM	{"taxon.tab":104014, "vernacular_name.tab":11301, "time_elapsed":false}
 
 
-Reminders: what is in Jenkins eol-archive. Run one after the other.
+Reminders: what is in Jenkins eol-archive. Run one after the other, these 2 scripts:
+(1)
 php5.6 dwh_itis.php jenkins
+(2) where date changes
 php5.6 synonyms_handling.php jenkins itis_2019-08-28
 php5.6 synonyms_handling.php jenkins itis_2020-07-28 #TRAM-987
 php5.6 synonyms_handling.php jenkins itis_2020-12-01 #TRAM-987
