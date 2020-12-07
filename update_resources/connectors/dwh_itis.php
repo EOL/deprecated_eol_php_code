@@ -28,6 +28,7 @@ Reminders: what is in Jenkins eol-archive. Run one after the other.
 php5.6 dwh_itis.php jenkins
 php5.6 synonyms_handling.php jenkins itis_2019-08-28
 php5.6 synonyms_handling.php jenkins itis_2020-07-28 #TRAM-987
+php5.6 synonyms_handling.php jenkins itis_2020-12-02 #TRAM-987
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -36,17 +37,27 @@ $timestart = time_elapsed();
 
 /*
 Note: Database download files are currently from the 25-Feb-2019 data load.
+Note: Database download files are currently from the 02-Dec-2020 data load.
+
+The dates here made as folder names are the dates for dumps/downloads from source partner.
+Found here:
+https://www.itis.gov/downloads/
+e.g. 2020-12-02         {local run in Mac Mini}
+e.g. itis_2020-12-02    {jenkins run in eol-archive}
 */
 
 if(Functions::is_production()) $dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
 else {
     $dwca_file = "http://localhost/cp/ITIS_DWH/2019-02-25/itisMySQLTables.tar.gz";
     $dwca_file = "http://localhost/cp/ITIS_DWH/2020-07-28/itisMySQLTables.tar.gz";
+    $dwca_file = "http://localhost/cp/ITIS_DWH/2020-12-02/itisMySQLTables.tar.gz";
+    
 }
 $resource_id = "itis_2019-02-25";
 $resource_id = "itis_2019-03-31";
 $resource_id = "itis_2019-08-28"; //run in Sep 27, 2019
 $resource_id = "itis_2020-07-28"; //TRAM-987
+$resource_id = "itis_2020-12-02"; //TRAM-987
 
 // /* main operation
 $func = new DWH_ITIS_API($resource_id, $dwca_file);
