@@ -44,6 +44,9 @@ Found here:
 https://www.itis.gov/downloads/
 e.g. 2020-12-02         {local run in Mac Mini}
 e.g. itis_2020-12-02    {jenkins run in eol-archive}
+
+IMPORTANT: Will also need to update INBioAPI.php for the new download date
+
 */
 
 if(Functions::is_production()) $dwca_file = "https://www.itis.gov/downloads/itisMySQLTables.tar.gz";
