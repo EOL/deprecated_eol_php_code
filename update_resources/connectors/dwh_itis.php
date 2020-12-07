@@ -16,12 +16,18 @@ itis_2020-07-28	Mon 2020-08-31 03:30:52 AM	{"taxon.tab":836555, "vernacular_name
 with removal
 itis_2020-07-28	Mon 2020-08-31 09:35:12 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":{"sec":327.24, "min":5.45, "hr":0.09}}
 
+itis_2020-12-01	Sun 2020-12-06 09:46:37 PM	{"taxon.tab":104571, "vernacular_name.tab":11368, "time_elapsed":{"sec":402.76, "min":6.71, "hr":0.11}}
+itis_2020-12-01	Sun 2020-12-06 09:52:34 PM	{"taxon.tab":104571, "vernacular_name.tab":11368, "time_elapsed":false}
+
 eol-archive:
 itis_2020-07-28	Tue 2020-09-01 04:17:42 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":{"sec":211.03, "min":3.52, "hr":0.06}}
 itis_2020-07-28	Tue 2020-09-01 04:18:35 AM	{"taxon.tab":104015, "vernacular_name.tab":11301, "time_elapsed":false}
 
 itis_2020-07-28	Tue 2020-09-01 11:01:33 PM	{"taxon.tab":104014, "vernacular_name.tab":11301, "time_elapsed":{"sec":169.89, "min":2.83, "hr":0.05}}
 itis_2020-07-28	Tue 2020-09-01 11:02:23 PM	{"taxon.tab":104014, "vernacular_name.tab":11301, "time_elapsed":false}
+
+itis_2020-12-01	Sun 2020-12-06 09:40:54 PM	{"taxon.tab":104571, "vernacular_name.tab":11368, "time_elapsed":{"sec":161.96, "min":2.7, "hr":0.04}}
+itis_2020-12-01	Sun 2020-12-06 09:41:44 PM	{"taxon.tab":104571, "vernacular_name.tab":11368, "time_elapsed":false}
 
 
 Reminders: what is in Jenkins eol-archive. Run one after the other, these 2 scripts:
