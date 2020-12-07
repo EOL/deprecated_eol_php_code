@@ -8,7 +8,7 @@ class SynonymsHandlingAPI
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
         
-        if(in_array($resource_id, array('itis_2019-08-28', 'itis_2020-07-28'))) {
+        if(in_array($resource_id, array('itis_2019-08-28', 'itis_2020-07-28', 'itis_2020-12-01'))) {
             $this->valid_statuses = array('valid', 'accepted');
             $this->invalid_statuses = array('invalid', 'not accepted');
         }
