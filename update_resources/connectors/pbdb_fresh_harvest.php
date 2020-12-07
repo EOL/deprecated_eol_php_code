@@ -86,14 +86,20 @@ Just trait remap
 368_removed_aves	Monday 2020-07-13 01:12:19 PM	{"MoF_specific":2348179, "occurrence.tab":533094, "taxon.tab":399217, "vernacular_name.tab":4750}
 368_final	Monday 2020-07-13 01:32:31 PM	        {"MoF_specific":2348179, "occurrence.tab":533094, "taxon.tab":388589, "vernacular_name.tab":4750}
 
-368	Thursday 2020-08-06 05:55:58 PM	{"measurement_or_fact.tab":2474119, "occurrence.tab":561749, "taxon.tab":413147, "vernacular_name.tab":7171, "time_elapsed":false}
-368	Thursday 2020-08-06 06:32:56 PM	{"measurement_or_fact.tab":2458161, "occurrence.tab":557336, "taxon.tab":409654, "vernacular_name.tab":7156, "time_elapsed":false}
-368_removed_aves	Thursday 2020-08-06 06:52:45 PM	{"measurement_or_fact_specific.tab":2354130, "occurrence.tab":534300, "taxon.tab":400261, "vernacular_name.tab":4754, "time_elapsed":false}
-368_final	Thursday 2020-08-06 07:13:08 PM	        {"measurement_or_fact_specific.tab":2354130, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":false}
+368	Thursday 2020-08-06 05:55:58 PM	{"MoF":2474119, "occurrence.tab":561749, "taxon.tab":413147, "vernacular_name.tab":7171, "time_elapsed":false}
+368	Thursday 2020-08-06 06:32:56 PM	{"MoF":2458161, "occurrence.tab":557336, "taxon.tab":409654, "vernacular_name.tab":7156, "time_elapsed":false}
+368_removed_aves	Thursday 2020-08-06 06:52:45 PM	{"MoF":2354130, "occurrence.tab":534300, "taxon.tab":400261, "vernacular_name.tab":4754, "time_elapsed":false}
+368_final	Thursday 2020-08-06 07:13:08 PM	        {"MoF":2354130, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":false}
 Mac Mini:
-368_merged_MoF	Wednesday 2020-08-26 05:53:47 AM	{"measurement_or_fact_specific.tab":2353864, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":{"sec":2078.36, "min":34.64, "hr":0.58}}
+368_merged_MoF	Wednesday 2020-08-26 05:53:47 AM	{"MoF":2353864, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":{"sec":2078.36, "min":34.64, "hr":0.58}}
 eol-archive:
-368_merged_MoF	Wednesday 2020-08-26 09:52:55 AM	{"measurement_or_fact_specific.tab":2353864, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":{"sec":1199.53, "min":19.99, "hr":0.33}}
+368_merged_MoF	Wednesday 2020-08-26 09:52:55 AM	{"MoF":2353864, "occurrence.tab":534300, "taxon.tab":389610, "vernacular_name.tab":4754, "time_elapsed":{"sec":1199.53, "min":19.99, "hr":0.33}}
+
+368	Thu 2020-12-03 09:06:57 PM	                    {"MoF":2354502, "occurrence.tab":567911, "taxon.tab":418498, "vernacular_name.tab":7202, "time_elapsed":false}
+368	Thu 2020-12-03 09:43:31 PM	                    {"MoF":2338562, "occurrence.tab":563416, "taxon.tab":414945, "vernacular_name.tab":7186, "time_elapsed":false}
+368_removed_aves	Thu 2020-12-03 10:02:04 PM	    {"MoF":2233159, "occurrence.tab":540001, "taxon.tab":405382, "vernacular_name.tab":4756, "time_elapsed":false}
+368_final	Thu 2020-12-03 10:22:18 PM	            {"MoF":2233159, "occurrence.tab":540001, "taxon.tab":394515, "vernacular_name.tab":4756, "time_elapsed":false}
+368_merged_MoF	Thu 2020-12-03 10:41:40 PM	        {"MoF":2232890, "occurrence.tab":540001, "taxon.tab":394515, "vernacular_name.tab":4756, "time_elapsed":{"sec":1141.51, "min":19.03, "hr":0.32}}
 ----------------------------------------------------------------------------
 Reminders:
 # Three (3) connectors to run, one after the other - OK
