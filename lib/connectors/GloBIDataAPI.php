@@ -16,7 +16,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
         $this->api['GBIF taxon 2'] = 'https://api.gbif.org/v1/species?name=SCINAME';
         $this->download_options = array(
             'resource_id'        => 'iNat',  //resource_id here is just a folder name in cache
-            'expire_seconds'     => 60*60*24*30*2, //maybe 2 months to expire
+            'expire_seconds'     => 60*60*24*30, //maybe 1 month to expire
             'download_wait_time' => 750000, 'timeout' => 60*3, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
         $this->download_options_gbif = $this->download_options;
         $this->download_options_gbif['resource_id'] = 'gbif';
