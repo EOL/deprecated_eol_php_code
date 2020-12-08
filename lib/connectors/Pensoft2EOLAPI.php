@@ -370,6 +370,7 @@ class Pensoft2EOLAPI
         */
         foreach($arr as $rek) {
             // /* customize
+            // exit("\n".$this->param['resource_id']."\n");
             if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
                 if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00002010') continue; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
                 if(isset($this->descendants_of_saline_water[$rek['id']])) continue;
