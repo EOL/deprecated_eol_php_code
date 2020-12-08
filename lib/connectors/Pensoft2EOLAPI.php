@@ -61,7 +61,12 @@ class Pensoft2EOLAPI
         $this->entities_file = 'https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/for_entities.txt';
     }
     function generate_eol_tags_pensoft($resource)
-    {
+    {   ///* customize
+        if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
+            $this->descendants_of_saline_water = self::get_descendants_of_saline_water(); //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
+        }
+        //*/
+        
         self::lookup_opendata_resource();
         // /* un-comment in real operation
         self::initialize_files();
@@ -367,6 +372,7 @@ class Pensoft2EOLAPI
             // /* customize
             if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
                 if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00002010') continue; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
+                if(isset($this->descendants_of_saline_water[$rek['id']])) continue;
             }
             // */
             
@@ -919,7 +925,8 @@ class Pensoft2EOLAPI
         'http://purl.obolibrary.org/obo/ENVO_00000561', 'http://purl.obolibrary.org/obo/ENVO_00002267', 'http://purl.obolibrary.org/obo/ENVO_00000000', 'http://purl.obolibrary.org/obo/ENVO_00000373', 
         'http://purl.obolibrary.org/obo/ENVO_00002215', 'http://purl.obolibrary.org/obo/ENVO_00002198', 'http://purl.obolibrary.org/obo/ENVO_00000176', 'http://purl.obolibrary.org/obo/ENVO_00000075', 
         'http://purl.obolibrary.org/obo/ENVO_00000168', 'http://purl.obolibrary.org/obo/ENVO_00003864', 'http://purl.obolibrary.org/obo/ENVO_00002196', 'http://purl.obolibrary.org/obo/ENVO_00000002', 
-        'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077');
+        'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077', 
+        'http://purl.obolibrary.org/obo/ENVO_01000760');
         foreach($uris as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
     }
     private function filter_out_from_entities()
@@ -936,6 +943,20 @@ class Pensoft2EOLAPI
         'ENVO_00000256', 'ENVO_00002063', 'ENVO_00003041', 'ENVO_00005799', 'ENVO_01000063', 'ENVO_00000042', 'ENVO_00000079', 'ENVO_00000152', 'ENVO_00000160', 'ENVO_00000252', 'ENVO_00000271', 
         'ENVO_00000282', 'ENVO_00000289', 'ENVO_00000290', 'ENVO_00000470', 'ENVO_00000483', 'ENVO_00000522', 'ENVO_00000548', 'ENVO_00002231', 'ENVO_00005739', 'ENVO_00005756', 'ENVO_00005767', 
         'ENVO_00005775', 'ENVO_01000219', 'ENVO_02000084');
+    }
+    private function get_descendants_of_saline_water()
+    {
+        $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AmphibiaWeb/descendants_of_salt_water.csv';
+        $local = Functions::save_remote_file_to_local($url, array('cache' => 1));
+        $arr = explode("\n", file_get_contents($local));
+        $arr = array_map('trim', $arr);
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+        unlink($local);
+        foreach($arr as $uri) $final[$uri] = '';
+        // print_r($final); exit("\n\n");
+        return $final;
     }
 }
 ?>
