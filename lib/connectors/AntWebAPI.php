@@ -768,10 +768,12 @@ class AntWebAPI
             )
             */
             $arr = array_keys($arr);
-            // /* customize
+            
+            // /* customize -----
             //per Jen: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65408&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65408
             $arr = array_diff($arr, array('http://purl.obolibrary.org/obo/ENVO_01000760')); // ENVO_01000760 = 'clouds' remove
-            // */
+            // ----- */
+            
             if($arr) return $arr;
         }
         // else echo " - nothing from Pensoft";

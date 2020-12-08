@@ -940,7 +940,7 @@ class Pensoft2EOLAPI
         'http://purl.obolibrary.org/obo/ENVO_01000760');
         foreach($uris as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
         /*
-        http://purl.obolibrary.org/obo/ENVO_01000760 - "cloud" remove.
+        http://purl.obolibrary.org/obo/ENVO_01000760 - "cloud" For all resources, remove clouds.
         per Jen: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65408&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65408
         */
     }
