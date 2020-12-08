@@ -937,6 +937,10 @@ class Pensoft2EOLAPI
         'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077', 
         'http://purl.obolibrary.org/obo/ENVO_01000760');
         foreach($uris as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
+        /*
+        http://purl.obolibrary.org/obo/ENVO_01000760 - "cloud" remove.
+        per Jen: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65408&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65408
+        */
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359
