@@ -375,6 +375,7 @@ class Pensoft2EOLAPI
                 if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00002010') continue; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
                 if(isset($this->descendants_of_saline_water[$rek['id']])) continue;
             }
+            if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_01000760') continue; //for all resources, remove 'clouds'
             // */
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
@@ -673,6 +674,7 @@ class Pensoft2EOLAPI
             if($uri == 'http://purl.obolibrary.org/obo/ENVO_00002010') return false; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
             if(isset($this->descendants_of_saline_water[$uri])) return false;
         }
+        if($uri == 'http://purl.obolibrary.org/obo/ENVO_01000760') return false; //for all resources, remove 'clouds'
         // */
         
         return array('label' => $label, 'uri' => $uri);
