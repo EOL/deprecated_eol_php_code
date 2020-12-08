@@ -371,10 +371,10 @@ class Pensoft2EOLAPI
         foreach($arr as $rek) {
             // /* customize
             // exit("\n".$this->param['resource_id']."\n");
-            if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
-                if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00002010') continue; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
-                if(isset($this->descendants_of_saline_water[$rek['id']])) continue;
-            }
+            // if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
+            //     if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00002010') continue; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
+            //     if(isset($this->descendants_of_saline_water[$rek['id']])) continue;
+            // }
             // */
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
@@ -667,6 +667,14 @@ class Pensoft2EOLAPI
         if($new_uri = @$this->remapped_terms[$uri]) $uri = $new_uri;
         if(isset($this->delete_MoF_with_these_labels[$label])) return false;
         if(isset($this->delete_MoF_with_these_uris[$uri])) return false;
+
+        // /* customize
+        if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
+            if($uri == 'http://purl.obolibrary.org/obo/ENVO_00002010') return false; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
+            if(isset($this->descendants_of_saline_water[$uri])) return false;
+        }
+        // */
+        
         return array('label' => $label, 'uri' => $uri);
     }
     private function init_DATA_1841_terms_remapped()
