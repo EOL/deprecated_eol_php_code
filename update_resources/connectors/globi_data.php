@@ -36,7 +36,9 @@ globi_associations	Thu 2020-08-13 12:36:13 AM	{"association.tab":1866725, "occur
 DATA-1862
 globi_associations	Wed 2020-09-02 11:34:39 AM	{"association.tab":1908403, "occurrence_specific.tab":2817930, "reference.tab":1047221, "taxon.tab":227253, "time_elapsed":{"sec":4410.59, "min":73.51, "hr":1.23}}
 globi_associations	Thu 2020-09-03 10:36:57 AM	{"association.tab":1908403, "occurrence_specific.tab":2817930, "reference.tab":1047221, "taxon.tab":227253, "time_elapsed":{"sec":3999.01, "min":66.65, "hr":1.11}}
-
+globi_associations	Mon 2020-12-07 03:29:50 AM	{"association.tab":2444196, "occurrence_specific.tab":3471794, "reference.tab":1139966, "taxon.tab":295119, "time_elapsed":{"sec":5412.4, "min":90.21, "hr":1.5}}
+globi_associations	Mon 2020-12-07 10:03:14 AM	{"association.tab":2442251, "occurrence_specific.tab":3467973, "reference.tab":1139966, "taxon.tab":294923, "time_elapsed":{"sec":5026.15, "min":83.77, "hr":1.4}}
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Stats:
 As of May 27, 2020
 [change the associationType to pathogen_of] => 168
@@ -47,7 +49,7 @@ As of May 27, 2020
 [5. Records of plants laying eggs are likely to be errors'] => 0
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1415
 total rows = 10,632
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 As of May 28, 2020
 [change the associationType to pathogen_of] => 168
 [1. Records of non-carnivorous plants eating animals are likely to be errors] => 1098
@@ -57,7 +59,7 @@ As of May 28, 2020
 [5. Records of plants laying eggs are likely to be errors] => 0
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1411
 Total rows = 10,584
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 As of May 30|31, 2020 - Mac Mini
 [change the associationType to pathogen_of] => 168
 [1. Records of non-carnivorous plants eating animals are likely to be errors] => 1099
@@ -66,7 +68,7 @@ As of May 30|31, 2020 - Mac Mini
 [4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 987
 [5. Records of plants laying eggs are likely to be errors] => 0
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1411
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 As of Aug 12, 2020 - eol-archive
 [change the associationType to pathogen_of] => 177
 [1. Records of non-carnivorous plants eating animals are likely to be errors] => 985
@@ -92,7 +94,7 @@ Latest version, for review.
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1345
 [7. Records of organisms other than plants having flower visitors are probably errors] => 758
 Total rows = 11256
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 as of Sep 3, 2020:
 [change the associationType to pathogen_of] => 177
 [1. Records of non-carnivorous plants eating animals are likely to be errors] => 990
@@ -103,7 +105,7 @@ as of Sep 3, 2020:
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 2217
 [7. Records of organisms other than plants having flower visitors are probably errors] => 743
 Total rows = 6851
-
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Hi Katja,
 Field now renamed to "argumentReasonId".
 as of Sep 5, 2020:
@@ -119,6 +121,54 @@ Latest version, for review.
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 2218
 [7. Records of organisms other than plants having flower visitors are probably errors] => 741
 Total rows = 6852
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+as of Dec 7, 2020
+[change the associationType to pathogen_of] => 171
+
+Hi Katja,
+Latest as of Dec 7, 2020. For review.
+- DwCA [OpenData|https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61]
+- refuted records [OpenData|https://opendata.eol.org/dataset/globi/resource/92595520-35f3-48f2-95cf-ea67f7c455c3]
+
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1485
+[2. Records of plants parasitizing animals are likely to be errors] => 905
+[3. Records of plants having animals as hosts are likely to be errors] => 1122
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 1405
+[5. Records of plants laying eggs are likely to be errors] => 0
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1945
+[7. Records of organisms other than plants having flower visitors are probably errors] => 599
+Total rows = 7461
+
+*Please take note #6 here is from old criteria: n=1945
+{color:red}
+sourceTaxon does NOT have kingdom "Viruses"
+AND targetTaxon has kingdom "Viruses"
+AND associationType is 
+"ectoparasite of" (http://purl.obolibrary.org/obo/RO_0002632) OR 
+"endoparasite of" (http://purl.obolibrary.org/obo/RO_0002634) OR 
+"parasite of" (http://purl.obolibrary.org/obo/RO_0002444) OR 
+"kleptoparasite of" (http://purl.obolibrary.org/obo/RO_0008503) OR 
+"parasitoid of" http://purl.obolibrary.org/obo/RO_0002208 OR 
+"pathogen of" (http://purl.obolibrary.org/obo/RO_0002556) OR 
+"eats" (http://purl.obolibrary.org/obo/RO_0002470) OR 
+"preys on" (http://purl.obolibrary.org/obo/RO_0002439)
+{color}
+
+The new criteria did not meet any records: n=0
+{color:red}
+sourceTaxon has kingdom "Viruses"
+AND targetTaxon does NOT have kingdom "Viruses"
+AND associationType is:
+"has ectoparasite" (http://purl.obolibrary.org/obo/RO_0002633) OR
+"has endoparasite" (http://purl.obolibrary.org/obo/RO_0002635) OR
+"parasitized by" (http://purl.obolibrary.org/obo/RO_0002445) OR
+"kleptoparasitized by" (http://purl.obolibrary.org/obo/RO_0008504) OR
+"has parasitoid" (http://purl.obolibrary.org/obo/RO_0002209) OR
+"has pathogen" (http://purl.obolibrary.org/obo/RO_0002557)
+{color}
+
+Thanks.
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
