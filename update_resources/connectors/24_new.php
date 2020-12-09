@@ -4,6 +4,8 @@ namespace php_active_record;
 24	Tue 2020-12-08 06:51:52 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":112164, "media_resource.tab":140143, "occurrence_specific.tab":71314, "taxon.tab":16470, "time_elapsed":{"sec":1668.92, "min":27.82, "hr":0.46}}
 'clouds' removed
 24	Tue 2020-12-08 09:10:17 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":110680, "media_resource.tab":140143, "occurrence_specific.tab":70884, "taxon.tab":16470, "time_elapsed":{"sec":1584.2, "min":26.4, "hr":0.44}}
+removed descendants of 'aquatic'
+24	Tue 2020-12-08 08:37:56 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":107786, "media_resource.tab":140143, "occurrence_specific.tab":68850, "taxon.tab":16470, "time_elapsed":{"sec":2012.86, "min":33.55, "hr":0.5600000000000001}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
