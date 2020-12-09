@@ -7,7 +7,7 @@ namespace php_active_record;
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
-/* e.g. php 26_new.php jenkins */
+/* e.g. php 24_new.php jenkins */
 $cmdline_params['jenkins_or_cron']  = @$argv[1]; //irrelevant here
 
 require_library('connectors/AntWebAPI');

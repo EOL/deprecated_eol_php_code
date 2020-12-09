@@ -59,11 +59,14 @@ class Pensoft2EOLAPI
         $this->download_options = array('expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
         $this->call['opendata resource via name'] = "https://opendata.eol.org/api/3/action/resource_search?query=name:RESOURCE_NAME";
         $this->entities_file = 'https://github.com/eliagbayani/vangelis_tagger/raw/master/eol_tagger/for_entities.txt';
+        
+        $this->descendants_habitat_group['saline water'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AmphibiaWeb/descendants_of_salt_water.csv';
+        $this->descendants_habitat_group['aquatic']    = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AmphibiaWeb/descendants_of_aquatic.csv';
     }
     function generate_eol_tags_pensoft($resource)
     {   ///* customize
-        if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
-            $this->descendants_of_saline_water = self::get_descendants_of_saline_water(); //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
+        if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text: entire resource was processed.
+            $this->descendants_of_saline_water = self::get_descendants_of_habitat_group('saline water'); //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
         }
         //*/
         
@@ -959,10 +962,10 @@ class Pensoft2EOLAPI
         'ENVO_00000282', 'ENVO_00000289', 'ENVO_00000290', 'ENVO_00000470', 'ENVO_00000483', 'ENVO_00000522', 'ENVO_00000548', 'ENVO_00002231', 'ENVO_00005739', 'ENVO_00005756', 'ENVO_00005767', 
         'ENVO_00005775', 'ENVO_01000219', 'ENVO_02000084');
     }
-    private function get_descendants_of_saline_water()
+    public function get_descendants_of_habitat_group($what)
     {
-        $url = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AmphibiaWeb/descendants_of_salt_water.csv';
-        $local = Functions::save_remote_file_to_local($url, array('cache' => 1));
+        $url = $this->descendants_habitat_group[$what];
+        $local = Functions::save_remote_file_to_local($url, array('cache' => 1, 'expire_seconds' => 60*60*24));
         $arr = explode("\n", file_get_contents($local));
         $arr = array_map('trim', $arr);
         $arr = array_filter($arr); //remove null arrays

@@ -35,6 +35,9 @@ class AntWebAPI
         $param['resource_id'] = 24; //AntWeb resource ID
         require_library('connectors/Pensoft2EOLAPI');
         $this->pensoft = new Pensoft2EOLAPI($param);
+        
+        $this->descendants_of_aquatic = $this->pensoft->get_descendants_of_habitat_group('aquatic'); //Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65426
+        // print_r($this->descendants_of_aquatic); exit;("\n");
         // */
         
         require_library('connectors/TraitGeneric'); 
@@ -757,6 +760,7 @@ class AntWebAPI
     private function use_pensoft_annotator_to_get_envo_uri($habitat)
     {
         // echo "\ninput: [$habitat]...";
+        $final = array();
         $basename = md5($habitat);
         $desc = strip_tags($habitat);
         $desc = trim(Functions::remove_whitespace($desc));
@@ -769,12 +773,20 @@ class AntWebAPI
             */
             $arr = array_keys($arr);
             
-            // /* customize -----
+            // /* customize ----------
             //per Jen: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65408&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65408
             $arr = array_diff($arr, array('http://purl.obolibrary.org/obo/ENVO_01000760')); // ENVO_01000760 = 'clouds' remove
-            // ----- */
+
+            //per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65426
+            if($arr) {
+                foreach($arr as $uri) {
+                    if(isset($this->descendants_of_aquatic[$uri])) {}
+                    else $final[] = $uri;
+                }
+            }
+            // ---------- */
             
-            if($arr) return $arr;
+            return $final;
         }
         // else echo " - nothing from Pensoft";
     }
