@@ -689,7 +689,7 @@ class AntWebAPI
                     }
                     else $this->debug['undefined country'][$country] = '';
                 }
-                if($habitat = @$t['habitat']) { $mType = 'http://eol.org/schema/terms/Habitat';
+                if($habitat = @$t['habitat']) { $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
                     if($mValue = @$this->uri_values[$habitat]) {
                         $save['measurementRemarks'] = $habitat;
                         $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
@@ -698,7 +698,7 @@ class AntWebAPI
                     /* Original. Worked for the longest time. But it doesn't differentiate with e.g. 'port of entry' without URI;
                     and those terms that are not yet seen by Jen. And hasn't been classified yet to have or not to have a URI.
                     
-                    elseif($val = @$this->habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
+                    elseif($val = @$this->habitat_map[$habitat]) { $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
                         // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
                         $habitat_uris = explode(";", $val);
                         $habitat_uris = array_map('trim', $habitat_uris);
@@ -714,7 +714,7 @@ class AntWebAPI
                     // /* New. This one will now differentiate terms that are classified and are not.
                     else {
                         if(isset($this->habitat_map[$habitat])) {
-                            if($val = @$this->habitat_map[$habitat]) { $mType = 'http://eol.org/schema/terms/Habitat';
+                            if($val = @$this->habitat_map[$habitat]) { $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
                                 // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
                                 $habitat_uris = explode(";", $val);
                                 $habitat_uris = array_map('trim', $habitat_uris);

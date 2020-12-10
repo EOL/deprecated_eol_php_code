@@ -108,7 +108,7 @@ class AntWebDataAPI
                 if($habitat = @$rec['habitat']) {
                     if($habitat_uri = @$this->uri_values[$habitat]) {
                         if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
-                        self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
+                        self::add_string_types($rec, $habitat_uri, "http://purl.obolibrary.org/obo/RO_0002303", "true");
                     }
                     elseif($val = @$habitat_map[$habitat]) {
                         // echo "\nmapping OK [$val][$habitat]\n"; //good debug info
@@ -118,7 +118,7 @@ class AntWebDataAPI
                             if(!$habitat_uri) continue;
                             if(!isset($this->taxon_ids[$rec['taxon_id']])) self::add_taxon($rec);
                             $rec['measurementRemarks'] = $habitat;
-                            self::add_string_types($rec, $habitat_uri, "http://eol.org/schema/terms/Habitat", "true");
+                            self::add_string_types($rec, $habitat_uri, "http://purl.obolibrary.org/obo/RO_0002303", "true");
                         }
                     }
                     // else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
