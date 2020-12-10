@@ -343,7 +343,7 @@ class SDRreportLib
         /* Array(
         [0] => Array( -- many fields removed here...
                 [page_id] => 347438 --> this is the descendant/child taxon
-                [predicate] => http://eol.org/schema/terms/Habitat
+                [predicate] => http://purl.obolibrary.org/obo/RO_0002303
                 [value_uri] => http://purl.obolibrary.org/obo/ENVO_00000446
         )*/
         // echo "\n".count($this->EOL_2_DH)."\n"; echo "\n".count($this->DH_2_EOL)."\n"; //exit;
@@ -365,7 +365,7 @@ class SDRreportLib
                         // Array(
                         //     [page_id] => 44709
                         //     [scientific_name] => Cryptoprocta
-                        //     [predicate] => http://eol.org/schema/terms/Habitat
+                        //     [predicate] => http://purl.obolibrary.org/obo/RO_0002303
                         //     [value_uri] => http://purl.obolibrary.org/obo/ENVO_00002009
                         //     many other fields...
                         // )

@@ -216,7 +216,7 @@ class FEISDataAPI
                 {
                     $rek['catnum'] = $taxon->taxonID . "_[" . $subsection . "]_" . $term;
                     $rek['catnum'] = md5($rek['catnum']);
-                    if($val = @$habitats[$term]) self::add_string_types($rek, $val, "http://eol.org/schema/terms/Habitat");
+                    if($val = @$habitats[$term]) self::add_string_types($rek, $val, "http://purl.obolibrary.org/obo/RO_0002303");
                     else
                     {
                         $section = @$subsections[$subsection]['section'];

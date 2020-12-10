@@ -378,7 +378,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
             For speciesprofile: the usual columns are isInvasive, habitat, source. We'll get one record for habitat, and use isInvasive, sometimes, 
             to modify a record from the distribution file.
 
-            Habitat measurementType: http://eol.org/schema/terms/Habitat. 
+            Habitat measurementType: http://purl.obolibrary.org/obo/RO_0002303. 
                     measurementValue mapping: 
                         Terrestrial-> http://purl.obolibrary.org/obo/ENVO_00000446, 
                         Marine-> http://purl.obolibrary.org/obo/ENVO_00000447, 
@@ -403,7 +403,7 @@ class GlobalRegister_IntroducedInvasiveSpecies
                     if(!$habitat) continue;
                     $mValue = self::get_uri($habitat,'habitat');
                     
-                    // $mType = 'http://eol.org/schema/terms/Habitat'; //obsolete
+                    // $mType = 'http://purl.obolibrary.org/obo/RO_0002303'; //obsolete
                     $mType = 'http://purl.obolibrary.org/obo/RO_0002303'; //DATA-1841
                     if(!$mValue) continue;
                     

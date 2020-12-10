@@ -291,7 +291,7 @@ class InvasiveSpeciesDataConnector
         if($habitat = strtolower(@$rec["System"])) {
             $rec["catnum"] = str_replace(" ", "_", $habitat);
             if($uri = self::get_value_uri($habitat, 'habitat')) {
-                self::add_string_types("true", $rec, "Habitat", $uri, "http://eol.org/schema/terms/Habitat", array(), $habitat);
+                self::add_string_types("true", $rec, "Habitat", $uri, "http://purl.obolibrary.org/obo/RO_0002303", array(), $habitat);
                 /* now moved to the main record
                 if($val = $rec["bibliographicCitation"]) self::add_string_types(null, $rec, "Citation", $val, "http://purl.org/dc/terms/bibliographicCitation");
                 */

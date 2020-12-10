@@ -159,7 +159,7 @@ class EnvironmentsDataConnector
             $m = new \eol_schema\MeasurementOrFact();
             $m->occurrenceID = $occurrence->occurrenceID;
             $m->measurementOfTaxon = 'true';
-            $m->measurementType = 'http://eol.org/schema/terms/Habitat';
+            $m->measurementType = 'http://purl.obolibrary.org/obo/RO_0002303';
             $m->measurementValue = $uri;
             $m->measurementMethod = 'text mining';
             $m->contributor = '<a href="http://environments-eol.blogspot.com/2013/03/welcome-to-environments-eol-few-words.html">Environments-EOL</a>';

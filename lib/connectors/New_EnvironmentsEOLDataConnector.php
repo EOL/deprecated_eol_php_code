@@ -70,7 +70,7 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 7efeff6e1f506b3523f66d644e41b75b_708
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
                 [http://eol.org/schema/measurementOfTaxon] => true
-                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Habitat
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/RO_0002303
                 [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000446
                 [http://rs.tdwg.org/dwc/terms/measurementMethod] => text mining
                 [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "terrestrial"
@@ -123,7 +123,7 @@ class New_EnvironmentsEOLDataConnector
                 [http://rs.tdwg.org/dwc/terms/measurementID] => 7efeff6e1f506b3523f66d644e41b75b_708
                 [http://rs.tdwg.org/dwc/terms/occurrenceID] => 6c6b79090187369e36a81b8fc84b14f6_708
                 [http://eol.org/schema/measurementOfTaxon] => true
-                [http://rs.tdwg.org/dwc/terms/measurementType] => http://eol.org/schema/terms/Habitat
+                [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/RO_0002303
                 [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000446
                 [http://rs.tdwg.org/dwc/terms/measurementMethod] => text mining
                 [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "terrestrial"

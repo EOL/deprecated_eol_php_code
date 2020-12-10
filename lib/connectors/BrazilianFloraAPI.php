@@ -31,7 +31,7 @@ class BrazilianFloraAPI
     measurementTypes:
     lifeForm-> http://purl.obolibrary.org/obo/FLOPO_0900022
     habitat-> http://rs.tdwg.org/dwc/terms/habitat
-    vegetationType-> http://eol.org/schema/terms/Habitat
+    vegetationType-> http://purl.obolibrary.org/obo/RO_0002303
 
     I'll make you a mapping for all the measurementValue strings from both files.
     
@@ -339,7 +339,7 @@ class BrazilianFloraAPI
     )*/
     private function get_mValue_mType_4lifeForm($term, $key)
     {   switch ($term) {
-            case "Aquática-Bentos": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/freshwater_benthic');
+            case "Aquática-Bentos": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'https://eol.org/schema/terms/freshwater_benthic');
             case "Aquática-Neuston": return array('http://eol.org/schema/terms/EcomorphologicalGuild' ,'https://eol.org/schema/terms/neuston');
             case "Aquática-Plâncton": return array('http://eol.org/schema/terms/EcomorphologicalGuild' ,'http://www.marinespecies.org/traits/Plankton');
             case "Arbusto": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://purl.obolibrary.org/obo/FLOPO_0900034');
@@ -362,36 +362,36 @@ class BrazilianFloraAPI
             case "Subarbusto": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://eol.org/schema/terms/subshrub');
             case "Suculenta": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://www.wikidata.org/entity/Q189939');
             case "Tapete": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'http://eol.org/schema/terms/trailing');
-            case "Terrícola": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_00000446');
+            case "Terrícola": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_00000446');
             case "Trama": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://www.wikidata.org/entity/Q16868813');
             case "Tufo": return array('http://purl.obolibrary.org/obo/FLOPO_0900032', 'https://eol.org/schema/terms/tuft');
-            case "Área Antrópica": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_00002031');
+            case "Área Antrópica": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_00002031');
             case "Caatinga (stricto sensu)": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q375816');
             case "Campinarana": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q25067050');
-            case "Campo de Altitude": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000194');
-            case "Campo de Várzea": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000195');
-            case "Campo Limpo": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000177');
-            case "Campo rupestre": return array('http://eol.org/schema/terms/Habitat' ,'http://eol.org/schema/terms/rockyGrassland');
-            case "Carrasco": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000218');
+            case "Campo de Altitude": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000194');
+            case "Campo de Várzea": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000195');
+            case "Campo Limpo": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000177');
+            case "Campo rupestre": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://eol.org/schema/terms/rockyGrassland');
+            case "Carrasco": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000218');
             case "Cerrado (lato sensu)": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q278512');
-            case "Floresta Ciliar ou Galeria": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q911190');
-            case "Floresta de Igapó": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q1476287');
-            case "Floresta de Terra Firme": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q3518534');
-            case "Floresta de Várzea": return array('http://eol.org/schema/terms/Habitat' ,'https://www.wikidata.org/entity/Q1940784');
-            case "Floresta Estacional Decidual": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000816');
-            case "Floresta Estacional Perenifólia": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000843');
-            case "Floresta Estacional Semidecidual": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000388');
-            case "Floresta Ombrófila (= Floresta Pluvial)": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000228');
-            case "Floresta Ombrófila Mista": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_00002993');
-            case "Manguezal": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000181');
-            case "Palmeiral": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/palmeiral');
+            case "Floresta Ciliar ou Galeria": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'https://www.wikidata.org/entity/Q911190');
+            case "Floresta de Igapó": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'https://www.wikidata.org/entity/Q1476287');
+            case "Floresta de Terra Firme": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'https://www.wikidata.org/entity/Q3518534');
+            case "Floresta de Várzea": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'https://www.wikidata.org/entity/Q1940784');
+            case "Floresta Estacional Decidual": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000816');
+            case "Floresta Estacional Perenifólia": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000843');
+            case "Floresta Estacional Semidecidual": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000388');
+            case "Floresta Ombrófila (= Floresta Pluvial)": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000228');
+            case "Floresta Ombrófila Mista": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_00002993');
+            case "Manguezal": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000181');
+            case "Palmeiral": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'https://eol.org/schema/terms/palmeiral');
             case "Restinga": return array('https://www.wikidata.org/entity/Q295469' ,'https://www.wikidata.org/entity/Q3305106');
-            case "Savana Amazônica": return array('http://eol.org/schema/terms/Habitat' ,'http://purl.obolibrary.org/obo/ENVO_01000178');
-            case "Vegetação Aquática": return array('http://eol.org/schema/terms/Habitat' ,'http://eol.org/schema/terms/aquaticVegetation');
-            case "Vegetação Sobre Afloramentos Rochosos": return array('http://eol.org/schema/terms/Habitat' ,'https://eol.org/schema/terms/rockyVegetated');
+            case "Savana Amazônica": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://purl.obolibrary.org/obo/ENVO_01000178');
+            case "Vegetação Aquática": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'http://eol.org/schema/terms/aquaticVegetation');
+            case "Vegetação Sobre Afloramentos Rochosos": return array('http://purl.obolibrary.org/obo/RO_0002303' ,'https://eol.org/schema/terms/rockyVegetated');
             /* added */
             case "Epífita": return array('http://purl.obolibrary.org/obo/FLOPO_0900022', 'http://purl.obolibrary.org/obo/FLOPO_0900030');
-            case "Aquática": return array('http://eol.org/schema/terms/Habitat', 'http://purl.obolibrary.org/obo/ENVO_00002030');
+            case "Aquática": return array('http://purl.obolibrary.org/obo/RO_0002303', 'http://purl.obolibrary.org/obo/ENVO_00002030');
             case "Hemiparasita": return array('http://eol.org/schema/terms/TrophicGuild', 'https://www.wikidata.org/entity/Q20739318');
             case "Saprófita": return array('http://eol.org/schema/terms/TrophicGuild', 'https://www.wikidata.org/entity/Q114750');
             case "Simbionte (incluindo fungos liquenizados)": return array('http://eol.org/schema/terms/TrophicGuild', 'https://www.wikidata.org/entity/Q2374421');

@@ -277,10 +277,10 @@ class CoLDataAPI
     }
     private function process_speciesprofile($a)
     {   /*
-        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is terrestrial
-        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is freshwater
-        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is brackish
-        http://rs.tdwg.org/dwc/terms/measurementType	http://eol.org/schema/terms/Habitat	if CoL value is marine
+        http://rs.tdwg.org/dwc/terms/measurementType	http://purl.obolibrary.org/obo/RO_0002303	if CoL value is terrestrial
+        http://rs.tdwg.org/dwc/terms/measurementType	http://purl.obolibrary.org/obo/RO_0002303	if CoL value is freshwater
+        http://rs.tdwg.org/dwc/terms/measurementType	http://purl.obolibrary.org/obo/RO_0002303	if CoL value is brackish
+        http://rs.tdwg.org/dwc/terms/measurementType	http://purl.obolibrary.org/obo/RO_0002303	if CoL value is marine
         Array(
             [﻿taxonID] => 9237970
             [habitat] => terrestrial
@@ -296,7 +296,7 @@ class CoLDataAPI
                 $rec["taxon_id"]            = $a['taxonID'];
                 $rec["catnum"]              = $a['taxonID']."Habitat";
                 $rec['measurementOfTaxon']  = "true";
-                $rec['measurementType']     = "http://eol.org/schema/terms/Habitat";
+                $rec['measurementType']     = "http://purl.obolibrary.org/obo/RO_0002303";
                 $rec["source"]              = @$this->taxon_info[$a['taxonID']]['url'];
                 $rec['measurementValue']    = $val;
                 self::add_string_types($rec);

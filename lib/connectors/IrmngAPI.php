@@ -311,7 +311,7 @@ class IrmngAPI
         }
 
         $rec["catnum"] = "h"; //habitat
-        if($val = $habitat)             self::add_string_types($rec, "Habitat", $val, "http://eol.org/schema/terms/Habitat");
+        if($val = $habitat)             self::add_string_types($rec, "Habitat", $val, "http://purl.obolibrary.org/obo/RO_0002303");
     }
 
     private function add_string_types($rec, $label, $value, $mtype)
