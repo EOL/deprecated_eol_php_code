@@ -1,6 +1,12 @@
 <?php
 namespace php_active_record;
-/* [SDR_all.php] */
+/* [SDR_all.php] This is for all taxa, not just for the initial test case Carnivora (SummaryDataResourcesAllAPI) 
+REMINDERS: pls take note that at some point the remapping of:
+    http://eol.org/schema/terms/Habitat 
+    to 
+    http://purl.obolibrary.org/obo/RO_0002303
+has not yet been implemented here. Maybe by design but we'll know.
+*/
 class SummaryDataResourcesAllAPI
 {
     public function __construct($folder, $folder_date)
