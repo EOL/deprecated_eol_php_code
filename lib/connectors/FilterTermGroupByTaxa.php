@@ -85,8 +85,6 @@ class FilterTermGroupByTaxa
             }
             // print_r($rec); exit;
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-            $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
-            $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
 
             if($what == 'occurrence') {
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
@@ -95,6 +93,8 @@ class FilterTermGroupByTaxa
                 }
             }
             elseif($what == 'MoF') {
+                $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+                $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
                 if(isset($this->occurrence_id_TaxaGroup[$occurrenceID])) {
                     /* copied template from RemoveAvesChildrenAPI.php
                     per: https://eol-jira.bibalex.org/browse/DATA-1831?focusedCommentId=64595&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64595
