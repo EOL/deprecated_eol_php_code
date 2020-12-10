@@ -41,12 +41,13 @@ class FilterTermGroupByTaxa
         
         // self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
         // self::process_generic_table($tables['http://rs.gbif.org/terms/1.0/vernacularname'][0], 'vernacular');
-        // self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
-        // self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'MoF');
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
+        self::process_generic_table($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'MoF');
     }
     private function initialize()
     {
         require_library('connectors/Pensoft2EOLAPI');
+        $param['resource_id'] = 'nothing';
         $this->pensoft = new Pensoft2EOLAPI($param);
         $this->descendants_of_saline_water = $this->pensoft->get_descendants_of_habitat_group('saline water');
         /* e.g. Q1390, Q1357, and Q10908. i.e. no saltwater insects, spiders, or amphibians. */
@@ -83,12 +84,12 @@ class FilterTermGroupByTaxa
                 $k++;
             }
             // print_r($rec); exit;
-            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
             $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
             $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
 
             if($what == 'occurrence') {
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 if(isset($this->children_of_TaxaGroup[$taxonID])) {
                     $this->occurrence_id_TaxaGroup[$occurrenceID] = '';
                 }
@@ -112,7 +113,7 @@ class FilterTermGroupByTaxa
                     if($mType == 'http://purl.obolibrary.org/obo/RO_0002303') { //habitat
                         if(isset($this->descendants_of_saline_water[$mValue])) {
                             $this->TaxaGroup_remove_occurrence_id[$occurrenceID] = '';
-                            print_r($rec);
+                            // print_r($rec);
                         }
                     }
                 }
