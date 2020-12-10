@@ -6,6 +6,7 @@ namespace php_active_record;
 24	Tue 2020-12-08 09:10:17 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":110680, "media_resource.tab":140143, "occurrence_specific.tab":70884, "taxon.tab":16470, "time_elapsed":{"sec":1584.2, "min":26.4, "hr":0.44}}
 removed descendants of 'aquatic'
 24	Tue 2020-12-08 08:37:56 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":107786, "media_resource.tab":140143, "occurrence_specific.tab":68850, "taxon.tab":16470, "time_elapsed":{"sec":2012.86, "min":33.55, "hr":0.5600000000000001}}
+24	Wed 2020-12-09 08:54:57 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":107786, "media_resource.tab":140143, "occurrence_specific.tab":68850, "taxon.tab":16470, "time_elapsed":{"sec":1881.16, "min":31.35, "hr":0.52}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
