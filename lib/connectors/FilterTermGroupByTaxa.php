@@ -83,13 +83,18 @@ class FilterTermGroupByTaxa
                 $k++;
             }
             // print_r($rec); exit;
+            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+            $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+            $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+
             if($what == 'occurrence') {
-                if(isset($this->children_of_TaxaGroup[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) {
-                    $this->occurrence_id_TaxaGroup[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                if(isset($this->children_of_TaxaGroup[$taxonID])) {
+                    $this->occurrence_id_TaxaGroup[$occurrenceID] = '';
                 }
             }
             elseif($what == 'MoF') {
-                if(isset($this->occurrence_id_TaxaGroup[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) {
+                if(isset($this->occurrence_id_TaxaGroup[$occurrenceID])) {
                     /* copied template from RemoveAvesChildrenAPI.php
                     per: https://eol-jira.bibalex.org/browse/DATA-1831?focusedCommentId=64595&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-64595
                     For all descendants of TaxaGroup, (FurtherInformationURL=https://paleobiodb.org/classic/checkTaxonInfo?is_real_user=1&taxon_no=22826)
@@ -104,11 +109,10 @@ class FilterTermGroupByTaxa
                     Q1390, Q1357, and Q10908
                     i.e. no saltwater insects, spiders, or amphibians.
                     */
-                    $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
-                    $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
                     if($mType == 'http://purl.obolibrary.org/obo/RO_0002303') { //habitat
                         if(isset($this->descendants_of_saline_water[$mValue])) {
-                            $this->TaxaGroup_remove_occurrence_id[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']] = '';
+                            $this->TaxaGroup_remove_occurrence_id[$occurrenceID] = '';
+                            print_r($rec);
                         }
                     }
                 }
@@ -131,9 +135,9 @@ class FilterTermGroupByTaxa
                 $k++;
             }
             // print_r($rec); exit;
-            /**/
+            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
             
-            /* copied template
+            /* copied template from RemoveAvesChildrenAPI.php
             if($what == 'taxon') {
                 if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/taxonID']])) continue;
                 if(isset($this->children_of_Aves[$rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID']])) continue;
@@ -161,11 +165,11 @@ class FilterTermGroupByTaxa
             
             if($this->params['target'] == 'wikipedia_en_traits_FTG') {
                 if($what == 'occurrence') {
-                    if(isset($this->TaxaGroup_remove_occurrence_id[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
+                    if(isset($this->TaxaGroup_remove_occurrence_id[$occurrenceID])) continue;
                     $o = new \eol_schema\Occurrence();
                 }
                 elseif($what == 'MoF') {
-                    if(isset($this->TaxaGroup_remove_occurrence_id[$rec['http://rs.tdwg.org/dwc/terms/occurrenceID']])) continue;
+                    if(isset($this->TaxaGroup_remove_occurrence_id[$occurrenceID])) continue;
                     $o = new \eol_schema\MeasurementOrFact_specific();
                 }
                 else exit("\nInvestigate [$what]\n");
