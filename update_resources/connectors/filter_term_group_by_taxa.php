@@ -8,7 +8,11 @@ remove_Aves_children_from_368.php   => filter_term_group_by_taxa.php
 RemoveAvesChildrenAPI.php           => FilterTermGroupByTaxa.php
 
 Implement:
-php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_tmp"}'
+normal operation:
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390, Q1357, Q10908"}'
+during dev:
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357"}'
+
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -20,14 +24,14 @@ $timestart = time_elapsed();
 $params['jenkins_or_cron'] = @$argv[1]; //not needed here
 $param                     = json_decode(@$argv[2], true);
 $source = $param['source'];         //e.g. '617_ENV'
-$resource_id = $param['target'];    //e.g. 'wikipedia_en_traits_tmp'
+$resource_id = $param['target'];    //e.g. 'wikipedia_en_traits_FTG' FTG stands for 'filter term group'.
 $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "/$source" . ".tar.gz"; //$source e.g. "617_ENV.tar.gz"
-process_resource_url($dwca_file, $resource_id, $timestart);
+process_resource_url($dwca_file, $resource_id, $timestart, $param);
 
-function process_resource_url($dwca_file, $resource_id, $timestart)
+function process_resource_url($dwca_file, $resource_id, $timestart, $param)
 {
     require_library('connectors/DwCA_Utility');
-    $func = new DwCA_Utility($resource_id, $dwca_file);
+    $func = new DwCA_Utility($resource_id, $dwca_file, $param);
 
     /* Orig in meta.xml has capital letters. Just a note reminder.
     rowType="http://rs.tdwg.org/dwc/terms/Taxon">
@@ -37,9 +41,11 @@ function process_resource_url($dwca_file, $resource_id, $timestart)
     */
 
     $preferred_rowtypes = array(); //no prefered. All will be customized
-    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/MeasurementOrFact', 'http://rs.tdwg.org/dwc/terms/Occurrence');
-    
-    $func->convert_archive($preferred_rowtypes);
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
+    // /* during dev
+    $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/taxon');
+    // */
+    $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     unset($func);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //, true, true
 }

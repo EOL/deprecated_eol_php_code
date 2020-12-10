@@ -1,42 +1,44 @@
 <?php
 namespace php_active_record;
-/* connector: [called from DwCA_Utility.php, which is called from remove_Aves_children_from_268.php from https://eol-jira.bibalex.org/browse/DATA-1814?focusedCommentId=63686&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-63686] */
-class RemoveAvesChildrenAPI
+/* connector: called from DwCA_Utility.php, which is called from filter_term_group_by_taxa.php
+from: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65425&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65425
+*/
+class FilterTermGroupByTaxa
 {
-    function __construct($archive_builder, $resource_id)
+    function __construct($archive_builder, $resource_id, $params)
     {
         $this->resource_id = $resource_id;
         $this->archive_builder = $archive_builder;
+        $this->params = $params;
         // $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
-
     }
     /*================================================================= STARTS HERE ======================================================================*/
     private function get_children_of_taxa_group($taxon_ids)
     {
         require_library('connectors/PaleoDBAPI_v2');
         $func = new PaleoDBAPI_v2("");
-        $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . "368".".tar.gz";
+        $dwca_file = CONTENT_RESOURCE_LOCAL_PATH . $this->params['source'] . ".tar.gz"; //617_ENV.tar.gz
         $descendant_taxon_ids = $func->get_descendants_given_parent_ids($dwca_file, $taxon_ids);
         return $descendant_taxon_ids;
     }
     function start($info)
     {
-        //----------------------------------------------------------------------------------------------
-        $this->children_of_Aves = array();
-        $children = self::get_children_of_taxa_group(array(36616, 7022, 32733, 168786)); //Aves taxon_id is 36616 | Polychaeta = 7022 | Echinoidea = 32733 and 168786
-        /* Both these are Echinoidea
-        https://paleobiodb.org/classic/checkTaxonInfo?is_real_user=1&taxon_no=32733 --- Echinoidea (sea urchin) --- this didn't produce any descendants
-        https://paleobiodb.org/classic/checkTaxonInfo?taxon_no=168786&is_real_user=1 --- Echinoidea (sea urchin)
+        // print_r($this->params); exit("\n");
+        /*Array(
+            [source] => 617_ENV
+            [target] => wikipedia_en_traits_FTG
+            [taxonIDs] => Q1390, Q1357, Q10908
+        )
+        e.g. taxonIDs is insects, spiders, amphibians
         */
-        foreach($children as $child) $this->children_of_Aves[$child] = '';
-        unset($children);
-        echo "\nChildren of Aves, Polychaeta and Echinoidea: ".count($this->children_of_Aves)."\n";
         //----------------------------------------------------------------------------------------------
-        $this->children_of_Ostracoda = array();
-        $children = self::get_children_of_taxa_group(array(22826)); //Ostracoda taxon_id is 22826
-        foreach($children as $child) $this->children_of_Ostracoda[$child] = '';
+        $this->children_of_IDs = array();
+        $taxonIDs = explode(',', $this->params['taxonIDs']);
+        $children = self::get_children_of_taxa_group($taxonIDs); //e.g. $taxonIDs is insects = Q1390 | spiders = Q1357 | amphibians = Q10908
+        foreach($children as $child) $this->children_of_IDs[$child] = '';
         unset($children);
-        echo "\nChildren of Ostracoda: ".count($this->children_of_Ostracoda)."\n";
+        // print_r($this->children_of_IDs);
+        echo "\nChildren of IDs: ".count($this->children_of_IDs)."\n"; exit;
         //----------------------------------------------------------------------------------------------
         
         $tables = $info['harvester']->tables;
