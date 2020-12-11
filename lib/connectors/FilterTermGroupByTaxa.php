@@ -227,7 +227,7 @@ class FilterTermGroupByTaxa
         $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
         $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
         $mRemarks = $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
-        self::write_to_text(array($taxonID, $sciname, $mType, $mValue, $mRemarks, $this->params['taxonIDs']))
+        self::write_to_text(array($taxonID, $sciname, $mType, $mValue, $mRemarks, $this->params['taxonIDs']));
     }
     private function write_to_text($arr)
     {

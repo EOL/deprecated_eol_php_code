@@ -12,7 +12,6 @@ normal operation:
 php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390, Q1357, Q10908"}'
 during dev:
 php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357"}'
-
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -42,9 +41,9 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
 
     $preferred_rowtypes = array(); //no prefered. All will be customized
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
-    // /* during dev
+    /* during dev
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/taxon');
-    // */
+    */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     unset($func);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //, true, true
