@@ -7,13 +7,14 @@ User Warning: Undefined property `rights` on eol_schema\Taxon as defined by `htt
 */
 class DwCA_Utility
 {
-    function __construct($folder = NULL, $dwca_file = NULL)
+    function __construct($folder = NULL, $dwca_file = NULL, $params = array())
     {
         if($folder) {
             $this->resource_id = $folder;
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
+        $this->params = $params;
         $this->dwca_file = $dwca_file;
         /* un-comment if it will cause probs to other connectors
         $this->download_options = array('download_wait_time' => 2000000, 'timeout' => 1200, 'download_attempts' => 2, 'delay_in_minutes' => 1, 'resource_id' => 26);
@@ -63,8 +64,8 @@ class DwCA_Utility
 
         /* development only
         $paths = Array(
-            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_39416/',
-            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_39416/'
+            'archive_path' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99613/',
+            'temp_dir' => '/Volumes/AKiTiO4/eol_php_code_tmp/dir_99613/'
         );
         */
         
@@ -276,6 +277,11 @@ class DwCA_Utility
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
         } 
+        if(in_array($this->resource_id, array('wikipedia_en_traits_FTG'))) { //calls FTG library
+            require_library('connectors/FilterTermGroupByTaxa');
+            $func = new FilterTermGroupByTaxa($this->archive_builder, $this->resource_id, $this->params);
+            $func->start($info);
+        }
         if(in_array($this->resource_id, array('wikipedia_en_traits'))) { //calls a generic utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);

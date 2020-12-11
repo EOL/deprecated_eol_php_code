@@ -12,6 +12,8 @@ normal operation:
 php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390, Q1357, Q10908"}'
 during dev:
 php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357"}'
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390"}'
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q10908"}'
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");
