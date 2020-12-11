@@ -28,6 +28,8 @@ class AntWebAPI
         $this->page['specimen_image'] = 'https://www.antweb.org/bigPicture.do?name=SPECIMEN_CODE&shot=SHOT_LETTER&number=1';
         $this->debug = array();
         $this->bibliographicCitation = "AntWeb. Version 8.45.1. California Academy of Science, online at https://www.antweb.org. Accessed ".date("d F Y").".";
+        //remove across all textmined resources: cloud, cut
+        $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
     }
     function start()
     {
@@ -775,8 +777,7 @@ class AntWebAPI
             
             // /* customize ----------
             //per Jen: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65408&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65408
-            $arr = array_diff($arr, array('http://purl.obolibrary.org/obo/ENVO_01000760')); // ENVO_01000760 = 'clouds' remove
-
+            $arr = array_diff($arr, $this->remove_across_all_resources); // remove 'cloud', 'cut'
             //per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65426
             if($arr) {
                 foreach($arr as $uri) {

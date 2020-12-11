@@ -62,6 +62,8 @@ class Pensoft2EOLAPI
         
         $this->descendants_habitat_group['saline water'] = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AmphibiaWeb/descendants_of_salt_water.csv';
         $this->descendants_habitat_group['aquatic']    = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AmphibiaWeb/descendants_of_aquatic.csv';
+        //remove across all textmined resources: cloud, cut
+        $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
     }
     function generate_eol_tags_pensoft($resource)
     {   ///* customize
@@ -378,7 +380,7 @@ class Pensoft2EOLAPI
                 if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_00002010') continue; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
                 if(isset($this->descendants_of_saline_water[$rek['id']])) continue;
             }
-            if($rek['id'] == 'http://purl.obolibrary.org/obo/ENVO_01000760') continue; //for all resources, remove 'clouds'
+            if(in_array($rek['id'], $this->remove_across_all_resources)) continue; //remove 'cloud', 'cut' for all resources
             // */
             
             if($this->param['resource_id'] == '617_ENV') { //Wikipedia EN
@@ -677,7 +679,7 @@ class Pensoft2EOLAPI
             if($uri == 'http://purl.obolibrary.org/obo/ENVO_00002010') return false; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
             if(isset($this->descendants_of_saline_water[$uri])) return false;
         }
-        if($uri == 'http://purl.obolibrary.org/obo/ENVO_01000760') return false; //for all resources, remove 'clouds'
+        if(in_array($uri, $this->remove_across_all_resources)) return false; //remove 'cloud', 'cut' for all resources
         // */
         
         return array('label' => $label, 'uri' => $uri);
@@ -939,13 +941,9 @@ class Pensoft2EOLAPI
         'http://purl.obolibrary.org/obo/ENVO_00000561', 'http://purl.obolibrary.org/obo/ENVO_00002267', 'http://purl.obolibrary.org/obo/ENVO_00000000', 'http://purl.obolibrary.org/obo/ENVO_00000373', 
         'http://purl.obolibrary.org/obo/ENVO_00002215', 'http://purl.obolibrary.org/obo/ENVO_00002198', 'http://purl.obolibrary.org/obo/ENVO_00000176', 'http://purl.obolibrary.org/obo/ENVO_00000075', 
         'http://purl.obolibrary.org/obo/ENVO_00000168', 'http://purl.obolibrary.org/obo/ENVO_00003864', 'http://purl.obolibrary.org/obo/ENVO_00002196', 'http://purl.obolibrary.org/obo/ENVO_00000002', 
-        'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077', 
-        'http://purl.obolibrary.org/obo/ENVO_01000760');
-        foreach($uris as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
-        /*
-        http://purl.obolibrary.org/obo/ENVO_01000760 - "cloud" For all resources, remove clouds.
-        per Jen: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65408&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65408
-        */
+        'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077');
+        foreach($uris as $uri)                              $this->delete_MoF_with_these_uris[$uri] = '';
+        foreach($this->remove_across_all_resources as $uri) $this->delete_MoF_with_these_uris[$uri] = ''; //remove cloud, cut for all resources
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359
