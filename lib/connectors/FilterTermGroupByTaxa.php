@@ -11,19 +11,20 @@ class FilterTermGroupByTaxa
         $this->archive_builder = $archive_builder;
         $this->params = $params;
         // $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
+        $this->report_utility_ON = true; // false means no report utility will be generated. True eats more memory.
+        $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/FTG_" . $this->params['target'] . "_" . $this->params['taxonIDs'] . ".txt";
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
     {
         self::initialize();
-        // print_r($this->params); exit("\n");
+        // print_r($this->params); exit("\n100\n");
         /*Array(
             [source] => 617_ENV
             [target] => wikipedia_en_traits_FTG
             [taxonIDs] => Q1390, Q1357, Q10908
         )
-        e.g. taxonIDs is insects, spiders, amphibians
-        */
+        e.g. taxonIDs is insects, spiders, amphibians */
         //----------------------------------------------------------------------------------------------
         $this->children_of_TaxaGroup = array();
         $taxonIDs = explode(',', $this->params['taxonIDs']);
@@ -35,7 +36,9 @@ class FilterTermGroupByTaxa
         //----------------------------------------------------------------------------------------------
         
         $tables = $info['harvester']->tables;
-        
+        if($this->report_utility_ON) {
+            self::process_generic_table_for_TaxaGroup($tables['http://rs.tdwg.org/dwc/terms/taxon'][0], 'taxon');
+        }
         self::process_generic_table_for_TaxaGroup($tables['http://rs.tdwg.org/dwc/terms/occurrence'][0], 'occurrence');
         self::process_generic_table_for_TaxaGroup($tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0], 'MoF');
         
@@ -46,6 +49,13 @@ class FilterTermGroupByTaxa
     }
     private function initialize()
     {
+        if($this->report_utility_ON) {
+            $handle = fopen($this->report_file, "w");
+            $fields = array("taxonID", "scientificName", "mType", "mValue", "mRemarks", "descendants_of");
+            fwrite($handle, implode("\t", $fields) . "\n");
+            fclose($handle);
+        }
+        
         require_library('connectors/Pensoft2EOLAPI');
         $param['resource_id'] = 'nothing';
         $this->pensoft = new Pensoft2EOLAPI($param);
@@ -84,15 +94,22 @@ class FilterTermGroupByTaxa
                 $k++;
             }
             // print_r($rec); exit;
-            $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
-
+            if($what == 'taxon') { //only when $this->report_utility_ON is true
+                $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
+                $this->taxonID_info[$taxonID] = $rec['http://rs.tdwg.org/dwc/terms/scientificName'];
+            }
             if($what == 'occurrence') {
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
                 $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
                 if(isset($this->children_of_TaxaGroup[$taxonID])) {
                     $this->occurrence_id_TaxaGroup[$occurrenceID] = '';
+                    if($this->report_utility_ON) {
+                        $this->occurrenceID_taxonID_info[$occurrenceID] = $taxonID;
+                    }
                 }
             }
             elseif($what == 'MoF') {
+                $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
                 $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
                 $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
                 if(isset($this->occurrence_id_TaxaGroup[$occurrenceID])) {
@@ -114,6 +131,7 @@ class FilterTermGroupByTaxa
                         if(isset($this->descendants_of_saline_water[$mValue])) {
                             $this->TaxaGroup_remove_occurrence_id[$occurrenceID] = '';
                             // print_r($rec);
+                            if($this->report_utility_ON) self::write_report($rec); //utility only
                         }
                     }
                 }
@@ -185,6 +203,37 @@ class FilterTermGroupByTaxa
             // if($i >= 10) break; //debug only
         }
     }
-    /*================================================================= ENDS HERE ======================================================================*/
+    private function write_report($rec)
+    {   //print_r($this->params); exit;
+        /*Array(
+            [source] => 617_ENV
+            [target] => wikipedia_en_traits_FTG
+            [taxonIDs] => Q1390, Q1357, Q10908
+        )*/
+        // print_r($rec); exit("\nabc\n");
+        /*Array(
+            [http://rs.tdwg.org/dwc/terms/measurementID] => 9cb6f33250b98e12397e60297242f627_617_ENV
+            [http://rs.tdwg.org/dwc/terms/occurrenceID] => d6a07a6127dfc7309024d5eb641f3874_617_ENV
+            [http://eol.org/schema/measurementOfTaxon] => true
+            [http://rs.tdwg.org/dwc/terms/measurementType] => http://purl.obolibrary.org/obo/RO_0002303
+            [http://rs.tdwg.org/dwc/terms/measurementValue] => http://purl.obolibrary.org/obo/ENVO_00000316
+            [http://rs.tdwg.org/dwc/terms/measurementRemarks] => source text: "intertidal zone"
+            [http://purl.org/dc/terms/source] => http://en.wikipedia.org/w/index.php?title=Desidae&oldid=963995687
+        )*/
+        $occurrenceID = $rec['http://rs.tdwg.org/dwc/terms/occurrenceID'];
+        $taxonID = $this->occurrenceID_taxonID_info[$occurrenceID];
+        $sciname = $this->taxonID_info[$taxonID];
+        // print_r($rec); exit("\n[$taxonID] [$sciname]\n"); //[Q10038] [Desidae]
+        $mType = $rec['http://rs.tdwg.org/dwc/terms/measurementType'];
+        $mValue = $rec['http://rs.tdwg.org/dwc/terms/measurementValue'];
+        $mRemarks = $rec['http://rs.tdwg.org/dwc/terms/measurementRemarks'];
+        self::write_to_text(array($taxonID, $sciname, $mType, $mValue, $mRemarks, $this->params['taxonIDs']))
+    }
+    private function write_to_text($arr)
+    {
+        $handle = fopen($this->report_file, "a");
+        fwrite($handle, implode("\t", $arr) . "\n");
+        fclose($handle);
+    }
 }
 ?>

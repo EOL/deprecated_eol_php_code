@@ -42,9 +42,9 @@ function process_resource_url($dwca_file, $resource_id, $timestart, $param)
 
     $preferred_rowtypes = array(); //no prefered. All will be customized
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
-    /* during dev
+    // /* during dev
     $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/taxon');
-    */
+    // */
     $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
     unset($func);
     Functions::finalize_dwca_resource($resource_id, false, true, $timestart); //, true, true
