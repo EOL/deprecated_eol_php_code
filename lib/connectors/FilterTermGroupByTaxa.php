@@ -12,7 +12,8 @@ class FilterTermGroupByTaxa
         $this->params = $params;
         // $this->download_options = array('resource_id' => $resource_id, 'expire_seconds' => 60*60*24*30*3, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 1);
         $this->report_utility_ON = true; // false means no report utility will be generated. True eats more memory.
-        $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/FTG_" . $this->params['target'] . "_" . $this->params['taxonIDs'] . ".txt";
+        $str = str_replace(', ', "_", $this->params['taxonIDs']);
+        $this->report_file = CONTENT_RESOURCE_LOCAL_PATH . "/reports/FTG_" . $this->params['target'] . "_" . $str . ".txt";
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
