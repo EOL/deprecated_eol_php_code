@@ -110,7 +110,7 @@ class DwCA_Utility
         elseif(in_array($this->resource_id, array('wiki_en_report'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
         elseif(in_array($this->resource_id, array('globi_associations'))) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*24)); //expires in a day
         elseif(in_array($this->resource_id, array('gbif_classification', 'gbif_classification_without_ancestry', 'gbif_classification_final', 
-                                                  '26', '368_removed_aves'))) {
+                                                  '26', '368_removed_aves', '617_ENV', 'wikipedia_en_traits_FTG'))) {
             if(Functions::is_production()) $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 0)); //expires now
             else                           $info = self::start(false, array('timeout' => 172800, 'expire_seconds' => 60*60*1)); //1 hour expire
         }
