@@ -262,12 +262,12 @@ class DwCA_Utility
             $func = new RemoveSurrogatesGBIF($this->resource_id, $this->archive_builder);
             $func->remove_surrogates_from_GBIF($info);
         }
-        if(in_array($this->resource_id, array('21_ENV', '617_ENV'))) {
+        if(in_array($this->resource_id, array('21_ENV', '617_ENV'))) { //first 2 clients: Amphibiaweb, Wikipedia EN
             require_library('connectors/Environments2EOLfinal');
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
-        if(in_array($this->resource_id, array('21_ENVO', '617_ENVO'))) {
+        if(in_array($this->resource_id, array('21_ENVO', '617_ENVO'))) { exit("\nOBSOLETE: Vangelis path\n");
             require_library('connectors/EnvironmentsFilters');
             $func = new EnvironmentsFilters($this->archive_builder, $this->resource_id);
             $func->start($info);
@@ -276,7 +276,8 @@ class DwCA_Utility
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
             $func->start($info);
-        } 
+        }
+        // /* parts of a whole: will run one after the other --------------------
         if(in_array($this->resource_id, array('wikipedia_en_traits_FTG'))) { //calls FTG library
             require_library('connectors/FilterTermGroupByTaxa');
             $func = new FilterTermGroupByTaxa($this->archive_builder, $this->resource_id, $this->params);
@@ -287,6 +288,7 @@ class DwCA_Utility
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
             $func->remove_taxa_without_MoF($info);
         }
+        // -------------------- */
         if(in_array($this->resource_id, array('WoRMS2EoL_zip'))) { //calls a generic utility
             require_library('connectors/ResourceUtility');
             $func = new ResourceUtility($this->archive_builder, $this->resource_id);
