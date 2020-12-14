@@ -9,17 +9,17 @@ RemoveAvesChildrenAPI.php           => FilterTermGroupByTaxa.php
 
 Implement:
 normal operation:
-php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390, Q1357, Q10908"}'
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390, Q1357, Q10908", "habitat_filter": "saline water"}'
 
 during dev: these 3 is only for stats:
-php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357"}'
-php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390"}'
-php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q10908"}'
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357", "habitat_filter": "saline water"}'
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390", "habitat_filter": "saline water"}'
+php update_resources/connectors/filter_term_group_by_taxa.php _ '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q10908", "habitat_filter": "saline water"}'
 
 Jenkins:
-php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357"}'
-php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390"}'
-php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q10908"}'
+php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357", "habitat_filter": "saline water"}'
+php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390", "habitat_filter": "saline water"}'
+php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q10908", "habitat_filter": "saline water"}'
 
 =================================================================================================== Jenkins: a reference, copied from remote Jenkins.
 #step 1
