@@ -20,10 +20,10 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters", "resource_id":"21"}'
 php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_formats_filters_latest", "resource_id":"21"}'
 
-21_final	Mon 2020-09-07 06:20:02 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.32, "min":0.79, "hr":0.01}}
-21_final	Tue 2020-09-08 01:09:17 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":48.43, "min":0.81, "hr":0.01}}
-21_final	Mon 2020-09-14 04:24:19 AM	{"agent.tab":743, "measurement_or_fact.tab":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.69, "min":0.79, "hr":0.01}}
-21_final	Mon 2020-09-14 12:23:34 PM	{"agent.tab":743, "measurement_or_fact.tab":7094, "media_resource.tab":8138, "occurrence.tab":7094, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.03, "min":0.78, "hr":0.01}}
+21_final	Mon 2020-09-07 06:20:02 AM	{"agent.tab":743, "MoF":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.32, "min":0.79, "hr":0.01}}
+21_final	Tue 2020-09-08 01:09:17 AM	{"agent.tab":743, "MoF":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":48.43, "min":0.81, "hr":0.01}}
+21_final	Mon 2020-09-14 04:24:19 AM	{"agent.tab":743, "MoF":8961, "media_resource.tab":8138, "occurrence.tab":8961, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.69, "min":0.79, "hr":0.01}}
+21_final	Mon 2020-09-14 12:23:34 PM	{"agent.tab":743, "MoF":7094, "media_resource.tab":8138, "occurrence.tab":7094, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":47.03, "min":0.78, "hr":0.01}}
 
 617_ENV	            Wed 2020-11-04 08:10:56 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":411865, "time_elapsed":false}
 wikipedia_en_traits	Wed 2020-11-04 08:39:13 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":91492, "time_elapsed":false}
@@ -43,25 +43,25 @@ php update_resources/connectors/environments_2_eol.php _ '{"task": "apply_format
 php update_resources/connectors/remove_taxa_without_MoF.php _ '{"resource_id": "617_final"}'
 -> generates wikipedia_en_traits.tar.gz
 
-617_final	        Mon 2020-09-07 11:41:14 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":596.04, "min":9.93, "hr":0.17}}
-wikipedia_en_traits	Mon 2020-09-07 11:51:11 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
+617_final	        Mon 2020-09-07 11:41:14 PM	{"MoF":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":596.04, "min":9.93, "hr":0.17}}
+wikipedia_en_traits	Mon 2020-09-07 11:51:11 PM	{"MoF":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
 
-617_final	Tue 2020-09-08 02:05:06 AM	        {"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":598.92, "min":9.98, "hr":0.17}}
-wikipedia_en_traits	Tue 2020-09-08 02:15:01 AM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
+617_final	Tue 2020-09-08 02:05:06 AM	        {"MoF":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":598.92, "min":9.98, "hr":0.17}}
+wikipedia_en_traits	Tue 2020-09-08 02:15:01 AM	{"MoF":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
 
-617_final	Tue 2020-09-08 11:27:07 PM	        {"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":600.27, "min":10, "hr":0.17}}
-wikipedia_en_traits	Tue 2020-09-08 11:37:05 PM	{"measurement_or_fact.tab":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
+617_final	Tue 2020-09-08 11:27:07 PM	        {"MoF":818305, "occurrence.tab":818305, "taxon.tab":410005, "time_elapsed":{"sec":600.27, "min":10, "hr":0.17}}
+wikipedia_en_traits	Tue 2020-09-08 11:37:05 PM	{"MoF":818305, "occurrence.tab":818305, "taxon.tab":160598, "time_elapsed":false}
 
-617_final	Mon 2020-09-14 05:26:31 AM	        {"measurement_or_fact.tab":818251, "occurrence.tab":818251, "taxon.tab":410005, "time_elapsed":{"sec":597.53, "min":9.96, "hr":0.17}}
-wikipedia_en_traits	Mon 2020-09-14 05:36:27 AM	{"measurement_or_fact.tab":818251, "occurrence.tab":818251, "taxon.tab":160591, "time_elapsed":false}
+617_final	Mon 2020-09-14 05:26:31 AM	        {"MoF":818251, "occurrence.tab":818251, "taxon.tab":410005, "time_elapsed":{"sec":597.53, "min":9.96, "hr":0.17}}
+wikipedia_en_traits	Mon 2020-09-14 05:36:27 AM	{"MoF":818251, "occurrence.tab":818251, "taxon.tab":160591, "time_elapsed":false}
 
 Started cleaning eol_tags.tsv and eol_tags_noParentTerms.tsv
-617_final	Mon 2020-09-14 01:02:29 PM	        {"measurement_or_fact.tab":509013, "occurrence.tab":509013, "taxon.tab":410005, "time_elapsed":{"sec":433.21, "min":7.22, "hr":0.12}}
-wikipedia_en_traits	Mon 2020-09-14 01:08:45 PM	{"measurement_or_fact.tab":509013, "occurrence.tab":509013, "taxon.tab":160580, "time_elapsed":false}
-wikipedia_en_traits	Thu 2020-10-01 12:41:54 PM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
-wikipedia_en_traits	Thu 2020-10-08 02:10:08 AM	{"measurement_or_fact.tab":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
+617_final	Mon 2020-09-14 01:02:29 PM	        {"MoF":509013, "occurrence.tab":509013, "taxon.tab":410005, "time_elapsed":{"sec":433.21, "min":7.22, "hr":0.12}}
+wikipedia_en_traits	Mon 2020-09-14 01:08:45 PM	{"MoF":509013, "occurrence.tab":509013, "taxon.tab":160580, "time_elapsed":false}
+wikipedia_en_traits	Thu 2020-10-01 12:41:54 PM	{"MoF":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
+wikipedia_en_traits	Thu 2020-10-08 02:10:08 AM	{"MoF":500273, "occurrence.tab":500273, "taxon.tab":160372, "time_elapsed":false}
 start deduplication below:
-wikipedia_en_traits	Mon 2020-10-12 10:36:39 AM	{"measurement_or_fact.tab":426193, "occurrence.tab":426193, "taxon.tab":157390, "time_elapsed":false}
+wikipedia_en_traits	Mon 2020-10-12 10:36:39 AM	{"MoF":426193, "occurrence.tab":426193, "taxon.tab":157390, "time_elapsed":false}
 ================================================== Vangelis tagger END ================================================== 
 ## different DwCA to submit for Wikipedia EN
 cd /u/scripts/eol_php_code/applications/content_server/resources/
@@ -92,7 +92,6 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "617_ENV"}'
 #generates wikipedia_en_traits.tar.gz
 ================================================== Pensoft annotator END ================================================== 
-
 Started using Pensoft:
 617_ENV	            Thu 2020-11-05 07:49:33 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":411865, "time_elapsed":false}
 wikipedia_en_traits	Thu 2020-11-05 07:52:07 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":91492, "time_elapsed":false}
@@ -100,19 +99,21 @@ Started Jen's mapping:
 617_ENV	            Thu 2020-11-05 08:55:41 AM	{"MoF.tab":234579, "occurrence.tab":234579, "taxon.tab":411865, "time_elapsed":false}
 wikipedia_en_traits	Thu 2020-11-05 08:58:54 AM	{"MoF.tab":234579, "occurrence.tab":234579, "taxon.tab":120059, "time_elapsed":false}
 Addtl Jen's mapping: filtering out (removing) more rows in entities file.
-617_ENV	            Sun 2020-11-08 11:29:51 AM	{"MoF.tab":169640, "occurrence.tab":169640, "taxon.tab":411865, "time_elapsed":false}
-wikipedia_en_traits	Sun 2020-11-08 11:32:21 AM	{"MoF.tab":169640, "occurrence.tab":169640, "taxon.tab":102305, "time_elapsed":false}
-
 617_ENV	            Wed 2020-12-09 08:07:57 AM	{"MoF.tab":169640, "occurrence.tab":169640, "taxon.tab":411865, "time_elapsed":false}
 wikipedia_en_traits	Wed 2020-12-09 08:10:33 AM	{"MoF.tab":169640, "occurrence.tab":169640, "taxon.tab":102305, "time_elapsed":false}
 
+617_ENV	Sun 2020-12-13 09:54:10 PM	                {"MoF":169640, "occurrence.tab":169640, "taxon.tab":412880, "time_elapsed":false}
+wikipedia_en_traits_FTG	Sun 2020-12-13 10:29:36 PM	{"MoF":167647, "occurrence.tab":167647, "taxon.tab":412880, "time_elapsed":{"sec":794.64, "min":13.24, "hr":0.22}}
+wikipedia_en_traits	Sun 2020-12-13 10:31:59 PM	    {"MoF":167647, "occurrence.tab":167647, "taxon.tab":101544, "time_elapsed":false}
 
-21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "measurement_or_fact_specific.tab":2202, "media_resource.tab":8138, "occurrence_specific.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
+=====================================================================================================================
+21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "MoF":2202, "media_resource.tab":8138, "occurrence.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 START differentiate Wikipedia EN and other resources when treated by Pensoft. Expected increase in MoF
-21_ENV	Wed 2020-12-02 08:18:37 PM	{"agent.tab":743, "measurement_or_fact_specific.tab":2468, "media_resource.tab":8138, "occurrence_specific.tab":2468, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
+21_ENV	Wed 2020-12-02 08:18:37 PM	{"agent.tab":743, "MoF":2468, "media_resource.tab":8138, "occurrence.tab":2468, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 started removing 'salt water' and its descendants:
-21_ENV	Tue 2020-12-08 01:06:33 AM	{"agent.tab":743, "measurement_or_fact_specific.tab":2085, "media_resource.tab":8138, "occurrence_specific.tab":2085, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
-21_ENV	Tue 2020-12-08 01:17:47 AM	{"agent.tab":743, "measurement_or_fact_specific.tab":1986, "media_resource.tab":8138, "occurrence_specific.tab":1986, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
+21_ENV	Tue 2020-12-08 01:06:33 AM	{"agent.tab":743, "MoF":2085, "media_resource.tab":8138, "occurrence.tab":2085, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
+21_ENV	Tue 2020-12-08 01:17:47 AM	{"agent.tab":743, "MoF":1986, "media_resource.tab":8138, "occurrence.tab":1986, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
+=====================================================================================================================
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;

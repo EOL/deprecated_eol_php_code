@@ -196,8 +196,9 @@ class ResourceUtility
             // print_r($rec); exit("\ndebug...\n");
             /**/
             //------------------------------------------------------------------------------
-            $taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID'];
-            $this->taxon_ids[$taxonID] = '';
+            if($taxonID = $rec['http://rs.tdwg.org/dwc/terms/taxonID']) $this->taxon_ids[$taxonID] = '';
+            if($parentNameUsageID = @$rec['http://rs.tdwg.org/dwc/terms/parentNameUsageID']) $this->taxon_ids[$parentNameUsageID] = '';
+            if($acceptedNameUsageID = @$rec['http://rs.tdwg.org/dwc/terms/acceptedNameUsageID']) $this->taxon_ids[$acceptedNameUsageID] = '';
             //------------------------------------------------------------------------------
         }
     }
