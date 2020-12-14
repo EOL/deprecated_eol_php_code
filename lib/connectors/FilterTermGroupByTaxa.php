@@ -29,6 +29,8 @@ class FilterTermGroupByTaxa
         //----------------------------------------------------------------------------------------------
         $this->children_of_TaxaGroup = array();
         $taxonIDs = explode(',', $this->params['taxonIDs']);
+        $taxonIDs = array_map('trim', $taxonIDs);
+        // print_r($taxonIDs); exit;
         $children = self::get_children_of_TaxaGroup($taxonIDs); //e.g. $taxonIDs is insects = Q1390 | spiders = Q1357 | amphibians = Q10908
         foreach($children as $child) $this->children_of_TaxaGroup[$child] = '';
         unset($children);
