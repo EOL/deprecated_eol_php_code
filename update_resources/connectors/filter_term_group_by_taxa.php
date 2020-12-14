@@ -20,6 +20,27 @@ Jenkins:
 php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357"}'
 php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390"}'
 php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q10908"}'
+
+=================================================================================================== Jenkins: a reference, copied from remote Jenkins.
+#step 1
+php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
+#generates 617_ENV.tar.gz
+
+#step 2
+#these 3 is just for stats = generates 3 reports
+#php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1357"}'
+#php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390"}'
+#php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q10908"}'
+
+#main operation is:
+php5.6 filter_term_group_by_taxa.php jenkins '{"source": "617_ENV", "target":"wikipedia_en_traits_FTG", "taxonIDs": "Q1390, Q1357, Q10908"}'
+#generates wikipedia_en_traits_FTG.tar.gz
+
+#step 3: final step
+## Wikipedia EN creates a new DwCA for its traits. Not like 'AmphibiaWeb text'.
+## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
+php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "wikipedia_en_traits_FTG"}'
+#generates wikipedia_en_traits.tar.gz
 */
 
 include_once(dirname(__FILE__) . "/../../config/environment.php");

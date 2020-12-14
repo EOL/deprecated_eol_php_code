@@ -65,7 +65,7 @@ class Pensoft2EOLAPI
         //remove across all textmined resources: cloud, cut
         $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
     }
-    function generate_eol_tags_pensoft($resource)
+    function generate_eol_tags_pensoft($resource, $timestart = '')
     {   ///* customize
         if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text: entire resource was processed.
             $this->descendants_of_saline_water = self::get_descendants_of_habitat_group('saline water'); //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
@@ -123,7 +123,7 @@ class Pensoft2EOLAPI
         if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
         // */
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
-        Functions::finalize_dwca_resource($this->param['resource_id'], false, true);
+        Functions::finalize_dwca_resource($this->param['resource_id'], false, true, $timestart);
         // exit("\nstop muna - used in debugging\n");
 
         /* 4th part */

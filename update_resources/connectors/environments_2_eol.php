@@ -71,8 +71,6 @@ sshpass -f "/home/eagbayani/.pwd_file" scp wikipedia_en_traits.tar.gz eagbayani@
 ## move this file for all connectors:
 sshpass -f "/home/eagbayani/.pwd_file" scp EOL_FreshData_connectors.txt eagbayani@eol-archive:/extra/eol_php_resources/eol_backend2_connectors.txt
 
-
-
 ================================================== Pensoft annotator START ================================================== 
 Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simultaneously.
 
@@ -105,6 +103,9 @@ wikipedia_en_traits	Wed 2020-12-09 08:10:33 AM	{"MoF.tab":169640, "occurrence.ta
 617_ENV	Sun 2020-12-13 09:54:10 PM	                {"MoF":169640, "occurrence.tab":169640, "taxon.tab":412880, "time_elapsed":false}
 wikipedia_en_traits_FTG	Sun 2020-12-13 10:29:36 PM	{"MoF":167647, "occurrence.tab":167647, "taxon.tab":412880, "time_elapsed":{"sec":794.64, "min":13.24, "hr":0.22}}
 wikipedia_en_traits	Sun 2020-12-13 10:31:59 PM	    {"MoF":167647, "occurrence.tab":167647, "taxon.tab":101544, "time_elapsed":false}
+
+wikipedia_en_traits_FTG	Sun 2020-12-13 11:56:49 PM	{"MoF":167647, "occurrence.tab":167647, "taxon.tab":412880, "time_elapsed":{"sec":805.86, "min":13.43, "hr":0.22}}
+wikipedia_en_traits	Sun 2020-12-13 11:59:11 PM	    {"MoF":167647, "occurrence.tab":167647, "taxon.tab":101544, "time_elapsed":false}
 
 =====================================================================================================================
 21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "MoF":2202, "media_resource.tab":8138, "occurrence.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
@@ -143,7 +144,7 @@ if($task == 'generate_eol_tags_pensoft') {
     $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
     require_library('connectors/Pensoft2EOLAPI');
     $func = new Pensoft2EOLAPI($param);
-    $func->generate_eol_tags_pensoft($resource);
+    $func->generate_eol_tags_pensoft($resource, $timestart);
 }
 
 /* OBSOLETE: used using Vangelis tagger
