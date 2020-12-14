@@ -884,8 +884,8 @@ class PaleoDBAPI_v2
     }
     private function get_all_descendants_of_these_parents($parent_ids)
     {
-        echo "\ncount parent_ids = ".count($parent_ids)."\n";
-        echo "\ncount parentID_taxonID = ".count($this->parentID_taxonID)."\n";
+        echo "\ncount parent_ids to process = ".count($parent_ids)."\n";
+        echo "\ncount parentID_taxonID info list = ".count($this->parentID_taxonID)."\n";
         
         $final = array();
         foreach($parent_ids as $parent_id) {
