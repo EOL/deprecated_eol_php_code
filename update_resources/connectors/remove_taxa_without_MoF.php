@@ -29,7 +29,8 @@ else                           $dwca_file = 'http://localhost/eol_php_code/appli
 /* during Vangelis:
 if($resource_id == '617_final') $resource_id = "wikipedia_en_traits";
 */
-if($resource_id == '617_ENV') $resource_id = "wikipedia_en_traits"; //during Pensoft
+    if($resource_id == '617_ENV')                 $resource_id = "wikipedia_en_traits"; //during Pensoft - OLD - OBSOLETE
+elseif($resource_id == 'wikipedia_en_traits_FTG') $resource_id = "wikipedia_en_traits"; //during Pensoft - NEW LATEST
 else exit("\nERROR: resource_id not yet initialized. Will terminate.\n");
 // ----------------------------------------*/
 process_resource_url($dwca_file, $resource_id);
