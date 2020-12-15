@@ -6,7 +6,7 @@ Partner provided a non EOL-compliant XML file for all their species.
 Connector parses this XML and generates the EOL-compliant XML.
 <taxon> and <dataObject> have dc:identifier
 
-See environments_2_eol.php for more details.
+IMPLEMENT: run these 2 scripts: 
 21.php                  -> generates 21.tar.gz (problem with source XML from Amphibiaweb. Probably connector also needs updating.)
 environments_2_eol.php  -> generates 21_ENV.tar.gz  (CURRENT OK - Pensoft Annotator)
                         -> generates at one time 21_final.tar.gz (OBSOLETE - Vangelis tagger)
@@ -31,23 +31,30 @@ $resource_id = $params["resource_id"];
 $func = new ConvertEOLtoDWCaAPI($resource_id);
 
 //we need to export from XML to archive due to bad chars in XML
-$func->export_xml_to_archive($params, true); //true means it is an XML file, and not zip or gzip
+$func->export_xml_to_archive($params, true, 0); //2nd param [true] means it is an XML file, and not zip or gzip. 3rd param is [expire_seconds]
 
 Functions::finalize_dwca_resource($resource_id, false, true, $timestart);
-unlink($params["eol_xml_file"]);
+unlink($params["eol_xml_file"]); //un-comment if you want to delete 21.xml in /resources/
 //end
 
 function start($resource_id)
 {
     $new_resource_path = DOC_ROOT . "temp/".$resource_id.".xml";
-
-    // $file = 'http://localhost/cp/Amphibiaweb/amphib_dump.xml';
-    $file = 'http://amphibiaweb.org/amphib_dump.xml';
-    if(!$new_resource_xml = Functions::lookup_with_cache($file, array('timeout' => 1200, 'download_attempts' => 5, 'expire_seconds' => 60*60*24*25))) //cache expires in 25 days
-    {
-        echo("\n\n Content partner's server is down, connector will now terminate.\n");
-    }else
-    {
+    if(Functions::is_production()) {
+        /* 
+        amphib_dump.xml was from http://amphibiaweb.org/amphib_dump.xml
+        But it wasn't well-formed, it explodes as of Dec 15, 2020.
+        So the version being used by this connector is already manually fixed.
+        And also hosted in eol-archive/other_files/Amphibiaweb/.
+        $file = 'http://amphibiaweb.org/amphib_dump.xml';
+        */
+        $file = 'https://editors.eol.org/other_files/Amphibiaweb/amphib_dump.xml';
+    }
+    else $file = 'http://localhost/cp/Amphibiaweb/amphib_dump.xml';
+    if(!$new_resource_xml = Functions::lookup_with_cache($file, array('timeout' => 1200, 'download_attempts' => 5, 'expire_seconds' => 60*60*24*1))) { //cache expires in 25 days
+        exit("\n\n Content partner's server is down, connector will now terminate.\n");
+    }
+    else {
         // These may look like the same wrong characters - but they are several different wrong characters
         $new_resource_xml = str_replace("", "\"", $new_resource_xml);
         $new_resource_xml = str_replace("", "\"", $new_resource_xml);
@@ -63,8 +70,7 @@ function start($resource_id)
         $total = count($xml->species);
 
         $i=0;
-        foreach(@$xml->species as $species)
-        {
+        foreach(@$xml->species as $species) {
             $i++; if(($i % 1000) == 0) echo "\n $i of $total ";
             
             $amphibID = (int) trim($species->amphib_id);
@@ -106,11 +112,9 @@ function start($resource_id)
             $pageURL = "http://amphibiaweb.org/cgi/amphib_query?where-genus=".$genus."&where-species=".$speciesName."&account=amphibiaweb";
             if(!$submittedBy) continue;
             $agents = array();
-            if($submittedBy)
-            {
+            if($submittedBy) {
                 $parts = preg_split("/(,| and )/",$submittedBy);
-                while(list($key,$val)=each($parts))
-                {
+                while(list($key,$val)=each($parts)) {
                     $val = trim($val);
                     if(!$val) continue;
                     $agentParameters = array();
@@ -130,8 +134,7 @@ function start($resource_id)
             $taxonParameters["family"] = $family;
             $taxonParameters["scientificName"] = $nameString;
 
-            foreach($commonNames as $common_name)
-            {
+            foreach($commonNames as $common_name) {
                 $taxonParameters['commonNames'][] = new \SchemaCommonName(array("name" => $common_name, "language" => "en"));
             }
 
@@ -151,8 +154,7 @@ function start($resource_id)
             if($comments)       $dataObjects[] = get_data_object("Comments", $comments, "http://rs.tdwg.org/ontology/voc/SPMInfoItems#GeneralDescription", $refs, $agents, $pageURL);        
             */
 
-            foreach($dataObjects as $k => $v)
-            {
+            foreach($dataObjects as $k => $v) {
                 $taxonParameters["dataObjects"][] = new \SchemaDataObject($v);
                 unset($v);
             }
@@ -175,9 +177,7 @@ function start($resource_id)
         // echo "elapsed time = " . $elapsed_time_sec/60/60 . " hours \n";
         // echo "\n\n Done processing.";
     }
-    
 }
-
 function fix_article($article)
 {
     $article = str_ireplace(array("\n", "\t", "</p>"), "", $article);
