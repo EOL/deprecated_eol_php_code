@@ -148,7 +148,7 @@ if($task == 'generate_eol_tags_pensoft') {
     $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
     require_library('connectors/Pensoft2EOLAPI');
     $func = new Pensoft2EOLAPI($param);
-    $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*5); //expires in 5 days. Mostly connector refreshes once a month.
+    $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*1); //expires in 1 day. Mostly connector refreshes once a month.
     $func->generate_eol_tags_pensoft($resource, $timestart, $download_options);
 }
 
