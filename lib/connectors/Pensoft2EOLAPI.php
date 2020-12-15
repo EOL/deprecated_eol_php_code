@@ -8,6 +8,10 @@ While an old, close to obsolete version (Environments2EOLAPI.php) is for Vangeli
 Below is just for reference how to access OpenData resource: e.g. Amphibia Web text
 https://opendata.eol.org/api/3/action/resource_search?query=name:AmphibiaWeb%20text
 https://opendata.eol.org/api/3/action/resource_show?id=639efbfb-3b79-49e7-894f-50df4fa25da8
+
+NOTES:
+- Wikipedia EN and AmphibiaWeb textmining path is the same.
+- AntWeb has a path of its own, since its the unique nature of just applying Pensoft Annotator to those un-mapped habitat strings.
 */
 class Pensoft2EOLAPI
 {

@@ -10,6 +10,9 @@ removed descendants of 'aquatic'
 removed 'cut'
 24	Fri 2020-12-11 01:06:04 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":107730, "media_resource.tab":140143, "occurrence_specific.tab":68814, "taxon.tab":16470, "time_elapsed":{"sec":1399.82, "min":23.33, "hr":0.39}}
 24	Tue 2020-12-15 01:52:21 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":107730, "media_resource.tab":140143, "occurrence_specific.tab":68814, "taxon.tab":16470, "time_elapsed":{"sec":1520.83, "min":25.35, "hr":0.42}}
+apply all general filters and remaps and adjustments:
+24	Tue 2020-12-15 07:38:06 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":98829, "media_resource.tab":140143, "occurrence_specific.tab":62766, "taxon.tab":16470, "time_elapsed":{"sec":1539.16, "min":25.65, "hr":0.43}}
+24	Tue 2020-12-15 10:22:28 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":94696, "media_resource.tab":140143, "occurrence_specific.tab":59875, "taxon.tab":16470, "time_elapsed":{"sec":1781.58, "min":29.69, "hr":0.49}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
