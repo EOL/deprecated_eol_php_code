@@ -77,7 +77,7 @@ class Pensoft2EOLAPI
         self::initialize_delete_mRemarks();     //generates $this->delete_MoF_with_these_labels -> used in apply_adjustments()
         self::initialize_delete_uris();         //generates $this->delete_MoF_with_these_uris   -> used in apply_adjustments()
     }
-    function generate_eol_tags_pensoft($resource, $timestart = '')
+    function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   ///* customize
         if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text: entire resource was processed.
             $this->descendants_of_saline_water = self::get_descendants_of_habitat_group('saline water'); //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
@@ -88,7 +88,7 @@ class Pensoft2EOLAPI
         // /* un-comment in real operation
         self::initialize_files();
         // */
-        $info = self::parse_dwca($resource); // print_r($info); exit;
+        $info = self::parse_dwca($resource, $download_options); // print_r($info); exit;
         $tables = $info['harvester']->tables;
         print_r(array_keys($tables)); //exit;
 
@@ -212,7 +212,7 @@ class Pensoft2EOLAPI
         }
         else mkdir($this->json_temp_path['metadata']);
     }
-    private function parse_dwca($resource, $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
+    private function parse_dwca($resource, $download_options)
     {   
         // /* un-comment in real operation
         require_library('connectors/INBioAPI');

@@ -114,6 +114,10 @@ START differentiate Wikipedia EN and other resources when treated by Pensoft. Ex
 started removing 'salt water' and its descendants:
 21_ENV	Tue 2020-12-08 01:06:33 AM	{"agent.tab":743, "MoF":2085, "media_resource.tab":8138, "occurrence.tab":2085, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 21_ENV	Tue 2020-12-08 01:17:47 AM	{"agent.tab":743, "MoF":1986, "media_resource.tab":8138, "occurrence.tab":1986, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
+21_ENV	Tue 2020-12-15 05:25:08 PM	{"agent.tab":743, "MoF":1986, "media_resource.tab":8138, "occurrence.tab":1986, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":{"sec":51.57, "min":0.86, "hr":0.01}}
+XML from partnet refreshed:
+21	Tue 2020-12-15 06:13:56 PM	    {"agent.tab":834, "media_resource.tab":8454, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.55, "min":0.21, "hr":0}}
+
 =====================================================================================================================
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
@@ -144,7 +148,8 @@ if($task == 'generate_eol_tags_pensoft') {
     $param['resource_id'] .= "_ENV"; //e.g. 21_ENV 617_ENV (destination)
     require_library('connectors/Pensoft2EOLAPI');
     $func = new Pensoft2EOLAPI($param);
-    $func->generate_eol_tags_pensoft($resource, $timestart);
+    $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*5); //expires in 5 days. Mostly connector refreshes once a month.
+    $func->generate_eol_tags_pensoft($resource, $timestart, $download_options);
 }
 
 /* OBSOLETE: used using Vangelis tagger
