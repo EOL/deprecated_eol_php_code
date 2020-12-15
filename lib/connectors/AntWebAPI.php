@@ -773,8 +773,21 @@ class AntWebAPI
                 [http://purl.obolibrary.org/obo/ENVO_01000204] => tropical
             )
             */
-            $arr = array_keys($arr);
-            
+            //======================================================================================
+            $arr2 = array();
+            // /* copied template from Pensoft2EOLAPI.php
+            foreach($arr as $uri => $label) {
+                if($ret = self::apply_adjustments($uri, $label)) {
+                    $uri = $ret['uri'];
+                    $label = $ret['label'];
+                    $arr2[$uri] = $label;
+                }
+                else continue;
+            }
+            // */
+            //======================================================================================
+            if($arr2) $arr = array_keys($arr2);
+            else return array();
             // /* customize ----------
             //per Jen: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65408&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65408
             $arr = array_diff($arr, $this->remove_across_all_resources); // remove 'cloud', 'cut'
@@ -786,7 +799,7 @@ class AntWebAPI
                 }
             }
             // ---------- */
-            
+            //======================================================================================
             return $final;
         }
         // else echo " - nothing from Pensoft";

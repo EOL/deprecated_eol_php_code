@@ -81,10 +81,10 @@ class Pensoft2EOLAPI
         print_r(array_keys($tables)); //exit;
 
         // /* this is used to apply all the remaps, deletions, adjustments:
-        self::init_DATA_1841_terms_remapped();
-        self::initialize_mRemark_assignments();
-        self::initialize_delete_mRemarks();
-        self::initialize_delete_uris();
+        self::init_DATA_1841_terms_remapped();  //generates $this->remapped_terms               -> used in apply_adjustments()
+        self::initialize_mRemark_assignments(); //generates $this->mRemarks                     -> used in apply_adjustments()
+        self::initialize_delete_mRemarks();     //generates $this->delete_MoF_with_these_labels -> used in apply_adjustments()
+        self::initialize_delete_uris();         //generates $this->delete_MoF_with_these_uris   -> used in apply_adjustments()
         // */
 
         // /* un-comment in real operation
