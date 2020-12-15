@@ -64,6 +64,7 @@ class Pensoft2EOLAPI
         $this->descendants_habitat_group['aquatic']    = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/AmphibiaWeb/descendants_of_aquatic.csv';
         //remove across all textmined resources: cloud, cut
         $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
+        $this->another_set_exclude_URIs = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_implying_missing_filter.txt';
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -948,6 +949,14 @@ class Pensoft2EOLAPI
         'http://purl.obolibrary.org/obo/ENVO_00005803', 'http://purl.obolibrary.org/obo/ENVO_00002874', 'http://purl.obolibrary.org/obo/ENVO_00002046', 'http://purl.obolibrary.org/obo/ENVO_00000077');
         foreach($uris as $uri)                              $this->delete_MoF_with_these_uris[$uri] = '';
         foreach($this->remove_across_all_resources as $uri) $this->delete_MoF_with_these_uris[$uri] = ''; //remove cloud, cut for all resources
+
+        // /* another set of excluded URIs. From Jen (AntWeb): https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65443&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65443
+        $str = file_get_contents($this->another_set_exclude_URIs);
+        $arr = explode("\n", $str);
+        $arr = array_map('trim', $arr);
+        // print_r($arr); exit("\n".count($arr)."\n");
+        foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
+        // */
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359
