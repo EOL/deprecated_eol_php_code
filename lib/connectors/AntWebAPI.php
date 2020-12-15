@@ -37,7 +37,14 @@ class AntWebAPI
         $param['resource_id'] = 24; //AntWeb resource ID
         require_library('connectors/Pensoft2EOLAPI');
         $this->pensoft = new Pensoft2EOLAPI($param);
-        
+        $this->pensoft->initialize_remaps_deletions_adjustments();
+        /* to test if these 4 variables are populated.
+        echo("\n".count($this->pensoft->remapped_terms)."\n");
+        echo("\n".count($this->pensoft->mRemarks)."\n");
+        echo("\n".count($this->pensoft->delete_MoF_with_these_labels)."\n");
+        echo("\n".count($this->pensoft->delete_MoF_with_these_uris)."\n");
+        exit;
+        */
         $this->descendants_of_aquatic = $this->pensoft->get_descendants_of_habitat_group('aquatic'); //Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65426&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65426
         // print_r($this->descendants_of_aquatic); exit;("\n");
         // */
@@ -777,7 +784,7 @@ class AntWebAPI
             $arr2 = array();
             // /* copied template from Pensoft2EOLAPI.php
             foreach($arr as $uri => $label) {
-                if($ret = self::apply_adjustments($uri, $label)) {
+                if($ret = $this->pensoft->apply_adjustments($uri, $label)) {
                     $uri = $ret['uri'];
                     $label = $ret['label'];
                     $arr2[$uri] = $label;

@@ -65,6 +65,13 @@ class Pensoft2EOLAPI
         //remove across all textmined resources: cloud, cut
         $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
     }
+    public function initialize_remaps_deletions_adjustments()
+    {
+        self::init_DATA_1841_terms_remapped();  //generates $this->remapped_terms               -> used in apply_adjustments()
+        self::initialize_mRemark_assignments(); //generates $this->mRemarks                     -> used in apply_adjustments()
+        self::initialize_delete_mRemarks();     //generates $this->delete_MoF_with_these_labels -> used in apply_adjustments()
+        self::initialize_delete_uris();         //generates $this->delete_MoF_with_these_uris   -> used in apply_adjustments()
+    }
     function generate_eol_tags_pensoft($resource, $timestart = '')
     {   ///* customize
         if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text: entire resource was processed.
@@ -81,10 +88,7 @@ class Pensoft2EOLAPI
         print_r(array_keys($tables)); //exit;
 
         // /* this is used to apply all the remaps, deletions, adjustments:
-        self::init_DATA_1841_terms_remapped();  //generates $this->remapped_terms               -> used in apply_adjustments()
-        self::initialize_mRemark_assignments(); //generates $this->mRemarks                     -> used in apply_adjustments()
-        self::initialize_delete_mRemarks();     //generates $this->delete_MoF_with_these_labels -> used in apply_adjustments()
-        self::initialize_delete_uris();         //generates $this->delete_MoF_with_these_uris   -> used in apply_adjustments()
+        self::initialize_remaps_deletions_adjustments();
         // */
 
         // /* un-comment in real operation
@@ -666,7 +670,7 @@ class Pensoft2EOLAPI
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv.old"); echo "\n eol_tags_noParentTerms.tsv.old ($out)\n";
         $out = shell_exec("wc -l " . $this->eol_tags_path."eol_tags_noParentTerms.tsv");     echo "\n eol_tags_noParentTerms.tsv ($out)\n";
     }
-    private function apply_adjustments($uri, $label) //apply it here: ALL_remap_replace_remove.txt
+    public function apply_adjustments($uri, $label) //apply it here: ALL_remap_replace_remove.txt
     {
         if(in_array($uri, array("http://purl.obolibrary.org/obo/ENVO_00000029", "http://purl.obolibrary.org/obo/ENVO_00000104")) && $label == 'ravine') $uri = "http://purl.obolibrary.org/obo/ENVO_00000100";
         if($new_uri = @$this->mRemarks[$label]) $uri = $new_uri;
