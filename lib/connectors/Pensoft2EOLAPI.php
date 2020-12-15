@@ -954,13 +954,14 @@ class Pensoft2EOLAPI
         foreach($uris as $uri)                              $this->delete_MoF_with_these_uris[$uri] = '';
         foreach($this->remove_across_all_resources as $uri) $this->delete_MoF_with_these_uris[$uri] = ''; //remove cloud, cut for all resources
 
-        // /* another set of excluded URIs. From Jen (AntWeb): https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65443&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65443
+        // commented so far: https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65447&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65447
+        /* another set of excluded URIs. From Jen (AntWeb): https://eol-jira.bibalex.org/browse/DATA-1713?focusedCommentId=65443&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65443
         $str = file_get_contents($this->another_set_exclude_URIs);
         $arr = explode("\n", $str);
         $arr = array_map('trim', $arr);
         // print_r($arr); exit("\n".count($arr)."\n");
         foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
-        // */
+        */
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359
