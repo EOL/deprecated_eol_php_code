@@ -16,6 +16,8 @@ added new list of excluded URIs
 24	Tue 2020-12-15 10:22:28 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":94696, "media_resource.tab":140143, "occurrence_specific.tab":59875, "taxon.tab":16470, "time_elapsed":{"sec":1781.58, "min":29.69, "hr":0.49}}
 revert back by Jen, no more new list of excluded URIs
 24	Tue 2020-12-15 05:50:51 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":98829, "media_resource.tab":140143, "occurrence_specific.tab":62766, "taxon.tab":16470, "time_elapsed":{"sec":1571.16, "min":26.19, "hr":0.44}}
+with Biology
+24	Wed 2020-12-16 05:48:39 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":100516, "media_resource.tab":140143, "occurrence_specific.tab":64025, "taxon.tab":16470, "time_elapsed":{"sec":2675.91, "min":44.6, "hr":0.74}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
