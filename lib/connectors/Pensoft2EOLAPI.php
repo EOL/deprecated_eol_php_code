@@ -76,6 +76,13 @@ class Pensoft2EOLAPI
         self::initialize_mRemark_assignments(); //generates $this->mRemarks                     -> used in apply_adjustments()
         self::initialize_delete_mRemarks();     //generates $this->delete_MoF_with_these_labels -> used in apply_adjustments()
         self::initialize_delete_uris();         //generates $this->delete_MoF_with_these_uris   -> used in apply_adjustments()
+        /* to test if these 4 variables are populated.
+        echo("\n".count($this->remapped_terms)."\n");
+        echo("\n".count($this->mRemarks)."\n");
+        echo("\n".count($this->delete_MoF_with_these_labels)."\n");
+        echo("\n".count($this->delete_MoF_with_these_uris)."\n");
+        exit("\nditox eli\n");
+        */
     }
     function generate_eol_tags_pensoft($resource, $timestart = '', $download_options = array('timeout' => 172800, 'expire_seconds' => 60*60*24*30))
     {   ///* customize
@@ -699,7 +706,7 @@ class Pensoft2EOLAPI
         /* START DATA-1841 terms remapping */
         $url = "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv";
         $func = new TropicosArchiveAPI(NULL); //to initialize variable $this->uri_values in TropicosArchiveAPI
-        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60); //*this is not add_additional_mappings() 60*60*24
+        $this->remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24); //*this is not add_additional_mappings() 60*60*24
         echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
         /* END DATA-1841 terms remapping */
     }

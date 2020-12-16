@@ -687,6 +687,26 @@ class AntWebAPI
         $save['source'] = $rek['source_url'];
         $save['bibliographicCitation'] = $this->bibliographicCitation;
         // echo "\nLocal: ".count($this->func->remapped_terms)."\n"; exit("\n111\n"); //just testing
+
+        // /* biology section
+        if($biology = @$rek['Biology']) {
+            if($biology_uris = self::use_pensoft_annotator_to_get_envo_uri($biology)) { $mType = 'http://purl.obolibrary.org/obo/RO_0002303';
+                // print_r($biology_uris); exit;
+                /*Array(
+                    [canopy] => http://purl.obolibrary.org/obo/ENVO_01001240
+                    [pasture] => http://purl.obolibrary.org/obo/ENVO_00000266
+                    [clay] => http://purl.obolibrary.org/obo/ENVO_00002982
+                )*/
+                foreach($biology_uris as $label => $mValue) {
+                    if(!$mValue) continue;
+                    $save['measurementRemarks'] = "$label"; //$biology; //too big as a remark
+                    $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
+                    $this->func->add_string_types($save, $mValue, $mType, "true");
+                }
+            }
+            // else $this->debug['Biology, Pensoft classified as no URI'][$biology] = ''; //commented so that build text will not be too long.
+        }
+        // */
         
         if($loop = @$rek['country_habitat']) {
             foreach($loop as $t) {
@@ -736,7 +756,7 @@ class AntWebAPI
                             }
                             else {
                                 if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
-                                    $this->debug['habitats recognized by Pensoft'][$habitat] = '';
+                                    // $this->debug['habitats recognized by Pensoft'][$habitat] = '';
                                     foreach($habitat_uris as $mValue) {
                                         if(!$mValue) continue;
                                         $save['measurementRemarks'] = $habitat;
@@ -744,12 +764,12 @@ class AntWebAPI
                                         $this->func->add_string_types($save, $mValue, $mType, "true");
                                     }
                                 }
-                                else $this->debug['habitat classified as no URI'][$habitat] = ''; //commented so that build text will not be too long.
+                                // else $this->debug['habitat classified as no URI'][$habitat] = ''; //commented so that build text will not be too long.
                             }
                         }
                         else {
                             if($habitat_uris = self::use_pensoft_annotator_to_get_envo_uri($habitat)) {
-                                $this->debug['habitats recognized by Pensoft'][$habitat] = '';
+                                // $this->debug['habitats recognized by Pensoft'][$habitat] = '';
                                 foreach($habitat_uris as $mValue) {
                                     if(!$mValue) continue;
                                     $save['measurementRemarks'] = $habitat;
@@ -757,7 +777,7 @@ class AntWebAPI
                                     $this->func->add_string_types($save, $mValue, $mType, "true");
                                 }
                             }
-                            else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
+                            // else $this->debug['undefined habitat'][$habitat] = ''; //commented so that build text will not be too long.
                         }
                     }
                     // */
@@ -802,7 +822,10 @@ class AntWebAPI
             if($arr) {
                 foreach($arr as $uri) {
                     if(isset($this->descendants_of_aquatic[$uri])) {}
-                    else $final[] = $uri;
+                    else {
+                        $label = $arr2[$uri];
+                        $final[$label] = $uri;
+                    }
                 }
             }
             // ---------- */
