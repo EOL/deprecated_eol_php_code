@@ -108,8 +108,12 @@ cotr_meta_recoded	Tue 2020-12-01 10:00:30 PM	{"MoF":52298, "occurrence.tab":3347
 727	                Tue 2020-12-01 10:23:40 PM	{"agent.tab":1, "MoF":581779, "media_resource.tab":5, "occurrence_specific.tab":636469, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":false}
 727_meta_recoded	Tue 2020-12-01 10:32:27 PM	{"agent.tab":1, "MoF":581779, "media_resource.tab":5, "occurrence_specific.tab":636469, "reference.tab":2, "taxon.tab":35605, "vernacular_name.tab":305965, "time_elapsed":{"sec":526.2, "min":8.77, "hr":0.15}}
 
-26_meta_recoded_1	Wed 2020-11-11 08:13:07 AM	{"agent.tab":1682, "MoF.tab":3180852, "media":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":3044.71, "min":50.75, "hr":0.85}}
-26_meta_recoded	    Wed 2020-11-11 09:00:11 AM	{"agent.tab":1682, "MoF.tab":2535563, "media":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":2824, "min":47.07, "hr":0.78}}
+26_meta_recoded_1	Wed 2020-11-11 08:13:07 AM	{"agent.tab":1682, "MoF.tab":3180852, "media.tab":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":3044.71, "min":50.75, "hr":0.85}}
+26_meta_recoded	    Wed 2020-11-11 09:00:11 AM	{"agent.tab":1682, "MoF.tab":2535563, "media.tab":91653, "occurrence.tab":2157834, "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":{"sec":2824, "min":47.07, "hr":0.78}}
+
+26	                Fri 2020-12-11 03:09:55 AM	{"agent.tab":1690, "MoF.tab":3334428, "media.tab":91778, "occurrence.tab":2167107, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":false}
+26_meta_recoded_1	Fri 2020-12-11 04:02:47 AM	{"agent.tab":1690, "MoF.tab":3190221, "media.tab":91778, "occurrence.tab":2167107, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":3082.64, "min":51.38, "hr":0.86}}
+26_meta_recoded	    Fri 2020-12-11 04:49:31 AM	{"agent.tab":1690, "MoF.tab":2544844, "media.tab":91778, "occurrence.tab":2167107, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2803.96, "min":46.73, "hr":0.78}}
 
 707	            Tuesday 2020-01-28 08:46:58 AM	{"MoF.tab":4078, "occurrence_specific.tab":632, "taxon.tab":632, "time_elapsed":{"sec":34.47,"min":0.57,"hr":0.01}}
 707_meta_recoded	Wed 2020-11-11 08:09:23 AM	{"MoF.tab":4078, "occurrence_specific.tab":632, "taxon.tab":632, "time_elapsed":{"sec":16.94, "min":0.28, "hr":0}}
