@@ -639,10 +639,13 @@ class Functions
                 }
             }
         }
-        foreach(array_keys($uris) as $uri) {
-            if(!isset($defined_uris[$uri])) $undefined_uris[$uri] = '';
+        if($defined_uris) {
+            foreach(array_keys($uris) as $uri) {
+                if(!isset($defined_uris[$uri])) $undefined_uris[$uri] = '';
+            }
+            return $undefined_uris;
         }
-        return $undefined_uris;
+        else return array("beta-repo.eol.org" => "is down");
     }
     public static function get_eol_defined_uris_v2($download_options = false, $directionOpposite = false)
     {
