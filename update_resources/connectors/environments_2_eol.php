@@ -76,7 +76,7 @@ Implementation: Jenkins - Pensoft: we can run 3 connectors in eol-archive simult
 
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"AmphibiaWeb text", "resource_id":"21", "subjects":"Distribution"}'
 -> generates 21_ENV.tar.gz
-
+--------------------------------------------------------------------------------------------------------------------
 php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Description"}'
 // php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"Distribution"}'
 // php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"wikipedia English", "resource_id":"617", "subjects":"TaxonBiology"}'
@@ -89,6 +89,10 @@ php5.6 environments_2_eol.php jenkins '{"task": "generate_eol_tags_pensoft", "re
 ## Thus there is a new line for Wikipedia EN: it removes taxa without MoF
 php5.6 remove_taxa_without_MoF.php jenkins '{"resource_id": "617_ENV"}'
 #generates wikipedia_en_traits.tar.gz
+--------------------------------------------------------------------------------------------------------------------
+php update_resources/connectors/environments_2_eol.php _ '{"task": "generate_eol_tags_pensoft", "resource":"World Register of Marine Species", "resource_id":"26", "subjects":"Habitat"}'
+
+--------------------------------------------------------------------------------------------------------------------
 ================================================== Pensoft annotator END ================================================== Wikipedia English
 Started using Pensoft:
 617_ENV	            Thu 2020-11-05 07:49:33 AM	{"MoF.tab":176794, "occurrence.tab":176794, "taxon.tab":411865, "time_elapsed":false}

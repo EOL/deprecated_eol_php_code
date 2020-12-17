@@ -26,6 +26,8 @@ class Pensoft2EOLAPI
         $this->subjects['Distribution'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Distribution';
         $this->subjects['Description'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description';
         $this->subjects['TaxonBiology'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology';
+        $this->subjects['Habitat'] = 'http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat';
+        
         /* Wikipedia EN
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#Description:  389994
         http://rs.tdwg.org/ontology/voc/SPMInfoItems#TaxonBiology: 382437
@@ -70,6 +72,7 @@ class Pensoft2EOLAPI
         $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
         $this->another_set_exclude_URIs = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_implying_missing_filter.txt';
         $this->another_set_exclude_URIs_02 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_to_remove.txt';
+        $this->pensoft_run_cnt = 0;
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -148,6 +151,7 @@ class Pensoft2EOLAPI
             recursive_rmdir($this->json_temp_path['metadata']);
             mkdir($this->json_temp_path['metadata']);
         }
+        echo "\nHow many times Pensoft Annotator is run: [$this->pensoft_run_cnt]\n";
     }
     private function generate_difference_report()
     {
@@ -229,8 +233,8 @@ class Pensoft2EOLAPI
         print_r($paths); //exit("\n-exit muna-\n");
         // */
         /* development only
-        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_04626/",
-                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_04626/");
+        $paths = Array("archive_path" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_15833/",
+                       "temp_dir" => "/Volumes/AKiTiO4/eol_php_code_tmp/dir_15833/");
         */
         $archive_path = $paths['archive_path'];
         $temp_dir = $paths['temp_dir'];
@@ -271,7 +275,26 @@ class Pensoft2EOLAPI
             else continue; 
             */
             
+            // print_r($this->allowed_subjects); exit;
             if(self::valid_record($rec)) {
+                /*Array( e.g. WoRMS
+                    [http://purl.org/dc/terms/identifier] => WoRMS:note:103872
+                    [http://rs.tdwg.org/dwc/terms/taxonID] => 257053
+                    [http://purl.org/dc/terms/type] => http://purl.org/dc/dcmitype/Text
+                    [http://rs.tdwg.org/audubon_core/subtype] => 
+                    [http://purl.org/dc/terms/format] => text/html
+                    [http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm] => http://rs.tdwg.org/ontology/voc/SPMInfoItems#Habitat
+                    [http://purl.org/dc/terms/title] => habitat
+                    [http://purl.org/dc/terms/description] => intertidal to shallow infratidal
+                )*/
+                
+                // /* customized
+                if($this->param['resource_id'] == '26_ENV') {
+                    if($rec['http://purl.org/dc/terms/title'] != 'habitat') continue;
+                }
+                // */
+                // print_r($rec); exit("\n[2]\n");
+                
                 $this->debug['subjects'][$rec['http://iptc.org/std/Iptc4xmpExt/1.0/xmlns/CVterm']] = '';
                 // $this->debug['titles'][$rec['http://purl.org/dc/terms/title']] = ''; //debug only
                 $saved++;
@@ -281,6 +304,7 @@ class Pensoft2EOLAPI
                 // exit("\nstop muna\n");
             }
             // if($i >= 10) break; //debug only
+            // if($saved >= 20) break; //debug only
         }
     }
     private function save_article_2_txtfile($rec)
@@ -421,7 +445,8 @@ class Pensoft2EOLAPI
         }
     }
     private function run_partial($desc)
-    {   // echo "\nRunning Pensoft annotator...";
+    {   //echo "\nRunning Pensoft annotator...";
+        $this->pensoft_run_cnt++;
         $cmd = 'curl -s GET "http://api.pensoft.net/annotator?text='.urlencode($desc).'&ontologies=envo"';
         $cmd .= " 2>&1";
         $json = shell_exec($cmd);
@@ -621,6 +646,16 @@ class Pensoft2EOLAPI
             [subjects] => Distribution
         )*/
         $resource_name = $this->param['resource'];
+        
+        // /* customized
+        // exit("\n".$this->param['resource_id']."\n");
+        if($this->param['resource_id'] == '26_ENV') {
+            $this->DwCA_URLs[$resource_name] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/26_meta_recoded.tar.gz'; //bec. record is private in OpenData.eol.org
+            print_r($this->DwCA_URLs);
+            return;
+        }
+        // */
+        
         if($dwca_url = self::get_opendata_dwca_url($resource_name)) {
             /* based here:
             $this->DwCA_URLs['AmphibiaWeb text'] = 'https://editors.eol.org/eol_php_code/applications/content_server/resources/21.tar.gz';
