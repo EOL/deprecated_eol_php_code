@@ -694,7 +694,7 @@ class Pensoft2EOLAPI
         // /* customize
         if($this->param['resource_id'] == '21_ENV') { //AmphibiaWeb text
             if($uri == 'http://purl.obolibrary.org/obo/ENVO_00002010') return false; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
-            if(isset($this->descendants_of_saline_water[$uri])) return false;
+            if(isset($this->descendants_of_saline_water[$uri]))        return false; //saline water. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65409&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65409
         }
         if(in_array($uri, $this->remove_across_all_resources)) return false; //remove 'cloud', 'cut' for all resources
         // */
