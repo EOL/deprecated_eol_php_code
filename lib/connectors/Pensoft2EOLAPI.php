@@ -69,6 +69,7 @@ class Pensoft2EOLAPI
         //remove across all textmined resources: cloud, cut
         $this->remove_across_all_resources = array('http://purl.obolibrary.org/obo/ENVO_01000760', 'http://purl.obolibrary.org/obo/ENVO_00000474');
         $this->another_set_exclude_URIs = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_implying_missing_filter.txt';
+        $this->another_set_exclude_URIs_02 = 'https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Pensoft_Annotator/terms_to_remove.txt';
     }
     public function initialize_remaps_deletions_adjustments()
     {
@@ -969,6 +970,17 @@ class Pensoft2EOLAPI
         // print_r($arr); exit("\n".count($arr)."\n");
         foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
         */
+        
+        // /* Jen: "I've found a bunch more measurementValue terms we should ALWAYS remove." : https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65451&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65451
+        $str = file_get_contents($this->another_set_exclude_URIs_02);
+        $arr = explode("\n", $str);
+        $arr = array_map('trim', $arr);
+        $arr = array_filter($arr); //remove null arrays
+        $arr = array_unique($arr); //make unique
+        $arr = array_values($arr); //reindex key
+        // print_r($arr); exit("\n".count($arr)."\n");
+        foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
+        // */
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359

@@ -699,7 +699,7 @@ class AntWebAPI
                 )*/
                 foreach($biology_uris as $label => $mValue) {
                     if(!$mValue) continue;
-                    $save['measurementRemarks'] = "$label"; //$biology; //too big as a remark
+                    $save['measurementRemarks'] = ""; //No need to put measurementRemarks coming from Biology. Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65452&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65452
                     $save["catnum"] = $taxonID.'_'.$mType.$mValue; //making it unique. no standard way of doing it.
                     $this->func->add_string_types($save, $mValue, $mType, "true");
                 }
