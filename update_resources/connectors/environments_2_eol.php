@@ -107,6 +107,11 @@ wikipedia_en_traits	Sun 2020-12-13 10:31:59 PM	    {"MoF":167647, "occurrence.ta
 wikipedia_en_traits_FTG	Sun 2020-12-13 11:56:49 PM	{"MoF":167647, "occurrence.tab":167647, "taxon.tab":412880, "time_elapsed":{"sec":805.86, "min":13.43, "hr":0.22}}
 wikipedia_en_traits	Sun 2020-12-13 11:59:11 PM	    {"MoF":167647, "occurrence.tab":167647, "taxon.tab":101544, "time_elapsed":false}
 
+- with latest monthly Wikipedia EN refresh (Dec 2020)
+- with the new "terms_to_remove" list
+617_ENV	Thu 2020-12-17 04:47:46 AM	                {"MoF.tab":171067, "occurrence.tab":171067, "taxon.tab":412880, "time_elapsed":{"sec":3160.23, "min":52.67, "hr":0.88}}
+wikipedia_en_traits_FTG	Thu 2020-12-17 05:00:26 AM	{"MoF.tab":169039, "occurrence.tab":169039, "taxon.tab":412880, "time_elapsed":{"sec":751.7, "min":12.53, "hr":0.21}}
+wikipedia_en_traits	Thu 2020-12-17 05:02:54 AM	    {"MoF.tab":169039, "occurrence.tab":169039, "taxon.tab":102305, "time_elapsed":false}
 ===================================================================================================================== AmphibiaWeb
 21_ENV	Wed 2020-12-02 07:01:55 PM	{"agent.tab":743, "MoF":2202, "media_resource.tab":8138, "occurrence.tab":2202, "reference.tab":5353, "taxon.tab":2283, "vernacular_name.tab":2090, "time_elapsed":false}
 START differentiate Wikipedia EN and other resources when treated by Pensoft. Expected increase in MoF
@@ -118,6 +123,9 @@ started removing 'salt water' and its descendants:
 XML from partnet refreshed:
 21	Tue 2020-12-15 06:35:57 PM	    {"agent.tab":834,             "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.54, "min":0.21, "hr":0}}
 21_ENV	Tue 2020-12-15 06:38:14 PM	{"agent.tab":834, "MoF":2097, "media_resource.tab":8454, "occurrence.tab":2097, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":136.82, "min":2.28, "hr":0.04}}
+with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb is not affected.)
+21	Thu 2020-12-17 03:47:05 AM	    {"agent.tab":834,             "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.57, "min":0.21, "hr":0}}
+21_ENV	Thu 2020-12-17 03:48:10 AM	{"agent.tab":834, "MoF":2097, "media_resource.tab":8454, "occurrence.tab":2097, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":64.89, "min":1.08, "hr":0.02}}
 =====================================================================================================================
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");

@@ -18,6 +18,8 @@ revert back by Jen, no more new list of excluded URIs
 24	Tue 2020-12-15 05:50:51 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":98829, "media_resource.tab":140143, "occurrence_specific.tab":62766, "taxon.tab":16470, "time_elapsed":{"sec":1571.16, "min":26.19, "hr":0.44}}
 with Biology
 24	Wed 2020-12-16 05:48:39 AM	{"agent.tab":173, "measurement_or_fact_specific.tab":100516, "media_resource.tab":140143, "occurrence_specific.tab":64025, "taxon.tab":16470, "time_elapsed":{"sec":2675.91, "min":44.6, "hr":0.74}}
+with the new "terms_to_remove" list
+24	Wed 2020-12-16 09:45:03 PM	{"agent.tab":173, "measurement_or_fact_specific.tab":96172, "media_resource.tab":140143, "occurrence_specific.tab":60821, "taxon.tab":16470, "time_elapsed":{"sec":1933.25, "min":32.22, "hr":0.54}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 
