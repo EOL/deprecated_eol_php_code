@@ -30,7 +30,7 @@ class Environments2EOLfinal
         $this->json_temp_path       = $this->root_path.'temp_json/';
         echo "\nEnvironments2EOLfinal resource_id: [$this->resource_id]\n";
         if($this->resource_id == '617_ENV') $this->modulo = 50000; //Wikipedia EN
-        else                                $this->modulo = 1000;
+        else                                $this->modulo = 2000;
     }
     /*================================================================= STARTS HERE ======================================================================*/
     function start($info)
@@ -42,6 +42,13 @@ class Environments2EOLfinal
         END DATA-1841 terms remapping
         self::initialize_mapping(); //for location string mappings
         */
+        // /* customize
+        if($this->resource_id == '26_ENV') { //this will just populate MoF. Too big in memory to do in DwCA_Utility.php.
+            $tables = $info['harvester']->tables;
+            $meta = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
+            self::process_table($meta, 'create extension', 'measurementorfact')
+        }
+        // */
         self::add_environmental_traits();
         /* Below will be used if there are adjustments to existing MoF and Occurrences
         $tables = $info['harvester']->tables;
@@ -175,5 +182,40 @@ class Environments2EOLfinal
     private function process_occurrence($meta)
     {}
     */
+    private function process_table($meta, $what, $class) //a generic method to populate an extension.
+    {   //print_r($meta);
+        echo "\nprocess_table [$what]\n";
+        $i = 0;
+        foreach(new FileIterator($meta->file_uri) as $line => $row) {
+            $i++; if(($i % 100000) == 0) echo "\n".number_format($i);
+            if($meta->ignore_header_lines && $i == 1) continue;
+            if(!$row) continue;
+            $row = Functions::conv_to_utf8($row); //possibly to fix special chars
+            $tmp = explode("\t", $row);
+            $rec = array(); $k = 0;
+            foreach($meta->fields as $field) {
+                if(!$field['term']) continue;
+                $rec[$field['term']] = $tmp[$k];
+                $k++;
+            }
+            // print_r($rec); exit;
+            /**/
+            if($what == 'create extension') {
+                if    ($class == "vernacular")          $o = new \eol_schema\VernacularName();
+                elseif($class == "agent")               $o = new \eol_schema\Agent();
+                elseif($class == "reference")           $o = new \eol_schema\Reference();
+                elseif($class == "taxon")               $o = new \eol_schema\Taxon();
+                elseif($class == "document")            $o = new \eol_schema\MediaResource();
+                elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
+                elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
+                $uris = array_keys($rec);
+                foreach($uris as $uri) {
+                    $field = pathinfo($uri, PATHINFO_BASENAME);
+                    $o->$field = $rec[$uri];
+                }
+                $this->archive_builder->write_object_to_file($o);
+            }
+        }
+    }
 }
 ?>

@@ -267,11 +267,13 @@ class DwCA_Utility
             $func = new Environments2EOLfinal($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        /*
         if(in_array($this->resource_id, array('21_ENVO', '617_ENVO'))) { exit("\nOBSOLETE: Vangelis path\n");
             require_library('connectors/EnvironmentsFilters');
             $func = new EnvironmentsFilters($this->archive_builder, $this->resource_id);
             $func->start($info);
         }
+        */
         if(in_array($this->resource_id, array('708', '21_final', '617_final'))) {
             require_library('connectors/New_EnvironmentsEOLDataConnector');
             $func = new New_EnvironmentsEOLDataConnector($this->archive_builder, $this->resource_id);
