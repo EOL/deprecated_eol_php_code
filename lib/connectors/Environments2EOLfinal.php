@@ -47,7 +47,7 @@ class Environments2EOLfinal
         if($this->resource_id == '26_ENV') { //this will just populate MoF. Too big in memory to do in DwCA_Utility.php.
             $tables = $info['harvester']->tables;
             $meta = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
-            self::process_table($meta, 'create extension', 'measurementorfact')
+            self::process_table($meta, 'create extension', 'measurementorfact');
         }
         // */
         self::add_environmental_traits();
