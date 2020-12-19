@@ -43,6 +43,7 @@ class Environments2EOLfinal
         self::initialize_mapping(); //for location string mappings
         */
         // /* customize
+        echo "\n resource_id is [$this->resource_id]\n";
         if($this->resource_id == '26_ENV') { //this will just populate MoF. Too big in memory to do in DwCA_Utility.php.
             $tables = $info['harvester']->tables;
             $meta = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
@@ -183,7 +184,7 @@ class Environments2EOLfinal
     {}
     */
     private function process_table($meta, $what, $class) //a generic method to populate an extension.
-    {   //print_r($meta);
+    {   print_r($meta);
         echo "\nprocess_table [$what]\n";
         $i = 0;
         foreach(new FileIterator($meta->file_uri) as $line => $row) {
