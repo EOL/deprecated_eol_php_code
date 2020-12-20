@@ -131,6 +131,20 @@ with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb is not affected.
 21	Thu 2020-12-17 03:47:05 AM	    {"agent.tab":834,             "media_resource.tab":8454,                        "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":12.57, "min":0.21, "hr":0}}
 21_ENV	Thu 2020-12-17 03:48:10 AM	{"agent.tab":834, "MoF":2097, "media_resource.tab":8454, "occurrence.tab":2097, "reference.tab":5799, "taxon.tab":2346, "vernacular_name.tab":2321, "time_elapsed":{"sec":64.89, "min":1.08, "hr":0.02}}
 =====================================================================================================================
+
+26	Tue 2020-11-10 01:54:23 AM	     "agent.tab":1682, "measurement_or_fact.tab":3325053,       "media_resource.tab":91653, "occurrence_specific.tab":2157834, 
+        "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":false}
+
+26_meta_recoded	Fri 2020-12-11 04:49:31 AM	{"agent.tab":1690, "measurement_or_fact_specific.tab":2544844,  "media_resource.tab":91778, 
+                                                                    "occurrence_specific.tab":2167107, 
+        "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2803.96, "min":46.73, "hr":0.78}}
+
+26_ENV	Sat 2020-12-19 10:25:10 AM	{"agent.tab":1690, "measurement_or_fact.tab":2544844, 
+                                                       "measurement_or_fact_specific.tab":6,                "media_resource.tab":91778, 
+                                                                    "occurrence.tab":2167107, 
+                                                                    "occurrence_specific.tab":6, 
+        "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2766.97, "min":46.12, "hr":0.77}}
+
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;

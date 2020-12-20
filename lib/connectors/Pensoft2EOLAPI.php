@@ -60,7 +60,8 @@ class Pensoft2EOLAPI
         
         /*-----------------------Others---------------------*/
         $this->num_of_saved_recs_bef_run_tagger = 1000; //1000 orig;
-        if($val = @$param['subjects']) $this->allowed_subjects = self::get_allowed_subjects($val); // print_r($this->allowed_subjects); exit;
+        if($val = @$param['subjects']) $this->allowed_subjects = self::get_allowed_subjects($val);
+        echo "\n allowed_subjects: "; print_r($this->allowed_subjects);
         
         $this->download_options = array('expire_seconds' => 60*60*24, 'download_wait_time' => 1000000, 'timeout' => 10800, 'download_attempts' => 1, 'delay_in_minutes' => 0.5);
         $this->call['opendata resource via name'] = "https://opendata.eol.org/api/3/action/resource_search?query=name:RESOURCE_NAME";
@@ -290,8 +291,12 @@ class Pensoft2EOLAPI
                 )*/
                 
                 // /* customized
-                if($this->param['resource_id'] == '26_ENV') {
-                    if($rec['http://purl.org/dc/terms/title'] != 'habitat') continue;
+                if($this->param['resource_id'] == '26_ENV') { //for WoRMS only with title = 'Habitat' will be processed.
+                    if(strtolower($rec['http://purl.org/dc/terms/title']) != 'habitat') continue;
+                    else {
+                        @$this->text_that_are_habitat++;
+                        // continue; //debug only | commented in real operation
+                    }
                 }
                 // */
                 // print_r($rec); exit("\n[2]\n");
@@ -307,6 +312,7 @@ class Pensoft2EOLAPI
             // if($i >= 10) break; //debug only
             // if($saved >= 20) break; //debug only
         }
+        if($this->param['resource_id'] == '26_ENV') echo("\n text_that_are_habitat: ".$this->text_that_are_habitat."\n");
     }
     private function save_article_2_txtfile($rec)
     {   /* Array(
