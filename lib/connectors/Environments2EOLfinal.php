@@ -140,6 +140,8 @@ class Environments2EOLfinal
         $ids = array_map('trim', $ids);
         foreach($ids as $id) {
             $arr = self::retrieve_json('agent_'.$id);
+            $arr = array_map('trim', $arr);
+            if(!@$arr['term_name']) continue;
             /* Array(
                 [identifier] => e4caf6a093328770804c83ba12c4e52c
                 [term_name] => Albertina P. Lima
