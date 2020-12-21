@@ -1128,6 +1128,20 @@ class GloBIDataAPI extends Globi_Refuted_Records
     {
         $kingdom = strtolower($kingdom);
         if(in_array($kingdom, array('viruses', 'virus'))) return true;
+        
+        /* per Katja: https://eol-jira.bibalex.org/browse/DATA-1872?focusedCommentId=65459&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65459
+        It turns out that NCBI treats Viruses as a superkingdom and then has a bunch of viral kingdoms. 
+        Can we please add these viral kingdoms in all of our filters that check for Viruses? Here's the list:
+            Bamfordvirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732005
+            Helvetiavirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732006
+            Loebvirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732090
+            Sangervirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732091
+            Shotokuvirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732092
+            Trapavirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732093
+            Orthornavirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732396
+            Pararnavirae https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=2732397
+        */
+        if(in_array($kingdom, array('bamfordvirae', 'helvetiavirae', 'loebvirae', 'sangervirae', 'shotokuvirae', 'trapavirae', 'orthornavirae', 'pararnavirae'))) return true;
     }
     private function is_taxon_under_kingdom_viruses($taxon)
     {
