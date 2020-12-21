@@ -139,11 +139,13 @@ with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb is not affected.
                                                                     "occurrence_specific.tab":2167107, 
         "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2803.96, "min":46.73, "hr":0.78}}
 
-26_ENV	Sat 2020-12-19 10:25:10 AM	{"agent.tab":1690, "measurement_or_fact.tab":2544844, 
-                                                       "measurement_or_fact_specific.tab":6,                "media_resource.tab":91778, 
+
+26_ENV	Sun 2020-12-20 10:39:45 PM	{"agent.tab":1690,  "measurement_or_fact.tab":2544844, 
+                                                        "measurement_or_fact_specific.tab":3752,            "media_resource.tab":91778, 
                                                                     "occurrence.tab":2167107, 
-                                                                    "occurrence_specific.tab":6, 
-        "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2766.97, "min":46.12, "hr":0.77}}
+                                                                    "occurrence_specific.tab":3752, 
+        "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2791.51, "min":46.53, "hr":0.78}}
+
 
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
