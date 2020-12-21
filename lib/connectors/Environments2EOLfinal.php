@@ -47,7 +47,9 @@ class Environments2EOLfinal
         if($this->resource_id == '26_ENV') { //this will just populate MoF. Too big in memory to do in DwCA_Utility.php.
             $tables = $info['harvester']->tables;
             $meta = $tables['http://rs.tdwg.org/dwc/terms/measurementorfact'][0];
-            self::process_table($meta, 'create extension', 'measurementorfact');
+            self::process_table($meta, 'create extension', 'measurementorfact_specific');
+            $meta = $tables['http://rs.tdwg.org/dwc/terms/occurrence'][0];
+            self::process_table($meta, 'create extension', 'occurrence_specific');
         }
         // */
         self::add_environmental_traits();
@@ -212,6 +214,8 @@ class Environments2EOLfinal
                 elseif($class == "document")            $o = new \eol_schema\MediaResource();
                 elseif($class == "occurrence")          $o = new \eol_schema\Occurrence();
                 elseif($class == "measurementorfact")   $o = new \eol_schema\MeasurementOrFact();
+                elseif($class == "occurrence_specific")          $o = new \eol_schema\Occurrence_specific();
+                elseif($class == "measurementorfact_specific")   $o = new \eol_schema\MeasurementOrFact_specific();
                 $uris = array_keys($rec);
                 foreach($uris as $uri) {
                     $field = pathinfo($uri, PATHINFO_BASENAME);

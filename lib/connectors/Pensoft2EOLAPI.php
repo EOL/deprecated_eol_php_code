@@ -139,11 +139,14 @@ class Pensoft2EOLAPI
         // $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/occurrence', 'http://rs.tdwg.org/dwc/terms/measurementorfact'); //not used
         
         $excluded_rowtypes = array();
-        // /* start customize
+        // /* -------------------- start customize --------------------
         if($this->param['resource_id'] == '617_ENV') $excluded_rowtypes = array('http://eol.org/schema/media/document'); //Wikipedia EN -> creates a new DwCA
         if($this->param['resource_id'] == '21_ENV') $excluded_rowtypes = array(); //AmphibiaWeb text -> doesn't create a new DwCA
-        if($this->param['resource_id'] == '26_ENV') $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact'); //WoRMS -> doesn't create a new DwCA. But MoF is too big, memory issue.
-        // */
+        
+        // WoRMS -> doesn't create a new DwCA. But MoF is too big, memory issue.
+        // Also MoF and Occurrence will be moved to MoF_specific and Occurrence_specific, together with the new traits from textmined Habitat articles.
+        if($this->param['resource_id'] == '26_ENV') $excluded_rowtypes = array('http://rs.tdwg.org/dwc/terms/measurementorfact', 'http://rs.tdwg.org/dwc/terms/occurrence');
+        // ---------------------- end customize ----------------------*/
         $func->convert_archive($preferred_rowtypes, $excluded_rowtypes);
         Functions::finalize_dwca_resource($this->param['resource_id'], false, true, $timestart);
         // exit("\nstop muna - used in debugging\n");
