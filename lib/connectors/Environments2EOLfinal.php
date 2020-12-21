@@ -140,6 +140,7 @@ class Environments2EOLfinal
         $ids = array_map('trim', $ids);
         foreach($ids as $id) {
             $arr = self::retrieve_json('agent_'.$id);
+            if(!@$arr) continue;
             $arr = array_map('trim', $arr);
             if(!@$arr['term_name']) continue;
             /* Array(
