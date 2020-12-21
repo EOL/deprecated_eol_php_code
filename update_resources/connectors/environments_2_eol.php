@@ -135,16 +135,15 @@ with the new "terms_to_remove" list (Unlike AntWeb, AmphibiaWeb is not affected.
 26	Tue 2020-11-10 01:54:23 AM	     "agent.tab":1682, "measurement_or_fact.tab":3325053,       "media_resource.tab":91653, "occurrence_specific.tab":2157834, 
         "reference.tab":670315, "taxon.tab":367878, "vernacular_name.tab":82322, "time_elapsed":false}
 
-26_meta_recoded	Fri 2020-12-11 04:49:31 AM	{"agent.tab":1690, "measurement_or_fact_specific.tab":2544844,  "media_resource.tab":91778, 
-                                                                    "occurrence_specific.tab":2167107, 
-        "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2803.96, "min":46.73, "hr":0.78}}
-
-
+Separated MoF: original traits and new traits from Habitats textmining:
 26_ENV	Sun 2020-12-20 10:39:45 PM	{"agent.tab":1690,  "measurement_or_fact.tab":2544844, 
                                                         "measurement_or_fact_specific.tab":3752,            "media_resource.tab":91778, 
                                                                     "occurrence.tab":2167107, 
                                                                     "occurrence_specific.tab":3752, 
         "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2791.51, "min":46.53, "hr":0.78}}
+Combined MoF:
+26_ENV	Mon 2020-12-21 03:07:07 AM	{"agent.tab":1690, "measurement_or_fact_specific.tab":2548596, "media_resource.tab":91778, 
+"occurrence_specific.tab":2170859, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2605.43, "min":43.42, "hr":0.72}}
 
 
 */

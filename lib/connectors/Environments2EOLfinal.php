@@ -106,7 +106,11 @@ class Environments2EOLfinal
                 $rec["taxon_id"] = $taxonID;
                 $rec["catnum"] = md5($row);
                 $rec['measurementType'] = 'http://purl.obolibrary.org/obo/RO_0002303';
-                $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
+                
+                // /* customized:
+                if($this->resource_id == '26_ENV')  $rec['measurementRemarks'] = "";
+                else                                $rec['measurementRemarks'] = "source text: \"" . $arr[3] . "\"";
+                // */
                 
                 $basename = $arr[4]; //e.g. 'ENVO:00000300'
                 if(stripos($basename, "ENVO") !== false) { //string is found
