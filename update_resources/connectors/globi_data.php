@@ -138,6 +138,26 @@ Latest as of Dec 7, 2020. For review.
 [6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 1945
 [7. Records of organisms other than plants having flower visitors are probably errors] => 599
 Total rows = 7461
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+as of Dec 21, 2020
+[change the associationType to pathogen_of] => 196
+
+Hi Katja,
+We got hits for #6, when adding the said 8 names as viral kingdoms.
+Latest as of Dec 21, 2020. For review.
+- DwCA [OpenData|https://opendata.eol.org/dataset/globi/resource/c8392978-16c2-453b-8f0e-668fbf284b61]
+- refuted records [OpenData|https://opendata.eol.org/dataset/globi/resource/92595520-35f3-48f2-95cf-ea67f7c455c3]
+
+[1. Records of non-carnivorous plants eating animals are likely to be errors] => 1485
+[2. Records of plants parasitizing animals are likely to be errors] => 905
+[3. Records of plants having animals as hosts are likely to be errors] => 1122
+[4. Records of plants pollinating or visiting flowers of any other organism are likely to be errors] => 1405
+[5. Records of plants laying eggs are likely to be errors] => 0
+[6. Records of other organisms parasitizing or eating viruses are likely to be errors] => 7244
+[7. Records of organisms other than plants having flower visitors are probably errors] => 599
+Total rows = 12760
+Thanks.
+
 
 *Please take note #6 here is from old criteria: n=1945
 {color:red}
