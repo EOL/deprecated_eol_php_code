@@ -506,7 +506,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
                         continue;
                     }
-                    //below is basically similar above.
+                    //below is basically similar above. As of Dec 22, 2020 it has not passed here.
                     if(self::kingdom_is_viruses_YN($targetTaxon_kingdom) || self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
                         @$this->debug['stats']['7d. Records of organisms other than plants having flower visitors are probably errors']++;
                         self::write_refuted_report($rec, 7);
