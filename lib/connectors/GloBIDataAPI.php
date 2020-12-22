@@ -486,7 +486,35 @@ class GloBIDataAPI extends Globi_Refuted_Records
                         continue;
                     }
                 }
-                
+                /* Per Katja: https://eol-jira.bibalex.org/browse/DATA-1874
+                Hi Eli,
+                Could you please add another tweak? We need to expand rule (g) to also cover the reverse. Here's the original rule:
+                (g) Records of organisms other than plants having flower visitors are probably errors.
+                sourceTaxon has kingdom "Viruses" OR "Animalia" OR "Metazoa"
+                AND associationType is "flowers visited by" (http://purl.obolibrary.org/obo/RO_0002623)
+                Please add to this:
+                OR
+                targetTaxon has kingdom "Viruses" OR "Animalia" OR "Metazoa"
+                AND associationType is "visits flowers of" (http://purl.obolibrary.org/obo/RO_0002622)
+                */
+                if(in_array($associationType, array('http://purl.obolibrary.org/obo/RO_0002622'))) { //"visits flowers of"
+                    $targetTaxon_kingdom = self::get_taxon_kingdom_4occurID($targetOccurrenceID, 'target');
+                    if(!self::kingdom_is_plants_YN($targetTaxon_kingdom)) {
+                        @$this->debug['stats']['7c. Records of organisms other than plants having flower visitors are probably errors']++;
+                        self::write_refuted_report($rec, 7);
+                        $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                        $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
+                        continue;
+                    }
+                    //below is basically similar above.
+                    if(self::kingdom_is_viruses_YN($targetTaxon_kingdom) || self::kingdom_is_animals_YN($targetTaxon_kingdom)) {
+                        @$this->debug['stats']['7d. Records of organisms other than plants having flower visitors are probably errors']++;
+                        self::write_refuted_report($rec, 7);
+                        $this->toDeleteOccurrenceIDS[$occurrenceID] = '';
+                        $this->toDeleteOccurrenceIDS[$targetOccurrenceID] = '';
+                        continue;
+                    }
+                }
                 //-----------------------------------------------------------------------------
                 $o = new \eol_schema\Association();
                 $uris = array_keys($rec);
@@ -1122,7 +1150,7 @@ class GloBIDataAPI extends Globi_Refuted_Records
     private function kingdom_is_animals_YN($kingdom)
     {
         $kingdom = strtolower($kingdom);
-        if(in_array($kingdom, array('animalia', 'metazoa', 'animals', 'animal'))) return true;
+        if(in_array($kingdom, array('animalia', 'animals', 'animal', 'metazoa', 'metazoan'))) return true;
     }
     private function kingdom_is_viruses_YN($kingdom)
     {
