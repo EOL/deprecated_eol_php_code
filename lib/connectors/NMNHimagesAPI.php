@@ -114,7 +114,7 @@ class NMNHimagesAPI
                     print_r($rec);
                     exit("\nshould not go here...\n");
                 }
-                if($i >= 5) break; //debug only
+                if($i >= 20) break; //debug only
             }
             
             // */
@@ -288,7 +288,7 @@ class NMNHimagesAPI
             $this->archive_builder->write_object_to_file($mr);
             $this->object_ids[$mr->identifier] = '';
         }
-        
+        return true;
     }
     private function valid_record($title)
     {
