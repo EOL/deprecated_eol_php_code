@@ -21,6 +21,7 @@ class NMNHimagesAPI
         self::process_table('occurrence');
         self::process_table('multimedia');
         print_r($this->debug);
+        $this->archive_builder->finalize(true);
     }
     private function process_table($what)
     {   /* as of Dec 23, 2020
@@ -106,8 +107,8 @@ class NMNHimagesAPI
                 if($json = @$this->occurrence_gbifid_with_images[$gbifid]) {
                     $rek = json_decode($json, true);
                     // print_r($rek); exit("\nditox na\n");
-                    $taxonID = self::write_taxon($rek);
-                    self::write_media($rec, $taxonID, $rek);
+                    $taxonID = md5($rek['scientificname']);
+                    if(self::write_media($rec, $taxonID, $rek)) self::write_taxon($rek);
                 }
                 else {
                     print_r($rec);
@@ -251,6 +252,10 @@ class NMNHimagesAPI
             [license] => Usage Conditions Apply
             [rightsholder] => 
         )*/
+        
+        if(!self::valid_record($rec['title'])) return false;
+        
+        
         $this->debug['media type'][$rec['type']] = ''; //for stats
         $this->debug['references values'][$rec['references']] = ''; //for stats
         
@@ -284,6 +289,13 @@ class NMNHimagesAPI
             $this->object_ids[$mr->identifier] = '';
         }
         
+    }
+    private function valid_record($title)
+    {
+        if(stripos($title, "Ledger") !== false) return false; //string is found
+        if(stripos($title, " Card") !== false) return false; //string is found
+        if(stripos($title, "Barcode") !== false) return false; //string is found
+        return true;
     }
     private function add_agents($rec)
     {
