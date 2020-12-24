@@ -295,9 +295,14 @@ class NMNHimagesAPI
         $type_info['Sound'] = 'http://purl.org/dc/dcmitype/Sound';
 
         $format_info['StillImage'] = 'image/jpeg';
-        if($format_info['MovingImage'] = self::format_MovingImage($rec['format'])) {}
-        else return false;
-        $format_info['Sound'] = self::format_Sound($rec['format']);
+        if($rec['type'] == 'Sound') {
+            $format_info['Sound'] = self::format_Sound($rec['format']);
+        }
+        if($rec['type'] == 'MovingImage') {
+            $format_info['MovingImage'] = self::format_MovingImage($rec['format']);
+            // if($format_info['MovingImage'] = self::format_MovingImage($rec['format'])) {}
+            // else return false;
+        }
         
         
         $mr = new \eol_schema\MediaResource();
@@ -340,7 +345,7 @@ class NMNHimagesAPI
         elseif($format == 'quicktime') return 'video/quicktime';
         elseif($format == 'avi') return 'video/x-msvideo';
         else {
-            echo("\nNot initialized MovingImage format [$format]\n");
+            exit("\nNot initialized MovingImage format [$format]\n");
             return false;
         }
     }
