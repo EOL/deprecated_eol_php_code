@@ -145,6 +145,8 @@ Combined MoF:
 "occurrence_specific.tab":2170859, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2605.43, "min":43.42, "hr":0.72}}
 26_ENV	Mon 2020-12-21 10:02:56 AM	{"agent.tab":1690, "measurement_or_fact_specific.tab":2548596, "media_resource.tab":91778, 
 "occurrence_specific.tab":2170859, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2733, "min":45.55, "hr":0.76}}
+26_ENV	Thu 2020-12-24 01:35:09 AM	{"agent.tab":1690, "measurement_or_fact_specific.tab":2548585, "media_resource.tab":91778, 
+"occurrence_specific.tab":2170848, "reference.tab":672534, "taxon.tab":368401, "vernacular_name.tab":82328, "time_elapsed":{"sec":2537.16, "min":42.29, "hr":0.7}}
 */
 include_once(dirname(__FILE__) . "/../../config/environment.php");
 $GLOBALS['ENV_DEBUG'] = true;

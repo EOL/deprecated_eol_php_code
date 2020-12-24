@@ -274,27 +274,30 @@ class NMNHimagesAPI
             [source] => 
             [audience] => 
             [created] => 
-            [creator] => Schmidt, Brian K.
+            *[creator] => Schmidt, Brian K.
             [contributor] => 
-            [publisher] => Smithsonian Institution, NMNH, Birds
+            *[publisher] => Smithsonian Institution, NMNH, Birds
             [license] => Usage Conditions Apply
             [rightsholder] => 
         )
         */
         $this->debug[$rec['type']][$rec['format']] = '';
         
-        if(!self::valid_record($rec['title'], $rec['description'])) return false;
+        if(!self::valid_record($rec['title'], $rec['description'], $rec['source'])) return false;
         
         $this->debug['media type'][$rec['type']] = ''; //for stats
         $this->debug['references values'][$rec['references']] = ''; //for stats
+
+        if(!$rec['type'] || !$rec['format']) return false;
         
         $type_info['StillImage'] = 'http://purl.org/dc/dcmitype/StillImage';
         $type_info['MovingImage'] = 'http://purl.org/dc/dcmitype/MovingImage';
         $type_info['Sound'] = 'http://purl.org/dc/dcmitype/Sound';
 
         $format_info['StillImage'] = 'image/jpeg';
-        $format_info['MovingImage'] = $rec['format'];
-        $format_info['Sound'] = $rec['format'];
+        $format_info['MovingImage'] = self::format_MovingImage($rec['format']);
+        $format_info['Sound'] = self::format_Sound($rec['format']);
+        
         
         
         $mr = new \eol_schema\MediaResource();
@@ -306,7 +309,7 @@ class NMNHimagesAPI
         $mr->furtherInformationURL = $rek['s'];
         $mr->accessURI      = $rec['identifier'];
         // $mr->CVterm         = '';
-        $mr->Owner          = $rec['source'];
+        // $mr->Owner          = '';
         // $mr->rights         = '';
         $mr->title          = $rec['title'];
         $mr->UsageTerms     = 'http://creativecommons.org/licenses/publicdomain/';
@@ -325,12 +328,29 @@ class NMNHimagesAPI
         }
         return true;
     }
-    private function valid_record($title, $description)
+    private function format_Sound($format)
+    {
+        if($format == 'audio/wav') return 'audio/x-wav';
+        elseif($format == 'mpeg') return 'audio/mpeg';
+        else exit("\nNot initialized Sound format [$format]\n");
+    }
+    private function format_MovingImage($format)
+    {
+        if($format == 'mp4') return 'video/mp4';
+        elseif($format == 'quicktime') return 'video/quicktime';
+        elseif($format == 'avi') return 'video/x-msvideo';
+        else exit("\nNot initialized MovingImage format [$format]\n");
+    }
+    private function valid_record($title, $description, $source)
     {
         $terms = array('Ledger', ' Card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper');
         foreach($terms as $term) {
             if(stripos($description, $term) !== false) return false; //string is found
             if(stripos($title, $term) !== false) return false; //string is found
+        }
+        $terms = array('published', 'footnote');
+        foreach($terms as $term) {
+            if(stripos($source, $term) !== false) return false; //string is found
         }
         return true;
     }
@@ -339,16 +359,19 @@ class NMNHimagesAPI
         // [creator] => Division of Fishes
         // [publisher] => Smithsonian Institution, NMNH, Fishes
         $agent_ids = array();
-        if($term_name = @$rec['publisher']) {
-            $r = new \eol_schema\Agent();
-            $r->term_name       = $term_name;
-            $r->agentRole       = 'publisher';
-            $r->identifier      = md5("$r->term_name|$r->agentRole");
-            // $r->term_homepage   = '';
-            $agent_ids[] = $r->identifier;
-            if(!isset($this->agent_ids[$r->identifier])) {
-               $this->agent_ids[$r->identifier] = $r->term_name;
-               $this->archive_builder->write_object_to_file($r);
+        $roles = array('publisher', 'creator');
+        foreach($roles as $role) {
+            if($term_name = @$rec[$role]) {
+                $r = new \eol_schema\Agent();
+                $r->term_name       = $term_name;
+                $r->agentRole       = $role;
+                $r->identifier      = md5("$r->term_name|$r->agentRole");
+                // $r->term_homepage   = '';
+                $agent_ids[] = $r->identifier;
+                if(!isset($this->agent_ids[$r->identifier])) {
+                   $this->agent_ids[$r->identifier] = $r->term_name;
+                   $this->archive_builder->write_object_to_file($r);
+                }
             }
         }
         return $agent_ids;
