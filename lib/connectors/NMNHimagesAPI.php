@@ -79,12 +79,12 @@ class NMNHimagesAPI
                 */
                 
                 $this->debug['type'][$rec['type']] = ''; //stats only
-                $this->debug['mediatype'][$rec['mediatype']] = ''; //stats only
+                // $this->debug['mediatype'][$rec['mediatype']] = ''; //stats only
                 
                 // if($rec['type'] == 'Image') { @$this->occurrence_image_type_rows++;
                 if(stripos($rec['mediatype'], "StillImage") !== false ||
                    stripos($rec['mediatype'], "MovingImage") !== false ||
-                   stripos($rec['mediatype'], "Sound") !== false) { @$this->occurrence_image_type_rows++; //string is found
+                   stripos($rec['mediatype'], "Sound") !== false) { //string is found
                     // print_r($rec); exit("\nstopx\n");
                     $rek = array();
                     // $rek['gbifid'] = $gbifid; //1456016777
@@ -215,7 +215,6 @@ class NMNHimagesAPI
             )
             */
         }
-        echo "\nimage rows: [$this->occurrence_image_type_rows]\n";
     }
     private function write_taxon($rek)
     {   /*Array(
@@ -281,10 +280,10 @@ class NMNHimagesAPI
             [rightsholder] => 
         )
         */
-        $this->debug[$rec['type']][$rec['format']] = '';
         
         if(!self::valid_record($rec['title'], $rec['description'], $rec['source'])) return false;
-        
+
+        $this->debug[$rec['type']][$rec['format']] = ''; //for stats
         $this->debug['media type'][$rec['type']] = ''; //for stats
         $this->debug['references values'][$rec['references']] = ''; //for stats
 
@@ -351,7 +350,7 @@ class NMNHimagesAPI
     }
     private function valid_record($title, $description, $source)
     {
-        $terms = array('Ledger', ' Card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper');
+        $terms = array('Ledger', 'card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper');
         foreach($terms as $term) {
             if(stripos($description, $term) !== false) return false; //string is found
             if(stripos($title, $term) !== false) return false; //string is found
