@@ -82,7 +82,9 @@ class NMNHimagesAPI
                 $this->debug['mediatype'][$rec['mediatype']] = ''; //stats only
                 
                 // if($rec['type'] == 'Image') { @$this->occurrence_image_type_rows++;
-                if(stripos($rec['mediatype'], "StillImage") !== false) { @$this->occurrence_image_type_rows++; //string is found
+                if(stripos($rec['mediatype'], "StillImage") !== false ||
+                   stripos($rec['mediatype'], "MovingImage") !== false ||
+                   stripos($rec['mediatype'], "Sound") !== false) { @$this->occurrence_image_type_rows++; //string is found
                     // print_r($rec); exit("\nstopx\n");
                     $rek = array();
                     // $rek['gbifid'] = $gbifid; //1456016777
@@ -107,12 +109,21 @@ class NMNHimagesAPI
                 if($json = @$this->occurrence_gbifid_with_images[$gbifid]) {
                     $rek = json_decode($json, true);
                     // print_r($rek); exit("\nditox na\n");
-                    $taxonID = md5($rek['scientificname']);
+                    
+                    // /* debug only
+                    if(!@$rek['sn']) {
+                        print_r($rek); exit("\n no sn scientificname \n");
+                    }
+                    // */
+                    
+                    $taxonID = md5($rek['sn']);
                     if(self::write_media($rec, $taxonID, $rek)) self::write_taxon($rek);
                 }
                 else {
+                    // /* good debug
                     print_r($rec);
                     exit("\nshould not go here...\n");
+                    // */
                 }
                 // if($i >= 100) break; //debug only
             }
@@ -217,7 +228,7 @@ class NMNHimagesAPI
             [genus] => Argemone
             [taxonrank] => species
         )*/
-        $taxonID = md5($rek['scientificname']);
+        $taxonID = md5($rek['sn']);
         $taxon = new \eol_schema\Taxon();
         $taxon->taxonID         = $taxonID;
         $taxon->scientificName  = $rek['sn'];
@@ -251,23 +262,47 @@ class NMNHimagesAPI
             [publisher] => Smithsonian Institution, NMNH, Fishes
             [license] => Usage Conditions Apply
             [rightsholder] => 
-        )*/
+        )
+        Array(
+            [gbifid] => 1317613575
+            [type] => Sound
+            [format] => audio/wav
+            [identifier] => http://n2t.net/ark:/65665/m3eca9242b-d95f-46e6-abf0-67e8035712e3
+            [references] => 
+            [title] => USNM 642718 Achaetops pycnopygius
+            [description] => USNM 642718 Achaetops pycnopygius
+            [source] => 
+            [audience] => 
+            [created] => 
+            [creator] => Schmidt, Brian K.
+            [contributor] => 
+            [publisher] => Smithsonian Institution, NMNH, Birds
+            [license] => Usage Conditions Apply
+            [rightsholder] => 
+        )
+        */
+        $this->debug[$rec['type']][$rec['format']] = '';
         
         if(!self::valid_record($rec['title'], $rec['description'])) return false;
-        
         
         $this->debug['media type'][$rec['type']] = ''; //for stats
         $this->debug['references values'][$rec['references']] = ''; //for stats
         
         $type_info['StillImage'] = 'http://purl.org/dc/dcmitype/StillImage';
         $type_info['MovingImage'] = 'http://purl.org/dc/dcmitype/MovingImage';
+        $type_info['Sound'] = 'http://purl.org/dc/dcmitype/Sound';
+
+        $format_info['StillImage'] = 'image/jpeg';
+        $format_info['MovingImage'] = $rec['format'];
+        $format_info['Sound'] = $rec['format'];
+        
         
         $mr = new \eol_schema\MediaResource();
         $mr->taxonID        = $taxonID;
         $mr->identifier     = md5($rec['identifier']);
         $mr->type           = $type_info[$rec['type']];
         $mr->language       = 'en';
-        $mr->format         = 'image/jpeg';
+        $mr->format         = $format_info[$rec['type']];
         $mr->furtherInformationURL = $rek['s'];
         $mr->accessURI      = $rec['identifier'];
         // $mr->CVterm         = '';
@@ -292,7 +327,7 @@ class NMNHimagesAPI
     }
     private function valid_record($title, $description)
     {
-        $terms = array('Ledger', ' Card', 'Barcode', 'documentation', 'Book');
+        $terms = array('Ledger', ' Card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper');
         foreach($terms as $term) {
             if(stripos($description, $term) !== false) return false; //string is found
             if(stripos($title, $term) !== false) return false; //string is found
