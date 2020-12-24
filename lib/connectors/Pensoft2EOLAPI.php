@@ -755,6 +755,21 @@ class Pensoft2EOLAPI
         $this->remapped_terms = $func->add_additional_mappings(true, $url, 60*60*24); //*this is not add_additional_mappings() 60*60*24
         echo "\nremapped_terms: ".count($this->remapped_terms)."\n";
         /* END DATA-1841 terms remapping */
+        
+        /* this row now deleted in: "https://github.com/eliagbayani/EOL-connector-data-files/raw/master/Terms_remapped/DATA_1841_terms_remapped.tsv"
+        per: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65470&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65470
+        http://purl.obolibrary.org/obo/ENVO_01000251	http://www.wikidata.org/entity/Q1342399
+        */
+        
+        // /* for WoRMS only: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65471&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65471
+        // http://purl.obolibrary.org/obo/ENVO_01000127 (canyon) => http://purl.obolibrary.org/obo/ENVO_00000267 (submarine canyon)
+        // http://purl.obolibrary.org/obo/ENVO_00000087 (cliff) => http://purl.obolibrary.org/obo/ENVO_00000088 (sea cliff)
+        // http://purl.obolibrary.org/obo/ENVO_00000182 (plateau) => discard. This could mean a few different things
+        if($this->param['resource_id'] == '26_ENV') { //WoRMS only
+            $this->remapped_terms['http://purl.obolibrary.org/obo/ENVO_01000127'] = 'http://purl.obolibrary.org/obo/ENVO_00000267';
+            $this->remapped_terms['http://purl.obolibrary.org/obo/ENVO_00000087'] = 'http://purl.obolibrary.org/obo/ENVO_00000088';
+        }
+        // */
     }
     private function initialize_delete_mRemarks()
     {
@@ -1026,6 +1041,15 @@ class Pensoft2EOLAPI
         // print_r($arr); exit("\n".count($arr)."\n");
         foreach($arr as $uri) $this->delete_MoF_with_these_uris[$uri] = '';
         // */
+        
+        // /* for WoRMS only: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65471&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65471
+        // http://purl.obolibrary.org/obo/ENVO_00000182 (plateau) => discard. This could mean a few different things
+        if($this->param['resource_id'] == '26_ENV') { //WoRMS only
+            $this->delete_MoF_with_these_uris['http://purl.obolibrary.org/obo/ENVO_00000182'] = '';
+        }
+        // */
+        
+        
     }
     private function filter_out_from_entities()
     {   //from: https://eol-jira.bibalex.org/browse/DATA-1858?focusedCommentId=65359&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65359

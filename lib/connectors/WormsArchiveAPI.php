@@ -1217,6 +1217,16 @@ class WormsArchiveAPI
             if($title == "Fossil species" && $description != "fossil only") continue;
             if($title == "Fossil species" && $description == "fossil only") {
                 // print_r($rec); exit;
+                
+                // /* Per Jen: https://eol-jira.bibalex.org/browse/DATA-1870?focusedCommentId=65468&page=com.atlassian.jira.plugin.system.issuetabpanels:comment-tabpanel#comment-65468
+                // In the meantime, as long as we're reharvesting, I think there's something new we should filter out- just one record:
+                //     measurementType = http://eol.org/schema/terms/ExtinctionStatus
+                //     furtherInformationURL = http://www.marinespecies.org/aphia.php?p=taxdetails&id=1457542
+                // Sorry to be handing you something so narrow, but I don't think these errors are very common. 
+                // Somehow this coral species maps to all corals and gives us a record for all corals being extinct. Ooops...
+                if($rec['taxon_id'] == '1457542') continue;
+                // */
+                
                 $rec["catnum"] = (string) $rec["http://purl.org/dc/terms/identifier"];
                 $rec["http://rs.tdwg.org/ac/terms/accessURI"] = $this->taxon_page.$rec['taxon_id']; //this becomes m->source
                 self::add_string_types($rec, "true", "http://eol.org/schema/terms/extinct", "http://eol.org/schema/terms/ExtinctionStatus");
