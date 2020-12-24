@@ -295,9 +295,9 @@ class NMNHimagesAPI
         $type_info['Sound'] = 'http://purl.org/dc/dcmitype/Sound';
 
         $format_info['StillImage'] = 'image/jpeg';
-        $format_info['MovingImage'] = self::format_MovingImage($rec['format']);
+        if($format_info['MovingImage'] = self::format_MovingImage($rec['format'])) {}
+        else return false;
         $format_info['Sound'] = self::format_Sound($rec['format']);
-        
         
         
         $mr = new \eol_schema\MediaResource();
@@ -339,7 +339,10 @@ class NMNHimagesAPI
         if($format == 'mp4') return 'video/mp4';
         elseif($format == 'quicktime') return 'video/quicktime';
         elseif($format == 'avi') return 'video/x-msvideo';
-        else exit("\nNot initialized MovingImage format [$format]\n");
+        else {
+            echo("\nNot initialized MovingImage format [$format]\n");
+            return false;
+        }
     }
     private function valid_record($title, $description, $source)
     {
