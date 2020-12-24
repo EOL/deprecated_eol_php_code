@@ -10,6 +10,8 @@ class NMNHimagesAPI
             $this->path_to_archive_directory = CONTENT_RESOURCE_LOCAL_PATH . '/' . $folder . '_working/';
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
+        if(Functions::is_production()) $this->path = '/extra/other_files/NMNH_image_DwCA/GBIF_service/';
+        else                           $this->path = '/Volumes/AKiTiO4/web/cp/NMNH_image_DwCA/GBIF_service/0142850-200613084148143/';
         
         // $this->download_options = array(
         //     'expire_seconds'     => 60*60*24*30, //expires in 1 month
@@ -27,9 +29,7 @@ class NMNHimagesAPI
     {   /* as of Dec 23, 2020
         image rows from occurrence.txt: [54849]
         */
-        $path = '/Volumes/AKiTiO4/web/cp/NMNH_image_DwCA/GBIF_service/0142850-200613084148143/occurrence.txt';
-        $path = '/Volumes/AKiTiO4/web/cp/NMNH_image_DwCA/GBIF_service/0142850-200613084148143/'.$what.'.txt';
-        
+        $path = $this->path.$what.'.txt';
         $i = 0;
         foreach(new FileIterator($path) as $line_number => $line) { // 'true' will auto delete temp_filepath
             $i++;
@@ -114,7 +114,7 @@ class NMNHimagesAPI
                     print_r($rec);
                     exit("\nshould not go here...\n");
                 }
-                if($i >= 20) break; //debug only
+                // if($i >= 100) break; //debug only
             }
             
             // */
@@ -253,7 +253,7 @@ class NMNHimagesAPI
             [rightsholder] => 
         )*/
         
-        if(!self::valid_record($rec['title'])) return false;
+        if(!self::valid_record($rec['title'], $rec['description'])) return false;
         
         
         $this->debug['media type'][$rec['type']] = ''; //for stats
@@ -290,11 +290,13 @@ class NMNHimagesAPI
         }
         return true;
     }
-    private function valid_record($title)
+    private function valid_record($title, $description)
     {
-        if(stripos($title, "Ledger") !== false) return false; //string is found
-        if(stripos($title, " Card") !== false) return false; //string is found
-        if(stripos($title, "Barcode") !== false) return false; //string is found
+        $terms = array('Ledger', ' Card', 'Barcode', 'documentation', 'Book');
+        foreach($terms as $term) {
+            if(stripos($description, $term) !== false) return false; //string is found
+            if(stripos($title, $term) !== false) return false; //string is found
+        }
         return true;
     }
     private function add_agents($rec)
