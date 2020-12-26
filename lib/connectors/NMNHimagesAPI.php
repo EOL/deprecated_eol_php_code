@@ -350,7 +350,7 @@ class NMNHimagesAPI
     }
     private function valid_record($title, $description, $source)
     {
-        $terms = array('Ledger', 'card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper');
+        $terms = array('Ledger', 'card', 'Barcode', 'documentation', 'Book', 'note', 'scanned paper', 'sheet');
         foreach($terms as $term) {
             if(stripos($description, $term) !== false) return false; //string is found
             if(stripos($title, $term) !== false) return false; //string is found
