@@ -58,14 +58,24 @@ class GBIFdownloadRequestAPI
                 self::create_bash_file($taxon_group, $arr['downloadLink']);
                 return true;
             }
-            else echo "\nCannot download yet [$taxon_group].\n";
+            else echo "\nCannot download yet [$taxon_group]. Download not yet ready.\n";
         }
         return false;
     }
     function check_if_all_downloads_are_ready_YN()
     {
-        $groups = array('Animalia', 'Plantae', 'Other7Groups');
-        foreach($groups as $taxon_group) {
+        if($this->resource_id == 'GBIF_map_harvest') {
+            $groups = array('Animalia', 'Plantae', 'Other7Groups');
+            foreach($groups as $taxon_group) {
+                if(!self::generate_sh_file($taxon_group)) {
+                    echo "\n[$taxon_group] NOT yet ready :-( \n";
+                    return false;
+                }
+                else echo "\n[$taxon_group] now ready OK :-) \n";
+            }
+        }
+        elseif($this->resource_id == 'NMNH_images') {
+            $taxon_group = 'NMNH_images';
             if(!self::generate_sh_file($taxon_group)) return false;
         }
         return true;
@@ -129,7 +139,7 @@ class GBIFdownloadRequestAPI
         }*/
         //==================================================================================================================================
         if($this->resource_id == 'NMNH_images') {
-            $predicates = Array(
+            $predicate = Array(
                 'type' => 'and',
                 'predicates' => Array(
                                         0 => Array(
@@ -173,9 +183,7 @@ class GBIFdownloadRequestAPI
                             'notificationAddresses' => Array(0 => $this->gbif_email),
                             'sendNotification' => 1,
                             'format' => 'DWCA',
-                            'predicate' => Array( 'type' => 'and',
-                                                  'predicates' => $predicates
-                                                )
+                            'predicate' => $predicate
                      );
         } //end NMNH_images
         /* from its download DOI: https://doi.org/10.15468/dl.b5vdyg
