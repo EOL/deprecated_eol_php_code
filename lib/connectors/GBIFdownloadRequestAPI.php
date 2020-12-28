@@ -78,10 +78,9 @@ class GBIFdownloadRequestAPI
     private function generate_json_request($taxon_group)
     {
         $taxon = $this->taxon;
-        if($taxon_group == 'Other7Groups')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],          1 => $taxon['Chromista'],
-                                                                                                                         2 => $taxon['Bacteria'],       3 => $taxon['Protozoa'],
-                                                                                                                         4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
-                                                                                                                         6 => $taxon['Viruses']));
+        if($taxon_group == 'Other7Groups')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],
+            1 => $taxon['Chromista'], 2 => $taxon['Bacteria'], 3 => $taxon['Protozoa'], 4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
+            6 => $taxon['Viruses']));
         else $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon[$taxon_group]);
         $param = Array( 'creator' => $this->gbif_username,
                         'notificationAddresses' => Array(0 => $this->gbif_email),
