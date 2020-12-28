@@ -1,6 +1,7 @@
 <?php
 namespace php_active_record;
-/* connector: [gbif_download_request.php] */
+/* connector: 1st client: [gbif_download_request.php]
+              2nd client: [gbif_download_request_for_NMNH.php]  */
 class GBIFdownloadRequestAPI
 {
     function __construct($resource_id)
@@ -72,8 +73,15 @@ class GBIFdownloadRequestAPI
     private function can_proceed_to_download_YN($key)
     {   /* orig
         curl -Ss https://api.gbif.org/v1/occurrence/download/0000022-170829143010713 | jq .
+        e.g. Gadus ogac
+        curl -Ss https://api.gbif.org/v1/occurrence/download/0018153-200613084148143 | jq .
         */
+        /* original entry but it seems jq is not needed or it is not essential. It just gives a pretty-print json output.
+        And since it does not work in our Rhel Linux eol-archive, I just removed it.
         $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key.' | jq .';
+        */
+        $cmd = 'curl -Ss https://api.gbif.org/v1/occurrence/download/'.$key;
+        
         $output = shell_exec($cmd);
         // echo "\nRequest output:\n[$output]\n"; //good debug
         $arr = json_decode($output, true);
