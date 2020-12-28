@@ -3,12 +3,14 @@ namespace php_active_record;
 /* connector: [gbif_download_request.php] */
 class GBIFdownloadRequestAPI
 {
-    function __construct()
+    function __construct($resource_id)
     {
+        $this->resource_id = $resource_id;
         $this->gbif_username = 'eli_agbayani';
         $this->gbif_pw = 'ile173';
         $this->gbif_email = 'eagbayani@eol.org';
-
+        
+        // /* for resource_id equals 'GBIF_map_harvest'
         $this->taxon['Gadus ogac'] = 2415827;
         $this->taxon['Animalia'] = 1;
         $this->taxon['Plantae'] = 6;
@@ -19,7 +21,11 @@ class GBIFdownloadRequestAPI
         $this->taxon['incertae sedis'] = 0;
         $this->taxon['Archaea'] = 2;
         $this->taxon['Viruses'] = 8;
-        $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF';
+        // */
+        
+        if($this->resource_id == 'GBIF_map_harvest') $this->destination_path = DOC_ROOT.'update_resources/connectors/files/GBIF';
+        elseif($this->resource_id == 'NMNH_images')  $this->destination_path = DOC_ROOT.'update_resources/connectors/files/NMNH_images';
+        else exit("\nresource_id not yet initialized\n");
         if(!is_dir($this->destination_path)) mkdir($this->destination_path);
     }
     function send_download_request($taxon_group) //this will overwrite any current download request. Run this once ONLY every harvest per taxon group.
@@ -30,7 +36,7 @@ class GBIFdownloadRequestAPI
         /* orig per https://www.gbif.org/developer/occurrence#download
         curl --include --user userName:PASSWORD --header "Content-Type: application/json" --data @query.json https://api.gbif.org/v1/occurrence/download/request
         */
-        $filename = CONTENT_RESOURCE_LOCAL_PATH.'query.json';
+        $filename = $this->destination_path.'/query.json';
         $cmd = 'curl --include --user '.$this->gbif_username.':'.$this->gbif_pw.' --header "Content-Type: application/json" --data @'.$filename.' -s https://api.gbif.org/v1/occurrence/download/request';
         $output = shell_exec($cmd);
         echo "\nRequest output:\n[$output]\n";
@@ -77,37 +83,103 @@ class GBIFdownloadRequestAPI
     }
     private function generate_json_request($taxon_group)
     {
-        $taxon = $this->taxon;
-        if($taxon_group == 'Other7Groups')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],
-            1 => $taxon['Chromista'], 2 => $taxon['Bacteria'], 3 => $taxon['Protozoa'], 4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
-            6 => $taxon['Viruses']));
-        else $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon[$taxon_group]);
-        $param = Array( 'creator' => $this->gbif_username,
-                        'notificationAddresses' => Array(0 => $this->gbif_email),
-                        'sendNotification' => 1,
-                        'format' => 'DWCA',
-                        'predicate' => Array(
-                                                'type' => 'and',
+        if($this->resource_id == 'GBIF_map_harvest') { //=====================================================================
+            $taxon = $this->taxon;
+            if($taxon_group == 'Other7Groups')  $taxon_array = Array("type" => "in", "key" => "TAXON_KEY", "values" => Array(0 => $taxon['Fungi'],
+                1 => $taxon['Chromista'], 2 => $taxon['Bacteria'], 3 => $taxon['Protozoa'], 4 => $taxon['incertae sedis'], 5 => $taxon['Archaea'],
+                6 => $taxon['Viruses']));
+            else $taxon_array = Array("type" => "equals", "key" => "TAXON_KEY", "value" => $taxon[$taxon_group]);
+            $param = Array( 'creator' => $this->gbif_username,
+                            'notificationAddresses' => Array(0 => $this->gbif_email),
+                            'sendNotification' => 1,
+                            'format' => 'DWCA',
+                            'predicate' => Array(
+                                                    'type' => 'and',
+                                                    'predicates' => Array(
+                                                                            0 => Array(
+                                                                                    'type' => 'equals',
+                                                                                    'key' => 'HAS_COORDINATE',
+                                                                                    'value' => 'true'
+                                                                                 ),
+                                                                            1 => Array(
+                                                                                    'type' => 'equals',
+                                                                                    'key' => 'HAS_GEOSPATIAL_ISSUE',
+                                                                                    'value' => 'false'
+                                                                                 ),
+                                                                            2 => $taxon_array
+                                                                        )
+                                                )
+                     );
+        } //end GBIF_map_harvest
+        /*Filter used:
+        {
+          "and" : [
+            "HasCoordinate is true",
+            "HasGeospatialIssue is false",
+            "TaxonKey is Animalia"
+          ]
+        }*/
+        //==================================================================================================================================
+        if($this->resource_id == 'NMNH_images') {
+            $predicates = Array(
+                'type' => 'and',
+                'predicates' => Array(
+                                        0 => Array(
+                                                'type' => 'equals',
+                                                'key' => 'DATASET_KEY',
+                                                'value' => '821cc27a-e3bb-4bc5-ac34-89ada245069d',
+                                                'matchCase' => ''
+                                             ),
+                                        1 => Array(
+                                                'type' => 'or',
                                                 'predicates' => Array(
-                                                                        0 => Array(
-                                                                                'type' => 'equals',
-                                                                                'key' => 'HAS_COORDINATE',
-                                                                                'value' => 'true'
-                                                                             ),
-                                                                        1 => Array(
-                                                                                'type' => 'equals',
-                                                                                'key' => 'HAS_GEOSPATIAL_ISSUE',
-                                                                                'value' => 'false'
-                                                                             ),
-                                                                        2 => $taxon_array
-                                                                    )
+                                                                    0 => Array(
+                                                                            'type' => 'equals',
+                                                                            'key' => 'MEDIA_TYPE',
+                                                                            'value' => 'StillImage',
+                                                                            'matchCase' => ''
+                                                                        ),
+                                                                    1 => Array(
+                                                                            'type' => 'equals',
+                                                                            'key' => 'MEDIA_TYPE',
+                                                                            'value' => 'MovingImage',
+                                                                            'matchCase' => ''
+                                                                        ),
+                                                                    2 => Array(
+                                                                            'type' => 'equals',
+                                                                            'key' => 'MEDIA_TYPE',
+                                                                            'value' => 'Sound',
+                                                                            'matchCase' => ''
+                                                                        )
+                                                                )
+                                             ),
+                                        2 => Array(
+                                                'type' => 'equals',
+                                                'key' => 'OCCURRENCE_STATUS',
+                                                'value' => 'present',
+                                                'matchCase' => ''
                                             )
-                 );
+                )
+            );
+            $param = Array( 'creator' => $this->gbif_username,
+                            'notificationAddresses' => Array(0 => $this->gbif_email),
+                            'sendNotification' => 1,
+                            'format' => 'DWCA',
+                            'predicate' => Array( 'type' => 'and',
+                                                  'predicates' => $predicates
+                                                )
+                     );
+        } //end NMNH_images
+        /* from its download DOI: https://doi.org/10.15468/dl.b5vdyg
+        From the 2nd box. Click 'API' to get the json format of the request. Then in php run below, to get the array value.
+        $arr = json_decode($json, true);
+        */
+        //==================================================================================================================================
         return json_encode($param);
     }
     private function save_json_2file($json)
     {
-        $file = CONTENT_RESOURCE_LOCAL_PATH.'query.json';
+        $file = $this->destination_path.'/query.json';
         $fhandle = Functions::file_open($file, "w");
         fwrite($fhandle, $json);
         fclose($fhandle);

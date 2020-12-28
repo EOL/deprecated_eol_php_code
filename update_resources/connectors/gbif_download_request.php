@@ -56,7 +56,7 @@ $taxon = @$fields['taxon'];
 $download_key = @$fields['download_key'];
 
 //############################################################ start main
-$resource_id = "1";
+$resource_id = "GBIF_map_harvest";
 $func = new GBIFdownloadRequestAPI($resource_id);
 if($task == 'send_download_request') $func->send_download_request($taxon);
 if($task == 'generate_sh_file') $func->generate_sh_file($taxon);
