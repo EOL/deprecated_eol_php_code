@@ -66,11 +66,39 @@ class QuaardvarkAPI
                             $ret[] = $tmp;
                         }
                         $ret = array_map('trim', $ret);
-                        print_r($ret); //exit;
+                        // print_r($ret); //exit; //good debug
+                        /*Array(
+                            [0] => Alpheus heterochaelis
+                            [1] => Malacostraca
+                            [2] => Decapoda
+                            [3] => Alpheidae
+                            [4] => Temperate | Tropical | Saltwater or marine
+                            [5] => 
+                            [6] => Benthic | Reef | Coastal | Brackish Water
+                            [7] => Marsh
+                            [8] => Estuarine
+                        )*/
+                        $rek = array(); $i = 0;
+                        foreach($fields as $field) {
+                            $rek[$field] = $ret[$i];
+                            $i++;
+                        }
+                        // print_r($rek); //good debug
+                        /*Array(
+                            [Species] => Alpheus heterochaelis
+                            [Class] => Malacostraca
+                            [Order] => Decapoda
+                            [Family] => Alpheidae
+                            [Habitat Regions] => Temperate | Tropical | Saltwater or marine
+                            [Terrestrial Biomes] => 
+                            [Aquatic Biomes] => Benthic | Reef | Coastal | Brackish Water
+                            [Wetlands] => Marsh
+                            [Other Habitat Features] => Estuarine
+                        )*/
+                        
                     }
                 }
             }
-            
             
             exit("\naaa\n");
         }
