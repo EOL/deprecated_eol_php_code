@@ -13,7 +13,7 @@ class QuaardvarkAPI
         }
         */
         $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
-        $this->download_options["expire_seconds"] = 60*60*24*25;
+        $this->download_options["expire_seconds"] = false; //60*60*24*25;
         $this->debug = array();
         $this->url['all species with habitat keywords'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=';
         /*
@@ -39,6 +39,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html);
                 }
                 $sum = $sum + 200;
+                // if($i >= 2) break; //debug only
             }
             exit("\n-end-\n");
         }
@@ -113,10 +114,8 @@ class QuaardvarkAPI
                 }
             }
             fclose($f);
-            
-            exit("\naaa\n");
+            // exit("\n-end-\n"); //if you want to investigate 1 html or 1 page
         }
-        
     }
     private function get_total_number_of_pages()
     {
