@@ -21,6 +21,10 @@ class QuaardvarkAPI
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FF7-B855-0001-DDF1-12C01181A670/?start=201
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FF7-B855-0001-DDF1-12C01181A670/?start=401
         */
+        $this->report = CONTENT_RESOURCE_LOCAL_PATH.'/reports/ADW_Quaardvark';
+        if(!is_dir($this->report)) mkdir($this->report);
+        $this->report .= '/all_species_with_habitat_keywords.txt';
+        // exit("\n$this->report\n");
     }
     public function start()
     {
@@ -48,11 +52,17 @@ class QuaardvarkAPI
             $fields = array();
             if(preg_match_all("/<th>(.*?)<\/th>/ims", $main_block, $a1)) $fields = $a1[1];
             if(count($fields) != 9) exit("\nInvestigate fields <th> tags\n");
+            
+            $f = Functions::file_open($this->report, "w");
+            fwrite($f, implode("\t", $fields)."\n");
+            
 
             if(preg_match_all("/<tr>(.*?)<\/tr>/ims", $main_block, $a2)) {
                 $rows201 = $a2[1];
                 foreach($rows201 as $row) {
                     $row = str_replace('<td type="sequence"/>', '<td type="sequence"></td>', $row);
+                    $row = str_replace('<td type="text"/>', '<td type="text"></td>', $row);
+                    
                     if(preg_match_all("/<td(.*?)<\/td>/ims", $row, $a3)) {
                         $cols = $a3[1];
                         // print_r($cols); exit; //good debug
@@ -81,6 +91,9 @@ class QuaardvarkAPI
                         $rek = array(); $i = 0;
                         foreach($fields as $field) {
                             $rek[$field] = $ret[$i];
+                            if(!isset($ret[$i])) {
+                                print_r($ret); exit;
+                            }
                             $i++;
                         }
                         // print_r($rek); //good debug
@@ -95,10 +108,11 @@ class QuaardvarkAPI
                             [Wetlands] => Marsh
                             [Other Habitat Features] => Estuarine
                         )*/
-                        
+                        fwrite($f, implode("\t", $rek)."\n");
                     }
                 }
             }
+            fclose($f);
             
             exit("\naaa\n");
         }
