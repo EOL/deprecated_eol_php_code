@@ -44,7 +44,7 @@ class QuaardvarkAPI
         $this->print_fields = false;
         if($total_pages = self::get_total_number_of_pages($data)) {
             $loops = ceil($total_pages/200);
-            echo "\n total_pages: [$total_pages]\n loops: [$loops]\n";
+            echo "\n $data\n total_pages: [$total_pages]\n loops: [$loops]\n";
             $sum = 1;
             for ($i = 1; $i <= $loops; $i++) {
                 echo "\n$i. $sum";
