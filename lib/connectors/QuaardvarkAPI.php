@@ -35,21 +35,18 @@ class QuaardvarkAPI
     }
     public function start()
     {
-        if($total_pages = self::get_total_number_of_pages()) {
+        $topics = array('Habitat', 'Geographic Range', 'Physical Description');
+        foreach($topics as $data) self::main($data);
+    }
+    private function main($data)
+    {
+        if($total_pages = self::get_total_number_of_pages($data)) {
             $loops = ceil($total_pages/200);
             echo "\n total_pages: [$total_pages]\n loops: [$loops]\n";
             $sum = 1;
             for ($i = 1; $i <= $loops; $i++) {
                 echo "\n$i. $sum";
-                
-                $url = $this->url['Habitat'].$sum;
-                $url = $this->url['Geographic Range'].$sum;
-                // $data = 'Habitat';
-                $data = 'Geographic Range';
-                // $data = 'Physical Description';
                 $url = $this->url[$data].$sum;
-                
-                
                 if($html = Functions::lookup_with_cache($url, $this->download_options)) { //hits="6369"
                     $recs = self::parse_page($html, $data);
                 }
@@ -57,9 +54,24 @@ class QuaardvarkAPI
                 if($i >= 2) break; //debug only
             }
         }
+        if(isset($this->debug['Habitat'])) {
+            ksort($this->debug['Habitat']['Habitat Regions']);
+            ksort($this->debug['Habitat']['Terrestrial Biomes']);
+            ksort($this->debug['Habitat']['Aquatic Biomes']);
+            ksort($this->debug['Habitat']['Wetlands']);
+            ksort($this->debug['Habitat']['Other Habitat Features']);
+        }
+        if(isset($this->debug['Geographic Range'])) {
+            ksort($this->debug['Geographic Range']['Biogeographic Regions']);
+            ksort($this->debug['Geographic Range']['Other Geographic Terms']);
+        }
+        if(isset($this->debug['Physical Description'])) {
+            ksort($this->debug['Physical Description']['Other Physical Features']);
+            ksort($this->debug['Physical Description']['Sexual Dimorphism']);
+        }
+        
         print_r($this->debug);
         exit("\n-end-\n");
-        
     }
     private function parse_page($html, $data)
     {
@@ -80,28 +92,20 @@ class QuaardvarkAPI
                 foreach($rows201 as $row) {
                     $row = str_replace('<td type="sequence"/>', '<td type="sequence"></td>', $row);
                     $row = str_replace('<td type="text"/>', '<td type="text"></td>', $row);
-                    
                     $row = str_replace("<span/>", "<span></span>", $row);
                     $row = str_replace("<td/>", "<td></td>", $row);
-                    
                     
                     if(preg_match_all("/<td(.*?)<\/td>/ims", $row, $a3)) {
                         $cols = $a3[1];
                         // print_r($cols); exit; //good debug
                         $ret = array();
                         foreach($cols as $col) {
-                            
-                            // $col = str_replace("<span/>", "<span></span>", $col);
-                            // $col = str_replace("<td/>", "<td></td>", $col);
-                            
                             $tmp = strip_tags("<td".$col, "<span>");
                             if(preg_match_all("/<span>(.*?)<\/span>/ims", $tmp, $a4)) {
                                 $tmp = $a4[1];
-                                
                                 $tmp = array_filter($tmp); //remove null arrays
                                 $tmp = array_unique($tmp); //make unique
                                 $tmp = array_values($tmp); //reindex key
-                                
                                 if($tmp) $tmp = implode(" | ", $tmp);
                                 else     $tmp = '';
                             }
@@ -128,7 +132,7 @@ class QuaardvarkAPI
                             }
                             $i++;
                         }
-                        print_r($rek); //exit("\nsample record\n"); //good debug
+                        // print_r($rek); //exit("\nsample record\n"); //good debug
                         /*Array( Habitat
                             [Species] => Alpheus heterochaelis
                             [Class] => Malacostraca
@@ -161,8 +165,7 @@ class QuaardvarkAPI
                             [Basal Metabolic Rate - extreme high - W] => 
                         )*/
                         
-                        self::for_stats($rek, $data);
-                        
+                        self::for_stats($rek, $data); //for stats only
                         fwrite($f, implode("\t", $rek)."\n");
                     }
                 }
@@ -175,9 +178,9 @@ class QuaardvarkAPI
     {
         $habitat = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
         $geographic_range = array('Biogeographic Regions', 'Other Geographic Terms');
-        
-        //[Other Physical Features] => Endothermic | Homoiothermic | Bilateral symmetry
         $physical_desc = array('Other Physical Features', 'Sexual Dimorphism');
+        //[Other Physical Features] => Endothermic | Homoiothermic | Bilateral symmetry
+        
         $pipe_separated = array_merge($habitat, $geographic_range, $physical_desc); // print_r($pipe_separated); exit;
         foreach($pipe_separated as $topic) {
             if($str = @$rek[$topic]) {
@@ -186,9 +189,9 @@ class QuaardvarkAPI
             }
         }
     }
-    private function get_total_number_of_pages()
+    private function get_total_number_of_pages($data)
     {
-        $url = $this->url['Habitat']."1";
+        $url = $this->url[$data]."1";
         if($html = Functions::lookup_with_cache($url, $this->download_options)) { //hits="6369"
             if(preg_match("/hits=\"(.*?)\"/ims", $html, $a)) return $a[1];
             else exit("\nNo hits, investigate URL: [$url]\n");
