@@ -40,6 +40,7 @@ class QuaardvarkAPI
     }
     private function main($data)
     {
+        $this->print_fields = false;
         if($total_pages = self::get_total_number_of_pages($data)) {
             $loops = ceil($total_pages/200);
             echo "\n total_pages: [$total_pages]\n loops: [$loops]\n";
@@ -69,9 +70,8 @@ class QuaardvarkAPI
             ksort($this->debug['Physical Description']['Other Physical Features']);
             ksort($this->debug['Physical Description']['Sexual Dimorphism']);
         }
-        
-        print_r($this->debug);
-        exit("\n-end-\n");
+        echo "\n"; print_r($this->debug);
+        // exit("\n-end-\n");
     }
     private function parse_page($html, $data)
     {
@@ -81,7 +81,10 @@ class QuaardvarkAPI
 
             $fields = array();
             if(preg_match_all("/<th>(.*?)<\/th>/ims", $main_block, $a1)) $fields = $a1[1];
-            print_r($fields);
+            if(!$this->print_fields) {
+                echo "\n"; print_r($fields);
+                $this->print_fields = true;
+            }
             if(count($fields) != $this->field_count[$data]) exit("\nInvestigate fields <th> tags: ".count($fields)."\n");
             
             $f = Functions::file_open($this->report.str_replace(' ','_',$data).'.txt', "w");
