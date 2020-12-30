@@ -18,10 +18,16 @@ class QuaardvarkAPI
         $this->url['Habitat'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=';
         $this->url['Geographic Range'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E269055-F07D-0001-79AC-D4E055D018F4/?start=';
         $this->url['Physical Description'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E26905C-DEFA-0001-C0BD-C94B291C77C0/?start=';
-
+        $this->url['Development'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E269098-5CC7-0001-2DE7-C83810947540/?start=';
+        $this->url['Reproduction: Mating Systems'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690A5-331A-0001-C982-113D71801250/?start=';
+        $this->url['Reproduction: General Behavior'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E26909A-D938-0001-B067-96FC19F012D8/?start=';
+        
         $this->field_count['Habitat'] = 9;
         $this->field_count['Geographic Range'] = 6;
-        $this->field_count['Physical Description'] = 18;
+        $this->field_count['Physical Description'] = 18; //it varies
+        $this->field_count['Development'] = 5;
+        $this->field_count['Reproduction: Mating Systems'] = 5;
+        $this->field_count['Reproduction: General Behavior'] = 25; //may vary
 
         /*
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=1
@@ -35,8 +41,9 @@ class QuaardvarkAPI
     }
     public function start()
     {
-        $topics = array('Habitat', 'Geographic Range', 'Physical Description');
-        // $topics = array('Physical Description'); //debug only
+        $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
+                        'Reproduction: Mating Systems');
+        $topics = array('Reproduction: Mating Systems'); //debug only
         foreach($topics as $data) self::main($data);
         echo "\n"; print_r($this->debug);
     }
@@ -71,6 +78,15 @@ class QuaardvarkAPI
         if(isset($this->debug['Physical Description'])) {
             ksort($this->debug['Physical Description']['Other Physical Features']);
             ksort($this->debug['Physical Description']['Sexual Dimorphism']);
+        }
+        if(isset($this->debug['Development'])) {
+            ksort($this->debug['Development']['Development - Life Cycle']);
+        }
+        if(isset($this->debug['Reproduction: Mating Systems'])) {
+            ksort($this->debug['Reproduction: Mating Systems']['Mating System']);
+        }
+        if(isset($this->debug['Reproduction: General Behavior'])) {
+            ksort($this->debug['Reproduction: General Behavior']['Key Reproductive Features']);
         }
         // exit("\n-end-\n");
     }
@@ -185,9 +201,13 @@ class QuaardvarkAPI
         $habitat = array('Habitat Regions', 'Terrestrial Biomes', 'Aquatic Biomes', 'Wetlands', 'Other Habitat Features');
         $geographic_range = array('Biogeographic Regions', 'Other Geographic Terms');
         $physical_desc = array('Other Physical Features', 'Sexual Dimorphism');
-        //[Other Physical Features] => Endothermic | Homoiothermic | Bilateral symmetry
+        //e.g. [Other Physical Features] => Endothermic | Homoiothermic | Bilateral symmetry
+        $development = array('Development - Life Cycle');
+        $Reproduction_Mating_Systems = array('Mating System');
+        $Reproduction_General_Behavior = array('Key Reproductive Features');
         
-        $pipe_separated = array_merge($habitat, $geographic_range, $physical_desc); // print_r($pipe_separated); exit;
+        $pipe_separated = array_merge($habitat, $geographic_range, $physical_desc, $development, $Reproduction_Mating_Systems,
+                                      $Reproduction_General_Behavior); // print_r($pipe_separated); exit;
         foreach($pipe_separated as $topic) {
             if($str = @$rek[$topic]) {
                 $arr = explode(' | ', $str);
