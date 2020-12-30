@@ -21,6 +21,7 @@ class QuaardvarkAPI
         $this->url['Development'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E269098-5CC7-0001-2DE7-C83810947540/?start=';
         $this->url['Reproduction: Mating Systems'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690A5-331A-0001-C982-113D71801250/?start=';
         $this->url['Reproduction: General Behavior'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E26909A-D938-0001-B067-96FC19F012D8/?start=';
+        $this->url['Reproduction: Parental Investment'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E2690A7-C348-0001-C87C-1A92B3001DBB/?start=';
         
         $this->field_count['Habitat'] = 9;
         $this->field_count['Geographic Range'] = 6;
@@ -28,6 +29,7 @@ class QuaardvarkAPI
         $this->field_count['Development'] = 5;
         $this->field_count['Reproduction: Mating Systems'] = 5;
         $this->field_count['Reproduction: General Behavior'] = 25; //may vary
+        $this->field_count['Reproduction: Parental Investment'] = 5;
 
         /*
         https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=1
@@ -42,8 +44,13 @@ class QuaardvarkAPI
     public function start()
     {
         $topics = array('Habitat', 'Geographic Range', 'Physical Description', 'Development', 'Reproduction: General Behavior',
-                        'Reproduction: Mating Systems');
-        $topics = array('Reproduction: Mating Systems'); //debug only
+                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment');
+        // $topics = array('Reproduction: Parental Investment'); //debug only
+
+        $topics = array('Development', 'Reproduction: General Behavior',
+                        'Reproduction: Mating Systems', 'Reproduction: Parental Investment');
+
+
         foreach($topics as $data) self::main($data);
         echo "\n"; print_r($this->debug);
     }
@@ -87,6 +94,9 @@ class QuaardvarkAPI
         }
         if(isset($this->debug['Reproduction: General Behavior'])) {
             ksort($this->debug['Reproduction: General Behavior']['Key Reproductive Features']);
+        }
+        if(isset($this->debug['Reproduction: Parental Investment'])) {
+            ksort($this->debug['Reproduction: Parental Investment']['Parental Investment']);
         }
         // exit("\n-end-\n");
     }
@@ -205,9 +215,10 @@ class QuaardvarkAPI
         $development = array('Development - Life Cycle');
         $Reproduction_Mating_Systems = array('Mating System');
         $Reproduction_General_Behavior = array('Key Reproductive Features');
+        $Reproduction_Parental_Investment = array('Parental Investment');
         
         $pipe_separated = array_merge($habitat, $geographic_range, $physical_desc, $development, $Reproduction_Mating_Systems,
-                                      $Reproduction_General_Behavior); // print_r($pipe_separated); exit;
+                                      $Reproduction_General_Behavior, $Reproduction_Parental_Investment); // print_r($pipe_separated); exit;
         foreach($pipe_separated as $topic) {
             if($str = @$rek[$topic]) {
                 $arr = explode(' | ', $str);
