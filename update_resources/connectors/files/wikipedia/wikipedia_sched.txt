@@ -18,7 +18,7 @@ ja  ko  ru  pt
             sk              bg  nv  ml      is        ga
             bn              szl gl  be      ne        hsb
             hu              af  br  ms      oc        sl
-   1d 15h - WAR             eo  ta  el      qu        mk
+   1d 15h - WAR (removed)   eo  ta  el      qu        mk
                             av  hi  fy      be-x-old  tl
                             chy koi frr     udm       ba
                             fj  io  lb      co        fo
@@ -46,7 +46,7 @@ ja  ko  ru  pt
                                 diq ln      kw        eml
                                 ce  mwl     bcl       bxr
                                 yo  sn      za        zh-classical
-                       1d 10h - CEB mai     ab        bjn
+             (removed) 1d 10h - CEB mai     ab        bjn
                                     chr     wo        so
                                     tk      ban       atj
                                     tcy     ay        new
