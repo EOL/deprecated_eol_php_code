@@ -36,6 +36,7 @@ class QuaardvarkAPI
     public function start()
     {
         $topics = array('Habitat', 'Geographic Range', 'Physical Description');
+        // $topics = array('Physical Description'); //debug only
         foreach($topics as $data) self::main($data);
     }
     private function main($data)
@@ -85,7 +86,9 @@ class QuaardvarkAPI
                 if($GLOBALS['ENV_DEBUG']) {echo "\n"; print_r($fields);}
                 $this->print_fields = true;
             }
-            if(count($fields) != $this->field_count[$data]) exit("\nInvestigate fields <th> tags: ".count($fields)."\n");
+            // /* during dev only
+            if(count($fields) != $this->field_count[$data]) echo("\nInvestigate fields <th> tags: [$data] ".count($fields)."\n");
+            // */
             
             $f = Functions::file_open($this->report.str_replace(' ','_',$data).'.txt', "w");
             fwrite($f, implode("\t", $fields)."\n");
