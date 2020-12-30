@@ -38,6 +38,7 @@ class QuaardvarkAPI
         $topics = array('Habitat', 'Geographic Range', 'Physical Description');
         // $topics = array('Physical Description'); //debug only
         foreach($topics as $data) self::main($data);
+        echo "\n"; print_r($this->debug);
     }
     private function main($data)
     {
@@ -71,7 +72,6 @@ class QuaardvarkAPI
             ksort($this->debug['Physical Description']['Other Physical Features']);
             ksort($this->debug['Physical Description']['Sexual Dimorphism']);
         }
-        echo "\n"; print_r($this->debug);
         // exit("\n-end-\n");
     }
     private function parse_page($html, $data)
