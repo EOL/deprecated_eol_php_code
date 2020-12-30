@@ -25,10 +25,10 @@ class QuaardvarkAPI
         
         $this->field_count['Habitat'] = 9;
         $this->field_count['Geographic Range'] = 6;
-        $this->field_count['Physical Description'] = 18; //it varies
+        $this->field_count['Physical Description'] = 18; //it varies - due to ranges that sometimes disappears if without value
         $this->field_count['Development'] = 5;
         $this->field_count['Reproduction: Mating Systems'] = 5;
-        $this->field_count['Reproduction: General Behavior'] = 25; //may vary
+        $this->field_count['Reproduction: General Behavior'] = 25; //it varies
         $this->field_count['Reproduction: Parental Investment'] = 5;
 
         /*
