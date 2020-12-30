@@ -12,7 +12,7 @@ class QuaardvarkAPI
             $this->archive_builder = new \eol_schema\ContentArchiveBuilder(array('directory_path' => $this->path_to_archive_directory));
         }
         */
-        $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 1000000, 'timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
+        $this->download_options = array('resource_id' => $folder, 'download_wait_time' => 3000000, 'timeout' => 172800, 'download_attempts' => 2, 'delay_in_minutes' => 1);
         $this->download_options["expire_seconds"] = false; //60*60*24*25;
         $this->debug = array();
         $this->url['Habitat'] = 'https://animaldiversity.ummz.umich.edu/quaardvark/search/1E268FDE-F3B2-0001-913C-B28812191D82/?start=';
@@ -52,7 +52,7 @@ class QuaardvarkAPI
                     $recs = self::parse_page($html, $data);
                 }
                 $sum = $sum + 200;
-                if($i >= 2) break; //debug only
+                // if($i >= 2) break; //debug only
             }
         }
         if(isset($this->debug['Habitat'])) {
@@ -82,7 +82,7 @@ class QuaardvarkAPI
             $fields = array();
             if(preg_match_all("/<th>(.*?)<\/th>/ims", $main_block, $a1)) $fields = $a1[1];
             if(!$this->print_fields) {
-                echo "\n"; print_r($fields);
+                if($GLOBALS['ENV_DEBUG']) {echo "\n"; print_r($fields);}
                 $this->print_fields = true;
             }
             if(count($fields) != $this->field_count[$data]) exit("\nInvestigate fields <th> tags: ".count($fields)."\n");
